@@ -20,7 +20,7 @@
 // Leave this file exactly as it is if you are not using accounts.
 // ---------------------------------------------------------------------------
 
-window.FIREBASE_CONFIG = {const firebaseConfig = {
+window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyAgc2oR0gWvITCwjDjBACXzBCiEzdaxoT4",
   authDomain: "bagged-287c0.firebaseapp.com",
   projectId: "bagged-287c0",
