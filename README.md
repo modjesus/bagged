@@ -1,6 +1,10 @@
+[README.md](https://github.com/user-attachments/files/31488857/README.md)
 # Bagged
 
-A hill-bagging log for the 214 Wainwrights and the 137 Hewitts of Wales.
+A hill-bagging log covering 1,327 summits across ten recognised British hill lists —
+Wainwrights, Munros, Corbetts, Grahams, Donalds, the Hewitts of England, Wales and
+Northern Ireland, the Peak District Ethels and the Welsh 3000s. Switch lists on and off
+as you like. Summits belonging to several lists are one record carrying several tags.
 Runs as an installable web app: works offline, syncs between devices through
 a private GitHub repository you own.
 
@@ -53,7 +57,15 @@ repo. Other devices download them on demand and cache them locally.
 ## Updating the app
 
 Replace `index.html` in the public repo. Bump `CACHE` in `sw.js` at the same
-time (`bagged-v1` → `bagged-v2`) or browsers will keep serving the old one.
+time (`bagged-v2` → `bagged-v3`, and so on) or browsers will keep serving the
+old one from their offline cache.
+
+## The map
+
+Terrain tiles come from OpenTopoMap over the internet, so the map alone needs a
+connection; every other part of the app works offline. The Leaflet mapping
+library loads from a CDN — if it can't be reached, the map tab says so and
+nothing else is affected.
 
 ## The token, honestly
 
