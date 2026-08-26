@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bagged</title>
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bagged">
+<meta name="application-name" content="Bagged">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E8EAE3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131714" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#E8EAE3; --surface:#F7F8F3; --surface-2:#DDE1D7; --raise:#FFFFFF;
+  --ink:#1A1F1B; --ink-2:#5C6459; --ink-3:#868D80;
+  --line:#C8CEC0; --line-soft:#D8DCD0;
+  --accent:#6B4FA0; --accent-ink:#FFFFFF; --accent-soft:#EBE4F7;
+  --done:#3C7852; --done-soft:#DCEBE0; --done-line:#A9CDB6;
+  --warn:#9A5B2A;
+  --shadow:0 1px 2px rgba(26,31,27,.06), 0 6px 20px -12px rgba(26,31,27,.28);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#131714; --surface:#1B201C; --surface-2:#262C27; --raise:#20261F;
+    --ink:#E8EBE3; --ink-2:#9BA394; --ink-3:#79806F;
+    --line:#333A33; --line-soft:#2A312B;
+    --accent:#B79EEC; --accent-ink:#1B1230; --accent-soft:#2B2440;
+    --done:#74B98D; --done-soft:#1E2E24; --done-line:#33513E;
+    --warn:#D89A63;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#131714; --surface:#1B201C; --surface-2:#262C27; --raise:#20261F;
+  --ink:#E8EBE3; --ink-2:#9BA394; --ink-3:#79806F;
+  --line:#333A33; --line-soft:#2A312B;
+  --accent:#B79EEC; --accent-ink:#1B1230; --accent-soft:#2B2440;
+  --done:#74B98D; --done-soft:#1E2E24; --done-line:#33513E;
+  --warn:#D89A63;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:16px; line-height:1.45;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:64px;
+}
+button, input, textarea, select{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px}
+img{max-width:100%}
+
+.wrap{max-width:640px; margin:0 auto; padding:0 14px}
+
+/* ---------- header ---------- */
+.top{
+  position:sticky; top:0; z-index:30;
+  padding-top:env(safe-area-inset-top, 0px);
+  background:color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.brandrow{display:flex; align-items:center; gap:8px; padding:12px 0 8px}
+.brand{
+  font-family:"Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  font-weight:800; font-size:26px; letter-spacing:-.02em; line-height:1;
+  margin:0; flex:none;
+}
+.brand em{font-style:normal; color:var(--accent)}
+.sync{
+  margin-left:auto; display:inline-flex; align-items:center; gap:6px;
+  background:var(--surface); border:1px solid var(--line); border-radius:99px;
+  padding:5px 11px; font-size:12px; color:var(--ink-2); white-space:nowrap;
+  font-family:"IBM Plex Mono", ui-monospace, monospace; letter-spacing:.01em;
+}
+.sync .dot{width:7px; height:7px; border-radius:99px; background:var(--ink-3); flex:none}
+.sync[data-s="synced"] .dot{background:var(--done)}
+.sync[data-s="saving"] .dot{background:var(--accent); animation:pulse 1s ease-in-out infinite}
+.sync[data-s="pending"] .dot{background:var(--warn)}
+.sync[data-s="error"] .dot{background:var(--warn)}
+.sync[data-s="pending"], .sync[data-s="error"], .sync[data-s="local"]{border-color:var(--warn); color:var(--warn)}
+.sync[data-s="local"] .dot{background:var(--warn)}
+@keyframes pulse{50%{opacity:.3}}
+.iconbtn{
+  background:none; border:1px solid var(--line); border-radius:10px;
+  width:34px; height:30px; display:grid; place-items:center; color:var(--ink-2); flex:none;
+}
+.iconbtn:hover{border-color:var(--accent); color:var(--accent)}
+
+.tabs{display:flex; gap:4px; padding-bottom:10px}
+.tab{
+  flex:1; background:transparent; border:1px solid transparent; border-radius:10px;
+  padding:8px 4px 9px; color:var(--ink-2); font-weight:500; font-size:14px;
+  display:flex; flex-direction:column; align-items:center; gap:2px; line-height:1.1;
+}
+.tab .n{font-family:"IBM Plex Mono", monospace; font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{background:var(--surface); border-color:var(--line); color:var(--ink); box-shadow:var(--shadow)}
+.tab[aria-selected="true"] .n{color:var(--accent)}
+
+/* ---------- progress ---------- */
+.summary{padding:14px 0 4px}
+.sumhead{display:flex; align-items:flex-end; justify-content:space-between; gap:12px}
+.bignum{
+  font-family:"Bricolage Grotesque", sans-serif; font-weight:700;
+  font-size:40px; line-height:.9; letter-spacing:-.03em; font-variant-numeric:tabular-nums;
+}
+.bignum span{font-size:20px; color:var(--ink-3); font-weight:500}
+.sumlabel{font-family:"IBM Plex Mono", monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); text-align:right}
+.bar{height:8px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:12px}
+.bar > i{display:block; height:100%; background:var(--done); border-radius:99px; transition:width .35s ease}
+.meta{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-size:13px; color:var(--ink-2)}
+.meta b{font-family:"IBM Plex Mono", monospace; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+
+.disclose{
+  margin-top:10px; width:100%; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r); padding:10px 12px; font-size:13px; color:var(--ink-2);
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.breakdown{
+  border:1px solid var(--line); border-top:none; border-radius:0 0 var(--r) var(--r);
+  background:var(--surface); padding:4px 12px 12px; margin-top:-1px;
+}
+.brow{display:grid; grid-template-columns:1fr 46px; gap:10px; align-items:center; padding:7px 0; border-top:1px solid var(--line-soft)}
+.brow:first-child{border-top:none}
+.bname{font-size:13px}
+.bname i{display:block; height:5px; border-radius:99px; background:var(--surface-2); margin-top:5px; overflow:hidden}
+.bname i > s{display:block; height:100%; background:var(--done); border-radius:99px}
+.bcount{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-2); text-align:right; font-variant-numeric:tabular-nums}
+
+/* ---------- controls ---------- */
+.controls{display:flex; flex-direction:column; gap:8px; margin:16px 0 10px}
+.searchrow{display:flex; gap:8px}
+.field{
+  flex:1; display:flex; align-items:center; gap:8px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:0 12px;
+}
+.field input{flex:1; border:none; background:none; padding:11px 0; outline:none; min-width:0}
+.field svg{flex:none; color:var(--ink-3)}
+.seg{display:flex; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:3px; gap:2px}
+.seg button{
+  border:none; background:none; border-radius:10px; padding:7px 11px;
+  font-size:13px; color:var(--ink-2); font-weight:500; white-space:nowrap;
+}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink)}
+.chips{
+  display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;
+  -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:none; border:1px solid var(--line); background:var(--surface); border-radius:99px;
+  padding:6px 12px; font-size:13px; color:var(--ink-2); white-space:nowrap;
+}
+.chip[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent)}
+:root[data-theme="dark"] .chip[aria-pressed="true"],
+:root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:var(--ink)}
+
+/* ---------- list ---------- */
+.grouphead{
+  position:sticky; top:var(--topH, 104px); z-index:5;
+  display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  padding:16px 2px 6px; background:linear-gradient(var(--ground) 70%, transparent);
+}
+.grouphead h2{
+  margin:0; font-family:"Bricolage Grotesque", sans-serif; font-weight:700;
+  font-size:15px; letter-spacing:-.01em;
+}
+.grouphead .gt{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+.grouphead span{font-family:"IBM Plex Mono", monospace; font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.gbar{display:block; height:4px; border-radius:99px; background:var(--surface-2); margin-top:6px; overflow:hidden}
+.gbar > i{display:block; height:100%; background:var(--done); border-radius:99px; transition:width .3s ease}
+
+ul.hills{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+li.hill{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); overflow:hidden}
+li.hill.on{background:var(--done-soft); border-color:var(--done-line)}
+.hrow{display:flex; align-items:center; gap:11px; padding:9px 12px 9px 10px}
+.tick{
+  flex:none; width:32px; height:32px; border-radius:99px;
+  border:2px solid var(--line); background:var(--raise);
+  display:grid; place-items:center; color:transparent; padding:0;
+  transition:background .16s ease, border-color .16s ease, transform .16s ease;
+}
+li.hill.on .tick{background:var(--done); border-color:var(--done); color:#fff}
+.tick:active{transform:scale(.88)}
+.hmain{flex:1; min-width:0; background:none; border:none; padding:2px 0; text-align:left}
+.hname{font-weight:500; font-size:15px; line-height:1.25; display:block}
+.hsub{font-size:12px; color:var(--ink-3); display:block; margin-top:1px}
+.hsub .wel{font-style:italic}
+.hh{font-family:"IBM Plex Mono", monospace; font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink-2); flex:none; text-align:right; line-height:1.3}
+.hh b{font-weight:600; color:var(--ink)}
+.hh s{text-decoration:none; color:var(--ink-3); font-size:10.5px; display:block}
+.flag{
+  flex:none; font-family:"IBM Plex Mono", monospace; font-size:9px; letter-spacing:.06em;
+  border:1px solid var(--accent); color:var(--accent); border-radius:4px; padding:1px 4px;
+}
+.thumbdot{flex:none; width:14px; height:14px; color:var(--ink-3)}
+.detail{border-top:1px solid var(--line-soft); padding:10px 12px 12px; display:flex; flex-direction:column; gap:10px}
+.detail label, .form label{font-family:"IBM Plex Mono", monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
+.detail input[type="date"], .detail textarea, .form input, .form textarea{
+  width:100%; background:var(--raise); border:1px solid var(--line); border-radius:10px;
+  padding:9px 10px; outline:none; font-size:15px;
+}
+.detail textarea, .form textarea{resize:vertical; min-height:56px}
+.form .field input{border:none; background:none; padding:11px 0}
+.detail input:focus, .detail textarea:focus, .form input:focus, .form textarea:focus{border-color:var(--accent)}
+.d2{display:flex; gap:8px; align-items:flex-end}
+.d2 > div{flex:1}
+.dategroup{display:flex; gap:6px; align-items:stretch}
+.dsel{
+  background:var(--raise); border:1px solid var(--line); border-radius:10px;
+  padding:9px 6px 9px 9px; font-size:15px; outline:none; min-width:0;
+}
+.dsel:focus{border-color:var(--accent)}
+.dsel.dd{flex:0 1 78px}
+.dsel.dm{flex:1 1 96px}
+.dsel.dy{flex:0 1 92px}
+.dtoday{flex:none; padding:9px 12px; white-space:nowrap}
+.dhint{font-size:12px; color:var(--ink-3); margin:2px 0 0}
+.linkbtn{background:none; border:none; color:var(--accent); font-size:13px; padding:9px 0; text-decoration:underline; text-underline-offset:3px}
+
+/* ---------- photos ---------- */
+.shots{display:flex; gap:6px; flex-wrap:wrap}
+.shot{
+  width:76px; height:76px; padding:0; border:1px solid var(--line); border-radius:10px;
+  overflow:hidden; background:var(--surface-2); position:relative; flex:none;
+}
+.shot img{width:100%; height:100%; object-fit:cover; display:block}
+.shot.up0::after{
+  content:""; position:absolute; right:5px; bottom:5px; width:7px; height:7px;
+  border-radius:99px; background:var(--warn); box-shadow:0 0 0 2px var(--surface);
+}
+.addshot{
+  width:76px; height:76px; border:1px dashed var(--line); border-radius:10px;
+  display:grid; place-items:center; color:var(--ink-3); font-size:11px; cursor:pointer;
+  text-align:center; line-height:1.2; flex:none; margin:0 !important;
+  letter-spacing:0 !important; text-transform:none !important; font-family:inherit !important;
+}
+.addshot:hover{border-color:var(--accent); color:var(--accent)}
+
+.viewer{position:fixed; inset:0; z-index:70; background:rgba(8,11,9,.94); display:none; flex-direction:column}
+.viewer.open{display:flex}
+.viewer .vimg{flex:1; display:grid; place-items:center; padding:14px; min-height:0}
+.viewer .vimg img{max-width:100%; max-height:100%; object-fit:contain; border-radius:8px}
+.viewer .vbar{display:flex; gap:8px; padding:12px 14px calc(12px + env(safe-area-inset-bottom)); justify-content:space-between}
+.viewer .vbar .cap{color:#D8DCD0; font-size:13px; align-self:center; flex:1; min-width:0}
+
+/* ---------- map ---------- */
+.mapwrap{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:8px; margin-top:10px}
+.mapwrap svg{display:block; width:100%; height:auto; touch-action:manipulation}
+.grat{stroke:var(--line-soft); stroke-width:.9; fill:none}
+.gratlab{fill:var(--ink-3); font-family:"IBM Plex Mono", monospace; font-size:9px; letter-spacing:.04em}
+.town{fill:var(--ink-3)}
+.townlab{
+  fill:var(--ink-2); font-family:"IBM Plex Sans", sans-serif; font-size:10px;
+  paint-order:stroke; stroke:var(--surface); stroke-width:2.6px; stroke-linejoin:round;
+}
+.pk{stroke:var(--ink-3); stroke-width:1.3; fill:none; cursor:pointer}
+.pk.on{fill:var(--done); stroke:var(--done)}
+.pk.hit{stroke:var(--accent); stroke-width:2.4}
+.pk.sel{stroke:var(--accent); stroke-width:3}
+.pklab{fill:var(--ink); font-family:"IBM Plex Sans", sans-serif; font-size:11px; font-weight:500; paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round}
+.scalebar{stroke:var(--ink-3); stroke-width:1.4}
+.mapcard{
+  display:flex; align-items:center; gap:10px; margin-top:10px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px;
+}
+.mapcard.on{background:var(--done-soft); border-color:var(--done-line)}
+.mapcard .mc{flex:1; min-width:0}
+.mapcard .mc b{display:block; font-weight:600; font-size:15px}
+.mapcard .mc span{font-size:12px; color:var(--ink-3); font-family:"IBM Plex Mono", monospace}
+.maplegend{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:12px; color:var(--ink-3); align-items:center}
+.maplegend i{width:11px; height:11px; border-radius:99px; display:inline-block; vertical-align:-1px; margin-right:5px; border:1.3px solid var(--line); background:var(--raise)}
+.maplegend i.done{background:var(--done); border-color:var(--done)}
+
+.banner{
+  display:flex; gap:10px; align-items:flex-start; margin-top:14px;
+  background:var(--surface); border:1px solid var(--warn); border-left-width:4px;
+  border-radius:var(--r); padding:11px 13px; font-size:13.5px; color:var(--ink-2); line-height:1.45;
+}
+.banner b{color:var(--warn); display:block; margin-bottom:2px}
+.banner button{
+  flex:none; background:none; border:none; color:var(--ink-3); font-size:18px;
+  line-height:1; padding:0 2px; align-self:center;
+}
+
+.empty{text-align:center; color:var(--ink-3); padding:40px 20px; font-size:14px}
+
+/* ---------- plans ---------- */
+.planintro{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:16px; font-size:14px; color:var(--ink-2); line-height:1.5}
+.btn{border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:11px; padding:10px 14px; font-weight:600; font-size:14px}
+.btn.ghost{background:transparent; color:var(--accent)}
+.btn.quiet{background:transparent; border-color:var(--line); color:var(--ink-2); font-weight:500}
+.btn.danger{background:transparent; border-color:var(--warn); color:var(--warn)}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center}
+.form{background:var(--surface); border:1px solid var(--accent); border-radius:var(--r); padding:14px; margin-top:12px; display:flex; flex-direction:column; gap:10px}
+.picked{display:flex; flex-wrap:wrap; gap:6px}
+.pill{display:inline-flex; align-items:center; gap:6px; background:var(--accent-soft); border:1px solid var(--accent); color:var(--accent); border-radius:99px; padding:4px 6px 4px 10px; font-size:13px}
+:root[data-theme="dark"] .pill, :root:not([data-theme="light"]) .pill{color:var(--ink)}
+.pill button{border:none; background:none; color:inherit; font-size:15px; line-height:1; padding:0 2px}
+.results{display:flex; flex-direction:column; gap:4px; max-height:210px; overflow-y:auto}
+.results button{text-align:left; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:14px; display:flex; justify-content:space-between; gap:10px}
+.results button span{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-3)}
+
+.plan{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:10px}
+.plan.done{border-color:var(--done-line); background:var(--done-soft)}
+.planhead{display:flex; align-items:flex-start; gap:10px}
+.plan h3{margin:0; font-family:"Bricolage Grotesque", sans-serif; font-size:18px; letter-spacing:-.01em; flex:1}
+.planmeta{font-family:"IBM Plex Mono", monospace; font-size:11px; color:var(--ink-3); letter-spacing:.04em; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
+.plannotes{font-size:14px; color:var(--ink-2); margin:10px 0 0; white-space:pre-wrap}
+.planhills{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:4px}
+.planhills li{display:flex; align-items:center; gap:9px; font-size:14px; padding:3px 0}
+.planhills .tick{width:24px; height:24px}
+.planhills .tick svg{width:12px; height:12px}
+.planhills .nm{flex:1; min-width:0}
+.planhills li.on .tick{background:var(--done); border-color:var(--done); color:#fff}
+.planhills .on .nm{color:var(--ink-2); text-decoration:line-through; text-decoration-color:var(--done)}
+.planstat{height:6px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:12px}
+.planstat > i{display:block; height:100%; background:var(--done); border-radius:99px}
+
+/* ---------- sheet ---------- */
+.sheet{position:fixed; inset:0; z-index:60; display:none; background:rgba(10,14,11,.55); padding:16px; overflow-y:auto}
+.sheet.open{display:block}
+.sheetbox{max-width:520px; margin:40px auto; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:var(--shadow)}
+.sheetbox h2{font-family:"Bricolage Grotesque", sans-serif; margin:0 0 4px; font-size:20px}
+.sheetbox h3{font-family:"Bricolage Grotesque", sans-serif; margin:18px 0 2px; font-size:15px}
+.sheetbox p{font-size:14px; color:var(--ink-2); margin:6px 0}
+.sheetbox textarea{width:100%; min-height:110px; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-family:"IBM Plex Mono", monospace; font-size:12px; outline:none; resize:vertical}
+.toast{
+  position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px);
+  background:var(--ink); color:var(--ground); padding:10px 16px; border-radius:99px;
+  font-size:14px; z-index:80; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  box-shadow:var(--shadow); max-width:90vw; text-align:center;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brandrow">
+      <h1 class="brand">Bag<em>ged</em></h1>
+      <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span><span id="syncTxt">Checking…</span></button>
+      <button class="iconbtn" id="menuBtn" title="Backup &amp; restore" aria-label="Backup and restore">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      </button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="w" aria-selected="true">Wainwrights<span class="n" id="tn-w">0/214</span></button>
+      <button class="tab" role="tab" data-tab="c" aria-selected="false">Wales<span class="n" id="tn-c">0/137</span></button>
+      <button class="tab" role="tab" data-tab="m" aria-selected="false">Map<span class="n" id="tn-m">351 peaks</span></button>
+      <button class="tab" role="tab" data-tab="p" aria-selected="false">Routes<span class="n" id="tn-p">none yet</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<div class="sheet" id="sheet">
+  <div class="sheetbox">
+    <h2>Your log</h2>
+    <p id="cloudNote">Checking where this is being saved…</p>
+    <p id="diag" style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-3); letter-spacing:.02em"></p>
+    <h3>Cloud sync</h3>
+    <div id="ghBox"></div>
+    <h3>Backup</h3>
+    <p>Ticks, dates, notes and routes as plain text. Photos are not included — they live in the cloud copy.</p>
+    <textarea id="backupText" spellcheck="false"></textarea>
+    <div class="btnrow">
+      <button class="btn" id="copyBtn">Copy backup</button>
+      <button class="btn ghost" id="restoreBtn">Restore from pasted text</button>
+      <button class="btn quiet" id="closeSheet">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="viewer" id="viewer">
+  <div class="vimg"><img id="vimg" alt=""></div>
+  <div class="vbar">
+    <span class="cap" id="vcap"></span>
+    <button class="btn danger" id="vdel">Delete photo</button>
+    <button class="btn quiet" id="vclose" style="color:#D8DCD0; border-color:#4A5148">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {"w":[{"name":"Arnison Crag","height":433,"ft":1421,"book":"The Eastern Fells","lat":54.5262,"lon":-2.9386},{"name":"Birkhouse Moor","height":718,"ft":2356,"book":"The Eastern Fells","lat":54.5348,"lon":-2.9852},{"name":"Birks","height":622,"ft":2041,"book":"The Eastern Fells","lat":54.5206,"lon":-2.9586},{"name":"Catstycam","height":890,"ft":2920,"book":"The Eastern Fells","lat":54.5337,"lon":-3.0083},{"name":"Clough Head","height":726,"ft":2382,"book":"The Eastern Fells","lat":54.5937,"lon":-3.033},{"name":"Dollywaggon Pike","height":858,"ft":2815,"book":"The Eastern Fells","lat":54.5085,"lon":-3.0108},{"name":"Dove Crag","height":792,"ft":2598,"book":"The Eastern Fells","lat":54.4855,"lon":-2.967},{"name":"Fairfield","height":873,"ft":2864,"book":"The Eastern Fells","lat":54.497,"lon":-2.992},{"name":"Glenridding Dodd","height":442,"ft":1450,"book":"The Eastern Fells","lat":54.5494,"lon":-2.9592},{"name":"Gowbarrow Fell","height":481,"ft":1578,"book":"The Eastern Fells","lat":54.5884,"lon":-2.9184},{"name":"Great Dodd","height":857,"ft":2812,"book":"The Eastern Fells","lat":54.5759,"lon":-3.0186},{"name":"Great Mell Fell","height":537,"ft":1762,"book":"The Eastern Fells","lat":54.6197,"lon":-2.9361},{"name":"Great Rigg","height":766,"ft":2513,"book":"The Eastern Fells","lat":54.4853,"lon":-2.9963},{"name":"Hart Crag","height":822,"ft":2697,"book":"The Eastern Fells","lat":54.4926,"lon":-2.9764},{"name":"Hart Side","height":756,"ft":2480,"book":"The Eastern Fells","lat":54.5689,"lon":-2.9922},{"name":"Hartsop above How","height":570,"ft":1870,"book":"The Eastern Fells","lat":54.5,"lon":-2.9535},{"name":"Helvellyn","height":950,"ft":3117,"book":"The Eastern Fells","lat":54.5273,"lon":-3.0174},{"name":"Heron Pike","height":612,"ft":2008,"book":"The Eastern Fells","lat":54.4664,"lon":-2.9959},{"name":"High Hartsop Dodd","height":519,"ft":1703,"book":"The Eastern Fells","lat":54.4884,"lon":-2.9377},{"name":"High Pike (Scandale)","height":656,"ft":2152,"book":"The Eastern Fells","lat":54.4711,"lon":-2.9667},{"name":"Little Hart Crag","height":637,"ft":2090,"book":"The Eastern Fells","lat":54.4821,"lon":-2.9469},{"name":"Little Mell Fell","height":505,"ft":1657,"book":"The Eastern Fells","lat":54.6083,"lon":-2.8941},{"name":"Low Pike","height":508,"ft":1667,"book":"The Eastern Fells","lat":54.4621,"lon":-2.968},{"name":"Middle Dodd","height":654,"ft":2146,"book":"The Eastern Fells","lat":54.4777,"lon":-2.9313},{"name":"Nab Scar","height":450,"ft":1476,"book":"The Eastern Fells","lat":54.4565,"lon":-2.9956},{"name":"Nethermost Pike","height":891,"ft":2923,"book":"The Eastern Fells","lat":54.5193,"lon":-3.0157},{"name":"Raise","height":883,"ft":2897,"book":"The Eastern Fells","lat":54.548,"lon":-3.018},{"name":"Red Screes","height":776,"ft":2546,"book":"The Eastern Fells","lat":54.4705,"lon":-2.9327},{"name":"Seat Sandal","height":736,"ft":2415,"book":"The Eastern Fells","lat":54.495,"lon":-3.0135},{"name":"Sheffield Pike","height":675,"ft":2215,"book":"The Eastern Fells","lat":54.5546,"lon":-2.9764},{"name":"St Sunday Crag","height":841,"ft":2759,"book":"The Eastern Fells","lat":54.5115,"lon":-2.9753},{"name":"Stone Arthur","height":500,"ft":1640,"book":"The Eastern Fells","lat":54.4744,"lon":-3.0084},{"name":"Stybarrow Dodd","height":843,"ft":2766,"book":"The Eastern Fells","lat":54.5615,"lon":-3.0167},{"name":"Watson's Dodd","height":789,"ft":2589,"book":"The Eastern Fells","lat":54.5668,"lon":-3.0293},{"name":"White Side","height":863,"ft":2831,"book":"The Eastern Fells","lat":54.5408,"lon":-3.0255},{"name":"Angletarn Pikes","height":567,"ft":1860,"book":"The Far Eastern Fells","lat":54.5255,"lon":-2.9077},{"name":"Arthur's Pike","height":533,"ft":1749,"book":"The Far Eastern Fells","lat":54.5782,"lon":-2.8361},{"name":"Beda Fell","height":509,"ft":1670,"book":"The Far Eastern Fells","lat":54.5464,"lon":-2.885},{"name":"Bonscale Pike","height":524,"ft":1719,"book":"The Far Eastern Fells","lat":54.5727,"lon":-2.8469},{"name":"Branstree","height":713,"ft":2339,"book":"The Far Eastern Fells","lat":54.4831,"lon":-2.808},{"name":"Brock Crags","height":561,"ft":1841,"book":"The Far Eastern Fells","lat":54.5148,"lon":-2.9028},{"name":"Caudale Moor","height":763,"ft":2503,"book":"The Far Eastern Fells","lat":54.4824,"lon":-2.9006},{"name":"Froswick","height":720,"ft":2362,"book":"The Far Eastern Fells","lat":54.4692,"lon":-2.8725},{"name":"Gray Crag","height":699,"ft":2293,"book":"The Far Eastern Fells","lat":54.4978,"lon":-2.8855},{"name":"Grey Crag","height":638,"ft":2093,"book":"The Far Eastern Fells","lat":54.4581,"lon":-2.7766},{"name":"Hallin Fell","height":388,"ft":1273,"book":"The Far Eastern Fells","lat":54.5707,"lon":-2.8778},{"name":"Harter Fell (Mardale)","height":778,"ft":2552,"book":"The Far Eastern Fells","lat":54.4766,"lon":-2.8356},{"name":"Hartsop Dodd","height":618,"ft":2028,"book":"The Far Eastern Fells","lat":54.4985,"lon":-2.9102},{"name":"High Raise (High Street)","height":802,"ft":2631,"book":"The Far Eastern Fells","lat":54.5133,"lon":-2.8534},{"name":"High Street","height":828,"ft":2717,"book":"The Far Eastern Fells","lat":54.4917,"lon":-2.8653},{"name":"Ill Bell","height":757,"ft":2484,"book":"The Far Eastern Fells","lat":54.462,"lon":-2.8708},{"name":"Kentmere Pike","height":730,"ft":2395,"book":"The Far Eastern Fells","lat":54.4623,"lon":-2.8261},{"name":"Kidsty Pike","height":780,"ft":2559,"book":"The Far Eastern Fells","lat":54.5052,"lon":-2.8547},{"name":"Loadpot Hill","height":671,"ft":2201,"book":"The Far Eastern Fells","lat":54.5548,"lon":-2.8419},{"name":"Mardale Ill Bell","height":760,"ft":2493,"book":"The Far Eastern Fells","lat":54.4837,"lon":-2.8543},{"name":"Place Fell","height":657,"ft":2156,"book":"The Far Eastern Fells","lat":54.5443,"lon":-2.9205},{"name":"Rampsgill Head","height":792,"ft":2598,"book":"The Far Eastern Fells","lat":54.5079,"lon":-2.861},{"name":"Rest Dodd","height":696,"ft":2283,"book":"The Far Eastern Fells","lat":54.515,"lon":-2.8781},{"name":"Sallows","height":516,"ft":1693,"book":"The Far Eastern Fells","lat":54.4278,"lon":-2.8701},{"name":"Selside Pike","height":655,"ft":2149,"book":"The Far Eastern Fells","lat":54.4931,"lon":-2.7881},{"name":"Shipman Knotts","height":587,"ft":1926,"book":"The Far Eastern Fells","lat":54.4489,"lon":-2.815},{"name":"Sour Howes","height":483,"ft":1585,"book":"The Far Eastern Fells","lat":54.4214,"lon":-2.8838},{"name":"Steel Knotts","height":432,"ft":1417,"book":"The Far Eastern Fells","lat":54.5555,"lon":-2.8666},{"name":"Tarn Crag (Longsleddale)","height":664,"ft":2178,"book":"The Far Eastern Fells","lat":54.4634,"lon":-2.7906},{"name":"The Knott","height":739,"ft":2425,"book":"The Far Eastern Fells","lat":54.506,"lon":-2.8702},{"name":"The Nab","height":576,"ft":1890,"book":"The Far Eastern Fells","lat":54.5285,"lon":-2.8753},{"name":"Thornthwaite Crag","height":784,"ft":2572,"book":"The Far Eastern Fells","lat":54.4826,"lon":-2.879},{"name":"Troutbeck Tongue","height":364,"ft":1194,"book":"The Far Eastern Fells","lat":54.4501,"lon":-2.8921},{"name":"Wansfell","height":488,"ft":1601,"book":"The Far Eastern Fells","lat":54.4382,"lon":-2.9212},{"name":"Wether Hill","height":670,"ft":2198,"book":"The Far Eastern Fells","lat":54.5431,"lon":-2.8432},{"name":"Yoke","height":706,"ft":2316,"book":"The Far Eastern Fells","lat":54.453,"lon":-2.8691},{"name":"Armboth Fell","height":479,"ft":1572,"book":"The Central Fells","lat":54.5321,"lon":-3.0902},{"name":"Blea Rigg","height":541,"ft":1775,"book":"The Central Fells","lat":54.4612,"lon":-3.0791},{"name":"Bleaberry Fell","height":590,"ft":1936,"book":"The Central Fells","lat":54.5661,"lon":-3.1066},{"name":"Calf Crag","height":537,"ft":1762,"book":"The Central Fells","lat":54.4846,"lon":-3.0797},{"name":"Eagle Crag","height":525,"ft":1722,"book":"The Central Fells","lat":54.4995,"lon":-3.1202},{"name":"Gibson Knott","height":420,"ft":1378,"book":"The Central Fells","lat":54.4812,"lon":-3.0564},{"name":"Grange Fell","height":415,"ft":1362,"book":"The Central Fells","lat":54.5362,"lon":-3.1382},{"name":"Great Crag","height":450,"ft":1476,"book":"The Central Fells","lat":54.5219,"lon":-3.1285},{"name":"Harrison Stickle","height":736,"ft":2415,"book":"The Central Fells","lat":54.4573,"lon":-3.1098},{"name":"Helm Crag","height":405,"ft":1329,"book":"The Central Fells","lat":54.475,"lon":-3.0408},{"name":"High Raise (Langdale)","height":762,"ft":2500,"book":"The Central Fells","lat":54.4762,"lon":-3.1119},{"name":"High Rigg","height":357,"ft":1171,"book":"The Central Fells","lat":54.588,"lon":-3.0716},{"name":"High Seat","height":608,"ft":1995,"book":"The Central Fells","lat":54.5527,"lon":-3.1031},{"name":"High Tove","height":515,"ft":1690,"book":"The Central Fells","lat":54.5392,"lon":-3.0997},{"name":"Loft Crag","height":680,"ft":2231,"book":"The Central Fells","lat":54.4546,"lon":-3.1159},{"name":"Loughrigg Fell","height":335,"ft":1099,"book":"The Central Fells","lat":54.4375,"lon":-3.009},{"name":"Pavey Ark","height":700,"ft":2297,"book":"The Central Fells","lat":54.4619,"lon":-3.1053},{"name":"Pike of Stickle","height":709,"ft":2326,"book":"The Central Fells","lat":54.4563,"lon":-3.1221},{"name":"Raven Crag","height":461,"ft":1512,"book":"The Central Fells","lat":54.5592,"lon":-3.0785},{"name":"Sergeant Man","height":736,"ft":2415,"book":"The Central Fells","lat":54.47,"lon":-3.1024},{"name":"Sergeant's Crag","height":571,"ft":1873,"book":"The Central Fells","lat":54.4923,"lon":-3.1231},{"name":"Silver How","height":395,"ft":1296,"book":"The Central Fells","lat":54.4507,"lon":-3.0433},{"name":"Steel Fell","height":553,"ft":1814,"book":"The Central Fells","lat":54.4911,"lon":-3.052},{"name":"Tarn Crag (Easedale)","height":550,"ft":1804,"book":"The Central Fells","lat":54.4747,"lon":-3.0763},{"name":"Thunacar Knott","height":723,"ft":2372,"book":"The Central Fells","lat":54.4618,"lon":-3.113},{"name":"Ullscarf","height":726,"ft":2382,"book":"The Central Fells","lat":54.4997,"lon":-3.0955},{"name":"Walla Crag","height":376,"ft":1234,"book":"The Central Fells","lat":54.5813,"lon":-3.1209},{"name":"Allen Crags","height":785,"ft":2575,"book":"The Southern Fells","lat":54.4666,"lon":-3.1795},{"name":"Black Fell","height":323,"ft":1060,"book":"The Southern Fells","lat":54.4051,"lon":-3.0175},{"name":"Bowfell","height":902,"ft":2959,"book":"The Southern Fells","lat":54.4478,"lon":-3.1666},{"name":"Brim Fell","height":796,"ft":2612,"book":"The Southern Fells","lat":54.3772,"lon":-3.1246},{"name":"Cold Pike","height":701,"ft":2300,"book":"The Southern Fells","lat":54.4229,"lon":-3.1382},{"name":"Coniston Old Man","height":803,"ft":2635,"book":"The Southern Fells","lat":54.3709,"lon":-3.1213},{"name":"Crinkle Crags","height":859,"ft":2818,"book":"The Southern Fells","lat":54.4335,"lon":-3.16},{"name":"Dow Crag","height":778,"ft":2552,"book":"The Southern Fells","lat":54.3699,"lon":-3.1367},{"name":"Esk Pike","height":885,"ft":2904,"book":"The Southern Fells","lat":54.4576,"lon":-3.1792},{"name":"Glaramara","height":783,"ft":2569,"book":"The Southern Fells","lat":54.4838,"lon":-3.1661},{"name":"Great Carrs","height":785,"ft":2575,"book":"The Southern Fells","lat":54.3988,"lon":-3.1252},{"name":"Great End","height":910,"ft":2986,"book":"The Southern Fells","lat":54.4646,"lon":-3.1949},{"name":"Green Crag","height":489,"ft":1604,"book":"The Southern Fells","lat":54.3735,"lon":-3.2322},{"name":"Grey Friar","height":773,"ft":2536,"book":"The Southern Fells","lat":54.3932,"lon":-3.1404},{"name":"Hard Knott","height":549,"ft":1801,"book":"The Southern Fells","lat":54.4108,"lon":-3.1856},{"name":"Harter Fell (Eskdale)","height":654,"ft":2146,"book":"The Southern Fells","lat":54.3872,"lon":-3.2049},{"name":"Holme Fell","height":317,"ft":1040,"book":"The Southern Fells","lat":54.3967,"lon":-3.0558},{"name":"Illgill Head","height":609,"ft":1998,"book":"The Southern Fells","lat":54.4331,"lon":-3.2834},{"name":"Lingmell","height":807,"ft":2648,"book":"The Southern Fells","lat":54.4625,"lon":-3.221},{"name":"Lingmoor Fell","height":469,"ft":1539,"book":"The Southern Fells","lat":54.4325,"lon":-3.0768},{"name":"Pike o' Blisco","height":709,"ft":2326,"book":"The Southern Fells","lat":54.4284,"lon":-3.1244},{"name":"Rossett Pike","height":651,"ft":2136,"book":"The Southern Fells","lat":54.4578,"lon":-3.1592},{"name":"Rosthwaite Fell","height":551,"ft":1808,"book":"The Southern Fells","lat":54.5019,"lon":-3.1465},{"name":"Sca Fell","height":964,"ft":3163,"book":"The Southern Fells","lat":54.4472,"lon":-3.2252},{"name":"Scafell Pike","height":978,"ft":3209,"book":"The Southern Fells","lat":54.4546,"lon":-3.2115},{"name":"Seathwaite Fell","height":601,"ft":1972,"book":"The Southern Fells","lat":54.4808,"lon":-3.1907},{"name":"Slight Side","height":762,"ft":2500,"book":"The Southern Fells","lat":54.4347,"lon":-3.2202},{"name":"Swirl How","height":802,"ft":2631,"book":"The Southern Fells","lat":54.3952,"lon":-3.122},{"name":"Wetherlam","height":763,"ft":2503,"book":"The Southern Fells","lat":54.4008,"lon":-3.0975},{"name":"Whin Rigg","height":535,"ft":1755,"book":"The Southern Fells","lat":54.4203,"lon":-3.3092},{"name":"Bakestall","height":673,"ft":2208,"book":"The Northern Fells","lat":54.6665,"lon":-3.1388},{"name":"Bannerdale Crags","height":683,"ft":2241,"book":"The Northern Fells","lat":54.6522,"lon":-3.0314},{"name":"Binsey","height":447,"ft":1467,"book":"The Northern Fells","lat":54.709,"lon":-3.2036},{"name":"Blencathra","height":868,"ft":2848,"book":"The Northern Fells","lat":54.6403,"lon":-3.0497},{"name":"Bowscale Fell","height":702,"ft":2303,"book":"The Northern Fells","lat":54.6656,"lon":-3.0348},{"name":"Brae Fell","height":586,"ft":1923,"book":"The Northern Fells","lat":54.7063,"lon":-3.1057},{"name":"Carl Side","height":746,"ft":2448,"book":"The Northern Fells","lat":54.642,"lon":-3.1567},{"name":"Carrock Fell","height":663,"ft":2175,"book":"The Northern Fells","lat":54.6936,"lon":-3.0231},{"name":"Dodd","height":502,"ft":1647,"book":"The Northern Fells","lat":54.6356,"lon":-3.172},{"name":"Great Calva","height":690,"ft":2264,"book":"The Northern Fells","lat":54.6704,"lon":-3.1016},{"name":"Great Cockup","height":526,"ft":1726,"book":"The Northern Fells","lat":54.6899,"lon":-3.1285},{"name":"Great Sca Fell","height":651,"ft":2136,"book":"The Northern Fells","lat":54.6956,"lon":-3.1008},{"name":"High Pike (Caldbeck)","height":658,"ft":2159,"book":"The Northern Fells","lat":54.7058,"lon":-3.0592},{"name":"Knott","height":710,"ft":2329,"book":"The Northern Fells","lat":54.6867,"lon":-3.0928},{"name":"Latrigg","height":367,"ft":1204,"book":"The Northern Fells","lat":54.6127,"lon":-3.1171},{"name":"Long Side","height":734,"ft":2408,"book":"The Northern Fells","lat":54.6455,"lon":-3.1661},{"name":"Longlands Fell","height":483,"ft":1585,"book":"The Northern Fells","lat":54.7088,"lon":-3.126},{"name":"Lonscale Fell","height":715,"ft":2346,"book":"The Northern Fells","lat":54.6344,"lon":-3.1084},{"name":"Meal Fell","height":550,"ft":1804,"book":"The Northern Fells","lat":54.6937,"lon":-3.1131},{"name":"Mungrisdale Common","height":633,"ft":2077,"book":"The Northern Fells","lat":54.6536,"lon":-3.0686},{"name":"Skiddaw","height":931,"ft":3054,"book":"The Northern Fells","lat":54.6511,"lon":-3.1476},{"name":"Skiddaw Little Man","height":865,"ft":2838,"book":"The Northern Fells","lat":54.6395,"lon":-3.138},{"name":"Souther Fell","height":522,"ft":1713,"book":"The Northern Fells","lat":54.6533,"lon":-3.002},{"name":"Ullock Pike","height":690,"ft":2264,"book":"The Northern Fells","lat":54.6482,"lon":-3.1723},{"name":"Ard Crags","height":581,"ft":1906,"book":"The North Western Fells","lat":54.5667,"lon":-3.2288},{"name":"Barf","height":468,"ft":1535,"book":"The North Western Fells","lat":54.6297,"lon":-3.2183},{"name":"Barrow","height":455,"ft":1493,"book":"The North Western Fells","lat":54.5859,"lon":-3.1969},{"name":"Broom Fell","height":511,"ft":1677,"book":"The North Western Fells","lat":54.6321,"lon":-3.2478},{"name":"Castle Crag","height":298,"ft":978,"book":"The North Western Fells","lat":54.5332,"lon":-3.1613},{"name":"Catbells","height":451,"ft":1480,"book":"The North Western Fells","lat":54.5682,"lon":-3.17},{"name":"Causey Pike","height":637,"ft":2090,"book":"The North Western Fells","lat":54.5768,"lon":-3.2105},{"name":"Crag Hill","height":839,"ft":2753,"book":"The North Western Fells","lat":54.5719,"lon":-3.2506},{"name":"Dale Head","height":753,"ft":2470,"book":"The North Western Fells","lat":54.5274,"lon":-3.2029},{"name":"Grasmoor","height":852,"ft":2795,"book":"The North Western Fells","lat":54.5716,"lon":-3.2784},{"name":"Graystones","height":452,"ft":1483,"book":"The North Western Fells","lat":54.6282,"lon":-3.2771},{"name":"Grisedale Pike","height":791,"ft":2595,"book":"The North Western Fells","lat":54.5918,"lon":-3.2419},{"name":"High Spy","height":653,"ft":2142,"book":"The North Western Fells","lat":54.5357,"lon":-3.1846},{"name":"Hindscarth","height":727,"ft":2385,"book":"The North Western Fells","lat":54.5381,"lon":-3.214},{"name":"Hopegill Head","height":770,"ft":2526,"book":"The North Western Fells","lat":54.588,"lon":-3.2619},{"name":"Knott Rigg","height":556,"ft":1824,"book":"The North Western Fells","lat":54.5585,"lon":-3.2424},{"name":"Ling Fell","height":373,"ft":1224,"book":"The North Western Fells","lat":54.6454,"lon":-3.273},{"name":"Lord's Seat","height":552,"ft":1811,"book":"The North Western Fells","lat":54.6278,"lon":-3.2337},{"name":"Maiden Moor","height":575,"ft":1886,"book":"The North Western Fells","lat":54.5528,"lon":-3.182},{"name":"Outerside","height":568,"ft":1864,"book":"The North Western Fells","lat":54.5821,"lon":-3.2215},{"name":"Rannerdale Knotts","height":355,"ft":1165,"book":"The North Western Fells","lat":54.5526,"lon":-3.2886},{"name":"Robinson","height":737,"ft":2418,"book":"The North Western Fells","lat":54.5406,"lon":-3.2357},{"name":"Sail","height":773,"ft":2536,"book":"The North Western Fells","lat":54.5711,"lon":-3.2413},{"name":"Sale Fell","height":359,"ft":1178,"book":"The North Western Fells","lat":54.6555,"lon":-3.2501},{"name":"Scar Crags","height":672,"ft":2205,"book":"The North Western Fells","lat":54.5748,"lon":-3.2259},{"name":"Wandope","height":772,"ft":2533,"book":"The North Western Fells","lat":54.5664,"lon":-3.2566},{"name":"Whinlatter","height":517,"ft":1696,"book":"The North Western Fells","lat":54.615,"lon":-3.2535},{"name":"Whiteless Pike","height":660,"ft":2165,"book":"The North Western Fells","lat":54.5591,"lon":-3.2688},{"name":"Whiteside","height":707,"ft":2320,"book":"The North Western Fells","lat":54.5859,"lon":-3.2851},{"name":"Base Brown","height":646,"ft":2119,"book":"The Western Fells","lat":54.4924,"lon":-3.1972},{"name":"Blake Fell","height":573,"ft":1880,"book":"The Western Fells","lat":54.5642,"lon":-3.3772},{"name":"Brandreth","height":715,"ft":2346,"book":"The Western Fells","lat":54.4968,"lon":-3.2143},{"name":"Buckbarrow","height":423,"ft":1388,"book":"The Western Fells","lat":54.4434,"lon":-3.3346},{"name":"Burnbank Fell","height":475,"ft":1558,"book":"The Western Fells","lat":54.5759,"lon":-3.3776},{"name":"Caw Fell","height":697,"ft":2287,"book":"The Western Fells","lat":54.4864,"lon":-3.3406},{"name":"Crag Fell","height":523,"ft":1716,"book":"The Western Fells","lat":54.5164,"lon":-3.3956},{"name":"Fellbarrow","height":416,"ft":1365,"book":"The Western Fells","lat":54.6059,"lon":-3.3445},{"name":"Fleetwith Pike","height":648,"ft":2126,"book":"The Western Fells","lat":54.5164,"lon":-3.2288},{"name":"Gavel Fell","height":526,"ft":1726,"book":"The Western Fells","lat":54.5545,"lon":-3.3676},{"name":"Great Borne","height":616,"ft":2021,"book":"The Western Fells","lat":54.5348,"lon":-3.3561},{"name":"Great Gable","height":899,"ft":2949,"book":"The Western Fells","lat":54.4823,"lon":-3.2185},{"name":"Green Gable","height":801,"ft":2628,"book":"The Western Fells","lat":54.486,"lon":-3.214},{"name":"Grey Knotts","height":697,"ft":2287,"book":"The Western Fells","lat":54.5022,"lon":-3.2098},{"name":"Grike","height":488,"ft":1601,"book":"The Western Fells","lat":54.5135,"lon":-3.4156},{"name":"Haycock","height":797,"ft":2615,"book":"The Western Fells","lat":54.4849,"lon":-3.322},{"name":"Haystacks","height":597,"ft":1959,"book":"The Western Fells","lat":54.5072,"lon":-3.2471},{"name":"Hen Comb","height":509,"ft":1670,"book":"The Western Fells","lat":54.5511,"lon":-3.3427},{"name":"High Crag","height":744,"ft":2441,"book":"The Western Fells","lat":54.5142,"lon":-3.2674},{"name":"High Stile","height":807,"ft":2648,"book":"The Western Fells","lat":54.5212,"lon":-3.2877},{"name":"Kirk Fell","height":802,"ft":2631,"book":"The Western Fells","lat":54.483,"lon":-3.2448},{"name":"Lank Rigg","height":541,"ft":1775,"book":"The Western Fells","lat":54.4947,"lon":-3.4042},{"name":"Low Fell","height":423,"ft":1388,"book":"The Western Fells","lat":54.5916,"lon":-3.3363},{"name":"Mellbreak","height":512,"ft":1680,"book":"The Western Fells","lat":54.5559,"lon":-3.3181},{"name":"Middle Fell","height":582,"ft":1909,"book":"The Western Fells","lat":54.4535,"lon":-3.3118},{"name":"Pillar","height":892,"ft":2927,"book":"The Western Fells","lat":54.4979,"lon":-3.2808},{"name":"Red Pike (Buttermere)","height":755,"ft":2477,"book":"The Western Fells","lat":54.5273,"lon":-3.2987},{"name":"Red Pike (Wasdale)","height":826,"ft":2710,"book":"The Western Fells","lat":54.4843,"lon":-3.2896},{"name":"Scoat Fell","height":841,"ft":2759,"book":"The Western Fells","lat":54.4905,"lon":-3.299},{"name":"Seatallan","height":692,"ft":2270,"book":"The Western Fells","lat":54.4641,"lon":-3.3275},{"name":"Starling Dodd","height":633,"ft":2077,"book":"The Western Fells","lat":54.5297,"lon":-3.3266},{"name":"Steeple","height":819,"ft":2687,"book":"The Western Fells","lat":54.4932,"lon":-3.3022},{"name":"Yewbarrow","height":628,"ft":2060,"book":"The Western Fells","lat":54.4647,"lon":-3.2766}],"c":[{"name":"Carnedd Llewelyn","height":1064,"ft":3491,"range":"Carneddau","lat":53.1608,"lon":-3.9705,"welsh_name":"Carnedd Llywelyn","welsh3000":1},{"name":"Carnedd Dafydd","height":1044,"ft":3425,"range":"Carneddau","lat":53.1478,"lon":-3.9998,"welsh3000":1},{"name":"Pen yr Ole Wen","height":978,"ft":3209,"range":"Carneddau","lat":53.1377,"lon":-4.0113,"welsh3000":1},{"name":"Foel Grach","height":976,"ft":3202,"range":"Carneddau","lat":53.1736,"lon":-3.9636,"welsh3000":1},{"name":"Yr Elen","height":962,"ft":3156,"range":"Carneddau","lat":53.1669,"lon":-3.9858,"welsh3000":1},{"name":"Foel Fras","height":942,"ft":3091,"range":"Carneddau","lat":53.1944,"lon":-3.9526,"welsh3000":1},{"name":"Carnedd Gwenllian","height":926,"ft":3038,"range":"Carneddau","lat":53.1834,"lon":-3.9656,"welsh3000":1},{"name":"Llwytmor","height":849,"ft":2785,"range":"Carneddau","lat":53.2041,"lon":-3.9635},{"name":"Pen yr Helgi Du","height":833,"ft":2733,"range":"Carneddau","lat":53.1486,"lon":-3.9475},{"name":"Pen Llithrig y Wrach","height":799,"ft":2621,"range":"Carneddau","lat":53.1428,"lon":-3.9204},{"name":"Bera Mawr","height":794,"ft":2605,"range":"Carneddau","lat":53.1948,"lon":-3.9856},{"name":"Drum","height":770,"ft":2526,"range":"Carneddau","lat":53.2073,"lon":-3.9352},{"name":"Drosgl","height":758,"ft":2487,"range":"Carneddau","lat":53.1918,"lon":-4.0004},{"name":"Creigiau Gleision","height":678,"ft":2224,"range":"Carneddau","lat":53.1359,"lon":-3.9006},{"name":"Creigiau Gleision North Top","height":634,"ft":2080,"range":"Carneddau","lat":53.1423,"lon":-3.8949},{"name":"Tal y Fan","height":610,"ft":2001,"range":"Carneddau","lat":53.2356,"lon":-3.905},{"name":"Glyder Fawr","height":1001,"ft":3284,"range":"Glyderau","lat":53.1014,"lon":-4.0291,"welsh3000":1},{"name":"Glyder Fach","height":994,"ft":3261,"range":"Glyderau","lat":53.1045,"lon":-4.0083,"welsh3000":1},{"name":"Y Garn (Glyderau)","height":947,"ft":3107,"range":"Glyderau","lat":53.1155,"lon":-4.0476,"welsh3000":1},{"name":"Elidir Fawr","height":924,"ft":3031,"range":"Glyderau","lat":53.1312,"lon":-4.0753,"welsh3000":1},{"name":"Tryfan","height":915,"ft":3002,"range":"Glyderau","lat":53.1146,"lon":-3.9968,"welsh3000":1},{"name":"Foel-goch (Glyderau)","height":831,"ft":2726,"range":"Glyderau","lat":53.1298,"lon":-4.0513},{"name":"Carnedd y Filiast (Glyderau)","height":821,"ft":2694,"range":"Glyderau","lat":53.144,"lon":-4.064},{"name":"Y Foel Goch","height":805,"ft":2641,"range":"Glyderau","lat":53.105,"lon":-3.9769},{"name":"Gallt yr Ogof","height":763,"ft":2503,"range":"Glyderau","lat":53.1079,"lon":-3.9651},{"name":"Snowdon","height":1085,"ft":3560,"range":"Snowdon Massif","lat":53.0682,"lon":-4.0767,"welsh_name":"Yr Wyddfa","welsh3000":1},{"name":"Crib y Ddysgl","height":1065,"ft":3494,"range":"Snowdon Massif","lat":53.0755,"lon":-4.0756,"welsh_name":"Garnedd Ugain","welsh3000":1},{"name":"Crib Goch","height":923,"ft":3028,"range":"Snowdon Massif","lat":53.0758,"lon":-4.0547,"welsh3000":1},{"name":"Y Lliwedd","height":898,"ft":2946,"range":"Snowdon Massif","lat":53.0596,"lon":-4.0569},{"name":"Yr Aran","height":747,"ft":2451,"range":"Snowdon Massif","lat":53.043,"lon":-4.083},{"name":"Moel Eilio","height":726,"ft":2382,"range":"Snowdon Massif","lat":53.0973,"lon":-4.1588},{"name":"Moel Cynghorion","height":674,"ft":2211,"range":"Snowdon Massif","lat":53.0856,"lon":-4.1119},{"name":"Foel Gron","height":629,"ft":2064,"range":"Snowdon Massif","lat":53.0894,"lon":-4.1509},{"name":"Moel Hebog","height":783,"ft":2569,"range":"Moel Hebog & Nantlle","lat":53.0006,"lon":-4.1391},{"name":"Craig Cwm Silyn","height":734,"ft":2408,"range":"Moel Hebog & Nantlle","lat":53.0292,"lon":-4.2001},{"name":"Trum y Ddysgl","height":709,"ft":2326,"range":"Moel Hebog & Nantlle","lat":53.0423,"lon":-4.1725},{"name":"Mynydd Mawr","height":698,"ft":2290,"range":"Moel Hebog & Nantlle","lat":53.0691,"lon":-4.1813},{"name":"Mynydd Drws-y-coed","height":695,"ft":2280,"range":"Moel Hebog & Nantlle","lat":53.0442,"lon":-4.1666},{"name":"Moel yr Ogof","height":655,"ft":2149,"range":"Moel Hebog & Nantlle","lat":53.0084,"lon":-4.1529},{"name":"Mynydd Tal-y-mignedd","height":653,"ft":2142,"range":"Moel Hebog & Nantlle","lat":53.0402,"lon":-4.1858},{"name":"Moel Lefn","height":638,"ft":2093,"range":"Moel Hebog & Nantlle","lat":53.0147,"lon":-4.1577},{"name":"Moel Siabod","height":872,"ft":2861,"range":"Moelwynion","lat":53.0733,"lon":-3.9337},{"name":"Moelwyn Mawr","height":770,"ft":2526,"range":"Moelwynion","lat":52.9841,"lon":-3.9997},{"name":"Moelwyn Bach","height":710,"ft":2329,"range":"Moelwynion","lat":52.9743,"lon":-3.9963},{"name":"Allt-fawr","height":698,"ft":2290,"range":"Moelwynion","lat":53.0081,"lon":-3.9665},{"name":"Cnicht","height":689,"ft":2260,"range":"Moelwynion","lat":53.0,"lon":-4.0198},{"name":"Moel Druman","height":676,"ft":2218,"range":"Moelwynion","lat":53.0096,"lon":-3.9815},{"name":"Ysgafell Wen","height":672,"ft":2205,"range":"Moelwynion","lat":53.014,"lon":-3.9877},{"name":"Ysgafell Wen North Top","height":669,"ft":2195,"range":"Moelwynion","lat":53.0175,"lon":-3.9938},{"name":"Moel-yr-hydd","height":648,"ft":2126,"range":"Moelwynion","lat":52.9899,"lon":-3.9791},{"name":"Y Llethr","height":756,"ft":2480,"range":"Rhinogydd","lat":52.8135,"lon":-3.9874},{"name":"Diffwys","height":750,"ft":2461,"range":"Rhinogydd","lat":52.792,"lon":-3.9864},{"name":"Rhinog Fawr","height":720,"ft":2362,"range":"Rhinogydd","lat":52.8422,"lon":-3.9962},{"name":"Rhinog Fach","height":712,"ft":2336,"range":"Rhinogydd","lat":52.8244,"lon":-3.9835},{"name":"Y Garn (Rhinogydd)","height":629,"ft":2064,"range":"Rhinogydd","lat":52.7894,"lon":-3.9255},{"name":"Moel Ysgyfarnogod","height":623,"ft":2044,"range":"Rhinogydd","lat":52.8916,"lon":-3.9955},{"name":"Arenig Fawr","height":854,"ft":2802,"range":"Arenig","lat":52.9171,"lon":-3.7453},{"name":"Moel Llyfnant","height":751,"ft":2464,"range":"Arenig","lat":52.9005,"lon":-3.7728},{"name":"Rhobell Fawr","height":734,"ft":2408,"range":"Arenig","lat":52.8147,"lon":-3.802},{"name":"Arenig Fach","height":689,"ft":2260,"range":"Arenig","lat":52.9583,"lon":-3.7573},{"name":"Carnedd y Filiast (Arenig)","height":669,"ft":2195,"range":"Arenig","lat":52.9864,"lon":-3.6825},{"name":"Dduallt","height":662,"ft":2172,"range":"Arenig","lat":52.8305,"lon":-3.767},{"name":"Manod Mawr","height":661,"ft":2169,"range":"Arenig","lat":52.9839,"lon":-3.9029},{"name":"Manod Mawr North Top","height":658,"ft":2159,"range":"Arenig","lat":52.9948,"lon":-3.8974},{"name":"Moel Penamnen","height":623,"ft":2044,"range":"Arenig","lat":53.017,"lon":-3.9148},{"name":"Gallt y Daren","height":619,"ft":2031,"range":"Arenig","lat":52.8936,"lon":-3.8171},{"name":"Foel Goch (Arenig)","height":611,"ft":2005,"range":"Arenig","lat":52.9674,"lon":-3.5597},{"name":"Cadair Berwyn","height":832,"ft":2730,"range":"Berwyn","lat":52.8806,"lon":-3.3812},{"name":"Moel Sych","height":827,"ft":2713,"range":"Berwyn","lat":52.876,"lon":-3.3885},{"name":"Cadair Bronwen","height":785,"ft":2575,"range":"Berwyn","lat":52.9013,"lon":-3.3729},{"name":"Foel Wen","height":691,"ft":2267,"range":"Berwyn","lat":52.8909,"lon":-3.3399},{"name":"Mynydd Tarw","height":681,"ft":2234,"range":"Berwyn","lat":52.8822,"lon":-3.3203},{"name":"Esgeiriau Gwynion","height":671,"ft":2201,"range":"Berwyn","lat":52.7989,"lon":-3.6485},{"name":"Cyrniau Nod","height":667,"ft":2188,"range":"Berwyn","lat":52.8395,"lon":-3.5031},{"name":"Post Gwyn","height":665,"ft":2182,"range":"Berwyn","lat":52.8541,"lon":-3.416},{"name":"Foel Cwm Sian Llwyd","height":648,"ft":2126,"range":"Berwyn","lat":52.8702,"lon":-3.4938},{"name":"Pen y Boncyn Trefeilw","height":646,"ft":2119,"range":"Berwyn","lat":52.8426,"lon":-3.5418},{"name":"Moel Fferna","height":630,"ft":2067,"range":"Berwyn","lat":52.9478,"lon":-3.3163},{"name":"Foel y Geifr","height":626,"ft":2054,"range":"Berwyn","lat":52.835,"lon":-3.5787},{"name":"Moel y Cerrig Duon","height":625,"ft":2051,"range":"Berwyn","lat":52.8041,"lon":-3.5983},{"name":"Moel yr Henfaes","height":621,"ft":2037,"range":"Berwyn","lat":52.9222,"lon":-3.3557},{"name":"Aran Fawddwy","height":905,"ft":2969,"range":"Aran","lat":52.7867,"lon":-3.6866},{"name":"Aran Benllyn","height":885,"ft":2904,"range":"Aran","lat":52.8039,"lon":-3.6814},{"name":"Erw y Ddafad-ddu","height":872,"ft":2861,"range":"Aran","lat":52.7957,"lon":-3.6855},{"name":"Glasgwm","height":780,"ft":2559,"range":"Aran","lat":52.7601,"lon":-3.7256},{"name":"Foel Hafod-fynydd","height":689,"ft":2260,"range":"Aran","lat":52.7906,"lon":-3.666},{"name":"Gwaun y Llwyni","height":685,"ft":2247,"range":"Aran","lat":52.7695,"lon":-3.6949},{"name":"Pen y Brynfforchog","height":685,"ft":2247,"range":"Aran","lat":52.7462,"lon":-3.7532},{"name":"Pen yr Allt Uchaf","height":620,"ft":2034,"range":"Aran","lat":52.7635,"lon":-3.6739},{"name":"Llechwedd Du","height":614,"ft":2014,"range":"Aran","lat":52.7883,"lon":-3.6407},{"name":"Foel Goch (Aran)","height":613,"ft":2011,"range":"Aran","lat":52.8486,"lon":-3.5702},{"name":"Cadair Idris","height":893,"ft":2930,"range":"Cadair Idris","lat":52.6997,"lon":-3.9082,"welsh_name":"Cadair Idris (Penygadair)"},{"name":"Mynydd Moel","height":863,"ft":2831,"range":"Cadair Idris","lat":52.7055,"lon":-3.8848},{"name":"Cyfrwy","height":811,"ft":2661,"range":"Cadair Idris","lat":52.7023,"lon":-3.9202},{"name":"Craig Cwm Amarch","height":791,"ft":2595,"range":"Cadair Idris","lat":52.6916,"lon":-3.9094},{"name":"Gau Graig","height":683,"ft":2241,"range":"Cadair Idris","lat":52.7104,"lon":-3.8599},{"name":"Maesglase","height":674,"ft":2211,"range":"Cadair Idris","lat":52.7211,"lon":-3.7448},{"name":"Waun-oer","height":670,"ft":2198,"range":"Cadair Idris","lat":52.7167,"lon":-3.7994},{"name":"Tarren y Gesail","height":667,"ft":2188,"range":"Cadair Idris","lat":52.6359,"lon":-3.9069},{"name":"Tyrrau Mawr","height":661,"ft":2169,"range":"Cadair Idris","lat":52.7034,"lon":-3.9587},{"name":"Cribin Fawr","height":659,"ft":2162,"range":"Cadair Idris","lat":52.7223,"lon":-3.7863},{"name":"Tarrenhendre","height":634,"ft":2080,"range":"Cadair Idris","lat":52.6191,"lon":-3.9476},{"name":"Craig-y-llyn","height":622,"ft":2041,"range":"Cadair Idris","lat":52.6887,"lon":-3.9758},{"name":"Plynlimon","height":752,"ft":2467,"range":"Elenydd / Cambrian Mountains","lat":52.467,"lon":-3.7833,"welsh_name":"Pumlumon Fawr"},{"name":"Pen Pumlumon Arwystli","height":741,"ft":2431,"range":"Elenydd / Cambrian Mountains","lat":52.4748,"lon":-3.7454},{"name":"Pen Pumlumon Llygad-bychan","height":727,"ft":2385,"range":"Elenydd / Cambrian Mountains","lat":52.469,"lon":-3.7687},{"name":"Y Garn (Pumlumon)","height":684,"ft":2244,"range":"Elenydd / Cambrian Mountains","lat":52.4505,"lon":-3.8033},{"name":"Drygarn Fawr","height":641,"ft":2103,"range":"Elenydd / Cambrian Mountains","lat":52.2116,"lon":-3.6662},{"name":"Gorllwyn","height":613,"ft":2011,"range":"Elenydd / Cambrian Mountains","lat":52.219,"lon":-3.586},{"name":"Pen y Garn","height":610,"ft":2001,"range":"Elenydd / Cambrian Mountains","lat":52.3783,"lon":-3.7665},{"name":"Great Rhos","height":660,"ft":2165,"range":"Hergest & Radnor Forest","lat":52.2676,"lon":-3.1994},{"name":"Black Mixen","height":650,"ft":2133,"range":"Hergest & Radnor Forest","lat":52.2714,"lon":-3.179},{"name":"Bache Hill","height":610,"ft":2001,"range":"Hergest & Radnor Forest","lat":52.2654,"lon":-3.1539},{"name":"Fan Brycheiniog","height":802,"ft":2631,"range":"Black Mountain (Y Mynydd Du)","lat":51.8819,"lon":-3.7078},{"name":"Fan Hir","height":761,"ft":2497,"range":"Black Mountain (Y Mynydd Du)","lat":51.8748,"lon":-3.7002},{"name":"Bannau Sir Gaer","height":749,"ft":2457,"range":"Black Mountain (Y Mynydd Du)","lat":51.8825,"lon":-3.7281},{"name":"Garreg Las","height":635,"ft":2083,"range":"Black Mountain (Y Mynydd Du)","lat":51.8683,"lon":-3.777},{"name":"Garreg Lwyd","height":616,"ft":2021,"range":"Black Mountain (Y Mynydd Du)","lat":51.8459,"lon":-3.8298},{"name":"Fan Fawr","height":734,"ft":2408,"range":"Fforest Fawr","lat":51.8632,"lon":-3.4979},{"name":"Fan Gyhirych","height":725,"ft":2379,"range":"Fforest Fawr","lat":51.8588,"lon":-3.627},{"name":"Fan Nedd","height":663,"ft":2175,"range":"Fforest Fawr","lat":51.854,"lon":-3.5789},{"name":"Fan Llia","height":632,"ft":2073,"range":"Fforest Fawr","lat":51.8563,"lon":-3.5427},{"name":"Fan Frynych","height":629,"ft":2064,"range":"Fforest Fawr","lat":51.8935,"lon":-3.5149},{"name":"Craig Cerrig-gleisiad","height":629,"ft":2064,"range":"Fforest Fawr","lat":51.8846,"lon":-3.5117},{"name":"Pen y Fan","height":886,"ft":2907,"range":"Brecon Beacons","lat":51.8837,"lon":-3.4361},{"name":"Cribyn","height":795,"ft":2608,"range":"Brecon Beacons","lat":51.8821,"lon":-3.4201},{"name":"Waun Rydd","height":769,"ft":2523,"range":"Brecon Beacons","lat":51.8765,"lon":-3.3633},{"name":"Fan y Big","height":719,"ft":2359,"range":"Brecon Beacons","lat":51.8761,"lon":-3.401},{"name":"Cefn yr Ystrad","height":617,"ft":2024,"range":"Brecon Beacons","lat":51.8149,"lon":-3.3266},{"name":"Waun Fach","height":811,"ft":2661,"range":"Black Mountains","lat":51.9634,"lon":-3.1432},{"name":"Pen y Gadair Fawr","height":800,"ft":2625,"range":"Black Mountains","lat":51.9519,"lon":-3.1225},{"name":"Pen Allt-mawr","height":720,"ft":2362,"range":"Black Mountains","lat":51.912,"lon":-3.155},{"name":"Black Mountain","height":703,"ft":2306,"range":"Black Mountains","lat":52.0089,"lon":-3.0861,"welsh_name":"Twyn Llech"},{"name":"Pen Cerrig-calch","height":701,"ft":2300,"range":"Black Mountains","lat":51.8942,"lon":-3.1385},{"name":"Twmpa","height":690,"ft":2264,"range":"Black Mountains","lat":52.0084,"lon":-3.1312},{"name":"Chwarel y Fan","height":679,"ft":2228,"range":"Black Mountains","lat":51.9577,"lon":-3.079},{"name":"Mynydd Llysiau","height":663,"ft":2175,"range":"Black Mountains","lat":51.9444,"lon":-3.1544}],"books":["The Eastern Fells","The Far Eastern Fells","The Central Fells","The Southern Fells","The Northern Fells","The North Western Fells","The Western Fells"],"ranges":["Carneddau","Glyderau","Snowdon Massif","Moel Hebog & Nantlle","Moelwynion","Rhinogydd","Arenig","Berwyn","Aran","Cadair Idris","Elenydd / Cambrian Mountains","Hergest & Radnor Forest","Black Mountain (Y Mynydd Du)","Fforest Fawr","Brecon Beacons","Black Mountains"]};
+
+const KEY = 'bagged.v2';
+const OLD_KEY = 'bagged.v1';
+const LOG_PATH = 'log.json';
+const ICON_CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 10 18 19.5 6.5"/></svg>';
+const ICON_CAM = '<svg class="thumbdot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h3l2-2.5h8L18 8h3v11H3z"/><circle cx="12" cy="13" r="3.4"/></svg>';
+
+const LISTS = {
+  w: {label:'Wainwrights', sublabel:'Lakeland fells', items:DATA.w, groupKey:'book', order:DATA.books},
+  c: {label:'Wales', sublabel:'Welsh mountains', items:DATA.c, groupKey:'range', order:DATA.ranges}
+};
+for (const k of ['w','c']) LISTS[k].items.forEach(h => { h.key = k + ':' + h.name; h.list = k; });
+const ALL = [...DATA.w, ...DATA.c];
+const BY_KEY = Object.fromEntries(ALL.map(h => [h.key, h]));
+
+let state = {bagged:{}, plans:[]};
+let cloudReady = false;      // resolved (either way)
+let cloudWritable = false;
+let syncState = 'local';     // local | synced | saving | pending | error
+
+let lastSynced = 0;
+let cloudSig = '';
+let tab = 'w';
+let ui = {q:'', region:'', status:'all', sort:'height', open:null, breakdown:false, planForm:false, draft:null, planQ:'', mapList:'w', mapSel:null, mapQ:''};
+
+const TOWNS = {
+  w: [
+    {n:'Keswick', lat:54.6013, lon:-3.1347}, {n:'Ambleside', lat:54.4287, lon:-2.9615},
+    {n:'Windermere', lat:54.3807, lon:-2.9060}, {n:'Coniston', lat:54.3690, lon:-3.0760},
+    {n:'Buttermere', lat:54.5410, lon:-3.2760}, {n:'Wasdale Head', lat:54.4670, lon:-3.2740},
+    {n:'Patterdale', lat:54.5350, lon:-2.9280}, {n:'Grasmere', lat:54.4570, lon:-3.0250},
+    {n:'Caldbeck', lat:54.7450, lon:-3.0500}
+  ],
+  c: [
+    {n:'Bangor', lat:53.2280, lon:-4.1290}, {n:'Llanberis', lat:53.1200, lon:-4.1280},
+    {n:'Betws-y-Coed', lat:53.0940, lon:-3.8010}, {n:'Corwen', lat:52.9800, lon:-3.3740},
+    {n:'Bala', lat:52.9110, lon:-3.5960}, {n:'Dolgellau', lat:52.7430, lon:-3.8830},
+    {n:'Machynlleth', lat:52.5900, lon:-3.8500}, {n:'Llandovery', lat:51.9930, lon:-3.7970},
+    {n:'Brecon', lat:51.9470, lon:-3.3930}, {n:'Abergavenny', lat:51.8240, lon:-3.0170}
+  ]
+};
+const blobUrls = new Map();
+
+/* ---------- helpers ---------- */
+const now = () => Date.now();
+const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const uid = () => Math.random().toString(36).slice(2,9) + now().toString(36).slice(-4);
+const MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MON_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function dateParts(v){
+  const m = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/.exec(v || '');
+  return m ? {y:m[1] || '', mo:m[2] || '', d:m[3] || ''} : {y:'', mo:'', d:''};
+}
+function composeDate(y, mo, d){
+  if (!y) return '';
+  if (!mo) return y;
+  if (!d) return y + '-' + mo;
+  return y + '-' + mo + '-' + d;
+}
+function daysIn(y, mo){
+  if (!mo) return 31;
+  return new Date(Number(y) || 2024, Number(mo), 0).getDate();
+}
+function prettyDate(v){
+  const p = dateParts(v);
+  if (!p.y) return v || '';
+  if (!p.mo) return p.y;
+  const mn = MON_SHORT[Number(p.mo) - 1] || p.mo;
+  return (p.d ? Number(p.d) + ' ' : '') + mn + ' ' + p.y;
+}
+function dateFields(value, attrs){
+  const p = dateParts(value);
+  const yNow = new Date().getFullYear();
+  const dim = daysIn(p.y, p.mo);
+  let s = '<div class="dategroup">';
+  s += '<select class="dsel dd" data-act="dpart" data-part="d" ' + attrs + ' aria-label="Day">';
+  s += '<option value="">Day</option>';
+  for (let i = 1; i <= dim; i++){
+    const v = String(i).padStart(2, '0');
+    s += '<option value="' + v + '"' + (p.d === v ? ' selected' : '') + '>' + i + '</option>';
+  }
+  s += '</select>';
+  s += '<select class="dsel dm" data-act="dpart" data-part="m" ' + attrs + ' aria-label="Month">';
+  s += '<option value="">Month</option>';
+  for (let i = 1; i <= 12; i++){
+    const v = String(i).padStart(2, '0');
+    s += '<option value="' + v + '"' + (p.mo === v ? ' selected' : '') + '>' + MON_LONG[i-1] + '</option>';
+  }
+  s += '</select>';
+  s += '<select class="dsel dy" data-act="dpart" data-part="y" ' + attrs + ' aria-label="Year">';
+  s += '<option value="">Year</option>';
+  for (let y = yNow + 1; y >= 1950; y--)
+    s += '<option value="' + y + '"' + (p.y === String(y) ? ' selected' : '') + '>' + y + '</option>';
+  s += '</select>';
+  s += '<button class="btn quiet dtoday" data-act="dtoday" ' + attrs + '>Today</button>';
+  s += '</div>';
+  return s;
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+const feet = h => h.ft.toLocaleString();
+const ht = h => '<b>' + feet(h) + '</b> ft<s>(' + h.height + ' m)</s>';
+const htFlat = h => feet(h) + ' ft (' + h.height + ' m)';
+const rec = k => state.bagged[k] || {done:false, date:'', notes:'', photos:[], t:0};
+const isBagged = k => !!(state.bagged[k] && state.bagged[k].done);
+const livePlans = () => state.plans.filter(p => !p.deleted);
+function sig(s){
+  const b = Object.keys(s.bagged).sort().map(k => k + JSON.stringify(s.bagged[k])).join('|');
+  const p = [...s.plans].sort((a,c) => a.id < c.id ? -1 : 1).map(x => JSON.stringify(x)).join('|');
+  return b + '#' + p;
+}
+
+/* ---------- local store ---------- */
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if (raw) return normalise(JSON.parse(raw));
+    const old = localStorage.getItem(OLD_KEY);
+    if (old){
+      const o = JSON.parse(old), t = now(), s = {bagged:{}, plans:[]};
+      for (const [k,v] of Object.entries(o.bagged||{})) s.bagged[k] = {done:!!v.done, date:v.date||'', notes:v.notes||'', photos:[], t};
+      for (const p of (o.plans||[])) s.plans.push({...p, t});
+      return s;
+    }
+  }catch(e){}
+  return {bagged:{}, plans:[]};
+}
+function normalise(s){
+  const out = {bagged:{}, plans:[]};
+  for (const [k,v] of Object.entries((s && s.bagged) || {}))
+    out.bagged[k] = {done:!!v.done, date:v.date||'', notes:v.notes||'', photos:Array.isArray(v.photos)?v.photos:[], t:v.t||0};
+  for (const p of ((s && s.plans) || []))
+    out.plans.push({id:p.id||uid(), name:p.name||'', date:p.date||'', notes:p.notes||'', hills:p.hills||[], deleted:!!p.deleted, t:p.t||0});
+  return out;
+}
+function saveLocal(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ toast('This browser is blocking storage — your log may not stick.'); }
+}
+function touched(){ saveLocal(); scheduleSync(); }
+
+function merge(a, b){
+  const out = {bagged:{}, plans:[]};
+  for (const k of new Set([...Object.keys(a.bagged), ...Object.keys(b.bagged)])){
+    const x = a.bagged[k], y = b.bagged[k];
+    out.bagged[k] = !x ? y : !y ? x : ((y.t||0) > (x.t||0) ? y : x);
+  }
+  const m = new Map();
+  for (const p of [...a.plans, ...b.plans]){
+    const cur = m.get(p.id);
+    if (!cur || (p.t||0) > (cur.t||0)) m.set(p.id, p);
+  }
+  out.plans = [...m.values()];
+  return out;
+}
+
+/* ---------- photo store (IndexedDB) ---------- */
+let dbP;
+function db(){
+  if (!dbP) dbP = new Promise((res, rej) => {
+    let r;
+    try{ r = indexedDB.open('bagged-photos', 1); }catch(e){ return rej(e); }
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('p')) r.result.createObjectStore('p'); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return dbP;
+}
+function tx(mode, fn){
+  return db().then(d => new Promise((res, rej) => {
+    const t = d.transaction('p', mode), st = t.objectStore('p');
+    let out; try{ out = fn(st); }catch(e){ return rej(e); }
+    t.oncomplete = () => res(out && out.result !== undefined ? out.result : out);
+    t.onerror = () => rej(t.error);
+  }));
+}
+const putBlob = (k,v) => tx('readwrite', st => st.put(v,k)).catch(()=>null);
+const getBlob = k => tx('readonly', st => st.get(k)).catch(()=>null);
+const delBlob = k => tx('readwrite', st => st.delete(k)).catch(()=>null);
+
+async function shrink(file){
+  const bmp = await createImageBitmap(file, {imageOrientation:'from-image'}).catch(()=>createImageBitmap(file));
+  const max = 1400;
+  const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const w = Math.max(1, Math.round(bmp.width*s)), h = Math.max(1, Math.round(bmp.height*s));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  c.getContext('2d').drawImage(bmp, 0, 0, w, h);
+  bmp.close && bmp.close();
+  return await new Promise(r => c.toBlob(r, 'image/jpeg', 0.72));
+}
+async function addPhotos(key, files){
+  let added = 0;
+  for (const f of files){
+    if (!f || !/^image\//.test(f.type)) continue;
+    try{
+      const blob = await shrink(f);
+      if (!blob) continue;
+      const id = uid();
+      await putBlob(id, blob);
+      const r = rec(key);
+      state.bagged[key] = {...r, photos:[...r.photos, {id, up:0}], t:now()};
+      added++;
+    }catch(e){ /* skip unreadable image */ }
+  }
+  if (added){ touched(); render(); toast(added + (added===1 ? ' photo added.' : ' photos added.')); }
+  else toast('Could not read that image.');
+}
+async function removePhoto(key, id){
+  const r = rec(key);
+  state.bagged[key] = {...r, photos:r.photos.filter(p => p.id !== id), t:now()};
+  await delBlob(id);
+  const u = blobUrls.get(id); if (u){ URL.revokeObjectURL(u); blobUrls.delete(id); }
+  touched(); render();
+}
+async function photoSrc(p){
+  if (blobUrls.has(p.id)) return blobUrls.get(p.id);
+  let b = await getBlob(p.id);
+  if (!(b instanceof Blob) && p.up && GH){
+    b = await ghGetPhoto(p.id);
+    if (b instanceof Blob) await putBlob(p.id, b);
+  }
+  if (b instanceof Blob){ const u = URL.createObjectURL(b); blobUrls.set(p.id, u); return u; }
+  return '';
+}
+async function hydratePhotos(){
+  for (const img of document.querySelectorAll('img[data-pid]')){
+    const id = img.dataset.pid;
+    const p = {id, up: img.dataset.up === '1'};
+    const src = await photoSrc(p);
+    if (src) img.src = src;
+  }
+}
+
+/* ---------- GitHub sync ---------- */
+const GH_KEY = 'bagged.gh';
+let GH = null;
+let logSha = null;
+let syncErr = '';
+
+function ghLoad(){
+  try{
+    const c = JSON.parse(localStorage.getItem(GH_KEY));
+    if (c && c.owner && c.repo && c.token) return Object.assign({branch:'main'}, c);
+  }catch(e){}
+  return null;
+}
+function ghStore(cfg){ try{ localStorage.setItem(GH_KEY, JSON.stringify(cfg)); }catch(e){} }
+
+const b64ToStr = b64 =>
+  new TextDecoder().decode(Uint8Array.from(atob(String(b64).replace(/\s/g,'')), c => c.charCodeAt(0)));
+function strToB64(s){
+  const bytes = new TextEncoder().encode(s);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000)
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+function blobToB64(blob){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1] || '');
+    r.onerror = () => rej(r.error || new Error('read failed'));
+    r.readAsDataURL(blob);
+  });
+}
+
+function ghHeaders(extra){
+  return Object.assign({
+    'Authorization': 'Bearer ' + GH.token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  }, extra || {});
+}
+const ghUrl = path =>
+  'https://api.github.com/repos/' + encodeURIComponent(GH.owner) + '/' +
+  encodeURIComponent(GH.repo) + '/contents/' + path;
+
+function ghGet(path, accept){
+  return fetch(ghUrl(path) + '?ref=' + encodeURIComponent(GH.branch) + '&t=' + now(),
+    {headers: ghHeaders(accept ? {'Accept': accept} : null), cache:'no-store'});
+}
+function ghPut(path, contentB64, sha, message){
+  const body = {message:message, content:contentB64, branch:GH.branch};
+  if (sha) body.sha = sha;
+  return fetch(ghUrl(path), {
+    method:'PUT',
+    headers: ghHeaders({'Content-Type':'application/json'}),
+    body: JSON.stringify(body)
+  });
+}
+function httpMsg(s){
+  if (s === 401) return 'token rejected';
+  if (s === 403) return 'no permission (check the token grants Contents write)';
+  if (s === 404) return 'repository not found';
+  if (s === 409) return 'someone else saved first';
+  if (s === 422) return 'GitHub rejected the write';
+  return 'GitHub error ' + s;
+}
+
+async function ghCheck(cfg){
+  let r;
+  try{
+    r = await fetch('https://api.github.com/repos/' + encodeURIComponent(cfg.owner) + '/' + encodeURIComponent(cfg.repo), {
+      headers:{'Authorization':'Bearer ' + cfg.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28'}
+    });
+  }catch(e){ return {ok:false, msg:'Could not reach GitHub. Are you online?'}; }
+  if (r.ok){
+    const j = await r.json();
+    return {ok:true, priv:!!j.private, branch:j.default_branch || 'main', full:j.full_name};
+  }
+  if (r.status === 401) return {ok:false, msg:'That token was rejected — check you pasted the whole thing.'};
+  if (r.status === 403) return {ok:false, msg:'GitHub refused. The token may not cover this repository.'};
+  if (r.status === 404) return {ok:false, msg:'No repository of that name the token can see. Check the owner and the name.'};
+  return {ok:false, msg:'GitHub returned ' + r.status + '.'};
+}
+
+async function pullLog(){
+  const r = await ghGet(LOG_PATH);
+  if (r.status === 404){ logSha = null; return null; }
+  if (!r.ok) throw new Error(httpMsg(r.status));
+  const j = await r.json();
+  logSha = j.sha;
+  return normalise(JSON.parse(b64ToStr(j.content)));
+}
+async function ghGetPhoto(id){
+  try{
+    const r = await ghGet('photos/' + id + '.jpg', 'application/vnd.github.raw');
+    if (!r.ok) return null;
+    return await r.blob();
+  }catch(e){ return null; }
+}
+
+async function initSync(){
+  GH = ghLoad();
+  cloudReady = true;
+  cloudWritable = !!GH;
+  if (!GH){ syncState = 'local'; render(); return; }
+  syncState = 'saving'; paintSync();
+  try{
+    const remote = await pullLog();
+    if (remote){ state = merge(state, remote); saveLocal(); cloudSig = sig(remote); lastSynced = now(); }
+    else cloudSig = '';
+    syncState = sig(state) === cloudSig ? 'synced' : 'pending';
+    syncErr = '';
+  }catch(e){
+    syncErr = String((e && e.message) || e);
+    syncState = 'error';
+  }
+  render();
+  if (syncState === 'pending') scheduleSync(1200);
+}
+
+let syncTimer = null;
+function scheduleSync(delay){
+  if (!GH) return;
+  syncState = 'pending'; paintSync();
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, delay || 3500);
+}
+
+let syncing = false;
+async function syncNow(){
+  if (!GH || syncing) return;
+  clearTimeout(syncTimer);
+  syncing = true; syncState = 'saving'; paintSync();
+  try{
+    // pull first so two devices converge rather than clobber
+    const remote = await pullLog();
+    if (remote) state = merge(state, remote);
+
+    const pending = [];
+    for (const r of Object.values(state.bagged))
+      for (const p of (r.photos || [])) if (!p.up) pending.push(p);
+    for (const p of pending.slice(0, 4)){
+      const blob = await getBlob(p.id);
+      if (!(blob instanceof Blob)){ p.up = 1; continue; }
+      const res = await ghPut('photos/' + p.id + '.jpg', await blobToB64(blob), null, 'Add photo');
+      if (res.ok || res.status === 422) p.up = 1;
+      else if (res.status !== 409) throw new Error(httpMsg(res.status));
+    }
+
+    let res = await ghPut(LOG_PATH, strToB64(JSON.stringify(state)), logSha, 'Update log');
+    if (res.status === 409 || res.status === 422){
+      const again = await pullLog();
+      if (again) state = merge(state, again);
+      res = await ghPut(LOG_PATH, strToB64(JSON.stringify(state)), logSha, 'Update log');
+    }
+    if (!res.ok) throw new Error(httpMsg(res.status));
+    const j = await res.json();
+    logSha = (j && j.content && j.content.sha) || logSha;
+
+    cloudSig = sig(state);
+    lastSynced = now();
+    syncState = 'synced';
+    syncErr = '';
+    saveLocal();
+    if (pending.length > 4) scheduleSync(1500);
+  }catch(e){
+    syncErr = String((e && e.message) || e);
+    syncState = 'error';
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(syncNow, 25000);
+  }
+  syncing = false;
+  render();
+}
+
+function paintSync(){
+  const b = document.getElementById('syncBtn'), t = document.getElementById('syncTxt');
+  if (!b) return;
+  b.dataset.s = syncState;
+  const mins = lastSynced ? Math.floor((now() - lastSynced) / 60000) : -1;
+  t.textContent =
+    syncState === 'saving'  ? 'Saving…' :
+    syncState === 'pending' ? 'Save now' :
+    syncState === 'error'   ? 'Retry' :
+    syncState === 'synced'  ? (mins < 1 ? 'Saved' : mins < 60 ? 'Saved ' + mins + 'm ago' : 'Saved') :
+    cloudReady ? 'Set up sync' : 'Checking…';
+  b.title = GH
+    ? 'Syncing with ' + GH.owner + '/' + GH.repo + (syncErr ? ' — ' + syncErr : '')
+    : 'Tap to connect a GitHub repository and sync across your devices';
+}
+
+function diagLine(){
+  if (!GH) return 'no repository connected';
+  return GH.owner + '/' + GH.repo + ' · branch ' + GH.branch + (syncErr ? ' · ' + syncErr : ' · ok');
+}
+
+/* ---------- setup panel ---------- */
+function renderGhBox(){
+  const box = document.getElementById('ghBox');
+  if (!box) return;
+  if (GH){
+    box.innerHTML =
+      '<p>Syncing with <b>' + esc(GH.owner) + '/' + esc(GH.repo) + '</b> on branch <b>' + esc(GH.branch) + '</b>.' +
+      (syncErr ? ' <span style="color:var(--warn)">Last attempt: ' + esc(syncErr) + '</span>' : '') + '</p>' +
+      '<div class="btnrow"><button class="btn" id="ghSyncNow">Sync now</button>' +
+      '<button class="btn danger" id="ghForget">Disconnect this device</button></div>';
+    document.getElementById('ghSyncNow').onclick = () => { syncNow(); toast('Syncing…'); };
+    document.getElementById('ghForget').onclick = () => {
+      localStorage.removeItem(GH_KEY);
+      GH = null; logSha = null; cloudWritable = false; syncState = 'local'; syncErr = '';
+      renderGhBox(); render(); toast('Disconnected. Your log stays on this device.');
+    };
+    return;
+  }
+  box.innerHTML =
+    '<p>Connect the private repository that holds your log. Do this once on each device you use.</p>' +
+    '<div class="form" style="margin-top:8px; border-color:var(--line)">' +
+    '<div><label for="ghOwner">GitHub username</label><input id="ghOwner" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="your-username"></div>' +
+    '<div><label for="ghRepo">Private repository name</label><input id="ghRepo" autocapitalize="off" autocorrect="off" spellcheck="false" value="bagged-log"></div>' +
+    '<div><label for="ghToken">Access token</label><input id="ghToken" type="password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_…"></div>' +
+    '<p id="ghMsg" style="font-size:13px; margin:0"></p>' +
+    '<div class="btnrow" style="margin-top:0"><button class="btn" id="ghConnect">Connect</button></div>' +
+    '</div>';
+  document.getElementById('ghConnect').onclick = async () => {
+    const msg = document.getElementById('ghMsg');
+    const cfg = {
+      owner: document.getElementById('ghOwner').value.trim(),
+      repo: document.getElementById('ghRepo').value.trim(),
+      token: document.getElementById('ghToken').value.trim(),
+      branch: 'main'
+    };
+    if (!cfg.owner || !cfg.repo || !cfg.token){ msg.textContent = 'Fill in all three fields.'; msg.style.color = 'var(--warn)'; return; }
+    msg.textContent = 'Checking…'; msg.style.color = 'var(--ink-3)';
+    const r = await ghCheck(cfg);
+    if (!r.ok){ msg.textContent = r.msg; msg.style.color = 'var(--warn)'; return; }
+    cfg.branch = r.branch;
+    if (!r.priv){
+      msg.textContent = 'Careful — that repository is public, so your log would be readable by anyone. Use a private one.';
+      msg.style.color = 'var(--warn)';
+      return;
+    }
+    ghStore(cfg); GH = cfg; cloudWritable = true; syncErr = '';
+    msg.textContent = 'Connected.'; msg.style.color = 'var(--done)';
+    renderGhBox();
+    await initSync();
+    hydratePhotos();
+    toast('Connected — syncing now.');
+  };
+}
+
+/* ---------- mutations ---------- */
+function applyDate(el, value){
+  if (el.dataset.plan){
+    if (ui.draft) ui.draft.date = value;
+    render();
+    return;
+  }
+  const k = el.dataset.k;
+  if (!k) return;
+  const c = rec(k);
+  state.bagged[k] = {...c, done: c.done || !!value, date:value, t:now()};
+  touched(); render();
+}
+function setBagged(key, on, date){
+  const c = rec(key);
+  state.bagged[key] = {...c, done:on, date: on ? (date || c.date || today()) : c.date, t:now()};
+  touched(); render();
+}
+
+/* ---------- stats ---------- */
+function statsFor(listKey){
+  const L = LISTS[listKey];
+  const done = L.items.filter(h => isBagged(h.key));
+  const highest = done.reduce((a,b) => (!a || b.height > a.height) ? b : a, null);
+  const byGroup = L.order.map(g => {
+    const inG = L.items.filter(h => h[L.groupKey] === g);
+    return {g, total:inG.length, done:inG.filter(h => isBagged(h.key)).length};
+  });
+  return {total:L.items.length, done:done.length, highest, byGroup, remaining:L.items.length - done.length};
+}
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  for (const k of ['w','c']){
+    const s = statsFor(k);
+    document.getElementById('tn-'+k).textContent = s.done + '/' + s.total;
+  }
+  const planCount = livePlans().filter(p => !p.hills.every(k => isBagged(k)) || !p.hills.length).length;
+  document.getElementById('tn-p').textContent = planCount === 0 ? 'none yet' : planCount + ' planned';
+  const totalDone = ALL.filter(h => isBagged(h.key)).length;
+  document.getElementById('tn-m').textContent = totalDone + '/' + ALL.length;
+  let banner = '';
+  if (cloudReady && !GH && !ui.bannerHidden){
+    banner = '<div class="banner"><div><b>Not syncing yet</b>' +
+      'Your log is safe on this device. To have it follow you between phone and desktop, connect your private GitHub repository — tap the pill above, or the \u22ee menu.' +
+      '</div><button data-act="hidebanner" aria-label="Dismiss">\u00d7</button></div>';
+  } else if (GH && syncState === 'error' && !ui.bannerHidden){
+    banner = '<div class="banner"><div><b>Could not save to the cloud</b>' + esc(syncErr) +
+      '. Everything is still safe on this device and it will keep retrying.' +
+      '</div><button data-act="hidebanner" aria-label="Dismiss">\u00d7</button></div>';
+  }
+  document.getElementById('main').innerHTML = banner +
+    (tab === 'p' ? renderPlans() : tab === 'm' ? renderMap() : renderList(tab));
+  paintSync();
+  wire();
+  hydratePhotos();
+}
+
+function renderList(listKey){
+  const L = LISTS[listKey];
+  const s = statsFor(listKey);
+  const pct = s.done ? Math.max(1, Math.round(s.done / s.total * 100)) : 0;
+
+  let html = '<section class="summary">';
+  html += '<div class="sumhead"><div class="bignum">' + s.done + ' <span>/ ' + s.total + '</span></div>';
+  html += '<div class="sumlabel">' + esc(L.sublabel) + '<br>' + pct + '% bagged</div></div>';
+  html += '<div class="bar"><i style="width:' + pct + '%"></i></div>';
+  html += '<div class="meta"><span><b>' + s.remaining + '</b> to go</span>';
+  if (s.highest) html += '<span>highest bagged: <b>' + esc(s.highest.name) + '</b> ' + feet(s.highest) + ' ft</span>';
+  html += '</div>';
+  html += '<button class="disclose" data-act="breakdown"><span>Progress by ' + (listKey==='w'?'book':'range') + '</span><span>' + (ui.breakdown ? 'Hide ▲' : 'Show ▼') + '</span></button>';
+  if (ui.breakdown){
+    html += '<div class="breakdown">';
+    for (const b of s.byGroup){
+      const p = b.total ? Math.round(b.done/b.total*100) : 0;
+      html += '<div class="brow"><div class="bname">' + esc(b.g) + '<i><s style="width:' + p + '%"></s></i></div><div class="bcount">' + b.done + '/' + b.total + '</div></div>';
+    }
+    html += '</div>';
+  }
+  html += '</section>';
+
+  html += '<div class="controls">';
+  html += '<div class="searchrow"><div class="field">';
+  html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>';
+  html += '<input type="search" id="q" placeholder="Search a hill…" value="' + esc(ui.q) + '" autocomplete="off"></div></div>';
+  html += '<div class="seg" role="group">';
+  for (const [v,lab] of [['all','All'],['todo','To do'],['done','Bagged']])
+    html += '<button data-act="status" data-v="' + v + '" aria-pressed="' + (ui.status===v) + '">' + lab + '</button>';
+  html += '<button data-act="sort" data-v="' + (ui.sort==='height'?'az':'height') + '" aria-pressed="false" style="margin-left:auto">' + (ui.sort==='height'?'↕ Height':'↕ A–Z') + '</button>';
+  html += '</div>';
+  html += '<div class="chips"><button class="chip" data-act="region" data-v="" aria-pressed="' + (ui.region==='') + '">All areas</button>';
+  for (const g of L.order) html += '<button class="chip" data-act="region" data-v="' + esc(g) + '" aria-pressed="' + (ui.region===g) + '">' + esc(g.replace('The ','')) + '</button>';
+  html += '</div></div>';
+
+  const q = norm(ui.q);
+  const items = L.items.filter(h => {
+    if (ui.region && h[L.groupKey] !== ui.region) return false;
+    if (ui.status === 'done' && !isBagged(h.key)) return false;
+    if (ui.status === 'todo' && isBagged(h.key)) return false;
+    if (q && !(norm(h.name).includes(q) || norm(h.welsh_name).includes(q))) return false;
+    return true;
+  });
+  if (!items.length) return html + '<p class="empty">No hills match that. Try clearing the search or filters.</p>';
+
+  for (const g of L.order){
+    const inG = items.filter(h => h[L.groupKey] === g);
+    if (!inG.length) continue;
+    inG.sort((a,b) => ui.sort === 'height' ? b.height - a.height : a.name.localeCompare(b.name));
+    const d = inG.filter(h => isBagged(h.key)).length;
+    const gp = d ? Math.max(1, Math.round(d / inG.length * 100)) : 0;
+    html += '<div class="grouphead"><div style="flex:1"><div class="gt"><h2>' + esc(g) + '</h2>';
+    html += '<span>' + d + '/' + inG.length + ' · ' + gp + '%</span></div>';
+    html += '<i class="gbar"><i style="width:' + gp + '%"></i></i></div></div><ul class="hills">';
+    for (const h of inG) html += hillRow(h);
+    html += '</ul>';
+  }
+  return html;
+}
+
+function hillRow(h){
+  const on = isBagged(h.key);
+  const r = rec(h.key);
+  const open = ui.open === h.key;
+  let s = '<li class="hill' + (on ? ' on' : '') + '">';
+  s += '<div class="hrow">';
+  s += '<button class="tick" data-act="tick" data-k="' + esc(h.key) + '" aria-pressed="' + on + '" aria-label="Mark ' + esc(h.name) + ' bagged">' + ICON_CHECK + '</button>';
+  s += '<button class="hmain" data-act="open" data-k="' + esc(h.key) + '" aria-expanded="' + open + '">';
+  s += '<span class="hname">' + esc(h.name) + '</span>';
+  const bits = [];
+  if (h.welsh_name && h.welsh_name !== h.name) bits.push('<span class="wel">' + esc(h.welsh_name) + '</span>');
+  if (on && r.date) bits.push(prettyDate(r.date));
+  if (r.notes) bits.push('note');
+  if (bits.length) s += '<span class="hsub">' + bits.join(' · ') + '</span>';
+  s += '</button>';
+  if (r.photos.length) s += ICON_CAM;
+  if (h.welsh3000) s += '<span class="flag">3000</span>';
+  s += '<span class="hh">' + ht(h) + '</span>';
+  s += '</div>';
+  if (open){
+    s += '<div class="detail">';
+    s += '<div><label>Date climbed</label>';
+    s += dateFields(r.date, 'data-k="' + esc(h.key) + '"');
+    if (!r.date) s += '<p class="dhint">Only remember the year? Set the year and leave the rest.</p>';
+    else if (!dateParts(r.date).d) s += '<p class="dhint">Logged as ' + esc(prettyDate(r.date)) + ' — day is optional.</p>';
+    s += '</div>';
+    if (!on) s += '<div><button class="btn" data-act="tick" data-k="' + esc(h.key) + '">Bag it</button></div>';
+    s += '<div><label for="nt-' + esc(h.key) + '">Notes</label>';
+    s += '<textarea id="nt-' + esc(h.key) + '" data-act="notes" data-k="' + esc(h.key) + '" placeholder="Route, weather, who with…">' + esc(r.notes || '') + '</textarea></div>';
+    s += '<div><label>Photos</label><div class="shots">';
+    for (const p of r.photos)
+      s += '<button class="shot' + (p.up ? '' : ' up0') + '" data-act="viewphoto" data-k="' + esc(h.key) + '" data-p="' + esc(p.id) + '" title="' + (p.up ? 'Saved to the cloud' : 'Waiting to save') + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt="Photo of ' + esc(h.name) + '"></button>';
+    s += '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.key) + '" hidden></label>';
+    s += '</div></div>';
+    s += '</div>';
+  }
+  s += '</li>';
+  return s;
+}
+
+/* ---------- map ---------- */
+function renderMap(){
+  const listKey = ui.mapList;
+  const L = LISTS[listKey];
+  const items = L.items;
+  const s = statsFor(listKey);
+
+  let html = '<div class="controls" style="margin-top:16px">';
+  html += '<div class="seg" role="group">';
+  for (const [v,lab] of [['w','Lakeland'],['c','Wales']])
+    html += '<button data-act="maplist" data-v="' + v + '" aria-pressed="' + (ui.mapList===v) + '">' + lab + '</button>';
+  html += '</div>';
+  html += '<div class="field"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>';
+  html += '<input type="search" id="mq" placeholder="Highlight a hill on the map…" value="' + esc(ui.mapQ) + '" autocomplete="off"></div>';
+  html += '</div>';
+
+  // projection
+  const lats = items.map(h => h.lat), lons = items.map(h => h.lon);
+  const towns = TOWNS[listKey] || [];
+  const minLat = Math.min(...lats, ...towns.map(t=>t.lat)) - 0.03;
+  const maxLat = Math.max(...lats, ...towns.map(t=>t.lat)) + 0.03;
+  const minLon = Math.min(...lons, ...towns.map(t=>t.lon)) - 0.05;
+  const maxLon = Math.max(...lons, ...towns.map(t=>t.lon)) + 0.05;
+  const kx = Math.cos((minLat + maxLat) / 2 * Math.PI / 180);
+  const PAD = 14, W = 360;
+  const spanX = (maxLon - minLon) * kx, spanY = maxLat - minLat;
+  const sc = (W - PAD*2) / spanX;
+  const H = Math.round(spanY * sc + PAD*2);
+  const X = lon => PAD + (lon - minLon) * kx * sc;
+  const Y = lat => PAD + (maxLat - lat) * sc;
+
+  const q = norm(ui.mapQ);
+  let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Map of ' + esc(L.label) + ' summits">';
+
+  // graticule at 0.25 degrees
+  const step = 0.25;
+  for (let la = Math.ceil(minLat/step)*step; la < maxLat; la += step){
+    svg += '<line class="grat" x1="' + PAD + '" y1="' + Y(la).toFixed(1) + '" x2="' + (W-PAD) + '" y2="' + Y(la).toFixed(1) + '"/>';
+    svg += '<text class="gratlab" x="' + (PAD+3) + '" y="' + (Y(la)-4).toFixed(1) + '">' + la.toFixed(2) + '°N</text>';
+  }
+  for (let lo = Math.ceil(minLon/step)*step; lo < maxLon; lo += step){
+    svg += '<line class="grat" x1="' + X(lo).toFixed(1) + '" y1="' + PAD + '" x2="' + X(lo).toFixed(1) + '" y2="' + (H-PAD) + '"/>';
+    svg += '<text class="gratlab" x="' + (X(lo)+4).toFixed(1) + '" y="' + (H-PAD-4) + '">' + Math.abs(lo).toFixed(2) + '°W</text>';
+  }
+
+  // scale bar: 5 km, bottom left
+  const kmPerDegLat = 111.32;
+  const px5 = 5 / kmPerDegLat * sc;
+  const sy = H - PAD - 4, sx = PAD + 6;
+  svg += '<line class="scalebar" x1="' + sx.toFixed(1) + '" y1="' + sy + '" x2="' + (sx+px5).toFixed(1) + '" y2="' + sy + '"/>';
+  svg += '<line class="scalebar" x1="' + sx.toFixed(1) + '" y1="' + (sy-4) + '" x2="' + sx.toFixed(1) + '" y2="' + (sy+4) + '"/>';
+  svg += '<line class="scalebar" x1="' + (sx+px5).toFixed(1) + '" y1="' + (sy-4) + '" x2="' + (sx+px5).toFixed(1) + '" y2="' + (sy+4) + '"/>';
+  svg += '<text class="gratlab" x="' + (sx+px5/2).toFixed(1) + '" y="' + (sy-8) + '" text-anchor="middle">5 km</text>';
+
+  // peaks, lowest first so the big ones sit on top
+  const sorted = [...items].sort((a,b) => a.height - b.height);
+  const hits = [];
+  for (const h of sorted){
+    const on = isBagged(h.key);
+    const hit = q && (norm(h.name).includes(q) || norm(h.welsh_name).includes(q));
+    const sel = ui.mapSel === h.key;
+    const r = (2.3 + (h.height - 280) / 900 * 3.6).toFixed(1);
+    svg += '<circle class="pk' + (on?' on':'') + (hit?' hit':'') + (sel?' sel':'') + '" cx="' + X(h.lon).toFixed(1) + '" cy="' + Y(h.lat).toFixed(1) + '" r="' + r + '" data-act="mapdot" data-k="' + esc(h.key) + '"><title>' + esc(h.name) + ' — ' + htFlat(h) + '</title></circle>';
+    if (hit || sel) hits.push(h);
+  }
+  // towns last, so their labels stay legible over the dots
+  for (const t of towns){
+    const anchor = X(t.lon) > W*0.7 ? 'end' : 'start';
+    const dx = anchor === 'end' ? -6 : 6;
+    svg += '<rect class="town" x="' + (X(t.lon)-2).toFixed(1) + '" y="' + (Y(t.lat)-2).toFixed(1) + '" width="4" height="4"/>';
+    svg += '<text class="townlab" x="' + (X(t.lon)+dx).toFixed(1) + '" y="' + (Y(t.lat)+3.5).toFixed(1) + '" text-anchor="' + anchor + '">' + esc(t.n) + '</text>';
+  }
+
+  for (const h of hits.slice(0, 12)){
+    const anchor = X(h.lon) > W*0.7 ? 'end' : 'start';
+    const dx = anchor === 'end' ? -9 : 9;
+    svg += '<text class="pklab" x="' + (X(h.lon)+dx).toFixed(1) + '" y="' + (Y(h.lat)+4).toFixed(1) + '" text-anchor="' + anchor + '">' + esc(h.name) + '</text>';
+  }
+  svg += '</svg>';
+
+  html += '<div class="mapwrap">' + svg + '</div>';
+
+  const selHill = ui.mapSel && BY_KEY[ui.mapSel];
+  if (selHill && selHill.list === listKey){
+    const on = isBagged(selHill.key);
+    const r = rec(selHill.key);
+    html += '<div class="mapcard' + (on ? ' on' : '') + '">';
+    html += '<button class="tick" data-act="tick" data-k="' + esc(selHill.key) + '" aria-pressed="' + on + '" aria-label="Mark ' + esc(selHill.name) + ' bagged">' + ICON_CHECK + '</button>';
+    html += '<div class="mc"><b>' + esc(selHill.name) + '</b><span>' + htFlat(selHill) + ' · ' + esc(selHill.book || selHill.range) + (on && r.date ? ' · ' + prettyDate(r.date) : '') + '</span></div>';
+    html += '</div>';
+  } else {
+    html += '<div class="mapcard"><div class="mc"><b>Tap a summit</b><span>' + s.done + ' of ' + s.total + ' bagged · filled dots are done</span></div></div>';
+  }
+
+  html += '<div class="maplegend"><span><i class="done"></i>Bagged</span><span><i></i>Still to do</span><span>Dot size follows height</span></div>';
+  html += '<p class="empty" style="padding:14px 4px; text-align:left">Positions come from each summit’s Ordnance Survey grid reference. Grid lines are 0.25°; squares mark towns and villages for orientation.</p>';
+  return html;
+}
+
+/* ---------- plans ---------- */
+function renderPlans(){
+  let html = '<div class="planintro"><strong>Plan a day out.</strong> Build a route from any hills across both lists, add the date you are aiming for and your notes. When you get back, tick them off here and the date carries across to your log.</div>';
+  html += '<div class="btnrow"><button class="btn' + (ui.planForm ? ' quiet' : '') + '" data-act="newplan">' + (ui.planForm ? 'Cancel' : '+ Plan a new route') + '</button></div>';
+
+  if (ui.planForm){
+    const d = ui.draft;
+    html += '<div class="form">';
+    html += '<div><label for="pn">Route name</label><input id="pn" data-act="pfield" data-f="name" value="' + esc(d.name) + '" placeholder="e.g. Fairfield Horseshoe"></div>';
+    html += '<div><label>Target date</label>' + dateFields(d.date, 'data-plan="1"') + '</div>';
+    html += '<div><label for="po">Notes</label><textarea id="po" data-act="pfield" data-f="notes" placeholder="Parking, distance, escape routes, who is coming…">' + esc(d.notes) + '</textarea></div>';
+    html += '<div><label>Hills on this route (' + d.hills.length + ')</label>';
+    if (d.hills.length){
+      html += '<div class="picked">';
+      for (const k of d.hills){
+        const h = BY_KEY[k]; if (!h) continue;
+        html += '<span class="pill">' + esc(h.name) + '<button data-act="unpick" data-k="' + esc(k) + '" aria-label="Remove ' + esc(h.name) + '">×</button></span>';
+      }
+      html += '</div>';
+    }
+    html += '<div class="field" style="margin-top:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg><input id="pq" placeholder="Search hills to add…" value="' + esc(ui.planQ) + '" autocomplete="off"></div>';
+    const pq = norm(ui.planQ);
+    if (pq){
+      const matches = ALL.filter(h => !d.hills.includes(h.key) && (norm(h.name).includes(pq) || norm(h.welsh_name).includes(pq))).slice(0, 40);
+      html += '<div class="results" style="margin-top:6px">';
+      if (!matches.length) html += '<p class="empty" style="padding:14px">Nothing matches “' + esc(ui.planQ) + '”.</p>';
+      for (const h of matches) html += '<button data-act="pick" data-k="' + esc(h.key) + '">' + esc(h.name) + '<span>' + feet(h) + ' ft · ' + esc((h.book||h.range).replace('The ','')) + '</span></button>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<div class="btnrow"><button class="btn" data-act="saveplan">Save route</button></div>';
+    html += '</div>';
+  }
+
+  const plans = livePlans();
+  if (!plans.length && !ui.planForm) return html + '<p class="empty">No routes planned yet. Sketch one out above — it will wait here until you go.</p>';
+
+  const sorted = [...plans].sort((a,b) => {
+    const ad = a.hills.length && a.hills.every(k => isBagged(k));
+    const bd = b.hills.length && b.hills.every(k => isBagged(k));
+    if (ad !== bd) return ad ? 1 : -1;
+    return (a.date || '9999').localeCompare(b.date || '9999');
+  });
+  for (const p of sorted){
+    const hs = p.hills.map(k => BY_KEY[k]).filter(Boolean);
+    const done = hs.filter(h => isBagged(h.key)).length;
+    const allDone = hs.length > 0 && done === hs.length;
+    const climbM = hs.reduce((a,h) => a + h.height, 0);
+    const climbF = hs.reduce((a,h) => a + h.ft, 0);
+    html += '<article class="plan' + (allDone ? ' done' : '') + '">';
+    html += '<div class="planhead"><h3>' + esc(p.name || 'Untitled route') + '</h3>';
+    html += '<button class="linkbtn" data-act="delplan" data-id="' + esc(p.id) + '">Delete</button></div>';
+    html += '<div class="planmeta">';
+    if (p.date) html += '<span>' + prettyDate(p.date) + '</span>';
+    html += '<span>' + hs.length + ' hill' + (hs.length===1?'':'s') + '</span>';
+    if (hs.length) html += '<span>' + climbF.toLocaleString() + ' ft (' + climbM.toLocaleString() + ' m) of summits</span>';
+    html += '</div>';
+    if (p.notes) html += '<p class="plannotes">' + esc(p.notes) + '</p>';
+    if (hs.length){
+      html += '<ul class="planhills">';
+      for (const h of hs){
+        const on = isBagged(h.key);
+        html += '<li class="' + (on ? 'on' : '') + '"><button class="tick" data-act="tick" data-k="' + esc(h.key) + '" data-date="' + esc(p.date || '') + '" aria-pressed="' + on + '" aria-label="Mark ' + esc(h.name) + ' bagged">' + ICON_CHECK + '</button>';
+        html += '<span class="nm">' + esc(h.name) + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
+      }
+      html += '</ul>';
+      html += '<div class="planstat"><i style="width:' + Math.round(done/hs.length*100) + '%"></i></div>';
+      html += '<div class="btnrow">';
+      if (!allDone) html += '<button class="btn ghost" data-act="bagall" data-id="' + esc(p.id) + '">Bag all ' + hs.length + '</button>';
+      else html += '<span class="planmeta" style="align-self:center">Route complete</span>';
+      html += '</div>';
+    }
+    html += '</article>';
+  }
+  return html;
+}
+
+/* ---------- events ---------- */
+function wire(){
+  const keep = (id, prop) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.oninput = e => {
+      ui[prop] = e.target.value;
+      const pos = e.target.selectionStart;
+      render();
+      const n = document.getElementById(id);
+      if (n){ n.focus(); try{ n.setSelectionRange(pos, pos); }catch(err){} }
+    };
+  };
+  keep('q', 'q');
+  keep('pq', 'planQ');
+  keep('mq', 'mapQ');
+}
+
+document.addEventListener('click', e => {
+  const tabBtn = e.target.closest('.tab');
+  if (tabBtn){ tab = tabBtn.dataset.tab; ui.q=''; ui.region=''; ui.open=null; render(); window.scrollTo({top:0}); return; }
+
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const a = el.dataset.act;
+
+  if (a === 'tick') setBagged(el.dataset.k, !isBagged(el.dataset.k), el.dataset.date || '');
+  else if (a === 'open'){ ui.open = ui.open === el.dataset.k ? null : el.dataset.k; render(); }
+  else if (a === 'breakdown'){ ui.breakdown = !ui.breakdown; render(); }
+  else if (a === 'status'){ ui.status = el.dataset.v; render(); }
+  else if (a === 'sort'){ ui.sort = el.dataset.v; render(); }
+  else if (a === 'region'){ ui.region = el.dataset.v; render(); }
+  else if (a === 'maplist'){ ui.mapList = el.dataset.v; ui.mapSel = null; render(); }
+  else if (a === 'mapdot'){ ui.mapSel = ui.mapSel === el.dataset.k ? null : el.dataset.k; render(); }
+  else if (a === 'viewphoto') openViewer(el.dataset.k, el.dataset.p);
+  else if (a === 'dtoday') applyDate(el, today());
+  else if (a === 'hidebanner'){ ui.bannerHidden = true; render(); }
+  else if (a === 'newplan'){
+    ui.planForm = !ui.planForm;
+    ui.draft = ui.planForm ? {name:'', date:'', notes:'', hills:[]} : null;
+    ui.planQ = ''; render();
+  }
+  else if (a === 'pick'){ ui.draft.hills.push(el.dataset.k); ui.planQ=''; render(); }
+  else if (a === 'unpick'){ ui.draft.hills = ui.draft.hills.filter(x => x !== el.dataset.k); render(); }
+  else if (a === 'saveplan'){
+    const d = ui.draft;
+    if (!d.name.trim() && !d.hills.length){ toast('Give the route a name or add a hill first.'); return; }
+    state.plans.push({id:'p'+uid(), name:d.name.trim(), date:d.date, notes:d.notes.trim(), hills:d.hills, deleted:false, t:now()});
+    ui.planForm = false; ui.draft = null; ui.planQ = '';
+    touched(); render(); toast('Route saved.');
+  }
+  else if (a === 'delplan'){
+    const p = state.plans.find(x => x.id === el.dataset.id);
+    if (p){ p.deleted = true; p.t = now(); }
+    touched(); render(); toast('Route deleted.');
+  }
+  else if (a === 'bagall'){
+    const p = state.plans.find(x => x.id === el.dataset.id);
+    if (!p) return;
+    const d = p.date || today();
+    p.hills.forEach(k => { if (!isBagged(k)){ const c = rec(k); state.bagged[k] = {...c, done:true, date:c.date || d, t:now()}; } });
+    touched(); render(); toast('All bagged. Nice one.');
+  }
+});
+
+document.addEventListener('change', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const a = el.dataset.act;
+  if (a === 'dpart'){
+    const grp = el.closest('.dategroup');
+    const val = part => { const s = grp.querySelector('select[data-part="' + part + '"]'); return s ? s.value : ''; };
+    let y = val('y'), mo = val('m'), dd = val('d');
+    if (dd && Number(dd) > daysIn(y, mo)) dd = String(daysIn(y, mo)).padStart(2, '0');
+    applyDate(el, composeDate(y, mo, dd));
+  }
+  else if (a === 'notes'){ /* handled on input */ }
+  else if (a === 'pfield' && ui.draft){ ui.draft[el.dataset.f] = el.value; }
+  else if (a === 'photo' && el.files && el.files.length){
+    const files = [...el.files]; el.value = '';
+    toast('Processing…');
+    addPhotos(el.dataset.k, files);
+  }
+});
+
+document.addEventListener('input', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  if (el.dataset.act === 'notes'){
+    const c = rec(el.dataset.k);
+    state.bagged[el.dataset.k] = {...c, notes:el.value, t:now()};
+    touched();
+  }
+  if (el.dataset.act === 'pfield' && ui.draft) ui.draft[el.dataset.f] = el.value;
+});
+
+/* ---------- photo viewer ---------- */
+let viewing = null;
+const viewer = document.getElementById('viewer');
+async function openViewer(key, id){
+  const h = BY_KEY[key]; if (!h) return;
+  viewing = {key, id};
+  const p = (rec(key).photos || []).find(x => x.id === id) || {id};
+  document.getElementById('vimg').src = await photoSrc(p) || '';
+  const r = rec(key);
+  document.getElementById('vcap').textContent = h.name + (r.date ? ' · ' + prettyDate(r.date) : '');
+  viewer.classList.add('open');
+}
+document.getElementById('vclose').onclick = () => { viewer.classList.remove('open'); viewing = null; };
+document.getElementById('vdel').onclick = () => {
+  if (!viewing) return;
+  const v = viewing;
+  viewer.classList.remove('open'); viewing = null;
+  removePhoto(v.key, v.id);
+  toast('Photo deleted.');
+};
+
+/* ---------- sync button + sheet ---------- */
+document.getElementById('syncBtn').onclick = () => {
+  if (!GH){ openSheet(); return; }
+  syncNow();
+};
+
+const sheet = document.getElementById('sheet');
+function openSheet(){
+  document.getElementById('backupText').value = JSON.stringify(state);
+  document.getElementById('diag').textContent = 'sync — ' + diagLine();
+  document.getElementById('cloudNote').textContent = GH
+    ? 'Saved to your private GitHub repository, and kept on this device too, so it works with no signal. Open the app on any device you have connected and it picks up where you left off.'
+    : 'Saved in this browser only. Connect a repository below to sync between your phone and desktop.';
+  renderGhBox();
+  sheet.classList.add('open');
+}
+document.getElementById('menuBtn').onclick = openSheet;
+document.getElementById('closeSheet').onclick = () => sheet.classList.remove('open');
+sheet.onclick = e => { if (e.target === sheet) sheet.classList.remove('open'); };
+document.getElementById('copyBtn').onclick = async () => {
+  const ta = document.getElementById('backupText');
+  try{ await navigator.clipboard.writeText(ta.value); toast('Backup copied.'); }
+  catch(err){ ta.select(); toast('Press copy on your keyboard — the text is selected.'); }
+};
+document.getElementById('restoreBtn').onclick = () => {
+  try{
+    const s = JSON.parse(document.getElementById('backupText').value);
+    if (!s || typeof s !== 'object' || !('bagged' in s)) throw new Error('bad');
+    const inc = normalise(s);
+    for (const v of Object.values(inc.bagged)) v.t = now();
+    for (const p of inc.plans) p.t = now();
+    state = merge(state, inc);
+    touched(); render(); sheet.classList.remove('open'); toast('Log restored.');
+  }catch(err){ toast('That does not look like a Bagged backup.'); }
+};
+
+/* ---------- boot ---------- */
+function syncTopH(){
+  const h = document.querySelector('.top');
+  if (h) document.documentElement.style.setProperty('--topH', h.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncTopH);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncTopH);
+syncTopH();
+
+window.addEventListener('online', () => { if (cloudWritable && syncState !== 'synced') syncNow(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) paintSync(); });
+setInterval(paintSync, 60000);
+
+if ('serviceWorker' in navigator)
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+
+state = loadLocal();
+render();
+initSync();
+</script>
+
+</body>
+</html>
