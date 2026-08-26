@@ -1,5 +1,5 @@
-[README.md](https://github.com/user-attachments/files/31488857/README.md)
-# Bagged
+[README.md](https://github.com/user-attachments/files/31490985/README.md)
+# WayMark
 
 A hill-bagging log covering 1,327 summits across ten recognised British hill lists —
 Wainwrights, Munros, Corbetts, Grahams, Donalds, the Hewitts of England, Wales and
@@ -56,8 +56,8 @@ repo. Other devices download them on demand and cache them locally.
 
 ## Updating the app
 
-Replace `index.html` in the public repo. Bump `CACHE` in `sw.js` at the same
-time (`bagged-v2` → `bagged-v3`, and so on) or browsers will keep serving the
+Replace `index.html` in the public repo (still named `bagged` — the repo name is invisible to users once a custom domain is set). Bump `CACHE` in `sw.js` at the same
+time (`waymark-v1` → `waymark-v2`, and so on) or browsers will keep serving the
 old one from their offline cache.
 
 ## The map
