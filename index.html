@@ -464,6 +464,7 @@ function normalise(s){
     });
   }
   if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id]);
+  out.enabledT = (s && s.enabledT) || 0;
   return out;
 }
 function loadLocal(){
@@ -472,10 +473,10 @@ function loadLocal(){
       const raw = localStorage.getItem(k);
       if (!raw) continue;
       const s = normalise(JSON.parse(raw));
-      return {bagged:s.bagged, plans:s.plans, enabled:s.enabled || ['wainwright','hewitt-wales']};
+      return {bagged:s.bagged, plans:s.plans, enabled:s.enabled || ['wainwright','hewitt-wales'], enabledT:s.enabledT || 0};
     }catch(e){}
   }
-  return {bagged:{}, plans:[], enabled:['wainwright','hewitt-wales']};
+  return {bagged:{}, plans:[], enabled:['wainwright','hewitt-wales'], enabledT:0};
 }
 function saveLocal(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -494,7 +495,15 @@ function merge(a, b){
     if (!cur || (p.t||0) > (cur.t||0)) m.set(p.id, p);
   }
   out.plans = [...m.values()];
-  out.enabled = b.enabled && b.enabled.length ? b.enabled : (a.enabled || []);
+  // the list selection is a preference: the most recent edit wins, and a device
+  // that has never chosen adopts whatever the account already has
+  const aT = a.enabledT || 0, bT = b.enabledT || 0;
+  if (b.enabled && b.enabled.length && (bT > aT || aT === 0)){
+    out.enabled = b.enabled; out.enabledT = bT;
+  } else {
+    out.enabled = (a.enabled && a.enabled.length) ? a.enabled : (b.enabled || []);
+    out.enabledT = aT;
+  }
   return out;
 }
 
@@ -820,6 +829,7 @@ function toggleList(id){
     state.enabled.push(id);
     ui.list = id;
   }
+  state.enabledT = now();
   touched(); renderListToggles(); render();
   if (mapReady) drawMarkers();
 }
@@ -1314,7 +1324,7 @@ document.getElementById('restoreBtn').onclick = () => {
     for (const v of Object.values(inc.bagged)) v.t = now();
     for (const p of inc.plans) p.t = now();
     const m = merge(state, {bagged:inc.bagged, plans:inc.plans, enabled:inc.enabled});
-    state = {bagged:m.bagged, plans:m.plans, enabled:(m.enabled && m.enabled.length) ? m.enabled : state.enabled};
+    state = {bagged:m.bagged, plans:m.plans, enabled:(m.enabled && m.enabled.length) ? m.enabled : state.enabled, enabledT:m.enabledT || state.enabledT || 0};
     touched(); render(); sheet.classList.remove('open'); toast('Log restored.');
   }catch(err){ toast('That does not look like a Bagged backup.'); }
 };
@@ -1424,15 +1434,19 @@ async function fbPull(){
     if (typeof d.share === 'boolean') fbShare = d.share;
     if (d.name) fbName = d.name;
   }
-  if (Array.isArray(d.enabled) && d.enabled.length) state.enabled = d.enabled.filter(x => LIST_BY[x]);
-  try{ return normalise(JSON.parse(d.log || '{}')); }catch(e){ return null; }
+  try{
+    const parsed = normalise(JSON.parse(d.log || '{}'));
+    if (Array.isArray(d.enabled) && d.enabled.length) parsed.enabled = d.enabled.filter(x => LIST_BY[x]);
+    parsed.enabledT = d.enabledT || 0;
+    return parsed;
+  }catch(e){ return null; }
 }
 async function fbPush(){
   const payload = JSON.stringify({bagged:state.bagged, plans:state.plans});
   if (payload.length > 900000) throw new Error('log too large for one record');
   await FB.setDoc(userRef(), {
     log: payload, name: fbName || (fbUser && fbUser.name) || 'Walker',
-    share: !!fbShare, enabled: state.enabled, updatedAt: Date.now()
+    share: !!fbShare, enabled: state.enabled, enabledT: state.enabledT || 0, updatedAt: Date.now()
   });
 }
 async function fbGetPhoto(id){
@@ -1485,7 +1499,7 @@ async function fbSync(initial){
   syncState = 'saving'; paintSync();
   try{
     const remote = await fbPull();
-    if (remote) state = merge(state, {bagged:remote.bagged, plans:remote.plans, enabled:state.enabled});
+    if (remote) state = merge(state, remote);
 
     const pending = [];
     for (const r of Object.values(state.bagged))
