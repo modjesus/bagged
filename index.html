@@ -43,6 +43,7 @@
   --shadow:0 1px 2px rgba(20,51,45,.08), 0 6px 20px -12px rgba(20,51,45,.38);
   --r:12px;
   --grain:.10; --noise:.03;
+  --patch-bg:#B4491A;
   --bk1:#2F5D3A; --bk2:#6E7472; --bk3:#3F6E8C; --bk4:#B4551D;
   --bk5:#7B2D34; --bk6:#8F6E1A; --bk7:#5F8244;
 }
@@ -374,13 +375,16 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:var(--surface); position:relative; overflow:hidden;
 }
 .patch .pimg{
-  position:absolute; inset:-2px; width:calc(100% + 4px); height:calc(100% + 4px);
-  object-fit:contain; z-index:2; background:transparent;
+  position:absolute; inset:-2.5px; width:calc(100% + 5px); height:calc(100% + 5px);
+  object-fit:contain; z-index:2; background:var(--patch-bg);
 }
-/* when real artwork loads it covers the drawn fallback and the dashed ring */
-.patch .disc:has(.pimg){border-color:transparent; background:none}
-.patch.got .disc:has(.pimg){border-color:transparent; background:none}
 .patch.got .disc{border-style:solid; border-color:var(--accent); color:var(--accent-ink); background:var(--accent)}
+/* real artwork covers the drawn fallback; it sits on the mount colour so any
+   white edge in the PNG blends into the disc instead of showing as a ring */
+.patch .disc:has(.pimg),
+.patch.got .disc:has(.pimg),
+.patch .disc.hasimg,
+.patch.got .disc.hasimg{border-color:transparent; background:var(--patch-bg)}
 .patch .disc svg{width:28px; height:28px}
 .patch .pl{font-family:"Wildkins", Georgia, serif; font-weight:700; font-size:10.5px; line-height:1.25; letter-spacing:.02em; color:var(--ink-2)}
 .patch.got .pl{color:var(--ink)}
@@ -879,7 +883,7 @@ function renderPatches(){
   for (const p of ps.slice(0, 24))
     s += '<div class="patch' + (p.got ? ' got' : '') + '" title="' + esc(p.got ? p.label : p.need) + '">' +
          '<div class="disc"><img class="pimg" src="patches/' + esc(p.id) + '.png" alt="" loading="lazy" ' +
-         'onerror="this.remove()">' + PATCH_ICONS[p.icon] + '</div>' +
+         'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" onerror="this.remove()">' + PATCH_ICONS[p.icon] + '</div>' +
          '<div class="pl">' + esc(p.label) + '</div></div>';
   return s + '</div>';
 }
