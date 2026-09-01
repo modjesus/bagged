@@ -1207,14 +1207,17 @@ function prettyDate(v){
 /* ---------- a yes/no question ---------- */
 let askDone = null;
 const askEl = () => document.getElementById('ask');
-function confirmAsk({title, body, yes, no}){
+function confirmAsk({title, body, yes, no, tone}){
   const box = askEl();
   document.getElementById('askTitle').textContent = title;
   document.getElementById('askBody').textContent = body || '';
-  document.getElementById('askYes').textContent = yes || 'Yes';
+  const y = document.getElementById('askYes');
+  y.textContent = yes || 'Yes';
   document.getElementById('askNo').textContent = no || 'Cancel';
+  /* not every question is a destructive one — a plain choice gets the plain button */
+  y.classList.toggle('danger', tone !== 'plain');
   box.classList.add('open');
-  setTimeout(() => { const b = document.getElementById('askNo'); if (b) b.focus(); }, 30);
+  setTimeout(() => { const b = document.getElementById(tone === 'plain' ? 'askYes' : 'askNo'); if (b) b.focus(); }, 30);
   return new Promise(res => { askDone = res; });
 }
 function answerAsk(v){
@@ -1303,8 +1306,23 @@ function merge(a, b){
     out.enabled = (a.enabled && a.enabled.length) ? a.enabled : (b.enabled || []);
     out.enabledT = aT;
   }
+  /* Leaderboards merge per code, newest edit wins — the same rule as summits.
+     This used to let the incoming copy overwrite the local one unconditionally,
+     so flipping a board's share switch and then syncing put the old value
+     straight back and the toggle appeared to slide off on its own. */
   const codes = new Map();
-  for (const g of [...(a.groups||[]), ...(b.groups||[])]) if (g && g.code) codes.set(g.code, g);
+  for (const g of [...(a.groups||[]), ...(b.groups||[])]){
+    if (!g || !g.code) continue;
+    const cur = codes.get(g.code);
+    if (!cur){ codes.set(g.code, g); continue; }
+    const gT = g.t || 0, cT = cur.t || 0;
+    if (gT > cT){ codes.set(g.code, g); continue; }
+    if (gT === cT){
+      /* Neither side is stamped (a board saved before this existed). Keep the
+         one that has actually made a choice rather than dropping to a default. */
+      if (cur.detail === undefined && g.detail !== undefined) codes.set(g.code, g);
+    }
+  }
   out.groups = [...codes.values()];
   return out;
 }
@@ -2862,9 +2880,12 @@ document.addEventListener('click', async e => {
     } else {
       const code = tidyCode(document.getElementById('gcode').value);
       say('Checking\u2026');
-      joinGroup(code).then(r => {
+      joinGroup(code).then(async r => {
         if (!r.ok){ say(r.msg, true); return; }
-        ui.groupForm = ''; render(); loadGroup(code); toast('Joined ' + (r.name || code));
+        ui.groupForm = ''; render(); loadGroup(code);
+        /* Ask before anything of theirs goes anywhere. Joining a board is
+           exactly the moment to decide how much of your log it can see. */
+        await askShareFor(code, r.name || code);
       }).catch(e => say(fbWhy(e), true));
     }
   }
@@ -3692,6 +3713,8 @@ function setGroupDetail(code, on){
   const g = myGroups().find(x => x.code === code);
   if (!g) return;
   g.detail = !!on;
+  g.t = now();              // stamped, so the merge knows this is the newer answer
+  fbPrefsDirty = true;      // and so a pull can't quietly undo it
   touched();
   /* Publish the change straight away — a walker turning sharing OFF expects it
      gone now, not at the next idle sync. */
@@ -3825,7 +3848,7 @@ async function createGroup(name){
   const code = newCode();
   await FB.setDoc(groupRef(code), {name: name || 'My leaderboard', createdBy: fbUser.uid, createdAt: Date.now()});
   /* register the board first so myMemberDoc(code) can read its detail flag */
-  state.groups = [...myGroups(), {code, name: name || 'My leaderboard', detail: !!fbDetail}];
+  state.groups = [...myGroups(), {code, name: name || 'My leaderboard', detail: !!fbDetail, t:now()}];
   await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code));
   touched();
   return code;
@@ -3839,11 +3862,29 @@ async function joinGroup(code){
   catch(e){ return {ok:false, msg:'Could not reach the server.'}; }
   if (!snap.exists()) return {ok:false, msg:'No leaderboard with that code. Check it and try again.'};
   const d = snap.data() || {};
-  state.groups = [...myGroups(), {code, name: d.name || 'Leaderboard', detail: !!fbDetail}];
+  /* Join quiet. The first member doc carries totals only, whatever the default
+     says, because the walker has not been asked yet — askShareFor runs straight
+     after and raises it if they want. Nothing of theirs leaks in between. */
+  state.groups = [...myGroups(), {code, name: d.name || 'Leaderboard', detail:false, t:now()}];
   await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code));
   touched();
   return {ok:true, name: d.name};
 }
+/* Put the sharing decision in front of the walker at the moment they join,
+   rather than leaving it on whatever the default happened to be. */
+async function askShareFor(code, name){
+  const yes = await confirmAsk({
+    title: 'What can ' + (name || 'this leaderboard') + ' see?',
+    body: 'Everyone on a leaderboard sees your name and your totals. You choose whether they also get your dates, notes and photos. You can change this any time on the board itself.',
+    yes: 'Share my full log',
+    no: 'Totals only',
+    tone: 'plain'
+  });
+  setGroupDetail(code, yes);
+  render();
+  toast(yes ? 'Sharing your full log with this board.' : 'This board sees totals only.');
+}
+
 async function leaveGroup(code){
   if (FB && fbUser){ try{ await FB.deleteDoc(memberRef(code, fbUser.uid)); }catch(e){} }
   state.groups = myGroups().filter(g => g.code !== code);
