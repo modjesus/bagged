@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WayMark</title>
+<title>WayMark — Mark Your Journeys</title>
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
@@ -30,12 +30,12 @@
 <style>
 :root{
   /* WayMark — Pine, Moss, Sage, Stone, Cream, Burnt Orange */
-  --pine:#1E453E; --moss:#2C5F55; --sage:#65847E; --stone:#D7D2C3; --cream:#F3EFE6; --burnt:#E56D2D;
+  --pine:#14332D; --moss:#2C5F55; --sage:#65847E; --stone:#D7D2C3; --cream:#F3EFE6; --burnt:#B4491A;
 
   --ground:#F3EFE6; --surface:#FAF7F0; --surface-2:#E7E1D3; --raise:#FFFDF8;
-  --ink:#14332D; --ink-2:#42655E; --ink-3:#75948D;
+  --ink:#14332D; --ink-2:#3E625A; --ink-3:#65847E;
   --line:#D7D2C3; --line-soft:#E4DFD2;
-  --accent:#E56D2D; --accent-ink:#2A1206; --accent-soft:#FBE6D8; --accent-text:#B4491A;
+  --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#F3E0D4; --accent-text:#B4491A;
   --done:#1E453E; --done-soft:#DFE9E6; --done-line:#A2BCB6;
   --plan:#5F5B8C; --plan-soft:#E7E5F2;
   --prog:#2E6B8A; --prog-soft:#DFEBF2;
@@ -51,9 +51,9 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --ground:#0C221D; --surface:#14332D; --surface-2:#1E453E; --raise:#173A33;
-    --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#78968F;
+    --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#7E9C95;
     --line:#2A5A51; --line-soft:#204A42;
-    --accent:#E56D2D; --accent-ink:#0D231E; --accent-soft:#3A3226; --accent-text:#E56D2D;
+    --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#D9773F;
     --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558;
     --plan:#A9A3E0; --plan-soft:#2B2A44;
     --prog:#7FB6D6; --prog-soft:#1E3644;
@@ -66,9 +66,9 @@
 }
 :root[data-theme="dark"]{
   --ground:#0C221D; --surface:#14332D; --surface-2:#1E453E; --raise:#173A33;
-  --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#78968F;
+  --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#7E9C95;
   --line:#2A5A51; --line-soft:#204A42;
-  --accent:#E56D2D; --accent-ink:#0D231E; --accent-soft:#3A3226; --accent-text:#E56D2D;
+  --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#D9773F;
   --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558;
   --plan:#A9A3E0; --plan-soft:#2B2A44;
   --prog:#7FB6D6; --prog-soft:#1E3644;
@@ -101,6 +101,304 @@ button{cursor:pointer}
 img{max-width:100%}
 .wrap{max-width:680px; margin:0 auto; padding:0 14px}
 
+
+
+/* ================= dashboard ================= */
+.hero{
+  position:relative; overflow:hidden; margin-top:16px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow);
+}
+.heroin{position:relative; z-index:2; padding:20px 18px 8px}
+.heropct{
+  font-family:"Wildkins", Georgia, serif; font-size:clamp(52px,12vw,82px);
+  line-height:.9; letter-spacing:-.01em; color:var(--ink);
+}
+.heropct sup{font-size:.34em; color:var(--accent-text); vertical-align:super; margin-left:2px}
+.herosub{font-family:"Courier Prime", monospace; font-size:13px; color:var(--ink-2); margin:8px 0 0}
+.scards{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:12px}
+.scard{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  padding:14px 15px; box-shadow:var(--shadow);
+}
+.sbig{font-family:"Wildkins", Georgia, serif; font-size:30px; line-height:1; color:var(--ink)}
+.sbig .su{font-size:.45em; color:var(--ink-3); margin-left:3px}
+.slab{
+  font-family:"Courier Prime", monospace; font-size:11px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3); margin-top:7px;
+}
+.ssub{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-2); margin-top:3px}
+.dcard{
+  display:block; width:100%; text-align:left; margin-top:4px;
+  background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent);
+  border-radius:var(--r); padding:14px 15px; box-shadow:var(--shadow); cursor:pointer;
+}
+.dch{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.dch b{font-family:"Wildkins", Georgia, serif; font-size:17px; color:var(--ink)}
+.dcs{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-2); margin:6px 0 0}
+.dcard .planstat{margin-top:10px}
+.feed{list-style:none; margin:4px 0 0; padding:0; border:1px solid var(--line);
+  border-radius:var(--r); overflow:hidden; background:var(--surface)}
+.feed li{display:flex; align-items:center; gap:10px; padding:11px 13px; border-top:1px solid var(--line-soft)}
+.feed li:first-child{border-top:none}
+.feed .fmk{width:20px; height:20px; border-radius:99px; background:var(--accent); color:var(--accent-ink);
+  display:grid; place-items:center; flex:none}
+.feed .fmk svg{width:11px; height:11px}
+.feed .fn{flex:1; min-width:0; font-family:"Wildkins", Georgia, serif; font-size:15px; color:var(--ink)}
+.feed .fd{font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--ink-3); white-space:nowrap}
+
+/* ================= paper ================= */
+/* a faint laid-paper tooth on the page ground only — never on controls */
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(20,51,45,.020) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(20,51,45,.014) 0 1px, transparent 1px 4px);
+}
+:root[data-theme="dark"] body::before, :root:not([data-theme="light"]) body::before{
+  background-image:
+    repeating-linear-gradient(0deg, rgba(243,239,230,.020) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(243,239,230,.013) 0 1px, transparent 1px 4px);
+}
+.app{position:relative; z-index:1}
+
+/* ================= the MARKED stamp ================= */
+.stampmk{
+  display:inline-flex; align-items:center; gap:7px; flex:none;
+  font-family:"Wildkins", Georgia, serif; font-size:13px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--accent);
+  border:2.5px solid var(--accent); border-radius:6px; padding:5px 11px 4px;
+  transform:rotate(-3deg); opacity:.95;
+}
+.stampmk svg{width:12px; height:12px; flex:none}
+.mkchip{
+  display:inline-flex; align-items:center;
+  font-family:"Wildkins", Georgia, serif; font-size:10px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--accent-text);
+  border:1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius:4px; padding:2px 6px 1px; vertical-align:1px;
+}
+.mkchip svg{width:9px; height:9px}
+
+/* ================= route cards as expedition plans ================= */
+.plan{border-left:3px solid var(--accent)}
+.planhead h3{font-family:"Wildkins", Georgia, serif; letter-spacing:.02em}
+.planmeta{font-family:"Courier Prime", monospace; font-size:12px; letter-spacing:.03em}
+
+/* ================= map ================= */
+#mapbox{height:min(74vh,660px)}
+.maplegend{
+  display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:10px;
+  font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--ink-3);
+}
+@media (min-width:768px){ #mapbox{height:min(76vh,760px)} }
+
+
+
+/* a seamless topographic sheet: contours every 8% of the height field, index
+   lines every fourth, and grid squares. Generated so opposite edges match, so it
+   repeats with no visible seam. */
+.topo{
+  background-color:var(--surface);
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256%22%20height%3D%22256%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%2314332D%22%20stroke-opacity%3D%22.20%22%20stroke-width%3D%220.9%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M255.2%20139L244%20131.6L232%20131.5L199.8%20151.2L196%20155.6L194.8%20160.8L197%20169.6L203.4%20178.4L211.2%20183.3L220.8%20185.4L230.4%20184.7L238.4%20181.6L255.2%20164.1%20M22.4%20184.8L16%20188.4L11.6%20196L12.7%20201.6L17.6%20204.5L25.6%20204L30.2%20198.4L28.6%20188.8L22.4%20184.8Z%20M50.4%20213.5L46.3%20215.2L44%20219.2L44.9%20224.8L48%20228.6L57.6%20230.5L66.1%20225.6L67.7%20220L64.8%20216L58.4%20213.6L50.4%20213.5Z%20M255.2%20131.7L239.2%20123.8L225.6%20123.2L208.8%20135.3L187.2%20146L182.4%20150.9L180.7%20156L185.1%20166.4L201.1%20184L215.2%20189.5L244.8%20192.3L248.8%20195.7L255.2%20206.7%20M0%20207.7L7.2%20213.7L26.4%20222.3L40%20236.1L48.8%20239L60.8%20238.2L72%20233.9L80.1%20226.4L83.7%20217.6L82.4%20213.6L78.4%20210.3L54.4%20202.1L47.2%20197.5L33.9%20176L16.8%20161.7L8.3%20142.4L0%20132.4%20M255.2%20126.3L231.2%20114.5L224%20112.8L218.1%20113.6L200.7%20128L173.6%20144L167%20152L164.6%20160L168.3%20167.2L196.7%20188L207.2%20192.5L236.8%20198.6L255.2%20216.8%20M0%20217.4L19.6%20228L35.2%20242.1L47.2%20244.9L74.4%20241.3L97.6%20230.3L120%20230.2L125.3%20226.4L127.1%20220L124%20207.9L116%20200.8L108.8%20199.8L80%20201.6L64.8%20198.6L55.2%20194.2L49.1%20188L37.6%20170.2L21.6%20154L9.6%20135.7L0%20126.9%20M56.8%2098.4L50.9%20103.2L50.1%20112L55.2%20119.7L62.4%20121.4L68.7%20115.2L69.8%20104.8L65.6%2098.9L56.8%2098.4Z%20M76.5%200L97.6%2016.9L107.2%2021.6L109.6%2020.2L112.1%207.2L116%200%20M255.2%2011.4L244.2%2016.8L240.8%2027.2L245.2%2044L255.2%2055.1%20M0%2055.5L8.8%2057.8L16%2055L20%2046.8L21.3%2032.8L20.3%2017.6L17.6%2010.3L12.8%208.9L0%2011.2%20M255.2%20116.7L224.8%2097.1L214.4%2095.4L204.4%2097.6L196.8%20102.4L182.2%20118.4L154.5%20139.2L136%20166.6L129.6%20173.2L90.4%20187.5L77.6%20189.7L67.2%20187.9L59.2%20182.9L41.6%20156.8L21%20133.6L0%20117.2%20M116.8%20255.2L124%20251L140.8%20246.4L144.6%20243.2L145.8%20236.8L143.5%20212.8L144.3%20202.4L148.8%20194.7L157.6%20191.1L169.6%20191.4L193.8%20201.6L225.6%20206.5L232.9%20211.2L245.6%20225.1L255.2%20231.3%20M55.2%2082.3L44.6%2084.8L38.7%2089.6L35.9%2097.6L35.8%20109.6L39.1%20121.6L45%20130.4L52.8%20135.7L62.4%20136.9L71.2%20133.3L77.1%20125.6L82.2%20108L83.4%2092.8L81%2086.4L76%2083L55.2%2082.3Z%20M212.5%200L226.8%2017.6L241.4%2052L247.5%2059.2L255.2%2064.5%20M0%2064.9L16%2069.8L27.2%2070.4L28.6%2019.2L33%2010.4L42.3%204.8L60%201.7L74.3%205.6L97.7%2028.8L111.2%2048.5L116%2051.5L121.6%2052.4L130.4%2049L134.3%2040.8L133.1%2031.2L125.4%2015.2L127.2%207.2L131.2%204.7L137.6%204.1L157.6%2011.2L168%2012L174.9%208L173.8%200%20M255.2%20111.6L226.4%2090.4L199.2%2085L182.4%2073.7L171.2%2074.4L164.6%2079.2L161.5%2087.2L161.8%2096L166.1%20109.6L165.2%20114.4L146.1%20135.2L129.9%20159.2L116%20169.3L88.8%20181.6L76.8%20184L67.2%20181.8L60%20175.9L52.9%20163.2L49.5%20150.4L52.8%20146.4L72%20140.4L80%20131.4L89.5%2094.4L89.3%2085.6L86.1%2079.2L75.2%2075.1L30.4%2073.8L28.8%2079.2L28.1%20124L21.6%20123.7L0%20112.1%20M173.3%20255.2L158.4%20238.6L152.7%20224.8L151.8%20216L153.3%20208.8L156.8%20204.2L162.4%20201.9L171.2%20202.8L192%20211.3L212.8%20210.7L221.6%20212.4L228.6%20217.6L239.2%20232.8L255.2%20241.7%20M242.9%20255.2L229.6%20244L222.4%20242.3L213.6%20246L211.7%20250.4L212.2%20255.2%20M0%2074.2L10.4%2079L16.2%2084L19.9%2091.2L21.3%20100.8L20.2%20108L16.8%20111.3L9.6%20110.7L0%20106%20M255.2%20105.4L233.6%2085.1L208.6%2075.2L193.6%2062L185.6%2061.2L169.6%2065.8L161.6%2070L157.2%2075.2L150.6%20111.2L124.5%20152L116%20159.2L87.2%20174.9L79.2%20177.3L72%20176.7L63.3%20169.6L60.7%20158.4L64%20153.3L78.9%20144L84.3%20136L94.6%2094.4L95.1%2077.6L92.7%2072.8L87.2%2069.7L56.8%2067.1L44.5%2062.4L36.6%2051.2L33.3%2031.2L35.3%2019.2L41.6%2011.3L53.6%206.6L65.6%207.3L75.2%2013L89.7%2028.8L106.4%2055.8L112%2058.6L120%2059.3L131.2%2057.3L138.4%2052.2L141.5%2044.8L144%2027.6L148%2022.9L157.6%2022L191.2%2026.3L208%2026L215.2%2029.1L220.8%2034.2L241.6%2065.6L255.2%2073.9%20M168.8%20219.2L175.1%20220.8L182.2%20226.4L185.4%20232L184%20235.9L177.6%20236.2L169.6%20231.1L165.9%20224L166.5%20220.8L168.8%20219.2Z%20M54.4%2018.4L64%2019.3L73.9%2028L82.2%2041.6L82.7%2046.4L80.5%2050.4L74.4%2052.7L65.6%2052L57.6%2048.7L51.2%2043.2L47.2%2036L46.5%2028L48.8%2022.3L54.4%2018.4Z%20M124%2070.3L134.4%2070.7L140.1%2074.4L142.7%2083.2L141.2%2096L135.6%20107.2L116%20130.6L110.4%20135.1L105.6%20135.7L101.4%20131.2L100.1%20121.6L106.5%2086.4L112.4%2075.2L124%2070.3Z%20M125.6%2076.8L131.2%2077.8L135%2081.6L136.4%2087.2L135.3%2094.4L126.4%20106.9L119.2%20111.9L113.6%20113.1L111.2%20111.1L109.9%20105.6L112%2088.7L117.3%2080L125.6%2076.8Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%2314332D%22%20stroke-opacity%3D%22.28%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M237.6%20140.6L213.6%20153.6L207.2%20159L205.5%20168L210.9%20176L217.6%20179L225.6%20178.9L232%20176.1L237.6%20170.4L247.6%20156L249.8%20149.6L246.4%20142.3L237.6%20140.6Z%20M0%2042.9L4.8%2045L8.8%2043.8L11.5%2040L12.8%2033.6L9.3%2024L4.8%2022.4L0%2023.6%20M255.2%20121.5L226.4%20105.1L218.4%20103.5L211.2%20105.2L192.4%20122.4L161.4%20144L152.5%20156.8L148.9%20169.6L149.7%20173.6L152.8%20176.8L175.2%20182.8L196.8%20195L232%20203.1L255.2%20224.1%20M0%20224.6L14.4%20232.8L27.2%20246L33.6%20249.4L73.6%20248.5L94.4%20251.6L131.2%20238.1L135.6%20232.8L136.9%20224.8L133.4%20200.8L128%20191.3L122.4%20189.1L113.6%20188.8L80%20195.2L61.6%20191.3L53.6%20184.6L40.8%20165.3L13.9%20133.6L0%20122%20M56.8%2089.5L49.6%2091.9L44.9%2096L42.4%20101.8L42.2%20109.6L44.5%20117.6L49.4%20124.8L56%20129.1L62.4%20129.9L68.8%20127.1L73.5%20120.8L76.7%20109.6L77.1%2099.2L75.2%2093.8L71.2%2090.4L56.8%2089.5Z%20M0%2090.2L4.8%2090.7L7.3%2095.2L4%2096.4L0%2092.5%20M52.8%2011.9L60%2011.5L67.2%2013.8L82.5%2028.8L92.8%2046.4L93.3%2053.6L90.5%2058.4L80%2061.2L64%2060.5L53.6%2056.9L45.9%2050.4L40.4%2039.2L39.6%2026.4L44%2017L52.8%2011.9Z%20M159.2%2031.9L167.2%2032L174.8%2035.2L179.2%2040L180.1%2046.4L177.5%2051.2L172.6%2055.2L150.8%2064L147.1%2096L141.6%20110.4L115.6%20147.2L106.4%20152.5L88.7%20157.6L81.7%20163.2L78.4%20163.8L78.3%20160.8L86.4%20155.8L89.3%20149.6L94.5%20116L104.8%2071.9L112.8%2066.6L146.2%2060.8L151.5%2038.4L154.4%2034.2L159.2%2031.9Z%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%2314332D%22%20stroke-opacity%3D%22.11%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M0%200H256M0%20128H256M0%200V256M128%200V256%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat:repeat;
+  background-size:300px 300px;
+  background-position:center top;
+}
+:root[data-theme="dark"] .topo, :root:not([data-theme="light"]) .topo{
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256%22%20height%3D%22256%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.15%22%20stroke-width%3D%220.9%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M255.2%20139L244%20131.6L232%20131.5L199.8%20151.2L196%20155.6L194.8%20160.8L197%20169.6L203.4%20178.4L211.2%20183.3L220.8%20185.4L230.4%20184.7L238.4%20181.6L255.2%20164.1%20M22.4%20184.8L16%20188.4L11.6%20196L12.7%20201.6L17.6%20204.5L25.6%20204L30.2%20198.4L28.6%20188.8L22.4%20184.8Z%20M50.4%20213.5L46.3%20215.2L44%20219.2L44.9%20224.8L48%20228.6L57.6%20230.5L66.1%20225.6L67.7%20220L64.8%20216L58.4%20213.6L50.4%20213.5Z%20M255.2%20131.7L239.2%20123.8L225.6%20123.2L208.8%20135.3L187.2%20146L182.4%20150.9L180.7%20156L185.1%20166.4L201.1%20184L215.2%20189.5L244.8%20192.3L248.8%20195.7L255.2%20206.7%20M0%20207.7L7.2%20213.7L26.4%20222.3L40%20236.1L48.8%20239L60.8%20238.2L72%20233.9L80.1%20226.4L83.7%20217.6L82.4%20213.6L78.4%20210.3L54.4%20202.1L47.2%20197.5L33.9%20176L16.8%20161.7L8.3%20142.4L0%20132.4%20M255.2%20126.3L231.2%20114.5L224%20112.8L218.1%20113.6L200.7%20128L173.6%20144L167%20152L164.6%20160L168.3%20167.2L196.7%20188L207.2%20192.5L236.8%20198.6L255.2%20216.8%20M0%20217.4L19.6%20228L35.2%20242.1L47.2%20244.9L74.4%20241.3L97.6%20230.3L120%20230.2L125.3%20226.4L127.1%20220L124%20207.9L116%20200.8L108.8%20199.8L80%20201.6L64.8%20198.6L55.2%20194.2L49.1%20188L37.6%20170.2L21.6%20154L9.6%20135.7L0%20126.9%20M56.8%2098.4L50.9%20103.2L50.1%20112L55.2%20119.7L62.4%20121.4L68.7%20115.2L69.8%20104.8L65.6%2098.9L56.8%2098.4Z%20M76.5%200L97.6%2016.9L107.2%2021.6L109.6%2020.2L112.1%207.2L116%200%20M255.2%2011.4L244.2%2016.8L240.8%2027.2L245.2%2044L255.2%2055.1%20M0%2055.5L8.8%2057.8L16%2055L20%2046.8L21.3%2032.8L20.3%2017.6L17.6%2010.3L12.8%208.9L0%2011.2%20M255.2%20116.7L224.8%2097.1L214.4%2095.4L204.4%2097.6L196.8%20102.4L182.2%20118.4L154.5%20139.2L136%20166.6L129.6%20173.2L90.4%20187.5L77.6%20189.7L67.2%20187.9L59.2%20182.9L41.6%20156.8L21%20133.6L0%20117.2%20M116.8%20255.2L124%20251L140.8%20246.4L144.6%20243.2L145.8%20236.8L143.5%20212.8L144.3%20202.4L148.8%20194.7L157.6%20191.1L169.6%20191.4L193.8%20201.6L225.6%20206.5L232.9%20211.2L245.6%20225.1L255.2%20231.3%20M55.2%2082.3L44.6%2084.8L38.7%2089.6L35.9%2097.6L35.8%20109.6L39.1%20121.6L45%20130.4L52.8%20135.7L62.4%20136.9L71.2%20133.3L77.1%20125.6L82.2%20108L83.4%2092.8L81%2086.4L76%2083L55.2%2082.3Z%20M212.5%200L226.8%2017.6L241.4%2052L247.5%2059.2L255.2%2064.5%20M0%2064.9L16%2069.8L27.2%2070.4L28.6%2019.2L33%2010.4L42.3%204.8L60%201.7L74.3%205.6L97.7%2028.8L111.2%2048.5L116%2051.5L121.6%2052.4L130.4%2049L134.3%2040.8L133.1%2031.2L125.4%2015.2L127.2%207.2L131.2%204.7L137.6%204.1L157.6%2011.2L168%2012L174.9%208L173.8%200%20M255.2%20111.6L226.4%2090.4L199.2%2085L182.4%2073.7L171.2%2074.4L164.6%2079.2L161.5%2087.2L161.8%2096L166.1%20109.6L165.2%20114.4L146.1%20135.2L129.9%20159.2L116%20169.3L88.8%20181.6L76.8%20184L67.2%20181.8L60%20175.9L52.9%20163.2L49.5%20150.4L52.8%20146.4L72%20140.4L80%20131.4L89.5%2094.4L89.3%2085.6L86.1%2079.2L75.2%2075.1L30.4%2073.8L28.8%2079.2L28.1%20124L21.6%20123.7L0%20112.1%20M173.3%20255.2L158.4%20238.6L152.7%20224.8L151.8%20216L153.3%20208.8L156.8%20204.2L162.4%20201.9L171.2%20202.8L192%20211.3L212.8%20210.7L221.6%20212.4L228.6%20217.6L239.2%20232.8L255.2%20241.7%20M242.9%20255.2L229.6%20244L222.4%20242.3L213.6%20246L211.7%20250.4L212.2%20255.2%20M0%2074.2L10.4%2079L16.2%2084L19.9%2091.2L21.3%20100.8L20.2%20108L16.8%20111.3L9.6%20110.7L0%20106%20M255.2%20105.4L233.6%2085.1L208.6%2075.2L193.6%2062L185.6%2061.2L169.6%2065.8L161.6%2070L157.2%2075.2L150.6%20111.2L124.5%20152L116%20159.2L87.2%20174.9L79.2%20177.3L72%20176.7L63.3%20169.6L60.7%20158.4L64%20153.3L78.9%20144L84.3%20136L94.6%2094.4L95.1%2077.6L92.7%2072.8L87.2%2069.7L56.8%2067.1L44.5%2062.4L36.6%2051.2L33.3%2031.2L35.3%2019.2L41.6%2011.3L53.6%206.6L65.6%207.3L75.2%2013L89.7%2028.8L106.4%2055.8L112%2058.6L120%2059.3L131.2%2057.3L138.4%2052.2L141.5%2044.8L144%2027.6L148%2022.9L157.6%2022L191.2%2026.3L208%2026L215.2%2029.1L220.8%2034.2L241.6%2065.6L255.2%2073.9%20M168.8%20219.2L175.1%20220.8L182.2%20226.4L185.4%20232L184%20235.9L177.6%20236.2L169.6%20231.1L165.9%20224L166.5%20220.8L168.8%20219.2Z%20M54.4%2018.4L64%2019.3L73.9%2028L82.2%2041.6L82.7%2046.4L80.5%2050.4L74.4%2052.7L65.6%2052L57.6%2048.7L51.2%2043.2L47.2%2036L46.5%2028L48.8%2022.3L54.4%2018.4Z%20M124%2070.3L134.4%2070.7L140.1%2074.4L142.7%2083.2L141.2%2096L135.6%20107.2L116%20130.6L110.4%20135.1L105.6%20135.7L101.4%20131.2L100.1%20121.6L106.5%2086.4L112.4%2075.2L124%2070.3Z%20M125.6%2076.8L131.2%2077.8L135%2081.6L136.4%2087.2L135.3%2094.4L126.4%20106.9L119.2%20111.9L113.6%20113.1L111.2%20111.1L109.9%20105.6L112%2088.7L117.3%2080L125.6%2076.8Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.22%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M237.6%20140.6L213.6%20153.6L207.2%20159L205.5%20168L210.9%20176L217.6%20179L225.6%20178.9L232%20176.1L237.6%20170.4L247.6%20156L249.8%20149.6L246.4%20142.3L237.6%20140.6Z%20M0%2042.9L4.8%2045L8.8%2043.8L11.5%2040L12.8%2033.6L9.3%2024L4.8%2022.4L0%2023.6%20M255.2%20121.5L226.4%20105.1L218.4%20103.5L211.2%20105.2L192.4%20122.4L161.4%20144L152.5%20156.8L148.9%20169.6L149.7%20173.6L152.8%20176.8L175.2%20182.8L196.8%20195L232%20203.1L255.2%20224.1%20M0%20224.6L14.4%20232.8L27.2%20246L33.6%20249.4L73.6%20248.5L94.4%20251.6L131.2%20238.1L135.6%20232.8L136.9%20224.8L133.4%20200.8L128%20191.3L122.4%20189.1L113.6%20188.8L80%20195.2L61.6%20191.3L53.6%20184.6L40.8%20165.3L13.9%20133.6L0%20122%20M56.8%2089.5L49.6%2091.9L44.9%2096L42.4%20101.8L42.2%20109.6L44.5%20117.6L49.4%20124.8L56%20129.1L62.4%20129.9L68.8%20127.1L73.5%20120.8L76.7%20109.6L77.1%2099.2L75.2%2093.8L71.2%2090.4L56.8%2089.5Z%20M0%2090.2L4.8%2090.7L7.3%2095.2L4%2096.4L0%2092.5%20M52.8%2011.9L60%2011.5L67.2%2013.8L82.5%2028.8L92.8%2046.4L93.3%2053.6L90.5%2058.4L80%2061.2L64%2060.5L53.6%2056.9L45.9%2050.4L40.4%2039.2L39.6%2026.4L44%2017L52.8%2011.9Z%20M159.2%2031.9L167.2%2032L174.8%2035.2L179.2%2040L180.1%2046.4L177.5%2051.2L172.6%2055.2L150.8%2064L147.1%2096L141.6%20110.4L115.6%20147.2L106.4%20152.5L88.7%20157.6L81.7%20163.2L78.4%20163.8L78.3%20160.8L86.4%20155.8L89.3%20149.6L94.5%20116L104.8%2071.9L112.8%2066.6L146.2%2060.8L151.5%2038.4L154.4%2034.2L159.2%2031.9Z%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.09%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M0%200H256M0%20128H256M0%200V256M128%200V256%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+/* ================= the journey trail ================= */
+.trail{position:relative; margin-top:14px; overflow:hidden;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+.trailline{position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none}
+.trailline path{fill:none; vector-effect:non-scaling-stroke}
+.tl-under{stroke:var(--line); stroke-width:7; stroke-linecap:round}
+.tl-over{stroke:var(--accent); stroke-width:2.4; stroke-dasharray:1 7; stroke-linecap:round; opacity:.85}
+
+.milestone{
+  position:absolute; transform:translate(-50%,-50%); z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+  width:150px; background:none; border:none; padding:0; cursor:pointer; text-align:center;
+}
+.milestone.flow{position:static; transform:none}
+.patchrow{
+  display:flex; gap:18px; flex-wrap:wrap; justify-content:center; align-items:flex-start;
+  padding:24px 16px; margin-top:14px;
+  border:1px solid var(--line); border-radius:var(--r);
+}
+.milestone .patch{width:auto; opacity:.42; filter:grayscale(.85)}
+.milestone.got .patch{opacity:1; filter:none}
+.milestone .disc{
+  width:104px; height:104px; margin:0 auto; border-radius:99px; display:grid; place-items:center;
+  border:3px solid var(--line); background:var(--surface-2); color:var(--ink-3);
+  position:relative; overflow:hidden;
+  box-shadow:inset 0 0 0 2px var(--surface), 0 2px 7px -3px rgba(0,0,0,.35);
+}
+.milestone.got .disc{
+  border-color:var(--accent); background:var(--pine); color:#F6EFE4;
+  box-shadow:inset 0 0 0 2px rgba(180,73,26,.55), 0 3px 11px -3px rgba(0,0,0,.5);
+}
+.milestone .disc::after{content:""; position:absolute; inset:11px; border-radius:99px; z-index:3;
+  border:1.4px dashed color-mix(in srgb, var(--ink-3) 55%, transparent); pointer-events:none}
+.milestone.got .disc::after{border-color:rgba(246,239,228,.42)}
+.milestone .disc svg{width:42px; height:42px}
+.mstext{display:block; line-height:1.25; padding:5px 9px 4px; border-radius:7px;
+  background:color-mix(in srgb, var(--surface) 92%, transparent);
+  border:1px solid var(--line-soft); box-shadow:0 1px 4px -2px rgba(0,0,0,.35);}
+.mstext b{display:block; font-family:"Wildkins", Georgia, serif; font-size:12.5px;
+  letter-spacing:.05em; text-transform:uppercase; color:var(--ink)}
+.mstext i{display:block; font-style:normal; font-family:"Courier Prime", monospace;
+  font-size:10.5px; color:var(--ink-3); margin-top:2px}
+.milestone.got .mstext i{color:var(--accent-text)}
+.milestone:hover .disc{transform:scale(1.06)}
+.milestone .disc{transition:transform .12s}
+
+/* patch detail */
+.backbtn{background:none; border:none; padding:8px 0; color:var(--ink-2);
+  font-family:"Courier Prime", monospace; font-size:13px; cursor:pointer}
+.pdhead{position:relative; overflow:hidden; display:flex; align-items:center; gap:16px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  padding:18px 16px; box-shadow:var(--shadow)}
+.pdhead > .patch, .pdhead > .pdt{position:relative; z-index:2}
+.pdhead .disc{width:120px; height:120px; margin:0; border-radius:99px; display:grid; place-items:center;
+  border:3px solid var(--line); background:var(--surface-2); color:var(--ink-3);
+  position:relative; overflow:hidden; box-shadow:inset 0 0 0 2px var(--surface)}
+.pdhead .patch.got .disc{border-color:var(--accent); background:var(--pine); color:#F6EFE4}
+.pdhead .disc svg{width:48px; height:48px}
+.pdt{flex:1; min-width:0}
+.pdt h2{font-family:"Wildkins", Georgia, serif; font-size:20px; margin:0}
+.pdt p{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-2); margin:5px 0 9px}
+.ptimeline{list-style:none; margin:6px 0 0; padding:0; border:1px solid var(--line);
+  border-radius:var(--r); overflow:hidden; background:var(--surface)}
+.ptimeline li{display:flex; align-items:center; gap:12px; padding:11px 13px;
+  border-top:1px solid var(--line-soft)}
+.ptimeline li:first-child{border-top:none}
+.pnum{width:26px; height:26px; border-radius:99px; flex:none; display:grid; place-items:center;
+  background:var(--surface-2); border:1px solid var(--line);
+  font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-2)}
+.pinfo{flex:1; min-width:0}
+.pinfo b{display:block; font-family:"Wildkins", Georgia, serif; font-size:15px; color:var(--ink)}
+.pinfo i{display:block; font-style:normal; font-family:"Courier Prime", monospace;
+  font-size:11.5px; color:var(--ink-3); margin-top:2px}
+.pdate{font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--ink-3); white-space:nowrap}
+.eyelink{background:none; border:none; padding:0; cursor:pointer; width:100%; text-align:left}
+@media (min-width:768px){
+  .milestone{width:186px}
+  .milestone .disc{width:132px; height:132px}
+  .milestone .disc svg{width:54px; height:54px}
+  .mstext b{font-size:13.5px}
+}
+@media (max-width:400px){
+  .milestone{width:132px}
+  .milestone .disc{width:92px; height:92px}
+  .milestone .disc svg{width:38px; height:38px}
+  .mstext b{font-size:11.5px}
+}
+
+/* ================= shell ================= */
+.app{display:block}
+.col{min-width:0}
+.side{display:none}
+.hideDesk{display:inline-flex}
+
+/* the waymarker: a blaze plate whose chevrons stack into W over M */
+.wmk{display:inline-grid; place-items:center; flex:none; width:40px; height:40px}
+.wmk.sm{width:34px; height:34px}
+.wmsvg{width:100%; height:100%; overflow:visible}
+.wmplate{fill:none; stroke:var(--ink); stroke-width:2.2}
+.wmw,.wmm{fill:none; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round}
+.wmw{stroke:var(--ink)}
+.wmm{stroke:var(--accent)}
+
+.hbrand,.sbt{display:flex; flex-direction:column; gap:1px; min-width:0}
+.tagline{
+  font-family:"Courier Prime", monospace; font-style:normal;
+  font-size:10.5px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-3); white-space:nowrap;
+}
+
+/* ================= navigation ================= */
+.navbtn{
+  display:flex; align-items:center; gap:11px; width:100%;
+  background:none; border:1px solid transparent; border-radius:10px;
+  padding:10px 12px; color:var(--ink-2); font-size:14.5px; text-align:left;
+  font-family:"Courier Prime", monospace; letter-spacing:.02em; cursor:pointer;
+}
+.navbtn .ni{width:19px; height:19px; flex:none; opacity:.85}
+.navbtn .nl{flex:1; min-width:0}
+.navbtn .nc{
+  font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-3);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.navbtn:hover{background:var(--surface-2); color:var(--ink)}
+.navbtn[aria-selected="true"]{
+  background:var(--surface); border-color:var(--line); color:var(--ink); font-weight:600;
+  box-shadow:var(--shadow);
+}
+.navbtn[aria-selected="true"] .ni{opacity:1; color:var(--accent)}
+.navbtn[aria-selected="true"] .nc{color:var(--accent-text)}
+
+/* mobile: a fixed bottom bar that behaves like a native app */
+.bnav{
+  position:fixed; left:0; right:0; bottom:0; z-index:950;
+  display:flex; gap:2px; padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+  background:color-mix(in srgb, var(--ground) 94%, transparent);
+  backdrop-filter:saturate(1.4) blur(12px);
+  border-top:1px solid var(--line);
+}
+.bnav .navbtn{
+  flex:1; flex-direction:column; gap:3px; padding:7px 2px 5px; justify-content:center;
+  font-size:10.5px; letter-spacing:.04em; border-radius:9px; text-align:center;
+}
+.bnav .navbtn .ni{width:21px; height:21px}
+.bnav .navbtn .nl{flex:none}
+.bnav .navbtn .nc{display:none}
+.bnav .navbtn[aria-selected="true"]{box-shadow:none; background:var(--surface-2); border-color:transparent}
+body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+
+/* ================= tablet: hybrid, a narrow rail ================= */
+@media (min-width:768px){
+  body{padding-bottom:0}
+  .app{display:flex; align-items:flex-start; min-height:100vh}
+  .bnav{display:none}
+  .col{flex:1; min-width:0}
+  .side{
+    display:flex; flex-direction:column; gap:4px; flex:none;
+    position:sticky; top:0; height:100vh; width:82px; padding:16px 10px;
+    border-right:1px solid var(--line-soft); background:var(--surface);
+    padding-top:calc(16px + env(safe-area-inset-top));
+  }
+  .sbrand{background:none; border:none; padding:6px 0 14px; display:grid; place-items:center; cursor:pointer}
+  .side .sbt, .side .sfoot, .side .navbtn .nl, .side .navbtn .nc{display:none}
+  .side .navbtn{justify-content:center; padding:11px 0}
+  .side .navbtn .ni{width:21px; height:21px}
+  .snav{display:flex; flex-direction:column; gap:4px}
+  .hideDesk{display:none !important}
+  .top{background:none; backdrop-filter:none; border-bottom:1px solid var(--line-soft)}
+  .brandrow{justify-content:flex-end}
+  .wrap{max-width:760px}
+}
+
+/* ================= desktop: full sidebar ================= */
+@media (min-width:1024px){
+  .side{width:236px; padding:18px 14px; align-items:stretch}
+  .side .sbt{display:flex}
+  .sbrand{display:flex; align-items:center; gap:11px; padding:4px 4px 18px; text-align:left}
+  .side .navbtn{justify-content:flex-start; padding:10px 12px}
+  .side .navbtn .nl, .side .navbtn .nc{display:block}
+  .sfoot{
+    display:block; margin-top:auto; padding:14px 4px 0; border-top:1px solid var(--line-soft);
+    font-family:"Courier Prime", monospace; font-size:11px; line-height:1.5; color:var(--ink-3);
+  }
+  .wrap{max-width:860px}
+}
+@media (min-width:1440px){
+  .side{width:264px}
+  .wrap{max-width:1040px}
+}
+
 /* header */
 .top{
   position:sticky; top:0; z-index:900;
@@ -109,7 +407,7 @@ img{max-width:100%}
   backdrop-filter:saturate(1.4) blur(10px);
   border-bottom:1px solid var(--line-soft);
 }
-.brandrow{display:flex; align-items:center; gap:8px; padding:12px 0 8px}
+.brandrow{display:flex; align-items:center; gap:10px; padding:12px 0 8px}
 .brand{font-family:"Wildkins", Georgia, serif; font-weight:400; font-size:30px; letter-spacing:.16em; line-height:1; margin:0; flex:none; text-transform:uppercase; margin-right:-.16em}
 .brand em{font-style:normal; color:var(--accent-text)}
 @media (max-width:386px){ .brand{font-size:27px} }
@@ -449,34 +747,45 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .patchstrip{display:flex; gap:10px; overflow-x:auto; padding:2px 0 4px; scrollbar-width:none}
 .patchstrip::-webkit-scrollbar{display:none}
 .patch{
-  flex:none; width:92px; text-align:center; background:none; border:none; padding:0;
-  opacity:.34; filter:grayscale(1);
+  flex:none; width:132px; text-align:center; background:none; border:none; padding:0;
+  opacity:.42; filter:grayscale(.85);
 }
 .patch.got{opacity:1; filter:none}
+/* a sewn patch: merrowed edge, twill field, stitch ring */
 .patch .disc{
-  width:72px; height:72px; margin:0 auto 6px; border-radius:99px;
-  border:2.5px dashed var(--line); display:grid; place-items:center; color:var(--ink-3);
-  background:var(--surface); position:relative; overflow:hidden;
+  width:112px; height:112px; margin:0 auto 8px; border-radius:99px;
+  border:3px solid var(--line); display:grid; place-items:center; color:var(--ink-3);
+  background:var(--surface-2); position:relative; overflow:hidden;
+  box-shadow:inset 0 0 0 2px var(--surface), 0 2px 7px -3px rgba(0,0,0,.35);
 }
+.patch .disc::after{
+  content:""; position:absolute; inset:12px; border-radius:99px; z-index:3;
+  border:1.5px dashed color-mix(in srgb, var(--ink-3) 55%, transparent); pointer-events:none;
+}
+.patch.got .disc::after{border-color:rgba(246,239,228,.42)}
 .patch .pimg{
   position:absolute; inset:0; width:100%; height:100%; max-width:none;
   object-fit:contain; object-position:center; z-index:2; background:var(--patch-bg);
 }
-.patch.got .disc{border-style:solid; border-color:var(--accent); color:var(--accent-ink); background:var(--accent)}
+.patch.got .disc{
+  border-color:var(--accent); color:#F6EFE4; background:var(--pine);
+  box-shadow:inset 0 0 0 2px rgba(180,73,26,.55), 0 3px 11px -3px rgba(0,0,0,.5);
+}
 /* real artwork covers the drawn fallback; it sits on the mount colour so any
    white edge in the PNG blends into the disc instead of showing as a ring */
 .patch .disc:has(.pimg),
 .patch.got .disc:has(.pimg),
 .patch .disc.hasimg,
 .patch.got .disc.hasimg{border-color:transparent; background:var(--patch-bg)}
-.patch .disc svg{width:28px; height:28px}
-.patch .pl{font-family:"Wildkins", Georgia, serif; font-weight:700; font-size:10.5px; line-height:1.25; letter-spacing:.02em; color:var(--ink-2)}
+.patch .disc svg{width:44px; height:44px}
+.patch .pl{font-family:"Wildkins", Georgia, serif; font-weight:700; font-size:11px; line-height:1.25;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2)}
 .patch.got .pl{color:var(--ink)}
 
 /* ---- summit stamp ---- */
 .stamp{
   display:inline-flex; flex-direction:column; align-items:center; gap:3px;
-  border:3.5px solid var(--done); color:var(--done); border-radius:8px;
+  border:3.5px solid var(--accent); color:var(--accent); border-radius:8px;
   padding:9px 18px 8px; transform:rotate(-5deg); opacity:.92;
   font-family:"Wildkins", Georgia, serif;
 }
@@ -616,28 +925,35 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 </head>
 <body>
 
-<header class="top">
-  <div class="wrap">
-    <div class="brandrow">
-      <h1 class="brand">Way<em>Mark</em></h1>
-      <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span><span id="syncTxt" style="overflow:hidden;text-overflow:ellipsis">Checking…</span></button>
-      <button class="iconbtn" id="themeBtn" aria-label="Light or dark">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="3.6"/></svg>
-      </button>
-      <button class="iconbtn" id="menuBtn" aria-label="Settings">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-      </button>
-    </div>
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="h" aria-selected="true">Hills<span class="n" id="tn-h">0</span></button>
-      <button class="tab" role="tab" data-tab="m" aria-selected="false">Map<span class="n" id="tn-m">—</span></button>
-      <button class="tab" role="tab" data-tab="p" aria-selected="false">Routes<span class="n" id="tn-p">none yet</span></button>
-      <button class="tab" role="tab" data-tab="f" aria-selected="false" id="tabFriends" hidden>Friends<span class="n" id="tn-f">—</span></button>
-    </div>
-  </div>
-</header>
+<div class="app">
+  <aside class="side">
+    <button class="sbrand" data-tab="d" aria-label="WayMark home">
+      <span class="wmk"><svg class="wmsvg" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="wmplate" x="2.4" y="2.4" width="27.2" height="27.2" rx="8.4"/><path class="wmw" d="M8 10.4 L12 17 L16 10.4 L20 17 L24 10.4"/><path class="wmm" d="M8 21.6 L12 15 L16 21.6 L20 15 L24 21.6"/></svg></span>
+      <span class="sbt"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></span>
+    </button>
+    <nav class="snav" id="snav" role="tablist" aria-label="Sections"></nav>
+    <p class="sfoot">A walking log for the hills of Britain.</p>
+  </aside>
 
-<main class="wrap" id="main"></main>
+  <div class="col">
+    <header class="top">
+      <div class="wrap brandrow">
+
+        <span class="hbrand hideDesk"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></span>
+        <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span><span id="syncTxt" style="overflow:hidden;text-overflow:ellipsis">Checking…</span></button>
+        <button class="iconbtn" id="themeBtn" aria-label="Light or dark">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="3.6"/></svg>
+        </button>
+        <button class="iconbtn" id="menuBtn" aria-label="Settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="wrap" id="main"></main>
+    <nav class="bnav" id="bnav" role="tablist" aria-label="Sections"></nav>
+  </div>
+</div>
 
 <div class="sheet" id="sheet">
   <div class="sheetbox">
@@ -649,8 +965,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <p>Switch on the lists you're working through. Switching one off just hides it — nothing you've ticked is lost.</p>
     <div id="listToggles"></div>
     <h3>Profile</h3>
-    <p id="cloudNote"></p>
-    <div id="accountBox"></div>
+    <p class="cloudNote"></p>
+    <div class="accountBox"></div>
     <h3>Backup</h3>
     <p>Ticks, dates, notes and routes as plain text. Photos live in your repository, not in here.</p>
     <textarea id="backupText" spellcheck="false"></textarea>
@@ -733,7 +1049,7 @@ let state = {bagged:{}, plans:[], enabled:['wainwright','hewitt-wales'], groups:
 let cloudReady = false, cloudWritable = false;
 let syncState = 'local', cloudSig = '', lastSynced = 0;
 let syncTimer = null, syncErr = '';
-let tab = 'h';
+let tab = 'd';
 let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null, breakdown:false,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false,
           mapScope:'enabled'};
@@ -1072,8 +1388,9 @@ function patches(){
     out.push({
       id: n === 1 ? 'first-summit' : 'hills-' + n,
       got: total >= n, icon: n >= 100 ? 'star' : 'boot',
-      label: n === 1 ? 'First summit' : n + ' hills',
-      need: n === 1 ? 'Mark your first hill' : 'Mark ' + n + ' hills',
+      label: n === 1 ? 'First peak marked' : n + ' peaks marked',
+      need: n === 1 ? 'Mark your first peak' : 'Mark ' + n + ' peaks',
+      kind:'count', n: n, have: Math.min(total, n), target: n,
       sort: n
     });
   }
@@ -1084,7 +1401,8 @@ function patches(){
       out.push({
         id: 'book-' + (BOOK_SLUG[b] || norm(b)),
         got: done === inB.length && inB.length > 0, icon:'book',
-        label: b.replace('The ',''), need: 'Finish all ' + inB.length,
+        label: b.replace('The ','') + ' marked', need: 'Finish all ' + inB.length,
+        kind:'book', region: b, have: done, target: inB.length,
         sort: 1000 + inB.length
       });
     }
@@ -1093,17 +1411,130 @@ function patches(){
     const s = statsFor(l.id);
     out.push({
       id: 'list-' + l.id, got: s.done === s.total && s.total > 0, icon:'list',
-      label: l.name + ' complete', need: 'Finish all ' + s.total,
+      label: l.name + ' fully marked', need: 'Finish all ' + s.total,
+      kind:'list', listId: l.id, have: s.done, target: s.total,
       sort: 5000 + s.total
     });
   }
   out.sort((a,b) => (b.got - a.got) || (a.sort - b.sort));
   return out;
 }
+
+/* ---------- the journey: patches as milestones along a trail ---------- */
+/* Milestones keep the order you actually earned them in, so the line reads as a
+   walk through your own log rather than a scoreboard. */
+function markedInDateOrder(list){
+  return (list || HILLS)
+    .filter(x => isBagged(x.k))
+    .map(x => ({h:x, r: state.bagged[x.k]}))
+    .sort((a, b) => (a.r.date || '9999').localeCompare(b.r.date || '9999') || (a.r.t || 0) - (b.r.t || 0));
+}
+function patchPeaks(p){
+  if (!p) return [];
+  if (p.kind === 'book') return markedInDateOrder(hillsIn('wainwright').filter(x => regionOf(x, 'wainwright') === p.region));
+  if (p.kind === 'list') return markedInDateOrder(hillsIn(p.listId));
+  return markedInDateOrder(null).slice(0, p.n);   // the summits that earned it
+}
+function patchDisc(p, cls){
+  return '<span class="disc' + (cls || '') + '">' +
+    '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="" loading="lazy" ' +
+    'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" onerror="this.remove()">' +
+    PATCH_ICONS[p.icon] + '</span>';
+}
+function trailStep(){ return (typeof innerWidth !== 'undefined' && innerWidth >= 768) ? 232 : 176; }
+function trailBlock(list){
+  const STEP = trailStep(), H = list.length * STEP + 140;
+  let s = '<div class="trail topo" style="height:' + H + 'px">';
+  let d = '';
+  list.forEach((p, i) => {
+    const x = i % 2 === 0 ? 30 : 70, y = 88 + i * STEP;
+    if (i === 0) d += 'M' + x + ' ' + y;
+    else {
+      const px = (i-1) % 2 === 0 ? 30 : 70, py = 88 + (i-1) * STEP;
+      d += ' C' + px + ' ' + (py + STEP*0.45) + ', ' + x + ' ' + (y - STEP*0.45) + ', ' + x + ' ' + y;
+    }
+  });
+  s += '<svg class="trailline" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
+       '<path class="tl-under" d="' + d + '"/><path class="tl-over" d="' + d + '"/></svg>';
+  list.forEach((p, i) => {
+    const x = i % 2 === 0 ? 30 : 70, y = 88 + i * STEP;
+    const pct = p.target ? Math.min(100, Math.round((p.have || 0) / p.target * 100)) : 0;
+    s += '<button class="milestone' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '"' +
+         ' style="left:' + x + '%; top:' + y + 'px">' +
+         '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
+         '<span class="mstext"><b>' + esc(p.label) + '</b>' +
+           '<i>' + (p.got ? 'Earned' : (p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%') + '</i></span>' +
+         '</button>';
+  });
+  return s + '</div>';
+}
+function patchRow(list){
+  let s = '<div class="patchrow topo">';
+  for (const p of list){
+    const pct = p.target ? Math.min(100, Math.round((p.have || 0) / p.target * 100)) : 0;
+    s += '<button class="milestone flow' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '">' +
+         '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
+         '<span class="mstext"><b>' + esc(p.label) + '</b>' +
+           '<i>' + (p.got ? 'Earned' : (p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%') + '</i></span>' +
+         '</button>';
+  }
+  return s + '</div>';
+}
+function renderPatchesPage(){
+  const ps = patches();
+  if (ui.patch){
+    const p = ps.find(x => x.id === ui.patch);
+    if (p) return renderPatchDetail(p);
+    ui.patch = null;
+  }
+  const got = ps.filter(x => x.got).length;
+  const counts = ps.filter(p => p.kind === 'count').sort((a, b) => a.sort - b.sort);
+
+  let s = '<p class="eyebrow">Your journey &middot; ' + got + ' of ' + ps.length + ' patches</p>';
+  s += '<div class="planintro">Every milestone you have walked into, in the order you reached it. Tap a patch to see the summits behind it.</div>';
+  s += trailBlock(counts);
+
+  /* each hill list keeps its own run of patches, so the Wainwright books do not
+     get tangled up with the Munros */
+  for (const l of enabled()){
+    const items = ps.filter(p =>
+      (p.kind === 'list' && p.listId === l.id) ||
+      (p.kind === 'book' && l.id === 'wainwright')
+    ).sort((a, b) => a.sort - b.sort);
+    if (!items.length) continue;
+    const g = items.filter(x => x.got).length;
+    s += '<p class="eyebrow" style="margin-top:26px">' + esc(l.name) + ' &middot; ' + g + ' of ' + items.length + '</p>';
+    s += items.length > 2 ? trailBlock(items) : patchRow(items);
+  }
+  return s;
+}
+function renderPatchDetail(p){
+  const peaks = patchPeaks(p);
+  const pct = p.target ? Math.min(100, Math.round((p.have || 0) / p.target * 100)) : 0;
+  let s = '<button class="backbtn" data-act="closepatch">&larr; All patches</button>';
+  s += '<section class="pdhead topo">' +
+    '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
+    '<div class="pdt"><h2>' + esc(p.label) + '</h2>' +
+    '<p>' + (p.got ? 'Earned' : esc(p.need)) + ' &middot; ' + (p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%</p>' +
+    '<div class="planstat"><i style="width:' + pct + '%"></i></div></div></section>';
+
+  if (!peaks.length) return s + '<p class="empty">No summits marked towards this one yet.</p>';
+  s += '<p class="eyebrow">In the order you walked them</p><ol class="ptimeline">';
+  peaks.forEach((x, i) => {
+    const v = !!(x.r.v && x.r.v.t);
+    s += '<li><span class="pnum">' + (i + 1) + '</span>' +
+      '<span class="pinfo"><b>' + esc(x.h.n) +
+        (v ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</b>' +
+        '<i>' + esc(regionOf(x.h, x.h.l[0])) + ' &middot; ' + feet(x.h).toLocaleString() + ' ft (' + x.h.h + ' m)</i></span>' +
+      '<span class="pdate">' + (x.r.date ? esc(prettyDate(x.r.date)) : 'no date') + '</span></li>';
+  });
+  return s + '</ol>';
+}
+
 function renderPatches(){
   const ps = patches();
   const got = ps.filter(p => p.got).length;
-  let s = '<p class="eyebrow">Patches earned &middot; ' + got + ' of ' + ps.length + '</p><div class="patchstrip">';
+  let s = '<button class="eyebrow eyelink" data-tab="a">Patches earned &middot; ' + got + ' of ' + ps.length + ' &rsaquo;</button><div class="patchstrip">';
   for (const p of ps.slice(0, 24))
     s += '<div class="patch' + (p.got ? ' got' : '') + '" title="' + esc(p.got ? p.label : p.need) + '">' +
          '<div class="disc"><img class="pimg" src="patches/' + esc(p.id) + '.png" alt="" loading="lazy" ' +
@@ -1113,15 +1544,55 @@ function renderPatches(){
 }
 
 /* ---------- render ---------- */
-function render(){
-  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
-  const allDone = new Set(Object.keys(state.bagged).filter(isBagged));
+
+/* ---------- navigation ---------- */
+const NI = {
+  d:'<path d="M4 12.5 12 5l8 7.5"/><path d="M6.5 11v8h11v-8"/><path d="M10.5 19v-4.5h3V19"/>',
+  h:'<path d="M3 18.5 9 8l4.5 7.5"/><path d="m11 12 3.5-5.5L21 18.5z"/><path d="M2.5 18.5h19"/>',
+  m:'<path d="m9 4.5-6 2.5v12l6-2.5 6 2.5 6-2.5v-12L15 7z"/><path d="M9 4.5v12M15 7v12"/>',
+  p:'<path d="M6.5 20.5c0-4 5-4 5-8s-5-3.5-5-7"/><circle cx="6.5" cy="4" r="1.6"/><circle cx="17.5" cy="20" r="1.6"/><path d="M11.5 12.5c0 4 6 3.5 6 7.5"/>',
+  f:'<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 6.2a3.2 3.2 0 0 1 0 6.1"/><path d="M17 14.9c2.2.5 3.6 2.3 3.6 4.6"/>',
+  a:'<rect x="4.5" y="4.5" width="15" height="15" rx="4.5"/><path d="M8 11 10.5 14 13 11 15.5 14"/>',
+  u:'<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"/>'
+};
+const NAV = [
+  {id:'d', label:'Dashboard', short:'Home'},
+  {id:'h', label:'Peaks',     short:'Peaks',  count:'h'},
+  {id:'m', label:'Map',       short:'Map',    count:'m'},
+  {id:'p', label:'Routes',    short:'Routes', count:'p'},
+  {id:'a', label:'Patches',   short:null,     count:'a'},
+  {id:'f', label:'Friends',   short:null,     count:'f', needsFb:true},
+  {id:'u', label:'Profile',   short:'Profile'}
+];
+function navCounts(){
   let tot = 0, dn = 0;
   for (const l of enabled()){ const s = statsFor(l.id); tot += s.total; dn += s.done; }
-  document.getElementById('tn-h').textContent = dn + '/' + tot;
-  document.getElementById('tn-m').textContent = tot + ' hills';
   const planCount = livePlans().filter(p => !p.hills.length || !p.hills.every(k => isBagged(k))).length;
-  document.getElementById('tn-p').textContent = planCount === 0 ? 'none yet' : planCount + ' planned';
+  const ps = patches(), gotp = ps.filter(x => x.got).length;
+  return {h: dn + '/' + tot, m: tot + ' hills', p: planCount ? planCount + ' planned' : 'none yet',
+          a: gotp + '/' + ps.length, f: friendsTabLabel()};
+}
+function navButton(n, c, mobile){
+  const label = mobile ? (n.short || n.label) : n.label;
+  return '<button class="navbtn tab" role="tab" data-tab="' + n.id + '" aria-selected="' + (tab === n.id) + '">' +
+    '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] + '</svg>' +
+    '<span class="nl">' + esc(label) + '</span>' +
+    (n.count && c[n.count] ? '<span class="nc">' + esc(c[n.count]) + '</span>' : '') + '</button>';
+}
+function paintNav(){
+  const c = navCounts();
+  const usable = NAV.filter(n => !n.needsFb || fbConfigured());
+  const s = document.getElementById('snav');
+  if (s) s.innerHTML = usable.map(n => navButton(n, c, false)).join('');
+  const b = document.getElementById('bnav');
+  // Friends lives inside Profile on a phone, so the bar keeps to five
+  if (b) b.innerHTML = usable.filter(n => n.short).map(n => navButton(n, c, true)).join('');
+}
+
+function render(){
+  if (!fbConfigured() && (tab === 'f')) tab = 'd';
+  paintNav();
 
   let banner = '';
   if (cloudReady && !cloudOn() && !ui.bannerHidden){
@@ -1130,12 +1601,14 @@ function render(){
     banner = '<div class="banner"><div><b>Could not save to the cloud</b>' + esc(syncErr) + '. Everything is still safe on this device and it will keep retrying.</div><button data-act="hidebanner" aria-label="Dismiss">×</button></div>';
   }
 
-  const ft = document.getElementById('tabFriends');
-  if (ft) ft.hidden = !fbConfigured();
-  if (tab === 'f' && ft && ft.hidden) tab = 'h';
-  document.getElementById('tn-f').textContent = friendsTabLabel();
   document.getElementById('main').innerHTML = banner +
-    (tab === 'p' ? renderPlans() : tab === 'm' ? renderMapTab() : tab === 'f' ? renderBoard() : renderHills());
+    (tab === 'd' ? renderDashboard() :
+     tab === 'p' ? renderPlans() :
+     tab === 'm' ? renderMapTab() :
+     tab === 'f' ? renderBoard() :
+     tab === 'a' ? renderPatchesPage() :
+     tab === 'u' ? renderProfile() : renderHills());
+  if (tab === 'u'){ renderAccountBox(); paintCloudNote(); }
   paintSync(); wire(); hydratePhotos();
   if (tab === 'p' && editor) mountRouteMap();
   if (tab === 'm') mountMap();
@@ -1245,6 +1718,7 @@ function hillRow(h, listId){
   s += '<span class="hname">' + esc(h.n) + (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span>';
   const bits = [];
   if (h.w && h.w !== h.n) bits.push('<span class="wel">' + esc(h.w) + '</span>');
+  if (on) bits.push('<span class="mkchip">Marked</span>');
   if (on && r.date) bits.push('<span class="stampdate">' + prettyDate(r.date) + '</span>');
   if (r.notes) bits.push('note');
   if (bits.length) s += '<span class="hsub">' + bits.join(' · ') + '</span>';
@@ -1505,6 +1979,128 @@ async function routeAlongPaths(coords){
   return line.map(c => c.length > 2 && isFinite(c[2]) ? [r5(c[1]), r5(c[0]), Math.round(c[2])] : [r5(c[1]), r5(c[0])]);
 }
 
+
+/* ---------- dashboard ---------- */
+/* Everything here comes from statistics the app already keeps — nothing new is
+   tracked, it is just gathered into one place. */
+function allStats(){
+  let total = 0, done = 0, planned = 0, progress = 0, highest = null;
+  const seen = new Set();
+  for (const l of enabled()){
+    for (const hh of hillsIn(l.id)){
+      if (seen.has(hh.k)) continue;
+      seen.add(hh.k);
+      total++;
+      const st = stateOf(hh.k);
+      if (st === 'done'){ done++; if (!highest || hh.h > highest.h) highest = hh; }
+      else if (st === 'planned') planned++;
+      else if (st === 'progress') progress++;
+    }
+  }
+  return {total, done, remaining: total - done, planned, progress, highest,
+          pct: total ? Math.round(done / total * 100) : 0};
+}
+function recentlyMarked(n){
+  return Object.entries(state.bagged)
+    .filter(([k, r]) => isBagged(k) && BY_KEY[k] && (r.date || r.t))
+    .map(([k, r]) => ({h: BY_KEY[k], date: r.date, t: r.t || 0, v: !!(r.v && r.v.t)}))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.t - a.t)
+    .slice(0, n);
+}
+function nextRoute(){
+  const open = livePlans().filter(p => !p.hills.length || !p.hills.every(k => isBagged(k)));
+  const dated = open.filter(p => p.date).sort((a, b) => a.date.localeCompare(b.date));
+  return dated[0] || open.sort((a, b) => (b.t || 0) - (a.t || 0))[0] || null;
+}
+function statCard(big, label, sub){
+  return '<div class="scard"><div class="sbig">' + big + '</div>' +
+         '<div class="slab">' + label + '</div>' +
+         (sub ? '<div class="ssub">' + sub + '</div>' : '') + '</div>';
+}
+function renderDashboard(){
+  const a = allStats();
+  let s = '<section class="hero">' +
+    '<div class="heroin">' +
+      '<p class="eyebrow">Your journey so far</p>' +
+      '<div class="heropct">' + a.pct + '<sup>%</sup></div>' +
+      '<p class="herosub">' + a.done.toLocaleString() + ' of ' + a.total.toLocaleString() + ' summits marked' +
+        (a.remaining ? ' &middot; ' + a.remaining.toLocaleString() + ' still to go' : ' &middot; every one of them') + '</p>' +
+      '<div class="jbar" style="margin-top:14px">' +
+        '<i class="b-done" style="width:' + (a.total ? a.done/a.total*100 : 0) + '%"></i>' +
+        '<i class="b-prog" style="width:' + (a.total ? a.progress/a.total*100 : 0) + '%"></i>' +
+        '<i class="b-plan" style="width:' + (a.total ? a.planned/a.total*100 : 0) + '%"></i>' +
+      '</div>' +
+    '</div>' + RIDGE + '</section>';
+
+  s += '<div class="scards">';
+  s += statCard(a.done.toLocaleString(), 'Peaks marked', a.planned ? a.planned + ' planned' : '');
+  s += statCard(a.remaining.toLocaleString(), 'Still to go', a.progress ? a.progress + ' attempted' : '');
+  s += a.highest
+    ? statCard(feet(a.highest).toLocaleString() + '<span class="su">ft</span>', 'Highest marked', esc(a.highest.n))
+    : statCard('&mdash;', 'Highest marked', 'Nothing yet');
+  s += '</div>';
+
+  const nx = nextRoute();
+  if (nx){
+    const hs = (nx.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+    const dn = hs.filter(x => isBagged(x.k)).length;
+    s += '<p class="eyebrow">Next route</p>' +
+      '<button class="dcard route" data-tab="p">' +
+        '<div class="dch"><b>' + esc(nx.name || 'Untitled route') + '</b>' +
+        (nx.date ? '<span class="tag">' + esc(prettyDate(nx.date)) + '</span>' : '') + '</div>' +
+        '<p class="dcs">' + hs.length + ' hill' + (hs.length === 1 ? '' : 's') +
+          (hs.length ? ' &middot; ' + dn + ' marked' : '') +
+          ((nx.trk && nx.trk.length > 1) ? ' &middot; ' + prettyDist(trackLength(nx.trk)) : '') + '</p>' +
+        (hs.length ? '<div class="planstat"><i style="width:' + (hs.length ? dn/hs.length*100 : 0) + '%"></i></div>' : '') +
+      '</button>';
+  }
+
+  const rec = recentlyMarked(5);
+  if (rec.length){
+    s += '<p class="eyebrow">Recent activity</p><ul class="feed">';
+    for (const r of rec)
+      s += '<li><span class="fmk">' + ICON_CHECK + '</span>' +
+           '<span class="fn">' + esc(r.h.n) +
+             (r.v ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span>' +
+           '<span class="fd">' + (r.date ? esc(prettyDate(r.date)) : 'no date') + '</span></li>';
+    s += '</ul>';
+  }
+
+  s += '<div style="margin-top:20px">' + renderPatches() + '</div>';
+
+  s += '<p class="eyebrow" style="margin-top:22px">Regions</p><div class="regionlist">';
+  for (const l of enabled()){
+    const st = statsFor(l.id);
+    const p = st.total ? Math.round(st.done / st.total * 100) : 0;
+    s += '<button class="rrow" data-act="golist" data-v="' + esc(l.id) + '">' +
+      '<i class="dot" style="background:var(--moss)"></i>' +
+      '<span class="rn">' + esc(l.name) + '<i class="rbar"><s style="width:' + p + '%"></s></i></span>' +
+      '<span class="rc">' + st.done + ' / ' + st.total + '</span>' +
+      '<span class="chev">&rsaquo;</span></button>';
+  }
+  s += '</div>';
+  if (!a.done) s += '<p class="empty" style="margin-top:16px">Nothing marked yet. Open <b>Peaks</b> and tick your first summit.</p>';
+  return s;
+}
+
+/* ---------- profile ---------- */
+function renderProfile(){
+  let s = '<p class="eyebrow">Profile</p><div class="accountBox"></div>';
+  s += '<p class="pathnote cloudNote"></p>';
+  if (fbConfigured()){
+    s += '<p class="eyebrow" style="margin-top:22px">Leaderboards</p>' +
+      '<div class="planintro">Private boards you share with friends by code.</div>' +
+      '<div class="btnrow"><button class="btn" data-tab="f">Open leaderboards</button></div>';
+  }
+  s += '<p class="eyebrow" style="margin-top:22px">Patches</p>' +
+    '<div class="planintro">Your milestones, laid out as a journey.</div>' +
+    '<div class="btnrow"><button class="btn ghost" data-tab="a">Open patches</button></div>';
+  s += '<p class="eyebrow" style="margin-top:22px">Settings</p>' +
+    '<div class="planintro">Appearance, which hill lists you are working through, and a plain-text backup of everything.</div>' +
+    '<div class="btnrow"><button class="btn ghost" data-act="opensettings">Open settings</button></div>';
+  return s;
+}
+
 /* ---------- map ---------- */
 let map = null, mapReady = false, markerLayer = null, mapWarned = false;
 function renderMapTab(){
@@ -1585,7 +2181,9 @@ function drawMarkers(fit){
       iconSize: [big, big],
       iconAnchor: [big/2, big/2],
       html: '<div class="peak' + (v ? ' pkv' : '') + '" style="width:' + big + 'px;height:' + big + 'px">' +
-            '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.6 21 19H3z"/></svg>' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" ' +
+            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '<path d="M5 10.5 9.5 16 14 10.5 18.5 16"/></svg>' +
             (v ? '<i class="pkring"></i>' : '') + '</div>'
     });
     const m = L.marker([h.a, h.o], {icon, riseOnHover:true, zIndexOffset:1000, title:h.n});
@@ -2000,8 +2598,8 @@ function wire(){
 }
 
 document.addEventListener('click', async e => {
-  const tabBtn = e.target.closest('.tab');
-  if (tabBtn){ tab = tabBtn.dataset.tab; ui.q=''; ui.region=''; ui.open=null; render(); window.scrollTo({top:0}); return; }
+  const tabBtn = e.target.closest('[data-tab]');
+  if (tabBtn){ tab = tabBtn.dataset.tab; ui.q=''; ui.region=''; ui.open=null; ui.patch=null; render(); window.scrollTo({top:0}); return; }
   const el = e.target.closest('[data-act]');
   if (!el) return;
   const a = el.dataset.act;
@@ -2081,6 +2679,13 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'verify'){ verifyHere(el.dataset.k); }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
+  else if (a === 'opensettings'){ openSheet(); }
+  else if (a === 'openpatch'){ ui.patch = el.dataset.v; render(); window.scrollTo({top:0}); }
+  else if (a === 'closepatch'){ ui.patch = null; render(); }
+  else if (a === 'fbin'){ fbSignIn(); }
+  else if (a === 'fbout'){ fbSignOut(); }
+  else if (a === 'fbsyncnow'){ fbSync(); toast('Syncing\u2026'); }
+  else if (a === 'golist'){ ui.list = el.dataset.v; ui.region = ''; ui.q = ''; tab = 'h'; render(); window.scrollTo({top:0}); }
   else if (a === 'editroute'){ openEditor(el.dataset.id); }
   else if (a === 'editorclose'){
     if (editor && editor.dirty && !await confirmAsk({title:'Leave without saving?',
@@ -2174,6 +2779,11 @@ document.addEventListener('input', e => {
     touched();
   }
   if (el.dataset.act === 'pfield' && ui.draft) ui.draft[el.dataset.f] = el.value;
+  if (el.dataset.act === 'fbname' && fbUser){
+    fbName = el.value.trim().slice(0,40) || fbUser.name;
+    document.querySelectorAll('.fbNameIn').forEach(x => { if (x !== el) x.value = el.value; });
+    fbPrefsDirty = true; scheduleSync(600);
+  }
 });
 
 /* ---------- photo viewer ---------- */
@@ -2274,9 +2884,7 @@ function renderListToggles(){
 const sheet = document.getElementById('sheet');
 function openSheet(){
   document.getElementById('backupText').value = JSON.stringify(state);
-  document.getElementById('cloudNote').textContent = cloudOn()
-    ? 'Signed in and syncing. Your log is kept on this device too, so it works with no signal.'
-    : 'Sign in to sync across your devices and compare with friends.';
+  paintCloudNote();
   renderThemeBox(); renderListToggles(); renderAccountBox();
   sheet.classList.add('open');
 }
@@ -2557,6 +3165,11 @@ function renderThemeBox(){
       '<button class="sw" data-act="theme" data-v="' + (auto ? (systemIsDark() ? 'dark' : 'light') : '') + '" aria-pressed="' + auto + '" aria-label="Match my device"></button></div>';
 }
 applyTheme(); paintThemeBtn();
+let rzT = null;
+addEventListener('resize', () => {         // the trail spacing depends on width
+  if (tab !== 'a') return;
+  clearTimeout(rzT); rzT = setTimeout(render, 180);
+});
 
 /* ---------- backend switch ---------- */
 
@@ -2718,9 +3331,16 @@ function paintSync(){
     fbUser ? 'Saved' : 'Sign in';
   b.title = fbUser ? 'Signed in as ' + (fbName || fbUser.name) : 'Tap to sign in and sync';
 }
+function paintCloudNote(){
+  const txt = cloudOn()
+    ? 'Signed in and syncing. Your log is kept on this device too, so it works with no signal.'
+    : 'Sign in to sync across your devices and compare with friends.';
+  document.querySelectorAll('.cloudNote').forEach(el => { el.textContent = txt; });
+}
 function renderAccountBox(){
-  const box = document.getElementById('accountBox');
-  if (!box) return;
+  const boxes = document.querySelectorAll('.accountBox');
+  if (!boxes.length) return;
+  const box = {set innerHTML(v){ boxes.forEach(b => { b.innerHTML = v; }); }};
   let s = '';
   if (!fbConfigured()){
     s = '<p>Accounts are not switched on for this copy of the app.</p>';
@@ -2730,27 +3350,22 @@ function renderAccountBox(){
     s = '<p>Could not reach the sign-in service. It needs a connection the first time.</p>';
   } else if (!fbUser){
     s = '<p>Sign in and your log follows you to every device, and you can compare with friends.</p>' +
-        '<div class="btnrow"><button class="btn" id="fbIn">Sign in with Google</button></div>';
+        '<div class="btnrow"><button class="btn" data-act="fbin">Sign in with Google</button></div>';
   } else {
     s += '<div class="profile">' +
       (fbUser.photo ? '<img class="avatar" src="' + esc(fbUser.photo) + '" alt="">' : '<div class="avatar"></div>') +
       '<div class="pinfo"><b>' + esc(fbName || fbUser.name) + '</b>' +
       '<span>' + Object.keys(state.bagged).filter(isBagged).length + ' summits marked \u00b7 ' +
       myGroups().length + ' leaderboard' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
-    s += '<div style="margin-top:12px"><label for="fbNameIn">Name your friends see</label>' +
-         '<input id="fbNameIn" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
+    s += '<div style="margin-top:12px"><label>Name your friends see</label>' +
+         '<input class="fbNameIn" data-act="fbname" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
     s += '<div class="togglerow"><div class="tinfo"><b>Share my dates, notes and photos</b>' +
          '<span>Only with people in your leaderboards. Off means they see your totals and nothing else.</span></div>' +
          '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail"></button></div>';
-    s += '<div class="btnrow"><button class="btn" id="fbSyncNow">Sync now</button>' +
-         '<button class="btn quiet" id="fbOut">Sign out</button></div>';
+    s += '<div class="btnrow"><button class="btn" data-act="fbsyncnow">Sync now</button>' +
+         '<button class="btn quiet" data-act="fbout">Sign out</button></div>';
   }
   box.innerHTML = s;
-  const bIn = document.getElementById('fbIn'); if (bIn) bIn.onclick = fbSignIn;
-  const bOut = document.getElementById('fbOut'); if (bOut) bOut.onclick = fbSignOut;
-  const bNow = document.getElementById('fbSyncNow'); if (bNow) bNow.onclick = () => { fbSync(); toast('Syncing\u2026'); };
-  const nm = document.getElementById('fbNameIn');
-  if (nm) nm.onchange = () => { fbName = nm.value.trim().slice(0,40) || fbUser.name; fbPrefsDirty = true; scheduleSync(400); };
 }
 
 
