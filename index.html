@@ -645,10 +645,6 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <h2>Settings</h2>
     <h3>Appearance</h3>
     <div id="themeBox"></div>
-    <h3>Maps</h3>
-    <p>WayMark uses free OpenTopoMap by default. If you have an Ordnance Survey Data Hub key you can switch the map to OS styles, which draw public rights of way.</p>
-    <div id="osKeyBox"></div>
-    <p class="pathnote">The key is kept on this device only and never synced, so paste it on each device you use. Restrict it to your own domain in the OS Data Hub — a key in a public page can be read by anyone.</p>
     <h3>Hill lists</h3>
     <p>Switch on the lists you're working through. Switching one off just hides it — nothing you've ticked is lost.</p>
     <div id="listToggles"></div>
@@ -1619,20 +1615,45 @@ function openPopup(m, h){
 
 
 /* ---------- base maps ---------- */
-/* Your OS key stays on this device only — it is never synced or shared. Restrict
-   it to waymark.it.com in the OS Data Hub, because a key in a public page is
-   readable by anyone who views source. */
-const OSKEY_KEY = 'waymark.oskey', STYLE_KEY = 'waymark.basemap';
-function osKey(){ try{ return (localStorage.getItem(OSKEY_KEY) || '').trim(); }catch(e){ return ''; } }
-function setOsKey(v){
-  try{ v ? localStorage.setItem(OSKEY_KEY, v.trim()) : localStorage.removeItem(OSKEY_KEY); }catch(e){}
-  if (!osKey() && baseStyle() !== 'topo') setBaseStyle('topo');
-  killRouteMap(); if (map){ map.remove(); map = null; mapReady = false; }
-  render(); renderMapKeyBox();
+/* The OS key is yours, set once in firebase-config.js, and everyone who uses the
+   site draws on your allowance. Nobody but you ever sees or sets it. If OS stops
+   answering — the monthly transaction limit, a blocked key, an outage — the map
+   drops back to OpenTopoMap on its own and stays there for a few hours before
+   trying again, so a walker never gets a blank map. */
+const STYLE_KEY = 'waymark.basemap', OS_FAIL_KEY = 'waymark.osfail';
+const OS_COOLDOWN = 6 * 3600e3;
+
+function osKey(){
+  try{ return (window.OS_MAPS_KEY || '').trim(); }catch(e){ return ''; }
 }
+function osResting(){
+  try{
+    const t = +(localStorage.getItem(OS_FAIL_KEY) || 0);
+    return t && (Date.now() - t) < OS_COOLDOWN;
+  }catch(e){ return false; }
+}
+function osUsable(){ return !!osKey() && !osResting(); }
+function restOs(why){
+  try{ localStorage.setItem(OS_FAIL_KEY, String(Date.now())); }catch(e){}
+  if (why) console.info('[WayMark] OS maps paused: ' + why);
+}
+function clearOsRest(){ try{ localStorage.removeItem(OS_FAIL_KEY); }catch(e){} }
+
+const OS_ATTR = 'Contains OS data &copy; Crown copyright and database rights ' + new Date().getFullYear();
+const BASEMAPS = {
+  outdoor: {name:'Outdoor', os:true, layer:'Outdoor_3857', maxZoom:16, attr:OS_ATTR},
+  road:    {name:'Road',    os:true, layer:'Road_3857',    maxZoom:16, attr:OS_ATTR},
+  topo:    {name:'Terrain', os:false,
+    url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', maxZoom:17,
+    attribution:null,
+    attr:'Map data: &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'}
+};
 function baseStyle(){
-  try{ const s = localStorage.getItem(STYLE_KEY) || 'topo'; return (s !== 'topo' && !osKey()) ? 'topo' : s; }
-  catch(e){ return 'topo'; }
+  let s;
+  try{ s = localStorage.getItem(STYLE_KEY); }catch(e){}
+  if (!s || !BASEMAPS[s]) s = osUsable() ? 'outdoor' : 'topo';
+  if (BASEMAPS[s].os && !osUsable()) s = 'topo';
+  return s;
 }
 function setBaseStyle(s){
   try{ localStorage.setItem(STYLE_KEY, s); }catch(e){}
@@ -1640,44 +1661,50 @@ function setBaseStyle(s){
   killRouteMap();
   render();
 }
-const OS_ATTR = 'Contains OS data &copy; Crown copyright and database rights ' + new Date().getFullYear();
-const BASEMAPS = {
-  topo: {name:'Topographic', os:false,
-    url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', maxZoom:17,
-    attr:'Map data: &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'},
-  outdoor: {name:'OS Outdoor', os:true, layer:'Outdoor_3857', maxZoom:16, attr:OS_ATTR},
-  road:    {name:'OS Road',    os:true, layer:'Road_3857',    maxZoom:16, attr:OS_ATTR},
-  light:   {name:'OS Light',   os:true, layer:'Light_3857',   maxZoom:16, attr:OS_ATTR}
-};
+function osTileUrl(layer){
+  return 'https://api.os.uk/maps/raster/v1/zxy/' + layer + '/{z}/{x}/{y}.png?key=' + encodeURIComponent(osKey());
+}
+/* work out WHY the tiles failed, so a quota month is not mistaken for a dead key */
+async function diagnoseOs(){
+  try{
+    const r = await fetch(osTileUrl('Outdoor_3857')
+      .replace('{z}','10').replace('{x}','504').replace('{y}','333'), {cache:'no-store'});
+    if (r.ok) return '';
+    if (r.status === 429) return 'transaction limit reached';
+    if (r.status === 401 || r.status === 403) return 'key rejected';
+    return 'HTTP ' + r.status;
+  }catch(e){ return 'no connection'; }
+}
 function addBaseLayer(m){
-  const b = BASEMAPS[baseStyle()] || BASEMAPS.topo;
-  const url = b.os
-    ? 'https://api.os.uk/maps/raster/v1/zxy/' + b.layer + '/{z}/{x}/{y}.png?key=' + encodeURIComponent(osKey())
-    : b.url;
-  const layer = L.tileLayer(url, {maxZoom:b.maxZoom, minZoom:5, attribution:b.attr});
-  if (b.os) layer.on('tileerror', () => {
-    if (!m.__osWarned){ m.__osWarned = true;
-      toast('OS tiles are not loading — check the key and that waymark.it.com is allowed on it.'); }
-  });
+  const key = baseStyle(), b = BASEMAPS[key];
+  const layer = L.tileLayer(b.os ? osTileUrl(b.layer) : b.url,
+    {maxZoom:b.maxZoom, minZoom:5, attribution:b.attr});
+  if (b.os){
+    let bad = 0;
+    layer.on('tileerror', async () => {
+      if (++bad < 3 || m.__osChecked) return;    // one dropped tile is not an outage
+      m.__osChecked = true;
+      const why = await diagnoseOs();
+      if (!why) return;                          // tiles are fine, that was a blip
+      restOs(why);
+      if (map === m || rmap === m){              // swap the map under them, quietly
+        try{ localStorage.removeItem(STYLE_KEY); }catch(e){}
+        if (map === m){ map.remove(); map = null; mapReady = false; }
+        if (rmap === m) killRouteMap();
+        render();
+      }
+    });
+  }
   layer.addTo(m);
 }
 function styleSwitcher(){
   const cur = baseStyle();
-  const keys = osKey() ? Object.keys(BASEMAPS) : ['topo'];
+  const keys = Object.keys(BASEMAPS).filter(k => !BASEMAPS[k].os || osUsable());
+  if (keys.length < 2) return '';
   let s = '<div class="seg" role="group">';
   for (const k of keys)
     s += '<button data-act="basemap" data-v="' + k + '" aria-pressed="' + (cur === k) + '">' + BASEMAPS[k].name + '</button>';
-  s += '</div>';
-  if (!osKey()) s += '<button class="linkbtn" data-act="open-oskey">Add an OS key</button>';
-  return s;
-}
-function renderMapKeyBox(){
-  const box = document.getElementById('osKeyBox'); if (!box) return;
-  const k = osKey();
-  box.innerHTML =
-    '<div class="field"><input id="osKeyIn" placeholder="Paste your OS Maps API key" value="' + esc(k) + '" autocomplete="off" spellcheck="false"></div>' +
-    '<div class="btnrow" style="margin-top:8px"><button class="btn" data-act="saveoskey">' + (k ? 'Update key' : 'Save key') + '</button>' +
-    (k ? '<button class="btn quiet" data-act="clearoskey">Remove</button>' : '') + '</div>';
+  return s + '</div>';
 }
 
 /* ---------- interactive route editor ---------- */
@@ -2054,13 +2081,6 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'verify'){ verifyHere(el.dataset.k); }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
-  else if (a === 'open-oskey'){ openSheet(); setTimeout(() => { const t = document.getElementById('osKeyBox'); if (t) t.scrollIntoView({block:'center'}); }, 60); }
-  else if (a === 'saveoskey'){
-    const v = (document.getElementById('osKeyIn') || {}).value || '';
-    setOsKey(v);
-    toast(v.trim() ? 'OS key saved — pick an OS style on the map.' : 'Key cleared.');
-  }
-  else if (a === 'clearoskey'){ setOsKey(''); toast('Key removed.'); }
   else if (a === 'editroute'){ openEditor(el.dataset.id); }
   else if (a === 'editorclose'){
     if (editor && editor.dirty && !await confirmAsk({title:'Leave without saving?',
@@ -2257,7 +2277,7 @@ function openSheet(){
   document.getElementById('cloudNote').textContent = cloudOn()
     ? 'Signed in and syncing. Your log is kept on this device too, so it works with no signal.'
     : 'Sign in to sync across your devices and compare with friends.';
-  renderThemeBox(); renderMapKeyBox(); renderListToggles(); renderAccountBox();
+  renderThemeBox(); renderListToggles(); renderAccountBox();
   sheet.classList.add('open');
 }
 document.getElementById('menuBtn').onclick = openSheet;
