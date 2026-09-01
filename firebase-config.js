@@ -28,3 +28,8 @@ window.FIREBASE_CONFIG = {
   messagingSenderId: "796045397214",
   appId: "1:796045397214:web:746d429a695ee6db25c64f"
 };
+
+// --- Ordnance Survey maps ---------------------------------------------------
+// OS Maps API key from the Data Hub. Everyone using the site draws on this
+// allowance. If OS stops answering, WayMark falls back to OpenTopoMap on its own.
+window.OS_MAPS_KEY = "7dr6PaxTGBDvEAweDivDRhkL1s7XFPJw";
