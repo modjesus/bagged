@@ -366,6 +366,26 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .vconfirm .ask{color:#E8ECE4; font-size:13.5px; flex:1; min-width:150px}
 .vconfirm .ask small{display:block; color:#9AA294; font-size:12px; margin-top:2px}
 
+/* a marked summit on the map */
+.peakwrap{background:none; border:none}
+.peak{
+  position:relative; border-radius:99px;
+  background:#B4491A; color:#FFF3E9;
+  border:2.5px solid #FFF6EE;
+  box-shadow:0 0 0 3px rgba(180,73,26,.30), 0 4px 12px -2px rgba(0,0,0,.55);
+  display:grid; place-items:center; cursor:pointer;
+  transition:transform .12s;
+}
+.peak:hover{transform:scale(1.12)}
+.peak svg{width:56%; height:56%; margin-top:1px}
+:root[data-theme="dark"] .peak, :root:not([data-theme="light"]) .peak{border-color:#F3EFE6}
+/* one you stood on with the GPS running gets a second ring */
+.peak .pkring{
+  position:absolute; inset:-7px; border-radius:99px;
+  border:2px solid #B4491A; opacity:.55; pointer-events:none;
+}
+.maplegend i.mk{background:#B4491A; border-color:#B4491A}
+
 /* map */
 #mapbox{height:min(66vh,540px); border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:var(--surface-2); margin-top:10px}
 .leaflet-container{background:var(--surface-2); font:inherit}
@@ -515,6 +535,27 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .planhills .nm{flex:1; min-width:0}
 .planhills li.on .tick{background:var(--done); border-color:var(--done); color:#fff}
 .planhills .on .nm{color:var(--ink-2); text-decoration:line-through; text-decoration-color:var(--done)}
+.rmwrap{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:12px; position:relative}
+.rmhead{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.rmhead h3{font-family:"Wildkins", Georgia, serif; margin:0; font-size:17px; padding-right:34px}
+.rmwrap .xbtn{top:10px; right:10px}
+.rmhint{font-size:13px; color:var(--ink-2); margin:6px 0 10px}
+.rmbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+.rmbar .btn{padding:8px 12px; font-size:13.5px}
+.rmbar .btn.on{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text); font-weight:600}
+#routemap{height:min(60vh,460px); border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:var(--surface-2)}
+.rmstats{margin-top:10px; font-size:13.5px; color:var(--ink-2); min-height:20px}
+.rmstats b{color:var(--ink); font-size:15px}
+/* the numbered handles you drag */
+.wpwrap{background:none; border:none}
+.wp{
+  width:26px; height:26px; border-radius:99px; display:grid; place-items:center;
+  background:var(--raise); color:var(--ink); border:2.5px solid #B4491A;
+  font:600 12px/1 "Courier Prime", monospace; cursor:grab;
+  box-shadow:0 2px 8px -1px rgba(0,0,0,.45);
+}
+.wp.wpa{background:#B4491A; color:#FFF3E9}
+.wp.wpb{background:#1E453E; color:#F3EFE6; border-color:#1E453E}
 .trackbox{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;
   background:var(--surface-2); border:1px solid var(--line-soft); border-radius:10px; padding:9px 11px}
 .trackbox .tinfo{flex:1; min-width:150px; font-size:13px; color:var(--ink-2)}
@@ -604,6 +645,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <h2>Settings</h2>
     <h3>Appearance</h3>
     <div id="themeBox"></div>
+    <h3>Maps</h3>
+    <p>WayMark uses free OpenTopoMap by default. If you have an Ordnance Survey Data Hub key you can switch the map to OS styles, which draw public rights of way.</p>
+    <div id="osKeyBox"></div>
+    <p class="pathnote">The key is kept on this device only and never synced, so paste it on each device you use. Restrict it to your own domain in the OS Data Hub — a key in a public page can be read by anyone.</p>
     <h3>Hill lists</h3>
     <p>Switch on the lists you're working through. Switching one off just hides it — nothing you've ticked is lost.</p>
     <div id="listToggles"></div>
@@ -1096,6 +1141,7 @@ function render(){
   document.getElementById('main').innerHTML = banner +
     (tab === 'p' ? renderPlans() : tab === 'm' ? renderMapTab() : tab === 'f' ? renderBoard() : renderHills());
   paintSync(); wire(); hydratePhotos();
+  if (tab === 'p' && editor) mountRouteMap();
   if (tab === 'm') mountMap();
 }
 
@@ -1470,9 +1516,9 @@ function renderMapTab(){
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
   html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">All my lists</button>';
   html += '<button data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope==='one') + '">' + esc(LIST_BY[ui.list].name) + ' only</button>';
-  html += '</div></div>';
+  html += '</div>' + styleSwitcher() + '</div>';
   html += '<div id="mapbox"></div>';
-  html += '<div class="maplegend"><span><i class="done"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span><span>Size follows height</span></div>';
+  html += '<div class="maplegend"><span><i class="mk"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span><span>Size follows height</span></div>';
   html += '<p class="mapnote">Terrain, contours and paths from OpenTopoMap. The map needs a connection — everything else in the app works offline.</p>';
   return html;
 }
@@ -1490,10 +1536,7 @@ function mountMap(){
   if (map && map._container !== box){ map.remove(); map = null; mapReady = false; }
   if (!map){
     map = L.map(box, {preferCanvas:true, zoomControl:true, attributionControl:true});
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom:17, minZoom:5,
-      attribution:'Map data: © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: © <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'
-    }).addTo(map);
+    addBaseLayer(map);
     markerLayer = L.layerGroup().addTo(map);
     mapReady = true;
     drawMarkers(true);
@@ -1516,21 +1559,40 @@ function drawMarkers(fit){
   const list = mapHills();
   const cs = getComputedStyle(document.documentElement);
   const col = {
-    done: cs.getPropertyValue('--done').trim() || '#1E453E',
     planned: cs.getPropertyValue('--plan').trim() || '#5F5B8C',
     progress: cs.getPropertyValue('--prog').trim() || '#2E6B8A',
     none: cs.getPropertyValue('--ink-3').trim() || '#7C9080'
   };
+  const doneOnes = [];
   for (const h of list){
-    const st = stateOf(h.k), filled = st !== 'none';
+    const st = stateOf(h.k);
+    if (st === 'done'){ doneOnes.push(h); continue; }   // drawn last, on top
     const m = L.circleMarker([h.a, h.o], {
       radius: 3 + Math.min(6, (h.h - 250) / 190),
       color: col[st],
-      weight: filled ? 1 : 1.6,
+      weight: st === 'none' ? 1.6 : 1,
       fillColor: col[st],
-      fillOpacity: filled ? 1 : 0,
+      fillOpacity: st === 'none' ? 0 : 1,
       bubblingMouseEvents: false
     });
+    m.on('click', () => openPopup(m, h));
+    markerLayer.addLayer(m);
+  }
+  /* A summit you have stood on should read as an achievement from across the
+     map, so these get a real badge — burnt orange, ringed, raised — and they
+     sit above everything else. */
+  for (const h of doneOnes){
+    const big = 26 + Math.round(Math.min(10, Math.max(0, (h.h - 400) / 90)));
+    const v = !!verifiedAt(h.k);
+    const icon = L.divIcon({
+      className: 'peakwrap',
+      iconSize: [big, big],
+      iconAnchor: [big/2, big/2],
+      html: '<div class="peak' + (v ? ' pkv' : '') + '" style="width:' + big + 'px;height:' + big + 'px">' +
+            '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3.6 21 19H3z"/></svg>' +
+            (v ? '<i class="pkring"></i>' : '') + '</div>'
+    });
+    const m = L.marker([h.a, h.o], {icon, riseOnHover:true, zIndexOffset:1000, title:h.n});
     m.on('click', () => openPopup(m, h));
     markerLayer.addLayer(m);
   }
@@ -1554,6 +1616,235 @@ function openPopup(m, h){
 
 
 /* ---------- routes ---------- */
+
+
+/* ---------- base maps ---------- */
+/* Your OS key stays on this device only — it is never synced or shared. Restrict
+   it to waymark.it.com in the OS Data Hub, because a key in a public page is
+   readable by anyone who views source. */
+const OSKEY_KEY = 'waymark.oskey', STYLE_KEY = 'waymark.basemap';
+function osKey(){ try{ return (localStorage.getItem(OSKEY_KEY) || '').trim(); }catch(e){ return ''; } }
+function setOsKey(v){
+  try{ v ? localStorage.setItem(OSKEY_KEY, v.trim()) : localStorage.removeItem(OSKEY_KEY); }catch(e){}
+  if (!osKey() && baseStyle() !== 'topo') setBaseStyle('topo');
+  killRouteMap(); if (map){ map.remove(); map = null; mapReady = false; }
+  render(); renderMapKeyBox();
+}
+function baseStyle(){
+  try{ const s = localStorage.getItem(STYLE_KEY) || 'topo'; return (s !== 'topo' && !osKey()) ? 'topo' : s; }
+  catch(e){ return 'topo'; }
+}
+function setBaseStyle(s){
+  try{ localStorage.setItem(STYLE_KEY, s); }catch(e){}
+  if (map){ map.remove(); map = null; mapReady = false; }
+  killRouteMap();
+  render();
+}
+const OS_ATTR = 'Contains OS data &copy; Crown copyright and database rights ' + new Date().getFullYear();
+const BASEMAPS = {
+  topo: {name:'Topographic', os:false,
+    url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', maxZoom:17,
+    attr:'Map data: &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'},
+  outdoor: {name:'OS Outdoor', os:true, layer:'Outdoor_3857', maxZoom:16, attr:OS_ATTR},
+  road:    {name:'OS Road',    os:true, layer:'Road_3857',    maxZoom:16, attr:OS_ATTR},
+  light:   {name:'OS Light',   os:true, layer:'Light_3857',   maxZoom:16, attr:OS_ATTR}
+};
+function addBaseLayer(m){
+  const b = BASEMAPS[baseStyle()] || BASEMAPS.topo;
+  const url = b.os
+    ? 'https://api.os.uk/maps/raster/v1/zxy/' + b.layer + '/{z}/{x}/{y}.png?key=' + encodeURIComponent(osKey())
+    : b.url;
+  const layer = L.tileLayer(url, {maxZoom:b.maxZoom, minZoom:5, attribution:b.attr});
+  if (b.os) layer.on('tileerror', () => {
+    if (!m.__osWarned){ m.__osWarned = true;
+      toast('OS tiles are not loading — check the key and that waymark.it.com is allowed on it.'); }
+  });
+  layer.addTo(m);
+}
+function styleSwitcher(){
+  const cur = baseStyle();
+  const keys = osKey() ? Object.keys(BASEMAPS) : ['topo'];
+  let s = '<div class="seg" role="group">';
+  for (const k of keys)
+    s += '<button data-act="basemap" data-v="' + k + '" aria-pressed="' + (cur === k) + '">' + BASEMAPS[k].name + '</button>';
+  s += '</div>';
+  if (!osKey()) s += '<button class="linkbtn" data-act="open-oskey">Add an OS key</button>';
+  return s;
+}
+function renderMapKeyBox(){
+  const box = document.getElementById('osKeyBox'); if (!box) return;
+  const k = osKey();
+  box.innerHTML =
+    '<div class="field"><input id="osKeyIn" placeholder="Paste your OS Maps API key" value="' + esc(k) + '" autocomplete="off" spellcheck="false"></div>' +
+    '<div class="btnrow" style="margin-top:8px"><button class="btn" data-act="saveoskey">' + (k ? 'Update key' : 'Save key') + '</button>' +
+    (k ? '<button class="btn quiet" data-act="clearoskey">Remove</button>' : '') + '</div>';
+}
+
+/* ---------- interactive route editor ---------- */
+/* editor.wp holds the control points you place; editor.trk is the line they
+   produce once snapped to paths. Keeping both is what makes a route editable
+   later instead of a frozen string of coordinates. */
+let editor = null, rmap = null, rmLayer = null, rmBusy = false, rmSeq = 0;
+
+function openEditor(id){
+  const p = planById(id); if (!p) return;
+  let wp = (p.wp && p.wp.length) ? p.wp.map(c => [c[0], c[1]]) : [];
+  if (!wp.length && p.trk && p.trk.length > 1){
+    // seed handles from an imported track so it can still be nudged about
+    const step = Math.max(1, Math.floor(p.trk.length / 11));
+    wp = p.trk.filter((_, i) => i % step === 0 || i === p.trk.length - 1).map(c => [c[0], c[1]]);
+  }
+  if (!wp.length){
+    const hs = (p.hills || []).map(k => BY_KEY[k]).filter(x => x && isFinite(x.a));
+    wp = hs.map(x => [x.a, x.o]);
+  }
+  editor = {id, wp, trk: (p.trk || []).slice(), snap: p.snap !== false, view:null, dirty:false};
+  render();
+}
+function closeEditor(){ editor = null; killRouteMap(); render(); }
+function killRouteMap(){ if (rmap){ rmap.remove(); rmap = null; rmLayer = null; } }
+
+function editorStatsHTML(){
+  const t = editor.trk || [];
+  if (!editor.wp.length) return 'Tap the map to drop your first point.';
+  if (editor.wp.length === 1) return 'One point down — tap again to start the line.';
+  if (rmBusy) return 'Finding a way through…';
+  if (!t.length) return editor.wp.length + ' points';
+  const a = trackAscent(t);
+  return '<b>' + prettyDist(trackLength(t)) + '</b> · ' + editor.wp.length + ' points' +
+         (a ? ' · about ' + Math.round(a * 3.28084).toLocaleString() + ' ft (' + a.toLocaleString() + ' m) of climbing' : '');
+}
+function paintEditorStats(){
+  const el = document.getElementById('rmstats');
+  if (el) el.innerHTML = editorStatsHTML();
+  const s = document.getElementById('rmsave');
+  if (s) s.disabled = rmBusy;
+}
+
+function mountRouteMap(){
+  const box = document.getElementById('routemap');
+  if (!box || !editor) return;
+  if (typeof L === 'undefined'){
+    box.innerHTML = '<p class="empty">The map library could not load. It needs a connection the first time.</p>';
+    return;
+  }
+  if (rmap && rmap._container !== box) killRouteMap();
+  if (!rmap){
+    rmap = L.map(box, {zoomControl:true, attributionControl:true});
+    addBaseLayer(rmap);
+    rmLayer = L.layerGroup().addTo(rmap);
+    rmap.on('click', e => rmAdd([e.latlng.lat, e.latlng.lng]));
+    rmap.on('moveend zoomend', () => { if (editor) editor.view = {c:rmap.getCenter(), z:rmap.getZoom()}; });
+    if (editor.view) rmap.setView(editor.view.c, editor.view.z);
+    else rmFit();
+    rmDraw();
+  } else {
+    setTimeout(() => rmap.invalidateSize(), 60);
+    rmDraw();
+  }
+}
+function rmFit(){
+  const all = (editor.trk && editor.trk.length ? editor.trk : editor.wp).map(c => [c[0], c[1]]);
+  if (all.length > 1) rmap.fitBounds(L.latLngBounds(all), {padding:[30,30]});
+  else if (all.length === 1) rmap.setView(all[0], 13);
+  else {
+    const hs = (planById(editor.id).hills || []).map(k => BY_KEY[k]).filter(x => x && isFinite(x.a));
+    if (hs.length) rmap.fitBounds(L.latLngBounds(hs.map(x => [x.a, x.o])), {padding:[40,40]});
+    else rmap.setView([54.45, -3.15], 10);
+  }
+}
+
+function rmAdd(latlng){ editor.wp.push([r5(latlng[0]), r5(latlng[1])]); editor.dirty = true; rmRecompute(); }
+function rmRemove(i){ editor.wp.splice(i, 1); editor.dirty = true; rmRecompute(); }
+function rmMove(i, latlng){ editor.wp[i] = [r5(latlng.lat), r5(latlng.lng)]; editor.dirty = true; rmRecompute(); }
+function rmUndo(){ if (editor.wp.length){ editor.wp.pop(); editor.dirty = true; rmRecompute(); } }
+
+async function rmRecompute(){
+  const wp = editor.wp;
+  if (wp.length < 2){ editor.trk = wp.length ? wp.map(c => c.slice()) : []; rmDraw(); paintEditorStats(); return; }
+  if (!editor.snap){
+    editor.trk = wp.map(c => c.slice());
+    rmDraw(); paintEditorStats(); return;
+  }
+  const mine = ++rmSeq;
+  rmBusy = true; rmDraw(); paintEditorStats();
+  try{
+    const line = await routeAlongPaths(wp);
+    if (mine !== rmSeq) return;                 // a newer edit already landed
+    editor.trk = fitTrack(line);
+  }catch(err){
+    if (mine !== rmSeq) return;
+    editor.trk = wp.map(c => c.slice());        // fall back to straight lines
+    toast(err.message + ' Using straight lines for now.');
+  }
+  rmBusy = false; rmDraw(); paintEditorStats();
+}
+
+function rmDraw(){
+  if (!rmLayer) return;
+  rmLayer.clearLayers();
+  const t = editor.trk || [];
+  if (t.length > 1){
+    const line = t.map(c => [c[0], c[1]]);
+    L.polyline(line, {color:'#fff', weight:8, opacity:.45}).addTo(rmLayer);
+    L.polyline(line, {color:'#B4491A', weight:4.5, opacity:.95,
+      dashArray: editor.snap ? null : '7 6'}).addTo(rmLayer);
+  }
+  // summits in view, tappable so a route can be pinned to real tops
+  for (const h of mapHills()){
+    if (!isFinite(h.a)) continue;
+    if (rmap.getZoom() < 11 || !rmap.getBounds().pad(0.2).contains([h.a, h.o])) continue;
+    const done = stateOf(h.k) === 'done';
+    const m = L.circleMarker([h.a, h.o], {radius:5, color: done ? '#B4491A' : '#6B846F',
+      fillColor: done ? '#B4491A' : '#fff', fillOpacity:1, weight:2, bubblingMouseEvents:false});
+    m.bindTooltip(h.n + ' · ' + feet(h) + ' ft');
+    m.on('click', () => rmAdd([h.a, h.o]));
+    rmLayer.addLayer(m);
+  }
+  editor.wp.forEach((c, i) => {
+    const last = i === editor.wp.length - 1;
+    const mk = L.marker([c[0], c[1]], {
+      draggable:true, zIndexOffset:2000,
+      icon: L.divIcon({className:'wpwrap', iconSize:[26,26], iconAnchor:[13,13],
+        html:'<div class="wp' + (i === 0 ? ' wpa' : last ? ' wpb' : '') + '">' + (i + 1) + '</div>'})
+    });
+    mk.on('dragend', e => rmMove(i, e.target.getLatLng()));
+    mk.on('click', () => rmRemove(i));
+    mk.bindTooltip('Point ' + (i+1) + ' — drag to move, tap to remove');
+    rmLayer.addLayer(mk);
+  });
+}
+
+function saveEditor(){
+  const p = planById(editor.id); if (!p) return;
+  p.wp = editor.wp.map(c => c.slice());
+  p.trk = (editor.trk || []).length > 1 ? editor.trk : null;
+  p.snap = editor.snap;
+  const id = editor.id;
+  editor = null; killRouteMap();
+  if (id === 'draft') render(); else { p.t = now(); touched(); render(); }
+  toast('Route saved.');
+}
+
+function renderEditor(){
+  const p = planById(editor.id);
+  let s = '<div class="rmhead"><h3>' + esc((p && p.name) || 'New route') + '</h3>' +
+    '<button class="xbtn" data-act="editorclose" aria-label="Close the map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
+  s += '<p class="rmhint">Tap the map to drop points, or tap a summit to pin one. Drag a point to move it, tap it to remove it.</p>';
+  s += '<div class="rmbar">' + styleSwitcher() +
+    '<button class="btn ghost' + (editor.snap ? ' on' : '') + '" data-act="rmsnap">' +
+      (editor.snap ? '✓ Following paths' : 'Straight lines') + '</button>' +
+    '<button class="btn quiet" data-act="rmundo"' + (editor.wp.length ? '' : ' disabled') + '>Undo point</button>' +
+    '<button class="btn quiet" data-act="rmclear"' + (editor.wp.length ? '' : ' disabled') + '>Clear</button>' +
+    '</div>';
+  s += '<div id="routemap"></div>';
+  s += '<div class="rmstats" id="rmstats">' + editorStatsHTML() + '</div>';
+  s += '<p class="pathnote">Paths come from OpenStreetMap, not the Ordnance Survey definitive map. Check a proper map before relying on a right of way.</p>';
+  s += '<div class="btnrow"><button class="btn" id="rmsave" data-act="rmsave">Save route</button>' +
+       '<button class="btn quiet" data-act="editorclose">Cancel</button></div>';
+  return '<div class="rmwrap">' + s + '</div>';
+}
+
 /* the route's track: import one, build one along paths, or send one to your phone */
 function gpxControls(p, id){
   const pts = p.trk || [];
@@ -1567,6 +1858,8 @@ function gpxControls(p, id){
          '<button class="linkbtn" data-act="cleartrk" data-id="' + esc(id) + '">Remove track</button></div>';
   }
   s += '<div class="gpxrow">' +
+       '<button class="btn" data-act="editroute" data-id="' + esc(id) + '">' +
+         (pts.length ? 'Edit on the map' : 'Draw on the map') + '</button>' +
        '<label class="filebtn">' + (pts.length ? 'Replace with a GPX' : 'Import a GPX') +
        '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + esc(id) + '" hidden></label>';
   if ((p.hills || []).length > 1)
@@ -1590,6 +1883,7 @@ function savePlanEdit(id){
 }
 
 function renderPlans(){
+  if (editor) return renderEditor();
   let html = '<div class="planintro"><strong>Plan a day out.</strong> Build a route from any hills on any of your lists, add the date you are aiming for and your notes. When you get back, tick them off here and the date carries across to your log.</div>';
   html += '<div class="btnrow"><button class="btn' + (ui.planForm ? ' quiet' : '') + '" data-act="newplan">' + (ui.planForm ? 'Cancel' : '+ Plan a new route') + '</button></div>';
 
@@ -1745,7 +2039,7 @@ document.addEventListener('click', async e => {
   else if (a === 'closefriend'){ friendOpen = null; render(); }
   else if (a === 'newplan'){
     ui.planForm = !ui.planForm;
-    ui.draft = ui.planForm ? {name:'', date:'', notes:'', hills:[]} : null;
+    ui.draft = ui.planForm ? {name:'', date:'', notes:'', hills:[], trk:null, wp:null, snap:true} : null;
     ui.planQ = ''; render();
   }
   else if (a === 'pick'){ ui.draft.hills.push(el.dataset.k); ui.planQ=''; render(); }
@@ -1753,12 +2047,34 @@ document.addEventListener('click', async e => {
   else if (a === 'saveplan'){
     const d = ui.draft;
     if (!d.name.trim() && !d.hills.length){ toast('Give the route a name or add a hill first.'); return; }
-    state.plans.push({id:'p'+uid(), name:d.name.trim(), date:d.date, notes:d.notes.trim(), hills:d.hills, trk:d.trk || null, deleted:false, t:now()});
+    state.plans.push({id:'p'+uid(), name:d.name.trim(), date:d.date, notes:d.notes.trim(), hills:d.hills, trk:d.trk || null, wp:d.wp || null, snap:d.snap !== false, deleted:false, t:now()});
     d.hills.forEach(k => { if (stateOf(k) === 'none'){ const c = rec(k); state.bagged[k] = {...c, st:'planned', done:false, t:now()}; } });
     ui.planForm = false; ui.draft = null; ui.planQ = '';
     touched(); render(); toast('Route saved.');
   }
   else if (a === 'verify'){ verifyHere(el.dataset.k); }
+  else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
+  else if (a === 'open-oskey'){ openSheet(); setTimeout(() => { const t = document.getElementById('osKeyBox'); if (t) t.scrollIntoView({block:'center'}); }, 60); }
+  else if (a === 'saveoskey'){
+    const v = (document.getElementById('osKeyIn') || {}).value || '';
+    setOsKey(v);
+    toast(v.trim() ? 'OS key saved — pick an OS style on the map.' : 'Key cleared.');
+  }
+  else if (a === 'clearoskey'){ setOsKey(''); toast('Key removed.'); }
+  else if (a === 'editroute'){ openEditor(el.dataset.id); }
+  else if (a === 'editorclose'){
+    if (editor && editor.dirty && !await confirmAsk({title:'Leave without saving?',
+        body:'The points you have moved will be lost.', yes:'Leave it', no:'Keep editing'})) return;
+    closeEditor();
+  }
+  else if (a === 'rmsave'){ saveEditor(); }
+  else if (a === 'rmsnap'){ editor.snap = !editor.snap; editor.dirty = true; render(); rmRecompute(); }
+  else if (a === 'rmundo'){ rmUndo(); render(); }
+  else if (a === 'rmclear'){
+    if (!editor.wp.length) return;
+    if (!await confirmAsk({title:'Clear every point?', body:'The line goes back to empty.', yes:'Clear it', no:'Keep it'})) return;
+    editor.wp = []; editor.trk = []; editor.dirty = true; render(); rmRecompute();
+  }
   else if (a === 'gpxout'){
     const p = planById(el.dataset.id); if (!p) return;
     if (!(p.hills || []).length && !(p.trk || []).length){ toast('Nothing in this route to export yet.'); return; }
@@ -1941,7 +2257,7 @@ function openSheet(){
   document.getElementById('cloudNote').textContent = cloudOn()
     ? 'Signed in and syncing. Your log is kept on this device too, so it works with no signal.'
     : 'Sign in to sync across your devices and compare with friends.';
-  renderThemeBox(); renderListToggles(); renderAccountBox();
+  renderThemeBox(); renderMapKeyBox(); renderListToggles(); renderAccountBox();
   sheet.classList.add('open');
 }
 document.getElementById('menuBtn').onclick = openSheet;
