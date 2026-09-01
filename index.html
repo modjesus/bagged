@@ -2136,13 +2136,17 @@ function allStats(){
           pct: total ? Math.round(done / total * 100) : 0};
 }
 function recentlyMarked(n){
-  /* This is a record of what you have been doing in the app, so it follows when
-     each peak was added to the log. Back-filling a hill you walked years ago
-     then shows up here as recent, which is what actually happened. */
+  /* Newest summit first, ordered by the same date the row displays. Anything
+     with no date recorded sits at the end, most recently entered first. */
   return Object.entries(state.bagged)
-    .filter(([k, r]) => isBagged(k) && BY_KEY[k] && r.t)
-    .map(([k, r]) => ({h: BY_KEY[k], added: r.t, date: r.date, v: !!(r.v && r.v.t)}))
-    .sort((a, b) => b.added - a.added)
+    .filter(([k, r]) => isBagged(k) && BY_KEY[k] && (r.date || r.t))
+    .map(([k, r]) => ({h: BY_KEY[k], added: r.t || 0, date: r.date || '', v: !!(r.v && r.v.t)}))
+    .sort((a, b) => {
+      if (a.date && b.date) return b.date.localeCompare(a.date);
+      if (a.date) return -1;
+      if (b.date) return 1;
+      return b.added - a.added;
+    })
     .slice(0, n);
 }
 function nextRoute(){
@@ -2191,7 +2195,7 @@ function renderDashboard(){
 
   const rec = recentlyMarked(5);
   if (rec.length){
-    s += '<p class="eyebrow">Recently added</p><ul class="feed">';
+    s += '<p class="eyebrow">Recent summits</p><ul class="feed">';
     for (const r of rec)
       s += '<li><span class="fmk">' + ICON_CHECK + '</span>' +
            '<span class="fn">' + esc(r.h.n) +
