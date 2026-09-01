@@ -1,7 +1,7 @@
 // WayMark — offline shell.
 // Bump the version below every time you change index.html, or phones will keep
 // showing the old build from their cache.
-const CACHE = 'waymark-v15';
+const CACHE = 'waymark-v16';
 
 const SHELL = ['./', './index.html', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png'];
