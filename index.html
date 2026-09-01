@@ -2793,21 +2793,28 @@ document.addEventListener('click', async e => {
   else if (a === 'newgroup'){ ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
   else if (a === 'joingroup'){ ui.groupForm = ui.groupForm === 'join' ? '' : 'join'; render(); }
   else if (a === 'dogroup'){
-    const msg = document.getElementById('gmsg');
+    /* Both branches MUST catch. Without it a rejected Firestore write leaves the
+       form sitting on "Creating\u2026" for ever with nothing to tell the walker why. */
+    const say = (t, bad) => {
+      const m = document.getElementById('gmsg');
+      if (!m) return;
+      m.textContent = t;
+      m.style.color = bad ? 'var(--warn)' : '';
+    };
     if (el.dataset.v === 'new'){
       const nm = (document.getElementById('gname').value || '').trim() || 'My leaderboard';
-      msg.textContent = 'Creating\u2026';
+      say('Creating\u2026');
       createGroup(nm).then(code => {
         ui.groupForm = ''; render(); loadGroup(code);
         toast('Created. Share the code ' + code);
-      });
+      }).catch(e => say(fbWhy(e), true));
     } else {
       const code = tidyCode(document.getElementById('gcode').value);
-      msg.textContent = 'Checking\u2026';
+      say('Checking\u2026');
       joinGroup(code).then(r => {
-        if (!r.ok){ const m = document.getElementById('gmsg'); if (m){ m.textContent = r.msg; m.style.color = 'var(--warn)'; } return; }
+        if (!r.ok){ say(r.msg, true); return; }
         ui.groupForm = ''; render(); loadGroup(code); toast('Joined ' + (r.name || code));
-      });
+      }).catch(e => say(fbWhy(e), true));
     }
   }
   else if (a === 'leavegroup'){ leaveGroup(el.dataset.v); toast('Left that leaderboard.'); }
@@ -3619,8 +3626,25 @@ async function pushSharedPhotos(){
   try{ localStorage.setItem('waymark.sharedphotos', JSON.stringify([...sent].slice(-400))); }catch(e){}
 }
 
+/* Turn a Firestore rejection into something a walker on a hillside can act on.
+   The raw error is logged so the real code is still there if you need it. */
+function fbWhy(e){
+  try{ console.error('[waymark] firebase', e && e.code, e); }catch(x){}
+  const c = (e && e.code) || '';
+  if (c === 'permission-denied')
+    return 'The server refused that. Your Firestore rules need to allow the groups collection — see the setup guide.';
+  if (c === 'unavailable' || c === 'deadline-exceeded')
+    return 'Could not reach the server. Check your connection and try again.';
+  if (c === 'unauthenticated') return 'You have been signed out. Sign in again and retry.';
+  if (c === 'not-signed-in')   return 'Sign in from the Profile section first.';
+  if (c === 'resource-exhausted') return 'That project has hit its Firestore quota for today.';
+  return 'That did not work: ' + (c || (e && e.message) || 'unknown error') + '.';
+}
+
 async function createGroup(name){
-  if (!FB || !fbUser) return null;
+  /* throw rather than resolve null — a null code used to sail on into
+     loadGroup(null) and toast "Share the code null". */
+  if (!FB || !fbUser){ const e = new Error('not signed in'); e.code = 'not-signed-in'; throw e; }
   const code = newCode();
   await FB.setDoc(groupRef(code), {name: name || 'My leaderboard', createdBy: fbUser.uid, createdAt: Date.now()});
   await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc());
