@@ -460,6 +460,19 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   padding:9px 18px 8px; transform:rotate(-5deg); opacity:.92;
   font-family:"Wildkins", Georgia, serif;
 }
+.verified{display:flex; align-items:center; gap:8px; margin:10px 0 0; font-size:13.5px; color:var(--done); font-weight:600}
+.verified .vtick{width:20px; height:20px; border-radius:99px; background:var(--done); color:var(--surface);
+  display:grid; place-items:center; flex:none}
+.verified .vtick svg{width:12px; height:12px}
+.vbtn{margin-top:10px}
+.vbadge{
+  display:inline-grid; place-items:center; vertical-align:1px; margin-left:6px;
+  width:15px; height:15px; border-radius:99px; background:var(--done); color:var(--surface); flex:none;
+}
+.vbadge svg{width:9px; height:9px}
+.stamp.vstamp{border-style:double; border-width:5px}
+.stamp .vline{font-family:"Courier Prime", monospace; font-size:9px; letter-spacing:.14em;
+  text-transform:uppercase; margin-top:1px; opacity:.85}
 .stamp b{font-size:19px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; line-height:1}
 .stamp span{font-family:"Courier Prime", monospace; font-size:12px; letter-spacing:.06em; white-space:nowrap}
 /* photos on the left, the stamp standing to their right */
@@ -502,6 +515,18 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .planhills .nm{flex:1; min-width:0}
 .planhills li.on .tick{background:var(--done); border-color:var(--done); color:#fff}
 .planhills .on .nm{color:var(--ink-2); text-decoration:line-through; text-decoration-color:var(--done)}
+.trackbox{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;
+  background:var(--surface-2); border:1px solid var(--line-soft); border-radius:10px; padding:9px 11px}
+.trackbox .tinfo{flex:1; min-width:150px; font-size:13px; color:var(--ink-2)}
+.trackbox .tinfo b{display:block; color:var(--ink); font-size:14px}
+.gpxrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center}
+.filebtn{
+  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  padding:9px 13px; font-size:14px; color:var(--ink); font-weight:500;
+}
+.filebtn:active{background:var(--surface-2)}
+.pathnote{font-size:12px; color:var(--ink-3); margin:8px 0 0; line-height:1.45}
 .planstat{height:6px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:12px}
 .planstat > i{display:block; height:100%; background:var(--done); border-radius:99px}
 
@@ -1175,7 +1200,7 @@ function hillRow(h, listId){
   const st = stateOf(h.k);
   s += '<button class="tick st-' + st + '" data-act="tick" data-k="' + esc(h.k) + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(h.n) + '">' + (st === 'none' ? '' : ST_ICON[st]) + '</button>';
   s += '<button class="hmain" data-act="open" data-k="' + esc(h.k) + '" aria-expanded="' + open + '">';
-  s += '<span class="hname">' + esc(h.n) + '</span>';
+  s += '<span class="hname">' + esc(h.n) + (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span>';
   const bits = [];
   if (h.w && h.w !== h.n) bits.push('<span class="wel">' + esc(h.w) + '</span>');
   if (on && r.date) bits.push('<span class="stampdate">' + prettyDate(r.date) + '</span>');
@@ -1203,19 +1228,239 @@ function hillRow(h, listId){
       s += '<button class="stbtn st-' + sd.id + (cur ? ' on' : '') + '" data-act="setstate" data-k="' + esc(h.k) + '" data-v="' + sd.id + '" aria-pressed="' + cur + '">' +
            '<i>' + ST_ICON[sd.id] + '</i>' + esc(sd.label) + '</button>';
     }
-    s += '</div></div>';
+    s += '</div>';
+    const vf = verifiedAt(h.k);
+    if (vf){
+      s += '<p class="verified"><span class="vtick">' + ICON_CHECK + '</span>Verified at the summit &middot; ' +
+           prettyDate(new Date(vf.t).toISOString().slice(0,10)) + '</p>';
+    } else if (isFinite(h.a)){
+      s += '<button class="btn ghost vbtn" data-act="verify" data-k="' + esc(h.k) + '"' + (locating ? ' disabled' : '') + '>' +
+           (locating ? 'Finding you…' : 'I am here — verify with GPS') + '</button>';
+    }
+    s += '</div>';
     s += '<div><label for="nt-' + esc(h.k) + '">Notes</label><textarea id="nt-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes||'') + '</textarea></div>';
     s += '<div><label>Photos</label><div class="photorow"><div class="shots">';
     for (const p of r.photos)
       s += '<button class="shot' + (p.up ? '' : ' up0') + '" data-act="viewphoto" data-k="' + esc(h.k) + '" data-p="' + esc(p.id) + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt=""></button>';
     s += '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" hidden></label>';
     s += '</div>';
-    if (on) s += '<span class="stamp"><b>Marked</b><span>' + esc(r.date ? prettyDate(r.date) : 'no date') + '</span></span>';
+    if (on) s += '<span class="stamp' + (verifiedAt(h.k) ? ' vstamp' : '') + '"><b>Marked</b><span>' +
+      esc(r.date ? prettyDate(r.date) : 'no date') + '</span>' +
+      (verifiedAt(h.k) ? '<span class="vline">GPS verified</span>' : '') + '</span>';
     s += '</div></div>';
     s += '<div><label>On these lists</label><div class="tags">' + h.l.map(x => '<span class="tag">' + esc(LIST_BY[x].name) + '</span>').join('') + '</div></div>';
     s += '</div>';
   }
   return s + '</li>';
+}
+
+
+
+/* ---------- being there ---------- */
+/* A verified tick means this device reported a good fix close to the summit at
+   the time you marked it. It is a personal record, not proof — a phone's
+   location can be faked, so nothing here is treated as evidence. */
+const VERIFY_RADIUS = 250;    // metres from the summit
+const VERIFY_ACC    = 100;    // reject a fix vaguer than this
+let locating = false;
+
+function getFix(){
+  return new Promise((res, rej) => {
+    if (!navigator.geolocation) return rej(new Error('This browser cannot do location.'));
+    navigator.geolocation.getCurrentPosition(
+      p => res({lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy}),
+      e => rej(new Error(
+        e.code === 1 ? 'Location is blocked for this site. Turn it on in your browser settings and try again.' :
+        e.code === 3 ? 'Could not get a fix in time — try again in the open.' :
+                       'Location is unavailable right now.')),
+      {enableHighAccuracy:true, timeout:20000, maximumAge:15000});
+  });
+}
+
+async function verifyHere(key){
+  const h = BY_KEY[key];
+  if (!h || !isFinite(h.a) || !isFinite(h.o)){ toast('No summit position on file for this one.'); return; }
+  if (locating) return;
+  locating = true; render();
+  try{
+    const fix = await getFix();
+    const d = Math.round(metresBetween(fix.lat, fix.lon, h.a, h.o));
+    if (fix.acc > VERIFY_ACC){
+      toast('Your fix is only good to ' + Math.round(fix.acc) + ' m. Wait for a better signal.');
+    } else if (d > VERIFY_RADIUS){
+      toast('You are about ' + (d > 1500 ? (d/1000).toFixed(1) + ' km' : d + ' m') + ' from the summit of ' + h.n + '.');
+    } else {
+      const c = rec(key);
+      state.bagged[key] = {...c, st:'done', done:true,
+        date: c.date || today(),
+        v: {t: Date.now(), d: d, acc: Math.round(fix.acc)}, t: now()};
+      touched();
+      toast('Verified on ' + h.n + '.');
+    }
+  }catch(err){ toast(err.message); }
+  locating = false; render();
+  if (mapReady) drawMarkers();
+}
+const verifiedAt = k => { const r = state.bagged[k]; return r && r.v && r.v.t ? r.v : null; };
+
+/* ---------- GPX ---------- */
+/* Tracks are stored as [lat, lon, ele] rounded to 5dp (about a metre) so a long
+   walk stays small enough to sync inside the record like everything else. */
+const r5 = n => Math.round(n * 1e5) / 1e5;
+
+function parseGPX(text){
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.querySelector('parsererror')) throw new Error('That file is not readable GPX.');
+  const num = (el, a) => parseFloat(el.getAttribute(a));
+  const ptsOf = sel => [...doc.getElementsByTagName(sel)].map(el => {
+    const lat = num(el, 'lat'), lon = num(el, 'lon');
+    if (!isFinite(lat) || !isFinite(lon)) return null;
+    const e = el.getElementsByTagName('ele')[0];
+    const ele = e ? parseFloat(e.textContent) : NaN;
+    return isFinite(ele) ? [r5(lat), r5(lon), Math.round(ele)] : [r5(lat), r5(lon)];
+  }).filter(Boolean);
+
+  let pts = ptsOf('trkpt');
+  if (!pts.length) pts = ptsOf('rtept');
+  const wpts = [...doc.getElementsByTagName('wpt')].map(el => {
+    const lat = num(el, 'lat'), lon = num(el, 'lon');
+    if (!isFinite(lat) || !isFinite(lon)) return null;
+    const n = el.getElementsByTagName('name')[0];
+    return {lat:r5(lat), lon:r5(lon), name:(n ? n.textContent : '').slice(0, 60)};
+  }).filter(Boolean);
+  if (!pts.length && wpts.length > 1) pts = wpts.map(w => [w.lat, w.lon]);
+  if (!pts.length) throw new Error('No track, route or waypoints in that file.');
+
+  const nameEl = doc.querySelector('trk > name, rte > name, metadata > name');
+  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts};
+}
+
+/* Firestore documents are capped, and a phone-recorded walk can run to tens of
+   thousands of points. Douglas-Peucker thins the line to the shape that matters. */
+const MAX_TRACK_PTS = 1200;
+function simplifyTrack(pts, tolDeg){
+  if (pts.length < 3) return pts;
+  const sqSegDist = (p, a, b) => {
+    let x = a[0], y = a[1], dx = b[0] - x, dy = b[1] - y;
+    if (dx || dy){
+      const t = ((p[0] - x) * dx + (p[1] - y) * dy) / (dx*dx + dy*dy);
+      if (t > 1){ x = b[0]; y = b[1]; } else if (t > 0){ x += dx*t; y += dy*t; }
+    }
+    return (p[0]-x)**2 + (p[1]-y)**2;
+  };
+  const keep = new Uint8Array(pts.length); keep[0] = keep[pts.length-1] = 1;
+  const tol2 = tolDeg * tolDeg, stack = [[0, pts.length-1]];
+  while (stack.length){
+    const [a, b] = stack.pop();
+    let idx = -1, far = tol2;
+    for (let i = a+1; i < b; i++){
+      const d = sqSegDist(pts[i], pts[a], pts[b]);
+      if (d > far){ far = d; idx = i; }
+    }
+    if (idx > 0){ keep[idx] = 1; stack.push([a, idx], [idx, b]); }
+  }
+  return keep;
+}
+/* a point matters if the ground plan bends there OR the height does */
+function keepHeights(pts, metres){
+  const keep = new Uint8Array(pts.length);
+  if (!pts.length) return keep;
+  keep[0] = keep[pts.length-1] = 1;
+  let last = null, dir = 0;
+  for (let i = 0; i < pts.length; i++){
+    const e = pts[i].length > 2 ? pts[i][2] : null;
+    if (e === null) continue;
+    if (last === null){ last = e; keep[i] = 1; continue; }
+    const d = e - last, nd = d > 0 ? 1 : d < 0 ? -1 : dir;
+    if (Math.abs(d) >= metres || (dir && nd !== dir && Math.abs(d) >= metres / 2)){
+      keep[i] = 1; last = e; dir = nd;
+    }
+  }
+  return keep;
+}
+function fitTrack(pts){
+  if (pts.length <= MAX_TRACK_PTS) return pts;
+  let tol = 0.00002, hm = 8, out = pts;       // ~2 m across the ground, 8 m of height
+  for (let n = 0; n < 12; n++){
+    const a = simplifyTrack(pts, tol), b = keepHeights(pts, hm);
+    out = pts.filter((_, i) => a[i] || b[i]);
+    if (out.length <= MAX_TRACK_PTS) return out;
+    tol *= 2; hm *= 1.6;
+  }
+  const step = Math.ceil(out.length / MAX_TRACK_PTS);
+  return out.filter((_, i) => i % step === 0 || i === out.length - 1);
+}
+function trackLength(pts){
+  let m = 0;
+  for (let i = 1; i < pts.length; i++) m += metresBetween(pts[i-1][0], pts[i-1][1], pts[i][0], pts[i][1]);
+  return m;
+}
+/* only count climbs above 3 m, or GPS noise inflates the total badly */
+function trackAscent(pts){
+  let up = 0, last = null;
+  for (const p of pts){
+    if (p.length < 3) continue;
+    if (last === null){ last = p[2]; continue; }
+    const d = p[2] - last;
+    if (d > 3){ up += d; last = p[2]; }
+    else if (d < -3) last = p[2];
+  }
+  return Math.round(up);
+}
+function prettyDist(m){
+  const km = m / 1000, mi = km * 0.621371;
+  return mi.toFixed(1) + ' mi (' + km.toFixed(1) + ' km)';
+}
+function xesc(s){
+  return String(s == null ? '' : s).replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+}
+function buildGPX(plan){
+  const hs = (plan.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  const when = new Date().toISOString();
+  let s = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<gpx version="1.1" creator="WayMark" xmlns="http://www.topografix.com/GPX/1/1" ' +
+    'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+    'xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n' +
+    '  <metadata><name>' + xesc(plan.name || 'WayMark route') + '</name><time>' + when + '</time></metadata>\n';
+  for (const h of hs){
+    s += '  <wpt lat="' + h.a + '" lon="' + h.o + '">' +
+         '<ele>' + h.h + '</ele>' +
+         '<name>' + xesc(h.n) + '</name>' +
+         '<desc>' + xesc(feet(h) + ' ft (' + h.h + ' m) · ' + (h.g || '')) + '</desc>' +
+         '<sym>Summit</sym></wpt>\n';
+  }
+  const pts = plan.trk || [];
+  if (pts.length){
+    s += '  <trk><name>' + xesc(plan.name || 'WayMark route') + '</name><trkseg>\n';
+    for (const p of pts){
+      s += '    <trkpt lat="' + p[0] + '" lon="' + p[1] + '">' + (p.length > 2 ? '<ele>' + p[2] + '</ele>' : '') + '</trkpt>\n';
+    }
+    s += '  </trkseg></trk>\n';
+  }
+  return s + '</gpx>\n';
+}
+function downloadFile(name, text, type){
+  const b = new Blob([text], {type: type || 'application/gpx+xml'});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { a.remove(); URL.revokeObjectURL(u); }, 1500);
+}
+function safeName(s){ return (s || 'route').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'route'; }
+
+/* ---------- routing along real paths (OpenStreetMap, via BRouter) ---------- */
+let routingBusy = false;
+async function routeAlongPaths(coords){
+  const lonlats = coords.map(c => c[1] + ',' + c[0]).join('|');
+  const url = 'https://brouter.de/brouter?lonlats=' + encodeURIComponent(lonlats) +
+              '&profile=hiking-beta&alternativeidx=0&format=geojson';
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('The path router is not answering (' + r.status + ').');
+  const j = await r.json();
+  const f = j && j.features && j.features[0];
+  const line = f && f.geometry && f.geometry.coordinates;
+  if (!line || !line.length) throw new Error('No walkable route found between those points.');
+  return line.map(c => c.length > 2 && isFinite(c[2]) ? [r5(c[1]), r5(c[0]), Math.round(c[2])] : [r5(c[1]), r5(c[0])]);
 }
 
 /* ---------- map ---------- */
@@ -1260,6 +1505,14 @@ function mountMap(){
 function drawMarkers(fit){
   if (!mapReady || !markerLayer) return;
   markerLayer.clearLayers();
+  for (const p of livePlans()){
+    if (!p.trk || p.trk.length < 2) continue;
+    const line = p.trk.map(c => [c[0], c[1]]);
+    L.polyline(line, {color:'#E56D2D', weight:4, opacity:.85})
+      .bindPopup('<b>' + esc(p.name || 'Route') + '</b><br>' + prettyDist(trackLength(p.trk)))
+      .addTo(markerLayer);
+    L.polyline(line, {color:'#fff', weight:7, opacity:.35}).addTo(markerLayer).bringToBack();
+  }
   const list = mapHills();
   const cs = getComputedStyle(document.documentElement);
   const col = {
@@ -1301,6 +1554,41 @@ function openPopup(m, h){
 
 
 /* ---------- routes ---------- */
+/* the route's track: import one, build one along paths, or send one to your phone */
+function gpxControls(p, id){
+  const pts = p.trk || [];
+  let s = '';
+  if (pts.length){
+    const asc = trackAscent(pts);
+    s += '<div class="trackbox"><div class="tinfo"><b>' + prettyDist(trackLength(pts)) + '</b>' +
+         pts.length.toLocaleString() + ' points' + (asc ? ' · about ' + Math.round(asc * 3.28084).toLocaleString() + ' ft (' + asc.toLocaleString() + ' m) of climbing' : ' · no heights in this track') +
+         '</div>' +
+         '<button class="btn ghost" data-act="gpxout" data-id="' + esc(id) + '">Download GPX</button>' +
+         '<button class="linkbtn" data-act="cleartrk" data-id="' + esc(id) + '">Remove track</button></div>';
+  }
+  s += '<div class="gpxrow">' +
+       '<label class="filebtn">' + (pts.length ? 'Replace with a GPX' : 'Import a GPX') +
+       '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + esc(id) + '" hidden></label>';
+  if ((p.hills || []).length > 1)
+    s += '<button class="btn ghost" data-act="autoroute" data-id="' + esc(id) + '"' + (routingBusy ? ' disabled' : '') + '>' +
+         (routingBusy ? 'Finding paths…' : 'Follow paths between these hills') + '</button>';
+  if (!pts.length && (p.hills || []).length)
+    s += '<button class="btn ghost" data-act="gpxout" data-id="' + esc(id) + '">Download GPX</button>';
+  s += '</div>';
+  if ((p.hills || []).length > 1 && !pts.length)
+    s += '<p class="pathnote">Paths come from OpenStreetMap, not the Ordnance Survey definitive map. They are usually right, but check a proper map before you rely on a right of way.</p>';
+  return s;
+}
+function planById(id){
+  if (id === 'draft') return ui.draft;
+  return state.plans.find(x => x.id === id && !x.deleted) || null;
+}
+function savePlanEdit(id){
+  if (id === 'draft'){ render(); return; }
+  const p = planById(id); if (!p) return;
+  p.t = now(); touched(); render();
+}
+
 function renderPlans(){
   let html = '<div class="planintro"><strong>Plan a day out.</strong> Build a route from any hills on any of your lists, add the date you are aiming for and your notes. When you get back, tick them off here and the date carries across to your log.</div>';
   html += '<div class="btnrow"><button class="btn' + (ui.planForm ? ' quiet' : '') + '" data-act="newplan">' + (ui.planForm ? 'Cancel' : '+ Plan a new route') + '</button></div>';
@@ -1329,6 +1617,7 @@ function renderPlans(){
       for (const h of matches) html += '<button data-act="pick" data-k="' + esc(h.k) + '">' + esc(h.n) + '<span>' + feet(h) + ' ft · ' + esc(regionOf(h, h.l[0])) + '</span></button>';
       html += '</div>';
     }
+    html += gpxControls(d, 'draft');
     html += '</div><div class="btnrow"><button class="btn" data-act="saveplan">Save route</button></div></div>';
   }
 
@@ -1354,6 +1643,7 @@ function renderPlans(){
     if (hs.length) html += '<span>' + climbF.toLocaleString() + ' ft (' + climbM.toLocaleString() + ' m) of summits</span>';
     html += '</div>';
     if (p.notes) html += '<p class="plannotes">' + esc(p.notes) + '</p>';
+    html += gpxControls(p, p.id);
     if (hs.length){
       html += '<ul class="planhills">';
       for (const h of hs){
@@ -1361,11 +1651,11 @@ function renderPlans(){
         html += '<li class="' + (on ? 'on' : '') + '"><button class="tick" data-act="tick" data-k="' + esc(h.k) + '" data-date="' + esc(p.date||'') + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(h.n) + '">' + ICON_CHECK + '</button>';
         const pr = rec(h.k), ps = pr.photos && pr.photos[0];
         if (ps) html += '<img class="thumb sm" data-pid="' + esc(ps.id) + '" data-up="' + (ps.up?1:0) + '" alt="">';
-        html += '<span class="nm">' + esc(h.n) + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
+        html += '<span class="nm">' + esc(h.n) + (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
       }
       html += '</ul><div class="planstat"><i style="width:' + Math.round(done/hs.length*100) + '%"></i></div><div class="btnrow">';
       html += allDone ? '<span class="planmeta" style="align-self:center">Route complete</span>'
-                      : '<button class="btn ghost" data-act="bagall" data-id="' + esc(p.id) + '>Mark all ' + hs.length + '</button>';
+                      : '<button class="btn ghost" data-act="bagall" data-id="' + esc(p.id) + '">Mark all ' + hs.length + '</button>';
       html += '</div>';
     }
     html += '</article>';
@@ -1463,10 +1753,37 @@ document.addEventListener('click', async e => {
   else if (a === 'saveplan'){
     const d = ui.draft;
     if (!d.name.trim() && !d.hills.length){ toast('Give the route a name or add a hill first.'); return; }
-    state.plans.push({id:'p'+uid(), name:d.name.trim(), date:d.date, notes:d.notes.trim(), hills:d.hills, deleted:false, t:now()});
+    state.plans.push({id:'p'+uid(), name:d.name.trim(), date:d.date, notes:d.notes.trim(), hills:d.hills, trk:d.trk || null, deleted:false, t:now()});
     d.hills.forEach(k => { if (stateOf(k) === 'none'){ const c = rec(k); state.bagged[k] = {...c, st:'planned', done:false, t:now()}; } });
     ui.planForm = false; ui.draft = null; ui.planQ = '';
     touched(); render(); toast('Route saved.');
+  }
+  else if (a === 'verify'){ verifyHere(el.dataset.k); }
+  else if (a === 'gpxout'){
+    const p = planById(el.dataset.id); if (!p) return;
+    if (!(p.hills || []).length && !(p.trk || []).length){ toast('Nothing in this route to export yet.'); return; }
+    downloadFile(safeName(p.name) + '.gpx', buildGPX(p));
+    toast('GPX saved — open it in Organic Maps.');
+  }
+  else if (a === 'cleartrk'){
+    const p = planById(el.dataset.id); if (!p) return;
+    if (!await confirmAsk({title:'Remove the track?', body:'The hills and notes on this route stay. Only the drawn line goes.', yes:'Remove it', no:'Keep it'})) return;
+    p.trk = null; savePlanEdit(el.dataset.id);
+  }
+  else if (a === 'autoroute'){
+    const id = el.dataset.id, p = planById(id); if (!p || routingBusy) return;
+    const hs = (p.hills || []).map(k => BY_KEY[k]).filter(h => h && isFinite(h.a) && isFinite(h.o));
+    if (hs.length < 2){ toast('Add at least two hills first.'); return; }
+    routingBusy = true; render();
+    try{
+      const line = await routeAlongPaths(hs.map(h => [h.a, h.o]));
+      p.trk = fitTrack(line);
+      routingBusy = false; savePlanEdit(id);
+      toast('Routed along paths — ' + prettyDist(trackLength(line)) + '.');
+    }catch(err){
+      routingBusy = false; render();
+      toast(err.message || 'Could not find a path route.');
+    }
   }
   else if (a === 'delplan'){
     const p = state.plans.find(x => x.id === el.dataset.id);
@@ -1495,6 +1812,21 @@ document.addEventListener('change', e => {
   else if (a === 'photo' && el.files && el.files.length){
     const files = [...el.files]; el.value = '';
     toast('Processing…'); addPhotos(el.dataset.k, files);
+  }
+  else if (a === 'gpxin' && el.files && el.files.length){
+    const f = el.files[0], id = el.dataset.id;
+    el.value = '';
+    f.text().then(txt => {
+      let g;
+      try{ g = parseGPX(txt); }catch(err){ toast(err.message); return; }
+      const p = planById(id); if (!p) return;
+      const before = g.pts.length;
+      p.trk = fitTrack(g.pts);
+      if (!p.name && g.name) p.name = g.name;
+      if (p.trk.length < before) setTimeout(() => toast('Thinned ' + before.toLocaleString() + ' points to ' + p.trk.length.toLocaleString() + ' so it syncs.'), 1600);
+      savePlanEdit(id);
+      toast('Track loaded — ' + prettyDist(trackLength(g.pts)) + '.');
+    }).catch(() => toast('Could not read that file.'));
   }
 });
 
