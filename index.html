@@ -111,6 +111,9 @@ img{max-width:100%}
 }
 .scards.four{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
 .scards.four .scard{display:flex; flex-direction:column; justify-content:flex-start}
+.scard.tapcard{text-align:left; cursor:pointer; width:100%; font:inherit; color:inherit}
+.scard.tapcard:hover{border-color:var(--accent)}
+.scard.tapcard .ssub{color:var(--accent-text); font-weight:600}
 .sbig .pcs{font-size:.5em; color:var(--accent-text); margin-left:1px}
 .progstrip{
   position:relative; overflow:hidden; margin-top:12px;
@@ -312,6 +315,29 @@ body::before{
   .mstext b{font-size:11.5px}
 }
 
+/* ================= colophon ================= */
+/* Deliberately quiet: found rather than announced. */
+.colophon{
+  margin-top:clamp(56px, 12vh, 104px);
+  padding:0 0 34px;
+  display:flex; flex-direction:column; align-items:center; gap:7px;
+  text-align:center; color:var(--ink-3); opacity:.55;
+  transition:opacity .3s;
+}
+.colophon:hover{opacity:.8}
+.wmk.tiny{width:17px; height:17px}
+.wmk.tiny .wmplate{stroke-width:2.6}
+.wmk.tiny .wmw,.wmk.tiny .wmm{stroke-width:3}
+.cq{
+  font-family:"Wildkins", Georgia, serif; font-size:12px; letter-spacing:.05em;
+  margin:1px 0 0; color:var(--ink-3);
+}
+.cd{
+  font-family:"Courier Prime", monospace; font-size:9.5px; line-height:1.65;
+  letter-spacing:.04em; margin:0; color:var(--ink-3);
+}
+@media (min-width:768px){ .colophon{padding-bottom:44px} }
+
 /* ================= shell ================= */
 .app{display:block}
 .col{min-width:0}
@@ -331,6 +357,7 @@ body::before{
   display:flex; flex-direction:column; align-items:center; gap:2px;
   min-width:0; overflow:visible; flex:0 1 auto; text-align:center;
 }
+.hbrand{background:none; border:none; padding:0; cursor:pointer; color:inherit}
 /* the tagline is tracked out by script to sit exactly under the wordmark */
 .tagline{display:block}
 .tagline{
@@ -970,7 +997,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <header class="top">
       <div class="wrap brandrow">
 
-        <span class="hbrand hideDesk"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></span>
+        <button class="hbrand hideDesk" data-tab="d" aria-label="WayMark home"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></button>
         <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span><span id="syncTxt" style="overflow:hidden;text-overflow:ellipsis">Checking…</span></button>
         <button class="iconbtn" id="themeBtn" aria-label="Light or dark">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="3.6"/></svg>
@@ -982,6 +1009,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     </header>
 
     <main class="wrap" id="main"></main>
+
     <nav class="bnav" id="bnav" role="tablist" aria-label="Sections"></nav>
   </div>
 </div>
@@ -1795,7 +1823,7 @@ function renderHills(){
     if (q && !(norm(h.n).includes(q) || norm(h.w).includes(q) || norm(altStr(h)).includes(q))) return false;
     return true;
   });
-  if (!items.length) return html + '<p class="empty">No hills match that. Try clearing the search or filters.</p>';
+  if (!items.length) return html + '<p class="empty">No hills match that. Try clearing the search or filters.</p>' + COLOPHON;
 
   for (const b of s.regions){
     const inG = items.filter(h => regionOf(h, id) === b.g);
@@ -1810,7 +1838,7 @@ function renderHills(){
     for (const h of inG) html += hillRow(h, id);
     html += '</ul>';
   }
-  return html;
+  return html + COLOPHON;
 }
 
 function hillRow(h, listId){
@@ -2113,7 +2141,7 @@ function recentlyMarked(n){
      then shows up here as recent, which is what actually happened. */
   return Object.entries(state.bagged)
     .filter(([k, r]) => isBagged(k) && BY_KEY[k] && r.t)
-    .map(([k, r]) => ({h: BY_KEY[k], added: r.t, v: !!(r.v && r.v.t)}))
+    .map(([k, r]) => ({h: BY_KEY[k], added: r.t, date: r.date, v: !!(r.v && r.v.t)}))
     .sort((a, b) => b.added - a.added)
     .slice(0, n);
 }
@@ -2122,10 +2150,13 @@ function nextRoute(){
   const dated = open.filter(p => p.date).sort((a, b) => a.date.localeCompare(b.date));
   return dated[0] || open.sort((a, b) => (b.t || 0) - (a.t || 0))[0] || null;
 }
-function statCard(big, label, sub){
-  return '<div class="scard"><div class="sbig">' + big + '</div>' +
+function statCard(big, label, sub, go){
+  const tag = go ? 'button' : 'div';
+  return '<' + tag + ' class="scard' + (go ? ' tapcard' : '') + '"' +
+         (go ? ' data-tab="' + go + '"' : '') + '>' +
+         '<div class="sbig">' + big + '</div>' +
          '<div class="slab">' + label + '</div>' +
-         (sub ? '<div class="ssub">' + sub + '</div>' : '') + '</div>';
+         (sub ? '<div class="ssub">' + sub + '</div>' : '') + '</' + tag + '>';
 }
 function renderDashboard(){
   const a = allStats();
@@ -2140,7 +2171,7 @@ function renderDashboard(){
     ? statCard(feet(a.highest).toLocaleString() + '<span class="su">ft</span>', 'Highest marked', esc(a.highest.n))
     : statCard('&mdash;', 'Highest marked', 'Nothing yet');
   s += statCard(pgot.toLocaleString() + '<span class="su">/' + pz.length + '</span>', 'Patches earned',
-                pgot ? 'Tap to see them' : 'None yet');
+                (pgot ? 'See your journey' : 'None yet') + ' &rsaquo;', 'a');
   s += '</div>';
 
   const nx = nextRoute();
@@ -2165,7 +2196,7 @@ function renderDashboard(){
       s += '<li><span class="fmk">' + ICON_CHECK + '</span>' +
            '<span class="fn">' + esc(r.h.n) +
              (r.v ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span>' +
-           '<span class="fd">' + esc(prettyDate(new Date(r.added).toISOString().slice(0, 10))) + '</span></li>';
+           '<span class="fd">' + (r.date ? esc(prettyDate(r.date)) : 'no date') + '</span></li>';
     s += '</ul>';
   }
 
@@ -2203,6 +2234,13 @@ function renderProfile(){
     '<div class="btnrow"><button class="btn ghost" data-act="opensettings">Open settings</button></div>';
   return s;
 }
+
+const COLOPHON =
+  '<footer class="colophon">' +
+    '<span class="wmk tiny"><svg class="wmsvg" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="wmplate" x="2.4" y="2.4" width="27.2" height="27.2" rx="8.4"/><path class="wmw" d="M8 10.4 L12 17 L16 10.4 L20 17 L24 10.4"/><path class="wmm" d="M8 21.6 L12 15 L16 21.6 L20 15 L24 21.6"/></svg></span>' +
+    '<p class="cq">It&rsquo;s character building.</p>' +
+    '<p class="cd">WayMark was created by Joe Sullivan<br>and dedicated to his father, Andrew.</p>' +
+  '</footer>';
 
 /* ---------- map ---------- */
 let map = null, mapReady = false, markerLayer = null, mapWarned = false;
