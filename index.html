@@ -44,8 +44,9 @@
   --r:12px;
   --grain:.10; --noise:.03;
   --patch-bg:#B4491A;
-  --bk1:#2F5D3A; --bk2:#6E7472; --bk3:#3F6E8C; --bk4:#B4551D;
-  --bk5:#7B2D34; --bk6:#8F6E1A; --bk7:#5F8244;
+  /* Wainwright's seven books — sampled from the Frances Lincoln box set */
+  --bk1:#71AA47; --bk2:#E12E35; --bk3:#095FD3; --bk4:#E06237;
+  --bk5:#6C261D; --bk6:#C09400; --bk7:#2E714A;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -59,8 +60,8 @@
     --warn:#E58B4E;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.75);
     --grain:.12; --noise:.05;
-    --bk1:#5FA271; --bk2:#9AA69C; --bk3:#77A9C6; --bk4:#E58B4E;
-    --bk5:#D0737B; --bk6:#DCBB57; --bk7:#93B87A;
+    --bk1:#7BB64F; --bk2:#E12E35; --bk3:#1071F5; --bk4:#E06237;
+    --bk5:#CB4E3D; --bk6:#FFCC22; --bk7:#378758;
   }
 }
 :root[data-theme="dark"]{
@@ -74,8 +75,8 @@
   --warn:#E58B4E;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.75);
   --grain:.12; --noise:.05;
-  --bk1:#5FA271; --bk2:#9AA69C; --bk3:#77A9C6; --bk4:#E58B4E;
-  --bk5:#D0737B; --bk6:#DCBB57; --bk7:#93B87A;
+  --bk1:#7BB64F; --bk2:#E12E35; --bk3:#1071F5; --bk4:#E06237;
+  --bk5:#CB4E3D; --bk6:#FFCC22; --bk7:#378758;
 }
 
 *{box-sizing:border-box}
@@ -295,12 +296,58 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .shot.up0::after{content:""; position:absolute; right:5px; bottom:5px; width:7px; height:7px; border-radius:99px; background:var(--warn); box-shadow:0 0 0 2px var(--surface)}
 .addshot{width:76px; height:76px; border:1px dashed var(--line); border-radius:10px; display:grid; place-items:center; color:var(--ink-3); font-size:11px; cursor:pointer; text-align:center; flex:none;
   margin:0 !important; letter-spacing:0 !important; text-transform:none !important; font-family:inherit !important}
-.viewer{position:fixed; inset:0; z-index:2000; background:rgba(8,11,9,.94); display:none; flex-direction:column}
+.viewer{position:fixed; inset:0; z-index:2000; background:rgba(8,11,9,.96); display:none; flex-direction:column}
 .viewer.open{display:flex}
-.viewer .vimg{flex:1; display:grid; place-items:center; padding:14px; min-height:0}
-.viewer .vimg img{max-width:100%; max-height:100%; object-fit:contain; border-radius:8px}
-.viewer .vbar{display:flex; gap:8px; padding:12px 14px calc(12px + env(safe-area-inset-bottom)); justify-content:space-between; align-items:center}
-.viewer .vbar .cap{color:#D8DCD0; font-size:13px; align-self:center; flex:1; min-width:0}
+.viewer .vimg{
+  flex:1 1 0; min-height:0; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  padding:clamp(14px, 3vw, 34px);
+  padding-top:calc(58px + env(safe-area-inset-top));
+}
+/* the photo is never blown up past its own pixels, and never spills past the stage.
+   min-height:0 lets a tall photo shrink instead of pushing the toolbar off screen. */
+.viewer .vimg img{
+  max-width:min(100%, 1200px); max-height:100%;
+  min-width:0; min-height:0;
+  width:auto; height:auto; object-fit:contain; flex:0 1 auto;
+  border-radius:10px; box-shadow:0 18px 50px -20px rgba(0,0,0,.8);
+  touch-action:pan-y; user-select:none; -webkit-user-drag:none;
+}
+.viewer .vimg img.swapping{opacity:0}
+.viewer .vimg img{transition:opacity .12s}
+/* step through the roll without leaving the viewer */
+.vnav{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:4;
+  width:44px; height:60px; padding:0; border-radius:12px;
+  border:1px solid rgba(255,255,255,.20); background:rgba(0,0,0,.42); color:#E8ECE4;
+  display:grid; place-items:center; line-height:0;
+}
+.vnav svg{width:20px; height:20px}
+.vnav.prev{left:max(8px, 1.5vw)} .vnav.next{right:max(8px, 1.5vw)}
+.vnav[disabled]{opacity:0; pointer-events:none}
+.viewer.single .vnav, .viewer.single .vstrip{display:none}
+.viewer .vbar{
+  display:flex; gap:10px; align-items:center; justify-content:space-between;
+  padding:10px clamp(14px, 3vw, 28px);
+}
+.viewer .vbar .cap{color:#D8DCD0; font-size:13px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.vcount{
+  flex:none; color:#AEB6A8; font-family:"Courier Prime", monospace; font-size:12px;
+  letter-spacing:.06em; padding:4px 10px; border-radius:99px; background:rgba(255,255,255,.08);
+}
+/* the roll along the bottom — current one is ringed */
+.vstrip{
+  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+  padding:4px clamp(14px, 3vw, 28px) calc(14px + env(safe-area-inset-bottom));
+  justify-content:safe center;
+}
+.vstrip::-webkit-scrollbar{display:none}
+.vstrip button{
+  flex:none; width:58px; height:58px; padding:0; border-radius:9px; overflow:hidden;
+  border:2px solid transparent; background:rgba(255,255,255,.07); opacity:.55;
+}
+.vstrip button img{width:100%; height:100%; object-fit:cover; display:block}
+.vstrip button[aria-current="true"]{border-color:var(--accent); opacity:1}
 .viewer .xbtn{background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.28); color:#E8ECE4; top:calc(10px + env(safe-area-inset-top))}
 /* the bin is quiet and icon-only, so it is never the obvious thing to press */
 .vtrash{
@@ -315,7 +362,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:rgba(0,0,0,.55); border-top:1px solid rgba(255,255,255,.14);
 }
 .viewer.confirming .vconfirm{display:flex}
-.viewer.confirming .vbar{display:none}
+.viewer.confirming .vbar, .viewer.confirming .vstrip, .viewer.confirming .vnav{display:none}
 .vconfirm .ask{color:#E8ECE4; font-size:13.5px; flex:1; min-width:150px}
 .vconfirm .ask small{display:block; color:#9AA294; font-size:12px; margin-top:2px}
 
@@ -473,6 +520,14 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .xbtn svg{width:15px; height:15px}
 .sheetbox > h2{padding-right:38px}
 .formx{position:absolute; top:8px; right:8px; width:30px; height:30px}
+/* a plain question, used before anything destructive */
+.sheet.ask{z-index:2300; background:rgba(10,14,11,.62); display:none}
+.sheet.ask.open{display:block}
+.askbox{max-width:400px; margin:22vh auto 0}
+.askbox h2{padding-right:38px}
+.askbox p{font-size:14px; color:var(--ink-2); margin:8px 0 0}
+.askbox .btnrow{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap}
+.askbox .btnrow .btn{flex:1 1 auto; min-width:120px}
 .form{position:relative}
 .sheetbox h2{font-family:"Wildkins", Georgia, serif; margin:0 0 4px; font-size:20px}
 .sheetbox h3{font-family:"Wildkins", Georgia, serif; margin:20px 0 4px; font-size:15px}
@@ -550,15 +605,33 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 <div class="viewer" id="viewer">
   <button class="xbtn" id="vclose" aria-label="Close photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-  <div class="vimg"><img id="vimg" alt=""></div>
+  <div class="vimg">
+    <button class="vnav prev" id="vprev" aria-label="Previous photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <img id="vimg" alt="">
+    <button class="vnav next" id="vnext" aria-label="Next photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
   <div class="vbar">
     <span class="cap" id="vcap"></span>
+    <span class="vcount" id="vcount"></span>
     <button class="vtrash" id="vdel" aria-label="Delete this photo" title="Delete this photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
   </div>
+  <div class="vstrip" id="vstrip"></div>
   <div class="vconfirm">
     <span class="ask">Delete this photo?<small>This cannot be undone.</small></span>
     <button class="btn quiet" id="vcancel" style="color:#D8DCD0; border-color:#4A5148">Keep it</button>
     <button class="btn danger" id="vyes">Delete</button>
+  </div>
+</div>
+
+<div class="sheet ask" id="ask" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+  <div class="sheetbox askbox">
+    <button class="xbtn" id="askX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h2 id="askTitle"></h2>
+    <p id="askBody"></p>
+    <div class="btnrow">
+      <button class="btn quiet" id="askNo">Cancel</button>
+      <button class="btn danger" id="askYes">Yes</button>
+    </div>
   </div>
 </div>
 
@@ -644,6 +717,26 @@ function prettyDate(v){
   if (!p.mo) return p.y;
   return (p.d ? Number(p.d)+' ' : '') + (MON_SHORT[Number(p.mo)-1] || p.mo) + ' ' + p.y;
 }
+/* ---------- a yes/no question ---------- */
+let askDone = null;
+const askEl = () => document.getElementById('ask');
+function confirmAsk({title, body, yes, no}){
+  const box = askEl();
+  document.getElementById('askTitle').textContent = title;
+  document.getElementById('askBody').textContent = body || '';
+  document.getElementById('askYes').textContent = yes || 'Yes';
+  document.getElementById('askNo').textContent = no || 'Cancel';
+  box.classList.add('open');
+  setTimeout(() => { const b = document.getElementById('askNo'); if (b) b.focus(); }, 30);
+  return new Promise(res => { askDone = res; });
+}
+function answerAsk(v){
+  askEl().classList.remove('open');
+  const f = askDone; askDone = null;
+  if (f) f(v);
+}
+function askOpen(){ return askEl().classList.contains('open'); }
+
 function toast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -818,6 +911,28 @@ function setState(key, st, date){
   touched(); render();
 }
 function setBagged(key, on, date){ setState(key, on ? 'done' : 'none', date); }
+/* a marked summit is hard-won — never let one tap undo it silently */
+async function okToUnmark(key){
+  const h = BY_KEY[key]; if (!h) return true;
+  const r = rec(key), kept = [];
+  if (r.date) kept.push('date');
+  if (r.notes) kept.push('notes');
+  if (r.photos && r.photos.length) kept.push(r.photos.length === 1 ? 'photo' : 'photos');
+  const one = kept.length === 1;
+  const body = kept.length
+    ? 'It goes back to not visited. Your ' + listWords(kept) + (one ? ' stays' : ' stay') +
+      ' saved, and ' + (one ? 'comes' : 'come') + ' back if you mark it again.'
+    : 'It goes back to not visited.';
+  return confirmAsk({
+    title: 'Unmark ' + h.n + '?',
+    body: body,
+    yes: 'Unmark it',
+    no: 'Keep it marked'
+  });
+}
+function listWords(a){
+  return a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+}
 function toggleList(id){
   const i = state.enabled.indexOf(id);
   if (i >= 0){
@@ -1274,7 +1389,7 @@ function wire(){
   keep('q','q'); keep('pq','planQ');
 }
 
-document.addEventListener('click', e => {
+document.addEventListener('click', async e => {
   const tabBtn = e.target.closest('.tab');
   if (tabBtn){ tab = tabBtn.dataset.tab; ui.q=''; ui.region=''; ui.open=null; render(); window.scrollTo({top:0}); return; }
   const el = e.target.closest('[data-act]');
@@ -1282,9 +1397,11 @@ document.addEventListener('click', e => {
   const a = el.dataset.act;
 
   if (a === 'tick'){
-    setBagged(el.dataset.k, !isBagged(el.dataset.k), el.dataset.date || '');
+    const k = el.dataset.k, turningOff = isBagged(k);
+    if (turningOff && !await okToUnmark(k)) return;
+    setBagged(k, !turningOff, el.dataset.date || '');
     if (mapReady){ drawMarkers(); if (map) map.closePopup(); }
-    if (wikiOpen && wikiOpen.k === el.dataset.k) paintInfo();
+    if (wikiOpen && wikiOpen.k === k) paintInfo();
   }
   else if (a === 'open'){ ui.open = ui.open === el.dataset.k ? null : el.dataset.k; render(); }
   else if (a === 'breakdown'){ ui.breakdown = !ui.breakdown; render(); }
@@ -1300,9 +1417,11 @@ document.addEventListener('click', e => {
   else if (a === 'hidebanner'){ ui.bannerHidden = true; render(); }
   else if (a === 'theme'){ setTheme(el.dataset.v); }
   else if (a === 'setstate'){
-    setState(el.dataset.k, el.dataset.v);
+    const k = el.dataset.k;
+    if (isBagged(k) && el.dataset.v !== 'done' && !await okToUnmark(k)) return;
+    setState(k, el.dataset.v);
     if (mapReady) drawMarkers();
-    if (wikiOpen && wikiOpen.k === el.dataset.k) paintInfo();
+    if (wikiOpen && wikiOpen.k === k) paintInfo();
   }
   else if (a === 'info'){ openInfo(el.dataset.k); }
   else if (a === 'closeinfo'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; }
@@ -1395,25 +1514,83 @@ document.addEventListener('input', e => {
 /* ---------- photo viewer ---------- */
 let viewing = null;
 const viewer = document.getElementById('viewer');
+/* ---- photo gallery ---- */
 async function openViewer(key, id){
   const h = BY_KEY[key]; if (!h) return;
-  viewing = {key, id};
-  const p = (rec(key).photos || []).find(x => x.id === id) || {id};
-  document.getElementById('vimg').src = await photoSrc(p) || '';
-  const r = rec(key);
-  document.getElementById('vcap').textContent = h.n + (r.date ? ' · ' + prettyDate(r.date) : '');
+  const photos = rec(key).photos || [];
+  const i = Math.max(0, photos.findIndex(x => x.id === id));
+  viewing = {key, id: (photos[i] || {}).id || id, i};
   viewer.classList.remove('confirming');
   viewer.classList.add('open');
+  await paintViewer();
+  buildStrip();
 }
-function closeViewer(){ viewer.classList.remove('open', 'confirming'); viewing = null; }
+function viewPhotos(){ return viewing ? (rec(viewing.key).photos || []) : []; }
+async function paintViewer(){
+  if (!viewing) return;
+  const h = BY_KEY[viewing.key], ps = viewPhotos();
+  if (!ps.length){ closeViewer(); return; }
+  viewing.i = Math.min(Math.max(0, viewing.i), ps.length - 1);
+  const p = ps[viewing.i];
+  viewing.id = p.id;
+  const img = document.getElementById('vimg');
+  const src = await photoSrc(p) || '';
+  if (img.src !== src){ img.classList.add('swapping'); img.src = src; img.onload = () => img.classList.remove('swapping'); setTimeout(()=>img.classList.remove('swapping'), 400); }
+  const r = rec(viewing.key);
+  document.getElementById('vcap').textContent = h.n + (r.date ? ' · ' + prettyDate(r.date) : '');
+  document.getElementById('vcount').textContent = ps.length > 1 ? (viewing.i + 1) + ' / ' + ps.length : '';
+  viewer.classList.toggle('single', ps.length < 2);
+  document.getElementById('vprev').disabled = viewing.i === 0;
+  document.getElementById('vnext').disabled = viewing.i === ps.length - 1;
+  const strip = document.getElementById('vstrip');
+  [...strip.children].forEach((b, n) => {
+    const cur = n === viewing.i;
+    b.setAttribute('aria-current', String(cur));
+    if (cur) b.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+  });
+  preload(ps[viewing.i + 1]); preload(ps[viewing.i - 1]);
+}
+function preload(p){ if (p) photoSrc(p).then(s => { if (s){ const i = new Image(); i.src = s; } }); }
+function buildStrip(){
+  const strip = document.getElementById('vstrip'), ps = viewPhotos();
+  strip.innerHTML = ps.map((p, n) =>
+    '<button data-act="vjump" data-i="' + n + '" aria-current="' + (n === viewing.i) + '" aria-label="Photo ' + (n+1) + '">' +
+    '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt=""></button>').join('');
+  hydratePhotos();
+}
+function stepViewer(d){ if (!viewing) return; viewing.i += d; paintViewer(); }
+function closeViewer(){ viewer.classList.remove('open', 'confirming', 'single'); viewing = null; }
+document.getElementById('vprev').onclick = () => stepViewer(-1);
+document.getElementById('vnext').onclick = () => stepViewer(1);
+document.getElementById('vstrip').onclick = e => {
+  const b = e.target.closest('[data-act="vjump"]'); if (!b) return;
+  viewing.i = +b.dataset.i; paintViewer();
+};
+/* swipe on a phone, arrow keys on a desktop */
+(function(){
+  const stage = document.querySelector('.viewer .vimg');
+  let x0 = null, y0 = null;
+  stage.addEventListener('touchstart', e => { const t = e.changedTouches[0]; x0 = t.clientX; y0 = t.clientY; }, {passive:true});
+  stage.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) stepViewer(dx < 0 ? 1 : -1);
+  }, {passive:true});
+})();
 document.getElementById('vclose').onclick = closeViewer;
 /* deleting takes two deliberate taps: the bin only asks, the answer does it */
 document.getElementById('vdel').onclick = () => { if (viewing) viewer.classList.add('confirming'); };
 document.getElementById('vcancel').onclick = () => viewer.classList.remove('confirming');
-document.getElementById('vyes').onclick = () => {
+document.getElementById('vyes').onclick = async () => {
   if (!viewing) return;
-  const v = viewing; closeViewer();
-  removePhoto(v.key, v.id); toast('Photo deleted.');
+  const v = viewing, wasLast = viewPhotos().length <= 1;
+  viewer.classList.remove('confirming');
+  await removePhoto(v.key, v.id);
+  toast('Photo deleted.');
+  if (wasLast){ closeViewer(); return; }
+  viewing = {key:v.key, id:null, i:Math.min(v.i, viewPhotos().length - 1)};
+  await paintViewer(); buildStrip();
 };
 
 /* ---------- list toggles ---------- */
@@ -1455,7 +1632,20 @@ function closeInfo(){ infoSheet.classList.remove('open'); wikiOpen = null; }
 document.getElementById('infoX').onclick = closeInfo;
 infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
 /* Escape closes whatever is on top, innermost first */
+document.getElementById('askYes').onclick = () => answerAsk(true);
+document.getElementById('askNo').onclick  = () => answerAsk(false);
+document.getElementById('askX').onclick   = () => answerAsk(false);
+askEl().onclick = e => { if (e.target === askEl()) answerAsk(false); };
 document.addEventListener('keydown', e => {
+  if (askOpen()){
+    if (e.key === 'Escape') answerAsk(false);
+    if (e.key === 'Enter' && document.activeElement === document.getElementById('askYes')) answerAsk(true);
+    return;
+  }
+  if (viewer.classList.contains('open') && !viewer.classList.contains('confirming')){
+    if (e.key === 'ArrowLeft'){ stepViewer(-1); return; }
+    if (e.key === 'ArrowRight'){ stepViewer(1); return; }
+  }
   if (e.key !== 'Escape') return;
   if (viewer.classList.contains('confirming')){ viewer.classList.remove('confirming'); return; }
   if (viewer.classList.contains('open')){ closeViewer(); return; }
