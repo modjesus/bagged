@@ -1067,10 +1067,9 @@ function render(){
   const ft = document.getElementById('tabFriends');
   if (ft) ft.hidden = !fbConfigured();
   if (tab === 'f' && ft && ft.hidden) tab = 'h';
-  document.getElementById('tn-f').textContent = board && board.length ? board.length + ' walkers' : '—';
+  document.getElementById('tn-f').textContent = friendsTabLabel();
   document.getElementById('main').innerHTML = banner +
     (tab === 'p' ? renderPlans() : tab === 'm' ? renderMapTab() : tab === 'f' ? renderBoard() : renderHills());
-  if (tab === 'f' && board === null && fbUser) fbLoadBoard().then(render);
   paintSync(); wire(); hydratePhotos();
   if (tab === 'm') mountMap();
 }
@@ -1454,8 +1453,6 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'openfriend'){ friendOpen = {code:el.dataset.code, uid:el.dataset.uid}; render(); hydrateFriendPhotos(); }
   else if (a === 'closefriend'){ friendOpen = null; render(); }
-  else if (a === 'toggleshare'){ fbShare = !fbShare; fbPrefsDirty = true; board = null; renderAccountBox(); scheduleSync(400); }
-  else if (a === 'refreshboard'){ board = null; render(); fbLoadBoard().then(render); }
   else if (a === 'newplan'){
     ui.planForm = !ui.planForm;
     ui.draft = ui.planForm ? {name:'', date:'', notes:'', hills:[]} : null;
@@ -1701,10 +1698,8 @@ let FB = null;            // the loaded SDK functions
 let fbApp = null, fbAuth = null, fbDb = null;
 let fbUser = null;        // {uid, name, photo}
 let fbReady = false;      // SDK loaded (or definitively not)
-let fbShare = false;      // opted in to the leaderboard
 let fbPrefsDirty = false; // local prefs changed and not yet pushed
 let fbName = '';
-let board = null;         // cached leaderboard rows
 
 const fbConfigured = () => {
   const c = window.FIREBASE_CONFIG;
@@ -1769,20 +1764,18 @@ async function fbSignIn(){
 }
 async function fbSignOut(){
   if (FB && fbAuth) await FB.signOut(fbAuth);
-  fbUser = null; board = null;
+  fbUser = null;
   renderAccountBox(); render();
 }
 
 const userRef = () => FB.doc(fbDb, 'users', fbUser.uid);
 const photoRef = id => FB.doc(fbDb, 'users', fbUser.uid, 'photos', id);
-const boardRef = uid => FB.doc(fbDb, 'leaderboard', uid);
 
 async function fbPull(){
   const snap = await FB.getDoc(userRef());
   if (!snap.exists()) return null;
   const d = snap.data() || {};
   if (!fbPrefsDirty){
-    if (typeof d.share === 'boolean') fbShare = d.share;
     if (d.name) fbName = d.name;
   }
   try{
@@ -1798,7 +1791,7 @@ async function fbPush(){
   if (payload.length > 900000) throw new Error('log too large for one record');
   await FB.setDoc(userRef(), {
     log: payload, name: fbName || (fbUser && fbUser.name) || 'Walker',
-    share: !!fbShare, detail: !!fbDetail, groups: myGroups(),
+    detail: !!fbDetail, groups: myGroups(),
     enabled: state.enabled, enabledT: state.enabledT || 0, updatedAt: Date.now()
   });
 }
@@ -1818,33 +1811,6 @@ async function fbPutPhoto(id, blob){
   if (b64.length > 950000) throw new Error('photo too large');
   await FB.setDoc(photoRef(id), {d:b64, t:Date.now()});
 }
-async function fbPushBoard(){
-  if (!fbUser) return;
-  if (!fbShare){ try{ await FB.deleteDoc(boardRef(fbUser.uid)); }catch(e){} return; }
-  const counts = {};
-  let total = 0;
-  for (const l of LISTS){
-    const n = hillsIn(l.id).filter(h => isBagged(h.k)).length;
-    if (n){ counts[l.id] = n; total += n; }
-  }
-  await FB.setDoc(boardRef(fbUser.uid), {
-    name: fbName || fbUser.name, counts, total,
-    hills: Object.keys(state.bagged).filter(isBagged).length,
-    updatedAt: Date.now()
-  });
-}
-async function fbLoadBoard(){
-  if (!FB || !fbUser) return [];
-  try{
-    const q = FB.query(FB.collection(fbDb, 'leaderboard'), FB.orderBy('hills','desc'), FB.limit(50));
-    const snap = await FB.getDocs(q);
-    const rows = [];
-    snap.forEach(d => rows.push(Object.assign({uid:d.id}, d.data())));
-    board = rows;
-    return rows;
-  }catch(e){ board = []; return []; }
-}
-
 let fbSyncing = false;
 async function fbSync(initial){
   if (!FB || !fbUser || fbSyncing) return;
@@ -2134,6 +2100,20 @@ const memberRef = (c, uid) => FB.doc(fbDb, 'groups', c, 'members', uid);
 const gPhotoRef = (c, pid) => FB.doc(fbDb, 'groups', c, 'photos', pid);
 
 function myGroups(){ return (state.groups || []).filter(g => g && g.code); }
+/* the Friends tab counts people in YOUR leaderboards — nobody else's */
+function friendsTabLabel(){
+  if (!fbUser) return '—';
+  const gs = myGroups();
+  if (!gs.length) return '—';
+  const people = new Set();
+  let loaded = false;
+  for (const g of gs){
+    const rows = groupRows[g.code];
+    if (rows){ loaded = true; rows.forEach(r => people.add(r.uid)); }
+  }
+  if (loaded && people.size) return people.size + (people.size === 1 ? ' walker' : ' walkers');
+  return gs.length + (gs.length === 1 ? ' board' : ' boards');
+}
 
 /* what I publish into a group: always totals, plus detail only if I opted in */
 function myMemberDoc(){
