@@ -299,8 +299,25 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .viewer.open{display:flex}
 .viewer .vimg{flex:1; display:grid; place-items:center; padding:14px; min-height:0}
 .viewer .vimg img{max-width:100%; max-height:100%; object-fit:contain; border-radius:8px}
-.viewer .vbar{display:flex; gap:8px; padding:12px 14px calc(12px + env(safe-area-inset-bottom)); justify-content:space-between}
+.viewer .vbar{display:flex; gap:8px; padding:12px 14px calc(12px + env(safe-area-inset-bottom)); justify-content:space-between; align-items:center}
 .viewer .vbar .cap{color:#D8DCD0; font-size:13px; align-self:center; flex:1; min-width:0}
+.viewer .xbtn{background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.28); color:#E8ECE4; top:calc(10px + env(safe-area-inset-top))}
+/* the bin is quiet and icon-only, so it is never the obvious thing to press */
+.vtrash{
+  flex:none; width:34px; height:34px; padding:0; border-radius:99px;
+  border:1px solid rgba(255,255,255,.20); background:none; color:#8A9287;
+  display:grid; place-items:center; line-height:0;
+}
+.vtrash svg{width:15px; height:15px}
+.vconfirm{
+  display:none; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  background:rgba(0,0,0,.55); border-top:1px solid rgba(255,255,255,.14);
+}
+.viewer.confirming .vconfirm{display:flex}
+.viewer.confirming .vbar{display:none}
+.vconfirm .ask{color:#E8ECE4; font-size:13.5px; flex:1; min-width:150px}
+.vconfirm .ask small{display:block; color:#9AA294; font-size:12px; margin-top:2px}
 
 /* map */
 #mapbox{height:min(66vh,540px); border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:var(--surface-2); margin-top:10px}
@@ -375,8 +392,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:var(--surface); position:relative; overflow:hidden;
 }
 .patch .pimg{
-  position:absolute; inset:-2.5px; width:calc(100% + 5px); height:calc(100% + 5px);
-  object-fit:contain; z-index:2; background:var(--patch-bg);
+  position:absolute; inset:0; width:100%; height:100%; max-width:none;
+  object-fit:contain; object-position:center; z-index:2; background:var(--patch-bg);
 }
 .patch.got .disc{border-style:solid; border-color:var(--accent); color:var(--accent-ink); background:var(--accent)}
 /* real artwork covers the drawn fallback; it sits on the mount colour so any
@@ -391,14 +408,18 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 /* ---- summit stamp ---- */
 .stamp{
-  display:inline-flex; flex-direction:column; align-items:center; gap:1px;
-  border:2.5px solid var(--done); color:var(--done); border-radius:6px;
-  padding:5px 12px 4px; transform:rotate(-4deg); opacity:.92;
+  display:inline-flex; flex-direction:column; align-items:center; gap:3px;
+  border:3.5px solid var(--done); color:var(--done); border-radius:8px;
+  padding:9px 18px 8px; transform:rotate(-5deg); opacity:.92;
   font-family:"Wildkins", Georgia, serif;
 }
-.stamp b{font-size:12.5px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; line-height:1}
-.stamp span{font-family:"Courier Prime", monospace; font-size:10.5px; letter-spacing:.06em}
-.stamprow{display:flex; justify-content:flex-end; margin:-2px 0 2px}
+.stamp b{font-size:19px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; line-height:1}
+.stamp span{font-family:"Courier Prime", monospace; font-size:12px; letter-spacing:.06em; white-space:nowrap}
+/* photos on the left, the stamp standing to their right */
+.photorow{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.photorow .shots{flex:1 1 auto; min-width:0}
+.photorow .stamp{flex:none; margin:2px 6px 2px auto}
+@media (max-width:400px){ .stamp b{font-size:17px} .stamp{padding:8px 14px 7px} }
 
 .profile{display:flex; align-items:center; gap:12px}
 .avatar{width:46px; height:46px; border-radius:99px; flex:none; background:var(--surface-2); border:2px solid var(--line); object-fit:cover}
@@ -439,7 +460,20 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 .sheet{position:fixed; inset:0; z-index:2100; display:none; background:rgba(10,14,11,.55); padding:16px; overflow-y:auto}
 .sheet.open{display:block}
-.sheetbox{max-width:560px; margin:30px auto; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:var(--shadow)}
+.sheetbox{max-width:560px; margin:30px auto; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:var(--shadow); position:relative}
+
+/* every overlay and popout closes from the same place — top right */
+.xbtn{
+  position:absolute; top:10px; right:10px; z-index:5;
+  width:34px; height:34px; padding:0; border-radius:99px;
+  border:1px solid var(--line); background:var(--raise); color:var(--ink-2);
+  display:grid; place-items:center; line-height:0; cursor:pointer;
+}
+.xbtn:active{background:var(--surface-2)}
+.xbtn svg{width:15px; height:15px}
+.sheetbox > h2{padding-right:38px}
+.formx{position:absolute; top:8px; right:8px; width:30px; height:30px}
+.form{position:relative}
 .sheetbox h2{font-family:"Wildkins", Georgia, serif; margin:0 0 4px; font-size:20px}
 .sheetbox h3{font-family:"Wildkins", Georgia, serif; margin:20px 0 4px; font-size:15px}
 .sheetbox p{font-size:14px; color:var(--ink-2); margin:6px 0}
@@ -486,6 +520,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 <div class="sheet" id="sheet">
   <div class="sheetbox">
+    <button class="xbtn" id="sheetX" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <h2>Settings</h2>
     <h3>Appearance</h3>
     <div id="themeBox"></div>
@@ -507,15 +542,23 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 </div>
 
 <div class="sheet" id="info">
-  <div class="sheetbox" id="infoBody"></div>
+  <div class="sheetbox">
+    <button class="xbtn" id="infoX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div id="infoBody"></div>
+  </div>
 </div>
 
 <div class="viewer" id="viewer">
+  <button class="xbtn" id="vclose" aria-label="Close photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   <div class="vimg"><img id="vimg" alt=""></div>
   <div class="vbar">
     <span class="cap" id="vcap"></span>
-    <button class="btn danger" id="vdel">Delete photo</button>
-    <button class="btn quiet" id="vclose" style="color:#D8DCD0; border-color:#4A5148">Close</button>
+    <button class="vtrash" id="vdel" aria-label="Delete this photo" title="Delete this photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+  </div>
+  <div class="vconfirm">
+    <span class="ask">Delete this photo?<small>This cannot be undone.</small></span>
+    <button class="btn quiet" id="vcancel" style="color:#D8DCD0; border-color:#4A5148">Keep it</button>
+    <button class="btn danger" id="vyes">Delete</button>
   </div>
 </div>
 
@@ -1040,7 +1083,6 @@ function hillRow(h, listId){
     if (!r.date) s += '<p class="dhint">Only remember the year? Set the year and leave the rest — it ticks the hill either way.</p>';
     else if (!dateParts(r.date).d) s += '<p class="dhint">Logged as ' + esc(prettyDate(r.date)) + ' — day is optional.</p>';
     s += '</div>';
-    if (on) s += '<div class="stamprow"><span class="stamp"><b>Marked</b><span>' + esc(r.date ? prettyDate(r.date) : 'no date') + '</span></span></div>';
     s += '<div><label>Status</label><div class="states">';
     for (const sd of STATES){
       const cur = stateOf(h.k) === sd.id;
@@ -1049,10 +1091,12 @@ function hillRow(h, listId){
     }
     s += '</div></div>';
     s += '<div><label for="nt-' + esc(h.k) + '">Notes</label><textarea id="nt-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes||'') + '</textarea></div>';
-    s += '<div><label>Photos</label><div class="shots">';
+    s += '<div><label>Photos</label><div class="photorow"><div class="shots">';
     for (const p of r.photos)
       s += '<button class="shot' + (p.up ? '' : ' up0') + '" data-act="viewphoto" data-k="' + esc(h.k) + '" data-p="' + esc(p.id) + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt=""></button>';
     s += '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" hidden></label>';
+    s += '</div>';
+    if (on) s += '<span class="stamp"><b>Marked</b><span>' + esc(r.date ? prettyDate(r.date) : 'no date') + '</span></span>';
     s += '</div></div>';
     s += '<div><label>On these lists</label><div class="tags">' + h.l.map(x => '<span class="tag">' + esc(LIST_BY[x].name) + '</span>').join('') + '</div></div>';
     s += '</div>';
@@ -1263,6 +1307,7 @@ document.addEventListener('click', e => {
   else if (a === 'info'){ openInfo(el.dataset.k); }
   else if (a === 'closeinfo'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; }
   else if (a === 'toggledetail'){ fbDetail = !fbDetail; fbPrefsDirty = true; renderAccountBox(); scheduleSync(400); }
+  else if (a === 'closegroupform'){ ui.groupForm = ''; render(); }
   else if (a === 'newgroup'){ ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
   else if (a === 'joingroup'){ ui.groupForm = ui.groupForm === 'join' ? '' : 'join'; render(); }
   else if (a === 'dogroup'){
@@ -1357,12 +1402,17 @@ async function openViewer(key, id){
   document.getElementById('vimg').src = await photoSrc(p) || '';
   const r = rec(key);
   document.getElementById('vcap').textContent = h.n + (r.date ? ' · ' + prettyDate(r.date) : '');
+  viewer.classList.remove('confirming');
   viewer.classList.add('open');
 }
-document.getElementById('vclose').onclick = () => { viewer.classList.remove('open'); viewing = null; };
-document.getElementById('vdel').onclick = () => {
+function closeViewer(){ viewer.classList.remove('open', 'confirming'); viewing = null; }
+document.getElementById('vclose').onclick = closeViewer;
+/* deleting takes two deliberate taps: the bin only asks, the answer does it */
+document.getElementById('vdel').onclick = () => { if (viewing) viewer.classList.add('confirming'); };
+document.getElementById('vcancel').onclick = () => viewer.classList.remove('confirming');
+document.getElementById('vyes').onclick = () => {
   if (!viewing) return;
-  const v = viewing; viewer.classList.remove('open'); viewing = null;
+  const v = viewing; closeViewer();
   removePhoto(v.key, v.id); toast('Photo deleted.');
 };
 
@@ -1389,15 +1439,30 @@ function openSheet(){
   sheet.classList.add('open');
 }
 document.getElementById('menuBtn').onclick = openSheet;
+/* flips against what is actually on screen, so one press always changes it.
+   "Match my device" still lives in Settings. */
 document.getElementById('themeBtn').onclick = () => {
-  const t = themePref();
-  setTheme(t === 'dark' ? 'light' : t === 'light' ? '' : 'dark');
-  toast(themePref() === 'dark' ? 'Dark' : themePref() === 'light' ? 'Light' : 'Matching your device');
+  const next = darkNow() ? 'light' : 'dark';
+  setTheme(next);
+  toast(next === 'dark' ? 'Dark mode on' : 'Light mode on');
 };
-document.getElementById('closeSheet').onclick = () => sheet.classList.remove('open');
-sheet.onclick = e => { if (e.target === sheet) sheet.classList.remove('open'); };
+function closeSheetNow(){ sheet.classList.remove('open'); }
+document.getElementById('closeSheet').onclick = closeSheetNow;
+document.getElementById('sheetX').onclick = closeSheetNow;
+sheet.onclick = e => { if (e.target === sheet) closeSheetNow(); };
 const infoSheet = document.getElementById('info');
-infoSheet.onclick = e => { if (e.target === infoSheet){ infoSheet.classList.remove('open'); wikiOpen = null; } };
+function closeInfo(){ infoSheet.classList.remove('open'); wikiOpen = null; }
+document.getElementById('infoX').onclick = closeInfo;
+infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
+/* Escape closes whatever is on top, innermost first */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (viewer.classList.contains('confirming')){ viewer.classList.remove('confirming'); return; }
+  if (viewer.classList.contains('open')){ closeViewer(); return; }
+  if (infoSheet.classList.contains('open')){ closeInfo(); return; }
+  if (sheet.classList.contains('open')){ closeSheetNow(); return; }
+  if (ui.groupForm){ ui.groupForm = ''; render(); }
+});
 document.getElementById('syncBtn').onclick = () => { if (!cloudOn()) openSheet(); else syncNow(); };
 document.getElementById('copyBtn').onclick = async () => {
   const ta = document.getElementById('backupText');
@@ -1638,21 +1703,36 @@ function applyTheme(){
 }
 function setTheme(t){
   try{ t ? localStorage.setItem(THEME_KEY, t) : localStorage.removeItem(THEME_KEY); }catch(e){}
-  applyTheme(); renderThemeBox();
+  applyTheme(); renderThemeBox(); paintThemeBtn();
   if (mapReady) drawMarkers();
 }
 function systemIsDark(){
   try{ return window.matchMedia('(prefers-color-scheme: dark)').matches; }catch(e){ return false; }
 }
+/* what the eye sees right now, whether that came from a choice or the device */
+function darkNow(){ const t = themePref(); return t ? t === 'dark' : systemIsDark(); }
+function paintThemeBtn(){
+  const b = document.getElementById('themeBtn'); if (!b) return;
+  const d = darkNow();
+  b.innerHTML = d
+    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>'
+    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="3.6"/></svg>';
+  b.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode');
+  b.setAttribute('aria-pressed', String(d));
+}
 function renderThemeBox(){
   const box = document.getElementById('themeBox'); if (!box) return;
   const t = themePref();
-  box.innerHTML = '<div class="seg">' +
-    [['','Match device'],['light','Light'],['dark','Dark']].map(([v,l]) =>
-      '<button data-act="theme" data-v="' + v + '" aria-pressed="' + (t === v) + '">' + l + '</button>').join('') +
-    '</div>';
+  const auto = !t, dark = darkNow();
+  box.innerHTML =
+    '<div class="togglerow"><div class="tinfo"><b>Dark mode</b>' +
+      '<span>' + (dark ? 'On — cream text on deep green' : 'Off — dark text on cream') + '</span></div>' +
+      '<button class="sw" data-act="theme" data-v="' + (dark ? 'light' : 'dark') + '" aria-pressed="' + dark + '" aria-label="Dark mode"></button></div>' +
+    '<div class="togglerow"><div class="tinfo"><b>Match my device</b>' +
+      '<span>' + (auto ? 'Following your phone or computer' : 'Using your choice above') + '</span></div>' +
+      '<button class="sw" data-act="theme" data-v="' + (auto ? (systemIsDark() ? 'dark' : 'light') : '') + '" aria-pressed="' + auto + '" aria-label="Match my device"></button></div>';
 }
-applyTheme();
+applyTheme(); paintThemeBtn();
 
 /* ---------- backend switch ---------- */
 
@@ -2007,12 +2087,12 @@ function renderBoard(){
           '<button class="btn ghost" data-act="joingroup">Join with a code</button></div>';
 
   if (ui.groupForm === 'new'){
-    html += '<div class="form"><div><label for="gname">Name it</label>' +
+    html += '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gname">Name it</label>' +
       '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40"></div>' +
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new">Create</button></div></div>';
   } else if (ui.groupForm === 'join'){
-    html += '<div class="form"><div><label for="gcode">Join code</label>' +
+    html += '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gcode">Join code</label>' +
       '<input id="gcode" placeholder="ABC123" maxlength="7" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase; letter-spacing:.2em; font-weight:700"></div>' +
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="join">Join</button></div></div>';
