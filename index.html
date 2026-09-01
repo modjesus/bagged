@@ -651,6 +651,15 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .shot{width:76px; height:76px; padding:0; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface-2); position:relative; flex:none}
 .shot img{width:100%; height:100%; object-fit:cover; display:block}
 .shot.up0::after{content:""; position:absolute; right:5px; bottom:5px; width:7px; height:7px; border-radius:99px; background:var(--warn); box-shadow:0 0 0 2px var(--surface)}
+/* a captioned thumb wears the first few words along its bottom edge */
+.shot .shotcap{
+  position:absolute; left:0; right:0; bottom:0; padding:12px 5px 4px;
+  font-size:10px; line-height:1.25; text-align:left; color:#F2F0E7;
+  background:linear-gradient(to top, rgba(8,20,17,.88), rgba(8,20,17,0));
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  pointer-events:none;
+}
+.shot.hascap{border-color:var(--sage)}
 .addshot{width:76px; height:76px; border:1px dashed var(--line); border-radius:10px; display:grid; place-items:center; color:var(--ink-3); font-size:11px; cursor:pointer; text-align:center; flex:none;
   margin:0 !important; letter-spacing:0 !important; text-transform:none !important; font-family:inherit !important}
 .viewer{position:fixed; inset:0; z-index:2000; background:rgba(8,11,9,.96); display:none; flex-direction:column}
@@ -719,7 +728,25 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:rgba(0,0,0,.55); border-top:1px solid rgba(255,255,255,.14);
 }
 .viewer.confirming .vconfirm{display:flex}
-.viewer.confirming .vbar, .viewer.confirming .vstrip, .viewer.confirming .vnav{display:none}
+.viewer.confirming .vbar, .viewer.confirming .vstrip, .viewer.confirming .vnav,
+.viewer.confirming .vcapbar{display:none}
+/* caption: an input on your own photos, plain text on someone else's */
+.vcapbar{padding:0 16px 10px; max-width:900px; margin:0 auto; width:100%}
+.vcapbar input{
+  width:100%; background:rgba(255,255,255,.06); color:#EDEFE8;
+  border:1px solid rgba(255,255,255,.16); border-radius:9px;
+  padding:9px 11px; font:inherit; font-size:13.5px;
+}
+.vcapbar input::placeholder{color:#8E968B}
+.vcapbar input:focus{outline:none; border-color:var(--accent); background:rgba(255,255,255,.1)}
+.vcapro{
+  margin:0; color:#D8DCD0; font-size:13.5px; line-height:1.5;
+  padding:2px 1px; white-space:pre-wrap; overflow-wrap:anywhere;
+}
+.viewer.readonly .vcapbar input{display:none}
+.viewer:not(.readonly) .vcapro{display:none}
+.viewer.readonly .vtrash{display:none}
+.viewer.readonly .vcapbar:has(.vcapro:empty){display:none}
 .vconfirm .ask{color:#E8ECE4; font-size:13.5px; flex:1; min-width:150px}
 .vconfirm .ask small{display:block; color:#9AA294; font-size:12px; margin-top:2px}
 
@@ -982,6 +1009,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .togglerow .tinfo{flex:1; min-width:0}
 .togglerow .tinfo b{display:block; font-weight:600; font-size:15px}
 .togglerow .tinfo span{font-size:12.5px; color:var(--ink-3)}
+/* the per-board switch sits inside a leaderboard card, so it needs its own gutter */
+.togglerow.gshare{margin-top:10px; padding:10px 12px; border-top:1px solid var(--line-soft);
+  background:color-mix(in srgb, var(--surface-2) 60%, transparent); border-radius:10px}
+.togglerow.gshare .tinfo b{font-size:13.5px}
+.togglerow.gshare .tinfo span{font-size:12px}
 .sw{flex:none; width:46px; height:27px; border-radius:99px; border:1px solid var(--line); background:var(--surface-2); position:relative; padding:0; transition:background .18s, border-color .18s}
 .sw::after{content:""; position:absolute; top:2px; left:2px; width:21px; height:21px; border-radius:99px; background:var(--raise); box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .18s}
 .sw[aria-pressed="true"]{background:var(--done); border-color:var(--done)}
@@ -1065,6 +1097,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <span class="cap" id="vcap"></span>
     <span class="vcount" id="vcount"></span>
     <button class="vtrash" id="vdel" aria-label="Delete this photo" title="Delete this photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+  </div>
+  <div class="vcapbar">
+    <input id="vcapin" maxlength="140" placeholder="Add a caption&hellip;" aria-label="Photo caption" autocomplete="off">
+    <p class="vcapro" id="vcapro"></p>
   </div>
   <div class="vstrip" id="vstrip"></div>
   <div class="vconfirm">
@@ -1328,6 +1364,15 @@ async function removePhoto(key, id){
   touched(); render();
 }
 async function photoSrc(p){
+  /* A friend's photo lives under the group, not under your own account, and is
+     cached separately so it can never be mistaken for one of yours. */
+  if (p.friend){
+    const key = 'g:' + p.id;
+    if (blobUrls.has(key)) return blobUrls.get(key);
+    const b = await friendPhoto(p.friend, p.id);
+    if (b instanceof Blob){ const u = URL.createObjectURL(b); blobUrls.set(key, u); return u; }
+    return '';
+  }
   if (blobUrls.has(p.id)) return blobUrls.get(p.id);
   let b = await getBlob(p.id);
   if (!(b instanceof Blob) && p.up){
@@ -1902,7 +1947,12 @@ function hillRow(h, listId){
     s += '<div><label for="nt-' + esc(h.k) + '">Notes</label><textarea id="nt-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes||'') + '</textarea></div>';
     s += '<div><label>Photos</label><div class="photorow"><div class="shots">';
     for (const p of r.photos)
-      s += '<button class="shot' + (p.up ? '' : ' up0') + '" data-act="viewphoto" data-k="' + esc(h.k) + '" data-p="' + esc(p.id) + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt=""></button>';
+      s += '<button class="shot' + (p.up ? '' : ' up0') + (p.cap ? ' hascap' : '') +
+        '" data-act="viewphoto" data-k="' + esc(h.k) + '" data-p="' + esc(p.id) + '"' +
+        (p.cap ? ' title="' + esc(p.cap) + '"' : '') +
+        ' aria-label="' + esc(p.cap || ('Photo of ' + h.n)) + '">' +
+        '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt="">' +
+        (p.cap ? '<span class="shotcap">' + esc(p.cap) + '</span>' : '') + '</button>';
     s += '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" hidden></label>';
     s += '</div>';
     if (on) s += '<span class="stamp' + (verifiedAt(h.k) ? ' vstamp' : '') + '"><b>Marked</b><span>' +
@@ -2776,6 +2826,7 @@ document.addEventListener('click', async e => {
   else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; render(); if (mapReady) drawMarkers(true); }
   else if (a === 'togglelist'){ toggleList(el.dataset.v); }
   else if (a === 'viewphoto') openViewer(el.dataset.k, el.dataset.p);
+  else if (a === 'viewfriendphoto') openFriendViewer(el.dataset.code, el.dataset.k, el.dataset.p);
   else if (a === 'dtoday') applyDate(el, today());
   else if (a === 'hidebanner'){ ui.bannerHidden = true; render(); }
   else if (a === 'theme'){ setTheme(el.dataset.v); }
@@ -2816,6 +2867,12 @@ document.addEventListener('click', async e => {
         ui.groupForm = ''; render(); loadGroup(code); toast('Joined ' + (r.name || code));
       }).catch(e => say(fbWhy(e), true));
     }
+  }
+  else if (a === 'groupdetail'){
+    const code = el.dataset.v, on = !groupDetail(code);
+    setGroupDetail(code, on);
+    render();
+    toast(on ? 'Sharing your full log with this board.' : 'This board now sees totals only.');
   }
   else if (a === 'leavegroup'){ leaveGroup(el.dataset.v); toast('Left that leaderboard.'); }
   else if (a === 'refreshgroup'){ loadGroup(el.dataset.v); }
@@ -2956,13 +3013,33 @@ async function openViewer(key, id){
   const h = BY_KEY[key]; if (!h) return;
   const photos = rec(key).photos || [];
   const i = Math.max(0, photos.findIndex(x => x.id === id));
-  viewing = {key, id: (photos[i] || {}).id || id, i};
-  viewer.classList.remove('confirming');
+  viewing = {key, id: (photos[i] || {}).id || id, i, friend:null};
+  viewer.classList.remove('confirming', 'readonly');
   viewer.classList.add('open');
   await paintViewer();
   buildStrip();
 }
-function viewPhotos(){ return viewing ? (rec(viewing.key).photos || []) : []; }
+
+/* Someone else's photos. Same viewer, but nothing here is yours to edit or
+   delete, so it opens read-only and the caption shows as plain text. */
+async function openFriendViewer(code, key, id){
+  const rows = groupRows[code] || [];
+  const r = rows.find(x => x.uid === (friendOpen && friendOpen.uid));
+  const e = r && (r.log || []).find(x => x.k === key);
+  if (!e || !e.p || !e.p.length) return;
+  const caps = e.c || {};
+  const photos = e.p.map(pid => ({id:pid, up:1, friend:code, cap:caps[pid] || ''}));
+  const i = Math.max(0, photos.findIndex(x => x.id === id));
+  viewing = {key, id:(photos[i] || {}).id || id, i, friend:{code, photos, who:r.name || 'Walker', date:e.d || ''}};
+  viewer.classList.remove('confirming');
+  viewer.classList.add('open', 'readonly');
+  await paintViewer();
+  buildStrip();
+}
+function viewPhotos(){
+  if (!viewing) return [];
+  return viewing.friend ? viewing.friend.photos : (rec(viewing.key).photos || []);
+}
 async function paintViewer(){
   if (!viewing) return;
   const h = BY_KEY[viewing.key], ps = viewPhotos();
@@ -2973,8 +3050,18 @@ async function paintViewer(){
   const img = document.getElementById('vimg');
   const src = await photoSrc(p) || '';
   if (img.src !== src){ img.classList.add('swapping'); img.src = src; img.onload = () => img.classList.remove('swapping'); setTimeout(()=>img.classList.remove('swapping'), 400); }
-  const r = rec(viewing.key);
-  document.getElementById('vcap').textContent = h.n + (r.date ? ' · ' + prettyDate(r.date) : '');
+  if (viewing.friend){
+    const f = viewing.friend;
+    document.getElementById('vcap').textContent =
+      h.n + (f.date ? ' · ' + prettyDate(f.date) : '') + ' · ' + f.who;
+    document.getElementById('vcapro').textContent = p.cap || '';
+  } else {
+    const r = rec(viewing.key);
+    document.getElementById('vcap').textContent = h.n + (r.date ? ' · ' + prettyDate(r.date) : '');
+    /* don't stamp over what the walker is part-way through typing */
+    const box = document.getElementById('vcapin');
+    if (document.activeElement !== box) box.value = p.cap || '';
+  }
   document.getElementById('vcount').textContent = ps.length > 1 ? (viewing.i + 1) + ' / ' + ps.length : '';
   viewer.classList.toggle('single', ps.length < 2);
   document.getElementById('vprev').disabled = viewing.i === 0;
@@ -2992,11 +3079,53 @@ function buildStrip(){
   const strip = document.getElementById('vstrip'), ps = viewPhotos();
   strip.innerHTML = ps.map((p, n) =>
     '<button data-act="vjump" data-i="' + n + '" aria-current="' + (n === viewing.i) + '" aria-label="Photo ' + (n+1) + '">' +
-    '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt=""></button>').join('');
+    (p.friend
+      ? '<img data-fp="' + esc(p.id) + '" data-code="' + esc(p.friend) + '" alt="">'
+      : '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt="">') +
+    '</button>').join('');
   hydratePhotos();
+  hydrateFriendPhotos();
 }
-function stepViewer(d){ if (!viewing) return; viewing.i += d; paintViewer(); }
-function closeViewer(){ viewer.classList.remove('open', 'confirming', 'single'); viewing = null; }
+function stepViewer(d){ if (!viewing) return; saveCaption(); viewing.i += d; paintViewer(); }
+function closeViewer(){
+  const changed = saveCaption();
+  viewer.classList.remove('open', 'confirming', 'single', 'readonly');
+  viewing = null;
+  /* redraw the list behind so an edited caption shows on its thumbnail. Held
+     until close rather than done on every keystroke — this rebuilds 200+ rows. */
+  if (changed) render();
+}
+
+/* Captions save on their own — when you move photo, close the viewer, or stop
+   typing. Nobody should have to find a Save button on a hillside. */
+function saveCaption(){
+  if (!viewing || viewing.friend) return false;
+  const box = document.getElementById('vcapin');
+  if (!box) return false;
+  const txt = box.value.trim().slice(0, 140);
+  const r = rec(viewing.key);
+  const ps = r.photos || [];
+  const p = ps.find(x => x.id === viewing.id);
+  if (!p || (p.cap || '') === txt) return false;
+  state.bagged[viewing.key] = {
+    ...r,
+    photos: ps.map(x => x.id === viewing.id ? {...x, cap:txt} : x),
+    t: now()
+  };
+  touched();
+  return true;
+}
+document.getElementById('vcapin').addEventListener('blur', saveCaption);
+document.getElementById('vcapin').addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); saveCaption(); e.target.blur(); }
+});
+/* also settle a second after they stop typing, so a closed lid keeps the words */
+(function(){
+  let t = null;
+  document.getElementById('vcapin').addEventListener('input', () => {
+    clearTimeout(t); t = setTimeout(saveCaption, 900);
+  });
+})();
 document.getElementById('vprev').onclick = () => stepViewer(-1);
 document.getElementById('vnext').onclick = () => stepViewer(1);
 document.getElementById('vstrip').onclick = e => {
@@ -3077,7 +3206,10 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.activeElement === document.getElementById('askYes')) answerAsk(true);
     return;
   }
-  if (viewer.classList.contains('open') && !viewer.classList.contains('confirming')){
+  /* arrows move between photos, unless the caption box has focus — there they
+     belong to the text the walker is editing */
+  const typing = document.activeElement === document.getElementById('vcapin');
+  if (viewer.classList.contains('open') && !viewer.classList.contains('confirming') && !typing){
     if (e.key === 'ArrowLeft'){ stepViewer(-1); return; }
     if (e.key === 'ArrowRight'){ stepViewer(1); return; }
   }
@@ -3523,9 +3655,9 @@ function renderAccountBox(){
       myGroups().length + ' leaderboard' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
     s += '<div style="margin-top:12px"><label>Name your friends see</label>' +
          '<input class="fbNameIn" data-act="fbname" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
-    s += '<div class="togglerow"><div class="tinfo"><b>Share my dates, notes and photos</b>' +
-         '<span>Only with people in your leaderboards. Off means they see your totals and nothing else.</span></div>' +
-         '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail"></button></div>';
+    s += '<div class="togglerow"><div class="tinfo"><b>Share detail by default</b>' +
+         '<span>How a new leaderboard starts out. Each board has its own switch under Friends, and that is what counts.</span></div>' +
+         '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail by default"></button></div>';
     s += '<div class="btnrow"><button class="btn" data-act="fbsyncnow">Sync now</button>' +
          '<button class="btn quiet" data-act="fbout">Sign out</button></div>';
   }
@@ -3547,6 +3679,26 @@ const memberRef = (c, uid) => FB.doc(fbDb, 'groups', c, 'members', uid);
 const gPhotoRef = (c, pid) => FB.doc(fbDb, 'groups', c, 'photos', pid);
 
 function myGroups(){ return (state.groups || []).filter(g => g && g.code); }
+
+/* Detail sharing is decided per leaderboard: you might tell your walking club
+   everything and give the work one only your totals. A board saved before this
+   existed has no flag of its own, so it falls back to the old global setting. */
+function groupDetail(code){
+  const g = myGroups().find(x => x.code === code);
+  if (!g) return false;
+  return g.detail === undefined ? !!fbDetail : !!g.detail;
+}
+function setGroupDetail(code, on){
+  const g = myGroups().find(x => x.code === code);
+  if (!g) return;
+  g.detail = !!on;
+  touched();
+  /* Publish the change straight away — a walker turning sharing OFF expects it
+     gone now, not at the next idle sync. */
+  if (FB && fbUser){
+    FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code)).catch(() => {});
+  }
+}
 /* the Friends tab counts people in YOUR leaderboards — nobody else's */
 function friendsTabLabel(){
   if (!fbUser) return '—';
@@ -3562,8 +3714,9 @@ function friendsTabLabel(){
   return gs.length + (gs.length === 1 ? ' board' : ' boards');
 }
 
-/* what I publish into a group: always totals, plus detail only if I opted in */
-function myMemberDoc(){
+/* What I publish into ONE group: always totals, plus detail only if I opted in
+   for that particular board. Called per group, so the answer can differ. */
+function myMemberDoc(code){
   const counts = {};
   let hills = 0;
   for (const l of LISTS){
@@ -3571,11 +3724,12 @@ function myMemberDoc(){
     if (n) counts[l.id] = n;
   }
   hills = Object.keys(state.bagged).filter(isBagged).length;
+  const share = code ? groupDetail(code) : !!fbDetail;
   const doc = {
     name: fbName || (fbUser && fbUser.name) || 'Walker',
-    hills, counts, detail: !!fbDetail, updatedAt: Date.now()
+    hills, counts, detail: share, updatedAt: Date.now()
   };
-  if (fbDetail){
+  if (share){
     doc.log = Object.keys(state.bagged)
       .filter(k => isBagged(k) && BY_KEY[k])
       .map(k => {
@@ -3583,8 +3737,15 @@ function myMemberDoc(){
         const e = {k};
         if (r.date) e.d = r.date;
         if (r.notes) e.n = String(r.notes).slice(0, 400);
-        const ids = (r.photos || []).filter(p => p.up).map(p => p.id).slice(0, 3);
-        if (ids.length) e.p = ids;
+        const shots = (r.photos || []).filter(p => p.up).slice(0, 3);
+        if (shots.length){
+          e.p = shots.map(p => p.id);
+          /* captions travel as a separate id -> text map so older builds,
+             which expect e.p to be a plain array of ids, still read the log */
+          const caps = {};
+          shots.forEach(p => { if (p.cap) caps[p.id] = String(p.cap).slice(0, 140); });
+          if (Object.keys(caps).length) e.c = caps;
+        }
         return e;
       })
       .slice(0, 1400);
@@ -3595,13 +3756,20 @@ function myMemberDoc(){
 async function pushGroups(){
   if (!FB || !fbUser) return;
   for (const g of myGroups()){
-    try{ await FB.setDoc(memberRef(g.code, fbUser.uid), myMemberDoc()); }
+    try{ await FB.setDoc(memberRef(g.code, fbUser.uid), myMemberDoc(g.code)); }
     catch(e){ /* a group that has gone away shouldn't break the sync */ }
   }
-  if (fbDetail) await pushSharedPhotos();
+  if (myGroups().some(g => groupDetail(g.code))) await pushSharedPhotos();
 }
 
-/* copy shared photos into each group so friends can actually see them */
+/* Copy shared photos into each group so friends can actually see them.
+   Only boards you have switched detail on for get your pictures.
+
+   This used to `return` the moment the per-sync budget ran out, which jumped
+   clean over the localStorage write at the bottom — so the "already sent" set
+   was never saved, and every sync re-uploaded the same first few photos while
+   everything after them stayed blank for ever. Now it breaks out, and the set
+   is written whatever happens, including when a push fails. */
 async function pushSharedPhotos(){
   const wanted = [];
   for (const [k, r] of Object.entries(state.bagged)){
@@ -3609,21 +3777,30 @@ async function pushSharedPhotos(){
     for (const ph of (r.photos || []).slice(0, 3)) if (ph.up) wanted.push(ph.id);
   }
   const sent = new Set(JSON.parse(localStorage.getItem('waymark.sharedphotos') || '[]'));
-  let budget = 3;
-  for (const g of myGroups()){
-    for (const id of wanted){
-      if (budget <= 0) return;
-      const tag = g.code + ':' + id;
-      if (sent.has(tag)) continue;
-      const blob = await getBlob(id);
-      if (!(blob instanceof Blob)) continue;
-      try{
-        await FB.setDoc(gPhotoRef(g.code, id), {owner:fbUser.uid, d: await blobToB64(blob), t:Date.now()});
-        sent.add(tag); budget--;
-      }catch(e){ return; }
+  let budget = 8;                       // per sync, so a big backlog drains over a few passes
+  try{
+    outer:
+    for (const g of myGroups()){
+      if (!groupDetail(g.code)) continue;
+      for (const id of wanted){
+        if (budget <= 0) break outer;
+        const tag = g.code + ':' + id;
+        if (sent.has(tag)) continue;
+        const blob = await getBlob(id);
+        if (!(blob instanceof Blob)) continue;
+        try{
+          await FB.setDoc(gPhotoRef(g.code, id), {owner:fbUser.uid, d: await blobToB64(blob), t:Date.now()});
+          sent.add(tag); budget--;
+        }catch(e){ break outer; }
+      }
     }
+  } finally {
+    try{ localStorage.setItem('waymark.sharedphotos', JSON.stringify([...sent].slice(-400))); }catch(e){}
   }
-  try{ localStorage.setItem('waymark.sharedphotos', JSON.stringify([...sent].slice(-400))); }catch(e){}
+  /* Anything still unsent gets another go on the next sync. If we filled the
+     budget there is more waiting, so come back for it shortly rather than
+     leaving the friend looking at empty squares until the next save. */
+  if (budget <= 0) scheduleSync(4000);
 }
 
 /* Turn a Firestore rejection into something a walker on a hillside can act on.
@@ -3647,8 +3824,9 @@ async function createGroup(name){
   if (!FB || !fbUser){ const e = new Error('not signed in'); e.code = 'not-signed-in'; throw e; }
   const code = newCode();
   await FB.setDoc(groupRef(code), {name: name || 'My leaderboard', createdBy: fbUser.uid, createdAt: Date.now()});
-  await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc());
-  state.groups = [...myGroups(), {code, name: name || 'My leaderboard'}];
+  /* register the board first so myMemberDoc(code) can read its detail flag */
+  state.groups = [...myGroups(), {code, name: name || 'My leaderboard', detail: !!fbDetail}];
+  await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code));
   touched();
   return code;
 }
@@ -3661,8 +3839,8 @@ async function joinGroup(code){
   catch(e){ return {ok:false, msg:'Could not reach the server.'}; }
   if (!snap.exists()) return {ok:false, msg:'No leaderboard with that code. Check it and try again.'};
   const d = snap.data() || {};
-  await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc());
-  state.groups = [...myGroups(), {code, name: d.name || 'Leaderboard'}];
+  state.groups = [...myGroups(), {code, name: d.name || 'Leaderboard', detail: !!fbDetail}];
+  await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code));
   touched();
   return {ok:true, name: d.name};
 }
@@ -3744,6 +3922,15 @@ function renderBoard(){
       '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(g.code) + '">Copy code</button>' +
       '<button class="linkbtn" style="padding:0" data-act="refreshgroup" data-v="' + esc(g.code) + '">Refresh</button></div>';
 
+    /* One decision per board: the club can have the lot, the work one only totals. */
+    const shares = groupDetail(g.code);
+    html += '<div class="togglerow gshare"><div class="tinfo"><b>Share my dates, notes and photos</b>' +
+      '<span>' + (shares
+        ? 'This board sees your full log.'
+        : 'This board sees your totals and nothing else.') + '</span></div>' +
+      '<button class="sw" data-act="groupdetail" data-v="' + esc(g.code) + '" aria-pressed="' + shares +
+      '" aria-label="Share detail with ' + esc(g.name || 'this leaderboard') + '"></button></div>';
+
     if (groupBusy === g.code) html += '<p class="empty" style="padding:18px">Loading…</p>';
     else if (!rows) { html += '<p class="empty" style="padding:18px">Tap refresh to load.</p>'; }
     else if (!rows.length) html += '<p class="empty" style="padding:18px">Just you so far. Send the code to a friend.</p>';
@@ -3793,8 +3980,16 @@ function renderFriend(){
       html += '<div class="detail">';
       if (e.n) html += '<p class="iex" style="margin:0">' + esc(e.n) + '</p>';
       if (e.p && e.p.length){
-        html += '<div class="shots">' + e.p.map(pid =>
-          '<span class="shot"><img data-fp="' + esc(pid) + '" data-code="' + esc(friendOpen.code) + '" alt=""></span>').join('') + '</div>';
+        const caps = e.c || {};
+        html += '<div class="shots">' + e.p.map(pid => {
+          const c = caps[pid] || '';
+          return '<button class="shot" data-act="viewfriendphoto" data-code="' + esc(friendOpen.code) +
+            '" data-k="' + esc(e.k) + '" data-p="' + esc(pid) + '"' +
+            (c ? ' title="' + esc(c) + '"' : '') +
+            ' aria-label="' + esc(c || ('Photo of ' + hh.n)) + '">' +
+            '<img data-fp="' + esc(pid) + '" data-code="' + esc(friendOpen.code) + '" alt="">' +
+            (c ? '<span class="shotcap">' + esc(c) + '</span>' : '') + '</button>';
+        }).join('') + '</div>';
       }
       html += '</div>';
     }
