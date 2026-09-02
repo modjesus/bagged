@@ -844,6 +844,29 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .rrow .dot{width:11px; height:11px; border-radius:99px; flex:none; background:var(--sage)}
 .rrow .rsub{display:block; font-style:normal; font-family:"Courier Prime", monospace;
   font-size:11.5px; color:var(--ink-3); margin-top:2px}
+/* first-run list picker: a real tick box, because you choose several */
+.rrow.picker{cursor:pointer}
+.rrow.picker .pbox{
+  width:22px; height:22px; border-radius:6px; flex:none;
+  border:1.5px solid var(--line); background:var(--raise);
+  display:grid; place-items:center; color:var(--accent-ink);
+}
+.rrow.picker.on .pbox{background:var(--accent); border-color:var(--accent)}
+.rrow.picker .pbox svg{width:12px; height:12px}
+.rrow.picker.on .rn{color:var(--ink)}
+/* Continue stays in reach however long the list is. It has to clear the bottom
+   nav, which is fixed above it, or it pins itself neatly out of sight. */
+.onboardbar{
+  margin-top:18px; position:sticky; z-index:940;
+  bottom:calc(76px + env(safe-area-inset-bottom, 0px));
+  padding:10px 0; background:var(--ground);
+  box-shadow:0 -10px 14px -8px var(--ground);
+}
+.onboardbar .btn[disabled]{opacity:.5; cursor:default}
+@media (min-width:768px){
+  /* no bottom nav on desktop, so it only needs a little breathing room */
+  .onboardbar{bottom:16px}
+}
 .rrow .rn{flex:1; min-width:0; font-size:15px; font-family:"Wildkins", Georgia, serif; letter-spacing:.01em}
 .rrow .rc{font-family:"Courier Prime", monospace; font-size:13px; color:var(--ink-2); font-variant-numeric:tabular-nums}
 .rrow .chev{color:var(--ink-3); flex:none; width:8px}
@@ -1183,7 +1206,15 @@ let syncTimer = null, syncErr = '';
 let tab = 'd';
 let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null, breakdown:false,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false,
-          mapScope:'enabled'};
+          mapScope:'enabled',
+          /* first run: which lists are ticked so far, and which step we are on */
+          pick:[], onboard:'lists'};
+
+/* Onboarding is shown once. After that the "Not syncing yet" banner is the
+   gentler reminder, so a walker who said "not now" is not asked every launch. */
+const ONBOARD_KEY = 'waymark.onboarded';
+const seenOnboard = () => { try{ return localStorage.getItem(ONBOARD_KEY) === '1'; }catch(e){ return false; } };
+const markOnboarded = () => { try{ localStorage.setItem(ONBOARD_KEY, '1'); }catch(e){} };
 const blobUrls = new Map();
 
 /* ---------- helpers ---------- */
@@ -1859,6 +1890,12 @@ function paintNav(){
   if (b) b.innerHTML = usable.filter(n => n.short).map(n => navButton(n, c, true)).join('');
 }
 
+/* True while the walker still has something to answer on first run. */
+function onboarding(){
+  if (!state.enabled.length) return true;
+  return ui.onboard === 'signin' && fbConfigured() && !fbUser && !seenOnboard();
+}
+
 function render(){
   /* 'f' was the old Friends tab; anything still pointing there lands on Hikers */
   if (tab === 'f') tab = 'u';
@@ -1869,6 +1906,14 @@ function render(){
     banner = '<div class="banner"><div><b>Not syncing yet</b>Your log is safe on this device. Sign in from the settings menu and it follows you everywhere \u2014 and friends can keep their own.</div><button data-act="hidebanner" aria-label="Dismiss">×</button></div>';
   } else if (cloudOn() && syncState === 'error' && !ui.bannerHidden){
     banner = '<div class="banner"><div><b>Could not save to the cloud</b>' + esc(syncErr) + '. Everything is still safe on this device and it will keep retrying.</div><button data-act="hidebanner" aria-label="Dismiss">×</button></div>';
+  }
+
+  /* Nothing chosen yet, or the sign-in offer still pending: onboarding owns the
+     whole screen. No banner over the top of it either. */
+  if (onboarding()){
+    document.getElementById('main').innerHTML = renderOnboard();
+    paintSync(); wire();
+    return;
   }
 
   document.getElementById('main').innerHTML = banner +
@@ -1895,7 +1940,6 @@ function listBar(){
 }
 
 function renderHills(){
-  if (!state.enabled.length) return renderPickLists();
   if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
   const id = ui.list, L = LIST_BY[id], s = statsFor(id);
   const pct = s.done ? Math.max(1, Math.round(s.done/s.total*100)) : 0;
@@ -2303,26 +2347,51 @@ function statCard(big, label, sub, go){
 }
 /* First run: nothing is switched on, so the only useful thing the app can show
    is the question "what are you working through?" Everything else waits. */
+/* ---------- first run ---------- */
+/* Two steps: tick as many lists as you like and continue, then the offer to
+   sign in so the log survives a closed tab or a new phone. */
+function renderOnboard(){
+  return ui.onboard === 'signin' ? renderOnboardSignin() : renderPickLists();
+}
+
 function renderPickLists(){
+  const n = ui.pick.length;
   let s = '<h2 class="pagehead">Welcome to WayMark</h2>';
-  s += '<p class="planintro" style="margin-bottom:14px">Pick the hills you are working through. ' +
-       'Switch on as many as you like &mdash; you can change this any time under Settings, ' +
+  s += '<p class="planintro" style="margin-bottom:14px">Which hills are you working through? ' +
+       'Tick as many as you like. You can change this any time under Settings, ' +
        'and switching one off never loses anything you have marked.</p>';
   s += '<div class="regionlist">';
   for (const l of LISTS){
-    s += '<button class="rrow" data-act="startlist" data-v="' + esc(l.id) + '">' +
-      '<i class="dot" style="background:var(--moss)"></i>' +
+    const on = ui.pick.includes(l.id);
+    s += '<button class="rrow picker' + (on ? ' on' : '') + '" data-act="picklist" data-v="' + esc(l.id) + '"' +
+      ' aria-pressed="' + on + '">' +
+      '<span class="pbox">' + (on ? ICON_CHECK : '') + '</span>' +
       '<span class="rn">' + esc(l.name) +
       '<i class="rsub">' + esc(l.where || '') + '</i></span>' +
-      '<span class="rc">' + l.count + '</span>' +
-      '<span class="chev">&rsaquo;</span></button>';
+      '<span class="rc">' + l.count + '</span></button>';
   }
   s += '</div>';
+  s += '<div class="btnrow onboardbar">' +
+       '<button class="btn" data-act="pickdone"' + (n ? '' : ' disabled') + '>' +
+       (n ? 'Continue with ' + n + ' list' + (n === 1 ? '' : 's') : 'Pick at least one') +
+       '</button></div>';
+  return s;
+}
+
+function renderOnboardSignin(){
+  let s = '<h2 class="pagehead">Keep your log safe</h2>';
+  s += '<p class="planintro" style="margin-bottom:14px">Without an account your ticks live only in ' +
+       'this browser, on this device &mdash; clearing your history or picking up a different phone ' +
+       'loses them. Sign in and your log follows you everywhere, and you can compare with friends.</p>';
+  s += '<div class="btnrow onboardbar">' +
+       '<button class="btn" data-act="fbin">Sign in with Google</button>' +
+       '<button class="btn quiet" data-act="skipsignin">Not now</button></div>';
+  s += '<p class="mapnote" style="margin-top:14px">You can sign in later from the cog, top right. ' +
+       'Nothing you mark before signing in is lost &mdash; it uploads when you do.</p>';
   return s;
 }
 
 function renderDashboard(){
-  if (!state.enabled.length) return renderPickLists();
   const a = allStats();
   /* four blocks of equal weight under one heading, rather than one large panel
      with three smaller ones hanging off it */
@@ -2421,7 +2490,6 @@ let map = null, mapReady = false, markerLayer = null, mapWarned = false;
 function renderMapTab(){
   /* With nothing switched on there is no map to draw and no list to name, so
      send the walker to the same picker the other screens show. */
-  if (!state.enabled.length) return renderPickLists();
   if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
   let html = listBar();
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
@@ -3040,13 +3108,29 @@ document.addEventListener('click', async e => {
   else if (a === 'fbin'){ fbSignIn(); }
   else if (a === 'fbout'){ fbSignOut(); }
   else if (a === 'fbsyncnow'){ fbSync(); toast('Syncing\u2026'); }
-  else if (a === 'startlist'){
+  else if (a === 'picklist'){
     const id = el.dataset.v;
-    if (!state.enabled.includes(id)) state.enabled.push(id);
+    ui.pick = ui.pick.includes(id) ? ui.pick.filter(x => x !== id) : [...ui.pick, id];
+    render();
+  }
+  else if (a === 'pickdone'){
+    if (!ui.pick.length) return;
+    /* keep them in the order the app lists them, not the order they were tapped */
+    state.enabled = LISTS.filter(l => ui.pick.includes(l.id)).map(l => l.id);
     state.enabledT = now();
-    ui.list = id;
+    ui.list = state.enabled[0];
+    /* The sign-in offer is a first-run thing, and only worth showing if there is
+       an account to make and they have not made one. Somebody who switched every
+       list off in Settings and is picking again has already been asked. */
+    const askSignin = !seenOnboard() && fbConfigured() && !fbUser;
+    ui.onboard = askSignin ? 'signin' : 'done';
+    if (!askSignin) markOnboarded();
     touched(); render();
-    toast(LIST_BY[id].name + ' switched on.');
+  }
+  else if (a === 'skipsignin'){
+    markOnboarded();
+    ui.onboard = 'done';
+    tab = 'd'; render();
   }
   else if (a === 'golist'){ ui.list = el.dataset.v; ui.region = ''; ui.q = ''; tab = 'h'; render(); window.scrollTo({top:0}); }
   else if (a === 'editroute'){ openEditor(el.dataset.id); }
@@ -3461,6 +3545,8 @@ async function fbStart(){
     fbUser = u ? {uid:u.uid, name:u.displayName || 'Walker', photo:u.photoURL || ''} : null;
     if (fbUser){
       fbName = fbName || fbUser.name;
+      /* they answered the sign-in step by signing in */
+      markOnboarded(); ui.onboard = 'done';
       await fbSync(true);
     }
     renderAccountBox(); render();
@@ -4206,7 +4292,9 @@ state = loadLocal();
    through on first run, rather than inheriting somebody else's two lists. */
 if (!Array.isArray(state.enabled)) state.enabled = [];
 saveLocal();   // persist the migration immediately, so it happens once
-if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
+if (state.enabled.length && !state.enabled.includes(ui.list)) ui.list = state.enabled[0];
+/* an existing walker has already answered all this */
+if (seenOnboard() || state.enabled.length) ui.onboard = 'done';
 render();
 cloudReady = true;
 fbStart();
