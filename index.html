@@ -157,7 +157,8 @@ img{max-width:100%}
 .dcard .planstat{margin-top:10px}
 .feed{list-style:none; margin:4px 0 0; padding:0; border:1px solid var(--line);
   border-radius:var(--r); overflow:hidden; background:var(--surface)}
-.feed li{display:flex; align-items:center; gap:10px; padding:11px 13px; border-top:1px solid var(--line-soft)}
+/* same gutter as the stat cards above, so the column reads as one block */
+.feed li{display:flex; align-items:center; gap:11px; padding:14px 15px; border-top:1px solid var(--line-soft)}
 .feed li:first-child{border-top:none}
 .feed .fmk{width:20px; height:20px; border-radius:99px; background:var(--accent); color:var(--accent-ink);
   display:grid; place-items:center; flex:none}
@@ -427,6 +428,10 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
   .hideDesk{display:none !important}
   .top{background:none; backdrop-filter:none; border-bottom:1px solid var(--line-soft)}
   .brandrow{justify-content:flex-end}
+  /* The header row spans the whole column rather than sitting in the centred
+     text measure, so the cog rests on the same 22px gutter as everything else
+     instead of floating in dead space short of the edge. */
+  .top .wrap{max-width:none; margin:0}
   .wrap{max-width:760px}
 }
 
@@ -460,8 +465,12 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
   border-bottom:1px solid var(--line-soft);
 }
 .brandrow{display:flex; align-items:center; gap:12px; padding:12px 0 8px; min-width:0}
-/* generous room to the left of the wordmark so it can never be clipped */
-.top .wrap{padding-left:max(22px, env(safe-area-inset-left, 0px) + 22px)}
+/* generous room to the left of the wordmark so it can never be clipped, and the
+   same again on the right so the cog sits symmetrically against it */
+.top .wrap{
+  padding-left:max(22px, env(safe-area-inset-left, 0px) + 22px);
+  padding-right:max(22px, env(safe-area-inset-right, 0px) + 22px);
+}
 /* sized from the viewport rather than from breakpoints, so it can never run off
    the edge on a narrow phone or at a large system text size */
 .brand{
@@ -638,6 +647,13 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .detail textarea, .form textarea{resize:vertical; min-height:56px}
 .form .field input{border:none; background:none; padding:11px 0}
 .detail textarea:focus, .form input:focus, .form textarea:focus{border-color:var(--accent)}
+/* the name field lives outside .form, so it needs the same clothes or it
+   renders as a white box with cream text and disappears in dark mode */
+.fbNameIn{width:100%; background:var(--raise); color:var(--ink); border:1px solid var(--line);
+  border-radius:10px; padding:9px 10px; outline:none; font-size:15px}
+.fbNameIn:focus{border-color:var(--accent)}
+.accountBox label{font-family:"Courier Prime", monospace; font-size:10px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
 .dategroup{display:flex; gap:6px; align-items:stretch}
 .dsel{background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 6px 9px 9px; font-size:15px; outline:none; min-width:0}
 .dsel:focus{border-color:var(--accent)}
@@ -1044,8 +1060,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
         <button class="iconbtn" id="themeBtn" aria-label="Light or dark">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="3.6"/></svg>
         </button>
-        <button class="iconbtn" id="menuBtn" aria-label="Settings">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        <button class="iconbtn" id="menuBtn" aria-label="Settings" title="Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a1.94 1.94 0 1 1-2.75 2.75l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47V21a1.94 1.94 0 0 1-3.88 0v-.1a1.6 1.6 0 0 0-1.05-1.47 1.6 1.6 0 0 0-1.77.32l-.06.06a1.94 1.94 0 1 1-2.75-2.75l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3a1.94 1.94 0 0 1 0-3.88h.1a1.6 1.6 0 0 0 1.47-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.94 1.94 0 1 1 2.75-2.75l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 .97-1.47V3a1.94 1.94 0 0 1 3.88 0v.1a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.94 1.94 0 1 1 2.75 2.75l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.47.97H21a1.94 1.94 0 0 1 0 3.88h-.1a1.6 1.6 0 0 0-1.47.97z"/></svg>
         </button>
       </div>
     </header>
@@ -1065,9 +1081,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <h3>Hill lists</h3>
     <p>Switch on the lists you're working through. Switching one off just hides it — nothing you've ticked is lost.</p>
     <div id="listToggles"></div>
-    <h3>Profile</h3>
+    <h3>Account</h3>
     <p class="cloudNote"></p>
     <div class="accountBox"></div>
+    <div id="shareBox"></div>
     <h3>Backup</h3>
     <p>Ticks, dates, notes and routes as plain text. Photos live in your repository, not in here.</p>
     <textarea id="backupText" spellcheck="false"></textarea>
@@ -1742,7 +1759,8 @@ const NI = {
   p:'<path d="M6.5 20.5c0-4 5-4 5-8s-5-3.5-5-7"/><circle cx="6.5" cy="4" r="1.6"/><circle cx="17.5" cy="20" r="1.6"/><path d="M11.5 12.5c0 4 6 3.5 6 7.5"/>',
   f:'<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 6.2a3.2 3.2 0 0 1 0 6.1"/><path d="M17 14.9c2.2.5 3.6 2.3 3.6 4.6"/>',
   a:'<rect x="4.5" y="4.5" width="15" height="15" rx="4.5"/><path d="M8 11 10.5 14 13 11 15.5 14"/>',
-  u:'<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6"/>'
+  /* a walking boot: cuff, laced ankle, sole and a bit of tread */
+  u:'<path d="M7.5 3.5h3.2v6.2l5.2 2.6c2.2 1.1 3.6 2.4 3.6 4.6v2.6a1 1 0 0 1-1 1H4.5a1 1 0 0 1-1-1V16c0-1.3.6-2 1.6-2.6l2.4-1.4z"/><path d="M3.5 17.3h16"/><path d="M8.2 5.7h2.2M8.2 8h2.2"/>'
 };
 const NAV = [
   {id:'d', label:'Home',      short:'Home'},
@@ -1750,8 +1768,9 @@ const NAV = [
   {id:'m', label:'Map',       short:'Map',    count:'m'},
   {id:'p', label:'Routes',    short:'Routes', count:'p'},
   {id:'a', label:'Patches',   short:'Patches', count:'a'},
-  {id:'f', label:'Friends',   short:null,     count:'f', needsFb:true},
-  {id:'u', label:'Profile',   short:'Profile'}
+  /* Leaderboards used to live in their own Friends tab with a thin Profile beside
+     it. They are one thing now: Hikers. */
+  {id:'u', label:'Hikers',    short:'Hikers', count:'f'}
 ];
 function navCounts(){
   let tot = 0, dn = 0;
@@ -1799,7 +1818,8 @@ function paintNav(){
 }
 
 function render(){
-  if (!fbConfigured() && (tab === 'f')) tab = 'd';
+  /* 'f' was the old Friends tab; anything still pointing there lands on Hikers */
+  if (tab === 'f') tab = 'u';
   paintNav();
 
   let banner = '';
@@ -1813,10 +1833,9 @@ function render(){
     (tab === 'd' ? renderDashboard() :
      tab === 'p' ? renderPlans() :
      tab === 'm' ? renderMapTab() :
-     tab === 'f' ? renderBoard() :
      tab === 'a' ? renderPatchesPage() :
-     tab === 'u' ? renderProfile() : renderHills());
-  if (tab === 'u'){ renderAccountBox(); paintCloudNote(); }
+     tab === 'u' ? renderHikers() : renderHills());
+  if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); }
   paintSync(); wire(); hydratePhotos();
   if (tab === 'p' && editor) mountRouteMap();
   if (tab === 'm') mountMap();
@@ -2299,22 +2318,32 @@ function renderDashboard(){
   return s;
 }
 
-/* ---------- profile ---------- */
-function renderProfile(){
-  let s = '<p class="eyebrow">Profile</p><div class="accountBox"></div>';
+/* ---------- hikers ---------- */
+/* Hikers: who you walk with, and nothing else. Your account sits at the top
+   because you need to be signed in for any of it to work; leaderboards fill
+   the rest. Patches and Settings have their own homes now. */
+function renderHikers(){
+  /* Reading a friend's log is its own screen — your own account panel has no
+     business sitting above it. */
+  if (friendOpen) return renderBoard();
+  let s = '<div class="accountBox"></div>';
   s += '<p class="pathnote cloudNote"></p>';
-  if (fbConfigured()){
-    s += '<p class="eyebrow" style="margin-top:22px">Leaderboards</p>' +
-      '<div class="planintro">Private boards you share with friends by code.</div>' +
-      '<div class="btnrow"><button class="btn" data-tab="f">Open leaderboards</button></div>';
-  }
-  s += '<p class="eyebrow" style="margin-top:22px">Patches</p>' +
-    '<div class="planintro">Your milestones, laid out as a journey.</div>' +
-    '<div class="btnrow"><button class="btn ghost" data-tab="a">Open patches</button></div>';
-  s += '<p class="eyebrow" style="margin-top:22px">Settings</p>' +
-    '<div class="planintro">Appearance, which hill lists you are working through, and a plain-text backup of everything.</div>' +
-    '<div class="btnrow"><button class="btn ghost" data-act="opensettings">Open settings</button></div>';
+  s += '<div style="margin-top:20px">' + renderBoard() + '</div>';
   return s;
+}
+
+/* Boards used to sit blank until you tapped Refresh. Now opening Hikers loads
+   anything not already in hand, once per visit — Refresh stays for when you
+   want fresh numbers on the spot. Anything already loaded is left alone so
+   this can't loop: loadGroup ends in render(), which lands back here. */
+let boardsWanted = new Set();
+function autoLoadBoards(){
+  if (!FB || !fbUser) return;
+  for (const g of myGroups()){
+    if (groupRows[g.code] || groupBusy === g.code || boardsWanted.has(g.code)) continue;
+    boardsWanted.add(g.code);
+    loadGroup(g.code);
+  }
 }
 
 const COLOPHON =
@@ -3356,6 +3385,9 @@ async function fbSignIn(){
 async function fbSignOut(){
   if (FB && fbAuth) await FB.signOut(fbAuth);
   fbUser = null;
+  /* forget what we loaded, so the next person to sign in gets their own boards
+     rather than the last walker's rows sitting there */
+  groupRows = {}; boardsWanted = new Set(); friendOpen = null;
   renderAccountBox(); render();
 }
 
@@ -3676,13 +3708,24 @@ function renderAccountBox(){
       myGroups().length + ' leaderboard' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
     s += '<div style="margin-top:12px"><label>Name your friends see</label>' +
          '<input class="fbNameIn" data-act="fbname" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
-    s += '<div class="togglerow"><div class="tinfo"><b>Share detail by default</b>' +
-         '<span>How a new leaderboard starts out. Each board has its own switch under Friends, and that is what counts.</span></div>' +
-         '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail by default"></button></div>';
-    s += '<div class="btnrow"><button class="btn" data-act="fbsyncnow">Sync now</button>' +
-         '<button class="btn quiet" data-act="fbout">Sign out</button></div>';
+    /* Sharing defaults live in Settings now, and syncing looks after itself —
+       the status pill in the header says where it is up to. */
+    s += '<div class="btnrow"><button class="btn quiet" data-act="fbout">Sign out</button></div>';
   }
   box.innerHTML = s;
+  paintShareBox();
+}
+
+/* The default for NEW leaderboards. Lives in Settings, out of the way, because
+   the switch that actually matters is the one on each board under Hikers. */
+function paintShareBox(){
+  const box = document.getElementById('shareBox');
+  if (!box) return;
+  if (!fbConfigured() || !fbUser){ box.innerHTML = ''; return; }
+  box.innerHTML =
+    '<div class="togglerow"><div class="tinfo"><b>Share detail by default</b>' +
+    '<span>How a new leaderboard starts out. Each board has its own switch under Hikers, and that is the one that counts.</span></div>' +
+    '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail by default"></button></div>';
 }
 
 
@@ -3930,7 +3973,7 @@ async function hydrateFriendPhotos(){
 /* ---------- Friends tab ---------- */
 function renderBoard(){
   if (!fbConfigured()) return '<p class="empty">Accounts are not switched on for this copy of the app.</p>';
-  if (!fbUser) return '<p class="empty">Sign in from the Profile section under &#8942; and you can start or join a leaderboard with friends.</p>';
+  if (!fbUser) return '<p class="empty">Sign in above and you can start or join a leaderboard with friends.</p>';
 
   if (friendOpen) return renderFriend();
 
@@ -3973,7 +4016,7 @@ function renderBoard(){
       '" aria-label="Share detail with ' + esc(g.name || 'this leaderboard') + '"></button></div>';
 
     if (groupBusy === g.code) html += '<p class="empty" style="padding:18px">Loading…</p>';
-    else if (!rows) { html += '<p class="empty" style="padding:18px">Tap refresh to load.</p>'; }
+    else if (!rows) { html += '<p class="empty" style="padding:18px">Loading…</p>'; }
     else if (!rows.length) html += '<p class="empty" style="padding:18px">Just you so far. Send the code to a friend.</p>';
     else {
       html += '<div class="regionlist" style="margin-top:10px">';
