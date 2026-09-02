@@ -833,6 +833,46 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .jsub{font-family:"Wildkins", Georgia, serif; font-weight:800; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2); margin-top:6px}
 .jcount{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-3); text-align:right; line-height:1.5}
 .jcount b{color:var(--ink); font-weight:700}
+
+/* ---- a friend's log: who, then their numbers ---- */
+.journey.friend{padding-bottom:16px}
+.journey.friend .jtop{align-items:center}
+.fwho{display:flex; align-items:center; gap:14px; min-width:0}
+.avatar.big{
+  width:74px; height:74px; border-width:3px; flex:none;
+  border-radius:99px; object-fit:cover; background:var(--surface-2); border-style:solid;
+  border-color:var(--accent);
+}
+.avatar.big.initial{
+  display:grid; place-items:center; background:var(--moss); color:#F6EFE4;
+  font-family:"Wildkins", Georgia, serif; font-size:32px; line-height:1;
+}
+.fname2{min-width:0}
+.fname2 h2{
+  font-family:"Wildkins", Georgia, serif; font-size:clamp(21px,5.6vw,28px);
+  line-height:1.1; color:var(--ink); margin:0; overflow-wrap:anywhere;
+}
+.fname2 span{
+  display:block; margin-top:5px; font-family:"Courier Prime", monospace;
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3);
+}
+.fnums{text-align:right; flex:none}
+.ftot b{
+  display:block; font-family:"Wildkins", Georgia, serif; font-size:clamp(28px,8vw,38px);
+  line-height:.9; color:var(--ink);
+}
+.ftot i{
+  display:block; font-style:normal; margin-top:5px;
+  font-family:"Courier Prime", monospace; font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.fnums .jcount{margin-top:10px; text-align:right}
+@media (max-width:430px){
+  /* on a narrow phone the two halves stack rather than squeeze */
+  .journey.friend .jtop{flex-direction:column; align-items:flex-start; gap:16px}
+  .fnums{text-align:left; align-self:stretch}
+  .fnums .jcount{text-align:left}
+}
 .jbar{display:flex; height:9px; border-radius:99px; overflow:hidden; background:var(--surface-2); margin:14px 0 0; position:relative; z-index:2}
 .jbar i{display:block; height:100%; transition:width .4s ease}
 .jbar .b-done{background:var(--done)}
@@ -4246,19 +4286,18 @@ function setGroupDetail(code, on){
     FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code)).catch(() => {});
   }
 }
-/* the Friends tab counts people in YOUR leaderboards — nobody else's */
+/* How many leaderboards you are on.
+
+   This used to say "N boards" and then switch to "N walkers" the moment the
+   member rows arrived, so the nav read one thing from Home and another once
+   you had opened Hikers. Boards is the honest number: it is known straight
+   away, it never changes under you, and on the open board a walker count would
+   only ever be the page cap rather than the real total. */
 function friendsTabLabel(){
   if (!fbUser) return '—';
-  const gs = myGroups();
-  if (!gs.length) return '—';
-  const people = new Set();
-  let loaded = false;
-  for (const g of gs){
-    const rows = groupRows[g.code];
-    if (rows){ loaded = true; rows.forEach(r => people.add(r.uid)); }
-  }
-  if (loaded && people.size) return people.size + (people.size === 1 ? ' walker' : ' walkers');
-  return gs.length + (gs.length === 1 ? ' board' : ' boards');
+  const n = myGroups().length;
+  if (!n) return '—';
+  return n + (n === 1 ? ' board' : ' boards');
 }
 
 /* What I publish into ONE group: always totals, plus detail only if I opted in
@@ -4481,21 +4520,107 @@ async function hydrateFriendPhotos(){
 }
 
 /* ---------- Friends tab ---------- */
+/* One leaderboard card. Same shape whichever section it sits in — only the
+   meta line and the wording on the share switch differ for the open board. */
+function boardCard(g){
+  const glob = isGlobal(g.code);
+  const rows = groupRows[g.code];
+  let html = '<article class="plan' + (glob ? ' globalcard' : '') + '" style="margin-top:14px">';
+  html += '<div class="planhead"><h3>' + esc(glob ? GLOBAL_NAME : g.name) + '</h3>' +
+    '<button class="linkbtn" data-act="leavegroup" data-v="' + esc(g.code) + '">Leave</button></div>';
+  html += '<div class="planmeta">' +
+    (glob
+      ? '<span class="tag">open to all</span><span>Top ' + GLOBAL_TOP + ' by summits</span>'
+      : '<span>Code <b class="gcode">' + esc(g.code) + '</b></span>' +
+        '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(g.code) + '">Copy code</button>') +
+    '<button class="linkbtn" style="padding:0" data-act="refreshgroup" data-v="' + esc(g.code) + '">Refresh</button></div>';
+
+  /* One decision per board: the club can have the lot, the work one only totals. */
+  const shares = groupDetail(g.code);
+  html += '<div class="togglerow gshare"><div class="tinfo"><b>Share my dates, notes and photos</b>' +
+    '<span>' + (glob
+      ? (shares
+          ? 'Anyone using WayMark can see your full log.'
+          : 'Off. Everyone can see this board, so only your name and total are on it.')
+      : (shares
+          ? 'This board sees your full log.'
+          : 'This board sees your totals and nothing else.')) + '</span></div>' +
+    '<button class="sw" data-act="groupdetail" data-v="' + esc(g.code) + '" aria-pressed="' + shares +
+    '" aria-label="Share detail with ' + esc(glob ? GLOBAL_NAME : (g.name || 'this leaderboard')) + '"></button></div>';
+
+  if (groupBusy === g.code || !rows) html += '<p class="empty" style="padding:18px">Loading…</p>';
+  else if (!rows.length) html += '<p class="empty" style="padding:18px">' +
+    (glob ? 'Nobody on it yet. You are the first.' : 'Just you so far. Send the code to a friend.') + '</p>';
+  else {
+    html += '<div class="regionlist" style="margin-top:10px">';
+    rows.forEach((r, i) => {
+      const me = r.uid === fbUser.uid;
+      const canOpen = r.detail && (r.log || []).length;
+      html += '<button class="rrow" ' + (canOpen ? 'data-act="openfriend" data-code="' + esc(g.code) + '" data-uid="' + esc(r.uid) + '"' : 'disabled style="opacity:.75"') + '>' +
+        (r.detail && r.av
+          ? '<img class="avatar tiny" src="' + esc(r.av) + '" alt="">'
+          : '<i class="dot" style="background:' + (i === 0 ? 'var(--accent)' : 'var(--sage)') + '"></i>') +
+        '<span class="rn">' + (i+1) + '. ' + esc(r.name || 'Walker') + (me ? ' <span class="tag">you</span>' : '') +
+        (canOpen ? '' : '<span style="display:block;font-size:11px;color:var(--ink-3);margin-top:3px">totals only</span>') + '</span>' +
+        '<span class="rc">' + (r.hills || 0) + '</span>' +
+        (canOpen ? '<span class="chev">&rsaquo;</span>' : '<span class="chev"></span>') + '</button>';
+    });
+    html += '</div>';
+  }
+  return html + '</article>';
+}
+
+function groupFormHTML(){
+  if (ui.groupForm === 'new'){
+    return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gname">Name it</label>' +
+      '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40"></div>' +
+      '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
+      '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new">Create</button></div></div>';
+  }
+  if (ui.groupForm === 'join'){
+    return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gcode">Join code</label>' +
+      '<input id="gcode" placeholder="ABC123" maxlength="7" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase; letter-spacing:.2em; font-weight:700"></div>' +
+      '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
+      '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="join">Join</button></div></div>';
+  }
+  return '';
+}
+
 function renderBoard(){
   if (!fbConfigured()) return '<p class="empty">Accounts are not switched on for this copy of the app.</p>';
   if (!fbUser) return '<p class="empty">Sign in above and you can start or join a leaderboard with friends.</p>';
-
   if (friendOpen) return renderFriend();
 
-  let html = '<p class="eyebrow">Your leaderboards</p>';
+  const gs = myGroups();
+  const global = gs.find(g => isGlobal(g.code));
+  const mine = gs.filter(g => !isGlobal(g.code));
+  let html = '';
+
+  /* Once you are on it, the open board leads — it is the one everybody shares.
+     Your own boards keep their own section underneath so the two never blur. */
+  if (global){
+    html += '<p class="eyebrow">The WayMark board</p>';
+    html += '<div class="planintro">Everyone using WayMark, ranked by summits. Anyone can see this one.</div>';
+    html += boardCard(global);
+  }
+
+  html += '<p class="eyebrow">Your leaderboards</p>';
   html += '<div class="planintro">A leaderboard is private to whoever has its code. Start one and send the code to your walking friends, or paste in a code someone sent you.</div>';
   html += '<div class="btnrow"><button class="btn" data-act="newgroup">+ Start one</button>' +
           '<button class="btn ghost" data-act="joingroup">Join with a code</button></div>';
+  html += groupFormHTML();
 
-  /* The open board is its own offer, kept apart from the private ones so nobody
-     joins it thinking it works like a board they share with three friends. */
-  if (!inGlobal()){
-    html += '<article class="plan globalcard" style="margin-top:14px">' +
+  if (!mine.length){
+    html += '<p class="empty">No private leaderboards yet. Nobody can see your hills until you start or join one.</p>';
+  } else {
+    for (const g of mine) html += boardCard(g);
+  }
+
+  /* Not on the open board: the offer goes last, so it reads as an extra rather
+     than as the thing this screen is about. */
+  if (!global){
+    html += '<p class="eyebrow">The WayMark board</p>';
+    html += '<article class="plan globalcard" style="margin-top:0">' +
       '<div class="planhead"><h3>' + GLOBAL_NAME + '</h3><span class="tag">open to all</span></div>' +
       '<p class="planintro" style="margin:8px 0 0">One board for everyone using WayMark. ' +
       'Anyone can see it, so joining shares your name and your total &mdash; nothing else. ' +
@@ -4504,69 +4629,6 @@ function renderBoard(){
       '<div class="btnrow" style="margin-top:12px">' +
       '<button class="btn" data-act="joinglobal">Join the open board</button></div>' +
       '<p id="globalmsg" style="font-size:13px;margin:8px 0 0"></p></article>';
-  }
-
-  if (ui.groupForm === 'new'){
-    html += '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gname">Name it</label>' +
-      '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40"></div>' +
-      '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
-      '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new">Create</button></div></div>';
-  } else if (ui.groupForm === 'join'){
-    html += '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gcode">Join code</label>' +
-      '<input id="gcode" placeholder="ABC123" maxlength="7" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase; letter-spacing:.2em; font-weight:700"></div>' +
-      '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
-      '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="join">Join</button></div></div>';
-  }
-
-  const gs = myGroups();
-  if (!gs.length) return html + '<p class="empty">No leaderboards yet. Nobody can see your hills until you start or join one.</p>';
-
-  for (const g of gs){
-    const rows = groupRows[g.code];
-    html += '<article class="plan" style="margin-top:14px">';
-    html += '<div class="planhead"><h3>' + esc(isGlobal(g.code) ? GLOBAL_NAME : g.name) + '</h3>' +
-      '<button class="linkbtn" data-act="leavegroup" data-v="' + esc(g.code) + '">Leave</button></div>';
-    const glob = isGlobal(g.code);
-    html += '<div class="planmeta">' +
-      (glob
-        ? '<span class="tag">open to all</span><span>Top ' + GLOBAL_TOP + ' by summits</span>'
-        : '<span>Code <b class="gcode">' + esc(g.code) + '</b></span>' +
-          '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(g.code) + '">Copy code</button>') +
-      '<button class="linkbtn" style="padding:0" data-act="refreshgroup" data-v="' + esc(g.code) + '">Refresh</button></div>';
-
-    /* One decision per board: the club can have the lot, the work one only totals. */
-    const shares = groupDetail(g.code);
-    html += '<div class="togglerow gshare"><div class="tinfo"><b>Share my dates, notes and photos</b>' +
-      '<span>' + (glob
-        ? (shares
-            ? 'Anyone using WayMark can see your full log.'
-            : 'Off. Everyone can see this board, so only your name and total are on it.')
-        : (shares
-            ? 'This board sees your full log.'
-            : 'This board sees your totals and nothing else.')) + '</span></div>' +
-      '<button class="sw" data-act="groupdetail" data-v="' + esc(g.code) + '" aria-pressed="' + shares +
-      '" aria-label="Share detail with ' + esc(g.name || 'this leaderboard') + '"></button></div>';
-
-    if (groupBusy === g.code) html += '<p class="empty" style="padding:18px">Loading…</p>';
-    else if (!rows) { html += '<p class="empty" style="padding:18px">Loading…</p>'; }
-    else if (!rows.length) html += '<p class="empty" style="padding:18px">Just you so far. Send the code to a friend.</p>';
-    else {
-      html += '<div class="regionlist" style="margin-top:10px">';
-      rows.forEach((r, i) => {
-        const me = r.uid === fbUser.uid;
-        const canOpen = r.detail && (r.log || []).length;
-        html += '<button class="rrow" ' + (canOpen ? 'data-act="openfriend" data-code="' + esc(g.code) + '" data-uid="' + esc(r.uid) + '"' : 'disabled style="opacity:.75"') + '>' +
-          (r.detail && r.av
-            ? '<img class="avatar tiny" src="' + esc(r.av) + '" alt="">'
-            : '<i class="dot" style="background:' + (i === 0 ? 'var(--accent)' : 'var(--sage)') + '"></i>') +
-          '<span class="rn">' + (i+1) + '. ' + esc(r.name || 'Walker') + (me ? ' <span class="tag">you</span>' : '') +
-          (canOpen ? '' : '<span style="display:block;font-size:11px;color:var(--ink-3);margin-top:3px">totals only</span>') + '</span>' +
-          '<span class="rc">' + (r.hills || 0) + '</span>' +
-          (canOpen ? '<span class="chev">&rsaquo;</span>' : '<span class="chev"></span>') + '</button>';
-      });
-      html += '</div>';
-    }
-    html += '</article>';
   }
   return html;
 }
@@ -4578,11 +4640,24 @@ function renderFriend(){
   const log = (r.log || []).filter(e => BY_KEY[e.k]);
   log.sort((a,b) => (b.d || '').localeCompare(a.d || '') || BY_KEY[b.k].h - BY_KEY[a.k].h);
 
+  /* Their face and their name lead this screen — you came here to read one
+     person's log, not a scoreboard. The numbers move over to the right, with
+     the total sitting above the per-list breakdown. */
+  const who = esc(r.name || 'Walker');
+  const lists = LISTS.filter(l => (r.counts || {})[l.id])
+    .map(l => '<b>' + r.counts[l.id] + '</b> ' + esc(l.name)).join('<br>');
+
   let html = '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>';
-  html += '<p class="eyebrow">' + esc(r.name || 'Walker') + '</p>';
-  html += '<section class="journey"><div class="jtop"><div><div class="jpct">' + (r.hills || 0) + '</div>' +
-    '<div class="jsub">Summits marked</div></div><div class="jcount">' +
-    LISTS.filter(l => (r.counts || {})[l.id]).map(l => '<b>' + r.counts[l.id] + '</b> ' + esc(l.name)).join('<br>') +
+  html += '<section class="journey friend"><div class="jtop">' +
+    '<div class="fwho">' +
+      (r.av ? '<img class="avatar big" src="' + esc(r.av) + '" alt="">'
+            : '<div class="avatar big initial">' + esc((r.name || 'W').trim().charAt(0).toUpperCase()) + '</div>') +
+      '<div class="fname2"><h2>' + who + '</h2>' +
+      '<span>' + (log.length ? 'Sharing their full log' : 'Totals only') + '</span></div>' +
+    '</div>' +
+    '<div class="fnums">' +
+      '<div class="ftot"><b>' + (r.hills || 0) + '</b><i>summits marked</i></div>' +
+      (lists ? '<div class="jcount">' + lists + '</div>' : '') +
     '</div></div>' + RIDGE + '</section>';
 
   if (!log.length) return html + '<p class="empty">No detail shared.</p>';
