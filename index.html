@@ -1008,6 +1008,35 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .avpen svg{width:14px; height:14px}
 .avwrap:active .avatar{filter:brightness(.92)}
 
+/* ---- patch unlocked ---- */
+.win .sheetbox{max-width:380px; text-align:center}
+/* Specificity has to beat `.sheetbox h2` further down, which is equal weight
+   but later in the file and resets the margin to nothing. */
+.win .sheetbox h2{
+  font-family:"Wildkins", Georgia, serif; font-size:clamp(24px,7vw,30px);
+  /* the patch needs room to breathe before the word lands under it */
+  color:var(--accent-text); margin:34px 0 10px; text-transform:uppercase; letter-spacing:.02em;
+}
+/* `.sheetbox p` is later and equal weight, so these need the extra class too */
+.win .sheetbox .wineyebrow{
+  font-family:"Courier Prime", monospace; font-size:10.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-3); margin:0 0 28px;
+}
+.win .sheetbox .winnames{
+  font-family:"Wildkins", Georgia, serif; font-size:16px; line-height:1.5;
+  color:var(--ink); margin:0 0 2px;
+}
+.windiscs{display:flex; justify-content:center; flex-wrap:wrap; gap:18px; padding:4px 0 2px}
+/* the patch itself is the point of the popup, so it is drawn large */
+.windiscs .patch{width:auto; opacity:1; filter:none}
+.windiscs .disc{width:150px; height:150px; margin:0}
+.windiscs .disc svg{width:58px; height:58px}
+.win .btnrow{justify-content:center; margin-top:24px}
+@media (prefers-reduced-motion: no-preference){
+  .win.open .windiscs .disc{animation:winpop .45s cubic-bezier(.2,1.3,.4,1) both}
+}
+@keyframes winpop{from{transform:scale(.72); opacity:0} to{transform:scale(1); opacity:1}}
+
 /* ---- picture cropper ---- */
 .avbox{max-width:400px}
 .avbox h2{margin-bottom:4px}
@@ -1250,6 +1279,16 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <span class="ask">Delete this photo?<small>This cannot be undone.</small></span>
     <button class="btn quiet" id="vcancel" style="color:#D8DCD0; border-color:#4A5148">Keep it</button>
     <button class="btn danger" id="vyes">Delete</button>
+  </div>
+</div>
+
+<div class="sheet win" id="win" role="dialog" aria-modal="true" aria-label="Patch earned">
+  <div class="sheetbox winbox">
+    <div id="winBody"></div>
+    <div class="btnrow">
+      <button class="btn" id="winGo">See it in Patches</button>
+      <button class="btn quiet" id="winClose">Close</button>
+    </div>
   </div>
 </div>
 
@@ -1701,6 +1740,45 @@ function setState(key, st, date){
   touched(); render();
 }
 function setBagged(key, on, date){ setState(key, on ? 'done' : 'none', date); }
+
+/* ---------- patch unlocks ---------- */
+/* Watch what was earned before a change, then see what is new after it. Kept
+   as an explicit before/after rather than hooking setState, because marking a
+   whole route at once should still raise one celebration, not one per fell. */
+let patchWatch = null;
+function watchPatches(){
+  patchWatch = new Set(patches().filter(p => p.got).map(p => p.id));
+}
+function newlyEarned(){
+  if (!patchWatch) return [];
+  const before = patchWatch; patchWatch = null;
+  return patches().filter(p => p.got && !before.has(p.id));
+}
+/* Run a marking action and celebrate anything it unlocked. */
+async function marking(fn){
+  watchPatches();
+  await fn();
+  const won = newlyEarned();
+  if (won.length) celebrate(won);
+}
+
+let celebrating = null;                 // the patches currently on the popup
+function celebrate(list){
+  celebrating = list;
+  const box = document.getElementById('winBody');
+  const many = list.length > 1;
+  box.innerHTML =
+    '<p class="wineyebrow">' + (many ? list.length + ' patches earned' : 'Patch earned') + '</p>' +
+    '<div class="windiscs">' +
+      list.map(p => '<span class="patch got">' + patchDisc(p) + '</span>').join('') +
+    '</div>' +
+    '<h2>Congratulations</h2>' +
+    '<p class="winnames">' + list.map(p => esc(p.label)).join('<br>') + '</p>';
+  document.getElementById('win').classList.add('open');
+  hydratePhotos();
+}
+function closeWin(){ document.getElementById('win').classList.remove('open'); celebrating = null; }
+function winOpen(){ return document.getElementById('win').classList.contains('open'); }
 /* a marked summit is hard-won — never let one tap undo it silently */
 async function okToUnmark(key){
   const h = BY_KEY[key]; if (!h) return true;
@@ -3212,7 +3290,12 @@ document.addEventListener('click', async e => {
   if (a === 'tick'){
     const k = el.dataset.k, turningOff = isBagged(k);
     if (turningOff && !await okToUnmark(k)) return;
-    setBagged(k, !turningOff, el.dataset.date || '');
+    await marking(() => {
+      /* Marking one opens its row, so the date, notes and photos are right
+         there while the walk is fresh. Unmarking closes it again. */
+      ui.open = turningOff ? (ui.open === k ? null : ui.open) : k;
+      setBagged(k, !turningOff, el.dataset.date || '');
+    });
     if (mapReady){ drawMarkers(); if (map) map.closePopup(); }
     if (wikiOpen && wikiOpen.k === k) paintInfo();
   }
@@ -3233,7 +3316,10 @@ document.addEventListener('click', async e => {
   else if (a === 'setstate'){
     const k = el.dataset.k;
     if (isBagged(k) && el.dataset.v !== 'done' && !await okToUnmark(k)) return;
-    setState(k, el.dataset.v);
+    await marking(() => {
+      if (el.dataset.v === 'done') ui.open = k;
+      setState(k, el.dataset.v);
+    });
     if (mapReady) drawMarkers();
     if (wikiOpen && wikiOpen.k === k) paintInfo();
   }
@@ -3419,8 +3505,12 @@ document.addEventListener('click', async e => {
   else if (a === 'bagall'){
     const p = state.plans.find(x => x.id === el.dataset.id); if (!p) return;
     const d = p.date || today();
-    p.hills.forEach(k => { if (!isBagged(k)){ const c = rec(k); state.bagged[k] = {...c, st:'done', done:true, date:c.date || d, t:now()}; } });
-    touched(); render(); toast('All marked. Nice one.');
+    /* A whole route at once: one celebration for everything it unlocked, and no
+       row opened — you did not tick these one at a time. */
+    await marking(() => {
+      p.hills.forEach(k => { if (!isBagged(k)){ const c = rec(k); state.bagged[k] = {...c, st:'done', done:true, date:c.date || d, t:now()}; } });
+      touched(); render(); toast('All marked. Nice one.');
+    });
   }
 });
 
@@ -3743,6 +3833,19 @@ infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
   };
 })();
 
+document.getElementById('winClose').onclick = closeWin;
+document.getElementById('win').onclick = e => { if (e.target.id === 'win') closeWin(); };
+document.getElementById('winGo').onclick = () => {
+  /* Straight to that patch's own page, with Back pointing at wherever they
+     were — the celebration must not quietly move them somewhere else. */
+  const first = celebrating && celebrating[0];
+  closeWin();
+  if (!first) return;
+  ui.patchFrom = tab;
+  ui.patch = first.id; tab = 'a';
+  render(); window.scrollTo({top:0});
+};
+
 document.getElementById('askYes').onclick = () => answerAsk(true);
 document.getElementById('askNo').onclick  = () => answerAsk(false);
 document.getElementById('askX').onclick   = () => answerAsk(false);
@@ -3760,6 +3863,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft'){ stepViewer(-1); return; }
     if (e.key === 'ArrowRight'){ stepViewer(1); return; }
   }
+  if (winOpen()){ if (e.key === 'Escape') closeWin(); return; }
   if (avOpen()){ if (e.key === 'Escape') avClose(); return; }
   if (e.key !== 'Escape') return;
   if (viewer.classList.contains('confirming')){ viewer.classList.remove('confirming'); return; }
