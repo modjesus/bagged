@@ -107,7 +107,8 @@ img{max-width:100%}
 .pagehead{
   font-family:"Wildkins", Georgia, serif; color:var(--accent-text);
   font-size:clamp(24px,6.4vw,34px); letter-spacing:.03em; line-height:1.05;
-  margin:18px 0 12px; text-transform:uppercase;
+  /* clear of the header above, and of the cards below */
+  margin:26px 0 14px; text-transform:uppercase;
 }
 .scards.four{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
 .scards.four .scard{display:flex; flex-direction:column; justify-content:flex-start}
@@ -811,8 +812,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .eyebrow{
   font-family:"Courier Prime", monospace; font-size:11px; font-weight:700;
   letter-spacing:.16em; text-transform:uppercase; color:var(--accent-text);
-  margin:0 0 6px; display:flex; align-items:center; gap:8px;
+  /* real air above so a section title never sits tight under the block before it */
+  margin:30px 0 10px; display:flex; align-items:center; gap:8px;
 }
+/* ...except the first thing on a screen, which has the header above it already */
+.eyebrow:first-child{margin-top:6px}
 .eyebrow::after{content:""; flex:1; height:1px; background:var(--line)}
 
 .journey{
@@ -838,6 +842,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .rrow{display:flex; align-items:center; gap:11px; width:100%; padding:11px 13px; background:none; border:none; border-top:1px solid var(--line-soft); text-align:left}
 .rrow:first-child{border-top:none}
 .rrow .dot{width:11px; height:11px; border-radius:99px; flex:none; background:var(--sage)}
+.rrow .rsub{display:block; font-style:normal; font-family:"Courier Prime", monospace;
+  font-size:11.5px; color:var(--ink-3); margin-top:2px}
 .rrow .rn{flex:1; min-width:0; font-size:15px; font-family:"Wildkins", Georgia, serif; letter-spacing:.01em}
 .rrow .rc{font-family:"Courier Prime", monospace; font-size:13px; color:var(--ink-2); font-variant-numeric:tabular-nums}
 .rrow .chev{color:var(--ink-3); flex:none; width:8px}
@@ -924,6 +930,9 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 .profile{display:flex; align-items:center; gap:12px}
 .avatar{width:46px; height:46px; border-radius:99px; flex:none; background:var(--surface-2); border:2px solid var(--line); object-fit:cover}
+.avatar.sm{width:34px; height:34px; border-width:1px}
+/* on a leaderboard row the picture stands in for the colour dot */
+.rrow .avatar.tiny{width:22px; height:22px; border-width:1px; margin:0}
 .pinfo b{display:block; font-size:16px; font-family:"Wildkins", Georgia, serif}
 .pinfo span{font-size:12.5px; color:var(--ink-3)}
 .gcode{font-family:"Courier Prime", monospace; letter-spacing:.22em; color:var(--accent-text); font-weight:700}
@@ -1167,7 +1176,7 @@ for (const h of HILLS){
   (NAME_IDX[n] = NAME_IDX[n] || []).push(h);
 }
 
-let state = {bagged:{}, plans:[], enabled:['wainwright','hewitt-wales'], groups:[]};
+let state = {bagged:{}, plans:[], enabled:[], groups:[]};
 let cloudReady = false, cloudWritable = false;
 let syncState = 'local', cloudSig = '', lastSynced = 0;
 let syncTimer = null, syncErr = '';
@@ -1292,10 +1301,11 @@ function loadLocal(){
       const raw = localStorage.getItem(k);
       if (!raw) continue;
       const s = normalise(JSON.parse(raw));
-      return {bagged:s.bagged, plans:s.plans, enabled:s.enabled || ['wainwright','hewitt-wales'], enabledT:s.enabledT || 0};
+      return {bagged:s.bagged, plans:s.plans, enabled:s.enabled || [], enabledT:s.enabledT || 0};
     }catch(e){}
   }
-  return {bagged:{}, plans:[], enabled:['wainwright','hewitt-wales'], enabledT:0};
+  /* a brand new walker starts with nothing on and picks their own lists */
+  return {bagged:{}, plans:[], enabled:[], enabledT:0};
 }
 function saveLocal(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -1376,6 +1386,28 @@ async function shrink(file){
   if (bmp.close) bmp.close();
   return await new Promise(r => c.toBlob(r, 'image/jpeg', 0.72));
 }
+/* A profile picture is small and travels inside the member doc, so it is squared
+   off and kept tiny — a big one would eat the 1MB document limit on its own. */
+async function squareAvatar(file){
+  const bmp = await createImageBitmap(file, {imageOrientation:'from-image'}).catch(() => createImageBitmap(file));
+  const side = 160;
+  const c = document.createElement('canvas'); c.width = side; c.height = side;
+  const ctx = c.getContext('2d');
+  const m = Math.min(bmp.width, bmp.height);           // centre crop to a square
+  ctx.drawImage(bmp, (bmp.width - m) / 2, (bmp.height - m) / 2, m, m, 0, 0, side, side);
+  if (bmp.close) bmp.close();
+  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.78));
+  if (!blob) throw new Error('could not read that image');
+  return await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result));
+    fr.onerror = () => rej(new Error('could not read that image'));
+    fr.readAsDataURL(blob);
+  });
+}
+/* Your picture, if you have set one, else whatever Google gave us. */
+function myAvatar(){ return fbAvatar || (fbUser && fbUser.photo) || ''; }
+
 async function addPhotos(key, files){
   let added = 0;
   for (const f of files){
@@ -1678,7 +1710,7 @@ function renderPatchesPage(){
   const three = ps.filter(p => p.kind === 'peak' || p.kind === 'set').sort((a, b) => a.sort - b.sort);
   if (three.length){
     const g = three.filter(x => x.got).length;
-    s += '<p class="eyebrow" style="margin-top:26px">National Three Peaks &middot; ' + g + ' of ' + three.length + '</p>';
+    s += '<p class="eyebrow">National Three Peaks &middot; ' + g + ' of ' + three.length + '</p>';
     s += '<div class="planintro">The highest summit in England, Wales and Scotland &mdash; and a patch for doing all three.</div>';
     s += trailBlock(three);
   }
@@ -1693,7 +1725,7 @@ function renderPatchesPage(){
     ).sort((a, b) => a.sort - b.sort);
     if (!items.length) continue;
     const g = items.filter(x => x.got).length;
-    s += '<p class="eyebrow" style="margin-top:26px">' + esc(l.name) + ' &middot; ' + g + ' of ' + items.length + '</p>';
+    s += '<p class="eyebrow">' + esc(l.name) + ' &middot; ' + g + ' of ' + items.length + '</p>';
     s += items.length > 2 ? trailBlock(items) : patchRow(items);
   }
   return s;
@@ -1725,7 +1757,7 @@ function renderPatchDetail(p){
   });
   s += '</ol>';
   if (todo.length){
-    s += '<p class="eyebrow" style="margin-top:20px">Still to go</p><ol class="ptimeline todo">';
+    s += '<p class="eyebrow">Still to go</p><ol class="ptimeline todo">';
     for (const x of todo)
       s += '<li><span class="pnum">&middot;</span>' +
         '<span class="pinfo"><b>' + esc(x.n) + '</b>' +
@@ -1736,8 +1768,17 @@ function renderPatchDetail(p){
   return s;
 }
 
-function renderPatches(){
-  const ps = patches();
+/* On the Peaks screen you are looking at one list, so show that list's patches
+   and the general milestones — not every book from a list you are not on.
+   The dashboard passes nothing and gets the lot for every list you have on. */
+function renderPatches(listId){
+  let ps = patches();
+  if (listId){
+    ps = ps.filter(p =>
+      p.kind === 'count' || p.kind === 'peak' || p.kind === 'set' ||   // always shown
+      (p.kind === 'book' && listId === 'wainwright') ||
+      (p.kind === 'list' && p.listId === listId));
+  }
   const got = ps.filter(p => p.got).length;
   let s = '<button class="eyebrow eyelink" data-tab="a">Patches earned &middot; ' + got + ' of ' + ps.length + ' &rsaquo;</button><div class="patchstrip">';
   for (const p of ps.slice(0, 24))
@@ -1758,7 +1799,8 @@ const NI = {
   m:'<path d="m9 4.5-6 2.5v12l6-2.5 6 2.5 6-2.5v-12L15 7z"/><path d="M9 4.5v12M15 7v12"/>',
   p:'<path d="M6.5 20.5c0-4 5-4 5-8s-5-3.5-5-7"/><circle cx="6.5" cy="4" r="1.6"/><circle cx="17.5" cy="20" r="1.6"/><path d="M11.5 12.5c0 4 6 3.5 6 7.5"/>',
   f:'<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 6.2a3.2 3.2 0 0 1 0 6.1"/><path d="M17 14.9c2.2.5 3.6 2.3 3.6 4.6"/>',
-  a:'<rect x="4.5" y="4.5" width="15" height="15" rx="4.5"/><path d="M8 11 10.5 14 13 11 15.5 14"/>',
+  /* a round patch with a stitched squiggle across it */
+  a:'<circle cx="12" cy="12" r="8.4"/><path d="M7.4 13.4c1.2-2.6 2.2-2.6 3.1 0 .9 2.6 1.9 2.6 3.1 0 .8-1.8 1.6-2.3 2.4-1.3"/>',
   /* a walking boot: cuff, laced ankle, sole and a bit of tread */
   u:'<path d="M7.5 3.5h3.2v6.2l5.2 2.6c2.2 1.1 3.6 2.4 3.6 4.6v2.6a1 1 0 0 1-1 1H4.5a1 1 0 0 1-1-1V16c0-1.3.6-2 1.6-2.6l2.4-1.4z"/><path d="M3.5 17.3h16"/><path d="M8.2 5.7h2.2M8.2 8h2.2"/>'
 };
@@ -1853,7 +1895,7 @@ function listBar(){
 }
 
 function renderHills(){
-  if (!state.enabled.length) return '<p class="empty">No lists switched on. Tap ＋ Lists to choose some.</p>';
+  if (!state.enabled.length) return renderPickLists();
   if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
   const id = ui.list, L = LIST_BY[id], s = statsFor(id);
   const pct = s.done ? Math.max(1, Math.round(s.done/s.total*100)) : 0;
@@ -1880,9 +1922,9 @@ function renderHills(){
   if (s.highest)
     html += '<p class="mapnote" style="margin:8px 2px 0">Highest marked: <b>' + esc(s.highest.n) + '</b>, ' + htFlat(s.highest) + '</p>';
 
-  html += '<div style="margin-top:18px">' + renderPatches() + '</div>';
+  html += '<div style="margin-top:18px">' + renderPatches(id) + '</div>';
 
-  html += '<p class="eyebrow" style="margin-top:20px">By ' + (isW ? 'book' : 'area') + '</p>';
+  html += '<p class="eyebrow">By ' + (isW ? 'book' : 'area') + '</p>';
   html += '<div class="regionlist">';
   for (const b of s.regions){
     const p = b.total ? Math.round(b.done / b.total * 100) : 0;
@@ -2259,7 +2301,28 @@ function statCard(big, label, sub, go){
          '<div class="slab">' + label + '</div>' +
          (sub ? '<div class="ssub">' + sub + '</div>' : '') + '</' + tag + '>';
 }
+/* First run: nothing is switched on, so the only useful thing the app can show
+   is the question "what are you working through?" Everything else waits. */
+function renderPickLists(){
+  let s = '<h2 class="pagehead">Welcome to WayMark</h2>';
+  s += '<p class="planintro" style="margin-bottom:14px">Pick the hills you are working through. ' +
+       'Switch on as many as you like &mdash; you can change this any time under Settings, ' +
+       'and switching one off never loses anything you have marked.</p>';
+  s += '<div class="regionlist">';
+  for (const l of LISTS){
+    s += '<button class="rrow" data-act="startlist" data-v="' + esc(l.id) + '">' +
+      '<i class="dot" style="background:var(--moss)"></i>' +
+      '<span class="rn">' + esc(l.name) +
+      '<i class="rsub">' + esc(l.where || '') + '</i></span>' +
+      '<span class="rc">' + l.count + '</span>' +
+      '<span class="chev">&rsaquo;</span></button>';
+  }
+  s += '</div>';
+  return s;
+}
+
 function renderDashboard(){
+  if (!state.enabled.length) return renderPickLists();
   const a = allStats();
   /* four blocks of equal weight under one heading, rather than one large panel
      with three smaller ones hanging off it */
@@ -2303,7 +2366,7 @@ function renderDashboard(){
 
   s += '<div style="margin-top:20px">' + renderPatches() + '</div>';
 
-  s += '<p class="eyebrow" style="margin-top:22px">Regions</p><div class="regionlist">';
+  s += '<p class="eyebrow">Regions</p><div class="regionlist">';
   for (const l of enabled()){
     const st = statsFor(l.id);
     const p = st.total ? Math.round(st.done / st.total * 100) : 0;
@@ -2356,6 +2419,10 @@ const COLOPHON =
 /* ---------- map ---------- */
 let map = null, mapReady = false, markerLayer = null, mapWarned = false;
 function renderMapTab(){
+  /* With nothing switched on there is no map to draw and no list to name, so
+     send the walker to the same picker the other screens show. */
+  if (!state.enabled.length) return renderPickLists();
+  if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
   let html = listBar();
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
   html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">All my lists</button>';
@@ -2407,16 +2474,28 @@ function drawMarkers(fit){
     progress: cs.getPropertyValue('--prog').trim() || '#2E6B8A',
     none: cs.getPropertyValue('--ink-3').trim() || '#7C9080'
   };
+  /* Wainwrights carry their book's spine colour on the map: a thin ring of it
+     while the fell is still to do, the same colour filled in once you have been.
+     Read from the live CSS variables so it follows light and dark mode. */
+  const bookCol = h => {
+    if (!h.l.includes('wainwright')) return null;
+    const v = BOOK_VAR[regionOf(h, 'wainwright')];
+    if (!v) return null;
+    return cs.getPropertyValue(v).trim() || null;
+  };
+
   const doneOnes = [];
   for (const h of list){
     const st = stateOf(h.k);
+    const bc = bookCol(h);
     if (st === 'done'){ doneOnes.push(h); continue; }   // drawn last, on top
     const m = L.circleMarker([h.a, h.o], {
       radius: 3 + Math.min(6, (h.h - 250) / 190),
-      color: col[st],
-      weight: st === 'none' ? 1.6 : 1,
-      fillColor: col[st],
-      fillOpacity: st === 'none' ? 0 : 1,
+      color: bc || col[st],
+      weight: bc ? 2 : (st === 'none' ? 1.6 : 1),
+      fillColor: bc || col[st],
+      /* an unwalked Wainwright is outline only, whatever else it is */
+      fillOpacity: bc ? (st === 'none' ? 0 : .35) : (st === 'none' ? 0 : 1),
       bubblingMouseEvents: false
     });
     m.on('click', () => openPopup(m, h));
@@ -2428,11 +2507,13 @@ function drawMarkers(fit){
   for (const h of doneOnes){
     const big = 26 + Math.round(Math.min(10, Math.max(0, (h.h - 400) / 90)));
     const v = !!verifiedAt(h.k);
+    const bc = bookCol(h);
     const icon = L.divIcon({
       className: 'peakwrap',
       iconSize: [big, big],
       iconAnchor: [big/2, big/2],
-      html: '<div class="peak' + (v ? ' pkv' : '') + '" style="width:' + big + 'px;height:' + big + 'px">' +
+      html: '<div class="peak' + (v ? ' pkv' : '') + '" style="width:' + big + 'px;height:' + big + 'px' +
+            (bc ? ';background:' + bc : '') + '">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" ' +
             'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
             '<path d="M5 10.5 9.5 16 14 10.5 18.5 16"/></svg>' +
@@ -2886,6 +2967,11 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'info'){ openInfo(el.dataset.k); }
   else if (a === 'closeinfo'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; }
+  else if (a === 'avatarclear'){
+    fbAvatar = ''; fbPrefsDirty = true;
+    touched(); renderAccountBox(); render(); scheduleSync(400);
+    toast('Back to your Google picture.');
+  }
   else if (a === 'toggledetail'){ fbDetail = !fbDetail; fbPrefsDirty = true; renderAccountBox(); scheduleSync(400); }
   else if (a === 'closegroupform'){ ui.groupForm = ''; render(); }
   else if (a === 'newgroup'){ ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
@@ -2954,6 +3040,14 @@ document.addEventListener('click', async e => {
   else if (a === 'fbin'){ fbSignIn(); }
   else if (a === 'fbout'){ fbSignOut(); }
   else if (a === 'fbsyncnow'){ fbSync(); toast('Syncing\u2026'); }
+  else if (a === 'startlist'){
+    const id = el.dataset.v;
+    if (!state.enabled.includes(id)) state.enabled.push(id);
+    state.enabledT = now();
+    ui.list = id;
+    touched(); render();
+    toast(LIST_BY[id].name + ' switched on.');
+  }
   else if (a === 'golist'){ ui.list = el.dataset.v; ui.region = ''; ui.q = ''; tab = 'h'; render(); window.scrollTo({top:0}); }
   else if (a === 'editroute'){ openEditor(el.dataset.id); }
   else if (a === 'editorclose'){
@@ -3019,6 +3113,14 @@ document.addEventListener('change', e => {
     applyDate(el, composeDate(y, mo, dd));
   }
   else if (a === 'pfield' && ui.draft){ ui.draft[el.dataset.f] = el.value; }
+  else if (a === 'avatarin' && el.files && el.files.length){
+    const f = el.files[0]; el.value = '';
+    squareAvatar(f).then(d => {
+      fbAvatar = d; fbPrefsDirty = true;
+      touched(); renderAccountBox(); render(); scheduleSync(400);
+      toast('Picture updated.');
+    }).catch(() => toast('Could not read that image.'));
+  }
   else if (a === 'photo' && el.files && el.files.length){
     const files = [...el.files]; el.value = '';
     toast('Processing…'); addPhotos(el.dataset.k, files);
@@ -3400,6 +3502,7 @@ async function fbPull(){
   const d = snap.data() || {};
   if (!fbPrefsDirty){
     if (d.name) fbName = d.name;
+    if (typeof d.avatar === 'string') fbAvatar = d.avatar;
   }
   try{
     const parsed = normalise(JSON.parse(d.log || '{}'));
@@ -3414,6 +3517,7 @@ async function fbPush(){
   if (payload.length > 900000) throw new Error('log too large for one record');
   await FB.setDoc(userRef(), {
     log: payload, name: fbName || (fbUser && fbUser.name) || 'Walker',
+    avatar: fbAvatar || '',
     detail: !!fbDetail, groups: myGroups(),
     enabled: state.enabled, enabledT: state.enabledT || 0, updatedAt: Date.now()
   });
@@ -3656,6 +3760,7 @@ function paintInfo(){
 }
 
 let fbDetail = false;
+let fbAvatar = '';      // your own picture, overriding the Google one
 const cloudOn = () => !!fbUser;
 
 /* route every save through whichever backend is chosen */
@@ -3702,7 +3807,7 @@ function renderAccountBox(){
         '<div class="btnrow"><button class="btn" data-act="fbin">Sign in with Google</button></div>';
   } else {
     s += '<div class="profile">' +
-      (fbUser.photo ? '<img class="avatar" src="' + esc(fbUser.photo) + '" alt="">' : '<div class="avatar"></div>') +
+      (myAvatar() ? '<img class="avatar" src="' + esc(myAvatar()) + '" alt="">' : '<div class="avatar"></div>') +
       '<div class="pinfo"><b>' + esc(fbName || fbUser.name) + '</b>' +
       '<span>' + Object.keys(state.bagged).filter(isBagged).length + ' summits marked \u00b7 ' +
       myGroups().length + ' leaderboard' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
@@ -3725,7 +3830,15 @@ function paintShareBox(){
   box.innerHTML =
     '<div class="togglerow"><div class="tinfo"><b>Share detail by default</b>' +
     '<span>How a new leaderboard starts out. Each board has its own switch under Hikers, and that is the one that counts.</span></div>' +
-    '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail by default"></button></div>';
+    '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail by default"></button></div>' +
+    '<div class="togglerow"><div class="tinfo"><b>Your picture</b>' +
+    '<span>Replaces the one from your Google account. Friends see it on boards you share your log with.</span></div>' +
+    (myAvatar() ? '<img class="avatar sm" src="' + esc(myAvatar()) + '" alt="">' : '<div class="avatar sm"></div>') +
+    '</div>' +
+    '<div class="btnrow"><label class="btn ghost">' + (fbAvatar ? 'Change picture' : 'Choose a picture') +
+    '<input type="file" accept="image/*" data-act="avatarin" hidden></label>' +
+    (fbAvatar ? '<button class="btn quiet" data-act="avatarclear">Use my Google picture</button>' : '') +
+    '</div>';
 }
 
 
@@ -3795,6 +3908,9 @@ function myMemberDoc(code){
     name: fbName || (fbUser && fbUser.name) || 'Walker',
     hills, counts, detail: share, updatedAt: Date.now()
   };
+  /* Your face only goes to boards you have opened your log to. On a totals-only
+     board you stay a name and a number, which is the point of that setting. */
+  if (share && myAvatar()) doc.av = myAvatar();
   if (share){
     doc.log = Object.keys(state.bagged)
       .filter(k => isBagged(k) && BY_KEY[k])
@@ -4024,7 +4140,9 @@ function renderBoard(){
         const me = r.uid === fbUser.uid;
         const canOpen = r.detail && (r.log || []).length;
         html += '<button class="rrow" ' + (canOpen ? 'data-act="openfriend" data-code="' + esc(g.code) + '" data-uid="' + esc(r.uid) + '"' : 'disabled style="opacity:.75"') + '>' +
-          '<i class="dot" style="background:' + (i === 0 ? 'var(--accent)' : 'var(--sage)') + '"></i>' +
+          (r.detail && r.av
+            ? '<img class="avatar tiny" src="' + esc(r.av) + '" alt="">'
+            : '<i class="dot" style="background:' + (i === 0 ? 'var(--accent)' : 'var(--sage)') + '"></i>') +
           '<span class="rn">' + (i+1) + '. ' + esc(r.name || 'Walker') + (me ? ' <span class="tag">you</span>' : '') +
           (canOpen ? '' : '<span style="display:block;font-size:11px;color:var(--ink-3);margin-top:3px">totals only</span>') + '</span>' +
           '<span class="rc">' + (r.hills || 0) + '</span>' +
@@ -4045,14 +4163,14 @@ function renderFriend(){
   log.sort((a,b) => (b.d || '').localeCompare(a.d || '') || BY_KEY[b.k].h - BY_KEY[a.k].h);
 
   let html = '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>';
-  html += '<p class="eyebrow" style="margin-top:16px">' + esc(r.name || 'Walker') + '</p>';
+  html += '<p class="eyebrow">' + esc(r.name || 'Walker') + '</p>';
   html += '<section class="journey"><div class="jtop"><div><div class="jpct">' + (r.hills || 0) + '</div>' +
     '<div class="jsub">Summits marked</div></div><div class="jcount">' +
     LISTS.filter(l => (r.counts || {})[l.id]).map(l => '<b>' + r.counts[l.id] + '</b> ' + esc(l.name)).join('<br>') +
     '</div></div>' + RIDGE + '</section>';
 
   if (!log.length) return html + '<p class="empty">No detail shared.</p>';
-  html += '<p class="eyebrow" style="margin-top:20px">Their log</p><ul class="hills">';
+  html += '<p class="eyebrow">Their log</p><ul class="hills">';
   for (const e of log){
     const hh = BY_KEY[e.k];
     html += '<li class="hill on"><div class="hrow">' +
@@ -4084,7 +4202,9 @@ function renderFriend(){
 
 
 state = loadLocal();
-if (!state.enabled || !state.enabled.length) state.enabled = ['wainwright','hewitt-wales'];
+/* Nothing is switched on for a new walker. They choose what they are working
+   through on first run, rather than inheriting somebody else's two lists. */
+if (!Array.isArray(state.enabled)) state.enabled = [];
 saveLocal();   // persist the migration immediately, so it happens once
 if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
 render();
