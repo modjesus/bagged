@@ -278,6 +278,9 @@ body::before{
 /* patch detail */
 .backbtn{background:none; border:none; padding:8px 0; color:var(--ink-2);
   font-family:"Courier Prime", monospace; font-size:13px; cursor:pointer}
+/* back on the left, the way through to the whole journey on the right */
+.pdnav{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.pdnav .linkbtn{padding:8px 0; white-space:nowrap}
 .pdhead{position:relative; overflow:hidden; display:flex; align-items:center; gap:16px;
   background-color:var(--surface); border:1px solid var(--line); border-radius:var(--r);
   padding:18px 16px; box-shadow:var(--shadow)}
@@ -1206,7 +1209,7 @@ let syncTimer = null, syncErr = '';
 let tab = 'd';
 let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null, breakdown:false,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false,
-          mapScope:'enabled',
+          mapScope:'enabled', patchFrom:null,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'lists'};
 
@@ -1239,7 +1242,15 @@ const ST_ICON = {
   planned:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4h11l-2 3.5L17 11H6"/></svg>',
   none:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>'
 };
-const rec = k => state.bagged[k] || {done:false, st:'none', date:'', notes:'', photos:[], t:0};
+/* Fill in anything a record is missing, not just an absent one. A restored
+   backup or a doc written by an older build can arrive without `photos`, and
+   every read site assumes it is an array. */
+const REC0 = {done:false, st:'none', date:'', notes:'', photos:[], t:0};
+const rec = k => {
+  const r = state.bagged[k];
+  if (!r) return {...REC0};
+  return Array.isArray(r.photos) ? r : {...REC0, ...r, photos: r.photos || []};
+};
 const stateOf = k => { const r = state.bagged[k]; if (!r) return 'none'; return r.st || (r.done ? 'done' : 'none'); };
 const isBagged = k => stateOf(k) === 'done';
 const livePlans = () => state.plans.filter(p => !p.deleted);
@@ -1764,7 +1775,15 @@ function renderPatchesPage(){
 function renderPatchDetail(p){
   const peaks = patchPeaks(p);
   const pct = p.target ? Math.min(100, Math.round((p.have || 0) / p.target * 100)) : 0;
-  let s = '<button class="backbtn" data-act="closepatch">&larr; All patches</button>';
+  /* Back goes where you came from, not wherever the patch happened to live.
+     Coming from Home or Peaks you also get a way through to the full journey. */
+  const from = ui.patchFrom || 'a';
+  const fromLabel = (NAV.find(n => n.id === from) || {}).label || 'Patches';
+  let s = '<div class="pdnav">' +
+    '<button class="backbtn" data-act="closepatch">&larr; ' + esc(fromLabel) + '</button>' +
+    (from === 'a' ? '' :
+      '<button class="linkbtn" data-tab="a">View all patches &rsaquo;</button>') +
+    '</div>';
   s += '<section class="pdhead topo">' +
     '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
     '<div class="pdt"><h2>' + esc(p.label) + '</h2>' +
@@ -3000,7 +3019,7 @@ function wire(){
 
 document.addEventListener('click', async e => {
   const tabBtn = e.target.closest('[data-tab]');
-  if (tabBtn){ tab = tabBtn.dataset.tab; ui.q=''; ui.region=''; ui.open=null; ui.patch=null; render(); window.scrollTo({top:0}); return; }
+  if (tabBtn){ tab = tabBtn.dataset.tab; ui.q=''; ui.region=''; ui.open=null; ui.patch=null; ui.patchFrom=null; render(); window.scrollTo({top:0}); return; }
   const el = e.target.closest('[data-act]');
   if (!el) return;
   const a = el.dataset.act;
@@ -3103,8 +3122,16 @@ document.addEventListener('click', async e => {
   else if (a === 'verify'){ verifyHere(el.dataset.k); }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
   else if (a === 'opensettings'){ openSheet(); }
-  else if (a === 'openpatch'){ ui.patch = el.dataset.v; tab = 'a'; render(); window.scrollTo({top:0}); }
-  else if (a === 'closepatch'){ ui.patch = null; render(); }
+  else if (a === 'openpatch'){
+    ui.patchFrom = tab;                       // so Back knows where to return to
+    ui.patch = el.dataset.v; tab = 'a';
+    render(); window.scrollTo({top:0});
+  }
+  else if (a === 'closepatch'){
+    const back = ui.patchFrom || 'a';
+    ui.patch = null; ui.patchFrom = null;
+    tab = back; render(); window.scrollTo({top:0});
+  }
   else if (a === 'fbin'){ fbSignIn(); }
   else if (a === 'fbout'){ fbSignOut(); }
   else if (a === 'fbsyncnow'){ fbSync(); toast('Syncing\u2026'); }
