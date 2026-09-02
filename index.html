@@ -955,6 +955,50 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 @media (max-width:400px){ .stamp b{font-size:17px} .stamp{padding:8px 14px 7px} }
 
 .profile{display:flex; align-items:center; gap:12px}
+/* the picture leads the Hikers screen, and is edited from where you see it */
+.profile.big{gap:16px}
+.avwrap{position:relative; padding:0; border:none; background:none; flex:none; cursor:pointer;
+  line-height:0; border-radius:99px}
+.profile.big .avatar{width:92px; height:92px; border-width:3px}
+.avpen{
+  position:absolute; right:-2px; bottom:-2px; width:30px; height:30px; border-radius:99px;
+  background:var(--accent); color:var(--accent-ink); display:grid; place-items:center;
+  border:2px solid var(--surface); box-shadow:0 2px 6px -2px rgba(0,0,0,.5);
+}
+.avpen svg{width:14px; height:14px}
+.avwrap:active .avatar{filter:brightness(.92)}
+
+/* ---- picture cropper ---- */
+.avbox{max-width:400px}
+.avbox h2{margin-bottom:4px}
+#avHint{font-size:12.5px; color:var(--ink-3); margin:0 0 12px}
+.avstage{
+  position:relative; width:100%; aspect-ratio:1/1; border-radius:14px; overflow:hidden;
+  background:#11201C; touch-action:none; cursor:grab; user-select:none;
+}
+.avstage:active{cursor:grabbing}
+.avstage canvas{width:100%; height:100%; display:block}
+/* everything outside the circle is dimmed, so the crop is obvious */
+.avmask{
+  position:absolute; inset:0; pointer-events:none;
+  background:rgba(10,22,19,.62);
+  -webkit-mask:radial-gradient(circle at 50% 50%, transparent 0 49.5%, #000 50%);
+  mask:radial-gradient(circle at 50% 50%, transparent 0 49.5%, #000 50%);
+}
+.avmask::after{
+  content:""; position:absolute; inset:0; border-radius:99px;
+  box-shadow:inset 0 0 0 2px rgba(246,239,228,.85);
+}
+.avzoom{display:flex; align-items:center; gap:10px; margin:14px 0 4px}
+.avzoom input[type=range]{flex:1; accent-color:var(--accent); min-width:0}
+.zbtn{
+  width:34px; height:34px; flex:none; border-radius:99px; cursor:pointer;
+  border:1px solid var(--line); background:var(--raise); color:var(--ink);
+  font-size:18px; line-height:1; display:grid; place-items:center;
+}
+#avResetRow{margin-top:4px}
+/* .btnrow is display:flex, which beats the plain hidden attribute */
+#avResetRow[hidden]{display:none}
 .avatar{width:46px; height:46px; border-radius:99px; flex:none; background:var(--surface-2); border:2px solid var(--line); object-fit:cover}
 .avatar.sm{width:34px; height:34px; border-width:1px}
 /* on a leaderboard row the picture stands in for the colour dot */
@@ -1065,6 +1109,13 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:color-mix(in srgb, var(--surface-2) 60%, transparent); border-radius:10px}
 .togglerow.gshare .tinfo b{font-size:13.5px}
 .togglerow.gshare .tinfo span{font-size:12px}
+/* the open board wears the accent so it reads as the odd one out */
+.plan.globalcard{border-left:3px solid var(--accent)}
+.planhead .tag{
+  font-family:"Courier Prime", monospace; font-size:9.5px; letter-spacing:.08em;
+  text-transform:uppercase; border:1px solid var(--accent); color:var(--accent-text);
+  border-radius:4px; padding:2px 6px; margin-left:8px; white-space:nowrap;
+}
 .sw{flex:none; width:46px; height:27px; border-radius:99px; border:1px solid var(--line); background:var(--surface-2); position:relative; padding:0; transition:background .18s, border-color .18s}
 .sw::after{content:""; position:absolute; top:2px; left:2px; width:21px; height:21px; border-radius:99px; background:var(--raise); box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .18s}
 .sw[aria-pressed="true"]{background:var(--done); border-color:var(--done)}
@@ -1162,6 +1213,29 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   </div>
 </div>
 
+<div class="sheet" id="avsheet" role="dialog" aria-modal="true" aria-labelledby="avTitle">
+  <div class="sheetbox avbox">
+    <button class="xbtn" id="avX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h2 id="avTitle">Your picture</h2>
+    <p id="avHint">Drag to move, pinch or use the slider to zoom.</p>
+    <div class="avstage" id="avStage">
+      <canvas id="avCanvas" width="560" height="560"></canvas>
+      <div class="avmask" aria-hidden="true"></div>
+    </div>
+    <div class="avzoom">
+      <button class="zbtn" id="avOut" aria-label="Zoom out">&minus;</button>
+      <input type="range" id="avZoom" min="100" max="400" value="100" aria-label="Zoom">
+      <button class="zbtn" id="avIn" aria-label="Zoom in">+</button>
+    </div>
+    <div class="btnrow">
+      <label class="btn ghost">Choose another<input type="file" accept="image/*" data-act="avatarin" hidden></label>
+      <button class="btn" id="avSave">Save picture</button>
+      <button class="btn quiet" id="avCancel">Cancel</button>
+    </div>
+    <div class="btnrow" id="avResetRow"><button class="btn quiet" data-act="avatarclear">Use my Google picture</button></div>
+  </div>
+</div>
+
 <div class="sheet ask" id="ask" role="dialog" aria-modal="true" aria-labelledby="askTitle">
   <div class="sheetbox askbox">
     <button class="xbtn" id="askX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -1185,6 +1259,7 @@ const QUOTES = {"NY193131":{"q":"for beauty, variety and interesting detail, for
 const KEY = 'bagged.v3';
 const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
 const LOG_PATH = 'log.json';
+const ICON_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 6.5 17.5 9.5"/></svg>';
 const ICON_CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 10 18 19.5 6.5"/></svg>';
 const BOOK_VAR = {
   'The Eastern Fells':'--bk1', 'The Far Eastern Fells':'--bk2', 'The Central Fells':'--bk3',
@@ -1428,27 +1503,97 @@ async function shrink(file){
   if (bmp.close) bmp.close();
   return await new Promise(r => c.toBlob(r, 'image/jpeg', 0.72));
 }
-/* A profile picture is small and travels inside the member doc, so it is squared
-   off and kept tiny — a big one would eat the 1MB document limit on its own. */
-async function squareAvatar(file){
-  const bmp = await createImageBitmap(file, {imageOrientation:'from-image'}).catch(() => createImageBitmap(file));
-  const side = 160;
-  const c = document.createElement('canvas'); c.width = side; c.height = side;
-  const ctx = c.getContext('2d');
-  const m = Math.min(bmp.width, bmp.height);           // centre crop to a square
-  ctx.drawImage(bmp, (bmp.width - m) / 2, (bmp.height - m) / 2, m, m, 0, 0, side, side);
-  if (bmp.close) bmp.close();
-  const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.78));
-  if (!blob) throw new Error('could not read that image');
-  return await new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onload = () => res(String(fr.result));
-    fr.onerror = () => rej(new Error('could not read that image'));
-    fr.readAsDataURL(blob);
-  });
-}
 /* Your picture, if you have set one, else whatever Google gave us. */
 function myAvatar(){ return fbAvatar || (fbUser && fbUser.photo) || ''; }
+
+/* ---------- picture cropper ---------- */
+/* One square canvas, one bitmap, a scale and an offset. The circle drawn over
+   the top is only a mask; the crop that gets saved is the same square you see,
+   so what you line up is exactly what you get. */
+const AV_OUT = 160;                  // saved size, small enough to ride in a doc
+let av = null;                       // {bmp, scale, min, x, y}
+
+function avEl(){ return document.getElementById('avsheet'); }
+function avOpen(){ return avEl().classList.contains('open'); }
+
+async function openAvatarEditor(src){
+  const stage = document.getElementById('avStage');
+  const c = document.getElementById('avCanvas');
+  avEl().classList.add('open');
+  document.getElementById('avResetRow').hidden = !fbAvatar;
+  if (src === undefined) src = myAvatar();
+  const fileLabel = avEl().querySelector('label.btn');
+  if (fileLabel) fileLabel.childNodes[0].nodeValue = myAvatar() ? 'Choose another' : 'Choose a picture';
+  if (!src){
+    /* nothing to crop yet — let them pick a file straight away */
+    av = null; avPaint();
+    document.getElementById('avHint').textContent = 'Choose a picture to get started.';
+    return;
+  }
+  try{
+    const bmp = await avLoad(src);
+    /* start at the scale that just fills the square, centred */
+    const min = Math.max(c.width / bmp.width, c.height / bmp.height);
+    av = {bmp, scale:min, min, x:0, y:0};
+    document.getElementById('avZoom').value = 100;
+    document.getElementById('avHint').textContent = 'Drag to move, pinch or use the slider to zoom.';
+    avClamp(); avPaint();
+  }catch(e){
+    av = null; avPaint();
+    document.getElementById('avHint').textContent = 'Could not read that picture. Try choosing another.';
+  }
+}
+function avLoad(src){
+  return new Promise((res, rej) => {
+    const i = new Image();
+    /* a Google avatar is cross-origin; without this the canvas is tainted and
+       toBlob throws when we try to save */
+    i.crossOrigin = 'anonymous';
+    i.onload = () => res(i);
+    i.onerror = () => rej(new Error('load failed'));
+    i.src = src;
+  });
+}
+function avClamp(){
+  if (!av) return;
+  const c = document.getElementById('avCanvas');
+  const w = av.bmp.width * av.scale, h = av.bmp.height * av.scale;
+  const mx = Math.max(0, (w - c.width) / 2), my = Math.max(0, (h - c.height) / 2);
+  av.x = Math.min(mx, Math.max(-mx, av.x));
+  av.y = Math.min(my, Math.max(-my, av.y));
+}
+function avPaint(){
+  const c = document.getElementById('avCanvas');
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, c.width, c.height);
+  if (!av) return;
+  const w = av.bmp.width * av.scale, h = av.bmp.height * av.scale;
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(av.bmp, (c.width - w) / 2 + av.x, (c.height - h) / 2 + av.y, w, h);
+}
+function avSetZoom(pct){
+  if (!av) return;
+  pct = Math.min(400, Math.max(100, pct));
+  av.scale = av.min * (pct / 100);
+  /* keep the slider honest even when the zoom was changed some other way */
+  const z = document.getElementById('avZoom');
+  if (z && +z.value !== pct) z.value = pct;
+  avClamp(); avPaint();
+}
+/* Redraw the same framing at the saved size and hand back a data URL. */
+function avExport(){
+  if (!av) return null;
+  const c = document.getElementById('avCanvas');
+  const k = AV_OUT / c.width;                       // canvas -> output
+  const out = document.createElement('canvas');
+  out.width = AV_OUT; out.height = AV_OUT;
+  const g = out.getContext('2d');
+  g.imageSmoothingQuality = 'high';
+  const w = av.bmp.width * av.scale * k, h = av.bmp.height * av.scale * k;
+  g.drawImage(av.bmp, (AV_OUT - w) / 2 + av.x * k, (AV_OUT - h) / 2 + av.y * k, w, h);
+  return out.toDataURL('image/jpeg', 0.82);
+}
+function avClose(){ avEl().classList.remove('open'); av = null; }
 
 async function addPhotos(key, files){
   let added = 0;
@@ -3054,9 +3199,10 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'info'){ openInfo(el.dataset.k); }
   else if (a === 'closeinfo'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; }
+  else if (a === 'editavatar'){ openAvatarEditor(); }
   else if (a === 'avatarclear'){
     fbAvatar = ''; fbPrefsDirty = true;
-    touched(); renderAccountBox(); render(); scheduleSync(400);
+    touched(); avClose(); renderAccountBox(); render(); scheduleSync(400);
     toast('Back to your Google picture.');
   }
   else if (a === 'toggledetail'){ fbDetail = !fbDetail; fbPrefsDirty = true; renderAccountBox(); scheduleSync(400); }
@@ -3091,13 +3237,38 @@ document.addEventListener('click', async e => {
       }).catch(e => say(fbWhy(e), true));
     }
   }
+  else if (a === 'joinglobal'){
+    const m = document.getElementById('globalmsg');
+    if (m) m.textContent = 'Joining\u2026';
+    joinGlobal().then(() => {
+      render(); loadGroup(GLOBAL_CODE);
+      toast('You are on the open board. Name and total only.');
+    }).catch(e => {
+      const m2 = document.getElementById('globalmsg');
+      if (m2){ m2.textContent = fbWhy(e); m2.style.color = 'var(--warn)'; }
+    });
+  }
   else if (a === 'groupdetail'){
     const code = el.dataset.v, on = !groupDetail(code);
+    /* Opening your log to the world is worth one deliberate confirmation. */
+    if (on && isGlobal(code)){
+      const ok = await confirmAsk({
+        title: 'Share your full log publicly?',
+        body: 'Anyone using WayMark can open the open board. Turning this on puts your dates, notes and photos on it for all of them, not just people you know.',
+        yes: 'Share it publicly',
+        no: 'Keep totals only'
+      });
+      if (!ok) return;
+    }
     setGroupDetail(code, on);
     render();
     toast(on ? 'Sharing your full log with this board.' : 'This board now sees totals only.');
   }
-  else if (a === 'leavegroup'){ leaveGroup(el.dataset.v); toast('Left that leaderboard.'); }
+  else if (a === 'leavegroup'){
+    const code = el.dataset.v;
+    leaveGroup(code);
+    toast(isGlobal(code) ? 'Left the open board.' : 'Left that leaderboard.');
+  }
   else if (a === 'refreshgroup'){ loadGroup(el.dataset.v); }
   else if (a === 'copycode'){
     navigator.clipboard.writeText(el.dataset.v).then(() => toast('Code copied.')).catch(() => toast(el.dataset.v));
@@ -3226,11 +3397,9 @@ document.addEventListener('change', e => {
   else if (a === 'pfield' && ui.draft){ ui.draft[el.dataset.f] = el.value; }
   else if (a === 'avatarin' && el.files && el.files.length){
     const f = el.files[0]; el.value = '';
-    squareAvatar(f).then(d => {
-      fbAvatar = d; fbPrefsDirty = true;
-      touched(); renderAccountBox(); render(); scheduleSync(400);
-      toast('Picture updated.');
-    }).catch(() => toast('Could not read that image.'));
+    /* straight into the cropper rather than saving a blind centre crop */
+    const url = URL.createObjectURL(f);
+    openAvatarEditor(url).then(() => setTimeout(() => URL.revokeObjectURL(url), 4000));
   }
   else if (a === 'photo' && el.files && el.files.length){
     const files = [...el.files]; el.value = '';
@@ -3459,6 +3628,81 @@ function closeInfo(){ infoSheet.classList.remove('open'); wikiOpen = null; }
 document.getElementById('infoX').onclick = closeInfo;
 infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
 /* Escape closes whatever is on top, innermost first */
+/* ---- cropper interactions ---- */
+(function(){
+  const stage = document.getElementById('avStage');
+  const c = document.getElementById('avCanvas');
+  const pts = new Map();          // active pointers, for pinch
+  let last = null, pinch0 = 0, scale0 = 1;
+
+  /* canvas pixels per CSS pixel, so a drag moves the image by what you see */
+  const k = () => c.width / (stage.getBoundingClientRect().width || 1);
+
+  stage.addEventListener('pointerdown', e => {
+    if (!av) return;
+    stage.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if (pts.size === 2){
+      const [a, b] = [...pts.values()];
+      pinch0 = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      scale0 = av.scale;
+    }
+    last = {x:e.clientX, y:e.clientY};
+  });
+  stage.addEventListener('pointermove', e => {
+    if (!av || !pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if (pts.size === 2){
+      const [a, b] = [...pts.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      av.scale = Math.min(av.min * 4, Math.max(av.min, scale0 * (d / pinch0)));
+      document.getElementById('avZoom').value = Math.round(av.scale / av.min * 100);
+      avClamp(); avPaint();
+      return;
+    }
+    if (!last) return;
+    av.x += (e.clientX - last.x) * k();
+    av.y += (e.clientY - last.y) * k();
+    last = {x:e.clientX, y:e.clientY};
+    avClamp(); avPaint();
+  });
+  const up = e => {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinch0 = 0;
+    if (!pts.size) last = null;
+  };
+  stage.addEventListener('pointerup', up);
+  stage.addEventListener('pointercancel', up);
+  stage.addEventListener('wheel', e => {
+    if (!av) return;
+    e.preventDefault();
+    const z = document.getElementById('avZoom');
+    z.value = Math.min(400, Math.max(100, (+z.value) - Math.sign(e.deltaY) * 8));
+    avSetZoom(+z.value);
+  }, {passive:false});
+
+  document.getElementById('avZoom').addEventListener('input', e => avSetZoom(+e.target.value));
+  const nudge = d => {
+    const z = document.getElementById('avZoom');
+    z.value = Math.min(400, Math.max(100, (+z.value) + d));
+    avSetZoom(+z.value);
+  };
+  document.getElementById('avIn').onclick  = () => nudge(20);
+  document.getElementById('avOut').onclick = () => nudge(-20);
+
+  document.getElementById('avX').onclick      = avClose;
+  document.getElementById('avCancel').onclick = avClose;
+  avEl().onclick = e => { if (e.target === avEl()) avClose(); };
+  document.getElementById('avSave').onclick = () => {
+    if (!av){ toast('Choose a picture first.'); return; }
+    const d = avExport();
+    if (!d){ toast('Could not save that picture.'); return; }
+    fbAvatar = d; fbPrefsDirty = true;
+    touched(); avClose(); renderAccountBox(); render(); scheduleSync(400);
+    toast('Picture updated.');
+  };
+})();
+
 document.getElementById('askYes').onclick = () => answerAsk(true);
 document.getElementById('askNo').onclick  = () => answerAsk(false);
 document.getElementById('askX').onclick   = () => answerAsk(false);
@@ -3476,6 +3720,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft'){ stepViewer(-1); return; }
     if (e.key === 'ArrowRight'){ stepViewer(1); return; }
   }
+  if (avOpen()){ if (e.key === 'Escape') avClose(); return; }
   if (e.key !== 'Escape') return;
   if (viewer.classList.contains('confirming')){ viewer.classList.remove('confirming'); return; }
   if (viewer.classList.contains('open')){ closeViewer(); return; }
@@ -3919,8 +4164,10 @@ function renderAccountBox(){
     s = '<p>Sign in and your log follows you to every device, and you can compare with friends.</p>' +
         '<div class="btnrow"><button class="btn" data-act="fbin">Sign in with Google</button></div>';
   } else {
-    s += '<div class="profile">' +
+    s += '<div class="profile big">' +
+      '<button class="avwrap" data-act="editavatar" aria-label="Change your picture" title="Change your picture">' +
       (myAvatar() ? '<img class="avatar" src="' + esc(myAvatar()) + '" alt="">' : '<div class="avatar"></div>') +
+      '<span class="avpen">' + ICON_PENCIL + '</span></button>' +
       '<div class="pinfo"><b>' + esc(fbName || fbUser.name) + '</b>' +
       '<span>' + Object.keys(state.bagged).filter(isBagged).length + ' summits marked \u00b7 ' +
       myGroups().length + ' leaderboard' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
@@ -3948,15 +4195,20 @@ function paintShareBox(){
     '<span>Replaces the one from your Google account. Friends see it on boards you share your log with.</span></div>' +
     (myAvatar() ? '<img class="avatar sm" src="' + esc(myAvatar()) + '" alt="">' : '<div class="avatar sm"></div>') +
     '</div>' +
-    '<div class="btnrow"><label class="btn ghost">' + (fbAvatar ? 'Change picture' : 'Choose a picture') +
-    '<input type="file" accept="image/*" data-act="avatarin" hidden></label>' +
-    (fbAvatar ? '<button class="btn quiet" data-act="avatarclear">Use my Google picture</button>' : '') +
-    '</div>';
+    '<div class="btnrow"><button class="btn ghost" data-act="editavatar">' +
+    (fbAvatar ? 'Change picture' : 'Choose a picture') + '</button></div>';
 }
 
 
 /* ---------- groups (private leaderboards) ---------- */
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // no look-alikes
+/* The one board everybody can join. 'O' is not in the alphabet above, so a
+   generated code can never collide with this one — it is reserved for free. */
+const GLOBAL_CODE = 'GLOBAL';
+const GLOBAL_NAME = 'The WayMark board';
+const isGlobal = c => c === GLOBAL_CODE;
+const inGlobal = () => myGroups().some(g => isGlobal(g.code));
+const GLOBAL_TOP = 100;   // never pull more than this many walkers
 const newCode = () => Array.from({length:6}, () => CODE_ALPHABET[Math.floor(Math.random()*CODE_ALPHABET.length)]).join('');
 const tidyCode = s => String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
 
@@ -3976,6 +4228,9 @@ function myGroups(){ return (state.groups || []).filter(g => g && g.code); }
 function groupDetail(code){
   const g = myGroups().find(x => x.code === code);
   if (!g) return false;
+  /* Anyone at all can read the global board, so it never picks up the
+     share-by-default setting — it starts closed and only opens if you say so. */
+  if (isGlobal(code)) return !!g.detail;
   return g.detail === undefined ? !!fbDetail : !!g.detail;
 }
 function setGroupDetail(code, on){
@@ -4157,6 +4412,24 @@ async function askShareFor(code, name){
   toast(yes ? 'Sharing your full log with this board.' : 'This board sees totals only.');
 }
 
+/* Joining the open board. It may not exist yet on a fresh project, so the first
+   walker through creates it — the rules allow a create, not an overwrite. */
+async function joinGlobal(){
+  if (!FB || !fbUser){ const e = new Error('not signed in'); e.code = 'not-signed-in'; throw e; }
+  if (inGlobal()) return;
+  try{
+    const snap = await FB.getDoc(groupRef(GLOBAL_CODE));
+    if (!snap.exists()){
+      await FB.setDoc(groupRef(GLOBAL_CODE),
+        {name: GLOBAL_NAME, createdBy: fbUser.uid, createdAt: Date.now(), open: true});
+    }
+  }catch(e){ /* someone else may have made it first; the member write is what matters */ }
+  /* detail:false, always. Everyone can see this one. */
+  state.groups = [...myGroups(), {code: GLOBAL_CODE, name: GLOBAL_NAME, detail: false, t: now()}];
+  await FB.setDoc(memberRef(GLOBAL_CODE, fbUser.uid), myMemberDoc(GLOBAL_CODE));
+  touched();
+}
+
 async function leaveGroup(code){
   if (FB && fbUser){ try{ await FB.deleteDoc(memberRef(code, fbUser.uid)); }catch(e){} }
   state.groups = myGroups().filter(g => g.code !== code);
@@ -4167,7 +4440,15 @@ async function loadGroup(code){
   if (!FB || !fbUser) return [];
   groupBusy = code; render();
   try{
-    const snap = await FB.getDocs(FB.collection(fbDb, 'groups', code, 'members'));
+    const col = FB.collection(fbDb, 'groups', code, 'members');
+    /* A private board is a handful of friends and can come down whole. The open
+       one could be every walker who ever signed up, so it is asked for as a
+       top-N by summits — otherwise the first popular day costs everyone a
+       full download and a large Firestore bill. */
+    const src = isGlobal(code)
+      ? FB.query(col, FB.orderBy('hills', 'desc'), FB.limit(GLOBAL_TOP))
+      : col;
+    const snap = await FB.getDocs(src);
     const rows = [];
     snap.forEach(d => rows.push(Object.assign({uid:d.id}, d.data())));
     rows.sort((a,b) => (b.hills||0) - (a.hills||0));
@@ -4211,6 +4492,20 @@ function renderBoard(){
   html += '<div class="btnrow"><button class="btn" data-act="newgroup">+ Start one</button>' +
           '<button class="btn ghost" data-act="joingroup">Join with a code</button></div>';
 
+  /* The open board is its own offer, kept apart from the private ones so nobody
+     joins it thinking it works like a board they share with three friends. */
+  if (!inGlobal()){
+    html += '<article class="plan globalcard" style="margin-top:14px">' +
+      '<div class="planhead"><h3>' + GLOBAL_NAME + '</h3><span class="tag">open to all</span></div>' +
+      '<p class="planintro" style="margin:8px 0 0">One board for everyone using WayMark. ' +
+      'Anyone can see it, so joining shares your name and your total &mdash; nothing else. ' +
+      'Your dates, notes and photos stay off it unless you switch them on afterwards, ' +
+      'and you can leave whenever you like.</p>' +
+      '<div class="btnrow" style="margin-top:12px">' +
+      '<button class="btn" data-act="joinglobal">Join the open board</button></div>' +
+      '<p id="globalmsg" style="font-size:13px;margin:8px 0 0"></p></article>';
+  }
+
   if (ui.groupForm === 'new'){
     html += '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gname">Name it</label>' +
       '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40"></div>' +
@@ -4229,18 +4524,26 @@ function renderBoard(){
   for (const g of gs){
     const rows = groupRows[g.code];
     html += '<article class="plan" style="margin-top:14px">';
-    html += '<div class="planhead"><h3>' + esc(g.name) + '</h3>' +
+    html += '<div class="planhead"><h3>' + esc(isGlobal(g.code) ? GLOBAL_NAME : g.name) + '</h3>' +
       '<button class="linkbtn" data-act="leavegroup" data-v="' + esc(g.code) + '">Leave</button></div>';
-    html += '<div class="planmeta"><span>Code <b class="gcode">' + esc(g.code) + '</b></span>' +
-      '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(g.code) + '">Copy code</button>' +
+    const glob = isGlobal(g.code);
+    html += '<div class="planmeta">' +
+      (glob
+        ? '<span class="tag">open to all</span><span>Top ' + GLOBAL_TOP + ' by summits</span>'
+        : '<span>Code <b class="gcode">' + esc(g.code) + '</b></span>' +
+          '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(g.code) + '">Copy code</button>') +
       '<button class="linkbtn" style="padding:0" data-act="refreshgroup" data-v="' + esc(g.code) + '">Refresh</button></div>';
 
     /* One decision per board: the club can have the lot, the work one only totals. */
     const shares = groupDetail(g.code);
     html += '<div class="togglerow gshare"><div class="tinfo"><b>Share my dates, notes and photos</b>' +
-      '<span>' + (shares
-        ? 'This board sees your full log.'
-        : 'This board sees your totals and nothing else.') + '</span></div>' +
+      '<span>' + (glob
+        ? (shares
+            ? 'Anyone using WayMark can see your full log.'
+            : 'Off. Everyone can see this board, so only your name and total are on it.')
+        : (shares
+            ? 'This board sees your full log.'
+            : 'This board sees your totals and nothing else.')) + '</span></div>' +
       '<button class="sw" data-act="groupdetail" data-v="' + esc(g.code) + '" aria-pressed="' + shares +
       '" aria-label="Share detail with ' + esc(g.name || 'this leaderboard') + '"></button></div>';
 
