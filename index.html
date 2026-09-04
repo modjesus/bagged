@@ -1046,6 +1046,36 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .banner{display:flex; gap:10px; align-items:flex-start; margin-top:14px; background:var(--surface); border:1px solid var(--warn); border-left-width:4px; border-radius:var(--r); padding:11px 13px; font-size:13.5px; color:var(--ink-2); line-height:1.45}
 .banner b{color:var(--warn); display:block; margin-bottom:2px}
 .banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1; padding:0 2px; align-self:center}
+/* ---- places on the ground: chips, pins and the detail sheet ---- */
+.poibar{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin:10px 0 6px}
+.poilab{font-family:var(--font-data); font-size:9.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3); margin-right:2px}
+.poichip{display:inline-flex; align-items:center; gap:5px}
+.poichip svg{width:14px; height:14px; flex:none; opacity:.8}
+.poichip.on svg{opacity:1}
+.poistate{margin:2px 0 10px; font-size:12px; color:var(--ink-3); line-height:1.45}
+
+.poiwrap{background:none; border:0}
+.poipin{
+  display:grid; place-items:center; width:26px; height:26px; border-radius:99px 99px 99px 3px;
+  transform:rotate(-45deg); background:var(--surface); border:1.5px solid var(--ink-3);
+  color:var(--ink-2); box-shadow:0 1px 3px rgba(20,51,45,.35);
+}
+.poipin svg{width:14px; height:14px; transform:rotate(45deg)}
+/* parking and pubs are the two you plan around, so they carry the accent */
+.poipin.poi-parking{border-color:var(--accent); color:var(--accent-text); background:var(--raise)}
+.poipin.poi-pub{border-color:var(--accent); color:var(--accent-ink); background:var(--accent)}
+.poipin.poi-transport, .poipin.poi-camp{border-color:var(--prog); color:var(--prog)}
+.poipin.poi-water, .poipin.poi-toilets{border-color:var(--done-line); color:var(--done)}
+
+/* links inside a fact table take the app's colour, not the browser's blue */
+.lfacts dd a{color:var(--accent-text); text-decoration:underline; text-underline-offset:2px}
+.poikind{margin:2px 0 12px; font-family:var(--font-data); font-size:11px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.poiacts{margin-top:14px}
+.poisrc{margin:12px 0 0; font-size:12px; color:var(--ink-3); line-height:1.5}
+.poisrc a{color:var(--accent-text)}
+
 /* ---- outdoor furniture ---- */
 .eyebrow{
   font-family:var(--font-data); font-size:11px; font-weight:700;
@@ -1522,6 +1552,14 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
     <button class="xbtn" id="liX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div id="liBody"></div>
     <div class="btnrow"><button class="btn quiet" id="liClose">Close</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="poisheet" role="dialog" aria-modal="true" aria-labelledby="poiTitle">
+  <div class="sheetbox libox">
+    <button class="xbtn" id="poiX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div id="poiBody"></div>
+    <div class="btnrow"><button class="btn quiet" id="poiClose">Close</button></div>
   </div>
 </div>
 
@@ -3911,6 +3949,327 @@ function mapSourceNote(at){
   return 'OS maps are unavailable just now, so this is OpenTopoMap. It goes back to OS on its own shortly.';
 }
 
+/* ---------- places on the ground ----------
+   A route rarely starts at a summit. It starts where you can leave the car, or
+   at the pub you can find in the dark — "park at the Old Dungeon Gyll" is how
+   anyone actually describes the start of a Langdale walk. So the planner can
+   show what is really there: car parks with their charges, pubs with their
+   hours, toilets, campsites, bus stops, water.
+
+   The data is OpenStreetMap, through Overpass. Ordnance Survey has no equivalent
+   in the Data Hub — OS Places is addresses, and its Points of Interest product
+   carries neither opening hours nor parking charges — so this is OSM the same
+   way the path routing is, and the app says so. It is contributed data: usually
+   right, sometimes out of date, and the app never states it as fact without
+   saying where it came from and when it was last touched. */
+const POI_KINDS = {
+  parking: {label:'Parking', short:'P', on:true,
+    q:['nwr["amenity"="parking"]'],
+    icon:'<path d="M9 17V7h3.6a3 3 0 0 1 0 6H9"/>'},
+  pub: {label:'Pubs & inns', short:'Pub', on:true,
+    q:['nwr["amenity"~"^(pub|bar|biergarten)$"]', 'nwr["tourism"="hotel"]["real_ale"]'],
+    icon:'<path d="M7 4h8l-1 9H8zM7.6 8H5.5a1.5 1.5 0 0 0 0 3h2.2M9 13v6M8 20h6"/>'},
+  food: {label:'Café & food', short:'Café', on:false,
+    q:['nwr["amenity"~"^(cafe|restaurant|fast_food)$"]'],
+    icon:'<path d="M7 3v8M10 3v8M8.5 11v10M17 3c-1.5 2-1.5 5 0 7v11"/>'},
+  toilets: {label:'Toilets', short:'WC', on:false,
+    q:['nwr["amenity"="toilets"]'],
+    icon:'<path d="M12 3v18M7 8h2l1 5H6zM15 8h2l1 5h-4z"/><circle cx="8" cy="5" r="1.4"/><circle cx="16" cy="5" r="1.4"/>'},
+  camp: {label:'Camping & huts', short:'Camp', on:false,
+    q:['nwr["tourism"~"^(camp_site|caravan_site|hostel|alpine_hut|wilderness_hut)$"]',
+       'nwr["amenity"="shelter"]'],
+    icon:'<path d="M12 4 4 20h16zM12 4v16"/>'},
+  transport: {label:'Buses & trains', short:'Bus', on:false,
+    q:['nwr["highway"="bus_stop"]', 'nwr["amenity"="bus_station"]', 'nwr["railway"="station"]'],
+    icon:'<rect x="5" y="4" width="14" height="13" rx="2"/><path d="M5 10h14M8 21l1.5-4M16 21l-1.5-4"/><circle cx="8.5" cy="14" r=".8"/><circle cx="15.5" cy="14" r=".8"/>'},
+  water: {label:'Drinking water', short:'Water', on:false,
+    q:['nwr["amenity"="drinking_water"]', 'nwr["natural"="spring"]["drinking_water"="yes"]'],
+    icon:'<path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/>'},
+  info: {label:'Information', short:'Info', on:false,
+    q:['nwr["tourism"="information"]'],
+    icon:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.5"/>'}
+};
+
+const POI_KEY = 'waymark.pois';
+function poiOn(){
+  try{
+    const raw = localStorage.getItem(POI_KEY);
+    if (raw){ const v = JSON.parse(raw); if (Array.isArray(v)) return new Set(v.filter(k => POI_KINDS[k])); }
+  }catch(e){}
+  return new Set(Object.keys(POI_KINDS).filter(k => POI_KINDS[k].on));
+}
+let poiWanted = poiOn();
+function setPoi(kind, on){
+  if (on) poiWanted.add(kind); else poiWanted.delete(kind);
+  try{ localStorage.setItem(POI_KEY, JSON.stringify([...poiWanted])); }catch(e){}
+}
+
+/* Everything fetched so far, and which boxes have been asked for, so panning
+   about does not re-ask Overpass for ground it already has. */
+let poiSeen = new Map();          // id -> place
+let poiBoxes = [];                // [{s,w,n,e,kinds}]
+let poiBusy = false, poiErr = '', poiTimer = null;
+
+const POI_MIRRORS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+let poiMirror = 0;
+
+function boxCovered(b, kinds){
+  return poiBoxes.some(p =>
+    p.s <= b.s && p.w <= b.w && p.n >= b.n && p.e >= b.e &&
+    [...kinds].every(k => p.kinds.has(k)));
+}
+
+async function fetchPois(bounds, kinds){
+  if (!kinds.size) return;
+  const pad = 0.02;
+  const b = {s:+(bounds.getSouth() - pad).toFixed(3), w:+(bounds.getWest() - pad).toFixed(3),
+             n:+(bounds.getNorth() + pad).toFixed(3), e:+(bounds.getEast() + pad).toFixed(3)};
+  /* A whole county at once is neither kind to Overpass nor readable on screen. */
+  if ((b.n - b.s) > 0.6 || (b.e - b.w) > 0.9){ poiErr = 'zoom'; return; }
+  if (boxCovered(b, kinds)) return;
+  if (poiBusy) return;
+
+  const bbox = '(' + b.s + ',' + b.w + ',' + b.n + ',' + b.e + ')';
+  const parts = [];
+  for (const k of kinds) for (const q of POI_KINDS[k].q) parts.push(q + bbox + ';');
+  const ql = '[out:json][timeout:25];(' + parts.join('') + ');out center tags 400;';
+
+  poiBusy = true; poiErr = '';
+  try{
+    const r = await fetch(POI_MIRRORS[poiMirror], {
+      method:'POST', headers:{'Content-Type':'text/plain'}, body:'data=' + encodeURIComponent(ql)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    for (const el of (j.elements || [])){
+      const t = el.tags || {};
+      const la = el.lat != null ? el.lat : (el.center && el.center.lat);
+      const lo = el.lon != null ? el.lon : (el.center && el.center.lon);
+      if (!isFinite(la) || !isFinite(lo)) continue;
+      const kind = poiKindOf(t);
+      if (!kind) continue;
+      poiSeen.set(el.type + el.id, {id: el.type + el.id, kind, la, lo, t});
+    }
+    poiBoxes.push({...b, kinds:new Set(kinds)});
+    if (poiBoxes.length > 12) poiBoxes.shift();
+  }catch(e){
+    /* the public instances are busy as often as not — try the mirror next time */
+    poiMirror = (poiMirror + 1) % POI_MIRRORS.length;
+    poiErr = String((e && e.message) || e);
+  }
+  poiBusy = false;
+}
+
+function poiKindOf(t){
+  const a = t.amenity || '', to = t.tourism || '';
+  if (a === 'parking') return 'parking';
+  if (a === 'pub' || a === 'bar' || a === 'biergarten') return 'pub';
+  if (a === 'cafe' || a === 'restaurant' || a === 'fast_food') return 'food';
+  if (a === 'toilets') return 'toilets';
+  if (a === 'drinking_water' || (t.natural === 'spring' && t.drinking_water === 'yes')) return 'water';
+  if (a === 'shelter') return 'camp';
+  if (/^(camp_site|caravan_site|hostel|alpine_hut|wilderness_hut)$/.test(to)) return 'camp';
+  if (to === 'information') return 'info';
+  if (to === 'hotel') return 'pub';
+  if (t.highway === 'bus_stop' || a === 'bus_station' || t.railway === 'station') return 'transport';
+  return null;
+}
+
+function poiName(p){
+  const t = p.t;
+  if (t.name) return t.name;
+  const k = POI_KINDS[p.kind];
+  if (p.kind === 'parking') return t.operator ? t.operator + ' parking' : 'Car park';
+  if (p.kind === 'transport') return t.railway === 'station' ? 'Station' : 'Bus stop';
+  return k ? k.label.replace(/s$/, '') : 'Place';
+}
+
+/* OSM opening_hours is its own little language. This does not try to evaluate
+   it — that needs a real parser — it just makes the common shapes readable and
+   leaves anything unusual exactly as recorded. */
+const DAYS = {Mo:'Mon', Tu:'Tue', We:'Wed', Th:'Thu', Fr:'Fri', Sa:'Sat', Su:'Sun', PH:'Bank hols'};
+function prettyHours(v){
+  if (!v) return '';
+  const s = String(v).trim();
+  if (s === '24/7') return 'Open all hours';
+  return s.split(';').map(part => {
+    let x = part.trim();
+    if (!x) return '';
+    x = x.replace(/\b(Mo|Tu|We|Th|Fr|Sa|Su|PH)\b/g, d => DAYS[d] || d);
+    /* en dashes for both ranges, so "Mon–Sun 11:00–23:00" reads as one thing */
+    x = x.replace(/(\d{2}:\d{2})-(\d{2}:\d{2})/g, '$1\u2013$2');
+    x = x.replace(/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)-(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/g, '$1\u2013$2');
+    x = x.replace(/,\s*/g, ', ');
+    x = x.replace(/\boff\b/i, 'closed');
+    return x;
+  }).filter(Boolean).join(' \u00b7 ');
+}
+
+/* The facts worth showing for each sort of place, in the order a walker wants
+   them. Only what the map actually records — nothing invented. */
+function poiFacts(p){
+  const t = p.t, out = [];
+  const add = (k, v) => { if (v) out.push([k, v]); };
+  if (p.kind === 'parking'){
+    if (t.fee === 'no') add('Cost', 'Free');
+    else if (t.charge) add('Cost', t.charge.replace(/;/g, ' \u00b7 '));
+    else if (t.fee === 'yes') add('Cost', 'Charged — amount not recorded');
+    add('Spaces', t.capacity);
+    add('Max stay', t.maxstay);
+    add('Surface', t.surface);
+    add('Type', t.parking && t.parking.replace(/_/g, ' '));
+    if (t.access && t.access !== 'yes') add('Access', t.access.replace(/_/g, ' '));
+    add('Operator', t.operator);
+  } else {
+    add('Opening hours', prettyHours(t.opening_hours));
+    if (p.kind === 'pub' || p.kind === 'food'){
+      if (t.food === 'yes') add('Food', 'Served');
+      add('Real ale', t.real_ale === 'yes' ? 'Yes' : '');
+      add('Outdoor seating', t.outdoor_seating === 'yes' ? 'Yes' : '');
+      add('Dogs', t.dog === 'yes' ? 'Welcome' : t.dog === 'no' ? 'Not allowed' : '');
+    }
+    if (p.kind === 'toilets'){
+      add('Cost', t.fee === 'no' ? 'Free' : t.charge || (t.fee === 'yes' ? 'Charged' : ''));
+      add('Step-free', t.wheelchair === 'yes' ? 'Yes' : t.wheelchair === 'no' ? 'No' : '');
+    }
+    if (p.kind === 'camp'){
+      add('Type', (t.tourism || t.amenity || '').replace(/_/g, ' '));
+      add('Booking', t.reservation);
+    }
+    if (p.kind === 'transport') add('Serves', t.network || t.operator);
+    if (p.kind === 'water') add('Drinkable', t.drinking_water === 'no' ? 'No' : 'Yes');
+  }
+  add('Phone', t.phone || t['contact:phone']);
+  add('Website', t.website || t['contact:website']);
+  add('Elevation', t.ele ? Math.round(+t.ele) + ' m' : '');
+  return out;
+}
+
+/* ---- drawing them, and what happens when you tap one ---- */
+let poiLayer = null, poiOpen = null;
+
+function poiPin(p){
+  const k = POI_KINDS[p.kind];
+  return L.divIcon({className:'poiwrap', iconSize:[26,26], iconAnchor:[13,26],
+    html:'<span class="poipin poi-' + p.kind + '" title="' + esc(poiName(p)) + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" stroke-linejoin="round">' + k.icon + '</svg></span>'});
+}
+
+function drawPois(){
+  if (!rmap || !poiLayer) return;
+  poiLayer.clearLayers();
+  if (!poiWanted.size || rmap.getZoom() < 12) return;
+  const b = rmap.getBounds().pad(0.1);
+  let n = 0;
+  for (const p of poiSeen.values()){
+    if (!poiWanted.has(p.kind)) continue;
+    if (!b.contains([p.la, p.lo])) continue;
+    if (++n > 220) break;                     // a readable map beats a complete one
+    const m = L.marker([p.la, p.lo], {icon: poiPin(p), zIndexOffset: 500, riseOnHover:true});
+    m.bindTooltip(poiName(p), {direction:'top', offset:[0,-24]});
+    /* The pin does not add a point to the route — tapping the map already does
+       that, and a mis-tap on a pin would drop a stray waypoint. It opens the
+       place instead, and the route action is a deliberate button in there. */
+    m.on('click', e => { L.DomEvent.stopPropagation(e); openPoi(p.id); });
+    poiLayer.addLayer(m);
+  }
+}
+
+/* Ask Overpass for whatever the current view needs, then redraw. Debounced,
+   because panning fires this constantly and the public servers are shared. */
+function poiRefresh(){
+  if (!rmap) return;
+  clearTimeout(poiTimer);
+  poiTimer = setTimeout(async () => {
+    if (!rmap || !poiWanted.size) { drawPois(); paintPoiBar(); return; }
+    if (rmap.getZoom() < 12){ poiErr = 'zoom'; drawPois(); paintPoiBar(); return; }
+    paintPoiBar();
+    await fetchPois(rmap.getBounds(), poiWanted);
+    drawPois();
+    paintPoiBar();
+  }, 650);
+}
+
+/* What to show on the ground, as chips you can flick on and off. */
+function poiBarHTML(){
+  let s = '<div class="poibar" id="poibar">';
+  s += '<span class="poilab">On the ground</span>';
+  for (const [k, v] of Object.entries(POI_KINDS)){
+    const on = poiWanted.has(k);
+    s += '<button class="chip poichip' + (on ? ' on' : '') + '" data-act="poitoggle" data-v="' + k + '"' +
+      ' aria-pressed="' + on + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" stroke-linejoin="round">' + v.icon + '</svg>' + esc(v.label) + '</button>';
+  }
+  s += '</div><p class="poistate" id="poistate">' + poiStateText() + '</p>';
+  return s;
+}
+function poiStateText(){
+  if (!poiWanted.size) return 'Nothing showing. Turn on what you want to see.';
+  if (rmap && rmap.getZoom() < 12) return 'Zoom in to load places.';
+  if (poiBusy) return 'Looking for places\u2026';
+  if (poiErr === 'zoom') return 'Zoom in a little to load places.';
+  if (poiErr) return 'Could not reach OpenStreetMap just now \u2014 the map still works. It will try again as you pan.';
+  const shown = [...poiSeen.values()].filter(p => poiWanted.has(p.kind)).length;
+  return shown ? shown.toLocaleString() + ' places from OpenStreetMap \u00b7 tap one for hours, charges and a way to start here'
+               : 'Nothing mapped around here yet.';
+}
+function paintPoiBar(){
+  const el = document.getElementById('poistate');
+  if (el) el.textContent = poiStateText();
+  const bar = document.getElementById('poibar');
+  if (bar) for (const b of bar.querySelectorAll('[data-act="poitoggle"]')){
+    const on = poiWanted.has(b.dataset.v);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  }
+}
+
+function poiSheetEl(){ return document.getElementById('poisheet'); }
+function poiSheetOpen(){ const e = poiSheetEl(); return !!e && e.classList.contains('open'); }
+function closePoi(){ const e = poiSheetEl(); if (e) e.classList.remove('open'); poiOpen = null; }
+
+function openPoi(id){
+  const p = poiSeen.get(id); if (!p) return;
+  poiOpen = id;
+  const k = POI_KINDS[p.kind];
+  const facts = poiFacts(p);
+  const t = p.t;
+  let s = '<h2 id="poiTitle">' + esc(poiName(p)) + '</h2>' +
+    '<p class="poikind">' + esc(k.label) + (t.ele ? '' : '') + '</p>';
+
+  if (facts.length){
+    s += '<dl class="lfacts">';
+    for (const [key, val] of facts){
+      const v = key === 'Website'
+        ? '<a href="' + esc(val) + '" target="_blank" rel="noopener noreferrer">Open</a>'
+        : key === 'Phone'
+        ? '<a href="tel:' + esc(String(val).replace(/\s+/g, '')) + '">' + esc(val) + '</a>'
+        : esc(val);
+      s += '<div><dt>' + esc(key) + '</dt><dd>' + v + '</dd></div>';
+    }
+    s += '</dl>';
+  } else {
+    s += '<p class="ltext">Nothing else is recorded for this one. Somebody mapped that it is here, and no more.</p>';
+  }
+
+  s += '<div class="btnrow poiacts">' +
+    '<button class="btn" data-act="poistart" data-id="' + esc(p.id) + '">Start the route here</button>' +
+    '<button class="btn ghost" data-act="poiadd" data-id="' + esc(p.id) + '">Add as a point</button>' +
+    '</div>';
+  s += '<p class="poisrc">From OpenStreetMap, as contributed. Charges and hours change &mdash; ' +
+       'worth a check before you set off. ' +
+       '<a href="https://www.openstreetmap.org/' + esc(p.id.replace(/^(node|way|relation)/, '$1/')) +
+       '" target="_blank" rel="noopener noreferrer">See or fix this entry</a>.</p>';
+
+  document.getElementById('poiBody').innerHTML = s;
+  poiSheetEl().classList.add('open');
+}
+
 /* ---------- interactive route editor ---------- */
 /* editor.wp holds the control points you place; editor.trk is the line they
    produce once snapped to paths. Keeping both is what makes a route editable
@@ -3933,7 +4292,11 @@ function openEditor(id){
   render();
 }
 function closeEditor(){ editor = null; killRouteMap(); render(); }
-function killRouteMap(){ if (rmap){ rmap.remove(); rmap = null; rmLayer = null; } }
+function killRouteMap(){
+  if (rmap){ rmap.remove(); rmap = null; rmLayer = null; poiLayer = null; }
+  clearTimeout(poiTimer);
+  closePoi();
+}
 
 function editorStatsHTML(){
   const t = editor.trk || [];
@@ -3964,14 +4327,17 @@ function mountRouteMap(){
     rmap = L.map(box, {zoomControl:true, attributionControl:true});
     addBaseLayer(rmap, routeAt(planById(editor.id) || {}));
     rmLayer = L.layerGroup().addTo(rmap);
+    poiLayer = L.layerGroup().addTo(rmap);
     rmap.on('click', e => rmAdd([e.latlng.lat, e.latlng.lng]));
     rmap.on('moveend zoomend', () => {
       if (editor) editor.view = {c:rmap.getCenter(), z:rmap.getZoom()};
       syncBaseLayer(rmap);
+      poiRefresh();
     });
     if (editor.view) rmap.setView(editor.view.c, editor.view.z);
     else rmFit();
     rmDraw();
+    poiRefresh();
   } else {
     setTimeout(() => rmap.invalidateSize(), 60);
     rmDraw();
@@ -4071,6 +4437,7 @@ function renderEditor(){
     '<button class="btn quiet" data-act="rmundo"' + (editor.wp.length ? '' : ' disabled') + '>Undo point</button>' +
     '<button class="btn quiet" data-act="rmclear"' + (editor.wp.length ? '' : ' disabled') + '>Clear</button>' +
     '</div>';
+  s += poiBarHTML();
   s += '<div id="routemap"></div>';
   s += '<div class="rmstats" id="rmstats">' + editorStatsHTML() + '</div>';
   s += '<p class="pathnote">Paths come from OpenStreetMap, not the Ordnance Survey definitive map. Check a proper map before relying on a right of way.</p>';
@@ -4990,6 +5357,25 @@ document.addEventListener('click', async e => {
       toast(err.message || 'Could not find a path route.');
     }
   }
+  else if (a === 'poitoggle'){
+    const k = el.dataset.v;
+    setPoi(k, !poiWanted.has(k));
+    paintPoiBar();
+    drawPois();
+    poiRefresh();
+  }
+  else if (a === 'poistart' || a === 'poiadd'){
+    const p = poiSeen.get(el.dataset.id);
+    if (!p || !editor) return;
+    closePoi();
+    /* "Start here" puts it first, which is what you want when the walk begins
+       at the car park or the pub. "Add" drops it on the end like any point. */
+    if (a === 'poistart') editor.wp.unshift([r5(p.la), r5(p.lo)]);
+    else editor.wp.push([r5(p.la), r5(p.lo)]);
+    editor.dirty = true;
+    rmRecompute();
+    toast((a === 'poistart' ? 'Starting at ' : 'Added ') + poiName(p) + '.');
+  }
   else if (a === 'plandate'){ ui.planDate = el.dataset.id; render(); }
   else if (a === 'delplan'){
     const p = state.plans.find(x => x.id === el.dataset.id);
@@ -5487,6 +5873,10 @@ infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
   };
 })();
 
+document.getElementById('poiX').onclick     = closePoi;
+document.getElementById('poiClose').onclick = closePoi;
+document.getElementById('poisheet').onclick = e => { if (e.target.id === 'poisheet') closePoi(); };
+
 document.getElementById('liX').onclick     = closeListInfo;
 document.getElementById('liClose').onclick = closeListInfo;
 document.getElementById('listinfo').onclick = e => { if (e.target.id === 'listinfo') closeListInfo(); };
@@ -5524,6 +5914,7 @@ document.addEventListener('keydown', e => {
   if (listInfoOpen()){ if (e.key === 'Escape') closeListInfo(); return; }
   if (winOpen()){ if (e.key === 'Escape') closeWin(); return; }
   if (avOpen()){ if (e.key === 'Escape') avClose(); return; }
+  if (poiSheetOpen()){ if (e.key === 'Escape') closePoi(); return; }
   if (e.key !== 'Escape') return;
   if (viewer.classList.contains('confirming')){ viewer.classList.remove('confirming'); return; }
   if (viewer.classList.contains('open')){ closeViewer(); return; }
