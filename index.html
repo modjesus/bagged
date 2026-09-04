@@ -581,10 +581,13 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 .do{display:flex; gap:11px; background:var(--surface); padding:13px 14px}
 .doi{width:34px; height:34px; flex:none; border-radius:10px; display:grid; place-items:center;
   background:var(--accent-soft); color:var(--accent-text)}
+.doi svg{color:var(--accent-text); stroke:var(--accent-text)}
 /* a touch larger, and a hair lighter, so four strokes do not clog at this size */
 .doi svg{width:20px; height:20px; stroke-width:1.85}
 .do b{display:block; font-family:"Wildkins", Georgia, serif; font-size:14px; color:var(--ink)}
-.do span{display:block; margin-top:3px; font-size:12.5px; line-height:1.5; color:var(--ink-3)}
+/* scoped to the text column: `.do span` also matched .doi, which is a span, and
+   repainted the icons in body-copy grey */
+.do > div span{display:block; margin-top:3px; font-size:12.5px; line-height:1.5; color:var(--ink-3)}
 
 /* the ⓘ button, used on the picker and in Settings */
 .ibtn{
@@ -1420,6 +1423,18 @@ const BOOK_VAR = {
 const HILLS = DATA.hills;
 const LISTS = DATA.lists;
 const LIST_BY = Object.fromEntries(LISTS.map(l => [l.id, l]));
+
+/* What to call a list when it is a tag on a single hill. The row used to strip
+   "Hewitts of " off the front, which turned "Hewitts of England" into a tag
+   reading just "England" — meaningless on a hill, and it only appeared on the
+   handful of hills that happened to be on two enabled lists at once. */
+const LIST_TAG = {
+  wainwright:'Wainwright', munro:'Munro', corbett:'Corbett', graham:'Graham',
+  donald:'Donald', 'hewitt-england':'Hewitt', 'hewitt-wales':'Hewitt',
+  'hewitt-ni':'Hewitt', ethel:'Ethel', dales30:'Dales 30',
+  yorkshire3:'Yorkshire 3', welsh3000:'Welsh 3000', 'three-peaks':'Three Peaks'
+};
+const listTag = id => LIST_TAG[id] || (LIST_BY[id] ? LIST_BY[id].name : id);
 
 /* What each list actually is, for anyone who has not spent years in the hills.
    `who` is who defines it — these lists belong to their compilers, not to the
@@ -2476,7 +2491,7 @@ function hillRow(h, listId){
   if (r.notes) bits.push('note');
   if (bits.length) s += '<span class="hsub">' + bits.join(' · ') + '</span>';
   const others = h.l.filter(x => x !== listId && state.enabled.includes(x));
-  if (others.length) s += '<span class="tags">' + others.map(x => '<span class="tag">' + esc(LIST_BY[x].name.replace('Hewitts of ','')) + '</span>').join('') + '</span>';
+  if (others.length) s += '<span class="tags">' + others.map(x => '<span class="tag">' + esc(listTag(x)) + '</span>').join('') + '</span>';
   s += '</button>';
   s += '<i class="lead"></i>';
   if (r.photos.length){
@@ -3923,7 +3938,7 @@ document.getElementById('vyes').onclick = async () => {
 const DO_ICON = {
   /* One big fingerboard on a post — the public footpath sign you meet at a
      stile. Two boards turned to mush at 20px; one reads instantly. */
-  route:'<path d="M8.5 21V4"/><path d="M8.5 6.5h9l3 2.75-3 2.75h-9"/>',
+  route:'<path d="M6 21V4"/><path d="M6 6.5h8.5l3 2.75-3 2.75H6"/>',
   /* one arrow down, one up — a file coming in and a file going out */
   gpx:'<path d="M7.5 3.5v11"/><path d="m4 11 3.5 3.5L11 11"/>' +
       '<path d="M16.5 20.5v-11"/><path d="M13 13l3.5-3.5L20 13"/>',
