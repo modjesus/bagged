@@ -410,7 +410,26 @@ body::before{
 .bnav .navbtn .nl{flex:none}
 .bnav .navbtn .nc{display:none}
 .bnav .navbtn[aria-selected="true"]{box-shadow:none; background:var(--surface-2); border-color:transparent}
-body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+
+/* Home, ringed and centred. The circle is always drawn so the button reads as
+   the anchor of the bar whether you are on it or not; selecting it fills in. */
+.bnav .navbtn.homebtn .ni{
+  width:34px; height:34px; padding:7px; box-sizing:border-box;
+  border:1.5px solid var(--accent); border-radius:50%;
+  color:var(--accent); opacity:1;
+  transition:background .16s ease, color .16s ease;
+}
+.bnav .navbtn.homebtn{gap:2px}
+.bnav .navbtn.homebtn[aria-selected="true"]{background:transparent}
+.bnav .navbtn.homebtn[aria-selected="true"] .ni{
+  /* accent-ink, not accent-text: accent-text is the same rust as the fill in
+     light mode, so the little house vanished into the disc. */
+  background:var(--accent); color:var(--accent-ink); border-color:var(--accent);
+}
+.bnav .navbtn.homebtn[aria-selected="true"] .nl{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){ .bnav .navbtn.homebtn .ni{transition:none} }
+
+body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 
 /* ================= tablet: hybrid, a narrow rail ================= */
 @media (min-width:768px){
@@ -659,8 +678,12 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
   background:var(--surface-2); border-radius:0 10px 10px 0}
 .dentry h3{margin:0 0 5px; font-family:"Wildkins", Georgia, serif; font-size:15.5px; color:var(--ink)}
 .dentry p{margin:0; font-size:14px; line-height:1.6; color:var(--ink-2); white-space:pre-wrap}
-.drow{display:flex; gap:14px; margin-top:9px}
+.drow{display:flex; gap:14px; margin-top:9px; flex-wrap:wrap; align-items:center}
 .drow .linkbtn{padding:0; font-size:12px}
+/* a file input dressed as one of the row's text buttons */
+.drow .aslabel{cursor:pointer; display:inline-block}
+.dentry .dshots{margin-top:10px}
+.dentry .dshots .shot{width:64px; height:64px}
 .dday .shots{margin-top:12px}
 
 /* ---- route weather ---- */
@@ -689,6 +712,42 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 .wxgrid > div.warn dd{color:var(--warn); font-weight:700}
 .wxnote{margin:10px 0 0; font-size:12.5px; color:var(--ink-3); line-height:1.5}
 .wxnote.warn{color:var(--warn)}
+.wxsub{margin:8px 0 0; font-size:12px; color:var(--ink-3); line-height:1.5}
+
+/* rain hour by hour */
+.wxrain{margin-top:12px; border:1px solid var(--line); border-radius:10px;
+  background:var(--surface); padding:10px 11px 9px}
+/* Stacked, not side by side: at 390px the label and the summary fought for the
+   same line and both wrapped. The plain-English answer leads, the chart backs
+   it up. */
+.wxrhead{margin-bottom:9px}
+.wxrhead dt{font-family:"Courier Prime", monospace; font-size:9.5px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--ink-3); margin:0}
+.wxrhead dd{margin:3px 0 0; font-size:13.5px; color:var(--ink); font-weight:600; line-height:1.35}
+.wxplot{display:flex; gap:6px}
+.wxscale{display:flex; flex-direction:column; justify-content:space-between; height:64px;
+  font-family:"Courier Prime", monospace; font-size:8.5px; color:var(--ink-3); width:16px;
+  text-align:right; flex:none; line-height:1}
+.wxbars{position:relative; flex:1 1 auto; display:flex; align-items:flex-end; gap:2px; height:64px;
+  border-bottom:1px solid var(--line); padding-bottom:0}
+/* the 50% line, so a bar's height means something */
+.wxhalf{position:absolute; left:0; right:0; top:50%; height:0; pointer-events:none;
+  border-top:1px dashed var(--line); opacity:.9}
+.wxbar{flex:1 1 0; height:100%; position:relative; display:flex; align-items:flex-end; cursor:default}
+.wxbar i{display:block; width:100%; border-radius:2px 2px 0 0; min-height:2px;
+  background:color-mix(in srgb, var(--sage) 42%, transparent)}
+.wxbar.on i{background:var(--accent)}
+.wxaxis{display:flex; gap:2px; margin-top:4px}
+.wxaxis .wxpad{width:16px; flex:none; margin-right:6px}
+.wxaxis span{flex:1 1 0; text-align:center; font-family:"Courier Prime", monospace;
+  font-size:8.5px; color:var(--ink-3)}
+
+/* the date row on a route card */
+.plandate{margin-top:10px}
+.plandate label{display:block; font-family:"Courier Prime", monospace; font-size:9.5px;
+  letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
+.plandate .linkbtn{padding:0; font-size:12px}
+.plandate .dhint{margin:6px 0 0; font-size:12px; color:var(--ink-3)}
 
 /* the ⓘ button, used on the picker and in Settings */
 .ibtn{
@@ -835,6 +894,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 /* photos */
 .shots{display:flex; gap:6px; flex-wrap:wrap}
+/* photos carried on a feed post */
+.pshots{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 2px}
+.pshots .shot{width:76px; height:76px; padding:0; border:1px solid var(--line);
+  border-radius:8px; overflow:hidden; background:var(--surface-2); cursor:pointer}
+.pshots .shot img{width:100%; height:100%; object-fit:cover; display:block}
 .shot{width:76px; height:76px; padding:0; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface-2); position:relative; flex:none}
 .shot img{width:100%; height:100%; object-fit:cover; display:block}
 .shot.up0::after{content:""; position:absolute; right:5px; bottom:5px; width:7px; height:7px; border-radius:99px; background:var(--warn); box-shadow:0 0 0 2px var(--surface)}
@@ -1068,7 +1132,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
    nav, which is fixed above it, or it pins itself neatly out of sight. */
 .onboardbar{
   margin-top:18px; position:sticky; z-index:940;
-  bottom:calc(76px + env(safe-area-inset-bottom, 0px));
+  bottom:calc(90px + env(safe-area-inset-bottom, 0px));
   padding:10px 0; background:var(--ground);
   box-shadow:0 -10px 14px -8px var(--ground);
 }
@@ -1625,7 +1689,7 @@ let syncTimer = null, syncErr = '';
 let tab = 'd';
 let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null, breakdown:false,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
-          mapScope:'enabled', patchFrom:null, diaryForm:false, dDraft:null,
+          mapScope:'enabled', patchFrom:null, diaryForm:false, dDraft:null, planDate:null,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'lists'};
@@ -1774,7 +1838,11 @@ function normalise(s){
   out.diary = [];
   for (const d of ((s && s.diary) || [])){
     if (!d || !d.id) continue;
+    /* photos have to be carried, exactly like the ones on a summit record —
+       anything not named here is deleted on every load and every sync. */
     out.diary.push({id:d.id, date:d.date||'', title:d.title||'', text:d.text||'',
+                    photos:Array.isArray(d.photos) ? d.photos : [],
+                    shared:d.shared || 0,
                     deleted:!!d.deleted, t:d.t||0});
   }
   if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id]);
@@ -1996,6 +2064,48 @@ async function addPhotos(key, files){
   }
   else if (failed) toast(failed === 1 ? 'Could not read that image.' : 'Could not read any of those images.');
 }
+/* ---- diary entry photos ----
+   Same blobs, same IndexedDB store, same upload path as a summit photo; they
+   just hang off a diary entry instead of a hill, so a day with no summit on it
+   can still carry its pictures. */
+const diaryEntry = id => (state.diary || []).find(e => e && e.id === id && !e.deleted);
+function setDiary(id, patch){
+  const e = diaryEntry(id); if (!e) return null;
+  Object.assign(e, patch, {t:now()});
+  touched();
+  return e;
+}
+async function addDiaryPhotos(id, files){
+  const e = diaryEntry(id); if (!e) return;
+  let added = 0, failed = 0;
+  for (const f of files){
+    if (!f || !/^image\//.test(f.type)){ failed++; continue; }
+    try{
+      const blob = await shrink(f);
+      if (!blob){ failed++; continue; }
+      const pid = uid(); await putBlob(pid, blob);
+      const cur = diaryEntry(id); if (!cur) return;
+      cur.photos = [...(cur.photos || []), {id:pid, up:0, cap:''}];
+      added++;
+    }catch(err){ failed++; }
+  }
+  if (added){
+    setDiary(id, {});
+    render();
+    toast(added + (added === 1 ? ' photo added' : ' photos added') +
+      (failed ? ' — ' + failed + ' could not be read.' : '.'));
+  }
+  else if (failed) toast(failed === 1 ? 'Could not read that image.' : 'Could not read any of those images.');
+}
+async function removeDiaryPhoto(id, pid){
+  const e = diaryEntry(id); if (!e) return;
+  e.photos = (e.photos || []).filter(p => p.id !== pid);
+  e.t = now();
+  await delBlob(pid);
+  const u = blobUrls.get(pid); if (u){ URL.revokeObjectURL(u); blobUrls.delete(pid); }
+  touched(); render();
+}
+
 async function removePhoto(key, id){
   const r = rec(key);
   state.bagged[key] = {...r, photos:r.photos.filter(p => p.id !== id), t:now()};
@@ -2034,6 +2144,15 @@ async function hydratePhotos(){
 function applyDate(el, value){
   if (el.dataset.plan){ if (ui.draft) ui.draft.date = value; render(); return; }
   if (el.dataset.diary){ if (ui.dDraft) ui.dDraft.date = value; render(); return; }
+  /* A saved route. There was no way to set a date on one after it was made, so
+     an imported GPX stayed dateless for good and its card showed today's
+     forecast as though it were the walk's. */
+  if (el.dataset.planid){
+    const p = planById(el.dataset.planid);
+    if (p){ p.date = value; p.t = now(); touched(); }
+    render();
+    return;
+  }
   const k = el.dataset.k; if (!k) return;
   const c = rec(k);
   /* Clearing the date on a hill that was never marked leaves nothing worth
@@ -2442,8 +2561,12 @@ const NI = {
   a:'<circle cx="12" cy="12" r="8.4"/><path d="M7.4 13.4c1.2-2.6 2.2-2.6 3.1 0 .9 2.6 1.9 2.6 3.1 0 .8-1.8 1.6-2.3 2.4-1.3"/>',
   /* a notebook with a ribbon */
   j:'<path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v15a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M8.5 3.5v6l2-1.4 2 1.4v-6"/><path d="M8 14.5h7M8 17.5h4.5"/>',
-  /* a walking boot: cuff, laced ankle, sole and a bit of tread */
-  u:'<path d="M7.5 3.5h3.2v6.2l5.2 2.6c2.2 1.1 3.6 2.4 3.6 4.6v2.6a1 1 0 0 1-1 1H4.5a1 1 0 0 1-1-1V16c0-1.3.6-2 1.6-2.6l2.4-1.4z"/><path d="M3.5 17.3h16"/><path d="M8.2 5.7h2.2M8.2 8h2.2"/>'
+  /* A walking boot, after the one Joe drew: high shaft with a collar rim, laces
+     on the instep, and a thick sole band. Redrawn as strokes on the shared
+     24x24 grid rather than dropped in as filled artwork — at 20px in the nav a
+     fine filled outline reads much lighter than the 1.7 strokes either side of
+     it, and the row stopped looking like one set. */
+  u:'<path d="M4 6.8c0-.9.7-1.5 1.6-1.5H8c.9 0 1.6.6 1.6 1.5v3c3 1.1 6.4 2.3 8.6 3.4 1.7.8 2.7 1.5 3 2.3H4z"/><path d="M4 7.7h5.6"/><path d="M2.8 15.5c-.3 1.8.8 2.9 2.6 2.9h13.2c1.8 0 2.9-1.1 2.6-2.9"/><path d="m11.4 10.6-.5 1.3M13.6 11.5l-.5 1.3M15.8 12.4l-.5 1.3"/>'
 };
 const NAV = [
   {id:'d', label:'Home',      short:'Home'},
@@ -2470,7 +2593,10 @@ function navCounts(){
 }
 function navButton(n, c, mobile){
   const label = mobile ? (n.short || n.label) : n.label;
-  return '<button class="navbtn tab" role="tab" data-tab="' + n.id + '" aria-selected="' + (tab === n.id) + '">' +
+  /* Home sits in the middle of the phone bar, ringed, so the thumb always knows
+     where the way back is without reading anything. */
+  const home = mobile && n.id === 'd' ? ' homebtn' : '';
+  return '<button class="navbtn tab' + home + '" role="tab" data-tab="' + n.id + '" aria-selected="' + (tab === n.id) + '">' +
     '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] + '</svg>' +
     '<span class="nl">' + esc(label) + '</span>' +
@@ -2539,7 +2665,12 @@ function paintNav(){
   const b = document.getElementById('bnav');
   // Friends lives inside Profile on a phone, so the bar keeps to five
   if (b){
-    const h = usable.filter(n => n.short).map(n => navButton(n, c, true)).join('');
+    /* Same tabs, re-ordered so Home lands dead centre with three either side. */
+    const phone = usable.filter(n => n.short);
+    const home = phone.filter(n => n.id === 'd'), rest = phone.filter(n => n.id !== 'd');
+    const mid = Math.floor(rest.length / 2);
+    const ordered = home.length ? [...rest.slice(0, mid), ...home, ...rest.slice(mid)] : rest;
+    const h = ordered.map(n => navButton(n, c, true)).join('');
     if (h !== navHtml.b){ b.innerHTML = h; navHtml.b = h; }
   }
 }
@@ -2584,6 +2715,7 @@ function render(){
      tab === 'u' ? renderHikers() : renderHills());
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); }
   paintSync(); wire(); hydratePhotos();
+  if (tab === 'u') hydratePostPhotos();
   if (tab === 'p' && editor) mountRouteMap();
   if (tab === 'm') mountMap();
 }
@@ -2849,7 +2981,23 @@ function parseGPX(text){
   if (!pts.length) throw new Error('No track, route or waypoints in that file.');
 
   const nameEl = doc.querySelector('trk > name, rte > name, metadata > name');
-  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts};
+
+  /* Most GPX files carry the day they were recorded or planned for. Taking it
+     saves the walker retyping it, and — more to the point — the forecast on the
+     route card is only meaningful against a real date. Metadata first, then the
+     first trackpoint, which is what a watch or phone writes. */
+  let date = '';
+  const timeEl = doc.querySelector('metadata > time') ||
+                 doc.querySelector('trkpt > time, rtept > time, wpt > time');
+  if (timeEl){
+    const t = Date.parse((timeEl.textContent || '').trim());
+    if (isFinite(t)){
+      const d = new Date(t);
+      date = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') +
+             '-' + String(d.getDate()).padStart(2, '0');
+    }
+  }
+  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts, date};
 }
 
 /* Firestore documents are capped, and a phone-recorded walk can run to tens of
@@ -2965,7 +3113,16 @@ function downloadFile(name, text, type){
 }
 function safeName(s){ return (s || 'route').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'route'; }
 
-/* ---------- routing along real paths (OpenStreetMap, via BRouter) ---------- */
+/* ---------- routing along real paths ----------
+   BRouter's hiking profile, over OpenStreetMap. That is not an OS service and
+   there is no OS alternative to swap in: the Data Hub sells mapping and feature
+   data, not routing, so nothing there will turn two summits into a line that
+   follows a path. OSM is the right source anyway for this one job — England and
+   Wales rights of way are tagged in it from the definitive maps
+   (public_footpath, public_bridleway, restricted_byway, byway), and Scotland's
+   access rights make the path network itself the thing that matters. The map
+   underneath stays OS; only the path-following comes from OSM, and the app says
+   so rather than letting it look like OS data. */
 let routingBusy = false;
 async function routeAlongPaths(coords){
   const lonlats = coords.map(c => c[1] + ',' + c[0]).join('|');
@@ -3213,11 +3370,32 @@ function renderDiary(){
       html += '<p class="dnote"><b>' + esc(hillName(n.h)) + '</b>' + esc(n.text) + '</p>';
 
     for (const e of d.entries){
+      const eps = e.photos || [];
       html += '<div class="dentry">' +
         (e.title ? '<h3>' + esc(e.title) + '</h3>' : '') +
-        (e.text ? '<p>' + esc(e.text) + '</p>' : '') +
-        '<div class="drow"><button class="linkbtn" data-act="editdiary" data-id="' + esc(e.id) + '">Edit</button>' +
-        '<button class="linkbtn" data-act="deldiary" data-id="' + esc(e.id) + '">Delete</button></div></div>';
+        (e.text ? '<p>' + esc(e.text) + '</p>' : '');
+
+      /* the entry's own pictures, separate from the ones on that day's summits */
+      if (eps.length){
+        html += '<div class="shots dshots">' + eps.map(ph =>
+          '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewdiaryphoto" ' +
+          'data-id="' + esc(e.id) + '" data-p="' + esc(ph.id) + '"' +
+          (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
+          '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
+          (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') +
+          '</button>').join('') + '</div>';
+      }
+
+      html += '<div class="drow">' +
+        '<button class="linkbtn" data-act="editdiary" data-id="' + esc(e.id) + '">Edit</button>' +
+        '<label class="linkbtn aslabel">+ Photos<input type="file" accept="image/*" multiple ' +
+          'data-act="diaryphoto" data-id="' + esc(e.id) + '" hidden></label>' +
+        (fbConfigured()
+          ? '<button class="linkbtn" data-act="sharediary" data-id="' + esc(e.id) + '">' +
+            (e.shared ? 'Shared \u00b7 share again' : 'Share to feed') + '</button>'
+          : '') +
+        '<button class="linkbtn" data-act="deldiary" data-id="' + esc(e.id) + '">Delete</button>' +
+        '</div></div>';
     }
 
     if (d.photos.length){
@@ -3262,12 +3440,20 @@ function postHTML(p){
   let s = '<article class="post">';
   s += '<div class="phead">' + avatarHTML(p.av, p.name, 'sm') +
     '<div class="pwho"><b>' + esc(p.name || 'Walker') + '</b>' +
-    '<span>' + (p.kind === 'summit' ? 'Marked a summit' : 'Posted') + ' &middot; ' + esc(whenAgo(p.t)) +
+    '<span>' + (p.kind === 'summit' ? 'Marked a summit'
+              : p.kind === 'diary' ? 'From their diary' : 'Posted') + ' &middot; ' + esc(whenAgo(p.t)) +
     (tagged.length ? ' &middot; with ' + esc(tagged.join(', ')) : '') + '</span></div>' +
     (mine ? '<button class="linkbtn" data-act="delpost" data-id="' + esc(p.id) + '">Delete</button>' : '') +
     '</div>';
 
   if (p.text) s += '<p class="ptext">' + esc(p.text) + '</p>';
+
+  if ((p.shots || []).length){
+    s += '<div class="pshots">' + p.shots.slice(0, 6).map(pid =>
+      '<button class="shot" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '">' +
+      '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="">' +
+      '</button>').join('') + '</div>';
+  }
 
   if (hs.length){
     hs.sort((a, b) => b.h - a.h);
@@ -3462,8 +3648,16 @@ function renderMapTab(){
   html += '</div>' + styleSwitcher() + '</div>';
   html += '<div id="mapbox"></div>';
   html += '<div class="maplegend"><span><i class="mk"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span><span>Size follows height</span></div>';
-  html += '<p class="mapnote">Terrain, contours and paths from OpenTopoMap. The map needs a connection — everything else in the app works offline.</p>';
+  html += '<p class="mapnote">' + mapSourceNote(mapCentre()) + '</p>';
   return html;
+}
+/* Roughly where the hills on show are, so the Mournes can be spotted and given
+   a map OS does not provide. */
+function mapCentre(){
+  const hs = mapHills().filter(h => isFinite(h.a));
+  if (!hs.length) return null;
+  return {la: hs.reduce((a,h) => a + h.a, 0) / hs.length,
+          lo: hs.reduce((a,h) => a + h.o, 0) / hs.length};
 }
 function mapHills(){
   const ids = ui.mapScope === 'one' ? [ui.list] : state.enabled;
@@ -3479,7 +3673,8 @@ function mountMap(){
   if (map && map._container !== box){ map.remove(); map = null; mapReady = false; }
   if (!map){
     map = L.map(box, {preferCanvas:true, zoomControl:true, attributionControl:true});
-    addBaseLayer(map);
+    addBaseLayer(map, mapCentre());
+    map.on('moveend', () => syncBaseLayer(map));
     markerLayer = L.layerGroup().addTo(map);
     mapReady = true;
     drawMarkers(true);
@@ -3606,15 +3801,28 @@ const OS_ATTR = 'Contains OS data &copy; Crown copyright and database rights ' +
 const BASEMAPS = {
   outdoor: {name:'Outdoor', os:true, layer:'Outdoor_3857', maxZoom:16, attr:OS_ATTR},
   road:    {name:'Road',    os:true, layer:'Road_3857',    maxZoom:16, attr:OS_ATTR},
-  topo:    {name:'Terrain', os:false,
+  /* Not offered as a choice any more — OS is the map. This is the stand-in for
+     the two places OS cannot serve: Northern Ireland, which Ordnance Survey does
+     not map (that is OSNI, a separate body outside the Data Hub), and an OS
+     outage or a spent monthly allowance. */
+  topo:    {name:'Terrain', os:false, fallbackOnly:true,
     url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', maxZoom:17,
     attribution:null,
     attr:'Map data: &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'}
 };
-function baseStyle(){
+const baseChoices = () => Object.keys(BASEMAPS).filter(k => !BASEMAPS[k].fallbackOnly);
+
+/* OS Maps covers Great Britain. Northern Ireland is mapped by OSNI and is not in
+   the Data Hub at all, so the twenty Mourne Hewitts would get a blank screen.
+   A generous box around the island, checked before the OS layer is chosen. */
+function outsideOs(la, lo){
+  return isFinite(la) && isFinite(lo) && la > 53.8 && la < 55.4 && lo < -5.3 && lo > -8.3;
+}
+function baseStyle(at){
+  if (at && outsideOs(at.la, at.lo)) return 'topo';
   let s;
   try{ s = localStorage.getItem(STYLE_KEY); }catch(e){}
-  if (!s || !BASEMAPS[s]) s = osUsable() ? 'outdoor' : 'topo';
+  if (!s || !BASEMAPS[s] || BASEMAPS[s].fallbackOnly) s = 'outdoor';
   if (BASEMAPS[s].os && !osUsable()) s = 'topo';
   return s;
 }
@@ -3638,10 +3846,12 @@ async function diagnoseOs(){
     return 'HTTP ' + r.status;
   }catch(e){ return 'no connection'; }
 }
-function addBaseLayer(m){
-  const key = baseStyle(), b = BASEMAPS[key];
+function addBaseLayer(m, at){
+  const key = baseStyle(at), b = BASEMAPS[key];
   const layer = L.tileLayer(b.os ? osTileUrl(b.layer) : b.url,
     {maxZoom:b.maxZoom, minZoom:5, attribution:b.attr});
+  m.__baseKey = key;
+  m.__baseLayer = layer;
   if (b.os){
     let bad = 0;
     layer.on('tileerror', async () => {
@@ -3660,14 +3870,40 @@ function addBaseLayer(m){
   }
   layer.addTo(m);
 }
+
+/* With both a GB list and the Mournes switched on, one map has to cover two
+   regions OS treats differently. Rather than picking once from an average
+   position — which lands in the Irish Sea and serves OS tiles over Ulster —
+   the layer is re-chosen when the view moves across the boundary. */
+function syncBaseLayer(m){
+  if (!m || !m.__baseLayer) return;
+  const c = m.getCenter();
+  const want = baseStyle({la:c.lat, lo:c.lng});
+  if (want === m.__baseKey) return;
+  m.removeLayer(m.__baseLayer);
+  addBaseLayer(m, {la:c.lat, lo:c.lng});
+  const note = document.querySelector('.mapnote');
+  if (note) note.textContent = mapSourceNote({la:c.lat, lo:c.lng});
+}
 function styleSwitcher(){
   const cur = baseStyle();
-  const keys = Object.keys(BASEMAPS).filter(k => !BASEMAPS[k].os || osUsable());
+  /* Only the OS styles are offered. OpenTopoMap is still in BASEMAPS but it is
+     a fallback, not a choice — nobody picks their way off OS by accident. */
+  const keys = baseChoices().filter(k => !BASEMAPS[k].os || osUsable());
   if (keys.length < 2) return '';
   let s = '<div class="seg" role="group">';
   for (const k of keys)
     s += '<button data-act="basemap" data-v="' + k + '" aria-pressed="' + (cur === k) + '">' + BASEMAPS[k].name + '</button>';
   return s + '</div>';
+}
+
+/* What the map under you actually is, said plainly beneath it. */
+function mapSourceNote(at){
+  const key = baseStyle(at);
+  if (key !== 'topo') return 'Ordnance Survey ' + BASEMAPS[key].name + ' mapping. The map needs a connection — everything else in the app works offline.';
+  if (at && outsideOs(at.la, at.lo))
+    return 'Ordnance Survey does not map Northern Ireland, so the Mournes are drawn on OpenTopoMap. Everywhere else uses OS.';
+  return 'OS maps are unavailable just now, so this is OpenTopoMap. It goes back to OS on its own shortly.';
 }
 
 /* ---------- interactive route editor ---------- */
@@ -3721,10 +3957,13 @@ function mountRouteMap(){
   if (rmap && rmap._container !== box) killRouteMap();
   if (!rmap){
     rmap = L.map(box, {zoomControl:true, attributionControl:true});
-    addBaseLayer(rmap);
+    addBaseLayer(rmap, routeAt(planById(editor.id) || {}));
     rmLayer = L.layerGroup().addTo(rmap);
     rmap.on('click', e => rmAdd([e.latlng.lat, e.latlng.lng]));
-    rmap.on('moveend zoomend', () => { if (editor) editor.view = {c:rmap.getCenter(), z:rmap.getZoom()}; });
+    rmap.on('moveend zoomend', () => {
+      if (editor) editor.view = {c:rmap.getCenter(), z:rmap.getZoom()};
+      syncBaseLayer(rmap);
+    });
     if (editor.view) rmap.setView(editor.view.c, editor.view.z);
     else rmFit();
     rmDraw();
@@ -3858,8 +4097,10 @@ function gpxControls(p, id){
   if (!pts.length && (p.hills || []).length)
     s += '<button class="btn ghost" data-act="gpxout" data-id="' + esc(id) + '">Download GPX</button>';
   s += '</div>';
-  if ((p.hills || []).length > 1 && !pts.length)
-    s += '<p class="pathnote">Paths come from OpenStreetMap, not the Ordnance Survey definitive map. They are usually right, but check a proper map before you rely on a right of way.</p>';
+  /* Said before you route and kept after, because the caveat matters most once
+     there is a line on the map that looks authoritative. */
+  if ((p.hills || []).length > 1 || pts.length)
+    s += '<p class="pathnote">The map is Ordnance Survey; the path-following is OpenStreetMap, which carries England and Wales rights of way from the definitive maps. OS sells mapping, not routing, so there is no OS equivalent. Usually right — check the map before relying on a right of way.</p>';
   return s;
 }
 /* ---------- weather for a route ---------- */
@@ -3893,6 +4134,19 @@ function routeAt(p){
 }
 const wxKey = at => 'wx:' + at.la + ',' + at.lo;
 
+/* How high the route actually gets: the highest summit on it, or failing that
+   the highest elevation in an imported track. This is what decides which
+   pressure level the summit wind is read from. */
+function routeTop(p){
+  let top = 0;
+  for (const k of (p.hills || [])){
+    const h = BY_KEY[k];
+    if (h && isFinite(h.h)) top = Math.max(top, h.h);
+  }
+  for (const c of (p.trk || [])) if (c.length > 2 && isFinite(c[2])) top = Math.max(top, c[2]);
+  return top;
+}
+
 function wxCached(at){
   const k = wxKey(at);
   if (wxMem[k] && Date.now() - wxMem[k].t < WX_TTL) return wxMem[k];
@@ -3912,25 +4166,76 @@ function fetchWeather(at){
   wxInFlight[k] = job;
   return job;
 }
+/* Which pressure level stands in for the tops.
+
+   The plain "wind" figure everyone quotes is wind_speed_10m — ten metres above
+   the ground, at the model's own idea of the ground. Weather models smooth the
+   terrain, so the grid square holding Scafell Pike sits a few hundred metres
+   below the actual summit, and wind climbs steeply with height and accelerates
+   over a ridge. Quoting that number next to a mountain route is misleading: it
+   is the valley, not the top.
+
+   So the summit figure is read off the pressure level nearest the route's high
+   point instead, and labelled with the height it belongs to. */
+const WX_LEVELS = [
+  {hPa:1000, m:110}, {hPa:975, m:320}, {hPa:950, m:500},
+  {hPa:925, m:800},  {hPa:900, m:1000}, {hPa:850, m:1500}
+];
+function wxLevelFor(metres){
+  if (!isFinite(metres) || metres <= 0) return null;
+  let best = WX_LEVELS[0];
+  for (const l of WX_LEVELS) if (Math.abs(l.m - metres) < Math.abs(best.m - metres)) best = l;
+  return best;
+}
+
 async function wxFetchNow(at, k){
   try{
+    /* Every pressure level we might want, fetched once — the answer is cached
+       per location and the route's top height picks a level from it later. */
+    const lv = WX_LEVELS.map(l => 'wind_speed_' + l.hPa + 'hPa').join(',');
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + at.la + '&longitude=' + at.lo +
       '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,' +
-      'wind_speed_10m_max,sunrise,sunset&hourly=visibility&timezone=Europe%2FLondon&forecast_days=7' +
-      '&wind_speed_unit=mph';
+      'wind_speed_10m_max,wind_gusts_10m_max,sunrise,sunset' +
+      '&hourly=visibility,precipitation_probability,precipitation,temperature_2m,freezing_level_height,' + lv +
+      '&timezone=Europe%2FLondon&forecast_days=7&wind_speed_unit=mph';
     const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     const d = j.daily || {};
+    const h = j.hourly || {};
+    const ht = h.time || [];
+
     /* Visibility comes back hourly. Midday is the honest number for a walk, so
        take the reading nearest noon for each day rather than a daily average
        that a clear night would flatter. */
-    const vis = {};
-    const ht = (j.hourly && j.hourly.time) || [], hv = (j.hourly && j.hourly.visibility) || [];
+    const vis = {}, hours = {}, tops = {}, freeze = {};
+    const pick = (arr, i) => (arr && arr[i] != null) ? arr[i] : null;
     ht.forEach((t, i) => {
       const day = t.slice(0, 10), hour = +t.slice(11, 13);
-      if (hour === 13 && hv[i] != null) vis[day] = hv[i];
+      if (hour === 13 && pick(h.visibility, i) != null) vis[day] = h.visibility[i];
+
+      /* The walking day, hour by hour, for the rain timeline. */
+      if (hour >= 5 && hour <= 21){
+        (hours[day] = hours[day] || []).push({
+          hr: hour,
+          pop: pick(h.precipitation_probability, i),
+          mm: pick(h.precipitation, i),
+          temp: pick(h.temperature_2m, i)
+        });
+      }
+      /* Daytime maximum at each pressure level, and the lowest freezing level
+         while anyone is likely to be out. */
+      if (hour >= 7 && hour <= 19){
+        const t2 = tops[day] = tops[day] || {};
+        for (const l of WX_LEVELS){
+          const v2 = pick(h['wind_speed_' + l.hPa + 'hPa'], i);
+          if (v2 != null) t2[l.hPa] = Math.max(t2[l.hPa] == null ? -1 : t2[l.hPa], v2);
+        }
+        const fz = pick(h.freezing_level_height, i);
+        if (fz != null) freeze[day] = freeze[day] == null ? fz : Math.min(freeze[day], fz);
+      }
     });
+
     const days = (d.time || []).map((day, i) => ({
       date: day,
       code: (d.weather_code || [])[i],
@@ -3938,6 +4243,10 @@ async function wxFetchNow(at, k){
       lo: (d.temperature_2m_min || [])[i],
       rain: (d.precipitation_probability_max || [])[i],
       wind: (d.wind_speed_10m_max || [])[i],
+      gust: (d.wind_gusts_10m_max || [])[i],
+      up: tops[day] || {},           // wind by pressure level
+      freeze: freeze[day],
+      hours: hours[day] || [],
       sunrise: ((d.sunrise || [])[i] || '').slice(11, 16),
       sunset: ((d.sunset || [])[i] || '').slice(11, 16),
       vis: vis[day]
@@ -3978,10 +4287,21 @@ const WX_ICON = {
   snow:'<path d="M7 15h9.5a3.7 3.7 0 0 0 .3-7.4A5.6 5.6 0 0 0 6.4 8 3.6 3.6 0 0 0 7 15z"/><path d="M9 19h.01M13 19h.01M17 19h.01M11 21.5h.01M15 21.5h.01"/>',
   storm:'<path d="M7 14h9.5a3.7 3.7 0 0 0 .3-7.4A5.6 5.6 0 0 0 6.4 7 3.6 3.6 0 0 0 7 14z"/><path d="m13 16-3 4h4l-3 4"/>'
 };
-const prettyVis = m => m == null ? '—'
-  : m >= 10000 ? 'Over 10 km'
-  : m >= 1000 ? (m / 1000).toFixed(m >= 5000 ? 0 : 1) + ' km'
-  : Math.round(m / 50) * 50 + ' m';
+/* Both units. UK walkers read distance in miles and height in feet but talk
+   about visibility either way, and a forecast that says "400 m" when you are
+   deciding whether to go is worth also saying in yards. */
+const MI = 1609.344;
+const prettyVis = m => {
+  if (m == null) return '—';
+  if (m >= 10000) return 'Over 10 km / 6 mi';
+  if (m >= 1000){
+    const km = (m / 1000).toFixed(m >= 5000 ? 0 : 1);
+    const mi = (m / MI).toFixed(m >= 5000 ? 0 : 1);
+    return km + ' km / ' + mi + ' mi';
+  }
+  const mm = Math.round(m / 50) * 50;
+  return mm + ' m / ' + Math.round(mm * 1.0936 / 10) * 10 + ' yd';
+};
 /* Under a kilometre on a hill means you are navigating by compass. Worth saying. */
 const visWarn = m => m != null && m < 1000;
 
@@ -4069,6 +4389,17 @@ function renderPlans(){
     html += '<span>' + hs.length + ' hill' + (hs.length===1?'':'s') + '</span>';
     if (hs.length) html += '<span>' + climbF.toLocaleString() + ' ft (' + climbM.toLocaleString() + ' m) of summits</span>';
     html += '</div>';
+
+    /* The date lives on the card, not only in the form that made the route.
+       A dateless route says so plainly rather than borrowing today's forecast. */
+    const dOpen = ui.planDate === p.id || !p.date;
+    html += '<div class="plandate">' +
+      (dOpen
+        ? '<label>Date of the walk</label>' + dateFields(p.date, 'data-planid="' + esc(p.id) + '"') +
+          (p.date ? '' : '<p class="dhint">Set a date and the forecast below is for that day.</p>')
+        : '<button class="linkbtn" data-act="plandate" data-id="' + esc(p.id) + '">Change the date</button>') +
+      '</div>';
+
     if (p.notes) html += '<p class="plannotes">' + esc(p.notes) + '</p>';
     html += weatherHTML(p);
     html += gpxControls(p, p.id);
@@ -4118,27 +4449,111 @@ function weatherHTML(p){
            '<button class="linkbtn" style="padding:0" data-act="wxretry" data-id="' + esc(p.id) + '">Try again</button></span></div>';
   }
   const target = p.date && wx.days.find(d => d.date === p.date);
+  const undated = !p.date;
   const day = target || wx.days[0];
   const look = wxLook(day.code);
   const far = p.date && !target;
+
+  /* Wind at the height the route reaches, not at the model's idea of ground. */
+  const top = routeTop(p);
+  const lev = wxLevelFor(top);
+  const upWind = lev ? day.up[lev.hPa] : null;
 
   let s = '<div class="wx">';
   s += '<div class="wxtop"><span class="wxi big">' + wxSvg(look.i) + '</span>' +
     '<div class="wxsum"><b>' + look.t + '</b>' +
     '<span>' + (target ? 'On ' + esc(prettyDate(day.date))
               : far ? 'Nearest forecast — ' + esc(prettyDate(day.date))
+              : undated ? 'No date set — showing ' + esc(prettyDate(day.date))
                     : esc(prettyDate(day.date))) + '</span></div>' +
     '<div class="wxtemp"><b>' + Math.round(day.hi) + '&deg;</b><i>' + Math.round(day.lo) + '&deg;</i></div></div>';
 
   s += '<div class="wxgrid">' +
     wxCell('Visibility', prettyVis(day.vis), visWarn(day.vis)) +
     wxCell('Chance of rain', day.rain == null ? '—' : day.rain + '%', day.rain >= 60) +
-    wxCell('Wind', day.wind == null ? '—' : Math.round(day.wind) + ' mph', day.wind >= 35) +
+    (upWind != null
+      ? wxCell('Wind at ' + lev.m + ' m', Math.round(upWind) + ' mph', upWind >= 35)
+      : wxCell('Wind', day.wind == null ? '—' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
     wxCell('Light', (day.sunrise || '—') + ' – ' + (day.sunset || '—')) +
     '</div>';
 
+  /* Valley wind alongside it, so the difference is visible rather than hidden. */
+  if (upWind != null && day.wind != null){
+    s += '<p class="wxsub">Valley wind ' + Math.round(day.wind) + ' mph' +
+      (day.gust != null ? ', gusting ' + Math.round(day.gust) : '') +
+      ' &middot; the summit figure above is for ' + lev.m + ' m, near the ' +
+      (top >= 900 ? 'top of this route' : 'height this route reaches') + '.</p>';
+  }
+
+  s += rainTimelineHTML(day);
+
+  if (day.freeze != null && day.freeze < top + 300){
+    s += '<p class="wxnote' + (day.freeze <= top ? ' warn' : '') + '">Freezing level around ' +
+      Math.round(day.freeze) + ' m' +
+      (day.freeze <= top ? ' — below the top of this route. Expect ice underfoot.' : '.') + '</p>';
+  }
+  if (undated) s += '<p class="wxnote warn">This route has no date, so this is simply the next forecast — not the day you are walking. Set a date above.</p>';
   if (far) s += '<p class="wxnote">Your date is further out than the seven-day forecast reaches.</p>';
   if (visWarn(day.vis)) s += '<p class="wxnote warn">Under a kilometre of visibility. Map and compass weather.</p>';
+  s += '</div>';
+  return s;
+}
+
+/* Rain hour by hour across the walking day. A daily "60% chance" hides whether
+   that is a wet morning that clears or a dry start that turns — which is the
+   thing that actually decides when you set off.
+
+   One reading only: the chance of rain each hour, against a marked 50% line.
+   Showing how much fell as a second bar inside the first meant two scales in
+   one shape and needed a sentence to explain it; the millimetres are in the
+   hover text and in the plain-English line above, where they are more use. */
+function rainWindow(hs){
+  const wet = [];
+  let run = null;
+  for (const h of hs){
+    if ((h.pop || 0) >= 50){ if (!run) run = {a:h.hr, b:h.hr}; else run.b = h.hr; }
+    else if (run){ wet.push(run); run = null; }
+  }
+  if (run) wet.push(run);
+  return wet;
+}
+function rainSummary(hs){
+  const wet = rainWindow(hs);
+  const hh = n => String(n).padStart(2, '0') + ':00';
+  if (!wet.length) return 'Dry all day';
+  const first = hs[0].hr, last = hs[hs.length - 1].hr;
+  if (wet.length === 1){
+    const w = wet[0];
+    if (w.a <= first && w.b >= last) return 'Wet all day';
+    if (w.a <= first) return 'Wet until about ' + hh(w.b + 1);
+    if (w.b >= last)  return 'Rain arriving about ' + hh(w.a);
+    return 'Wet ' + hh(w.a) + '–' + hh(w.b + 1);
+  }
+  return wet.length + ' wet spells &middot; ' + wet.map(w => hh(w.a)).join(', ');
+}
+function rainTimelineHTML(day){
+  const hs = (day.hours || []).filter(h => h.pop != null);
+  if (hs.length < 4) return '';
+  const total = hs.reduce((a, h) => a + (h.mm || 0), 0);
+
+  let s = '<div class="wxrain"><div class="wxrhead"><dt>Rain by the hour</dt>' +
+    '<dd>' + rainSummary(hs) + (total >= 0.2 ? ' &middot; ' + total.toFixed(1) + ' mm' : '') + '</dd></div>';
+
+  s += '<div class="wxplot">' +
+    '<div class="wxscale"><span>100</span><span>50</span><span>0</span></div>' +
+    '<div class="wxbars"><i class="wxhalf" aria-hidden="true"></i>';
+  for (const h of hs){
+    const pop = Math.max(0, Math.min(100, h.pop));
+    const label = String(h.hr).padStart(2,'0') + ':00 — ' + pop + '% chance' +
+                  (h.mm ? ', ' + h.mm.toFixed(1) + ' mm' : '');
+    s += '<span class="wxbar' + (pop >= 50 ? ' on' : '') + '" title="' + esc(label) + '">' +
+         '<i style="height:' + pop + '%"></i></span>';
+  }
+  s += '</div></div>';
+
+  s += '<div class="wxaxis"><span class="wxpad"></span>';
+  for (const h of hs) s += '<span>' + (h.hr % 3 === 0 ? String(h.hr).padStart(2,'0') : '') + '</span>';
+  s += '</div>';
   s += '</div>';
   return s;
 }
@@ -4215,6 +4630,8 @@ document.addEventListener('click', async e => {
   else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; render(); if (mapReady) drawMarkers(true); }
   else if (a === 'togglelist'){ toggleList(el.dataset.v); }
   else if (a === 'viewphoto') openViewer(el.dataset.k, el.dataset.p);
+  else if (a === 'viewdiaryphoto') openDiaryViewer(el.dataset.id, el.dataset.p);
+  else if (a === 'viewpostphoto') openPostViewer(el.dataset.id, el.dataset.p);
   else if (a === 'viewfriendphoto') openFriendViewer(el.dataset.code, el.dataset.k, el.dataset.p);
   else if (a === 'dtoday') applyDate(el, today());
   else if (a === 'hidebanner'){
@@ -4236,7 +4653,7 @@ document.addEventListener('click', async e => {
   else if (a === 'closeinfo'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; }
   else if (a === 'editavatar'){ openAvatarEditor(); }
   else if (a === 'avatarclear'){
-    fbAvatar = ''; fbPrefsDirty = true;
+    fbAvatar = ''; markDirty('avatar');
     touched(); avClose(); renderAccountBox(); render(); scheduleSync(400);
     toast('Back to your Google picture.');
   }
@@ -4245,7 +4662,7 @@ document.addEventListener('click', async e => {
     renderAccountBox();
     toast(autoPostOn() ? 'Your summits will show in the feed.' : 'Your summits stay off the feed.');
   }
-  else if (a === 'toggledetail'){ fbDetail = !fbDetail; fbPrefsDirty = true; renderAccountBox(); scheduleSync(400); }
+  else if (a === 'toggledetail'){ fbDetail = !fbDetail; markDirty('detail'); renderAccountBox(); scheduleSync(400); }
   else if (a === 'closegroupform'){ ui.groupForm = ''; render(); }
   else if (a === 'newgroup'){ ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
   else if (a === 'joingroup'){ ui.groupForm = ui.groupForm === 'join' ? '' : 'join'; render(); }
@@ -4427,10 +4844,36 @@ document.addEventListener('click', async e => {
       if (e){ e.date = d.date; e.title = d.title.trim(); e.text = d.text.trim(); e.t = now(); }
     } else {
       state.diary = [...(state.diary || []),
-        {id:'d' + uid(), date:d.date, title:d.title.trim(), text:d.text.trim(), deleted:false, t:now()}];
+        {id:'d' + uid(), date:d.date, title:d.title.trim(), text:d.text.trim(),
+         photos:[], shared:0, deleted:false, t:now()}];
     }
     ui.diaryForm = false; ui.dDraft = null;
     touched(); render(); toast('Entry saved.');
+  }
+  else if (a === 'deldiaryphoto'){
+    const ok = await confirmAsk({title:'Delete this photo?', body:'It goes from the entry and from this device.', yes:'Delete'});
+    if (ok) removeDiaryPhoto(el.dataset.id, el.dataset.p);
+  }
+  else if (a === 'sharediary'){
+    /* Never automatic. A diary is private by default and each entry is offered
+       to the feed one at a time, with what friends will see spelled out. */
+    const e = diaryEntry(el.dataset.id); if (!e) return;
+    if (!fbUser){ toast('Sign in first — your feed needs an account.'); return; }
+    const n = (e.photos || []).length;
+    const ok = await confirmAsk({
+      title: e.shared ? 'Share this entry again?' : 'Share this entry?',
+      body: 'Your friends will see ' + (e.title ? '“' + e.title + '”' : 'this entry') +
+            ', the words you wrote' + (n ? ' and ' + (n === 1 ? 'the photo' : 'all ' + n + ' photos') : '') +
+            '. Nothing else from your diary is shared.',
+      yes: 'Share'
+    });
+    if (!ok) return;
+    try{
+      await shareDiaryEntry(e);
+      setDiary(e.id, {shared: now()});
+      render();
+      toast('Shared to your feed.');
+    }catch(err){ toast(fbWhy(err)); }
   }
   else if (a === 'deldiary'){
     const e = (state.diary || []).find(x => x.id === el.dataset.id); if (!e) return;
@@ -4536,12 +4979,13 @@ document.addEventListener('click', async e => {
       if (!cur){ routingBusy = false; render(); return; }
       cur.trk = fitTrack(line);
       routingBusy = false; savePlanEdit(id);
-      toast('Routed along paths — ' + prettyDist(trackLength(line)) + '.');
+      toast('Routed along paths — ' + prettyDist(trackLength(line)) + ' (OpenStreetMap rights of way).');
     }catch(err){
       routingBusy = false; render();
       toast(err.message || 'Could not find a path route.');
     }
   }
+  else if (a === 'plandate'){ ui.planDate = el.dataset.id; render(); }
   else if (a === 'delplan'){
     const p = state.plans.find(x => x.id === el.dataset.id);
     if (p){ p.deleted = true; p.t = now(); }
@@ -4589,6 +5033,10 @@ document.addEventListener('change', e => {
     const files = [...el.files]; el.value = '';
     toast('Processing…'); addPhotos(el.dataset.k, files);
   }
+  else if (a === 'diaryphoto' && el.files && el.files.length){
+    const files = [...el.files]; el.value = '';
+    toast('Processing…'); addDiaryPhotos(el.dataset.id, files);
+  }
   else if (a === 'gpxnew' && el.files && el.files.length){
     /* Import with nothing selected: make the route from the file itself, so a
        walker can start from a GPX rather than having to build a shell first. */
@@ -4598,13 +5046,19 @@ document.addEventListener('change', e => {
       try{ g = parseGPX(txt); }catch(err){ toast(err.message); return; }
       const before = g.pts.length;
       const id = 'p' + uid();
-      state.plans.push({id, name:(g.name || 'Imported route'), date:'', notes:'', hills:[],
+      state.plans.push({id, name:(g.name || 'Imported route'), date:g.date || '', notes:'', hills:[],
         trk: fitTrack(g.pts), wp:null, snap:true, deleted:false, t:now()});
-      touched(); render();
+      touched();
+      /* Import used to drop you straight back on the list with a dateless route,
+         and a route with no date got shown today's forecast as if it were the
+         walk's. Open the new route so the date is right there to set or check. */
+      ui.planDate = id;          // land with the date row open on the new route
+      render();
       const p2 = planById(id);
       const thinned = p2 && p2.trk.length < before;
       toast('Imported ' + prettyDist(trackLength(g.pts)) +
-            (thinned ? ' — thinned to fit sync.' : '.'));
+            (thinned ? ' — thinned to fit sync' : '') +
+            (g.date ? ' — dated ' + prettyDate(g.date) + ' from the file.' : '. Set a date for the forecast.'));
     }).catch(() => toast('Could not read that file.'));
   }
   else if (a === 'gpxin' && el.files && el.files.length){
@@ -4617,6 +5071,7 @@ document.addEventListener('change', e => {
       const before = g.pts.length;
       p.trk = fitTrack(g.pts);
       if (!p.name && g.name) p.name = g.name;
+      if (!p.date && g.date) p.date = g.date;   // never overwrite a date they chose
       if (p.trk.length < before) setTimeout(() => toast('Thinned ' + before.toLocaleString() + ' points to ' + p.trk.length.toLocaleString() + ' so it syncs.'), 1600);
       savePlanEdit(id);
       toast('Track loaded — ' + prettyDist(trackLength(g.pts)) + '.');
@@ -4637,7 +5092,7 @@ document.addEventListener('input', e => {
   if (el.dataset.act === 'fbname' && fbUser){
     fbName = el.value.trim().slice(0,40) || fbUser.name;
     document.querySelectorAll('.fbNameIn').forEach(x => { if (x !== el) x.value = el.value; });
-    fbPrefsDirty = true; scheduleSync(600);
+    markDirty('name'); scheduleSync(600);
   }
 });
 
@@ -4652,6 +5107,32 @@ async function openViewer(key, id){
   viewing = {key, id: (photos[i] || {}).id || id, i, friend:null};
   viewer.classList.remove('confirming', 'readonly');
   viewer.classList.add('open');
+  await paintViewer();
+  buildStrip();
+}
+
+/* A diary entry's own photos. Yours, so captions and deleting work as normal. */
+async function openDiaryViewer(entryId, id){
+  const e = diaryEntry(entryId); if (!e) return;
+  const photos = e.photos || []; if (!photos.length) return;
+  const i = Math.max(0, photos.findIndex(x => x.id === id));
+  viewing = {key:null, diary:entryId, id:(photos[i] || {}).id || id, i, friend:null};
+  viewer.classList.remove('confirming', 'readonly');
+  viewer.classList.add('open');
+  await paintViewer();
+  buildStrip();
+}
+
+/* A photo on someone's feed post. Read-only — it is their picture. */
+async function openPostViewer(postId, pid){
+  const p = feed.find(x => x.id === postId); if (!p) return;
+  const photos = (p.shots || []).map(x => ({id:x, post:postId}));
+  if (!photos.length) return;
+  const i = Math.max(0, photos.findIndex(x => x.id === pid));
+  viewing = {key:null, post:{id:postId, photos, who:p.name || 'Walker', date:p.date || ''},
+             id:(photos[i] || {}).id || pid, i, friend:null};
+  viewer.classList.remove('confirming');
+  viewer.classList.add('open', 'readonly');
   await paintViewer();
   buildStrip();
 }
@@ -4674,7 +5155,10 @@ async function openFriendViewer(code, key, id){
 }
 function viewPhotos(){
   if (!viewing) return [];
-  return viewing.friend ? viewing.friend.photos : (rec(viewing.key).photos || []);
+  if (viewing.friend) return viewing.friend.photos;
+  if (viewing.diary){ const e = diaryEntry(viewing.diary); return e ? (e.photos || []) : []; }
+  if (viewing.post) return viewing.post.photos;
+  return rec(viewing.key).photos || [];
 }
 async function paintViewer(){
   if (!viewing) return;
@@ -4684,9 +5168,20 @@ async function paintViewer(){
   const p = ps[viewing.i];
   viewing.id = p.id;
   const img = document.getElementById('vimg');
-  const src = await photoSrc(p) || '';
+  const src = (p.post ? await postPhoto(p.post, p.id) : await photoSrc(p)) || '';
   if (img.src !== src){ img.classList.add('swapping'); img.src = src; img.onload = () => img.classList.remove('swapping'); setTimeout(()=>img.classList.remove('swapping'), 400); }
-  if (viewing.friend){
+  if (viewing.post){
+    const pv = viewing.post;
+    document.getElementById('vcap').textContent =
+      pv.who + (pv.date ? ' · ' + prettyDate(pv.date) : '');
+    document.getElementById('vcapro').textContent = '';
+  } else if (viewing.diary){
+    const e = diaryEntry(viewing.diary) || {};
+    document.getElementById('vcap').textContent =
+      (e.title || 'Diary') + (e.date ? ' · ' + prettyDate(e.date) : '');
+    const box = document.getElementById('vcapin');
+    if (document.activeElement !== box) box.value = p.cap || '';
+  } else if (viewing.friend){
     const f = viewing.friend;
     document.getElementById('vcap').textContent =
       h.n + (f.date ? ' · ' + prettyDate(f.date) : '') + ' · ' + f.who;
@@ -4710,17 +5205,24 @@ async function paintViewer(){
   });
   preload(ps[viewing.i + 1]); preload(ps[viewing.i - 1]);
 }
-function preload(p){ if (p) photoSrc(p).then(s => { if (s){ const i = new Image(); i.src = s; } }); }
+function preload(p){
+  if (!p) return;
+  const job = p.post ? postPhoto(p.post, p.id) : photoSrc(p);
+  job.then(s => { if (s){ const i = new Image(); i.src = s; } });
+}
 function buildStrip(){
   const strip = document.getElementById('vstrip'), ps = viewPhotos();
   strip.innerHTML = ps.map((p, n) =>
     '<button data-act="vjump" data-i="' + n + '" aria-current="' + (n === viewing.i) + '" aria-label="Photo ' + (n+1) + '">' +
     (p.friend
       ? '<img data-fp="' + esc(p.id) + '" data-code="' + esc(p.friend) + '" alt="">'
+      : p.post
+      ? '<img data-post="' + esc(p.post) + '" data-shot="' + esc(p.id) + '" alt="">'
       : '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt="">') +
     '</button>').join('');
   hydratePhotos();
   hydrateFriendPhotos();
+  hydratePostPhotos();
 }
 function stepViewer(d){ if (!viewing) return; saveCaption(); viewing.i += d; paintViewer(); }
 function closeViewer(){
@@ -4735,10 +5237,19 @@ function closeViewer(){
 /* Captions save on their own — when you move photo, close the viewer, or stop
    typing. Nobody should have to find a Save button on a hillside. */
 function saveCaption(){
-  if (!viewing || viewing.friend) return false;
+  if (!viewing || viewing.friend || viewing.post) return false;
   const box = document.getElementById('vcapin');
   if (!box) return false;
   const txt = box.value.trim().slice(0, 140);
+  if (viewing.diary){
+    const e = diaryEntry(viewing.diary); if (!e) return false;
+    const p = (e.photos || []).find(x => x.id === viewing.id);
+    if (!p || (p.cap || '') === txt) return false;
+    e.photos = e.photos.map(x => x.id === viewing.id ? {...x, cap:txt} : x);
+    e.t = now();
+    touched();
+    return true;
+  }
   const r = rec(viewing.key);
   const ps = r.photos || [];
   const p = ps.find(x => x.id === viewing.id);
@@ -4788,10 +5299,11 @@ document.getElementById('vyes').onclick = async () => {
   if (!viewing) return;
   const v = viewing, wasLast = viewPhotos().length <= 1;
   viewer.classList.remove('confirming');
-  await removePhoto(v.key, v.id);
+  if (v.diary) await removeDiaryPhoto(v.diary, v.id);
+  else await removePhoto(v.key, v.id);
   toast('Photo deleted.');
   if (wasLast){ closeViewer(); return; }
-  viewing = {key:v.key, id:null, i:Math.min(v.i, viewPhotos().length - 1)};
+  viewing = {key:v.key, diary:v.diary || null, id:null, i:Math.min(v.i, viewPhotos().length - 1)};
   await paintViewer(); buildStrip();
 };
 
@@ -4964,7 +5476,7 @@ infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
     if (!av){ toast('Choose a picture first.'); return; }
     const d = avExport();
     if (!d){ toast('Could not save that picture.'); return; }
-    fbAvatar = d; fbPrefsDirty = true;
+    fbAvatar = d; markDirty('avatar');
     touched(); avClose(); renderAccountBox(); render(); scheduleSync(400);
     toast('Picture updated.');
   };
@@ -5068,7 +5580,16 @@ let FB = null;            // the loaded SDK functions
 let fbApp = null, fbAuth = null, fbDb = null;
 let fbUser = null;        // {uid, name, photo}
 let fbReady = false;      // SDK loaded (or definitively not)
-let fbPrefsDirty = false; // local prefs changed and not yet pushed
+/* Which of your account preferences have been changed here and not yet saved.
+   This used to be one boolean covering name, picture, handle and the share
+   default together, and that lost people their profile picture. A pull refuses
+   to overwrite anything dirty — so changing ANY one of them before the first
+   sync of a session also stopped the picture being loaded, and the push that
+   followed then wrote the empty local value over the real one in the cloud.
+   Per field, a pending rename can no longer wipe a picture. */
+const fbDirty = new Set();
+const markDirty = k => fbDirty.add(k);
+let fbPulled = false;   // has this session read the account record yet
 let fbName = '';
 
 const fbConfigured = () => {
@@ -5146,7 +5667,7 @@ async function fbSignOut(){
   /* And the identity. Leaving these behind meant the next person to sign in
      inherited the last walker's name and picture on every leaderboard, and
      their whole log got merged into the new account on first sync. */
-  fbName = ''; fbAvatar = ''; fbDetail = false; fbPrefsDirty = false;
+  fbName = ''; fbAvatar = ''; fbDetail = false; fbDirty.clear(); fbPulled = false;
   state = {bagged:{}, plans:[], diary:[], groups:[], enabled:state.enabled, enabledT:state.enabledT || 0};
   cloudSig = ''; lastSynced = 0; syncState = 'local'; syncErr = '';
   ui.found = null; ui.pDraft = null; ui.dDraft = null; ui.draft = null;
@@ -5163,11 +5684,12 @@ async function fbPull(){
   const snap = await FB.getDoc(userRef());
   if (!snap.exists()) return null;
   const d = snap.data() || {};
-  if (!fbPrefsDirty){
-    if (d.name) fbName = d.name;
-    if (typeof d.avatar === 'string') fbAvatar = d.avatar;
-    if (typeof d.handle === 'string') fbHandle = d.handle;
-  }
+  /* Each preference is held back only by its own unsaved change. */
+  if (d.name && !fbDirty.has('name')) fbName = d.name;
+  if (typeof d.avatar === 'string' && !fbDirty.has('avatar')) fbAvatar = d.avatar;
+  if (typeof d.handle === 'string' && !fbDirty.has('handle')) fbHandle = d.handle;
+  if (typeof d.detail === 'boolean' && !fbDirty.has('detail')) fbDetail = d.detail;
+  fbPulled = true;
   try{
     const parsed = normalise(JSON.parse(d.log || '{}'));
     if (Array.isArray(d.groups)) parsed.groups = d.groups.filter(g => g && g.code);
@@ -5179,6 +5701,12 @@ async function fbPull(){
 async function fbPush(){
   const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || []});
   if (payload.length > 900000) throw new Error('log too large for one record');
+  /* setDoc replaces the whole record, so writing before ever having read it
+     would push empty defaults over a name and picture already saved. Belt to
+     the per-field braces above: read first if for any reason we have not. */
+  if (!fbPulled){
+    try{ await fbPull(); }catch(e){ throw e; }
+  }
   await FB.setDoc(userRef(), {
     log: payload, name: fbName || (fbUser && fbUser.name) || 'Walker',
     avatar: fbAvatar || '', handle: fbHandle || '',
@@ -5214,6 +5742,10 @@ async function fbSync(initial){
     const pending = [];
     for (const r of Object.values(state.bagged))
       for (const p of (r.photos || [])) if (!p.up) pending.push(p);
+    /* Diary photos go up the same way. Leaving them out of this sweep meant they
+       lived on one device only and vanished with its browser storage. */
+    for (const e of (state.diary || []))
+      for (const p of (e.photos || [])) if (!p.up) pending.push(p);
     const lost = new Set();
     for (const p of pending.slice(0, 4)){
       const blob = await getBlob(p.id);
@@ -5232,11 +5764,16 @@ async function fbSync(initial){
         const keep = r.photos.filter(p => !lost.has(p.id));
         if (keep.length !== r.photos.length){ r.photos = keep; r.t = now(); }
       }
+      for (const e of (state.diary || [])){
+        if (!e.photos || !e.photos.length) continue;
+        const keep = e.photos.filter(p => !lost.has(p.id));
+        if (keep.length !== e.photos.length){ e.photos = keep; e.t = now(); }
+      }
     }
 
     await fbPush();
     await pushGroups();
-    fbPrefsDirty = false;
+    fbDirty.clear();
     cloudSig = sig(state); lastSynced = now(); syncState = 'synced'; syncErr = '';
     saveLocal();
     if (pending.length > 4) scheduleSync(1500);
@@ -5609,7 +6146,7 @@ async function claimHandle(want){
   if (snap.exists() && (snap.data() || {}).uid !== fbUser.uid) throw new Error('That handle is taken.');
   await FB.setDoc(handleRef(h), {uid: fbUser.uid, t: Date.now()});
   const old = fbHandle;
-  fbHandle = h; fbPrefsDirty = true;
+  fbHandle = h; markDirty('handle');
   await pushPerson();
   /* release the previous one so somebody else can have it */
   if (old && old !== h){ try{ await FB.deleteDoc(handleRef(old)); }catch(e){} }
@@ -5689,7 +6226,7 @@ async function audienceFor(tagUids){
   return [...set].slice(0, AUD_CAP);
 }
 
-async function createPost({kind, text, hills, date, tags}){
+async function createPost({kind, text, hills, date, tags, shots}){
   if (!FB || !fbUser) return null;
   const id = 'po' + uid();
   const aud = await audienceFor(tags);
@@ -5697,11 +6234,71 @@ async function createPost({kind, text, hills, date, tags}){
     id, uid: fbUser.uid, name: fbName || fbUser.name || 'Walker', av: myAvatar() || '',
     kind: kind || 'post', text: String(text || '').slice(0, 600),
     hills: (hills || []).slice(0, 12), date: date || '',
+    /* Ids only. The pictures themselves go in a subcollection under the post,
+       readable by exactly the people the post is addressed to. */
+    shots: (shots || []).slice(0, 6),
     tags: (tags || []).slice(0, 8), aud, t: Date.now()
   };
   await FB.setDoc(postRef(id), post);
   feed = [post, ...feed];
   return post;
+}
+
+const shotRef = (postId, pid) => FB.doc(fbDb, 'posts', postId, 'shots', pid);
+
+/* Put one diary entry on the feed: the words, and copies of its photos placed
+   where friends can actually read them. A photo that will not upload is left
+   out of the post rather than posted as a broken tile. */
+async function shareDiaryEntry(e){
+  if (!FB || !fbUser) throw Object.assign(new Error('not signed in'), {code:'not-signed-in'});
+  const words = [e.title, e.text].filter(Boolean).join('\n\n');
+  const wanted = (e.photos || []).slice(0, 6);
+  const sent = [];
+  for (const p of wanted){
+    const blob = await getBlob(p.id);
+    if (!(blob instanceof Blob)) continue;
+    try{
+      const b64 = await blobToB64(blob);
+      if (b64.length > 950000) continue;
+      const post = {d:b64, owner:fbUser.uid, cap:p.cap || '', t:Date.now()};
+      shotQueue.push({pid:p.id, post});
+      sent.push(p.id);
+    }catch(err){ /* skip this one, keep the rest */ }
+  }
+  const created = await createPost({
+    kind:'diary', text:words, hills:[], date:e.date || '', tags:[], shots:sent
+  });
+  if (!created){ shotQueue.length = 0; throw new Error('could not create the post'); }
+  /* The post id only exists now, so the pictures are written once it does. */
+  for (const q of shotQueue){
+    try{ await FB.setDoc(shotRef(created.id, q.pid), q.post); }catch(err){}
+  }
+  shotQueue.length = 0;
+  return created;
+}
+const shotQueue = [];
+
+/* A photo attached to a post, cached like a friend's group photo and never
+   mixed up with your own copy of the same id. */
+async function postPhoto(postId, pid){
+  const key = 'p:' + postId + ':' + pid;
+  if (blobUrls.has(key)) return blobUrls.get(key);
+  try{
+    const s = await FB.getDoc(shotRef(postId, pid));
+    if (!s.exists()) return '';
+    const d = s.data(); if (!d || !d.d) return '';
+    const bytes = Uint8Array.from(atob(d.d), c => c.charCodeAt(0));
+    const u = URL.createObjectURL(new Blob([bytes], {type:'image/jpeg'}));
+    blobUrls.set(key, u);
+    return u;
+  }catch(e){ return ''; }
+}
+async function hydratePostPhotos(){
+  for (const img of document.querySelectorAll('img[data-post]')){
+    if (img.dataset.done) continue;
+    const src = await postPhoto(img.dataset.post, img.dataset.shot);
+    if (src){ img.src = src; img.dataset.done = '1'; }
+  }
 }
 async function loadFeed(){
   if (!FB || !fbUser || feedBusy) return;
@@ -5784,6 +6381,13 @@ async function deletePost(id){
   }
   for (const u of await idsIn(FB.collection(fbDb, 'posts', id, 'reactions'))){
     try{ await FB.deleteDoc(reactRef(id, u)); }catch(e){}
+  }
+  /* And the pictures. A shared diary entry leaves copies of its photos under the
+     post, and deleting the post has to take them or they stay readable. */
+  for (const pid of await idsIn(FB.collection(fbDb, 'posts', id, 'shots'))){
+    try{ await FB.deleteDoc(shotRef(id, pid)); }catch(e){}
+    const k = 'p:' + id + ':' + pid;
+    const u = blobUrls.get(k); if (u){ URL.revokeObjectURL(u); blobUrls.delete(k); }
   }
   try{ await FB.deleteDoc(postRef(id)); }catch(e){}
   delete commentsBy[id]; delete reactedBy[id];
@@ -5884,7 +6488,7 @@ function setGroupDetail(code, on){
   if (!on) pullSharedPhotos(code);        // withdraw, don't just stop pointing at them
   g.detail = !!on;
   g.t = now();              // stamped, so the merge knows this is the newer answer
-  fbPrefsDirty = true;      // and so a pull can't quietly undo it
+  markDirty('detail');      // and so a pull can't quietly undo it
   touched();
   /* Publish the change straight away — a walker turning sharing OFF expects it
      gone now, not at the next idle sync. */
