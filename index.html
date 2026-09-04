@@ -4481,6 +4481,61 @@ function openPoi(id){
   poiSheetEl().classList.add('open');
 }
 
+/* ---- finding a place you have not been to yet ----
+   The local search only knows hills and whatever the map has already loaded, so
+   typing "Old Dungeon Ghyll" before panning to Langdale found nothing at all.
+   The same Photon service that names the weather's area also searches by name,
+   biased to Britain so a Langdale pub beats one in Ohio. */
+let geoRes = [], geoBusy = false, geoQ = '', geoTimer = null, geoErr = '';
+
+function geoSearch(q){
+  clearTimeout(geoTimer);
+  const term = (q || '').trim();
+  if (term.length < 3){ geoRes = []; geoQ = ''; geoErr = ''; paintSearch(); return; }
+  geoTimer = setTimeout(async () => {
+    if (geoBusy) return;
+    geoBusy = true; geoErr = ''; paintSearch();
+    try{
+      const url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(term) +
+                  '&limit=8&lang=en&lat=54.5&lon=-3.2&zoom=6';
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      geoRes = (j.features || []).map(f => {
+        const pr = f.properties || {}, c = (f.geometry || {}).coordinates || [];
+        return {
+          name: pr.name || pr.street || '',
+          kind: prettyOsmKind(pr.osm_key, pr.osm_value),
+          where: [pr.district, pr.city, pr.county, pr.state].filter(Boolean)[0] || '',
+          la: c[1], lo: c[0],
+          osm: (pr.osm_type === 'W' ? 'way' : pr.osm_type === 'R' ? 'relation' : 'node') + pr.osm_id
+        };
+      }).filter(x => x.name && isFinite(x.la) && isFinite(x.lo));
+      geoQ = term;
+    }catch(e){ geoRes = []; geoErr = 'Could not reach the place search.'; }
+    geoBusy = false;
+    paintSearch();
+  }, 450);
+}
+
+const OSM_KIND = {
+  pub:'Pub', bar:'Bar', cafe:'Caf\u00e9', restaurant:'Restaurant', parking:'Parking',
+  toilets:'Toilets', hotel:'Hotel', hostel:'Hostel', camp_site:'Campsite',
+  caravan_site:'Caravan site', information:'Information', viewpoint:'Viewpoint',
+  peak:'Summit', village:'Village', hamlet:'Hamlet', town:'Town', city:'City',
+  suburb:'Area', locality:'Place', bus_stop:'Bus stop', station:'Station',
+  attraction:'Attraction', museum:'Museum', shelter:'Shelter', alpine_hut:'Hut'
+};
+function prettyOsmKind(key, val){
+  if (OSM_KIND[val]) return OSM_KIND[val];
+  if (key === 'place') return 'Place';
+  return String(val || key || '').replace(/_/g, ' ');
+}
+function paintSearch(){
+  const box = document.getElementById('rqres');
+  if (box) box.innerHTML = searchResultsHTML();
+}
+
 /* ---------- interactive route editor ---------- */
 /* editor.wp holds the control points you place; editor.trk is the line they
    produce once snapped to paths. Keeping both is what makes a route editable
@@ -4787,6 +4842,83 @@ function routeAt(p){
 }
 const wxKey = at => 'wx:' + at.la + ',' + at.lo;
 
+/* ---- where a forecast is actually for ----
+
+   A temperature with no place on it is hard to trust, and it changes as you pan.
+   "Little Langdale, Cumbria" is how you would say it, and that means a
+   settlement and a county — which the hill data does not hold. Photon (komoot's
+   geocoder over OpenStreetMap, no key needed) answers it in one call, cached per
+   spot so panning does not hammer it.
+
+   With no signal it falls back to the region the nearest hill belongs to —
+   "The Central Fells", "Cairngorms" — which is offline, instant, and still
+   tells you where you are looking. */
+const areaMem = new Map();
+const areaWait = new Set();
+
+function areaNear(la, lo){
+  if (!isFinite(la) || !isFinite(lo)) return '';
+  const key = la.toFixed(2) + ',' + lo.toFixed(2);
+  if (areaMem.has(key)) return areaMem.get(key);
+  areaLookup(la, lo, key);
+  return areaOffline(la, lo);
+}
+
+async function areaLookup(la, lo, key){
+  if (areaWait.has(key)) return;
+  areaWait.add(key);
+  try{
+    const r = await fetch('https://photon.komoot.io/reverse?lat=' + la + '&lon=' + lo + '&lang=en&limit=1');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    const p = ((j.features || [])[0] || {}).properties || {};
+    /* the nearest named thing, then the county it sits in */
+    const place = p.name || p.locality || p.district || p.city || p.village || '';
+    const county = p.county || p.state || p.region || '';
+    const out = [place, county].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(', ');
+    if (out){
+      if (areaMem.size > 300) areaMem.clear();
+      areaMem.set(key, out);
+      if (tab === 'p'){ paintMapWeather(); render(); }
+    }
+  }catch(e){ /* the offline fallback already said something sensible */ }
+  areaWait.delete(key);
+}
+
+/* No network needed: the region of the nearest hill in our own data. */
+const WIDE = ['Scotland', 'England', 'Wales', 'Northern Ireland'];
+let regionCount = null;
+function regionSize(name){
+  if (!regionCount){
+    regionCount = new Map();
+    for (const h of HILLS)
+      for (const r of Object.values(h.r || {}))
+        if (r) regionCount.set(r, (regionCount.get(r) || 0) + 1);
+  }
+  return regionCount.get(name) || 9999;
+}
+function areaOffline(la, lo){
+  let best = null, bestD = Infinity;
+  const kx = Math.cos(la * Math.PI / 180) * 111.32;
+  for (const h of HILLS){
+    if (!isFinite(h.a)) continue;
+    const dy = (h.a - la) * 110.57, dx = (h.o - lo) * kx;
+    const d = dx*dx + dy*dy;
+    if (d < bestD){ bestD = d; best = h; }
+  }
+  /* Beyond about thirty kilometres the nearest hill is not where you are. */
+  if (!best || Math.sqrt(bestD) > 30) return '';
+  /* A hill sits in several lists, so it has several region names. The most
+     useful is the most specific, and specificity is how few hills share it. */
+  let pick = '', pickN = Infinity;
+  for (const [listId, r] of Object.entries(best.r || {})){
+    if (!r || r === 'Other' || WIDE.includes(r)) continue;
+    const n = regionSize(r) - (state.enabled.includes(listId) ? 0.5 : 0);
+    if (n < pickN){ pickN = n; pick = r; }
+  }
+  return pick || best.c || '';
+}
+
 /* How high the route actually gets: the highest summit on it, or failing that
    the highest elevation in an imported track. This is what decides which
    pressure level the summit wind is read from. */
@@ -5046,12 +5178,14 @@ function mapWeatherHTML(){
   const lev = wxLevelFor(top);
   const up = lev ? day.up[lev.hPa] : null;
   const wind = up != null ? Math.round(up) : (day.wind != null ? Math.round(day.wind) : null);
+  const area = areaNear(c.la, c.lo);
   const open = ui.wxOpen;
 
   let s = '<div class="wxmini' + (open ? ' open' : '') + '">';
   s += '<button class="wxminibar" data-act="wxmore" aria-expanded="' + !!open + '">' +
     '<span class="wxi">' + wxSvg(look.i) + '</span>' +
-    '<span class="wxmt"><b>' + look.t + '</b><i>' + esc(prettyDate(day.date)) + '</i></span>' +
+    '<span class="wxmt"><b>' + look.t + '</b><i>' + esc(prettyDate(day.date)) +
+      (area ? ' \u00b7 ' + esc(area) : '') + '</i></span>' +
     '<span class="wxmf">' +
       '<em>' + Math.round(day.hi) + '&deg;</em>' +
       '<em' + (day.rain >= 60 ? ' class="warn"' : '') + '>' + (day.rain == null ? '\u2014' : day.rain + '%') + '</em>' +
@@ -5248,22 +5382,35 @@ function searchResultsHTML(){
   const q = norm(ui.rq || '');
   if (q.length < 2) return '';
   const hills = HILLS.filter(h => norm(h.n).includes(q) || norm(h.w).includes(q) || norm(altStr(h)).includes(q))
-                     .sort((a,b) => b.h - a.h).slice(0, 6);
-  const places = [...poiSeen.values()].filter(p => norm(poiName(p)).includes(q)).slice(0, 6);
-  if (!hills.length && !places.length)
-    return '<p class="rqempty">Nothing by that name in your lists' +
-           (poiSeen.size ? ' or on the map here' : '') + '.</p>';
+                     .sort((a,b) => b.h - a.h).slice(0, 5);
+  const near = [...poiSeen.values()].filter(p => norm(poiName(p)).includes(q)).slice(0, 5);
+  const seenIds = new Set(near.map(p => p.id));
+  /* anywhere in Britain, once the geocoder has answered for this exact query */
+  const far = (geoQ && norm(geoQ) === q ? geoRes : []).filter(g => !seenIds.has(g.osm)).slice(0, 6);
+
   let s = '<div class="rqres">';
   for (const h of hills)
     s += '<button class="rqrow" data-act="gomap" data-la="' + h.a + '" data-lo="' + h.o +
       '" data-name="' + esc(hillName(h)) + '">' +
       '<span class="rqn">' + esc(hillName(h)) + '</span>' +
       '<span class="rqm">' + feet(h).toLocaleString() + ' ft &middot; ' + esc(h.c || '') + '</span></button>';
-  for (const p of places)
-    s += '<button class="rqrow" data-act="gomap" data-la="' + p.la + '" data-lo="' + p.lo + '" data-p="' + esc(p.id) + '">' +
+  for (const p of near)
+    s += '<button class="rqrow" data-act="gomap" data-la="' + p.la + '" data-lo="' + p.lo +
+      '" data-p="' + esc(p.id) + '">' +
       '<span class="rqn">' + esc(poiName(p)) + '</span>' +
       '<span class="rqm">' + esc(POI_KINDS[p.kind].label) + '</span></button>';
-  return s + '</div>';
+  for (const g of far)
+    s += '<button class="rqrow" data-act="gomap" data-la="' + g.la + '" data-lo="' + g.lo +
+      '" data-name="' + esc(g.name) + '">' +
+      '<span class="rqn">' + esc(g.name) + '</span>' +
+      '<span class="rqm">' + esc([g.kind, g.where].filter(Boolean).join(' \u00b7 ')) + '</span></button>';
+  s += '</div>';
+
+  const none = !hills.length && !near.length && !far.length;
+  if (geoBusy) s += '<p class="rqempty">Looking further afield\u2026</p>';
+  else if (geoErr && none) s += '<p class="rqempty">' + esc(geoErr) + ' Hills still search offline.</p>';
+  else if (none) s += '<p class="rqempty">Nothing by that name.</p>';
+  return s;
 }
 
 /* The forecast where the route is. Shows the target day if it falls inside the
@@ -5306,13 +5453,15 @@ function weatherFor(at, p, topM){
 
   /* Wind at the height the route reaches, not at the model's idea of ground. */
   const top = topM != null ? topM : routeTop(p);
+  const where = areaNear(at.la, at.lo);
   const lev = wxLevelFor(top);
   const upWind = lev ? day.up[lev.hPa] : null;
 
   let s = '<div class="wx">';
   s += '<div class="wxtop"><span class="wxi big">' + wxSvg(look.i) + '</span>' +
     '<div class="wxsum"><b>' + look.t + '</b>' +
-    '<span>' + (target ? 'On ' + esc(prettyDate(day.date))
+    '<span>' + (where ? esc(where) + ' \u00b7 ' : '') +
+      (target ? 'On ' + esc(prettyDate(day.date))
               : far ? 'Nearest forecast — ' + esc(prettyDate(day.date))
               : undated ? 'No date set — showing ' + esc(prettyDate(day.date))
                     : esc(prettyDate(day.date))) + '</span></div>' +
@@ -5453,8 +5602,8 @@ function wire(){
   const rqi = document.getElementById('rq');
   if (rqi) rqi.oninput = e => {
     ui.rq = e.target.value;
-    const box = document.getElementById('rqres');
-    if (box) box.innerHTML = searchResultsHTML(); else render();
+    geoSearch(ui.rq);          // hills answer at once; places follow
+    paintSearch();
   };
   /* dfield and postfield are handled in the input listener below, so a sync
      landing mid-sentence cannot rebuild the form over what is being written */
