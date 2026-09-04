@@ -44,6 +44,10 @@
   --r:12px;
   --grain:.10; --noise:.03;
   --patch-bg:#B4491A;
+
+  /* The two faces, named once so a change lands everywhere. */
+  --font-data:"Courier Prime", ui-monospace, "Courier New", monospace;
+  --font-display:"Wildkins", Georgia, serif;
   /* Wainwright's seven books — sampled from the Frances Lincoln box set */
   --bk1:#71AA47; --bk2:#E12E35; --bk3:#095FD3; --bk4:#E06237;
   --bk5:#6C261D; --bk6:#C09400; --bk7:#2E714A;
@@ -92,7 +96,7 @@ body::after{
 .wrap, .top{position:relative; z-index:1}
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:"Courier Prime", ui-monospace, "Courier New", monospace;
+  font-family:var(--font-data);
   font-size:15.5px; line-height:1.5; -webkit-text-size-adjust:100%; padding-bottom:64px;
 }
 button, input, textarea, select{font:inherit; color:inherit}
@@ -105,7 +109,7 @@ img{max-width:100%}
 
 /* ================= dashboard ================= */
 .pagehead{
-  font-family:"Wildkins", Georgia, serif; color:var(--accent-text);
+  font-family:var(--font-display); color:var(--accent-text);
   font-size:clamp(24px,6.4vw,34px); letter-spacing:.03em; line-height:1.05;
   /* clear of the header above, and of the cards below */
   margin:26px 0 14px; text-transform:uppercase;
@@ -130,31 +134,31 @@ img{max-width:100%}
 }
 .heroin{position:relative; z-index:2; padding:20px 18px 8px}
 .heropct{
-  font-family:"Wildkins", Georgia, serif; font-size:clamp(52px,12vw,82px);
+  font-family:var(--font-display); font-size:clamp(52px,12vw,82px);
   line-height:.9; letter-spacing:-.01em; color:var(--ink);
 }
 .heropct sup{font-size:.34em; color:var(--accent-text); vertical-align:super; margin-left:2px}
-.herosub{font-family:"Courier Prime", monospace; font-size:13px; color:var(--ink-2); margin:8px 0 0}
+.herosub{font-family:var(--font-data); font-size:13px; color:var(--ink-2); margin:8px 0 0}
 .scards{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:12px}
 .scard{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
   padding:14px 15px; box-shadow:var(--shadow);
 }
-.sbig{font-family:"Wildkins", Georgia, serif; font-size:30px; line-height:1; color:var(--ink)}
+.sbig{font-family:var(--font-display); font-size:30px; line-height:1; color:var(--ink)}
 .sbig .su{font-size:.45em; color:var(--ink-3); margin-left:3px}
 .slab{
-  font-family:"Courier Prime", monospace; font-size:11px; letter-spacing:.12em;
+  font-family:var(--font-data); font-size:11px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3); margin-top:7px;
 }
-.ssub{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-2); margin-top:3px}
+.ssub{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2); margin-top:3px}
 .dcard{
   display:block; width:100%; text-align:left; margin-top:4px;
   background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent);
   border-radius:var(--r); padding:14px 15px; box-shadow:var(--shadow); cursor:pointer;
 }
 .dch{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
-.dch b{font-family:"Wildkins", Georgia, serif; font-size:17px; color:var(--ink)}
-.dcs{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-2); margin:6px 0 0}
+.dch b{font-family:var(--font-display); font-size:17px; color:var(--ink)}
+.dcs{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2); margin:6px 0 0}
 .dcard .planstat{margin-top:10px}
 .feed{list-style:none; margin:4px 0 0; padding:0; border:1px solid var(--line);
   border-radius:var(--r); overflow:hidden; background:var(--surface)}
@@ -164,8 +168,8 @@ img{max-width:100%}
 .feed .fmk{width:20px; height:20px; border-radius:99px; background:var(--accent); color:var(--accent-ink);
   display:grid; place-items:center; flex:none}
 .feed .fmk svg{width:11px; height:11px}
-.feed .fn{flex:1; min-width:0; font-family:"Wildkins", Georgia, serif; font-size:15px; color:var(--ink)}
-.feed .fd{font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--ink-3); white-space:nowrap}
+.feed .fn{flex:1; min-width:0; font-family:var(--font-display); font-size:15px; color:var(--ink)}
+.feed .fd{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); white-space:nowrap}
 
 /* ================= paper ================= */
 /* a faint laid-paper tooth on the page ground only — never on controls */
@@ -185,7 +189,7 @@ body::before{
 /* ================= the MARKED stamp ================= */
 .stampmk{
   display:inline-flex; align-items:center; gap:7px; flex:none;
-  font-family:"Wildkins", Georgia, serif; font-size:13px; letter-spacing:.2em;
+  font-family:var(--font-display); font-size:13px; letter-spacing:.2em;
   text-transform:uppercase; color:var(--accent);
   border:2.5px solid var(--accent); border-radius:6px; padding:5px 11px 4px;
   transform:rotate(-3deg); opacity:.95;
@@ -193,7 +197,7 @@ body::before{
 .stampmk svg{width:12px; height:12px; flex:none}
 .mkchip{
   display:inline-flex; align-items:center;
-  font-family:"Wildkins", Georgia, serif; font-size:10px; letter-spacing:.16em;
+  font-family:var(--font-display); font-size:10px; letter-spacing:.16em;
   text-transform:uppercase; color:var(--accent-text);
   border:1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
   border-radius:4px; padding:2px 6px 1px; vertical-align:1px;
@@ -202,14 +206,14 @@ body::before{
 
 /* ================= route cards as expedition plans ================= */
 .plan{border-left:3px solid var(--accent)}
-.planhead h3{font-family:"Wildkins", Georgia, serif; letter-spacing:.02em}
-.planmeta{font-family:"Courier Prime", monospace; font-size:12px; letter-spacing:.03em}
+.planhead h3{font-family:var(--font-display); letter-spacing:.02em}
+.planmeta{font-family:var(--font-data); font-size:12px; letter-spacing:.03em}
 
 /* ================= map ================= */
 #mapbox{height:min(74vh,660px)}
 .maplegend{
   display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:10px;
-  font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--ink-3);
+  font-family:var(--font-data); font-size:11.5px; color:var(--ink-3);
 }
 @media (min-width:768px){ #mapbox{height:min(76vh,760px)} }
 
@@ -267,9 +271,9 @@ body::before{
 .mstext{display:block; line-height:1.25; padding:5px 9px 4px; border-radius:7px;
   background:color-mix(in srgb, var(--surface) 92%, transparent);
   border:1px solid var(--line-soft); box-shadow:0 1px 4px -2px rgba(0,0,0,.35);}
-.mstext b{display:block; font-family:"Wildkins", Georgia, serif; font-size:12.5px;
+.mstext b{display:block; font-family:var(--font-display); font-size:12.5px;
   letter-spacing:.05em; text-transform:uppercase; color:var(--ink)}
-.mstext i{display:block; font-style:normal; font-family:"Courier Prime", monospace;
+.mstext i{display:block; font-style:normal; font-family:var(--font-data);
   font-size:10.5px; color:var(--ink-3); margin-top:2px}
 .milestone.got .mstext i{color:var(--accent-text)}
 .milestone:hover .disc{transform:scale(1.06)}
@@ -277,7 +281,7 @@ body::before{
 
 /* patch detail */
 .backbtn{background:none; border:none; padding:8px 0; color:var(--ink-2);
-  font-family:"Courier Prime", monospace; font-size:13px; cursor:pointer}
+  font-family:var(--font-data); font-size:13px; cursor:pointer}
 /* back on the left, the way through to the whole journey on the right */
 .pdnav{display:flex; align-items:center; justify-content:space-between; gap:12px}
 .pdnav .linkbtn{padding:8px 0; white-space:nowrap}
@@ -291,8 +295,8 @@ body::before{
 .pdhead .patch.got .disc{border-color:var(--accent); background:var(--pine); color:#F6EFE4}
 .pdhead .disc svg{width:48px; height:48px}
 .pdt{flex:1; min-width:0}
-.pdt h2{font-family:"Wildkins", Georgia, serif; font-size:20px; margin:0}
-.pdt p{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-2); margin:5px 0 9px}
+.pdt h2{font-family:var(--font-display); font-size:20px; margin:0}
+.pdt p{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2); margin:5px 0 9px}
 .ptimeline{list-style:none; margin:6px 0 0; padding:0; border:1px solid var(--line);
   border-radius:var(--r); overflow:hidden; background:var(--surface)}
 .ptimeline li{display:flex; align-items:center; gap:12px; padding:11px 13px;
@@ -300,12 +304,12 @@ body::before{
 .ptimeline li:first-child{border-top:none}
 .pnum{width:26px; height:26px; border-radius:99px; flex:none; display:grid; place-items:center;
   background:var(--surface-2); border:1px solid var(--line);
-  font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-2)}
+  font-family:var(--font-data); font-size:11px; color:var(--ink-2)}
 .pinfo{flex:1; min-width:0}
-.pinfo b{display:block; font-family:"Wildkins", Georgia, serif; font-size:15px; color:var(--ink)}
-.pinfo i{display:block; font-style:normal; font-family:"Courier Prime", monospace;
+.pinfo b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
+.pinfo i{display:block; font-style:normal; font-family:var(--font-data);
   font-size:11.5px; color:var(--ink-3); margin-top:2px}
-.pdate{font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--ink-3); white-space:nowrap}
+.pdate{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); white-space:nowrap}
 .eyelink{background:none; border:none; padding:0; cursor:pointer; width:100%; text-align:left}
 @media (min-width:768px){
   .milestone{width:186px}
@@ -334,11 +338,11 @@ body::before{
 .wmk.tiny .wmplate{stroke-width:2.6}
 .wmk.tiny .wmw,.wmk.tiny .wmm{stroke-width:3}
 .cq{
-  font-family:"Wildkins", Georgia, serif; font-size:12px; letter-spacing:.05em;
+  font-family:var(--font-display); font-size:12px; letter-spacing:.05em;
   margin:1px 0 0; color:var(--ink-3);
 }
 .cd{
-  font-family:"Courier Prime", monospace; font-size:9.5px; line-height:1.65;
+  font-family:var(--font-data); font-size:9.5px; line-height:1.65;
   letter-spacing:.04em; margin:0; color:var(--ink-3);
 }
 @media (min-width:768px){ .colophon{padding-bottom:44px} }
@@ -366,7 +370,7 @@ body::before{
 /* the tagline is tracked out by script to sit exactly under the wordmark */
 .tagline{display:block}
 .tagline{
-  font-family:"Courier Prime", monospace; font-style:normal;
+  font-family:var(--font-data); font-style:normal;
   font-size:clamp(8px, 2.5vw, 10.5px); letter-spacing:.1em; text-transform:uppercase;
   color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
@@ -377,12 +381,12 @@ body::before{
   display:flex; align-items:center; gap:11px; width:100%;
   background:none; border:1px solid transparent; border-radius:10px;
   padding:10px 12px; color:var(--ink-2); font-size:14.5px; text-align:left;
-  font-family:"Courier Prime", monospace; letter-spacing:.02em; cursor:pointer;
+  font-family:var(--font-data); letter-spacing:.02em; cursor:pointer;
 }
 .navbtn .ni{width:19px; height:19px; flex:none; opacity:.85}
 .navbtn .nl{flex:1; min-width:0}
 .navbtn .nc{
-  font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-3);
+  font-family:var(--font-data); font-size:11px; color:var(--ink-3);
   font-variant-numeric:tabular-nums; white-space:nowrap;
 }
 .navbtn:hover{background:var(--surface-2); color:var(--ink)}
@@ -470,7 +474,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   .side .navbtn .nl, .side .navbtn .nc{display:block}
   .sfoot{
     display:block; margin-top:auto; padding:14px 4px 0; border-top:1px solid var(--line-soft);
-    font-family:"Courier Prime", monospace; font-size:11px; line-height:1.5; color:var(--ink-3);
+    font-family:var(--font-data); font-size:11px; line-height:1.5; color:var(--ink-3);
   }
   .wrap{max-width:860px}
 }
@@ -497,7 +501,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 /* sized from the viewport rather than from breakpoints, so it can never run off
    the edge on a narrow phone or at a large system text size */
 .brand{
-  font-family:"Wildkins", Georgia, serif; font-weight:400;
+  font-family:var(--font-display); font-weight:400;
   font-size:clamp(17px, 5.4vw, 30px); letter-spacing:.14em; line-height:1; margin:0;
   text-transform:uppercase; padding-right:.14em;   /* balances the trailing track */
   min-width:0; white-space:nowrap; text-align:center;
@@ -508,7 +512,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   background:var(--surface); border:1px solid var(--line); border-radius:99px;
   padding:5px 11px; font-size:12px; color:var(--ink-2); white-space:nowrap;
   flex:0 1 auto; min-width:0; overflow:hidden;
-  font-family:"Courier Prime", monospace;
+  font-family:var(--font-data);
 }
 .sync .dot{width:7px; height:7px; border-radius:99px; background:var(--ink-3); flex:none}
 .sync[data-s="synced"] .dot{background:var(--done)}
@@ -523,7 +527,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   padding:8px 4px 9px; color:var(--ink-2); font-weight:500; font-size:14px;
   display:flex; flex-direction:column; align-items:center; gap:2px; line-height:1.1;
 }
-.tab .n{font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.tab .n{font-family:var(--font-data); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
 .tab[aria-selected="true"]{background:var(--surface); border-color:var(--line); color:var(--ink); box-shadow:var(--shadow)}
 .tab[aria-selected="true"] .n{color:var(--accent-text)}
 .tab[aria-selected="true"]{border-bottom:2px solid var(--accent)}
@@ -536,7 +540,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   padding:7px 13px; font-size:13.5px; color:var(--ink-2); white-space:nowrap;
   display:inline-flex; align-items:center; gap:7px;
 }
-.lchip b{font-family:"Courier Prime", monospace; font-size:11px; font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.lchip b{font-family:var(--font-data); font-size:11px; font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums}
 .lchip[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text); font-weight:700}
 .lchip[aria-pressed="true"] b{color:var(--accent)}
 :root[data-theme="dark"] .lchip[aria-pressed="true"], :root:not([data-theme="light"]) .lchip[aria-pressed="true"]{color:var(--ink)}
@@ -546,13 +550,13 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 /* progress */
 .summary{padding:14px 0 4px}
 .sumhead{display:flex; align-items:flex-end; justify-content:space-between; gap:12px}
-.bignum{font-family:"Wildkins", Georgia, serif; font-weight:400; font-size:44px; line-height:.92; letter-spacing:-.01em; font-variant-numeric:tabular-nums; color:var(--ink)}
+.bignum{font-family:var(--font-display); font-weight:400; font-size:44px; line-height:.92; letter-spacing:-.01em; font-variant-numeric:tabular-nums; color:var(--ink)}
 .bignum span{font-size:20px; color:var(--ink-3); font-weight:500}
-.sumlabel{font-family:"Courier Prime", monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-text); text-align:right; font-weight:700}
+.sumlabel{font-family:var(--font-data); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-text); text-align:right; font-weight:700}
 .bar{height:8px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:12px}
 .bar > i{display:block; height:100%; background:linear-gradient(90deg, var(--done), var(--accent)); border-radius:99px; transition:width .35s ease}
 .meta{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-size:13px; color:var(--ink-2)}
-.meta b{font-family:"Courier Prime", monospace; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+.meta b{font-family:var(--font-data); font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
 .disclose{margin-top:10px; width:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; font-size:13px; color:var(--ink-2); display:flex; align-items:center; justify-content:space-between; gap:8px}
 .breakdown{border:1px solid var(--line); border-top:none; border-radius:0 0 var(--r) var(--r); background:var(--surface); padding:4px 12px 12px; margin-top:-1px}
 .brow{display:grid; grid-template-columns:1fr 52px; gap:10px; align-items:center; padding:7px 0; border-top:1px solid var(--line-soft)}
@@ -560,7 +564,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .bname{font-size:13px; display:flex; align-items:center; gap:7px}
 .bbar{display:block; height:5px; border-radius:99px; background:var(--surface-2); margin-top:5px; overflow:hidden}
 .bbar > s{display:block; height:100%; background:var(--done); border-radius:99px}
-.bcount{font-family:"Courier Prime", monospace; font-size:12px; color:var(--ink-2); text-align:right; font-variant-numeric:tabular-nums}
+.bcount{font-family:var(--font-data); font-size:12px; color:var(--ink-2); text-align:right; font-variant-numeric:tabular-nums}
 
 /* controls */
 .controls{display:flex; flex-direction:column; gap:8px; margin:16px 0 10px}
@@ -588,8 +592,8 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   border-radius:var(--r); padding:12px 14px;
 }
 .lstrip > div{flex:1; min-width:190px}
-.lstrip b{display:block; font-family:"Wildkins", Georgia, serif; font-size:15px; color:var(--ink)}
-.lstrip span{display:block; margin-top:3px; font-family:"Courier Prime", monospace;
+.lstrip b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
+.lstrip span{display:block; margin-top:3px; font-family:var(--font-data);
   font-size:12px; color:var(--ink-3); line-height:1.45}
 .btn.sm{padding:7px 11px; font-size:12.5px; flex:none}
 
@@ -603,7 +607,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .doi svg{color:var(--accent-text); stroke:var(--accent-text)}
 /* a touch larger, and a hair lighter, so four strokes do not clog at this size */
 .doi svg{width:20px; height:20px; stroke-width:1.85}
-.do b{display:block; font-family:"Wildkins", Georgia, serif; font-size:14px; color:var(--ink)}
+.do b{display:block; font-family:var(--font-display); font-size:14px; color:var(--ink)}
 /* scoped to the text column: `.do span` also matched .doi, which is a span, and
    repainted the icons in body-copy grey */
 .do > div span{display:block; margin-top:3px; font-size:12.5px; line-height:1.5; color:var(--ink-3)}
@@ -615,40 +619,40 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   padding:13px 14px; margin-top:12px; box-shadow:var(--shadow)}
 .phead{display:flex; align-items:center; gap:10px}
 .pwho{flex:1; min-width:0}
-.pwho b{display:block; font-family:"Wildkins", Georgia, serif; font-size:15px; color:var(--ink)}
-.pwho span{display:block; margin-top:2px; font-family:"Courier Prime", monospace;
+.pwho b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
+.pwho span{display:block; margin-top:2px; font-family:var(--font-data);
   font-size:11px; color:var(--ink-3)}
 .ptext{margin:10px 0 0; font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap}
 .phills{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
 .hpill{display:inline-flex; align-items:baseline; gap:6px; background:var(--surface-2);
   border:1px solid var(--line); border-radius:99px; padding:4px 11px;
-  font-family:"Wildkins", Georgia, serif; font-size:13px; color:var(--ink)}
-.hpill i{font-style:normal; font-family:"Courier Prime", monospace; font-size:10.5px; color:var(--ink-3)}
-.pdate{margin:8px 0 0; font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-3)}
+  font-family:var(--font-display); font-size:13px; color:var(--ink)}
+.hpill i{font-style:normal; font-family:var(--font-data); font-size:10.5px; color:var(--ink-3)}
+.pdate{margin:8px 0 0; font-family:var(--font-data); font-size:11px; color:var(--ink-3)}
 .pacts{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:12px;
   padding-top:10px; border-top:1px solid var(--line-soft)}
 .rbtn{border:1px solid var(--line); background:var(--raise); border-radius:99px;
   padding:4px 9px; font-size:14px; cursor:pointer; line-height:1.2;
   display:inline-flex; align-items:center; gap:5px}
-.rbtn i{font-style:normal; font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-2)}
+.rbtn i{font-style:normal; font-family:var(--font-data); font-size:11px; color:var(--ink-2)}
 .rbtn.on{border-color:var(--accent); background:var(--accent-soft)}
 .pcm{margin-left:auto; padding:0; font-size:12.5px}
 .pcomments{margin-top:10px; padding-top:10px; border-top:1px solid var(--line-soft)}
 .pc{display:flex; gap:9px; padding:6px 0}
-.pc b{font-family:"Wildkins", Georgia, serif; font-size:13.5px; color:var(--ink); margin-right:6px}
+.pc b{font-family:var(--font-display); font-size:13.5px; color:var(--ink); margin-right:6px}
 .pc span{font-size:13.5px; color:var(--ink-2); line-height:1.5}
-.pc i{display:block; margin-top:2px; font-style:normal; font-family:"Courier Prime", monospace;
+.pc i{display:block; margin-top:2px; font-style:normal; font-family:var(--font-data);
   font-size:10.5px; color:var(--ink-3)}
 .frow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:10px;
   background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
 .fwho2{display:flex; align-items:center; gap:10px; flex:1; min-width:170px}
-.fwho2 b{display:block; font-family:"Wildkins", Georgia, serif; font-size:14.5px; color:var(--ink)}
-.fwho2 span{display:block; margin-top:2px; font-family:"Courier Prime", monospace;
+.fwho2 b{display:block; font-family:var(--font-display); font-size:14.5px; color:var(--ink)}
+.fwho2 span{display:block; margin-top:2px; font-family:var(--font-data);
   font-size:11px; color:var(--ink-3)}
 .picked .pill{cursor:pointer; border:1px solid var(--line); background:var(--raise)}
 .picked .pill.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
 .avatar.tiny.initial, .avatar.sm.initial{display:grid; place-items:center; background:var(--moss);
-  color:#F6EFE4; font-family:"Wildkins", Georgia, serif}
+  color:#F6EFE4; font-family:var(--font-display)}
 .avatar.sm.initial{font-size:15px}
 .avatar.tiny.initial{font-size:11px}
 
@@ -659,24 +663,24 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 }
 .ddate{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   padding-bottom:10px; border-bottom:1px solid var(--line-soft)}
-.ddate b{font-family:"Wildkins", Georgia, serif; font-size:17px; color:var(--ink)}
-.ddate span{font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--accent-text);
+.ddate b{font-family:var(--font-display); font-size:17px; color:var(--ink)}
+.ddate span{font-family:var(--font-data); font-size:11.5px; color:var(--accent-text);
   letter-spacing:.06em; text-transform:uppercase}
 .dsummits{margin-top:10px}
-.dcount{font-family:"Courier Prime", monospace; font-size:10px; letter-spacing:.12em;
+.dcount{font-family:var(--font-data); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
 .dsummits ul{list-style:none; margin:6px 0 0; padding:0}
 .dsummits li{display:flex; align-items:baseline; gap:10px; padding:4px 0}
-.dsummits li .linkbtn{padding:0; font-family:"Wildkins", Georgia, serif; font-size:15px;
+.dsummits li .linkbtn{padding:0; font-family:var(--font-display); font-size:15px;
   color:var(--ink); text-align:left}
-.dsummits li i{margin-left:auto; font-style:normal; font-family:"Courier Prime", monospace;
+.dsummits li i{margin-left:auto; font-style:normal; font-family:var(--font-data);
   font-size:11.5px; color:var(--ink-3); white-space:nowrap}
 .dnote{margin:10px 0 0; font-size:14px; line-height:1.6; color:var(--ink-2)}
-.dnote b{display:block; font-family:"Courier Prime", monospace; font-size:10px;
+.dnote b{display:block; font-family:var(--font-data); font-size:10px;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:3px}
 .dentry{margin-top:12px; padding:11px 12px; border-left:3px solid var(--accent);
   background:var(--surface-2); border-radius:0 10px 10px 0}
-.dentry h3{margin:0 0 5px; font-family:"Wildkins", Georgia, serif; font-size:15.5px; color:var(--ink)}
+.dentry h3{margin:0 0 5px; font-family:var(--font-display); font-size:15.5px; color:var(--ink)}
 .dentry p{margin:0; font-size:14px; line-height:1.6; color:var(--ink-2); white-space:pre-wrap}
 .drow{display:flex; gap:14px; margin-top:9px; flex-wrap:wrap; align-items:center}
 .drow .linkbtn{padding:0; font-size:12px}
@@ -695,10 +699,10 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .wxi svg{width:22px; height:22px}
 .wxi.big svg{width:34px; height:34px}
 .wxsum{flex:1; min-width:0}
-.wxsum b{display:block; font-family:"Wildkins", Georgia, serif; font-size:16px; color:var(--ink)}
-.wxsum span{display:block; margin-top:2px; font-family:"Courier Prime", monospace;
+.wxsum b{display:block; font-family:var(--font-display); font-size:16px; color:var(--ink)}
+.wxsum span{display:block; margin-top:2px; font-family:var(--font-data);
   font-size:11.5px; color:var(--ink-3)}
-.wxtemp{text-align:right; flex:none; font-family:"Wildkins", Georgia, serif}
+.wxtemp{text-align:right; flex:none; font-family:var(--font-display)}
 .wxtemp b{font-size:26px; line-height:1; color:var(--ink)}
 .wxtemp i{font-style:normal; font-size:15px; color:var(--ink-3); margin-left:4px}
 .wxgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:1px;
@@ -706,7 +710,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   overflow:hidden; margin-top:12px}
 .wxgrid > div{background:var(--surface); padding:9px 11px}
 .wxgrid > div.warn{background:color-mix(in srgb, var(--warn) 12%, var(--surface))}
-.wxgrid dt{font-family:"Courier Prime", monospace; font-size:9.5px; letter-spacing:.11em;
+.wxgrid dt{font-family:var(--font-data); font-size:9.5px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--ink-3); margin:0}
 .wxgrid dd{margin:4px 0 0; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums}
 .wxgrid > div.warn dd{color:var(--warn); font-weight:700}
@@ -721,12 +725,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    same line and both wrapped. The plain-English answer leads, the chart backs
    it up. */
 .wxrhead{margin-bottom:9px}
-.wxrhead dt{font-family:"Courier Prime", monospace; font-size:9.5px; letter-spacing:.11em;
+.wxrhead dt{font-family:var(--font-data); font-size:9.5px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--ink-3); margin:0}
 .wxrhead dd{margin:3px 0 0; font-size:13.5px; color:var(--ink); font-weight:600; line-height:1.35}
 .wxplot{display:flex; gap:6px}
 .wxscale{display:flex; flex-direction:column; justify-content:space-between; height:64px;
-  font-family:"Courier Prime", monospace; font-size:8.5px; color:var(--ink-3); width:16px;
+  font-family:var(--font-data); font-size:8.5px; color:var(--ink-3); width:16px;
   text-align:right; flex:none; line-height:1}
 .wxbars{position:relative; flex:1 1 auto; display:flex; align-items:flex-end; gap:2px; height:64px;
   border-bottom:1px solid var(--line); padding-bottom:0}
@@ -739,12 +743,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .wxbar.on i{background:var(--accent)}
 .wxaxis{display:flex; gap:2px; margin-top:4px}
 .wxaxis .wxpad{width:16px; flex:none; margin-right:6px}
-.wxaxis span{flex:1 1 0; text-align:center; font-family:"Courier Prime", monospace;
+.wxaxis span{flex:1 1 0; text-align:center; font-family:var(--font-data);
   font-size:8.5px; color:var(--ink-3)}
 
 /* the date row on a route card */
 .plandate{margin-top:10px}
-.plandate label{display:block; font-family:"Courier Prime", monospace; font-size:9.5px;
+.plandate label{display:block; font-family:var(--font-data); font-size:9.5px;
   letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
 .plandate .linkbtn{padding:0; font-size:12px}
 .plandate .dhint{margin:6px 0 0; font-size:12px; color:var(--ink-3)}
@@ -769,11 +773,11 @@ dl.lfacts{margin:0}
 .lfacts{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
   background:var(--line-soft); border:1px solid var(--line); border-radius:10px; overflow:hidden}
 .lfacts > div{background:var(--surface); padding:10px 12px}
-.lfacts dt{font-family:"Courier Prime", monospace; font-size:10px; letter-spacing:.12em;
+.lfacts dt{font-family:var(--font-data); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3); margin:0}
 .lfacts dd{margin:4px 0 0; font-size:13.5px; color:var(--ink); line-height:1.4}
 .ltext{font-size:14.5px; line-height:1.65; color:var(--ink-2); margin:14px 0 0}
-.lprog{font-family:"Courier Prime", monospace; font-size:13px; color:var(--ink-2);
+.lprog{font-family:var(--font-data); font-size:13px; color:var(--ink-2);
   margin:12px 0 0; padding-top:12px; border-top:1px solid var(--line-soft)}
 .lprog b{color:var(--accent-text); font-size:16px}
 
@@ -788,8 +792,8 @@ dl.lfacts{margin:0}
 /* list */
 .grouphead{position:sticky; top:var(--topH,104px); z-index:5; padding:16px 2px 6px; background:linear-gradient(var(--ground) 70%, transparent)}
 .gt{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
-.grouphead h2{margin:0; font-family:"Wildkins", Georgia, serif; font-weight:700; font-size:14px; letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; gap:8px}
-.grouphead span{font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
+.grouphead h2{margin:0; font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+.grouphead span{font-family:var(--font-data); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
 .gbar{display:block; height:4px; border-radius:99px; background:var(--surface-2); margin-top:6px; overflow:hidden}
 .gbar > i{display:block; height:100%; background:var(--done); border-radius:99px; transition:width .3s ease}
 .swatch{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block}
@@ -841,7 +845,7 @@ li.hill.s-progress{border-color:var(--prog)}
 .meta .m-prog b{color:var(--prog)}
 .tick:active{transform:scale(.88) rotate(-3deg)}
 .hmain{flex:0 1 auto; min-width:0; background:none; border:none; padding:2px 0; text-align:left}
-.hname{font-size:16px; line-height:1.3; display:block; font-family:"Wildkins", Georgia, serif; letter-spacing:.005em}
+.hname{font-size:16px; line-height:1.3; display:block; font-family:var(--font-display); letter-spacing:.005em}
 .hsub{font-size:11.5px; color:var(--ink-3); display:block; margin-top:1px}
 .hsub .stampdate{color:var(--done); font-weight:700; letter-spacing:.04em}
 .hsub .wel{font-style:italic}
@@ -850,7 +854,7 @@ li.hill.s-progress{border-color:var(--prog)}
 .info-btn{
   flex:none; width:24px; height:24px; border-radius:99px; padding:0;
   border:1.5px solid var(--line); background:transparent; color:var(--ink-3);
-  font-family:"Wildkins", Georgia, serif; font-weight:700; font-size:13px; line-height:1;
+  font-family:var(--font-display); font-weight:700; font-size:13px; line-height:1;
   display:grid; place-items:center;
 }
 .info-btn:hover{border-color:var(--accent); color:var(--accent)}
@@ -858,21 +862,21 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 #info .sheetbox{max-width:600px}
 .iimg{width:100%; max-height:230px; object-fit:cover; border-radius:12px; margin:4px 0 14px; background:var(--surface-2)}
 .iex{font-size:15.5px; line-height:1.6; color:var(--ink); margin:0 0 12px}
-.istats{font-family:"Courier Prime", monospace; font-size:12px; color:var(--ink-3); margin:0 0 10px}
+.istats{font-family:var(--font-data); font-size:12px; color:var(--ink-3); margin:0 0 10px}
 .isrc{font-size:12.5px; color:var(--ink-3); margin:0}
 .aw{border-left:3px solid var(--accent); padding:2px 0 2px 14px; margin:0 0 16px}
-.aw blockquote{margin:0; font-family:"Wildkins", Georgia, serif; font-size:17.5px; line-height:1.45; letter-spacing:-.01em; text-wrap:pretty}
-.aw cite{display:block; font-style:normal; font-family:"Courier Prime", monospace; font-size:11px; letter-spacing:.05em; color:var(--ink-3); margin-top:8px}
+.aw blockquote{margin:0; font-family:var(--font-display); font-size:17.5px; line-height:1.45; letter-spacing:-.01em; text-wrap:pretty}
+.aw cite{display:block; font-style:normal; font-family:var(--font-data); font-size:11px; letter-spacing:.05em; color:var(--ink-3); margin-top:8px}
 .aw cite a{color:inherit}
 .popshot{width:100%; height:96px; object-fit:cover; border-radius:8px; display:block; margin-bottom:8px; background:var(--surface-2)}
-.hh{font-family:"Courier Prime", monospace; font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink-2); flex:none; text-align:right; line-height:1.3}
+.hh{font-family:var(--font-data); font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink-2); flex:none; text-align:right; line-height:1.3}
 .hh b{font-weight:600; color:var(--ink)}
 .hh s{text-decoration:none; color:var(--ink-3); font-size:10.5px; display:block}
 .tags{display:flex; gap:3px; flex-wrap:wrap; margin-top:3px}
-.tag{font-family:"Courier Prime", monospace; font-size:9px; letter-spacing:.04em; border:1px solid var(--line); color:var(--ink-3); border-radius:4px; padding:1px 4px}
+.tag{font-family:var(--font-data); font-size:9px; letter-spacing:.04em; border:1px solid var(--line); color:var(--ink-3); border-radius:4px; padding:1px 4px}
 
 .detail{border-top:1px solid var(--line-soft); padding:10px 12px 12px; display:flex; flex-direction:column; gap:10px}
-.detail label, .form label{font-family:"Courier Prime", monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
+.detail label, .form label{font-family:var(--font-data); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
 .detail textarea, .form input, .form textarea{width:100%; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 10px; outline:none; font-size:15px}
 .detail textarea, .form textarea{resize:vertical; min-height:56px}
 .form .field input{border:none; background:none; padding:11px 0}
@@ -882,7 +886,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .fbNameIn{width:100%; background:var(--raise); color:var(--ink); border:1px solid var(--line);
   border-radius:10px; padding:9px 10px; outline:none; font-size:15px}
 .fbNameIn:focus{border-color:var(--accent)}
-.accountBox label{font-family:"Courier Prime", monospace; font-size:10px; letter-spacing:.08em;
+.accountBox label{font-family:var(--font-data); font-size:10px; letter-spacing:.08em;
   text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
 .dategroup{display:flex; gap:6px; align-items:stretch}
 .dsel{background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 6px 9px 9px; font-size:15px; outline:none; min-width:0}
@@ -949,7 +953,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .viewer .vbar .cap{color:#D8DCD0; font-size:13px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .vcount{
-  flex:none; color:#AEB6A8; font-family:"Courier Prime", monospace; font-size:12px;
+  flex:none; color:#AEB6A8; font-family:var(--font-data); font-size:12px;
   letter-spacing:.06em; padding:4px 10px; border-radius:99px; background:rgba(255,255,255,.08);
 }
 /* the roll along the bottom — current one is ringed */
@@ -1028,7 +1032,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .leaflet-popup-tip{background:var(--surface)}
 .leaflet-popup-content{margin:11px 13px; font-size:14px}
 .leaflet-popup-content b{font-size:15px; display:block}
-.leaflet-popup-content .pm{font-family:"Courier Prime", monospace; font-size:11.5px; color:var(--ink-3); display:block; margin:2px 0 8px}
+.leaflet-popup-content .pm{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); display:block; margin:2px 0 8px}
 .popbtn{border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:9px; padding:7px 11px; font-weight:600; font-size:13px; width:100%}
 .popbtn.off{background:transparent; color:var(--accent)}
 .maplegend{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:12px; color:var(--ink-3); align-items:center}
@@ -1044,7 +1048,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1; padding:0 2px; align-self:center}
 /* ---- outdoor furniture ---- */
 .eyebrow{
-  font-family:"Courier Prime", monospace; font-size:11px; font-weight:700;
+  font-family:var(--font-data); font-size:11px; font-weight:700;
   letter-spacing:.16em; text-transform:uppercase; color:var(--accent-text);
   /* real air above so a section title never sits tight under the block before it */
   margin:30px 0 10px; display:flex; align-items:center; gap:8px;
@@ -1059,10 +1063,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   padding:16px 16px 0;
 }
 .jtop{display:flex; align-items:flex-end; justify-content:space-between; gap:14px; position:relative; z-index:2}
-.jpct{font-family:"Wildkins", Georgia, serif; font-size:clamp(46px,13vw,64px); line-height:.86; letter-spacing:-.01em; color:var(--ink)}
+.jpct{font-family:var(--font-display); font-size:clamp(46px,13vw,64px); line-height:.86; letter-spacing:-.01em; color:var(--ink)}
 .jpct sup{font-size:.42em; vertical-align:super; margin-left:2px; color:var(--accent-text)}
-.jsub{font-family:"Wildkins", Georgia, serif; font-weight:800; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2); margin-top:6px}
-.jcount{font-family:"Courier Prime", monospace; font-size:12.5px; color:var(--ink-3); text-align:right; line-height:1.5}
+.jsub{font-family:var(--font-display); font-weight:800; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2); margin-top:6px}
+.jcount{font-family:var(--font-data); font-size:12.5px; color:var(--ink-3); text-align:right; line-height:1.5}
 .jcount b{color:var(--ink); font-weight:700}
 
 /* ---- a friend's log: who, then their numbers ---- */
@@ -1076,25 +1080,25 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .avatar.big.initial{
   display:grid; place-items:center; background:var(--moss); color:#F6EFE4;
-  font-family:"Wildkins", Georgia, serif; font-size:32px; line-height:1;
+  font-family:var(--font-display); font-size:32px; line-height:1;
 }
 .fname2{min-width:0}
 .fname2 h2{
-  font-family:"Wildkins", Georgia, serif; font-size:clamp(21px,5.6vw,28px);
+  font-family:var(--font-display); font-size:clamp(21px,5.6vw,28px);
   line-height:1.1; color:var(--ink); margin:0; overflow-wrap:anywhere;
 }
 .fname2 span{
-  display:block; margin-top:5px; font-family:"Courier Prime", monospace;
+  display:block; margin-top:5px; font-family:var(--font-data);
   font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3);
 }
 .fnums{text-align:right; flex:none}
 .ftot b{
-  display:block; font-family:"Wildkins", Georgia, serif; font-size:clamp(28px,8vw,38px);
+  display:block; font-family:var(--font-display); font-size:clamp(28px,8vw,38px);
   line-height:.9; color:var(--ink);
 }
 .ftot i{
   display:block; font-style:normal; margin-top:5px;
-  font-family:"Courier Prime", monospace; font-size:10.5px; letter-spacing:.1em;
+  font-family:var(--font-data); font-size:10.5px; letter-spacing:.1em;
   text-transform:uppercase; color:var(--ink-3);
 }
 .fnums .jcount{margin-top:10px; text-align:right}
@@ -1116,7 +1120,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .rrow{display:flex; align-items:center; gap:11px; width:100%; padding:11px 13px; background:none; border:none; border-top:1px solid var(--line-soft); text-align:left}
 .rrow:first-child{border-top:none}
 .rrow .dot{width:11px; height:11px; border-radius:99px; flex:none; background:var(--sage)}
-.rrow .rsub{display:block; font-style:normal; font-family:"Courier Prime", monospace;
+.rrow .rsub{display:block; font-style:normal; font-family:var(--font-data);
   font-size:11.5px; color:var(--ink-3); margin-top:2px}
 /* first-run list picker: a real tick box, because you choose several */
 .rrow.picker{cursor:pointer}
@@ -1141,8 +1145,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   /* no bottom nav on desktop, so it only needs a little breathing room */
   .onboardbar{bottom:16px}
 }
-.rrow .rn{flex:1; min-width:0; font-size:15px; font-family:"Wildkins", Georgia, serif; letter-spacing:.01em}
-.rrow .rc{font-family:"Courier Prime", monospace; font-size:13px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.rrow .rn{flex:1; min-width:0; font-size:15px; font-family:var(--font-display); letter-spacing:.01em}
+.rrow .rc{font-family:var(--font-data); font-size:13px; color:var(--ink-2); font-variant-numeric:tabular-nums}
 .rrow .chev{color:var(--ink-3); flex:none; width:8px}
 .rrow[aria-pressed="true"]{background:var(--accent-soft)}
 .rrow .rbar{display:block; height:3px; border-radius:99px; background:var(--surface-2); margin-top:6px; overflow:hidden}
@@ -1193,7 +1197,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .milestone .disc.hasimg::after,
 .milestone.got .disc.hasimg::after{display:none}
 .patch .disc svg{width:44px; height:44px}
-.patch .pl{font-family:"Wildkins", Georgia, serif; font-weight:700; font-size:11px; line-height:1.25;
+.patch .pl{font-family:var(--font-display); font-weight:700; font-size:11px; line-height:1.25;
   letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2)}
 .patch.got .pl{color:var(--ink)}
 
@@ -1202,7 +1206,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   display:inline-flex; flex-direction:column; align-items:center; gap:3px;
   border:3.5px solid var(--accent); color:var(--accent); border-radius:8px;
   padding:9px 18px 8px; transform:rotate(-5deg); opacity:.92;
-  font-family:"Wildkins", Georgia, serif;
+  font-family:var(--font-display);
 }
 .verified{display:flex; align-items:center; gap:8px; margin:10px 0 0; font-size:13.5px; color:var(--done); font-weight:600}
 .verified .vtick{width:20px; height:20px; border-radius:99px; background:var(--done); color:var(--surface);
@@ -1215,10 +1219,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .vbadge svg{width:9px; height:9px}
 .stamp.vstamp{border-style:double; border-width:5px}
-.stamp .vline{font-family:"Courier Prime", monospace; font-size:9px; letter-spacing:.14em;
+.stamp .vline{font-family:var(--font-data); font-size:9px; letter-spacing:.14em;
   text-transform:uppercase; margin-top:1px; opacity:.85}
 .stamp b{font-size:19px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; line-height:1}
-.stamp span{font-family:"Courier Prime", monospace; font-size:12px; letter-spacing:.06em; white-space:nowrap}
+.stamp span{font-family:var(--font-data); font-size:12px; letter-spacing:.06em; white-space:nowrap}
 /* photos on the left, the stamp standing to their right */
 .photorow{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .photorow .shots{flex:1 1 auto; min-width:0}
@@ -1244,17 +1248,17 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* Specificity has to beat `.sheetbox h2` further down, which is equal weight
    but later in the file and resets the margin to nothing. */
 .win .sheetbox h2{
-  font-family:"Wildkins", Georgia, serif; font-size:clamp(24px,7vw,30px);
+  font-family:var(--font-display); font-size:clamp(24px,7vw,30px);
   /* the patch needs room to breathe before the word lands under it */
   color:var(--accent-text); margin:34px 0 10px; text-transform:uppercase; letter-spacing:.02em;
 }
 /* `.sheetbox p` is later and equal weight, so these need the extra class too */
 .win .sheetbox .wineyebrow{
-  font-family:"Courier Prime", monospace; font-size:10.5px; letter-spacing:.16em;
+  font-family:var(--font-data); font-size:10.5px; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink-3); margin:0 0 28px;
 }
 .win .sheetbox .winnames{
-  font-family:"Wildkins", Georgia, serif; font-size:16px; line-height:1.5;
+  font-family:var(--font-display); font-size:16px; line-height:1.5;
   color:var(--ink); margin:0 0 2px;
 }
 .windiscs{display:flex; justify-content:center; flex-wrap:wrap; gap:18px; padding:4px 0 2px}
@@ -1303,9 +1307,9 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .avatar.sm{width:34px; height:34px; border-width:1px}
 /* on a leaderboard row the picture stands in for the colour dot */
 .rrow .avatar.tiny{width:22px; height:22px; border-width:1px; margin:0}
-.pinfo b{display:block; font-size:16px; font-family:"Wildkins", Georgia, serif}
+.pinfo b{display:block; font-size:16px; font-family:var(--font-display)}
 .pinfo span{font-size:12.5px; color:var(--ink-3)}
-.gcode{font-family:"Courier Prime", monospace; letter-spacing:.22em; color:var(--accent-text); font-weight:700}
+.gcode{font-family:var(--font-data); letter-spacing:.22em; color:var(--accent-text); font-weight:700}
 .rrow[disabled]{cursor:default}
 .empty{text-align:center; color:var(--ink-3); padding:40px 20px; font-size:14px}
 .planintro{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:16px; font-size:14px; color:var(--ink-2); line-height:1.5}
@@ -1321,12 +1325,12 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .pill button{border:none; background:none; color:inherit; font-size:15px; line-height:1; padding:0 2px}
 .results{display:flex; flex-direction:column; gap:4px; max-height:210px; overflow-y:auto}
 .results button{text-align:left; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:14px; display:flex; justify-content:space-between; gap:10px}
-.results button span{font-family:"Courier Prime", monospace; font-size:12px; color:var(--ink-3)}
+.results button span{font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
 .plan{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:10px}
 .plan.done{border-color:var(--done-line); background:var(--done-soft)}
 .planhead{display:flex; align-items:flex-start; gap:10px}
-.plan h3{margin:0; font-family:"Wildkins", Georgia, serif; font-size:18px; letter-spacing:-.01em; flex:1}
-.planmeta{font-family:"Courier Prime", monospace; font-size:11px; color:var(--ink-3); letter-spacing:.04em; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
+.plan h3{margin:0; font-family:var(--font-display); font-size:18px; letter-spacing:-.01em; flex:1}
+.planmeta{font-family:var(--font-data); font-size:11px; color:var(--ink-3); letter-spacing:.04em; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
 .plannotes{font-size:14px; color:var(--ink-2); margin:10px 0 0; white-space:pre-wrap}
 .planhills{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:4px}
 .planhills li{display:flex; align-items:center; gap:9px; font-size:14px; padding:3px 0}
@@ -1337,7 +1341,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .planhills .on .nm{color:var(--ink-2); text-decoration:line-through; text-decoration-color:var(--done)}
 .rmwrap{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:12px; position:relative}
 .rmhead{display:flex; align-items:center; justify-content:space-between; gap:10px}
-.rmhead h3{font-family:"Wildkins", Georgia, serif; margin:0; font-size:17px; padding-right:34px}
+.rmhead h3{font-family:var(--font-display); margin:0; font-size:17px; padding-right:34px}
 .rmwrap .xbtn{top:10px; right:10px}
 .rmhint{font-size:13px; color:var(--ink-2); margin:6px 0 10px}
 .rmbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
@@ -1351,7 +1355,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .wp{
   width:26px; height:26px; border-radius:99px; display:grid; place-items:center;
   background:var(--raise); color:var(--ink); border:2.5px solid #B4491A;
-  font:600 12px/1 "Courier Prime", monospace; cursor:grab;
+  font:600 12px/1 var(--font-data); cursor:grab;
   box-shadow:0 2px 8px -1px rgba(0,0,0,.45);
 }
 .wp.wpa{background:#B4491A; color:#FFF3E9}
@@ -1395,10 +1399,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .askbox .btnrow{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap}
 .askbox .btnrow .btn{flex:1 1 auto; min-width:120px}
 .form{position:relative}
-.sheetbox h2{font-family:"Wildkins", Georgia, serif; margin:0 0 4px; font-size:20px}
-.sheetbox h3{font-family:"Wildkins", Georgia, serif; margin:20px 0 4px; font-size:15px}
+.sheetbox h2{font-family:var(--font-display); margin:0 0 4px; font-size:20px}
+.sheetbox h3{font-family:var(--font-display); margin:20px 0 4px; font-size:15px}
 .sheetbox p{font-size:14px; color:var(--ink-2); margin:6px 0}
-.sheetbox textarea{width:100%; min-height:100px; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-family:"Courier Prime", monospace; font-size:12px; outline:none; resize:vertical}
+.sheetbox textarea{width:100%; min-height:100px; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-family:var(--font-data); font-size:12px; outline:none; resize:vertical}
 .togglerow{display:flex; align-items:center; gap:11px; padding:10px 0; border-top:1px solid var(--line-soft)}
 .togglerow:first-child{border-top:none}
 .togglerow .tinfo{flex:1; min-width:0}
@@ -1412,7 +1416,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* the open board wears the accent so it reads as the odd one out */
 .plan.globalcard{border-left:3px solid var(--accent)}
 .planhead .tag{
-  font-family:"Courier Prime", monospace; font-size:9.5px; letter-spacing:.08em;
+  font-family:var(--font-data); font-size:9.5px; letter-spacing:.08em;
   text-transform:uppercase; border:1px solid var(--accent); color:var(--accent-text);
   border-radius:4px; padding:2px 6px; margin-left:8px; white-space:nowrap;
 }
@@ -3485,7 +3489,7 @@ function renderFeed(){
   let s = '<p class="eyebrow">Activity</p>';
   const fr = allFriends();
   if (socialFailed && !fr.length && !feed.length){
-    return s + '<p class="empty">Could not reach the server. ' +
+    return s + '<p class="empty">' + esc(socialWhy || 'Could not reach the server.') + ' ' +
       '<button class="linkbtn" style="padding:0" data-act="refreshfeed">Try again</button></p>';
   }
   if (!fr.length && !feed.length){
@@ -3518,7 +3522,8 @@ function renderFeed(){
   }
 
   if (socialFailed && !feed.length){
-    s += '<p class="empty">Could not reach the server. Your own log is safe on this device. ' +
+    s += '<p class="empty">' + esc(socialWhy || 'Could not reach the server.') +
+      ' Your own log is safe on this device. ' +
       '<button class="linkbtn" style="padding:0" data-act="refreshfeed">Try again</button></p>';
   } else if (!feed.length){
     s += '<p class="empty">Nothing here yet. Mark a summit or share something above.</p>';
@@ -5661,7 +5666,7 @@ async function fbSignOut(){
   fbUser = null;
   /* forget what we loaded, so the next person to sign in gets their own boards
      rather than the last walker's rows sitting there */
-  groupRows = {}; boardsWanted = new Set(); socialWanted = false; socialFailed = false;
+  groupRows = {}; boardsWanted = new Set(); socialWanted = false; socialFailed = false; socialWhy = '';
   friendOpen = null;
   friends = []; friendReqs = []; feed = []; reactedBy = {}; commentsBy = {}; fbHandle = '';
   /* And the identity. Leaving these behind meant the next person to sign in
@@ -6086,7 +6091,7 @@ let feedBusy = false, friendsBusy = false;
    friends yet". Deliberately NOT paired with clearing socialWanted: render()
    calls autoLoadSocial(), so re-arming the load on failure spins a loop.
    Recovery is the Try again button, which calls loadFeed/loadFriends. */
-let socialFailed = false;
+let socialFailed = false, socialWhy = '';
 let reactedBy = {};                // postId -> {uid: emoji}
 let commentsBy = {};               // postId -> [comments]
 
@@ -6198,7 +6203,7 @@ async function loadFriends(){
     const rs = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'requests'));
     const rq = []; rs.forEach(d => rq.push({uid:d.id, ...(d.data() || {})}));
     friendReqs = rq;
-  }catch(e){ socialFailed = true; }
+  }catch(e){ socialFailed = true; socialWhy = fbWhy(e); }
   friendsBusy = false;
   render();
 }
@@ -6313,7 +6318,7 @@ async function loadFeed(){
        know, or a stranger could drop content in front of me. */
     const known = new Set([fbUser.uid, ...friendUids()]);
     feed = out.filter(p => known.has(p.uid));
-    socialFailed = false;
+    socialFailed = false; socialWhy = '';
     /* Show the posts now rather than after the thread of every one of them has
        come back. The reactions and comments then fill in behind. */
     feedBusy = false; render();
@@ -6328,6 +6333,7 @@ async function loadFeed(){
        autoLoadSocial(), and re-arming here spun a fetch/render loop.
        Recovery is the Try again button, which calls this directly. */
     socialFailed = true;
+    socialWhy = fbWhy(e);
   }
   feedBusy = false;
   render();
@@ -6611,6 +6617,13 @@ function fbWhy(e){
     return 'The server refused that. Your Firestore rules need to allow the groups collection — see the setup guide.';
   if (c === 'unavailable' || c === 'deadline-exceeded')
     return 'Could not reach the server. Check your connection and try again.';
+  /* Firestore refuses a query it has no index for, and it is easy to read that
+     as an outage. It is not: the feed filters on `aud` and sorts on `t`, and
+     that pair needs a composite index. The console prints a link that pre-fills
+     the form. */
+  if (c === 'failed-precondition')
+    return 'The activity feed needs a Firestore index (aud + t) that has not been created yet. ' +
+           'Open the browser console — Firestore prints a link that builds it in one click.';
   if (c === 'unauthenticated') return 'You have been signed out. Sign in again and retry.';
   if (c === 'not-signed-in')   return 'Sign in from the Profile section first.';
   if (c === 'resource-exhausted') return 'That project has hit its Firestore quota for today.';
