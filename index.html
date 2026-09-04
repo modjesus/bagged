@@ -1046,6 +1046,125 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .banner{display:flex; gap:10px; align-items:flex-start; margin-top:14px; background:var(--surface); border:1px solid var(--warn); border-left-width:4px; border-radius:var(--r); padding:11px 13px; font-size:13.5px; color:var(--ink-2); line-height:1.45}
 .banner b{color:var(--warn); display:block; margin-bottom:2px}
 .banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1; padding:0 2px; align-self:center}
+/* ---- Routes: day strip, search results, mode bar ---- */
+.rstep{margin:14px 0 7px; font-family:var(--font-data); font-size:10px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3)}
+.daystrip{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch}
+.daychip{
+  flex:0 0 auto; min-width:62px; padding:8px 10px; border-radius:10px; text-align:center;
+  background:var(--surface); border:1px solid var(--line); color:var(--ink-2); cursor:pointer;
+}
+.daychip b{display:block; font-family:var(--font-display); font-size:14px; color:var(--ink)}
+.daychip i{display:block; font-style:normal; font-family:var(--font-data);
+  font-size:10.5px; color:var(--ink-3); margin-top:2px}
+.daychip.on{border-color:var(--accent); background:var(--accent-soft)}
+.daychip.on b, .daychip.on i{color:var(--accent-text)}
+
+.rqres{margin-top:8px; border:1px solid var(--line); border-radius:var(--r); overflow:hidden}
+.rqrow{
+  display:flex; align-items:baseline; gap:10px; width:100%; text-align:left; cursor:pointer;
+  padding:10px 12px; background:var(--surface); border:0; border-bottom:1px solid var(--line-soft);
+  color:inherit;
+}
+.rqrow:last-child{border-bottom:0}
+.rqrow:hover{background:var(--surface-2)}
+.rqn{flex:1; min-width:0; font-family:var(--font-display); font-size:15px; color:var(--ink)}
+.rqm{font-family:var(--font-data); font-size:11px; color:var(--ink-3); white-space:nowrap}
+.rqempty{margin:8px 0 0; font-size:13px; color:var(--ink-3)}
+
+/* the map, with a lane beside it you can always scroll from */
+.mapwrap{position:relative; display:flex; gap:0; align-items:stretch}
+.mapwrap > #routemap, .mapwrap > #mapbox{flex:1; min-width:0}
+.scrollgrip{
+  flex:0 0 30px; display:none; align-items:center; justify-content:center;
+  flex-direction:column; gap:5px; touch-action:pan-y;
+}
+.scrollgrip span{width:4px; height:4px; border-radius:99px; background:var(--line); display:block}
+/* only where it is needed: a finger, not a mouse */
+@media (hover:none) and (pointer:coarse){
+  .scrollgrip{display:flex}
+}
+/* said over the map the moment one finger tries to drag it */
+#routemap, #mapbox{position:relative}
+.nudge::after{
+  content:"Use two fingers to move the map"; position:absolute; inset:auto 0 0 0; z-index:600;
+  background:color-mix(in srgb, var(--ink) 82%, transparent); color:var(--ground);
+  font-family:var(--font-data); font-size:11.5px; text-align:center; padding:7px 8px;
+  pointer-events:none;
+}
+/* what this can do — one strip of pills above the fold */
+/* Four across, sharing the width equally, so there is never a sideways scroll
+   on a phone. They shrink together rather than pushing the last one off. */
+.dostrip{display:flex; gap:5px; margin-top:12px}
+.dopill{
+  flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center;
+  gap:5px; cursor:pointer; padding:7px 6px; border-radius:99px; border:1px solid var(--line);
+  background:var(--surface); color:var(--ink-2); font-size:12px; white-space:nowrap;
+}
+.dopill span{overflow:hidden; text-overflow:ellipsis}
+.dopill svg{width:14px; height:14px; flex:none; opacity:.85}
+@media (max-width:359px){
+  .dopill{font-size:11px; gap:4px; padding:7px 4px}
+  .dopill svg{width:13px; height:13px}
+}
+.dopill.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); font-weight:700}
+.dopill.on svg{opacity:1}
+.dodetail{margin:8px 0 0; font-size:13px; color:var(--ink-2); line-height:1.5}
+
+.daychip.plusday{min-width:56px}
+.otherday{margin-top:10px; padding:10px 12px; background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--r)}
+.otherday label{display:block; font-family:var(--font-data); font-size:9.5px;
+  letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
+.otherday .linkbtn{padding:6px 0 0; font-size:13px}
+.wxcaution{margin:8px 0 0; font-size:12.5px; color:var(--ink-3); line-height:1.5}
+
+/* the condensed forecast */
+.wxmini{margin-top:12px; border:1px solid var(--line); border-radius:var(--r);
+  background:var(--surface); overflow:hidden}
+.wxminibar{display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  background:none; border:0; color:inherit; cursor:pointer; padding:10px 12px}
+.wxminibar .wxi{flex:none; width:30px; height:30px; color:var(--accent-text)}
+.wxminibar .wxi svg{width:100%; height:100%}
+.wxmt{flex:1; min-width:0}
+.wxmt b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
+.wxmt i{display:block; font-style:normal; font-family:var(--font-data);
+  font-size:11px; color:var(--ink-3); margin-top:1px}
+.wxmf{display:flex; gap:9px; flex:none}
+.wxmf em{font-style:normal; font-family:var(--font-data); font-size:12px; color:var(--ink-2);
+  white-space:nowrap}
+.wxmf em.warn{color:var(--warn); font-weight:700}
+.wxmini.open .wxminibar .dochev{transform:rotate(90deg)}
+.wxminibody{padding:0 12px 12px}
+.wxminibody .wxgrid{margin-top:0}
+@media (max-width:430px){
+  .wxmf{gap:7px}
+  .wxmf em{font-size:11px}
+}
+
+.plotbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+.planname{
+  flex:1; min-width:0; font-family:var(--font-display); font-size:17px; color:var(--ink);
+  background:var(--raise); border:1px solid var(--accent); border-radius:8px; padding:6px 9px;
+}
+.plannoteedit{margin-top:8px}
+.plannoteedit label{display:block; font-family:var(--font-data); font-size:9.5px;
+  letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:5px}
+/* tagging photos onto a hill */
+.tagpanel{margin-top:14px; padding:13px 14px; background:var(--surface);
+  border:1px solid var(--accent); border-radius:var(--r)}
+.tagpanel h3{margin:0; font-family:var(--font-display); font-size:16px; color:var(--ink)}
+.taghint{margin:5px 0 12px; font-size:13px; color:var(--ink-3); line-height:1.5}
+.tagrow{display:flex; gap:11px; align-items:flex-start; margin-bottom:12px}
+.tagshot{flex:0 0 62px; width:62px; height:62px; object-fit:cover; border-radius:8px;
+  border:1px solid var(--line); background:var(--surface-2)}
+.tagpicks{flex:1; min-width:0; display:flex; gap:6px; flex-wrap:wrap}
+.shot.tagged::after{content:""; position:absolute; top:4px; right:4px; width:7px; height:7px;
+  border-radius:99px; background:var(--accent); box-shadow:0 0 0 2px var(--surface)}
+.shot{position:relative}
+.plannoteedit textarea{width:100%; min-height:64px; background:var(--raise);
+  border:1px solid var(--line); border-radius:8px; padding:8px 10px; color:var(--ink); resize:vertical}
+
 /* ---- places on the ground: chips, pins and the detail sheet ---- */
 .poibar{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin:10px 0 6px}
 .poilab{font-family:var(--font-data); font-size:9.5px; letter-spacing:.12em;
@@ -1731,7 +1850,8 @@ let syncTimer = null, syncErr = '';
 let tab = 'd';
 let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null, breakdown:false,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
-          mapScope:'enabled', patchFrom:null, diaryForm:false, dDraft:null, planDate:null,
+          mapScope:'enabled', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null,
+          rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'lists'};
@@ -1786,6 +1906,7 @@ const hillsIn = id => HILLS.filter(h => h.l.includes(id));
 const regionOf = (h, id) => (h.r && h.r[id]) || 'Other';
 
 const MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MON_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 function dateParts(v){
   const m = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/.exec(v || '');
@@ -2120,6 +2241,7 @@ function setDiary(id, patch){
 async function addDiaryPhotos(id, files){
   const e = diaryEntry(id); if (!e) return;
   let added = 0, failed = 0;
+  const fresh = [];
   for (const f of files){
     if (!f || !/^image\//.test(f.type)){ failed++; continue; }
     try{
@@ -2127,20 +2249,52 @@ async function addDiaryPhotos(id, files){
       if (!blob){ failed++; continue; }
       const pid = uid(); await putBlob(pid, blob);
       const cur = diaryEntry(id); if (!cur) return;
-      cur.photos = [...(cur.photos || []), {id:pid, up:0, cap:''}];
+      cur.photos = [...(cur.photos || []), {id:pid, up:0, cap:'', k:''}];
+      fresh.push(pid);
       added++;
     }catch(err){ failed++; }
   }
   if (added){
     setDiary(id, {});
+    /* Straight into tagging: a photo is easiest to place the moment you add it,
+       and an untagged one stays in the diary and nowhere else. */
+    ui.tagging = {entry:id, ids:fresh, q:''};
     render();
-    toast(added + (added === 1 ? ' photo added' : ' photos added') +
-      (failed ? ' — ' + failed + ' could not be read.' : '.'));
   }
   else if (failed) toast(failed === 1 ? 'Could not read that image.' : 'Could not read any of those images.');
 }
+
+/* Tagging a diary photo to a hill puts the same photo on that hill's record —
+   one blob, two places to find it — so it shows on the Peaks row and the hill's
+   own panel exactly like one added from the summit. Untagged, it never leaves
+   the diary. */
+function tagDiaryPhoto(entryId, pid, key){
+  const e = diaryEntry(entryId); if (!e) return;
+  const ph = (e.photos || []).find(x => x.id === pid); if (!ph) return;
+  const was = ph.k || '';
+  if (was === key) return;
+
+  if (was){
+    const old = rec(was);
+    state.bagged[was] = {...old, photos:(old.photos || []).filter(x => x.id !== pid), t:now()};
+  }
+  ph.k = key || '';
+  if (key){
+    const r = rec(key);
+    if (!(r.photos || []).some(x => x.id === pid))
+      state.bagged[key] = {...r, photos:[...(r.photos || []), {id:pid, up:ph.up || 0, cap:ph.cap || '', fromDiary:1}], t:now()};
+  }
+  e.t = now();
+  touched();
+}
 async function removeDiaryPhoto(id, pid){
   const e = diaryEntry(id); if (!e) return;
+  const ph = (e.photos || []).find(p => p.id === pid);
+  /* if it was tagged to a hill, take it off that record too */
+  if (ph && ph.k){
+    const r = rec(ph.k);
+    state.bagged[ph.k] = {...r, photos:(r.photos || []).filter(x => x.id !== pid), t:now()};
+  }
   e.photos = (e.photos || []).filter(p => p.id !== pid);
   e.t = now();
   await delBlob(pid);
@@ -2186,6 +2340,7 @@ async function hydratePhotos(){
 function applyDate(el, value){
   if (el.dataset.plan){ if (ui.draft) ui.draft.date = value; render(); return; }
   if (el.dataset.diary){ if (ui.dDraft) ui.dDraft.date = value; render(); return; }
+  if (el.dataset.rday){ ui.rday = value; render(); return; }
   /* A saved route. There was no way to set a date on one after it was made, so
      an imported GPX stayed dateless for good and its card showed today's
      forecast as though it were the walk's. */
@@ -2758,7 +2913,7 @@ function render(){
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); }
   paintSync(); wire(); hydratePhotos();
   if (tab === 'u') hydratePostPhotos();
-  if (tab === 'p' && editor) mountRouteMap();
+  if (tab === 'p') mountRouteMap();
   if (tab === 'm') mountMap();
 }
 
@@ -3368,6 +3523,70 @@ function dayWhere(d){
   return [...areas].slice(0, 2).join(' & ');
 }
 
+/* Every photo from a day, wherever it was added — the summits you ticked and
+   the entry you wrote — as one run. A day is one memory, not four albums. */
+function dayPhotos(dateISO){
+  const out = [], seen = new Set();
+  for (const [k, r] of Object.entries(state.bagged)){
+    if (r.date !== dateISO || !BY_KEY[k]) continue;
+    for (const ph of (r.photos || [])){
+      if (seen.has(ph.id)) continue;
+      seen.add(ph.id);
+      out.push({...ph, k, from:BY_KEY[k] ? hillName(BY_KEY[k]) : ''});
+    }
+  }
+  for (const e of liveDiary()){
+    if (e.date !== dateISO) continue;
+    for (const ph of (e.photos || [])){
+      if (seen.has(ph.id)) continue;
+      seen.add(ph.id);
+      out.push({...ph, entry:e.id, from:e.title || 'Diary'});
+    }
+  }
+  return out;
+}
+
+/* The panel that appears right after photos are added: this day's summits as
+   buttons, a search for anything else, and leaving it be. */
+function tagPanelHTML(){
+  const t = ui.tagging; if (!t) return '';
+  const e = diaryEntry(t.entry); if (!e) return '';
+  const photos = (e.photos || []).filter(p => t.ids.includes(p.id));
+  if (!photos.length) return '';
+  const dayHills = Object.entries(state.bagged)
+    .filter(([k, r]) => r.date === e.date && BY_KEY[k] && isBagged(k))
+    .map(([k]) => BY_KEY[k])
+    .sort((a, b) => b.h - a.h);
+  const q = norm(t.q || '');
+  const found = q.length > 1
+    ? HILLS.filter(h => norm(h.n).includes(q) || norm(h.w).includes(q) || norm(altStr(h)).includes(q))
+           .filter(h => !dayHills.some(d => d.k === h.k)).sort((a,b) => b.h - a.h).slice(0, 6)
+    : [];
+
+  let s = '<div class="tagpanel"><h3>Tag these photos?</h3>' +
+    '<p class="taghint">Tagged to a hill, a photo also shows on that hill in your Peaks list. ' +
+    'Left untagged it stays in the diary and nowhere else.</p>';
+  for (const ph of photos){
+    s += '<div class="tagrow">' +
+      '<img class="tagshot" data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
+      '<div class="tagpicks">';
+    const chip = (k, label) =>
+      '<button class="chip" aria-pressed="' + ((ph.k || '') === k) + '" data-act="tagpick" ' +
+      'data-e="' + esc(e.id) + '" data-p="' + esc(ph.id) + '" data-k="' + esc(k) + '">' +
+      esc(label) + '</button>';
+    for (const h of dayHills) s += chip(h.k, hillName(h));
+    for (const h of found)    s += chip(h.k, hillName(h));
+    s += chip('', 'No tag');
+    s += '</div></div>';
+  }
+  s += '<div class="field" style="margin-top:8px">' +
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
+    '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>' +
+    '<input id="tagq" placeholder="Search any other hill\u2026" value="' + esc(t.q || '') + '" autocomplete="off"></div>';
+  s += '<div class="btnrow"><button class="btn" data-act="tagdone">Done</button></div>';
+  return s + '</div>';
+}
+
 function renderDiary(){
   const days = diaryDays();
   let html = '<h2 class="pagehead">Your diary</h2>';
@@ -3387,6 +3606,8 @@ function renderDiary(){
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="savediary">' +
       (d.id ? 'Save entry' : 'Add entry') + '</button></div></div>';
   }
+
+  html += tagPanelHTML();
 
   if (!days.length){
     return html + '<p class="empty">Nothing in the diary yet. Mark a summit with a date, or write up a day above.</p>';
@@ -3417,11 +3638,10 @@ function renderDiary(){
         (e.title ? '<h3>' + esc(e.title) + '</h3>' : '') +
         (e.text ? '<p>' + esc(e.text) + '</p>' : '');
 
-      /* the entry's own pictures, separate from the ones on that day's summits */
       if (eps.length){
         html += '<div class="shots dshots">' + eps.map(ph =>
-          '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewdiaryphoto" ' +
-          'data-id="' + esc(e.id) + '" data-p="' + esc(ph.id) + '"' +
+          '<button class="shot' + (ph.cap ? ' hascap' : '') + (ph.k ? ' tagged' : '') + '" ' +
+          'data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(ph.id) + '"' +
           (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
           '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
           (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') +
@@ -3432,6 +3652,7 @@ function renderDiary(){
         '<button class="linkbtn" data-act="editdiary" data-id="' + esc(e.id) + '">Edit</button>' +
         '<label class="linkbtn aslabel">+ Photos<input type="file" accept="image/*" multiple ' +
           'data-act="diaryphoto" data-id="' + esc(e.id) + '" hidden></label>' +
+        (eps.length ? '<button class="linkbtn" data-act="tagagain" data-id="' + esc(e.id) + '">Tag photos</button>' : '') +
         (fbConfigured()
           ? '<button class="linkbtn" data-act="sharediary" data-id="' + esc(e.id) + '">' +
             (e.shared ? 'Shared \u00b7 share again' : 'Share to feed') + '</button>'
@@ -3441,8 +3662,8 @@ function renderDiary(){
     }
 
     if (d.photos.length){
-      html += '<div class="shots">' + d.photos.slice(0, 8).map(ph =>
-        '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewphoto" data-k="' + esc(ph.k) +
+      html += '<div class="shots">' + d.photos.slice(0, 12).map(ph =>
+        '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewday" data-d="' + esc(d.date) +
         '" data-p="' + esc(ph.id) + '"' + (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
         '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
         (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') + '</div>';
@@ -3689,7 +3910,8 @@ function renderMapTab(){
   html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">All my lists</button>';
   html += '<button data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope==='one') + '">' + esc(LIST_BY[ui.list].name) + ' only</button>';
   html += '</div>' + styleSwitcher() + '</div>';
-  html += '<div id="mapbox"></div>';
+  html += '<div class="mapwrap"><div id="mapbox"></div>' +
+    '<div class="scrollgrip" aria-hidden="true"><span></span><span></span><span></span></div></div>';
   html += '<div class="maplegend"><span><i class="mk"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span><span>Size follows height</span></div>';
   html += '<p class="mapnote">' + mapSourceNote(mapCentre()) + '</p>';
   return html;
@@ -3721,6 +3943,7 @@ function mountMap(){
     markerLayer = L.layerGroup().addTo(map);
     mapReady = true;
     drawMarkers(true);
+    tameTouch(map, box);
   } else {
     setTimeout(() => map.invalidateSize(), 60);
     drawMarkers();
@@ -3990,52 +4213,58 @@ const POI_KINDS = {
     icon:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.5"/>'}
 };
 
-const POI_KEY = 'waymark.pois';
-function poiOn(){
-  try{
-    const raw = localStorage.getItem(POI_KEY);
-    if (raw){ const v = JSON.parse(raw); if (Array.isArray(v)) return new Set(v.filter(k => POI_KINDS[k])); }
-  }catch(e){}
-  return new Set(Object.keys(POI_KINDS).filter(k => POI_KINDS[k].on));
+/* One switch, not eight. Eight categories meant eight decisions before you saw
+   anything, and eight separate Overpass statements to wait on. Places are now
+   on or off, and the query is four regex statements instead of eleven — which
+   is most of why it used to take so long. */
+const POI_KEY = 'waymark.places';
+function placesOn(){
+  try{ return localStorage.getItem(POI_KEY) !== '0'; }catch(e){ return true; }
 }
-let poiWanted = poiOn();
-function setPoi(kind, on){
-  if (on) poiWanted.add(kind); else poiWanted.delete(kind);
-  try{ localStorage.setItem(POI_KEY, JSON.stringify([...poiWanted])); }catch(e){}
+let poiShow = placesOn();
+function setPlaces(on){
+  poiShow = !!on;
+  try{ localStorage.setItem(POI_KEY, on ? '1' : '0'); }catch(e){}
 }
 
-/* Everything fetched so far, and which boxes have been asked for, so panning
-   about does not re-ask Overpass for ground it already has. */
-let poiSeen = new Map();          // id -> place
-let poiBoxes = [];                // [{s,w,n,e,kinds}]
+/* Four statements covering everything the eight categories used to ask for
+   separately. Overpass charges by the statement, so this is the difference
+   between a wait and a blink. */
+const POI_QUERY = [
+  'nwr["amenity"~"^(parking|pub|bar|biergarten|cafe|restaurant|toilets|drinking_water|shelter|bus_station)$"]',
+  'nwr["tourism"~"^(camp_site|caravan_site|hostel|alpine_hut|wilderness_hut|information)$"]',
+  'nwr["highway"="bus_stop"]',
+  'nwr["railway"="station"]'
+];
+
+let poiSeen = new Map();
+let poiBoxes = [];
 let poiBusy = false, poiErr = '', poiTimer = null;
 
+/* kumi.systems first: it is consistently the quicker of the public mirrors. */
 const POI_MIRRORS = [
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter'
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass-api.de/api/interpreter'
 ];
 let poiMirror = 0;
 
-function boxCovered(b, kinds){
-  return poiBoxes.some(p =>
-    p.s <= b.s && p.w <= b.w && p.n >= b.n && p.e >= b.e &&
-    [...kinds].every(k => p.kinds.has(k)));
+function boxCovered(b){
+  return poiBoxes.some(p => p.s <= b.s && p.w <= b.w && p.n >= b.n && p.e >= b.e);
 }
 
-async function fetchPois(bounds, kinds){
-  if (!kinds.size) return;
-  const pad = 0.02;
+async function fetchPois(bounds){
+  const pad = 0.01;                       // just past the edge, not a whole county
   const b = {s:+(bounds.getSouth() - pad).toFixed(3), w:+(bounds.getWest() - pad).toFixed(3),
              n:+(bounds.getNorth() + pad).toFixed(3), e:+(bounds.getEast() + pad).toFixed(3)};
-  /* A whole county at once is neither kind to Overpass nor readable on screen. */
-  if ((b.n - b.s) > 0.6 || (b.e - b.w) > 0.9){ poiErr = 'zoom'; return; }
-  if (boxCovered(b, kinds)) return;
+  if ((b.n - b.s) > 0.45 || (b.e - b.w) > 0.7){ poiErr = 'zoom'; return; }
+  if (boxCovered(b)) return;
   if (poiBusy) return;
 
   const bbox = '(' + b.s + ',' + b.w + ',' + b.n + ',' + b.e + ')';
-  const parts = [];
-  for (const k of kinds) for (const q of POI_KINDS[k].q) parts.push(q + bbox + ';');
-  const ql = '[out:json][timeout:25];(' + parts.join('') + ');out center tags 400;';
+  /* 15s not 25: a slow answer is no use to somebody moving the map, and failing
+     fast lets the other mirror have a go. */
+  const ql = '[out:json][timeout:15];(' +
+    POI_QUERY.map(q => q + bbox + ';').join('') + ');out center tags 200;';
 
   poiBusy = true; poiErr = '';
   try{
@@ -4053,10 +4282,9 @@ async function fetchPois(bounds, kinds){
       if (!kind) continue;
       poiSeen.set(el.type + el.id, {id: el.type + el.id, kind, la, lo, t});
     }
-    poiBoxes.push({...b, kinds:new Set(kinds)});
-    if (poiBoxes.length > 12) poiBoxes.shift();
+    poiBoxes.push(b);
+    if (poiBoxes.length > 14) poiBoxes.shift();
   }catch(e){
-    /* the public instances are busy as often as not — try the mirror next time */
     poiMirror = (poiMirror + 1) % POI_MIRRORS.length;
     poiErr = String((e && e.message) || e);
   }
@@ -4162,71 +4390,54 @@ function poiPin(p){
 function drawPois(){
   if (!rmap || !poiLayer) return;
   poiLayer.clearLayers();
-  if (!poiWanted.size || rmap.getZoom() < 12) return;
+  if (!poiShow || rmap.getZoom() < 12) return;
   const b = rmap.getBounds().pad(0.1);
   let n = 0;
   for (const p of poiSeen.values()){
-    if (!poiWanted.has(p.kind)) continue;
     if (!b.contains([p.la, p.lo])) continue;
-    if (++n > 220) break;                     // a readable map beats a complete one
+    if (++n > 200) break;                     // a readable map beats a complete one
     const m = L.marker([p.la, p.lo], {icon: poiPin(p), zIndexOffset: 500, riseOnHover:true});
     m.bindTooltip(poiName(p), {direction:'top', offset:[0,-24]});
-    /* The pin does not add a point to the route — tapping the map already does
-       that, and a mis-tap on a pin would drop a stray waypoint. It opens the
-       place instead, and the route action is a deliberate button in there. */
+    /* The pin never adds a point. Tapping the map does that when you are
+       plotting, and a mis-tap on a pin would leave a stray waypoint behind. */
     m.on('click', e => { L.DomEvent.stopPropagation(e); openPoi(p.id); });
     poiLayer.addLayer(m);
   }
 }
 
-/* Ask Overpass for whatever the current view needs, then redraw. Debounced,
-   because panning fires this constantly and the public servers are shared. */
+/* Ask Overpass for whatever the view needs, then redraw. Anything already held
+   is drawn straight away rather than waiting on the network. */
 function poiRefresh(){
   if (!rmap) return;
+  drawPois();
   clearTimeout(poiTimer);
+  if (!poiShow){ paintPoiBar(); return; }
   poiTimer = setTimeout(async () => {
-    if (!rmap || !poiWanted.size) { drawPois(); paintPoiBar(); return; }
+    if (!rmap || !poiShow) return;
     if (rmap.getZoom() < 12){ poiErr = 'zoom'; drawPois(); paintPoiBar(); return; }
     paintPoiBar();
-    await fetchPois(rmap.getBounds(), poiWanted);
+    await fetchPois(rmap.getBounds());
     drawPois();
     paintPoiBar();
-  }, 650);
+  }, 400);
 }
 
-/* What to show on the ground, as chips you can flick on and off. */
-function poiBarHTML(){
-  let s = '<div class="poibar" id="poibar">';
-  s += '<span class="poilab">On the ground</span>';
-  for (const [k, v] of Object.entries(POI_KINDS)){
-    const on = poiWanted.has(k);
-    s += '<button class="chip poichip' + (on ? ' on' : '') + '" data-act="poitoggle" data-v="' + k + '"' +
-      ' aria-pressed="' + on + '">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round">' + v.icon + '</svg>' + esc(v.label) + '</button>';
-  }
-  s += '</div><p class="poistate" id="poistate">' + poiStateText() + '</p>';
-  return s;
-}
 function poiStateText(){
-  if (!poiWanted.size) return 'Nothing showing. Turn on what you want to see.';
-  if (rmap && rmap.getZoom() < 12) return 'Zoom in to load places.';
-  if (poiBusy) return 'Looking for places\u2026';
-  if (poiErr === 'zoom') return 'Zoom in a little to load places.';
-  if (poiErr) return 'Could not reach OpenStreetMap just now \u2014 the map still works. It will try again as you pan.';
-  const shown = [...poiSeen.values()].filter(p => poiWanted.has(p.kind)).length;
-  return shown ? shown.toLocaleString() + ' places from OpenStreetMap \u00b7 tap one for hours, charges and a way to start here'
-               : 'Nothing mapped around here yet.';
+  if (!poiShow) return '';
+  if (rmap && rmap.getZoom() < 12) return 'Zoom in to see what is on the ground.';
+  if (poiBusy) return 'Looking\u2026';
+  if (poiErr === 'zoom') return 'Zoom in a little.';
+  if (poiErr) return 'OpenStreetMap did not answer \u2014 the map still works, it will try again as you pan.';
+  const b = rmap && rmap.getBounds().pad(0.1);
+  const shown = b ? [...poiSeen.values()].filter(p => b.contains([p.la, p.lo])).length : 0;
+  return shown ? shown + ' places \u00b7 tap one for hours, charges and a way to start there'
+               : 'Nothing mapped around here.';
 }
 function paintPoiBar(){
   const el = document.getElementById('poistate');
   if (el) el.textContent = poiStateText();
-  const bar = document.getElementById('poibar');
-  if (bar) for (const b of bar.querySelectorAll('[data-act="poitoggle"]')){
-    const on = poiWanted.has(b.dataset.v);
-    b.classList.toggle('on', on);
-    b.setAttribute('aria-pressed', String(on));
-  }
+  const b = document.querySelector('[data-act="places"]');
+  if (b){ b.classList.toggle('on', poiShow); b.setAttribute('aria-pressed', String(poiShow)); }
 }
 
 function poiSheetEl(){ return document.getElementById('poisheet'); }
@@ -4278,6 +4489,7 @@ let editor = null, rmap = null, rmLayer = null, rmBusy = false, rmSeq = 0;
 
 function openEditor(id){
   const p = planById(id); if (!p) return;
+  ui.rmode = 'plot';
   let wp = (p.wp && p.wp.length) ? p.wp.map(c => [c[0], c[1]]) : [];
   if (!wp.length && p.trk && p.trk.length > 1){
     // seed handles from an imported track so it can still be nudged about
@@ -4291,7 +4503,28 @@ function openEditor(id){
   editor = {id, wp, trk: (p.trk || []).slice(), snap: p.snap !== false, view:null, dirty:false};
   render();
 }
-function closeEditor(){ editor = null; killRouteMap(); render(); }
+function closeEditor(){ editor = null; ui.rmode = 'explore'; render(); }
+/* A map in the middle of a page swallows the scroll: one finger on it pans the
+   map instead of moving the page, and there is no way past. Two fixes, together:
+   a strip down the side that is page rather than map, so a thumb there always
+   scrolls; and one-finger drags handed back to the page, with two fingers
+   moving the map. This is what map embeds do, and it is what people expect. */
+function tameTouch(m, box){
+  if (!m || !box || !m.dragging) return;
+  const touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (!touch) return;
+  m.dragging.disable();
+  if (m.tap) m.tap.disable();
+  box.addEventListener('touchstart', e => {
+    if (e.touches.length >= 2){ m.dragging.enable(); box.classList.remove('nudge'); }
+    else { m.dragging.disable(); box.classList.add('nudge'); }
+  }, {passive:true});
+  box.addEventListener('touchend', () => {
+    m.dragging.disable();
+    setTimeout(() => box.classList.remove('nudge'), 900);
+  }, {passive:true});
+}
+
 function killRouteMap(){
   if (rmap){ rmap.remove(); rmap = null; rmLayer = null; poiLayer = null; }
   clearTimeout(poiTimer);
@@ -4317,7 +4550,7 @@ function paintEditorStats(){
 
 function mountRouteMap(){
   const box = document.getElementById('routemap');
-  if (!box || !editor) return;
+  if (!box) return;
   if (typeof L === 'undefined'){
     box.innerHTML = '<p class="empty">The map library could not load. It needs a connection the first time.</p>';
     return;
@@ -4325,30 +4558,49 @@ function mountRouteMap(){
   if (rmap && rmap._container !== box) killRouteMap();
   if (!rmap){
     rmap = L.map(box, {zoomControl:true, attributionControl:true});
-    addBaseLayer(rmap, routeAt(planById(editor.id) || {}));
+    addBaseLayer(rmap, editor ? routeAt(planById(editor.id) || {}) : (ui.rview ? {la:ui.rview.c.lat, lo:ui.rview.c.lng} : null));
     rmLayer = L.layerGroup().addTo(rmap);
     poiLayer = L.layerGroup().addTo(rmap);
-    rmap.on('click', e => rmAdd([e.latlng.lat, e.latlng.lng]));
+    /* Exploring is the default. A tap only puts a point down once you have
+       said you are plotting — otherwise looking at the map built a route by
+       accident, which is exactly what made this screen hard to work out. */
+    rmap.on('click', e => { if (editor && ui.rmode === 'plot') rmAdd([e.latlng.lat, e.latlng.lng]); });
     rmap.on('moveend zoomend', () => {
       if (editor) editor.view = {c:rmap.getCenter(), z:rmap.getZoom()};
+      ui.rview = {c:{lat:rmap.getCenter().lat, lng:rmap.getCenter().lng}, z:rmap.getZoom()};
       syncBaseLayer(rmap);
       poiRefresh();
+      /* The forecast follows the map. Look at Langdale and you get Langdale's
+         weather; pan to Skye and it changes. */
+      paintMapWeather();
     });
-    if (editor.view) rmap.setView(editor.view.c, editor.view.z);
+    if (editor && editor.view) rmap.setView(editor.view.c, editor.view.z);
+    else if (ui.rview) rmap.setView(ui.rview.c, ui.rview.z);
     else rmFit();
     rmDraw();
     poiRefresh();
+    paintMapWeather();
+    tameTouch(rmap, box);
   } else {
     setTimeout(() => rmap.invalidateSize(), 60);
     rmDraw();
   }
 }
 function rmFit(){
+  if (!editor){
+    /* No route yet: open on the hills you are working through. */
+    const hs = mapHills().filter(h => isFinite(h.a)).slice(0, 400).map(h => [h.a, h.o]);
+    if (hs.length > 1) rmap.fitBounds(L.latLngBounds(hs), {padding:[24,24]});
+    else rmap.setView([54.45, -3.09], 11);
+    return;
+  }
   const all = (editor.trk && editor.trk.length ? editor.trk : editor.wp).map(c => [c[0], c[1]]);
   if (all.length > 1) rmap.fitBounds(L.latLngBounds(all), {padding:[30,30]});
   else if (all.length === 1) rmap.setView(all[0], 13);
   else {
-    const hs = (planById(editor.id).hills || []).map(k => BY_KEY[k]).filter(x => x && isFinite(x.a));
+    /* A scratch route has no plan behind it, so there are no hills to frame. */
+    const plan = planById(editor.id);
+    const hs = ((plan && plan.hills) || []).map(k => BY_KEY[k]).filter(x => x && isFinite(x.a));
     if (hs.length) rmap.fitBounds(L.latLngBounds(hs.map(x => [x.a, x.o])), {padding:[40,40]});
     else rmap.setView([54.45, -3.15], 10);
   }
@@ -4381,8 +4633,9 @@ async function rmRecompute(){
 }
 
 function rmDraw(){
-  if (!rmLayer) return;
+  if (!rmLayer || !rmap) return;
   rmLayer.clearLayers();
+  if (!editor){ drawMapSummits(); return; }
   const t = editor.trk || [];
   if (t.length > 1){
     const line = t.map(c => [c[0], c[1]]);
@@ -4390,17 +4643,7 @@ function rmDraw(){
     L.polyline(line, {color:'#B4491A', weight:4.5, opacity:.95,
       dashArray: editor.snap ? null : '7 6'}).addTo(rmLayer);
   }
-  // summits in view, tappable so a route can be pinned to real tops
-  for (const h of mapHills()){
-    if (!isFinite(h.a)) continue;
-    if (rmap.getZoom() < 11 || !rmap.getBounds().pad(0.2).contains([h.a, h.o])) continue;
-    const done = stateOf(h.k) === 'done';
-    const m = L.circleMarker([h.a, h.o], {radius:5, color: done ? '#B4491A' : '#6B846F',
-      fillColor: done ? '#B4491A' : '#fff', fillOpacity:1, weight:2, bubblingMouseEvents:false});
-    m.bindTooltip(h.n + ' · ' + feet(h) + ' ft');
-    m.on('click', () => rmAdd([h.a, h.o]));
-    rmLayer.addLayer(m);
-  }
+  drawMapSummits();
   editor.wp.forEach((c, i) => {
     const last = i === editor.wp.length - 1;
     const mk = L.marker([c[0], c[1]], {
@@ -4415,35 +4658,72 @@ function rmDraw(){
   });
 }
 
+/* Summits in view. Tapping one pins a route point when you are plotting, and
+   opens the hill when you are only looking — the same mark, doing the thing the
+   mode says it does. */
+function drawMapSummits(){
+  if (!rmLayer || !rmap) return;
+  if (rmap.getZoom() < 11) return;
+  const b = rmap.getBounds().pad(0.2);
+  for (const h of mapHills()){
+    if (!isFinite(h.a) || !b.contains([h.a, h.o])) continue;
+    const done = stateOf(h.k) === 'done';
+    const m = L.circleMarker([h.a, h.o], {radius:5, color: done ? '#B4491A' : '#6B846F',
+      fillColor: done ? '#B4491A' : '#fff', fillOpacity:1, weight:2, bubblingMouseEvents:false});
+    m.bindTooltip(hillName(h) + ' \u00b7 ' + feet(h) + ' ft');
+    m.on('click', e => {
+      if (editor && ui.rmode === 'plot') rmAdd([h.a, h.o]);
+      else { if (L.DomEvent) L.DomEvent.stopPropagation(e); openInfo(h.k); }
+    });
+    rmLayer.addLayer(m);
+  }
+}
+
 function saveEditor(){
+  if (!editor) return;
+  /* A scratch route has no plan behind it yet — saving is what creates one. */
+  if (!editor.id){
+    const id = 'p' + uid();
+    const hs = summitsOn(editor.trk && editor.trk.length ? editor.trk : editor.wp);
+    /* Name it after what it crosses. The old flow asked for a name in a form
+       before you had drawn anything; now the route names itself from its own
+       summits and you can rename it on the card. */
+    const tops = hs.map(k => BY_KEY[k]).filter(Boolean).sort((a, b) => b.h - a.h);
+    const name = !tops.length ? 'Route \u00b7 ' + prettyDate(rDay())
+      : tops.length === 1 ? hillName(tops[0])
+      : hillName(tops[0]) + ' round';
+    state.plans.push({id, name, date:rDay(), notes:'', hills:hs,
+                      trk:(editor.trk || []).length > 1 ? editor.trk : null,
+                      wp:editor.wp.map(c => c.slice()), snap:editor.snap,
+                      deleted:false, t:now()});
+    editor.id = id;
+  }
   const p = planById(editor.id); if (!p) return;
   p.wp = editor.wp.map(c => c.slice());
   p.trk = (editor.trk || []).length > 1 ? editor.trk : null;
   p.snap = editor.snap;
-  const id = editor.id;
-  editor = null; killRouteMap();
-  if (id === 'draft') render(); else { p.t = now(); touched(); render(); }
-  toast('Route saved.');
+  /* The map stays where it is. Tearing it down on save threw away the view you
+     had just built the route in. */
+  p.t = now();
+  editor = null; ui.rmode = 'explore';
+  touched(); render();
+  toast('Route saved \u2014 find it under Your routes.');
 }
 
-function renderEditor(){
-  const p = planById(editor.id);
-  let s = '<div class="rmhead"><h3>' + esc((p && p.name) || 'New route') + '</h3>' +
-    '<button class="xbtn" data-act="editorclose" aria-label="Close the map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
-  s += '<p class="rmhint">Tap the map to drop points, or tap a summit to pin one. Drag a point to move it, tap it to remove it.</p>';
-  s += '<div class="rmbar">' + styleSwitcher() +
-    '<button class="btn ghost' + (editor.snap ? ' on' : '') + '" data-act="rmsnap">' +
-      (editor.snap ? '✓ Following paths' : 'Straight lines') + '</button>' +
-    '<button class="btn quiet" data-act="rmundo"' + (editor.wp.length ? '' : ' disabled') + '>Undo point</button>' +
-    '<button class="btn quiet" data-act="rmclear"' + (editor.wp.length ? '' : ' disabled') + '>Clear</button>' +
-    '</div>';
-  s += poiBarHTML();
-  s += '<div id="routemap"></div>';
-  s += '<div class="rmstats" id="rmstats">' + editorStatsHTML() + '</div>';
-  s += '<p class="pathnote">Paths come from OpenStreetMap, not the Ordnance Survey definitive map. Check a proper map before relying on a right of way.</p>';
-  s += '<div class="btnrow"><button class="btn" id="rmsave" data-act="rmsave">Save route</button>' +
-       '<button class="btn quiet" data-act="editorclose">Cancel</button></div>';
-  return '<div class="rmwrap">' + s + '</div>';
+/* Which summits a drawn line actually goes over, so a plotted route arrives
+   with its hills already on it rather than an empty list. */
+function summitsOn(pts){
+  if (!pts || pts.length < 1) return [];
+  const out = [];
+  for (const h of HILLS){
+    if (!isFinite(h.a)) continue;
+    for (const c of pts){
+      /* about 250 m, which is close enough to have stood on it */
+      if (Math.abs(c[0] - h.a) < 0.0023 && Math.abs(c[1] - h.o) < 0.0039){ out.push(h.k); break; }
+    }
+    if (out.length >= 25) break;
+  }
+  return out;
 }
 
 /* the route's track: import one, build one along paths, or send one to your phone */
@@ -4496,6 +4776,7 @@ const wxPainting = {};        // one repaint per location, not one per card
    middle of its hills. Rounded, so two routes in the same valley share a cache
    entry instead of asking twice. */
 function routeAt(p){
+  if (!p) return null;
   let pts = [];
   if (p.trk && p.trk.length) pts = p.trk.map(c => [c[0], c[1]]);
   else pts = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean).map(h => [h.a, h.o]);
@@ -4510,6 +4791,7 @@ const wxKey = at => 'wx:' + at.la + ',' + at.lo;
    the highest elevation in an imported track. This is what decides which
    pressure level the summit wind is read from. */
 function routeTop(p){
+  if (!p) return 0;
   let top = 0;
   for (const k of (p.hills || [])){
     const h = BY_KEY[k];
@@ -4687,117 +4969,309 @@ function savePlanEdit(id){
   p.t = now(); touched(); render();
 }
 
+/* ---------- Routes ----------
+   The map is the screen, not a thing you unlock by first making a route. You
+   land on it, pick the day, look around, tap what is there — and only start
+   plotting when you say so. Everything that used to be behind "Draw on the map"
+   is just here. */
+/* Nothing is picked until you pick it, so no forecast appears for a day you
+   never asked about. Anything that needs a date anyway falls back to today. */
+function rDay(){ return ui.rday || today(); }
+function dayChipsHTML(){
+  const now = new Date();
+  const within = [];
+  let s = '<div class="daystrip" role="group" aria-label="Which day">';
+  for (let i = 0; i < 7; i++){
+    const d = new Date(now.getTime() + i * 86400000);
+    const iso = isoOf(d);
+    within.push(iso);
+    const on = ui.rday === iso;
+    s += '<button class="daychip' + (on ? ' on' : '') + '" data-act="rday" data-v="' + iso + '"' +
+      ' aria-pressed="' + on + '">' +
+      '<b>' + (i === 0 ? 'Today' : i === 1 ? 'Tom' : DAY_SHORT[d.getDay()]) + '</b>' +
+      '<i>' + d.getDate() + ' ' + MON_SHORT[d.getMonth()] + '</i></button>';
+  }
+  /* Any other date — a walk further out, or one already done that you are
+     writing up. Beyond seven days there is no forecast to give, and it says so
+     rather than showing the nearest day as if it were yours. */
+  const other = ui.rday && !within.includes(ui.rday);
+  s += '<button class="daychip plusday' + (other ? ' on' : '') + '" data-act="rdayother"' +
+    ' aria-pressed="' + !!other + '" aria-label="Any other date">' +
+    (other ? '<b>' + esc(prettyDate(ui.rday).replace(/ \d{4}$/, '')) + '</b><i>chosen</i>'
+           : '<b>+</b><i>other</i>') + '</button>';
+  s += '</div>';
+  if (ui.rdayPick){
+    s += '<div class="otherday"><label>Any date</label>' +
+         dateFields(ui.rday || today(), 'data-rday="1"') +
+         '<button class="linkbtn" data-act="rdayclose">Done</button></div>';
+  }
+  return s;
+}
+function isoOf(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+/* The forecast for wherever the map is looking, on the day you picked. */
+function mapWeatherHTML(){
+  if (!ui.rday) return '';
+  let c = null;
+  if (rmap){ const g = rmap.getCenter(); c = {la:+g.lat.toFixed(2), lo:+g.lng.toFixed(2)}; }
+  else if (ui.rview) c = {la:+ui.rview.c.lat.toFixed(2), lo:+ui.rview.c.lng.toFixed(2)};
+  if (!c) return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+                 '<span>Loading the map\u2026</span></div>';
+  const wx = wxCached(c);
+  if (!wx){
+    const k = wxKey(c);
+    if (!wxPainting[k]){
+      wxPainting[k] = true;
+      fetchWeather(c).then(() => { delete wxPainting[k]; if (tab === 'p') paintMapWeather(); });
+    }
+    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+           '<span>Checking the forecast\u2026</span></div>';
+  }
+  if (!wx.days.length)
+    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+           '<span>No forecast right now. <button class="linkbtn" style="padding:0" ' +
+           'data-act="wxretry" data-id="">Try again</button></span></div>';
+
+  const day = wx.days.find(d => d.date === ui.rday);
+  if (!day)
+    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+           '<span>No forecast for ' + esc(prettyDate(ui.rday)) +
+           ' \u2014 it only reaches seven days out. Come back nearer the time.</span></div>';
+
+  /* Condensed: one line you can read at a glance, with the detail a tap away. */
+  const look = wxLook(day.code);
+  const top = mapTopMetres();
+  const lev = wxLevelFor(top);
+  const up = lev ? day.up[lev.hPa] : null;
+  const wind = up != null ? Math.round(up) : (day.wind != null ? Math.round(day.wind) : null);
+  const open = ui.wxOpen;
+
+  let s = '<div class="wxmini' + (open ? ' open' : '') + '">';
+  s += '<button class="wxminibar" data-act="wxmore" aria-expanded="' + !!open + '">' +
+    '<span class="wxi">' + wxSvg(look.i) + '</span>' +
+    '<span class="wxmt"><b>' + look.t + '</b><i>' + esc(prettyDate(day.date)) + '</i></span>' +
+    '<span class="wxmf">' +
+      '<em>' + Math.round(day.hi) + '&deg;</em>' +
+      '<em' + (day.rain >= 60 ? ' class="warn"' : '') + '>' + (day.rain == null ? '\u2014' : day.rain + '%') + '</em>' +
+      '<em' + (wind >= 35 ? ' class="warn"' : '') + '>' + (wind == null ? '\u2014' : wind + ' mph') + '</em>' +
+      '<em' + (visWarn(day.vis) ? ' class="warn"' : '') + '>' + shortVis(day.vis) + '</em>' +
+    '</span><i class="dochev" aria-hidden="true">&rsaquo;</i></button>';
+  if (open){
+    s += '<div class="wxminibody">';
+    s += '<div class="wxgrid">' +
+      wxCell('Visibility', prettyVis(day.vis), visWarn(day.vis)) +
+      wxCell('Chance of rain', day.rain == null ? '\u2014' : day.rain + '%', day.rain >= 60) +
+      (up != null ? wxCell('Wind at ' + lev.m + ' m', Math.round(up) + ' mph', up >= 35)
+                  : wxCell('Wind', day.wind == null ? '\u2014' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
+      wxCell('Light', (day.sunrise || '\u2014') + ' \u2013 ' + (day.sunset || '\u2014')) +
+      '</div>';
+    if (up != null && day.wind != null)
+      s += '<p class="wxsub">Valley wind ' + Math.round(day.wind) + ' mph' +
+        (day.gust != null ? ', gusting ' + Math.round(day.gust) : '') +
+        ' \u00b7 the figure above is for ' + lev.m + ' m.</p>';
+    s += rainTimelineHTML(day);
+    if (day.freeze != null && day.freeze < top + 300)
+      s += '<p class="wxnote' + (day.freeze <= top ? ' warn' : '') + '">Freezing level around ' +
+        Math.round(day.freeze) + ' m' + (day.freeze <= top ? ' \u2014 below the tops here.' : '.') + '</p>';
+    if (visWarn(day.vis)) s += '<p class="wxnote warn">Under a kilometre of visibility. Map and compass weather.</p>';
+    s += '</div>';
+  }
+  return s + '</div>';
+}
+const shortVis = m => m == null ? '\u2014' : m >= 10000 ? '10 km+' : m >= 1000 ? (m/1000).toFixed(m >= 5000 ? 0 : 1) + ' km' : Math.round(m/50)*50 + ' m';
+
+/* How high the ground is where you are looking, so the wind figure is read at
+   the right level rather than at the model's idea of the valley floor. */
+function mapTopMetres(){
+  if (!rmap) return 0;
+  const b = rmap.getBounds();
+  let top = 0;
+  for (const h of HILLS){
+    if (!isFinite(h.a)) continue;
+    if (h.a < b.getSouth() || h.a > b.getNorth() || h.o < b.getWest() || h.o > b.getEast()) continue;
+    if (h.h > top) top = h.h;
+  }
+  return top;
+}
+function paintMapWeather(){
+  const el = document.getElementById('mapwx');
+  if (el) el.innerHTML = mapWeatherHTML();
+}
+
 function renderPlans(){
-  if (editor) return renderEditor();
-  /* This section quietly does a lot — routing along real paths, GPX both ways,
-     an editable map. None of that was visible until you had already built a
-     route, so people never found it. Say it up front. */
   let html = '<h2 class="pagehead">Plan a day out</h2>';
-  html += '<div class="planintro"><strong>Build the walk, then take it with you.</strong> ' +
-    'Pick hills from any of your lists, draw the line along real footpaths, and send it to your phone.</div>';
-  html += '<div class="cando">' +
-    canDo('route', 'Follow real paths',
-          'Drop points and the route snaps to rights of way and footpaths from OpenStreetMap, not straight lines across a crag.') +
-    canDo('gpx', 'GPX in and out',
-          'Import a track from anywhere and it draws on your map. Export any route to Organic Maps, OS Maps, Garmin or a watch.') +
-    canDo('map', 'Edit it on the map',
-          'Move, add and remove points and watch distance, ascent and the hills it takes in update as you go.') +
-    canDo('tick', 'Tick the lot when you get back',
-          'One tap marks every hill on the route, and the date you set carries into your log.') +
-    '</div>';
-  html += '<div class="btnrow"><button class="btn' + (ui.planForm ? ' quiet' : '') + '" data-act="newplan">' + (ui.planForm ? 'Cancel' : '+ Plan a new route') + '</button>' +
-    (ui.planForm ? '' : '<label class="btn ghost">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label>') +
+
+  /* 1. what this screen does — headlines only until you ask */
+  html += candoStrip();
+
+  /* 2. which day. Nothing is picked to begin with, because a forecast you did
+        not ask for is a forecast for the wrong day. */
+  html += '<p class="rstep">Pick your day</p>' + dayChipsHTML();
+  html += '<p class="wxcaution">Forecasts move &mdash; check again the night before.</p>';
+
+  /* 3. the forecast, once there is a day to forecast for */
+  if (ui.rday) html += '<div id="mapwx">' + mapWeatherHTML() + '</div>';
+
+  /* 4. find somewhere */
+  html += '<div class="controls" style="margin:12px 0 0"><div class="field">' +
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
+    '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>' +
+    '<input type="search" id="rq" placeholder="Find a hill or a place\u2026" value="' + esc(ui.rq || '') +
+    '" autocomplete="off"></div></div>';
+  html += '<div id="rqres">' + searchResultsHTML() + '</div>';
+
+  /* 5. the map */
+  html += '<div class="mapwrap">' +
+    '<div id="routemap"></div>' +
+    '<div class="scrollgrip" aria-hidden="true"><span></span><span></span><span></span></div>' +
     '</div>';
 
-  if (ui.planForm){
-    const d = ui.draft;
-    html += '<div class="form">';
-    html += '<div><label for="pn">Route name</label><input id="pn" data-act="pfield" data-f="name" value="' + esc(d.name) + '" placeholder="e.g. Fairfield Horseshoe"></div>';
-    html += '<div><label>Target date</label>' + dateFields(d.date, 'data-plan="1"') + '</div>';
-    html += '<div><label for="po">Notes</label><textarea id="po" data-act="pfield" data-f="notes" placeholder="Parking, distance, escape routes, who is coming…">' + esc(d.notes) + '</textarea></div>';
-    html += '<div><label>Hills on this route (' + d.hills.length + ')</label>';
-    if (d.hills.length){
-      html += '<div class="picked">';
-      for (const k of d.hills){
-        const h = BY_KEY[k]; if (!h) continue;
-        html += '<span class="pill">' + esc(hillName(h)) + '<button data-act="unpick" data-k="' + esc(k) + '" aria-label="Remove">×</button></span>';
-      }
-      html += '</div>';
-    }
-    html += '<div class="field" style="margin-top:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg><input id="pq" placeholder="Search any hill to add…" value="' + esc(ui.planQ) + '" autocomplete="off"></div>';
-    const pq = norm(ui.planQ);
-    if (pq){
-      const matches = HILLS.filter(h => !d.hills.includes(h.k) && (norm(h.n).includes(pq) || norm(h.w).includes(pq) || norm(altStr(h)).includes(pq))).slice(0, 40);
-      html += '<div class="results" style="margin-top:6px">';
-      if (!matches.length) html += '<p class="empty" style="padding:14px">Nothing matches “' + esc(ui.planQ) + '”.</p>';
-      for (const h of matches) html += '<button data-act="pick" data-k="' + esc(h.k) + '">' + esc(hillName(h)) + '<span>' + feet(h) + ' ft · ' + esc(regionOf(h, h.l[0])) + '</span></button>';
-      html += '</div>';
-    }
-    html += gpxControls(d, 'draft');
-    html += '</div><div class="btnrow"><button class="btn" data-act="saveplan">Save route</button></div></div>';
+  /* 6. what the map is doing */
+  html += '<div class="rmbar">' +
+    '<div class="seg" role="group" aria-label="What tapping does">' +
+      '<button data-act="rmode" data-v="explore" aria-pressed="' + (ui.rmode !== 'plot') + '">Explore</button>' +
+      '<button data-act="rmode" data-v="plot" aria-pressed="' + (ui.rmode === 'plot') + '">Plot a route</button>' +
+    '</div>' +
+    '<label class="btn ghost">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label>' +
+    '<button class="btn ghost' + (poiShow ? ' on' : '') + '" data-act="places" aria-pressed="' + poiShow + '">' +
+      (poiShow ? '\u2713 Places' : 'Places') + '</button>' +
+    styleSwitcher() +
+    '</div>';
+  html += '<p class="poistate" id="poistate">' + poiStateText() + '</p>';
+
+  if (ui.rmode === 'plot'){
+    html += '<div class="plotbar">' +
+      '<button class="btn ghost' + (editor && editor.snap ? ' on' : '') + '" data-act="rmsnap">' +
+        (editor && editor.snap ? '\u2713 Following paths' : 'Straight lines') + '</button>' +
+      '<button class="btn quiet" data-act="rmundo"' + (editor && editor.wp.length ? '' : ' disabled') + '>Undo</button>' +
+      '<button class="btn quiet" data-act="rmclear"' + (editor && editor.wp.length ? '' : ' disabled') + '>Clear</button>' +
+      '</div>';
+    html += '<div class="rmstats" id="rmstats">' + editorStatsHTML() + '</div>';
+    html += '<div class="btnrow"><button class="btn" id="rmsave" data-act="rmsave"' +
+            (editor && editor.wp.length ? '' : ' disabled') + '>Save this route</button>' +
+            (editor && (editor.wp.length || editor.id) ? '<button class="btn quiet" data-act="rmdiscard">Discard</button>' : '') +
+            '</div>';
+  } else {
+    html += '<p class="rmhint">Tap a summit or a place to see what it is. Switch to <b>Plot a route</b> when you want to start drawing.</p>';
   }
 
+  html += '<p class="pathnote">The map is Ordnance Survey; places and path-following are OpenStreetMap. ' +
+          'Charges and opening hours are as contributed &mdash; worth a check before you set off.</p>';
+
+  /* 7. routes you already have */
   const plans = livePlans();
-  if (!plans.length && !ui.planForm) return html + '<p class="empty">No routes planned yet. Sketch one out above — it will wait here until you go.</p>';
+  html += '<p class="eyebrow">Your routes</p>';
+  if (!plans.length) return html + '<p class="empty">No routes yet. Switch to <b>Plot a route</b> above and tap the map, or import a GPX.</p>';
 
   const sorted = [...plans].sort((a,b) => {
-    /* Boolean(), because `a.hills.length && ...` yields 0 for an empty route and
-       0 !== false, so a route with no hills counted as "different" from an
-       unfinished one and floated to the top of the list. */
     const ad = Boolean(a.hills.length && a.hills.every(k => isBagged(k)));
     const bd = Boolean(b.hills.length && b.hills.every(k => isBagged(k)));
     if (ad !== bd) return ad ? 1 : -1;
     return (a.date || '9999').localeCompare(b.date || '9999');
   });
-  for (const p of sorted){
-    const hs = p.hills.map(k => BY_KEY[k]).filter(Boolean);
-    const done = hs.filter(h => isBagged(h.k)).length;
-    const allDone = hs.length > 0 && done === hs.length;
-    const climbM = hs.reduce((a,h) => a + h.h, 0), climbF = hs.reduce((a,h) => a + h.f, 0);
-    html += '<article class="plan' + (allDone ? ' done' : '') + '">';
-    html += '<div class="planhead"><h3>' + esc(p.name || 'Untitled route') + '</h3><button class="linkbtn" data-act="delplan" data-id="' + esc(p.id) + '">Delete</button></div>';
-    html += '<div class="planmeta">';
-    if (p.date) html += '<span>' + esc(prettyDate(p.date)) + '</span>';
-    html += '<span>' + hs.length + ' hill' + (hs.length===1?'':'s') + '</span>';
-    if (hs.length) html += '<span>' + climbF.toLocaleString() + ' ft (' + climbM.toLocaleString() + ' m) of summits</span>';
-    html += '</div>';
-
-    /* The date lives on the card, not only in the form that made the route.
-       A dateless route says so plainly rather than borrowing today's forecast. */
-    const dOpen = ui.planDate === p.id || !p.date;
-    html += '<div class="plandate">' +
-      (dOpen
-        ? '<label>Date of the walk</label>' + dateFields(p.date, 'data-planid="' + esc(p.id) + '"') +
-          (p.date ? '' : '<p class="dhint">Set a date and the forecast below is for that day.</p>')
-        : '<button class="linkbtn" data-act="plandate" data-id="' + esc(p.id) + '">Change the date</button>') +
-      '</div>';
-
-    if (p.notes) html += '<p class="plannotes">' + esc(p.notes) + '</p>';
-    html += weatherHTML(p);
-    html += gpxControls(p, p.id);
-    if (hs.length){
-      html += '<ul class="planhills">';
-      for (const h of hs){
-        const on = isBagged(h.k);
-        html += '<li class="' + (on ? 'on' : '') + '"><button class="tick" data-act="tick" data-k="' + esc(h.k) + '" data-date="' + esc(p.date||'') + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' + ICON_CHECK + '</button>';
-        const pr = rec(h.k), ps = pr.photos && pr.photos[0];
-        if (ps) html += '<img class="thumb sm" data-pid="' + esc(ps.id) + '" data-up="' + (ps.up?1:0) + '" alt="">';
-        html += '<span class="nm">' + esc(hillName(h)) + (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
-      }
-      html += '</ul><div class="planstat"><i style="width:' + Math.round(done/hs.length*100) + '%"></i></div><div class="btnrow">';
-      html += allDone ? '<span class="planmeta" style="align-self:center">Route complete</span>'
-                      : '<button class="btn ghost" data-act="bagall" data-id="' + esc(p.id) + '">Mark all ' + hs.length + '</button>';
-      html += '</div>';
-    }
-    html += '</article>';
-  }
+  for (const p of sorted) html += planCardHTML(p);
   return html;
+}
+
+function candoStrip(){
+  /* Short enough that four fit one line on the narrowest phone without a
+     sideways scroll. The pill is a handle; the sentence it opens does the
+     explaining. */
+  let s = '<div class="dostrip">' +
+    canDo('route', 'Paths') +
+    canDo('gpx', 'GPX') +
+    canDo('map', 'Edit') +
+    canDo('tick', 'Mark') +
+    '</div>';
+  const open = (ui.doOpen || [])[0];
+  if (open && DO_BODY[open]) s += '<p class="dodetail">' + DO_BODY[open] + '</p>';
+  return s;
+}
+
+function planCardHTML(p){
+  const hs = p.hills.map(k => BY_KEY[k]).filter(Boolean);
+  const done = hs.filter(h => isBagged(h.k)).length;
+  const allDone = hs.length > 0 && done === hs.length;
+  const climbM = hs.reduce((a,h) => a + h.h, 0), climbF = hs.reduce((a,h) => a + h.f, 0);
+  let html = '<article class="plan' + (allDone ? ' done' : '') + '">';
+  const renaming = ui.planEdit === p.id;
+  html += '<div class="planhead">' +
+    (renaming
+      ? '<input class="planname" data-act="planname" data-id="' + esc(p.id) + '" value="' + esc(p.name || '') +
+        '" placeholder="Name this route" maxlength="60">'
+      : '<h3>' + esc(p.name || 'Untitled route') + '</h3>') +
+    '<button class="linkbtn" data-act="planrename" data-id="' + esc(p.id) + '">' +
+      (renaming ? 'Done' : 'Rename') + '</button>' +
+    '<button class="linkbtn" data-act="delplan" data-id="' + esc(p.id) + '">Delete</button></div>';
+  if (renaming)
+    html += '<div class="plannoteedit"><label for="pnote-' + esc(p.id) + '">Notes</label>' +
+      '<textarea id="pnote-' + esc(p.id) + '" data-act="plannote" data-id="' + esc(p.id) +
+      '" placeholder="Parking, escape routes, who is coming\u2026">' + esc(p.notes || '') + '</textarea></div>';
+  html += '<div class="planmeta">';
+  if (p.date) html += '<span>' + esc(prettyDate(p.date)) + '</span>';
+  html += '<span>' + hs.length + ' hill' + (hs.length===1?'':'s') + '</span>';
+  if (hs.length) html += '<span>' + climbF.toLocaleString() + ' ft (' + climbM.toLocaleString() + ' m) of summits</span>';
+  if (p.trk && p.trk.length > 1) html += '<span>' + prettyDist(trackLength(p.trk)) + '</span>';
+  html += '</div>';
+  const dOpen = ui.planDate === p.id || !p.date;
+  html += '<div class="plandate">' +
+    (dOpen
+      ? '<label>Date of the walk</label>' + dateFields(p.date, 'data-planid="' + esc(p.id) + '"') +
+        (p.date ? '' : '<p class="dhint">Set a date and the forecast is for that day.</p>')
+      : '<button class="linkbtn" data-act="plandate" data-id="' + esc(p.id) + '">Change the date</button>') +
+    '</div>';
+  if (p.notes && !renaming) html += '<p class="plannotes">' + esc(p.notes) + '</p>';
+  html += weatherHTML(p);
+  html += gpxControls(p, p.id);
+  if (hs.length){
+    html += '<ul class="planhills">';
+    for (const h of hs){
+      const on = isBagged(h.k);
+      html += '<li class="' + (on ? 'on' : '') + '"><button class="tick" data-act="tick" data-k="' + esc(h.k) + '" data-date="' + esc(p.date||'') + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' + ICON_CHECK + '</button>';
+      const pr = rec(h.k), ps = pr.photos && pr.photos[0];
+      if (ps) html += '<img class="thumb sm" data-pid="' + esc(ps.id) + '" data-up="' + (ps.up?1:0) + '" alt="">';
+      html += '<span class="nm">' + esc(hillName(h)) + (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
+    }
+    html += '</ul><div class="planstat"><i style="width:' + Math.round(done/hs.length*100) + '%"></i></div><div class="btnrow">';
+    html += allDone ? '<span class="planmeta" style="align-self:center">Route complete</span>'
+                    : '<button class="btn ghost" data-act="bagall" data-id="' + esc(p.id) + '">Mark all ' + hs.length + '</button>';
+    html += '</div>';
+  }
+  return html + '</article>';
+}
+
+/* Search: the app's own hills first, because that is instant and works with no
+   signal, then anything already loaded from the map. */
+function searchResultsHTML(){
+  const q = norm(ui.rq || '');
+  if (q.length < 2) return '';
+  const hills = HILLS.filter(h => norm(h.n).includes(q) || norm(h.w).includes(q) || norm(altStr(h)).includes(q))
+                     .sort((a,b) => b.h - a.h).slice(0, 6);
+  const places = [...poiSeen.values()].filter(p => norm(poiName(p)).includes(q)).slice(0, 6);
+  if (!hills.length && !places.length)
+    return '<p class="rqempty">Nothing by that name in your lists' +
+           (poiSeen.size ? ' or on the map here' : '') + '.</p>';
+  let s = '<div class="rqres">';
+  for (const h of hills)
+    s += '<button class="rqrow" data-act="gomap" data-la="' + h.a + '" data-lo="' + h.o +
+      '" data-name="' + esc(hillName(h)) + '">' +
+      '<span class="rqn">' + esc(hillName(h)) + '</span>' +
+      '<span class="rqm">' + feet(h).toLocaleString() + ' ft &middot; ' + esc(h.c || '') + '</span></button>';
+  for (const p of places)
+    s += '<button class="rqrow" data-act="gomap" data-la="' + p.la + '" data-lo="' + p.lo + '" data-p="' + esc(p.id) + '">' +
+      '<span class="rqn">' + esc(poiName(p)) + '</span>' +
+      '<span class="rqm">' + esc(POI_KINDS[p.kind].label) + '</span></button>';
+  return s + '</div>';
 }
 
 /* The forecast where the route is. Shows the target day if it falls inside the
    window, otherwise the next few days so you can pick one. */
 function weatherHTML(p){
-  const at = routeAt(p);
+  return weatherFor(routeAt(p), p, routeTop(p));
+}
+function weatherFor(at, p, topM){
   if (!at) return '';
   const wx = wxCached(at);
   if (!wx){
@@ -4809,7 +5283,10 @@ function weatherHTML(p){
       wxPainting[k] = true;
       fetchWeather(at).then(() => {
         delete wxPainting[k];
-        if (tab === 'p') render();
+        if (tab !== 'p') return;
+        /* The map's own forecast repaints in place; a saved route's card needs
+           the page. Repainting everything on every pan made the map flicker. */
+        if (p && p.id === '__map') paintMapWeather(); else render();
       });
     }
     return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
@@ -4818,8 +5295,9 @@ function weatherHTML(p){
   if (!wx.days.length){
     return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
            '<span>No forecast right now' + (wx.err ? ' — ' + esc(wx.err) : '') + '. ' +
-           '<button class="linkbtn" style="padding:0" data-act="wxretry" data-id="' + esc(p.id) + '">Try again</button></span></div>';
+           '<button class="linkbtn" style="padding:0" data-act="wxretry" data-id="' + esc((p && p.id) || '') + '">Try again</button></span></div>';
   }
+  p = p || {};
   const target = p.date && wx.days.find(d => d.date === p.date);
   const undated = !p.date;
   const day = target || wx.days[0];
@@ -4827,7 +5305,7 @@ function weatherHTML(p){
   const far = p.date && !target;
 
   /* Wind at the height the route reaches, not at the model's idea of ground. */
-  const top = routeTop(p);
+  const top = topM != null ? topM : routeTop(p);
   const lev = wxLevelFor(top);
   const upWind = lev ? day.up[lev.hPa] : null;
 
@@ -4961,6 +5439,23 @@ function wire(){
     hydratePhotos();
   };
   keep('pq','planQ');
+  const tq = document.getElementById('tagq');
+  if (tq) tq.oninput = e => {
+    if (!ui.tagging) return;
+    ui.tagging.q = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const n = document.getElementById('tagq');
+    if (n){ n.focus(); try{ n.setSelectionRange(pos, pos); }catch(err){} }
+  };
+  /* The Routes search repaints only its results, so the map underneath is never
+     torn down and rebuilt while you type. */
+  const rqi = document.getElementById('rq');
+  if (rqi) rqi.oninput = e => {
+    ui.rq = e.target.value;
+    const box = document.getElementById('rqres');
+    if (box) box.innerHTML = searchResultsHTML(); else render();
+  };
   /* dfield and postfield are handled in the input listener below, so a sync
      landing mid-sentence cannot rebuild the form over what is being written */
 }
@@ -5003,6 +5498,17 @@ document.addEventListener('click', async e => {
   else if (a === 'togglelist'){ toggleList(el.dataset.v); }
   else if (a === 'viewphoto') openViewer(el.dataset.k, el.dataset.p);
   else if (a === 'viewdiaryphoto') openDiaryViewer(el.dataset.id, el.dataset.p);
+  else if (a === 'viewday') openDayViewer(el.dataset.d, el.dataset.p);
+  else if (a === 'tagpick'){
+    tagDiaryPhoto(el.dataset.e, el.dataset.p, el.dataset.k || '');
+    render();
+  }
+  else if (a === 'tagdone'){ ui.tagging = null; render(); toast('Photos saved.'); }
+  else if (a === 'tagagain'){
+    const e = diaryEntry(el.dataset.id);
+    if (e) ui.tagging = {entry:e.id, ids:(e.photos || []).map(p => p.id), q:''};
+    render(); window.scrollTo({top:0, behavior:'smooth'});
+  }
   else if (a === 'viewpostphoto') openPostViewer(el.dataset.id, el.dataset.p);
   else if (a === 'viewfriendphoto') openFriendViewer(el.dataset.code, el.dataset.k, el.dataset.p);
   else if (a === 'dtoday') applyDate(el, today());
@@ -5357,12 +5863,54 @@ document.addEventListener('click', async e => {
       toast(err.message || 'Could not find a path route.');
     }
   }
-  else if (a === 'poitoggle'){
+  else if (a === 'rday'){
+    /* tapping the day you already have turns it back off */
+    ui.rday = ui.rday === el.dataset.v ? '' : el.dataset.v;
+    ui.rdayPick = false;
+    render();
+  }
+  else if (a === 'rdayother'){ ui.rdayPick = !ui.rdayPick; render(); }
+  else if (a === 'rdayclose'){ ui.rdayPick = false; render(); }
+  else if (a === 'wxmore'){
+    ui.wxOpen = !ui.wxOpen;
+    paintMapWeather();
+  }
+  else if (a === 'dotoggle'){
     const k = el.dataset.v;
-    setPoi(k, !poiWanted.has(k));
-    paintPoiBar();
-    drawPois();
-    poiRefresh();
+    /* one line of detail, so one pill at a time — tapping the open one shuts it */
+    ui.doOpen = (ui.doOpen || []).includes(k) ? [] : [k];
+    render();
+  }
+  else if (a === 'rmode'){
+    ui.rmode = el.dataset.v;
+    /* Plotting needs something to plot into. A scratch route is made the moment
+       you switch, and only becomes a saved one when you say so. */
+    if (ui.rmode === 'plot' && !editor){
+      editor = {id:null, wp:[], trk:[], snap:true, view:ui.rview || null, dirty:false};
+    }
+    render();
+  }
+  else if (a === 'rmdiscard'){
+    editor = null; ui.rmode = 'explore'; render();
+  }
+  else if (a === 'gomap'){
+    const la = +el.dataset.la, lo = +el.dataset.lo;
+    if (!isFinite(la)) return;
+    ui.rq = '';
+    ui.rview = {c:{lat:la, lng:lo}, z:14};
+    render();
+    setTimeout(() => {
+      if (rmap) rmap.setView([la, lo], 14);
+      /* A place opens, because that is where the hours and charges are. A hill
+         does not: you are planning a route to it, not deciding whether to tick
+         it, and being asked to mark it off here is the wrong question. */
+      if (el.dataset.p) openPoi(el.dataset.p);
+      else if (el.dataset.name) toast(el.dataset.name + ' \u2014 centred on the map.');
+    }, 120);
+  }
+  else if (a === 'places'){
+    setPlaces(!poiShow);
+    poiRefresh(); paintPoiBar();
   }
   else if (a === 'poistart' || a === 'poiadd'){
     const p = poiSeen.get(el.dataset.id);
@@ -5377,6 +5925,12 @@ document.addEventListener('click', async e => {
     toast((a === 'poistart' ? 'Starting at ' : 'Added ') + poiName(p) + '.');
   }
   else if (a === 'plandate'){ ui.planDate = el.dataset.id; render(); }
+  else if (a === 'planrename'){
+    ui.planEdit = ui.planEdit === el.dataset.id ? null : el.dataset.id;
+    render();
+    const box = document.querySelector('.planname');
+    if (box){ box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+  }
   else if (a === 'delplan'){
     const p = state.plans.find(x => x.id === el.dataset.id);
     if (p){ p.deleted = true; p.t = now(); }
@@ -5480,6 +6034,14 @@ document.addEventListener('input', e => {
     touched();
   }
   if (el.dataset.act === 'pfield' && ui.draft) ui.draft[el.dataset.f] = el.value;
+  if (el.dataset.act === 'planname' || el.dataset.act === 'plannote'){
+    const p = planById(el.dataset.id);
+    if (p){
+      if (el.dataset.act === 'planname') p.name = el.value.slice(0, 60);
+      else p.notes = el.value.slice(0, 600);
+      p.t = now(); touched();
+    }
+  }
   if (el.dataset.act === 'fbname' && fbUser){
     fbName = el.value.trim().slice(0,40) || fbUser.name;
     document.querySelectorAll('.fbNameIn').forEach(x => { if (x !== el) x.value = el.value; });
@@ -5496,6 +6058,20 @@ async function openViewer(key, id){
   const photos = rec(key).photos || [];
   const i = Math.max(0, photos.findIndex(x => x.id === id));
   viewing = {key, id: (photos[i] || {}).id || id, i, friend:null};
+  viewer.classList.remove('confirming', 'readonly');
+  viewer.classList.add('open');
+  await paintViewer();
+  buildStrip();
+}
+
+/* Every photo from one day, as a single gallery. Which record a photo happens
+   to live on — a summit or the written entry — is not something you think about
+   when flicking through a day's pictures. */
+async function openDayViewer(dateISO, id){
+  const photos = dayPhotos(dateISO);
+  if (!photos.length) return;
+  const i = Math.max(0, photos.findIndex(x => x.id === id));
+  viewing = {key:null, day:dateISO, id:(photos[i] || {}).id || id, i, friend:null};
   viewer.classList.remove('confirming', 'readonly');
   viewer.classList.add('open');
   await paintViewer();
@@ -5547,6 +6123,7 @@ async function openFriendViewer(code, key, id){
 function viewPhotos(){
   if (!viewing) return [];
   if (viewing.friend) return viewing.friend.photos;
+  if (viewing.day) return dayPhotos(viewing.day);
   if (viewing.diary){ const e = diaryEntry(viewing.diary); return e ? (e.photos || []) : []; }
   if (viewing.post) return viewing.post.photos;
   return rec(viewing.key).photos || [];
@@ -5566,6 +6143,11 @@ async function paintViewer(){
     document.getElementById('vcap').textContent =
       pv.who + (pv.date ? ' · ' + prettyDate(pv.date) : '');
     document.getElementById('vcapro').textContent = '';
+  } else if (viewing.day){
+    const from = p.from ? p.from + ' \u00b7 ' : '';
+    document.getElementById('vcap').textContent = from + prettyDate(viewing.day);
+    const box = document.getElementById('vcapin');
+    if (document.activeElement !== box) box.value = p.cap || '';
   } else if (viewing.diary){
     const e = diaryEntry(viewing.diary) || {};
     document.getElementById('vcap').textContent =
@@ -5632,6 +6214,22 @@ function saveCaption(){
   const box = document.getElementById('vcapin');
   if (!box) return false;
   const txt = box.value.trim().slice(0, 140);
+  if (viewing.day){
+    /* the caption belongs wherever the photo actually lives */
+    const p = dayPhotos(viewing.day).find(x => x.id === viewing.id);
+    if (!p || (p.cap || '') === txt) return false;
+    if (p.entry){
+      const e = diaryEntry(p.entry); if (!e) return false;
+      e.photos = e.photos.map(x => x.id === viewing.id ? {...x, cap:txt} : x);
+      e.t = now();
+    }
+    if (p.k){
+      const r = rec(p.k);
+      state.bagged[p.k] = {...r, photos:(r.photos || []).map(x => x.id === viewing.id ? {...x, cap:txt} : x), t:now()};
+    }
+    touched();
+    return true;
+  }
   if (viewing.diary){
     const e = diaryEntry(viewing.diary); if (!e) return false;
     const p = (e.photos || []).find(x => x.id === viewing.id);
@@ -5690,11 +6288,17 @@ document.getElementById('vyes').onclick = async () => {
   if (!viewing) return;
   const v = viewing, wasLast = viewPhotos().length <= 1;
   viewer.classList.remove('confirming');
-  if (v.diary) await removeDiaryPhoto(v.diary, v.id);
+  if (v.day){
+    const p = dayPhotos(v.day).find(x => x.id === v.id);
+    if (p && p.entry) await removeDiaryPhoto(p.entry, v.id);
+    else if (p && p.k) await removePhoto(p.k, v.id);
+  }
+  else if (v.diary) await removeDiaryPhoto(v.diary, v.id);
   else await removePhoto(v.key, v.id);
   toast('Photo deleted.');
   if (wasLast){ closeViewer(); return; }
-  viewing = {key:v.key, diary:v.diary || null, id:null, i:Math.min(v.i, viewPhotos().length - 1)};
+  viewing = {key:v.key, diary:v.diary || null, day:v.day || null, id:null,
+             i:Math.min(v.i, viewPhotos().length - 1)};
   await paintViewer(); buildStrip();
 };
 
@@ -5718,11 +6322,25 @@ const DO_ICON = {
   tick:'<path d="m3.5 7 2 2 3.8-4"/><path d="m3.5 16.5 2 2 3.8-4"/>' +
        '<path d="M13 7.5h7.5"/><path d="M13 17h7.5"/>'
 };
+/* One strip of pills, not four stacked rows. Even collapsed, four full-width
+   headlines put seven hundred pixels between the top of the screen and the day
+   picker — which is the first thing you actually came to do. Tapping a pill
+   drops one line of detail underneath the row. */
 function canDo(icon, title, body){
-  return '<div class="do"><span class="doi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + DO_ICON[icon] + '</svg></span>' +
-    '<div><b>' + title + '</b><span>' + body + '</span></div></div>';
+  const open = (ui.doOpen || []).includes(icon);
+  return '<button class="dopill' + (open ? ' on' : '') + '" data-act="dotoggle" data-v="' + icon +
+    '" aria-expanded="' + open + '" title="' + esc(body) + '">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' + DO_ICON[icon] + '</svg>' +
+    '<span>' + title + '</span></button>';
 }
+
+const DO_BODY = {
+  route:'Points snap to rights of way and footpaths from OpenStreetMap, not straight lines across a crag.',
+  gpx:'Import a track from anywhere; export any route to Organic Maps, OS Maps, Garmin or a watch.',
+  map:'Move, add and remove points, with distance, ascent and the hills it takes in updating as you go.',
+  tick:'One tap marks every hill on the route, and the date you set carries into your log.'
+};
 
 /* ---------- what a list is ---------- */
 /* The same block of copy wherever it is asked for: as a panel at the top of a
