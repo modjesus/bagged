@@ -1666,6 +1666,9 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .dentry p{font-size:17px; line-height:1.65; color:var(--ink); max-width:62ch}
 .dentry .dshots .shot{width:88px; height:88px; border-radius:4px}
 .dsummits li i{font-size:12.5px}
+.quietcard{border-left-color:var(--line)}
+.homelist{margin-top:22px}
+.homelist .listbar{margin-top:0}
 </style>
 </head>
 <body>
@@ -2916,8 +2919,7 @@ const NI = {
   u:'<path d="M4 6.8c0-.9.7-1.5 1.6-1.5H8c.9 0 1.6.6 1.6 1.5v3c3 1.1 6.4 2.3 8.6 3.4 1.7.8 2.7 1.5 3 2.3H4z"/><path d="M4 7.7h5.6"/><path d="M2.8 15.5c-.3 1.8.8 2.9 2.6 2.9h13.2c1.8 0 2.9-1.1 2.6-2.9"/><path d="m11.4 10.6-.5 1.3M13.6 11.5l-.5 1.3M15.8 12.4l-.5 1.3"/>'
 };
 const NAV = [
-  {id:'d', label:'Home',      short:'Home'},
-  {id:'h', label:'Hills',     short:'Hills',  count:'h'},
+  {id:'d', label:'Home',      short:'Home',   count:'h'},
   /* One map. "Hills" is the overview of what you have walked; "Plan a day" is
      the planner with its weather, places and routes. They are two screens
      behind one tab (tab ids 'm' and 'p'), switched by a control on the map
@@ -2925,10 +2927,9 @@ const NAV = [
   {id:'m', label:'Map',       short:'Map',    count:'m', also:['p']},
   {id:'j', label:'Journal',   short:'Journal', count:'j'},
   {id:'a', label:'Patches',   short:'Patches', count:'a'},
-  /* Hikers — profile, friends, leaderboards — has room in the desktop sidebar
-     but on a phone it opens from the header button and from Home, so the bar
-     keeps to five. No `short` means no phone button. */
-  {id:'u', label:'Hikers',    count:'f'}
+  /* Home and the hill list are one screen (what is next, then the list you
+     are working through), which leaves the fifth slot for Hikers. */
+  {id:'u', label:'Hikers',    short:'Hikers', count:'f'}
 ];
 function mapModeBar(){
   return '<div class="seg mapmode" role="group" aria-label="Map view">' +
@@ -3040,8 +3041,10 @@ function onboarding(){
 }
 
 function render(){
-  /* 'f' was the old Friends tab; anything still pointing there lands on Hikers */
+  /* 'f' was the old Friends tab; anything still pointing there lands on Hikers.
+     'h' was the separate hill list; it lives on Home now. */
   if (tab === 'f') tab = 'u';
+  if (tab === 'h') tab = 'd';
   paintNav();
 
   let banner = '';
@@ -3629,7 +3632,7 @@ function weekendISO(){
 }
 /* One line of forecast for the top of a hill on the weekend, from the same
    cached forecast the planner uses. Asks once and repaints Home when it lands. */
-function summitLine(h){
+function summitLine(h, dateISO){
   const at = {la:h.a, lo:h.o};
   if (!isFinite(at.la)) return '';
   const wx = wxCached(at);
@@ -3642,8 +3645,9 @@ function summitLine(h){
     return '<span class="upwx dim">Checking the weekend forecast…</span>';
   }
   if (!wx.days || !wx.days.length) return '';
-  const want = weekendISO();
-  const day = wx.days.find(d => d.date === want) || wx.days[wx.days.length - 1];
+  const want = dateISO || weekendISO();
+  const day = wx.days.find(d => d.date === want) || (dateISO && dateISO > wx.days[wx.days.length - 1].date ? null : wx.days[wx.days.length - 1]);
+  if (!day) return '<span class="upwx dim">Too far out for a forecast yet.</span>';
   const look = wxLook(day.code);
   const lev = wxLevelFor(h.h);
   const up = lev && day.up ? day.up[lev.hPa] : null;
@@ -3667,33 +3671,37 @@ function nearestPatch(){
 
 function renderDashboard(){
   const a = allStats();
-  const pz = patches(), pgot = pz.filter(x => x.got).length;
   let s = '';
 
   if (!a.done){
-    /* Before the first hill there is one thing to say, and one thing to do. */
+    /* Before the first hill there is one thing to say; the list is right below. */
     s += '<div class="invite">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI.h + '</svg>' +
       '<h2 class="pagehead">Mark your first fell</h2>' +
-      '<p>Every hill you walk goes in the log, earns you patches, and draws your journey on the map. Start with one you have already done.</p>' +
-      '<button class="btn" data-tab="h">Open Peaks</button></div>';
-    s += '<div style="margin-top:20px">' + renderPatches() + '</div>';
-    return s + listRowsHTML();
+      '<p>Every hill you walk goes in the log, earns you patches, and draws your journey on the map. Tick one below that you have already done.</p></div>';
+    return s + renderHills();
   }
 
-  s += '<h2 class="pagehead">Your journey so far</h2>';
-
-  /* 1. what is next, and the weekend at the top */
-  const nx = nextHill();
+  /* What is next: the route you have planned, with the forecast for its top on
+     its day. Nothing planned means exactly that, and a way to plan something. */
+  const nr = nextRoute();
   const np = nearestPatch();
   s += '<div class="loop">';
-  if (nx){
-    const h = nx.h;
-    s += '<button class="dcard upnext" data-act="info" data-k="' + esc(h.k) + '">' +
+  if (nr){
+    const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean).sort((x, y) => y.h - x.h);
+    const dn = hs.filter(x => isBagged(x.k)).length;
+    s += '<button class="dcard upnext" data-tab="p">' +
       '<p class="sumlabel">Up next</p>' +
-      '<div class="dch"><b>' + esc(hillName(h)) + '</b><span class="tag">' + esc(nx.why) + '</span></div>' +
-      '<p class="dcs">' + htFlat(h) + '</p>' +
-      summitLine(h) + '</button>';
+      '<div class="dch"><b>' + esc(nr.name || 'Untitled route') + '</b>' +
+        (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '<span class="tag">no date yet</span>') + '</div>' +
+      '<p class="dcs">' + (hs.length ? hs.length + ' hill' + (hs.length === 1 ? '' : 's') + ' &middot; ' + dn + ' walked' : 'No summits on it yet') +
+        ((nr.trk && nr.trk.length > 1) ? ' &middot; ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
+      (hs.length ? summitLine(hs[0], nr.date || '') : '') + '</button>';
+  } else {
+    s += '<button class="dcard upnext quietcard" data-tab="p">' +
+      '<p class="sumlabel">Up next</p>' +
+      '<div class="dch"><b>Nothing planned yet</b></div>' +
+      '<p class="dcs">Pick a day, see the weather at the top, and plot a route &rsaquo;</p></button>';
   }
   if (np){
     const left = np.target - np.have;
@@ -3706,58 +3714,8 @@ function renderDashboard(){
   }
   s += '</div>';
 
-  /* 2. a route you have planned */
-  const nr = nextRoute();
-  if (nr){
-    const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean);
-    const dn = hs.filter(x => isBagged(x.k)).length;
-    s += '<p class="eyebrow">Next route</p>' +
-      '<button class="dcard route" data-tab="p">' +
-        '<div class="dch"><b>' + esc(nr.name || 'Untitled route') + '</b>' +
-        (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '') + '</div>' +
-        '<p class="dcs">' + hs.length + ' hill' + (hs.length === 1 ? '' : 's') +
-          (hs.length ? ' &middot; ' + dn + ' marked' : '') +
-          ((nr.trk && nr.trk.length > 1) ? ' &middot; ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
-        (hs.length ? '<div class="planstat"><i style="width:' + (hs.length ? dn/hs.length*100 : 0) + '%"></i></div>' : '') +
-      '</button>';
-  }
-
-  /* 3. what you did last */
-  const recents = recentlyMarked(5);
-  if (recents.length){
-    s += '<p class="eyebrow">Recent summits</p><ul class="feed">';
-    for (const r of recents)
-      s += '<li><span class="fmk">' + ICON_CHECK + '</span>' +
-           '<span class="fn">' + esc(hillName(r.h)) +
-             (r.v ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + '</span>' +
-           '<span class="fd">' + (r.date ? esc(prettyDate(r.date)) : 'no date') + '</span></li>';
-    s += '</ul>';
-  }
-
-  /* 4. the cabinet */
-  s += '<div style="margin-top:20px">' + renderPatches() + '</div>';
-
-  /* 5. friends, when there are any to have */
-  if (fbConfigured()){
-    s += '<p class="eyebrow">Hikers</p>' +
-      '<button class="dcard hikers" data-tab="u"><div class="dch"><b>' +
-      (cloudOn() ? 'Friends and leaderboards' : 'Sign in to walk with friends') + '</b></div>' +
-      '<p class="dcs">' + (cloudOn() ? esc(friendsTabLabel() || 'Your profile, friends and boards')
-                                     : 'Your log follows you to every device, and you can compare with friends.') +
-      '</p></button>';
-  }
-
-  /* 6. the numbers, quietly, and the lists */
-  s += '<p class="eyebrow">By the numbers</p><div class="scards four">';
-  s += statCard(a.done.toLocaleString(), 'Hills walked', a.planned ? a.planned + ' planned' : '');
-  s += statCard(a.remaining.toLocaleString(), 'Still to go', a.progress ? a.progress + ' attempted' : '');
-  s += a.highest
-    ? statCard(feet(a.highest).toLocaleString() + '<span class="su">ft</span>', 'Highest walked', esc(a.highest.n))
-    : statCard('&mdash;', 'Highest walked', 'Nothing yet');
-  s += statCard(pgot.toLocaleString() + '<span class="su">/' + pz.length + '</span>', 'Patches earned',
-                (pgot ? 'See your journey' : 'None yet') + ' &rsaquo;', 'a');
-  s += '</div>';
-  return s + listRowsHTML();
+  /* then the list you are working through: this is the hill list, on Home */
+  return s + '<div class="homelist">' + renderHills() + '</div>';
 }
 function listRowsHTML(){
   let s = '<p class="eyebrow">Your lists</p><div class="regionlist">';
