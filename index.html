@@ -17,7 +17,7 @@
 <meta name="theme-color" content="#0C221D" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 
 <style>
@@ -32,9 +32,10 @@
   /* WayMark — Pine, Moss, Sage, Stone, Cream, Burnt Orange */
   --pine:#14332D; --moss:#2C5F55; --sage:#65847E; --stone:#D7D2C3; --cream:#F3EFE6; --burnt:#B4491A;
 
-  --ground:#F3EFE6; --surface:#FAF7F0; --surface-2:#E7E1D3; --raise:#FFFDF8;
+  /* three visible steps of paper — ground, surface, raised — so a card has an edge in daylight */
+  --ground:#EEE9DD; --surface:#F8F5EC; --surface-2:#E3DDCD; --raise:#FFFDF8;
   --ink:#14332D; --ink-2:#3E625A; --ink-3:#557570;
-  --line:#D7D2C3; --line-soft:#E4DFD2;
+  --line:#CFC9B8; --line-soft:#DDD7C7;
   --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#F3E0D4; --accent-text:#B4491A;
   --done:#1E453E; --done-soft:#DFE9E6; --done-line:#A2BCB6;
   --plan:#5F5B8C; --plan-soft:#E7E5F2;
@@ -45,8 +46,11 @@
   --grain:.10; --noise:.03;
   --patch-bg:#B4491A;
 
-  /* The two faces, named once so a change lands everywhere. */
-  --font-data:"Courier Prime", ui-monospace, "Courier New", monospace;
+  /* Three faces, named once so a change lands everywhere. Wildkins is for the
+     names of things; the sans carries the interface; the mono is for figures
+     only — heights, dates, grid refs, counts — the way a guidebook sets them. */
+  --font-ui:"Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data:"Source Code Pro", ui-monospace, "SF Mono", Menlo, monospace;
   --font-display:"Wildkins", Georgia, serif;
   /* Wainwright's seven books — sampled from the Frances Lincoln box set */
   --bk1:#71AA47; --bk2:#E12E35; --bk3:#095FD3; --bk4:#E06237;
@@ -97,8 +101,8 @@ body::after{
 .wrap, .top{position:relative; z-index:1}
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:var(--font-data);
-  font-size:15.5px; line-height:1.5; -webkit-text-size-adjust:100%; padding-bottom:64px;
+  font-family:var(--font-ui);
+  font-size:16px; line-height:1.5; -webkit-text-size-adjust:100%; padding-bottom:64px;
 }
 button, input, textarea, select{font:inherit; color:inherit}
 button{cursor:pointer}
@@ -139,7 +143,7 @@ img{max-width:100%}
   line-height:.9; letter-spacing:-.01em; color:var(--ink);
 }
 .heropct sup{font-size:.34em; color:var(--accent-text); vertical-align:super; margin-left:2px}
-.herosub{font-family:var(--font-data); font-size:13px; color:var(--ink-2); margin:8px 0 0}
+.herosub{font-family:var(--font-ui); font-size:13px; color:var(--ink-2); margin:8px 0 0}
 .scards{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:12px}
 .scard{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
@@ -148,10 +152,10 @@ img{max-width:100%}
 .sbig{font-family:var(--font-display); font-size:30px; line-height:1; color:var(--ink)}
 .sbig .su{font-size:.45em; color:var(--ink-3); margin-left:3px}
 .slab{
-  font-family:var(--font-data); font-size:11px; letter-spacing:.12em;
+  font-family:var(--font-ui); font-size:11px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3); margin-top:7px;
 }
-.ssub{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2); margin-top:3px}
+.ssub{font-family:var(--font-ui); font-size:12.5px; color:var(--ink-2); margin-top:3px}
 .dcard{
   display:block; width:100%; text-align:left; margin-top:4px;
   background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent);
@@ -159,7 +163,7 @@ img{max-width:100%}
 }
 .dch{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
 .dch b{font-family:var(--font-display); font-size:17px; color:var(--ink)}
-.dcs{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2); margin:6px 0 0}
+.dcs{font-family:var(--font-ui); font-size:12.5px; color:var(--ink-2); margin:6px 0 0}
 .dcard .planstat{margin-top:10px}
 .feed{list-style:none; margin:4px 0 0; padding:0; border:1px solid var(--line);
   border-radius:var(--r); overflow:hidden; background:var(--surface)}
@@ -170,7 +174,7 @@ img{max-width:100%}
   display:grid; place-items:center; flex:none}
 .feed .fmk svg{width:11px; height:11px}
 .feed .fn{flex:1; min-width:0; font-family:var(--font-display); font-size:15px; color:var(--ink)}
-.feed .fd{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); white-space:nowrap}
+.feed .fd{font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); white-space:nowrap}
 
 /* ================= paper ================= */
 /* a faint laid-paper tooth on the page ground only — never on controls */
@@ -208,13 +212,13 @@ body::before{
 /* ================= route cards as expedition plans ================= */
 .plan{border-left:3px solid var(--accent)}
 .planhead h3{font-family:var(--font-display); letter-spacing:.02em}
-.planmeta{font-family:var(--font-data); font-size:12px; letter-spacing:.03em}
+.planmeta{font-family:var(--font-ui); font-size:12px; letter-spacing:.03em}
 
 /* ================= map ================= */
 #mapbox{height:min(74vh,660px)}
 .maplegend{
   display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:10px;
-  font-family:var(--font-data); font-size:11.5px; color:var(--ink-3);
+  font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3);
 }
 @media (min-width:768px){ #mapbox{height:min(76vh,760px)} }
 
@@ -274,7 +278,7 @@ body::before{
   border:1px solid var(--line-soft); box-shadow:0 1px 4px -2px rgba(0,0,0,.35);}
 .mstext b{display:block; font-family:var(--font-display); font-size:12.5px;
   letter-spacing:.05em; text-transform:uppercase; color:var(--ink)}
-.mstext i{display:block; font-style:normal; font-family:var(--font-data);
+.mstext i{display:block; font-style:normal; font-family:var(--font-ui);
   font-size:10.5px; color:var(--ink-3); margin-top:2px}
 .milestone.got .mstext i{color:var(--accent-text)}
 .milestone:hover .disc{transform:scale(1.06)}
@@ -282,7 +286,7 @@ body::before{
 
 /* patch detail */
 .backbtn{background:none; border:none; padding:8px 0; color:var(--ink-2);
-  font-family:var(--font-data); font-size:13px; cursor:pointer}
+  font-family:var(--font-ui); font-size:13px; cursor:pointer}
 /* back on the left, the way through to the whole journey on the right */
 .pdnav{display:flex; align-items:center; justify-content:space-between; gap:12px}
 .pdnav .linkbtn{padding:8px 0; white-space:nowrap}
@@ -297,7 +301,7 @@ body::before{
 .pdhead .disc svg{width:48px; height:48px}
 .pdt{flex:1; min-width:0}
 .pdt h2{font-family:var(--font-display); font-size:20px; margin:0}
-.pdt p{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2); margin:5px 0 9px}
+.pdt p{font-family:var(--font-ui); font-size:12.5px; color:var(--ink-2); margin:5px 0 9px}
 .ptimeline{list-style:none; margin:6px 0 0; padding:0; border:1px solid var(--line);
   border-radius:var(--r); overflow:hidden; background:var(--surface)}
 .ptimeline li{display:flex; align-items:center; gap:12px; padding:11px 13px;
@@ -305,12 +309,12 @@ body::before{
 .ptimeline li:first-child{border-top:none}
 .pnum{width:26px; height:26px; border-radius:99px; flex:none; display:grid; place-items:center;
   background:var(--surface-2); border:1px solid var(--line);
-  font-family:var(--font-data); font-size:11px; color:var(--ink-2)}
+  font-family:var(--font-ui); font-size:11px; color:var(--ink-2)}
 .pinfo{flex:1; min-width:0}
 .pinfo b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
-.pinfo i{display:block; font-style:normal; font-family:var(--font-data);
+.pinfo i{display:block; font-style:normal; font-family:var(--font-ui);
   font-size:11.5px; color:var(--ink-3); margin-top:2px}
-.pdate{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); white-space:nowrap}
+.pdate{font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); white-space:nowrap}
 .eyelink{background:none; border:none; padding:0; cursor:pointer; width:100%; text-align:left}
 @media (min-width:768px){
   .milestone{width:186px}
@@ -343,7 +347,7 @@ body::before{
   margin:1px 0 0; color:var(--ink-3);
 }
 .cd{
-  font-family:var(--font-data); font-size:9.5px; line-height:1.65;
+  font-family:var(--font-ui); font-size:9.5px; line-height:1.65;
   letter-spacing:.04em; margin:0; color:var(--ink-3);
 }
 @media (min-width:768px){ .colophon{padding-bottom:44px} }
@@ -371,7 +375,7 @@ body::before{
 /* the tagline is tracked out by script to sit exactly under the wordmark */
 .tagline{display:block}
 .tagline{
-  font-family:var(--font-data); font-style:normal;
+  font-family:var(--font-ui); font-style:normal;
   font-size:clamp(8px, 2.5vw, 10.5px); letter-spacing:.1em; text-transform:uppercase;
   color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
@@ -382,12 +386,12 @@ body::before{
   display:flex; align-items:center; gap:11px; width:100%;
   background:none; border:1px solid transparent; border-radius:10px;
   padding:10px 12px; color:var(--ink-2); font-size:14.5px; text-align:left;
-  font-family:var(--font-data); letter-spacing:.02em; cursor:pointer;
+  font-family:var(--font-ui); letter-spacing:.02em; cursor:pointer;
 }
 .navbtn .ni{width:19px; height:19px; flex:none; opacity:.85}
 .navbtn .nl{flex:1; min-width:0}
 .navbtn .nc{
-  font-family:var(--font-data); font-size:11px; color:var(--ink-3);
+  font-family:var(--font-ui); font-size:11px; color:var(--ink-3);
   font-variant-numeric:tabular-nums; white-space:nowrap;
 }
 .navbtn:hover{background:var(--surface-2); color:var(--ink)}
@@ -475,7 +479,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   .side .navbtn .nl, .side .navbtn .nc{display:block}
   .sfoot{
     display:block; margin-top:auto; padding:14px 4px 0; border-top:1px solid var(--line-soft);
-    font-family:var(--font-data); font-size:11px; line-height:1.5; color:var(--ink-3);
+    font-family:var(--font-ui); font-size:11px; line-height:1.5; color:var(--ink-3);
   }
   .wrap{max-width:860px}
 }
@@ -513,7 +517,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   background:var(--surface); border:1px solid var(--line); border-radius:99px;
   padding:5px 11px; font-size:12px; color:var(--ink-2); white-space:nowrap;
   flex:0 1 auto; min-width:0; overflow:hidden;
-  font-family:var(--font-data);
+  font-family:var(--font-ui);
 }
 .sync .dot{width:7px; height:7px; border-radius:99px; background:var(--ink-3); flex:none}
 .sync[data-s="synced"] .dot{background:var(--done)}
@@ -528,7 +532,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   padding:8px 4px 9px; color:var(--ink-2); font-weight:500; font-size:14px;
   display:flex; flex-direction:column; align-items:center; gap:2px; line-height:1.1;
 }
-.tab .n{font-family:var(--font-data); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.tab .n{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
 .tab[aria-selected="true"]{background:var(--surface); border-color:var(--line); color:var(--ink); box-shadow:var(--shadow)}
 .tab[aria-selected="true"] .n{color:var(--accent-text)}
 .tab[aria-selected="true"]{border-bottom:2px solid var(--accent)}
@@ -541,7 +545,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   padding:7px 13px; font-size:13.5px; color:var(--ink-2); white-space:nowrap;
   display:inline-flex; align-items:center; gap:7px;
 }
-.lchip b{font-family:var(--font-data); font-size:11px; font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.lchip b{font-family:var(--font-ui); font-size:11px; font-weight:600; color:var(--ink-3); font-variant-numeric:tabular-nums}
 .lchip[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text); font-weight:700}
 .lchip[aria-pressed="true"] b{color:var(--accent)}
 :root[data-theme="dark"] .lchip[aria-pressed="true"], :root:not([data-theme="light"]) .lchip[aria-pressed="true"]{color:var(--ink)}
@@ -553,11 +557,11 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .sumhead{display:flex; align-items:flex-end; justify-content:space-between; gap:12px}
 .bignum{font-family:var(--font-display); font-weight:400; font-size:44px; line-height:.92; letter-spacing:-.01em; font-variant-numeric:tabular-nums; color:var(--ink)}
 .bignum span{font-size:20px; color:var(--ink-3); font-weight:500}
-.sumlabel{font-family:var(--font-data); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-text); text-align:right; font-weight:700}
+.sumlabel{font-family:var(--font-ui); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-text); text-align:right; font-weight:700}
 .bar{height:8px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:12px}
 .bar > i{display:block; height:100%; background:linear-gradient(90deg, var(--done), var(--accent)); border-radius:99px; transition:width .35s ease}
 .meta{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-size:13px; color:var(--ink-2)}
-.meta b{font-family:var(--font-data); font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
+.meta b{font-family:var(--font-ui); font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums}
 .disclose{margin-top:10px; width:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; font-size:13px; color:var(--ink-2); display:flex; align-items:center; justify-content:space-between; gap:8px}
 .breakdown{border:1px solid var(--line); border-top:none; border-radius:0 0 var(--r) var(--r); background:var(--surface); padding:4px 12px 12px; margin-top:-1px}
 .brow{display:grid; grid-template-columns:1fr 52px; gap:10px; align-items:center; padding:7px 0; border-top:1px solid var(--line-soft)}
@@ -565,7 +569,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .bname{font-size:13px; display:flex; align-items:center; gap:7px}
 .bbar{display:block; height:5px; border-radius:99px; background:var(--surface-2); margin-top:5px; overflow:hidden}
 .bbar > s{display:block; height:100%; background:var(--done); border-radius:99px}
-.bcount{font-family:var(--font-data); font-size:12px; color:var(--ink-2); text-align:right; font-variant-numeric:tabular-nums}
+.bcount{font-family:var(--font-ui); font-size:12px; color:var(--ink-2); text-align:right; font-variant-numeric:tabular-nums}
 
 /* controls */
 .controls{display:flex; flex-direction:column; gap:8px; margin:16px 0 10px}
@@ -594,7 +598,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 }
 .lstrip > div{flex:1; min-width:190px}
 .lstrip b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
-.lstrip span{display:block; margin-top:3px; font-family:var(--font-data);
+.lstrip span{display:block; margin-top:3px; font-family:var(--font-ui);
   font-size:12px; color:var(--ink-3); line-height:1.45}
 .btn.sm{padding:7px 11px; font-size:12.5px; flex:none}
 
@@ -621,34 +625,34 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .phead{display:flex; align-items:center; gap:10px}
 .pwho{flex:1; min-width:0}
 .pwho b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
-.pwho span{display:block; margin-top:2px; font-family:var(--font-data);
+.pwho span{display:block; margin-top:2px; font-family:var(--font-ui);
   font-size:11px; color:var(--ink-3)}
 .ptext{margin:10px 0 0; font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap}
 .phills{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
 .hpill{display:inline-flex; align-items:baseline; gap:6px; background:var(--surface-2);
   border:1px solid var(--line); border-radius:99px; padding:4px 11px;
   font-family:var(--font-display); font-size:13px; color:var(--ink)}
-.hpill i{font-style:normal; font-family:var(--font-data); font-size:10.5px; color:var(--ink-3)}
-.pdate{margin:8px 0 0; font-family:var(--font-data); font-size:11px; color:var(--ink-3)}
+.hpill i{font-style:normal; font-family:var(--font-ui); font-size:10.5px; color:var(--ink-3)}
+.pdate{margin:8px 0 0; font-family:var(--font-ui); font-size:11px; color:var(--ink-3)}
 .pacts{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:12px;
   padding-top:10px; border-top:1px solid var(--line-soft)}
 .rbtn{border:1px solid var(--line); background:var(--raise); border-radius:99px;
   padding:4px 9px; font-size:14px; cursor:pointer; line-height:1.2;
   display:inline-flex; align-items:center; gap:5px}
-.rbtn i{font-style:normal; font-family:var(--font-data); font-size:11px; color:var(--ink-2)}
+.rbtn i{font-style:normal; font-family:var(--font-ui); font-size:11px; color:var(--ink-2)}
 .rbtn.on{border-color:var(--accent); background:var(--accent-soft)}
 .pcm{margin-left:auto; padding:0; font-size:12.5px}
 .pcomments{margin-top:10px; padding-top:10px; border-top:1px solid var(--line-soft)}
 .pc{display:flex; gap:9px; padding:6px 0}
 .pc b{font-family:var(--font-display); font-size:13.5px; color:var(--ink); margin-right:6px}
 .pc span{font-size:13.5px; color:var(--ink-2); line-height:1.5}
-.pc i{display:block; margin-top:2px; font-style:normal; font-family:var(--font-data);
+.pc i{display:block; margin-top:2px; font-style:normal; font-family:var(--font-ui);
   font-size:10.5px; color:var(--ink-3)}
 .frow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:10px;
   background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
 .fwho2{display:flex; align-items:center; gap:10px; flex:1; min-width:170px}
 .fwho2 b{display:block; font-family:var(--font-display); font-size:14.5px; color:var(--ink)}
-.fwho2 span{display:block; margin-top:2px; font-family:var(--font-data);
+.fwho2 span{display:block; margin-top:2px; font-family:var(--font-ui);
   font-size:11px; color:var(--ink-3)}
 .picked .pill{cursor:pointer; border:1px solid var(--line); background:var(--raise)}
 .picked .pill.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
@@ -665,19 +669,19 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .ddate{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   padding-bottom:10px; border-bottom:1px solid var(--line-soft)}
 .ddate b{font-family:var(--font-display); font-size:17px; color:var(--ink)}
-.ddate span{font-family:var(--font-data); font-size:11.5px; color:var(--accent-text);
+.ddate span{font-family:var(--font-ui); font-size:11.5px; color:var(--accent-text);
   letter-spacing:.06em; text-transform:uppercase}
 .dsummits{margin-top:10px}
-.dcount{font-family:var(--font-data); font-size:10px; letter-spacing:.12em;
+.dcount{font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
 .dsummits ul{list-style:none; margin:6px 0 0; padding:0}
 .dsummits li{display:flex; align-items:baseline; gap:10px; padding:4px 0}
 .dsummits li .linkbtn{padding:0; font-family:var(--font-display); font-size:15px;
   color:var(--ink); text-align:left}
-.dsummits li i{margin-left:auto; font-style:normal; font-family:var(--font-data);
+.dsummits li i{margin-left:auto; font-style:normal; font-family:var(--font-ui);
   font-size:11.5px; color:var(--ink-3); white-space:nowrap}
 .dnote{margin:10px 0 0; font-size:14px; line-height:1.6; color:var(--ink-2)}
-.dnote b{display:block; font-family:var(--font-data); font-size:10px;
+.dnote b{display:block; font-family:var(--font-ui); font-size:10px;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:3px}
 .dentry{margin-top:12px; padding:11px 12px; border-left:3px solid var(--accent);
   background:var(--surface-2); border-radius:0 10px 10px 0}
@@ -701,7 +705,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .wxi.big svg{width:34px; height:34px}
 .wxsum{flex:1; min-width:0}
 .wxsum b{display:block; font-family:var(--font-display); font-size:16px; color:var(--ink)}
-.wxsum span{display:block; margin-top:2px; font-family:var(--font-data);
+.wxsum span{display:block; margin-top:2px; font-family:var(--font-ui);
   font-size:11.5px; color:var(--ink-3)}
 .wxtemp{text-align:right; flex:none; font-family:var(--font-display)}
 .wxtemp b{font-size:26px; line-height:1; color:var(--ink)}
@@ -711,7 +715,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   overflow:hidden; margin-top:12px}
 .wxgrid > div{background:var(--surface); padding:9px 11px}
 .wxgrid > div.warn{background:color-mix(in srgb, var(--warn) 12%, var(--surface))}
-.wxgrid dt{font-family:var(--font-data); font-size:9.5px; letter-spacing:.11em;
+.wxgrid dt{font-family:var(--font-ui); font-size:9.5px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--ink-3); margin:0}
 .wxgrid dd{margin:4px 0 0; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums}
 .wxgrid > div.warn dd{color:var(--warn); font-weight:700}
@@ -726,12 +730,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    same line and both wrapped. The plain-English answer leads, the chart backs
    it up. */
 .wxrhead{margin-bottom:9px}
-.wxrhead dt{font-family:var(--font-data); font-size:9.5px; letter-spacing:.11em;
+.wxrhead dt{font-family:var(--font-ui); font-size:9.5px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--ink-3); margin:0}
 .wxrhead dd{margin:3px 0 0; font-size:13.5px; color:var(--ink); font-weight:600; line-height:1.35}
 .wxplot{display:flex; gap:6px}
 .wxscale{display:flex; flex-direction:column; justify-content:space-between; height:64px;
-  font-family:var(--font-data); font-size:8.5px; color:var(--ink-3); width:16px;
+  font-family:var(--font-ui); font-size:8.5px; color:var(--ink-3); width:16px;
   text-align:right; flex:none; line-height:1}
 .wxbars{position:relative; flex:1 1 auto; display:flex; align-items:flex-end; gap:2px; height:64px;
   border-bottom:1px solid var(--line); padding-bottom:0}
@@ -744,12 +748,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .wxbar.on i{background:var(--accent)}
 .wxaxis{display:flex; gap:2px; margin-top:4px}
 .wxaxis .wxpad{width:16px; flex:none; margin-right:6px}
-.wxaxis span{flex:1 1 0; text-align:center; font-family:var(--font-data);
+.wxaxis span{flex:1 1 0; text-align:center; font-family:var(--font-ui);
   font-size:8.5px; color:var(--ink-3)}
 
 /* the date row on a route card */
 .plandate{margin-top:10px}
-.plandate label{display:block; font-family:var(--font-data); font-size:9.5px;
+.plandate label{display:block; font-family:var(--font-ui); font-size:9.5px;
   letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
 .plandate .linkbtn{padding:0; font-size:12px}
 .plandate .dhint{margin:6px 0 0; font-size:12px; color:var(--ink-3)}
@@ -774,11 +778,11 @@ dl.lfacts{margin:0}
 .lfacts{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
   background:var(--line-soft); border:1px solid var(--line); border-radius:10px; overflow:hidden}
 .lfacts > div{background:var(--surface); padding:10px 12px}
-.lfacts dt{font-family:var(--font-data); font-size:10px; letter-spacing:.12em;
+.lfacts dt{font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3); margin:0}
 .lfacts dd{margin:4px 0 0; font-size:13.5px; color:var(--ink); line-height:1.4}
 .ltext{font-size:14.5px; line-height:1.65; color:var(--ink-2); margin:14px 0 0}
-.lprog{font-family:var(--font-data); font-size:13px; color:var(--ink-2);
+.lprog{font-family:var(--font-ui); font-size:13px; color:var(--ink-2);
   margin:12px 0 0; padding-top:12px; border-top:1px solid var(--line-soft)}
 .lprog b{color:var(--accent-text); font-size:16px}
 
@@ -794,7 +798,7 @@ dl.lfacts{margin:0}
 .grouphead{position:sticky; top:var(--topH,104px); z-index:5; padding:16px 2px 6px; background:linear-gradient(var(--ground) 70%, transparent)}
 .gt{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
 .grouphead h2{margin:0; font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:.06em; text-transform:uppercase; display:flex; align-items:center; gap:8px}
-.grouphead span{font-family:var(--font-data); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
+.grouphead span{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
 .gbar{display:block; height:4px; border-radius:99px; background:var(--surface-2); margin-top:6px; overflow:hidden}
 .gbar > i{display:block; height:100%; background:var(--done); border-radius:99px; transition:width .3s ease}
 .swatch{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block}
@@ -863,21 +867,21 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 #info .sheetbox{max-width:600px}
 .iimg{width:100%; max-height:230px; object-fit:cover; border-radius:12px; margin:4px 0 14px; background:var(--surface-2)}
 .iex{font-size:15.5px; line-height:1.6; color:var(--ink); margin:0 0 12px}
-.istats{font-family:var(--font-data); font-size:12px; color:var(--ink-3); margin:0 0 10px}
+.istats{font-family:var(--font-ui); font-size:12px; color:var(--ink-3); margin:0 0 10px}
 .isrc{font-size:12.5px; color:var(--ink-3); margin:0}
 .aw{border-left:3px solid var(--accent); padding:2px 0 2px 14px; margin:0 0 16px}
 .aw blockquote{margin:0; font-family:var(--font-display); font-size:17.5px; line-height:1.45; letter-spacing:-.01em; text-wrap:pretty}
-.aw cite{display:block; font-style:normal; font-family:var(--font-data); font-size:11px; letter-spacing:.05em; color:var(--ink-3); margin-top:8px}
+.aw cite{display:block; font-style:normal; font-family:var(--font-ui); font-size:11px; letter-spacing:.05em; color:var(--ink-3); margin-top:8px}
 .aw cite a{color:inherit}
 .popshot{width:100%; height:96px; object-fit:cover; border-radius:8px; display:block; margin-bottom:8px; background:var(--surface-2)}
-.hh{font-family:var(--font-data); font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink-2); flex:none; text-align:right; line-height:1.3}
+.hh{font-family:var(--font-ui); font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink-2); flex:none; text-align:right; line-height:1.3}
 .hh b{font-weight:600; color:var(--ink)}
 .hh s{text-decoration:none; color:var(--ink-3); font-size:10.5px; display:block}
 .tags{display:flex; gap:3px; flex-wrap:wrap; margin-top:3px}
-.tag{font-family:var(--font-data); font-size:9px; letter-spacing:.04em; border:1px solid var(--line); color:var(--ink-3); border-radius:4px; padding:1px 4px}
+.tag{font-family:var(--font-ui); font-size:9px; letter-spacing:.04em; border:1px solid var(--line); color:var(--ink-3); border-radius:4px; padding:1px 4px}
 
 .detail{border-top:1px solid var(--line-soft); padding:10px 12px 12px; display:flex; flex-direction:column; gap:10px}
-.detail label, .form label{font-family:var(--font-data); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
+.detail label, .form label{font-family:var(--font-ui); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
 .detail textarea, .form input, .form textarea{width:100%; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 10px; outline:none; font-size:15px}
 .detail textarea, .form textarea{resize:vertical; min-height:56px}
 .form .field input{border:none; background:none; padding:11px 0}
@@ -887,7 +891,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .fbNameIn{width:100%; background:var(--raise); color:var(--ink); border:1px solid var(--line);
   border-radius:10px; padding:9px 10px; outline:none; font-size:15px}
 .fbNameIn:focus{border-color:var(--accent)}
-.accountBox label{font-family:var(--font-data); font-size:10px; letter-spacing:.08em;
+.accountBox label{font-family:var(--font-ui); font-size:10px; letter-spacing:.08em;
   text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
 .dategroup{display:flex; gap:6px; align-items:stretch}
 .dsel{background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 6px 9px 9px; font-size:15px; outline:none; min-width:0}
@@ -954,7 +958,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .viewer .vbar .cap{color:#D8DCD0; font-size:13px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .vcount{
-  flex:none; color:#AEB6A8; font-family:var(--font-data); font-size:12px;
+  flex:none; color:#AEB6A8; font-family:var(--font-ui); font-size:12px;
   letter-spacing:.06em; padding:4px 10px; border-radius:99px; background:rgba(255,255,255,.08);
 }
 /* the roll along the bottom — current one is ringed */
@@ -1029,14 +1033,14 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* map */
 #mapbox{height:min(66vh,540px); border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:var(--surface-2); margin-top:10px}
 .leaflet-container{background:var(--surface-2); font:inherit}
-.leaflet-control-attribution{font-family:var(--font-data); font-size:9.5px; line-height:1.25; color:var(--ink-3); background:color-mix(in srgb, var(--surface) 82%, transparent); max-width:min(78%,420px); padding:1px 6px}
+.leaflet-control-attribution{font-family:var(--font-ui); font-size:9.5px; line-height:1.25; color:var(--ink-3); background:color-mix(in srgb, var(--surface) 82%, transparent); max-width:min(78%,420px); padding:1px 6px}
 .leaflet-control-attribution a{color:inherit}
 .leaflet-attribution-flag{display:none !important}
 .leaflet-popup-content-wrapper{border-radius:12px; background:var(--surface); color:var(--ink); box-shadow:var(--shadow)}
 .leaflet-popup-tip{background:var(--surface)}
 .leaflet-popup-content{margin:11px 13px; font-size:14px}
 .leaflet-popup-content b{font-size:15px; display:block}
-.leaflet-popup-content .pm{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); display:block; margin:2px 0 8px}
+.leaflet-popup-content .pm{font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); display:block; margin:2px 0 8px}
 .popbtn{border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:9px; padding:7px 11px; font-weight:600; font-size:13px; width:100%}
 .popbtn.off{background:transparent; color:var(--accent)}
 .maplegend{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:12px; color:var(--ink-3); align-items:center}
@@ -1053,7 +1057,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .banner b{color:var(--warn); display:block; margin-bottom:2px}
 .banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1; padding:0 2px; align-self:center}
 /* ---- Routes: day strip, search results, mode bar ---- */
-.rstep{margin:14px 0 7px; font-family:var(--font-data); font-size:10px; letter-spacing:.12em;
+.rstep{margin:14px 0 7px; font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
 .daystrip{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch}
 .daychip{
@@ -1061,7 +1065,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:var(--surface); border:1px solid var(--line); color:var(--ink-2); cursor:pointer;
 }
 .daychip b{display:block; font-family:var(--font-display); font-size:14px; color:var(--ink)}
-.daychip i{display:block; font-style:normal; font-family:var(--font-data);
+.daychip i{display:block; font-style:normal; font-family:var(--font-ui);
   font-size:10.5px; color:var(--ink-3); margin-top:2px}
 .daychip.on{border-color:var(--accent); background:var(--accent-soft)}
 .daychip.on b, .daychip.on i{color:var(--accent-text)}
@@ -1075,7 +1079,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .rqrow:last-child{border-bottom:0}
 .rqrow:hover{background:var(--surface-2)}
 .rqn{flex:1; min-width:0; font-family:var(--font-display); font-size:15px; color:var(--ink)}
-.rqm{font-family:var(--font-data); font-size:11px; color:var(--ink-3); white-space:nowrap}
+.rqm{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); white-space:nowrap}
 .rqempty{margin:8px 0 0; font-size:13px; color:var(--ink-3)}
 
 /* the map, with a lane beside it you can always scroll from */
@@ -1113,7 +1117,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .daychip.plusday{min-width:56px}
 .otherday{margin-top:10px; padding:10px 12px; background:var(--surface);
   border:1px solid var(--line); border-radius:var(--r)}
-.otherday label{display:block; font-family:var(--font-data); font-size:9.5px;
+.otherday label{display:block; font-family:var(--font-ui); font-size:9.5px;
   letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
 .otherday .linkbtn{padding:6px 0 0; font-size:13px}
 .wxcaution{margin:8px 0 0; font-size:12.5px; color:var(--ink-3); line-height:1.5}
@@ -1127,10 +1131,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .wxminibar .wxi svg{width:100%; height:100%}
 .wxmt{flex:1; min-width:0}
 .wxmt b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
-.wxmt i{display:block; font-style:normal; font-family:var(--font-data);
+.wxmt i{display:block; font-style:normal; font-family:var(--font-ui);
   font-size:11px; color:var(--ink-3); margin-top:1px}
 .wxmf{display:flex; gap:9px; flex:none}
-.wxmf em{font-style:normal; font-family:var(--font-data); font-size:12px; color:var(--ink-2);
+.wxmf em{font-style:normal; font-family:var(--font-ui); font-size:12px; color:var(--ink-2);
   white-space:nowrap}
 .wxmf em.warn{color:var(--warn); font-weight:700}
 .wxmini.open .wxminibar .dochev{transform:rotate(90deg)}
@@ -1147,7 +1151,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:var(--raise); border:1px solid var(--accent); border-radius:8px; padding:6px 9px;
 }
 .plannoteedit{margin-top:8px}
-.plannoteedit label{display:block; font-family:var(--font-data); font-size:9.5px;
+.plannoteedit label{display:block; font-family:var(--font-ui); font-size:9.5px;
   letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:5px}
 /* tagging photos onto a hill */
 .tagpanel{margin-top:14px; padding:13px 14px; background:var(--surface);
@@ -1166,7 +1170,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 /* ---- places on the ground: chips, pins and the detail sheet ---- */
 .poibar{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin:10px 0 6px}
-.poilab{font-family:var(--font-data); font-size:9.5px; letter-spacing:.12em;
+.poilab{font-family:var(--font-ui); font-size:9.5px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3); margin-right:2px}
 .poichip{display:inline-flex; align-items:center; gap:5px}
 .poichip svg{width:14px; height:14px; flex:none; opacity:.8}
@@ -1188,7 +1192,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 /* links inside a fact table take the app's colour, not the browser's blue */
 .lfacts dd a{color:var(--accent-text); text-decoration:underline; text-underline-offset:2px}
-.poikind{margin:2px 0 12px; font-family:var(--font-data); font-size:11px;
+.poikind{margin:2px 0 12px; font-family:var(--font-ui); font-size:11px;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
 .poiacts{margin-top:14px}
 .poisrc{margin:12px 0 0; font-size:12px; color:var(--ink-3); line-height:1.5}
@@ -1196,7 +1200,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 /* ---- outdoor furniture ---- */
 .eyebrow{
-  font-family:var(--font-data); font-size:11px; font-weight:700;
+  font-family:var(--font-ui); font-size:11px; font-weight:700;
   letter-spacing:.16em; text-transform:uppercase; color:var(--accent-text);
   /* real air above so a section title never sits tight under the block before it */
   margin:30px 0 10px; display:flex; align-items:center; gap:8px;
@@ -1214,7 +1218,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .jpct{font-family:var(--font-display); font-size:clamp(46px,13vw,64px); line-height:.86; letter-spacing:-.01em; color:var(--ink)}
 .jpct sup{font-size:.42em; vertical-align:super; margin-left:2px; color:var(--accent-text)}
 .jsub{font-family:var(--font-display); font-weight:800; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2); margin-top:6px}
-.jcount{font-family:var(--font-data); font-size:12.5px; color:var(--ink-3); text-align:right; line-height:1.5}
+.jcount{font-family:var(--font-ui); font-size:12.5px; color:var(--ink-3); text-align:right; line-height:1.5}
 .jcount b{color:var(--ink); font-weight:700}
 
 /* ---- a friend's log: who, then their numbers ---- */
@@ -1236,7 +1240,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   line-height:1.1; color:var(--ink); margin:0; overflow-wrap:anywhere;
 }
 .fname2 span{
-  display:block; margin-top:5px; font-family:var(--font-data);
+  display:block; margin-top:5px; font-family:var(--font-ui);
   font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3);
 }
 .fnums{text-align:right; flex:none}
@@ -1246,7 +1250,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .ftot i{
   display:block; font-style:normal; margin-top:5px;
-  font-family:var(--font-data); font-size:10.5px; letter-spacing:.1em;
+  font-family:var(--font-ui); font-size:10.5px; letter-spacing:.1em;
   text-transform:uppercase; color:var(--ink-3);
 }
 .fnums .jcount{margin-top:10px; text-align:right}
@@ -1268,7 +1272,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .rrow{display:flex; align-items:center; gap:11px; width:100%; padding:11px 13px; background:none; border:none; border-top:1px solid var(--line-soft); text-align:left}
 .rrow:first-child{border-top:none}
 .rrow .dot{width:11px; height:11px; border-radius:99px; flex:none; background:var(--sage)}
-.rrow .rsub{display:block; font-style:normal; font-family:var(--font-data);
+.rrow .rsub{display:block; font-style:normal; font-family:var(--font-ui);
   font-size:11.5px; color:var(--ink-3); margin-top:2px}
 /* first-run list picker: a real tick box, because you choose several */
 .rrow.picker{cursor:pointer}
@@ -1294,7 +1298,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   .onboardbar{bottom:16px}
 }
 .rrow .rn{flex:1; min-width:0; font-size:15px; font-family:var(--font-display); letter-spacing:.01em}
-.rrow .rc{font-family:var(--font-data); font-size:13px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.rrow .rc{font-family:var(--font-ui); font-size:13px; color:var(--ink-2); font-variant-numeric:tabular-nums}
 .rrow .chev{color:var(--ink-3); flex:none; width:8px}
 .rrow[aria-pressed="true"]{background:var(--accent-soft)}
 .rrow .rbar{display:block; height:3px; border-radius:99px; background:var(--surface-2); margin-top:6px; overflow:hidden}
@@ -1367,10 +1371,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .vbadge svg{width:9px; height:9px}
 .stamp.vstamp{border-style:double; border-width:5px}
-.stamp .vline{font-family:var(--font-data); font-size:9px; letter-spacing:.14em;
+.stamp .vline{font-family:var(--font-ui); font-size:9px; letter-spacing:.14em;
   text-transform:uppercase; margin-top:1px; opacity:.85}
 .stamp b{font-size:19px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; line-height:1}
-.stamp span{font-family:var(--font-data); font-size:12px; letter-spacing:.06em; white-space:nowrap}
+.stamp span{font-family:var(--font-ui); font-size:12px; letter-spacing:.06em; white-space:nowrap}
 /* photos on the left, the stamp standing to their right */
 .photorow{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .photorow .shots{flex:1 1 auto; min-width:0}
@@ -1402,7 +1406,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 /* `.sheetbox p` is later and equal weight, so these need the extra class too */
 .win .sheetbox .wineyebrow{
-  font-family:var(--font-data); font-size:10.5px; letter-spacing:.16em;
+  font-family:var(--font-ui); font-size:10.5px; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink-3); margin:0 0 28px;
 }
 .win .sheetbox .winnames{
@@ -1457,12 +1461,13 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .rrow .avatar.tiny{width:22px; height:22px; border-width:1px; margin:0}
 .pinfo b{display:block; font-size:16px; font-family:var(--font-display)}
 .pinfo span{font-size:12.5px; color:var(--ink-3)}
-.gcode{font-family:var(--font-data); letter-spacing:.22em; color:var(--accent-text); font-weight:700}
+.gcode{font-family:var(--font-ui); letter-spacing:.22em; color:var(--accent-text); font-weight:700}
 .rrow[disabled]{cursor:default}
 .empty{text-align:center; color:var(--ink-3); padding:40px 20px; font-size:14px}
 .planintro{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:16px; font-size:14px; color:var(--ink-2); line-height:1.5}
 .btn{border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:11px; padding:10px 14px; font-weight:600; font-size:14px}
-.btn.ghost{background:transparent; color:var(--accent-text)}
+/* three tiers: primary (filled), secondary (outlined in ink), tertiary (quiet). One primary per screen. */
+.btn.ghost{background:transparent; border-color:var(--ink-2); color:var(--ink-2)}
 .btn.quiet{background:transparent; border-color:var(--line); color:var(--ink-2); font-weight:500}
 .btn.danger{background:transparent; border-color:var(--warn); color:var(--warn)}
 .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center}
@@ -1473,12 +1478,12 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .pill button{border:none; background:none; color:inherit; font-size:15px; line-height:1; padding:0 2px}
 .results{display:flex; flex-direction:column; gap:4px; max-height:210px; overflow-y:auto}
 .results button{text-align:left; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:14px; display:flex; justify-content:space-between; gap:10px}
-.results button span{font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
+.results button span{font-family:var(--font-ui); font-size:12px; color:var(--ink-3)}
 .plan{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-top:10px}
 .plan.done{border-color:var(--done-line); background:var(--done-soft)}
 .planhead{display:flex; align-items:flex-start; gap:10px}
 .plan h3{margin:0; font-family:var(--font-display); font-size:18px; letter-spacing:-.01em; flex:1}
-.planmeta{font-family:var(--font-data); font-size:11px; color:var(--ink-3); letter-spacing:.04em; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
+.planmeta{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); letter-spacing:.04em; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
 .plannotes{font-size:14px; color:var(--ink-2); margin:10px 0 0; white-space:pre-wrap}
 .planhills{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:4px}
 .planhills li{display:flex; align-items:center; gap:9px; font-size:14px; padding:3px 0}
@@ -1550,7 +1555,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .sheetbox h2{font-family:var(--font-display); margin:0 0 4px; font-size:20px}
 .sheetbox h3{font-family:var(--font-display); margin:20px 0 4px; font-size:15px}
 .sheetbox p{font-size:14px; color:var(--ink-2); margin:6px 0}
-.sheetbox textarea{width:100%; min-height:100px; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-family:var(--font-data); font-size:12px; outline:none; resize:vertical}
+.sheetbox textarea{width:100%; min-height:100px; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-family:var(--font-ui); font-size:12px; outline:none; resize:vertical}
 .togglerow{display:flex; align-items:center; gap:11px; padding:10px 0; border-top:1px solid var(--line-soft)}
 .togglerow:first-child{border-top:none}
 .togglerow .tinfo{flex:1; min-width:0}
@@ -1564,7 +1569,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* the open board wears the accent so it reads as the odd one out */
 .plan.globalcard{border-left:3px solid var(--accent)}
 .planhead .tag{
-  font-family:var(--font-data); font-size:9.5px; letter-spacing:.08em;
+  font-family:var(--font-ui); font-size:9.5px; letter-spacing:.08em;
   text-transform:uppercase; border:1px solid var(--accent); color:var(--accent-text);
   border-radius:4px; padding:2px 6px; margin-left:8px; white-space:nowrap;
 }
@@ -1576,6 +1581,91 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px); background:var(--ink); color:var(--ground); padding:10px 16px; border-radius:99px; font-size:14px; z-index:2200; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; box-shadow:var(--shadow); max-width:90vw; text-align:center}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+
+/* ---- figures set in the mono: heights, dates, counts, grid refs, forecasts ---- */
+.tab .n, .lchip b, .meta b, .bcount, .hh, .rrow .rc, .jcount, .gcode, .stamp .vline, .stamp span,
+.grouphead span, .pdate, .feed .fd, .ddate span, .dsummits li i, .daychip i, .hpill i, .rbtn i,
+.wxaxis span, .wxsum span, .wxmf em, .wxmt i, .leaflet-control-attribution, .leaflet-popup-content .pm,
+.istats, .planmeta, .mstext i, .pinfo i, .sheetbox textarea, .results button span, .lprog, .rqm,
+.pc i, .lstrip span, .fwho2 span, .pwho span, .poikind, .rrow .rsub, .sbig .su,
+.wxgrid dd, .wxrhead dd, .lfacts dd, .ftot b, .nc, .snav .nc{font-family:var(--font-data); font-variant-numeric:tabular-nums}
+/* tracked caps read at 11px in the sans; nothing smaller */
+.eyebrow, .sumlabel, .dcount, .wxgrid dt, .wxrhead dt, .lfacts dt, .rstep, .poilab, .detail label, .form label,
+.accountBox label, .plandate label, .otherday label, .plannoteedit label, .dnote b, .tag{font-size:11px; letter-spacing:.1em}
+.eyebrow{font-weight:600}
+.seg.mapmode{margin:0 0 12px; width:100%}
+.seg.mapmode button{flex:1}
+/* on a big screen the map is the page: let it take the height beside the sidebar */
+@media (min-width:1000px){ #mapbox, #routemap{height:calc(100vh - 230px); min-height:520px; max-height:900px} }
+/* ---- Home: the loop ---- */
+.loop{display:grid; grid-template-columns:1fr; gap:10px; margin-top:4px}
+@media (min-width:720px){ .loop{grid-template-columns:1fr 1fr} }
+.loop .dcard{margin-top:0; display:flex; flex-direction:column; gap:6px}
+.loop .sumlabel{margin:0}
+.upwx{display:flex; align-items:center; gap:8px; margin-top:6px; font-size:13.5px; color:var(--ink-2)}
+.upwx.dim{color:var(--ink-3)}
+.upwx .wxi{width:20px; height:20px; flex:none; display:inline-flex}
+.upwx .wxi svg{width:20px; height:20px}
+.upwx b{font-weight:600; color:var(--ink)}
+.npbody{display:flex; align-items:center; gap:14px}
+.npbody > div{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
+.npname{font-family:var(--font-display); font-size:17px; color:var(--ink)}
+.nextpatch .patch{flex:none}
+.nextpatch .patch .disc.small{width:64px; height:64px; margin:0}
+.nextpatch .patch .disc.small::after{inset:7px}
+.nextpatch .disc.small svg{width:28px; height:28px}
+.dcard .rbar{display:block; height:4px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:4px}
+.dcard .rbar s{display:block; height:100%; background:var(--accent); text-decoration:none}
+.invite{text-align:center; padding:28px 18px 24px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); margin-top:6px}
+.invite svg{width:64px; height:64px; color:var(--sage); margin-bottom:4px}
+.invite h2{margin:6px 0 8px}
+.invite p{color:var(--ink-2); max-width:36ch; margin:0 auto 16px}
+.seg.themeseg{margin:6px 0 14px}
+.seg.themeseg button{flex:1}
+.loop .sumlabel{text-align:left}
+/* ---- the forecast card: a slate-green sheet in either theme, like a forecast
+   pinned up in a hut. Tokens are re-scoped so every child reads on it. ---- */
+.wx, .wxmini{
+  --ink:#F3EFE6; --ink-2:#CAD9D3; --ink-3:#A7BDB6; --surface:#1B4139; --surface-2:#173A33;
+  --raise:#204A42; --line:#2C5C52; --line-soft:#26524A; --accent-text:#E8925F; --sage:#8FB0A6; --warn:#F0A36A;
+  background:#14332D; border-color:#2C5C52; color:var(--ink); box-shadow:var(--shadow);
+}
+.wx .wxgrid > div.warn{background:color-mix(in srgb, #E8925F 22%, var(--surface))}
+.wx .wxgrid > div.warn dd, .wxmini .warn{color:#F0A36A}
+.wxmini .wxminibar{color:var(--ink)}
+.wxmini .wxminibody .wx{margin-top:0; box-shadow:none; border:0; padding:0 0 4px}
+.wxi{color:#E8925F}
+/* ---- the reveal: a dark ground, the patch large and alone ---- */
+.win .sheetbox{
+  --ink:#F3EFE6; --ink-2:#CAD9D3; --ink-3:#A7BDB6; --surface:#1B4139; --line:#2C5C52; --accent-text:#E8925F;
+  background:#14332D; color:var(--ink); border-color:#2C5C52;
+}
+.win .sheetbox h2{color:#F3EFE6; margin-top:28px}
+.win .sheetbox .wineyebrow{color:#E8925F}
+.win .sheetbox .winnames{color:#CAD9D3; font-family:var(--font-data); font-size:13px; letter-spacing:.08em; text-transform:uppercase}
+.windiscs .disc{width:200px; height:200px}
+.windiscs .disc svg{width:76px; height:76px}
+.win .btn.ghost{border-color:#CAD9D3; color:#F3EFE6}
+.win .btn.quiet{border-color:#2C5C52; color:#CAD9D3}
+@media (prefers-reduced-motion: no-preference){
+  .win.open .windiscs .disc{animation:winstitch 1s cubic-bezier(.2,.9,.3,1) both}
+}
+@keyframes winstitch{
+  0%{transform:scale(.6) rotate(-8deg); opacity:0; filter:saturate(.2)}
+  55%{transform:scale(1.06) rotate(1deg); opacity:1; filter:saturate(1)}
+  100%{transform:scale(1) rotate(0); opacity:1}
+}
+/* ---- the diary as a journal page: the date as a stamp in the margin, the
+   title in the display face, the writing given room ---- */
+.ddate b{font-family:var(--font-data); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent-text); border:1.5px solid var(--accent-text); border-radius:4px; padding:3px 8px 2px;
+  display:inline-block; transform:rotate(-1.5deg); line-height:1.3}
+.ddate span{font-family:var(--font-ui); font-size:12.5px; letter-spacing:.02em; text-transform:none; color:var(--ink-3)}
+.dentry{border-left:0; padding:14px 2px 4px; background:transparent}
+.dentry h3{font-size:22px; line-height:1.15; margin-bottom:8px}
+.dentry p{font-size:17px; line-height:1.65; color:var(--ink); max-width:62ch}
+.dentry .dshots .shot{width:88px; height:88px; border-radius:4px}
+.dsummits li i{font-size:12.5px}
 </style>
 </head>
 <body>
@@ -1595,9 +1685,6 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
         <button class="hbrand hideDesk" data-tab="d" aria-label="WayMark home"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></button>
         <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span><span id="syncTxt" style="overflow:hidden;text-overflow:ellipsis">Checking…</span></button>
-        <button class="iconbtn" id="themeBtn" aria-label="Light or dark">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="3.6"/></svg>
-        </button>
         <button class="iconbtn" id="menuBtn" aria-label="Settings" title="Settings">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a1.94 1.94 0 1 1-2.75 2.75l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47V21a1.94 1.94 0 0 1-3.88 0v-.1a1.6 1.6 0 0 0-1.05-1.47 1.6 1.6 0 0 0-1.77.32l-.06.06a1.94 1.94 0 1 1-2.75-2.75l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3a1.94 1.94 0 0 1 0-3.88h.1a1.6 1.6 0 0 0 1.47-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.94 1.94 0 1 1 2.75-2.75l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 .97-1.47V3a1.94 1.94 0 0 1 3.88 0v.1a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.94 1.94 0 1 1 2.75 2.75l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.47.97H21a1.94 1.94 0 0 1 0 3.88h-.1a1.6 1.6 0 0 0-1.47.97z"/></svg>
         </button>
@@ -1685,8 +1772,9 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   <div class="sheetbox winbox">
     <div id="winBody"></div>
     <div class="btnrow">
-      <button class="btn" id="winGo">See it in Patches</button>
-      <button class="btn quiet" id="winClose">Close</button>
+      <button class="btn" id="winShare">Share</button>
+      <button class="btn ghost" id="winGo">See it in Patches</button>
+      <button class="btn quiet" id="winClose">Keep walking</button>
     </div>
   </div>
 </div>
@@ -1874,7 +1962,12 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const today = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const uid = () => Math.random().toString(36).slice(2,9) + now().toString(36).slice(-4);
 const feet = h => h.f.toLocaleString();
-const ht = h => '<b>' + feet(h) + '</b> ft<s>(' + h.h + ' m)</s>';
+/* One unit in a row — the one you chose in Settings, feet unless you say
+   otherwise. Both units live on the hill's own page. */
+const UNITS_KEY = 'waymark.units';
+function unitsPref(){ try{ return localStorage.getItem(UNITS_KEY) === 'm' ? 'm' : 'ft'; }catch(e){ return 'ft'; } }
+function setUnits(u){ try{ u === 'm' ? localStorage.setItem(UNITS_KEY, 'm') : localStorage.removeItem(UNITS_KEY); }catch(e){} renderThemeBox(); render(); }
+const ht = h => unitsPref() === 'm' ? '<b>' + h.h.toLocaleString() + '</b> m' : '<b>' + feet(h) + '</b> ft';
 const htFlat = h => feet(h) + ' ft (' + h.h + ' m)';
 const STATES = [
   {id:'none',    label:'Not visited', short:'To do',      colour:'--ink-3'},
@@ -2412,12 +2505,68 @@ function celebrate(list){
     '<div class="windiscs">' +
       list.map(p => '<span class="patch got">' + patchDisc(p) + '</span>').join('') +
     '</div>' +
-    '<h2>Congratulations</h2>' +
-    '<p class="winnames">' + list.map(p => esc(p.label)).join('<br>') + '</p>';
+    '<h2>' + (many ? 'Patches earned' : list[0].label) + '</h2>' +
+    '<p class="winnames">' + (many ? list.map(p => esc(p.label)).join('<br>') : esc(patchDateLine(list[0]))) + '</p>';
   document.getElementById('win').classList.add('open');
+  const sh = document.getElementById('winShare');
+  if (sh) sh.onclick = () => shareCard(list[0]);
   hydratePhotos();
 }
 function closeWin(){ document.getElementById('win').classList.remove('open'); celebrating = null; }
+
+/* ---------- the share card ----------
+   A 1080×1350 picture of the patch on deep green with the name, the date and
+   the wordmark: the thing people actually post. Drawn on this device, handed
+   to the share sheet where there is one, saved as a file where there is not. */
+function patchDateLine(p){
+  const keys = (p.keys && p.keys.length) ? p.keys : Object.keys(state.bagged).filter(isBagged);
+  const dates = keys.map(k => rec(k).date).filter(Boolean).sort();
+  const d = dates[dates.length - 1];
+  return d ? 'Earned ' + prettyDate(d) : 'Earned';
+}
+async function shareCard(p){
+  const W = 1080, H = 1350, cx = W / 2, cy = 560, R = 300;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.fillStyle = '#14332D'; x.fillRect(0, 0, W, H);
+  /* contour rings, faint, like the Patches page */
+  x.strokeStyle = 'rgba(243,239,230,.06)'; x.lineWidth = 2;
+  for (let r = R + 60; r < 1500; r += 64){ x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke(); }
+  /* the patch */
+  const img = new Image();
+  await new Promise(res => { img.onload = res; img.onerror = res; img.src = 'patches/' + p.id + '.png'; });
+  x.save(); x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.closePath(); x.clip();
+  x.fillStyle = '#B4491A'; x.fill();
+  if (img.naturalWidth) x.drawImage(img, cx - R, cy - R, R * 2, R * 2);
+  x.restore();
+  x.strokeStyle = '#B4491A'; x.lineWidth = 10; x.beginPath(); x.arc(cx, cy, R + 8, 0, Math.PI * 2); x.stroke();
+  /* the words */
+  try{ if (document.fonts && document.fonts.load) await Promise.all([document.fonts.load('64px Wildkins'), document.fonts.load('32px "Source Code Pro"')]); }catch(e){}
+  const label = String(p.label).replace(/&middot;/g, '·').replace(/&amp;/g, '&');
+  x.textAlign = 'center'; x.fillStyle = '#F3EFE6';
+  x.font = '400 66px Wildkins, Georgia, serif';
+  x.fillText(label.toUpperCase(), cx, 990, W - 120);
+  x.font = '400 32px "Source Code Pro", ui-monospace, monospace'; x.fillStyle = '#CAD9D3';
+  x.fillText(patchDateLine(p).toUpperCase(), cx, 1050);
+  x.font = '400 44px Wildkins, Georgia, serif'; x.fillStyle = '#E8925F';
+  x.fillText('WAYMARK', cx, 1230);
+  x.font = '400 22px "Source Code Pro", ui-monospace, monospace'; x.fillStyle = '#8FB0A6';
+  x.fillText('M A R K   Y O U R   J O U R N E Y S', cx, 1268);
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  if (!blob){ toast('Could not draw the card.'); return; }
+  const file = new File([blob], 'waymark-' + p.id + '.png', {type:'image/png'});
+  try{
+    if (navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title: label + ' — WayMark'});
+      return;
+    }
+  }catch(e){ if (e && e.name === 'AbortError') return; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 8000);
+  toast('Saved a picture of your patch.');
+}
 function winOpen(){ return document.getElementById('win').classList.contains('open'); }
 /* a marked summit is hard-won — never let one tap undo it silently */
 async function okToUnmark(key){
@@ -2694,7 +2843,9 @@ function renderPatchDetail(p){
     '<p>' + (p.got ? 'Earned' : esc(p.need)) +
       (p.target > 1 ? ' &middot; ' + (p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%' : '') +
       (p.note ? ' &middot; ' + p.note : '') + '</p>' +
-    '<div class="planstat"><i style="width:' + pct + '%"></i></div></div></section>';
+    '<div class="planstat"><i style="width:' + pct + '%"></i></div>' +
+    (p.got ? '<div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-act="sharepatch" data-v="' + esc(p.id) + '">Share this patch</button></div>' : '') +
+    '</div></section>';
 
   const todo = patchTodo(p);
   if (!peaks.length && !todo.length) return s + '<p class="empty">No summits marked towards this one yet.</p>';
@@ -2766,15 +2917,24 @@ const NI = {
 };
 const NAV = [
   {id:'d', label:'Home',      short:'Home'},
-  {id:'h', label:'Peaks',     short:'Peaks',  count:'h'},
-  {id:'m', label:'Map',       short:'Map',    count:'m'},
-  {id:'p', label:'Routes',    short:'Routes', count:'p'},
+  {id:'h', label:'Hills',     short:'Hills',  count:'h'},
+  /* One map. "Hills" is the overview of what you have walked; "Plan a day" is
+     the planner with its weather, places and routes. They are two screens
+     behind one tab (tab ids 'm' and 'p'), switched by a control on the map
+     itself, so the bar keeps to five and Home sits dead centre. */
+  {id:'m', label:'Map',       short:'Map',    count:'m', also:['p']},
+  {id:'j', label:'Journal',   short:'Journal', count:'j'},
   {id:'a', label:'Patches',   short:'Patches', count:'a'},
-  {id:'j', label:'Diary',     short:'Diary',  count:'j'},
-  /* Leaderboards used to live in their own Friends tab with a thin Profile beside
-     it. They are one thing now: Hikers. */
-  {id:'u', label:'Hikers',    short:'Hikers', count:'f'}
+  /* Hikers — profile, friends, leaderboards — has room in the desktop sidebar
+     but on a phone it opens from the header button and from Home, so the bar
+     keeps to five. No `short` means no phone button. */
+  {id:'u', label:'Hikers',    count:'f'}
 ];
+function mapModeBar(){
+  return '<div class="seg mapmode" role="group" aria-label="Map view">' +
+    '<button data-tab="m" aria-pressed="' + (tab === 'm') + '">Hills</button>' +
+    '<button data-tab="p" aria-pressed="' + (tab === 'p') + '">Plan a day</button></div>';
+}
 function diaryCount(){
   const n = diaryDays().length;
   return n ? n + (n === 1 ? ' day' : ' days') : 'nothing yet';
@@ -2793,7 +2953,8 @@ function navButton(n, c, mobile){
   /* Home sits in the middle of the phone bar, ringed, so the thumb always knows
      where the way back is without reading anything. */
   const home = mobile && n.id === 'd' ? ' homebtn' : '';
-  return '<button class="navbtn tab' + home + '" role="tab" data-tab="' + n.id + '" aria-selected="' + (tab === n.id) + '">' +
+  const on = tab === n.id || (n.also || []).includes(tab);
+  return '<button class="navbtn tab' + home + '" role="tab" data-tab="' + n.id + '" aria-selected="' + on + '">' +
     '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] + '</svg>' +
     '<span class="nl">' + esc(label) + '</span>' +
@@ -3433,38 +3594,136 @@ function renderOnboardSignin(){
   return s;
 }
 
+/* ---------- Home: the loop ----------
+   Not a dashboard. The three things a walker opens the app for on a Tuesday:
+   what is next, what it will be like up there at the weekend, and how close
+   the next patch is. Stats and lists come after; they are the reference. */
+
+/* The next hill: one you have not walked, in the same book or area as the
+   last one you did, highest first. Failing that, the first thing left on
+   your first list. Location would be better still, but the app does not ask
+   for it just to fill a card. */
+function nextHill(){
+  const last = recentlyMarked(1)[0];
+  if (last){
+    for (const l of enabled()){
+      const region = regionOf(last.h, l.id);
+      if (!last.h.l.includes(l.id) || region === 'Other') continue;
+      const cands = hillsIn(l.id).filter(h => !isBagged(h.k) && regionOf(h, l.id) === region)
+                                 .sort((a, b) => b.h - a.h);
+      if (cands.length) return {h:cands[0], why:region};
+    }
+  }
+  for (const l of enabled()){
+    const cands = hillsIn(l.id).filter(h => !isBagged(h.k)).sort((a, b) => b.h - a.h);
+    if (cands.length) return {h:cands[0], why:l.name};
+  }
+  return null;
+}
+/* This coming Saturday (or today, if it is the weekend already). */
+function weekendISO(){
+  const d = new Date(); const dow = d.getDay();
+  const add = dow === 6 ? 0 : dow === 0 ? 0 : 6 - dow;
+  d.setDate(d.getDate() + add);
+  return isoOf(d);
+}
+/* One line of forecast for the top of a hill on the weekend, from the same
+   cached forecast the planner uses. Asks once and repaints Home when it lands. */
+function summitLine(h){
+  const at = {la:h.a, lo:h.o};
+  if (!isFinite(at.la)) return '';
+  const wx = wxCached(at);
+  if (!wx){
+    const k = wxKey(at);
+    if (!wxPainting[k]){
+      wxPainting[k] = true;
+      fetchWeather(at).then(() => { delete wxPainting[k]; if (tab === 'd') render(); });
+    }
+    return '<span class="upwx dim">Checking the weekend forecast…</span>';
+  }
+  if (!wx.days || !wx.days.length) return '';
+  const want = weekendISO();
+  const day = wx.days.find(d => d.date === want) || wx.days[wx.days.length - 1];
+  const look = wxLook(day.code);
+  const lev = wxLevelFor(h.h);
+  const up = lev && day.up ? day.up[lev.hPa] : null;
+  const wind = up != null ? Math.round(up) : (day.wind != null ? Math.round(day.wind) : null);
+  return '<span class="upwx"><span class="wxi">' + wxSvg(look.i) + '</span>' +
+    '<b>' + esc(shortDay(day.date)) + ' at the top</b> · ' + esc(look.t) +
+    ' · ' + Math.round(day.hi) + '&deg;' +
+    (wind != null ? ' · ' + wind + ' mph' : '') +
+    (day.rain != null && day.rain >= 50 ? ' · ' + day.rain + '% rain' : '') + '</span>';
+}
+function shortDay(iso){
+  const d = new Date(iso + 'T12:00');
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()] + ' ' + d.getDate() + ' ' +
+    ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+}
+/* The patch you are closest to: most of the way there, fewest left. */
+function nearestPatch(){
+  return patches().filter(p => !p.got && p.target > 0)
+    .sort((a, b) => (b.have / b.target) - (a.have / a.target) || (a.target - a.have) - (b.target - b.have))[0] || null;
+}
+
 function renderDashboard(){
   const a = allStats();
-  /* four blocks of equal weight under one heading, rather than one large panel
-     with three smaller ones hanging off it */
-  let s = '<h2 class="pagehead">Your journey so far</h2>';
-  s += '<div class="scards four">';
   const pz = patches(), pgot = pz.filter(x => x.got).length;
-  s += statCard(a.done.toLocaleString(), 'Peaks marked', a.planned ? a.planned + ' planned' : '');
-  s += statCard(a.remaining.toLocaleString(), 'Still to go', a.progress ? a.progress + ' attempted' : '');
-  s += a.highest
-    ? statCard(feet(a.highest).toLocaleString() + '<span class="su">ft</span>', 'Highest marked', esc(a.highest.n))
-    : statCard('&mdash;', 'Highest marked', 'Nothing yet');
-  s += statCard(pgot.toLocaleString() + '<span class="su">/' + pz.length + '</span>', 'Patches earned',
-                (pgot ? 'See your journey' : 'None yet') + ' &rsaquo;', 'a');
+  let s = '';
+
+  if (!a.done){
+    /* Before the first hill there is one thing to say, and one thing to do. */
+    s += '<div class="invite">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI.h + '</svg>' +
+      '<h2 class="pagehead">Mark your first fell</h2>' +
+      '<p>Every hill you walk goes in the log, earns you patches, and draws your journey on the map. Start with one you have already done.</p>' +
+      '<button class="btn" data-tab="h">Open Peaks</button></div>';
+    s += '<div style="margin-top:20px">' + renderPatches() + '</div>';
+    return s + listRowsHTML();
+  }
+
+  s += '<h2 class="pagehead">Your journey so far</h2>';
+
+  /* 1. what is next, and the weekend at the top */
+  const nx = nextHill();
+  const np = nearestPatch();
+  s += '<div class="loop">';
+  if (nx){
+    const h = nx.h;
+    s += '<button class="dcard upnext" data-act="info" data-k="' + esc(h.k) + '">' +
+      '<p class="sumlabel">Up next</p>' +
+      '<div class="dch"><b>' + esc(hillName(h)) + '</b><span class="tag">' + esc(nx.why) + '</span></div>' +
+      '<p class="dcs">' + htFlat(h) + '</p>' +
+      summitLine(h) + '</button>';
+  }
+  if (np){
+    const left = np.target - np.have;
+    s += '<button class="dcard nextpatch" data-tab="a">' +
+      '<p class="sumlabel">Nearest patch</p>' +
+      '<div class="npbody"><span class="patch">' + patchDisc(np, ' small') + '</span>' +
+      '<div><b class="npname">' + np.label + '</b>' +
+      '<span class="dcs">' + (left === 1 ? 'One to go' : left + ' to go') + ' · ' + np.have + ' of ' + np.target + '</span>' +
+      '<i class="rbar"><s style="width:' + Math.round(np.have / np.target * 100) + '%"></s></i></div></div></button>';
+  }
   s += '</div>';
 
-  const nx = nextRoute();
-  if (nx){
-    const hs = (nx.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  /* 2. a route you have planned */
+  const nr = nextRoute();
+  if (nr){
+    const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean);
     const dn = hs.filter(x => isBagged(x.k)).length;
     s += '<p class="eyebrow">Next route</p>' +
       '<button class="dcard route" data-tab="p">' +
-        '<div class="dch"><b>' + esc(nx.name || 'Untitled route') + '</b>' +
-        (nx.date ? '<span class="tag">' + esc(prettyDate(nx.date)) + '</span>' : '') + '</div>' +
+        '<div class="dch"><b>' + esc(nr.name || 'Untitled route') + '</b>' +
+        (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '') + '</div>' +
         '<p class="dcs">' + hs.length + ' hill' + (hs.length === 1 ? '' : 's') +
           (hs.length ? ' &middot; ' + dn + ' marked' : '') +
-          ((nx.trk && nx.trk.length > 1) ? ' &middot; ' + prettyDist(trackLength(nx.trk)) : '') + '</p>' +
+          ((nr.trk && nr.trk.length > 1) ? ' &middot; ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
         (hs.length ? '<div class="planstat"><i style="width:' + (hs.length ? dn/hs.length*100 : 0) + '%"></i></div>' : '') +
       '</button>';
   }
 
-  const recents = recentlyMarked(5);   // not "rec": that shadows the global record helper
+  /* 3. what you did last */
+  const recents = recentlyMarked(5);
   if (recents.length){
     s += '<p class="eyebrow">Recent summits</p><ul class="feed">';
     for (const r of recents)
@@ -3475,9 +3734,33 @@ function renderDashboard(){
     s += '</ul>';
   }
 
+  /* 4. the cabinet */
   s += '<div style="margin-top:20px">' + renderPatches() + '</div>';
 
-  s += '<p class="eyebrow">Your lists</p><div class="regionlist">';
+  /* 5. friends, when there are any to have */
+  if (fbConfigured()){
+    s += '<p class="eyebrow">Hikers</p>' +
+      '<button class="dcard hikers" data-tab="u"><div class="dch"><b>' +
+      (cloudOn() ? 'Friends and leaderboards' : 'Sign in to walk with friends') + '</b></div>' +
+      '<p class="dcs">' + (cloudOn() ? esc(friendsTabLabel() || 'Your profile, friends and boards')
+                                     : 'Your log follows you to every device, and you can compare with friends.') +
+      '</p></button>';
+  }
+
+  /* 6. the numbers, quietly, and the lists */
+  s += '<p class="eyebrow">By the numbers</p><div class="scards four">';
+  s += statCard(a.done.toLocaleString(), 'Hills walked', a.planned ? a.planned + ' planned' : '');
+  s += statCard(a.remaining.toLocaleString(), 'Still to go', a.progress ? a.progress + ' attempted' : '');
+  s += a.highest
+    ? statCard(feet(a.highest).toLocaleString() + '<span class="su">ft</span>', 'Highest walked', esc(a.highest.n))
+    : statCard('&mdash;', 'Highest walked', 'Nothing yet');
+  s += statCard(pgot.toLocaleString() + '<span class="su">/' + pz.length + '</span>', 'Patches earned',
+                (pgot ? 'See your journey' : 'None yet') + ' &rsaquo;', 'a');
+  s += '</div>';
+  return s + listRowsHTML();
+}
+function listRowsHTML(){
+  let s = '<p class="eyebrow">Your lists</p><div class="regionlist">';
   for (const l of enabled()){
     const st = statsFor(l.id);
     const p = st.total ? Math.round(st.done / st.total * 100) : 0;
@@ -3487,9 +3770,7 @@ function renderDashboard(){
       '<span class="rc">' + st.done + ' / ' + st.total + '</span>' +
       '<span class="chev">&rsaquo;</span></button>';
   }
-  s += '</div>';
-  if (!a.done) s += '<p class="empty" style="margin-top:16px">Nothing marked yet. Open <b>Peaks</b> and tick your first summit.</p>';
-  return s;
+  return s + '</div>';
 }
 
 /* ---------- the diary ---------- */
@@ -3543,7 +3824,7 @@ function dayPhotos(dateISO){
     for (const ph of (e.photos || [])){
       if (seen.has(ph.id)) continue;
       seen.add(ph.id);
-      out.push({...ph, entry:e.id, from:e.title || 'Diary'});
+      out.push({...ph, entry:e.id, from:e.title || 'Journal'});
     }
   }
   return out;
@@ -3568,7 +3849,7 @@ function tagPanelHTML(){
 
   let s = '<div class="tagpanel"><h3>Tag these photos?</h3>' +
     '<p class="taghint">Tagged to a hill, a photo also shows on that hill in your Peaks list. ' +
-    'Left untagged it stays in the diary and nowhere else.</p>';
+    'Left untagged it stays in the journal and nowhere else.</p>';
   for (const ph of photos){
     s += '<div class="tagrow">' +
       '<img class="tagshot" data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
@@ -3592,7 +3873,7 @@ function tagPanelHTML(){
 
 function renderDiary(){
   const days = diaryDays();
-  let html = '<h2 class="pagehead">Your diary</h2>';
+  let html = '<h2 class="pagehead">Your journal</h2>';
   html += '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too &mdash; a reccy, a washout, a walk that is not on any list.</div>';
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button></div>';
@@ -3613,7 +3894,7 @@ function renderDiary(){
   html += tagPanelHTML();
 
   if (!days.length){
-    return html + '<p class="empty">Nothing in the diary yet. Mark a summit with a date, or write up a day above.</p>';
+    return html + '<p class="empty">Nothing in the journal yet. Mark a summit with a date, or write up a day above.</p>';
   }
 
   for (const d of days){
@@ -3664,6 +3945,18 @@ function renderDiary(){
         '</div></div>';
     }
 
+    /* A day that exists only because you marked summits on it can still be
+       written up and have photos added — the entry is made for you when you
+       do, so the day never needs a form first. */
+    if (!d.entries.length){
+      html += '<div class="drow">' +
+        '<button class="linkbtn" data-act="writeday" data-d="' + esc(d.date) + '">Write about this day</button>' +
+        '<label class="linkbtn aslabel">+ Photos<input type="file" accept="image/*" multiple ' +
+          'data-act="dayphoto" data-d="' + esc(d.date) + '" hidden></label>' +
+        (d.photos.length ? '<button class="linkbtn" data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(d.photos[0].id) + '">Open the day</button>' : '') +
+        '</div>';
+    }
+
     if (d.photos.length){
       html += '<div class="shots">' + d.photos.slice(0, 12).map(ph =>
         '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewday" data-d="' + esc(d.date) +
@@ -3707,7 +4000,7 @@ function postHTML(p){
   s += '<div class="phead">' + avatarHTML(p.av, p.name, 'sm') +
     '<div class="pwho"><b>' + esc(p.name || 'Walker') + '</b>' +
     '<span>' + (p.kind === 'summit' ? 'Marked a summit'
-              : p.kind === 'diary' ? 'From their diary' : 'Posted') + ' &middot; ' + esc(whenAgo(p.t)) +
+              : p.kind === 'diary' ? 'From their journal' : 'Posted') + ' &middot; ' + esc(whenAgo(p.t)) +
     (tagged.length ? ' &middot; with ' + esc(tagged.join(', ')) : '') + '</span></div>' +
     (mine ? '<button class="linkbtn" data-act="delpost" data-id="' + esc(p.id) + '">Delete</button>' : '') +
     '</div>';
@@ -3908,7 +4201,7 @@ function renderMapTab(){
   /* With nothing switched on there is no map to draw and no list to name, so
      send the walker to the same picker the other screens show. */
   if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
-  let html = listBar();
+  let html = mapModeBar() + listBar();
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
   html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">All my lists</button>';
   html += '<button data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope==='one') + '">' + esc(LIST_BY[ui.list].name) + ' only</button>';
@@ -5252,7 +5545,7 @@ function paintMapWeather(){
 }
 
 function renderPlans(){
-  let html = '<h2 class="pagehead">Plan a day out</h2>';
+  let html = mapModeBar() + '<h2 class="pagehead">Plan a day out</h2>';
 
   /* 1. what this screen does — headlines only until you ask */
   html += candoStrip();
@@ -5688,6 +5981,8 @@ document.addEventListener('click', async e => {
     render();
   }
   else if (a === 'theme'){ setTheme(el.dataset.v); }
+  else if (a === 'units'){ setUnits(el.dataset.v); }
+  else if (a === 'sharepatch'){ const p = patches().find(x => x.id === el.dataset.v); if (p) shareCard(p); }
   else if (a === 'setstate'){
     const k = el.dataset.k;
     if (isBagged(k) && el.dataset.v !== 'done' && !await okToUnmark(k)) return;
@@ -5879,6 +6174,10 @@ document.addEventListener('click', async e => {
     render();
   }
   else if (a === 'closediary'){ ui.diaryForm = false; ui.dDraft = null; render(); }
+  else if (a === 'writeday'){
+    ui.diaryForm = true; ui.dDraft = {id:'', date:el.dataset.d, title:'', text:''};
+    render(); window.scrollTo({top:0});
+  }
   else if (a === 'editdiary'){
     const e = liveDiary().find(x => x.id === el.dataset.id); if (!e) return;
     ui.diaryForm = true; ui.dDraft = {id:e.id, date:e.date, title:e.title, text:e.text};
@@ -5913,7 +6212,7 @@ document.addEventListener('click', async e => {
       title: e.shared ? 'Share this entry again?' : 'Share this entry?',
       body: 'Your friends will see ' + (e.title ? '“' + e.title + '”' : 'this entry') +
             ', the words you wrote' + (n ? ' and ' + (n === 1 ? 'the photo' : 'all ' + n + ' photos') : '') +
-            '. Nothing else from your diary is shared.',
+            '. Nothing else from your journal is shared.',
       yes: 'Share'
     });
     if (!ok) return;
@@ -6156,6 +6455,19 @@ document.addEventListener('change', e => {
     const files = [...el.files]; el.value = '';
     toast('Processing…'); addDiaryPhotos(el.dataset.id, files);
   }
+  else if (a === 'dayphoto' && el.files && el.files.length){
+    /* photos for a day with no written entry yet: make the entry, then carry on
+       exactly as if it had always been there, tagging panel and all */
+    const files = [...el.files]; el.value = '';
+    const date = el.dataset.d;
+    let e = liveDiary().find(x => x.date === date);
+    if (!e){
+      e = {id:'d' + uid(), date, title:'', text:'', photos:[], shared:0, deleted:false, t:now()};
+      state.diary = [...(state.diary || []), e];
+      touched();
+    }
+    toast('Processing…'); addDiaryPhotos(e.id, files);
+  }
   else if (a === 'gpxnew' && el.files && el.files.length){
     /* Import with nothing selected: make the route from the file itself, so a
        walker can start from a GPX rather than having to build a shell first. */
@@ -6325,7 +6637,7 @@ async function paintViewer(){
   } else if (viewing.diary){
     const e = diaryEntry(viewing.diary) || {};
     document.getElementById('vcap').textContent =
-      (e.title || 'Diary') + (e.date ? ' · ' + prettyDate(e.date) : '');
+      (e.title || 'Journal') + (e.date ? ' · ' + prettyDate(e.date) : '');
     const box = document.getElementById('vcapin');
     if (document.activeElement !== box) box.value = p.cap || '';
   } else if (viewing.friend){
@@ -6576,11 +6888,7 @@ function openSheet(){
 document.getElementById('menuBtn').onclick = openSheet;
 /* flips against what is actually on screen, so one press always changes it.
    "Match my device" still lives in Settings. */
-document.getElementById('themeBtn').onclick = () => {
-  const next = darkNow() ? 'light' : 'dark';
-  setTheme(next);
-  toast(next === 'dark' ? 'Dark mode on' : 'Light mode on');
-};
+/* (the header theme button is gone: appearance is one choice in Settings) */
 function closeSheetNow(){ sheet.classList.remove('open'); }
 document.getElementById('closeSheet').onclick = closeSheetNow;
 document.getElementById('sheetX').onclick = closeSheetNow;
@@ -6714,7 +7022,9 @@ document.addEventListener('keydown', e => {
   if (sheet.classList.contains('open')){ closeSheetNow(); return; }
   if (ui.groupForm){ ui.groupForm = ''; render(); }
 });
-document.getElementById('syncBtn').onclick = () => { if (!cloudOn()) openSheet(); else syncNow(); };
+/* the header's sign-in / Saved button is the way into Hikers: your profile,
+   friends and leaderboards, with sign-in on the same screen when you are out */
+document.getElementById('syncBtn').onclick = () => { if (cloudOn()) syncNow(); tab = 'u'; render(); window.scrollTo({top:0}); };
 document.getElementById('copyBtn').onclick = async () => {
   const ta = document.getElementById('backupText');
   try{ await navigator.clipboard.writeText(ta.value); toast('Backup copied.'); }
@@ -7008,14 +7318,15 @@ function paintThemeBtn(){
 function renderThemeBox(){
   const box = document.getElementById('themeBox'); if (!box) return;
   const t = themePref();
-  const auto = !t, dark = darkNow();
+  const opt = (v, label) => '<button data-act="theme" data-v="' + v + '" aria-pressed="' + ((t || '') === v) + '">' + label + '</button>';
   box.innerHTML =
-    '<div class="togglerow"><div class="tinfo"><b>Dark mode</b>' +
-      '<span>' + (dark ? 'On — cream text on deep green' : 'Off — dark text on cream') + '</span></div>' +
-      '<button class="sw" data-act="theme" data-v="' + (dark ? 'light' : 'dark') + '" aria-pressed="' + dark + '" aria-label="Dark mode"></button></div>' +
-    '<div class="togglerow"><div class="tinfo"><b>Match my device</b>' +
-      '<span>' + (auto ? 'Following your phone or computer' : 'Using your choice above') + '</span></div>' +
-      '<button class="sw" data-act="theme" data-v="' + (auto ? (systemIsDark() ? 'dark' : 'light') : '') + '" aria-pressed="' + auto + '" aria-label="Match my device"></button></div>';
+    '<div class="togglerow"><div class="tinfo"><b>Theme</b>' +
+      '<span>' + (!t ? 'Following your phone or computer' : t === 'dark' ? 'Cream text on deep green' : 'Dark text on cream') + '</span></div></div>' +
+    '<div class="seg themeseg" role="group" aria-label="Appearance">' + opt('light', 'Light') + opt('dark', 'Dark') + opt('', 'Match device') + '</div>' +
+    '<div class="togglerow"><div class="tinfo"><b>Heights</b><span>In lists and on the map. A hill\'s own page always shows both.</span></div></div>' +
+    '<div class="seg themeseg" role="group" aria-label="Heights">' +
+      '<button data-act="units" data-v="ft" aria-pressed="' + (unitsPref() === 'ft') + '">Feet</button>' +
+      '<button data-act="units" data-v="m" aria-pressed="' + (unitsPref() === 'm') + '">Metres</button></div>';
 }
 applyTheme(); paintThemeBtn();
 let rzT = null;
@@ -7999,7 +8310,7 @@ function groupFormHTML(){
 }
 
 function renderBoard(){
-  if (!fbConfigured()) return '<p class="empty">Accounts are not switched on for this copy of the app.</p>';
+  if (!fbConfigured()) return '<p class="empty">Friends and leaderboards need accounts, which this copy runs without.</p>';
   if (!fbUser) return '<p class="empty">Sign in above and you can start or join a leaderboard with friends.</p>';
   if (friendOpen) return renderFriend();
 
