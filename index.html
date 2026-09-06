@@ -1084,64 +1084,6 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 @media (hover:none) and (pointer:coarse){
   .scrollgrip{display:flex}
 }
-/* said over the map the moment one finger tries to drag it */
-#routemap, #mapbox{position:relative}
-.nudge::after{
-  content:"Use two fingers to move the map"; position:absolute; inset:auto 0 0 0; z-index:600;
-  background:color-mix(in srgb, var(--ink) 82%, transparent); color:var(--ground);
-  font-family:var(--font-data); font-size:11.5px; text-align:center; padding:7px 8px;
-  pointer-events:none;
-}
-/* what this can do — one strip of pills above the fold */
-/* Four across, sharing the width equally, so there is never a sideways scroll
-   on a phone. They shrink together rather than pushing the last one off. */
-.dostrip{display:flex; gap:5px; margin-top:12px}
-.dopill{
-  flex:1 1 0; min-width:0; display:inline-flex; align-items:center; justify-content:center;
-  gap:5px; cursor:pointer; padding:7px 6px; border-radius:99px; border:1px solid var(--line);
-  background:var(--surface); color:var(--ink-2); font-size:12px; white-space:nowrap;
-}
-.dopill span{overflow:hidden; text-overflow:ellipsis}
-.dopill svg{width:14px; height:14px; flex:none; opacity:.85}
-@media (max-width:359px){
-  .dopill{font-size:11px; gap:4px; padding:7px 4px}
-  .dopill svg{width:13px; height:13px}
-}
-.dopill.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); font-weight:700}
-.dopill.on svg{opacity:1}
-.dodetail{margin:8px 0 0; font-size:13px; color:var(--ink-2); line-height:1.5}
-
-.daychip.plusday{min-width:56px}
-.otherday{margin-top:10px; padding:10px 12px; background:var(--surface);
-  border:1px solid var(--line); border-radius:var(--r)}
-.otherday label{display:block; font-family:var(--font-data); font-size:9.5px;
-  letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
-.otherday .linkbtn{padding:6px 0 0; font-size:13px}
-.wxcaution{margin:8px 0 0; font-size:12.5px; color:var(--ink-3); line-height:1.5}
-
-/* the condensed forecast */
-.wxmini{margin-top:12px; border:1px solid var(--line); border-radius:var(--r);
-  background:var(--surface); overflow:hidden}
-.wxminibar{display:flex; align-items:center; gap:10px; width:100%; text-align:left;
-  background:none; border:0; color:inherit; cursor:pointer; padding:10px 12px}
-.wxminibar .wxi{flex:none; width:30px; height:30px; color:var(--accent-text)}
-.wxminibar .wxi svg{width:100%; height:100%}
-.wxmt{flex:1; min-width:0}
-.wxmt b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
-.wxmt i{display:block; font-style:normal; font-family:var(--font-data);
-  font-size:11px; color:var(--ink-3); margin-top:1px}
-.wxmf{display:flex; gap:9px; flex:none}
-.wxmf em{font-style:normal; font-family:var(--font-data); font-size:12px; color:var(--ink-2);
-  white-space:nowrap}
-.wxmf em.warn{color:var(--warn); font-weight:700}
-.wxmini.open .wxminibar .dochev{transform:rotate(90deg)}
-.wxminibody{padding:0 12px 12px}
-.wxminibody .wxgrid{margin-top:0}
-@media (max-width:430px){
-  .wxmf{gap:7px}
-  .wxmf em{font-size:11px}
-}
-
 .plotbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
 .planname{
   flex:1; min-width:0; font-family:var(--font-display); font-size:17px; color:var(--ink);
@@ -3910,6 +3852,15 @@ function renderMapTab(){
   html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">All my lists</button>';
   html += '<button data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope==='one') + '">' + esc(LIST_BY[ui.list].name) + ' only</button>';
   html += '</div>' + styleSwitcher() + '</div>';
+  /* The same search as the planner: hills instantly from our own data, then
+     pubs, car parks and villages from anywhere. Finding a place on a map of
+     1,300 hills should not mean pinching around looking for it. */
+  html += '<div class="controls" style="margin:10px 0 0"><div class="field">' +
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
+    '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>' +
+    '<input type="search" id="rq" placeholder="Find a hill or a place\u2026" value="' + esc(ui.rq || '') +
+    '" autocomplete="off"></div></div>';
+  html += '<div id="rqres">' + searchResultsHTML() + '</div>';
   html += '<div class="mapwrap"><div id="mapbox"></div>' +
     '<div class="scrollgrip" aria-hidden="true"><span></span><span></span><span></span></div></div>';
   html += '<div class="maplegend"><span><i class="mk"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span><span>Size follows height</span></div>';
@@ -4559,25 +4510,15 @@ function openEditor(id){
   render();
 }
 function closeEditor(){ editor = null; ui.rmode = 'explore'; render(); }
-/* A map in the middle of a page swallows the scroll: one finger on it pans the
-   map instead of moving the page, and there is no way past. Two fixes, together:
-   a strip down the side that is page rather than map, so a thumb there always
-   scrolls; and one-finger drags handed back to the page, with two fingers
-   moving the map. This is what map embeds do, and it is what people expect. */
+/* A map in the middle of a page used to swallow the scroll, so one finger on it
+   panned the map and there was no way past. The lane down the side fixes that —
+   it is page, not map, so a thumb there always scrolls — which means the map
+   itself can behave like a map again: one finger pans it, as everyone expects.
+   Taking that away made the map the least intuitive thing on the screen. */
 function tameTouch(m, box){
   if (!m || !box || !m.dragging) return;
-  const touch = matchMedia('(hover: none) and (pointer: coarse)').matches;
-  if (!touch) return;
-  m.dragging.disable();
-  if (m.tap) m.tap.disable();
-  box.addEventListener('touchstart', e => {
-    if (e.touches.length >= 2){ m.dragging.enable(); box.classList.remove('nudge'); }
-    else { m.dragging.disable(); box.classList.add('nudge'); }
-  }, {passive:true});
-  box.addEventListener('touchend', () => {
-    m.dragging.disable();
-    setTimeout(() => box.classList.remove('nudge'), 900);
-  }, {passive:true});
+  m.dragging.enable();
+  if (m.tap) m.tap.enable();
 }
 
 function killRouteMap(){
@@ -5613,7 +5554,7 @@ document.addEventListener('click', async e => {
   const tabBtn = e.target.closest('[data-tab]');
   if (tabBtn){
     tab = tabBtn.dataset.tab;
-    ui.q=''; ui.region=''; ui.open=null; ui.patch=null; ui.patchFrom=null;
+    ui.q=''; ui.rq=''; ui.region=''; ui.open=null; ui.patch=null; ui.patchFrom=null;
     /* Leave nothing half-open behind you: a composer, a search result or a
        comment thread from another screen has no business reappearing. */
     ui.openComments=null; ui.groupForm=''; ui.found=null;
@@ -6046,12 +5987,15 @@ document.addEventListener('click', async e => {
     const la = +el.dataset.la, lo = +el.dataset.lo;
     if (!isFinite(la)) return;
     ui.rq = '';
-    ui.rview = {c:{lat:la, lng:lo}, z:14};
+    /* whichever map is on screen — the planner's or the Map tab's */
+    const onMapTab = tab === 'm';
+    if (!onMapTab) ui.rview = {c:{lat:la, lng:lo}, z:14};
     render();
     setTimeout(() => {
-      if (rmap) rmap.setView([la, lo], 14);
+      const m = onMapTab ? map : rmap;
+      if (m) m.setView([la, lo], 14);
       /* A place opens, because that is where the hours and charges are. A hill
-         does not: you are planning a route to it, not deciding whether to tick
+         does not: you are finding it on the map, not deciding whether to tick
          it, and being asked to mark it off here is the wrong question. */
       if (el.dataset.p) openPoi(el.dataset.p);
       else if (el.dataset.name) toast(el.dataset.name + ' \u2014 centred on the map.');
