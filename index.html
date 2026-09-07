@@ -1669,6 +1669,17 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .quietcard{border-left-color:var(--line)}
 .homelist{margin-top:22px}
 .homelist .listbar{margin-top:0}
+/* ---- hills on the map ---- */
+.hpin{position:relative; border-radius:99px; background:var(--surface); border:2px solid; display:grid; place-items:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer; transition:transform .12s}
+.hpin:hover{transform:scale(1.15)}
+.hpin svg{width:70%; height:70%; margin-top:1px}
+.hpin.planned{background:var(--plan-soft)}
+.hpin.progress{background:var(--prog-soft)}
+.pbook{display:flex; align-items:center; gap:6px; margin-top:-4px}
+.pbook i{width:10px; height:10px; border-radius:99px; display:inline-block; flex:none}
+.searchpin{width:30px; height:36px; color:#B4491A; filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.searchpin svg{width:100%; height:100%}
 </style>
 </head>
 <body>
@@ -2933,8 +2944,8 @@ const NAV = [
 ];
 function mapModeBar(){
   return '<div class="seg mapmode" role="group" aria-label="Map view">' +
-    '<button data-tab="m" aria-pressed="' + (tab === 'm') + '">Hills</button>' +
-    '<button data-tab="p" aria-pressed="' + (tab === 'p') + '">Plan a day</button></div>';
+    '<button data-tab="m" aria-pressed="' + (tab === 'm') + '">Mountains</button>' +
+    '<button data-tab="p" aria-pressed="' + (tab === 'p') + '">Plan a walk</button></div>';
 }
 function diaryCount(){
   const n = diaryDays().length;
@@ -4204,6 +4215,8 @@ function mountMap(){
     if (map.attributionControl) map.attributionControl.setPrefix('');
     addBaseLayer(map, mapCentre());
     map.on('moveend', () => syncBaseLayer(map));
+    map.on('zoomend', () => { const z = map.getZoom(); if ((z < 9) !== (map.__lastZ < 9)) drawMarkers(); map.__lastZ = z; });
+    map.__lastZ = map.getZoom();
     markerLayer = L.layerGroup().addTo(map);
     mapReady = true;
     drawMarkers(true);
@@ -4212,6 +4225,54 @@ function mountMap(){
     setTimeout(() => map.invalidateSize(), 60);
     drawMarkers();
   }
+}
+/* ---------- hills on a map ----------
+   The same marker on both maps: a small mountain, in its book's colour for a
+   Wainwright and sage for everything else, filled in once you have stood on
+   it. Below zoom 9 there are too many for drawn icons, so they fall back to
+   dots of the same colours. */
+const BOOK_NUM = Object.fromEntries(Object.keys(BOOK_VAR).map((k, i) => [k, i + 1]));
+const MOUNTAIN_PATH = '<path d="M3 18 8.5 8.5 11.8 13.6 14.3 10.2 21 18Z"/>';
+function hillColour(h, cs){
+  if (h.l.includes('wainwright')){
+    const v = BOOK_VAR[regionOf(h, 'wainwright')];
+    if (v) return cs.getPropertyValue(v).trim() || '#65847E';
+  }
+  return cs.getPropertyValue('--sage').trim() || '#65847E';
+}
+function hillMarker(h, zoom, cs, onClick){
+  const st = stateOf(h.k), done = st === 'done';
+  const col = hillColour(h, cs);
+  let m;
+  if (zoom < 9 && !done){
+    m = L.circleMarker([h.a, h.o], {radius: 3 + Math.min(5, (h.h - 250) / 220),
+      color: col, weight: 1.8, fillColor: col,
+      fillOpacity: st === 'none' ? 0 : .45, bubblingMouseEvents:false});
+  } else {
+    const big = done ? 26 + Math.round(Math.min(10, Math.max(0, (h.h - 400) / 90))) : 22;
+    const v = done && !!verifiedAt(h.k);
+    const html = done
+      ? '<div class="peak' + (v ? ' pkv' : '') + '" style="width:' + big + 'px;height:' + big + 'px' +
+        (h.l.includes('wainwright') ? ';background:' + col : '') + '">' +
+        '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg>' +
+        (v ? '<i class="pkring"></i>' : '') + '</div>'
+      : '<div class="hpin' + (st !== 'none' ? ' ' + st : '') + '" style="width:' + big + 'px;height:' + big + 'px;border-color:' + col + ';color:' + col + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></div>';
+    const icon = L.divIcon({className:'peakwrap', iconSize:[big, big], iconAnchor:[big/2, big/2], html});
+    m = L.marker([h.a, h.o], {icon, riseOnHover:true, zIndexOffset: done ? 1000 : 0, title:hillName(h)});
+  }
+  m.on('click', e => onClick(m, h, e));
+  return m;
+}
+/* the pin you searched for, so you can see what you asked about */
+function drawSearchPin(layer){
+  const sp = ui.searchPin; if (!sp || !layer) return;
+  const icon = L.divIcon({className:'peakwrap', iconSize:[30, 36], iconAnchor:[15, 34],
+    html:'<div class="searchpin" title="' + esc(sp.name || 'Here') + '"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+         '<path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#F3EFE6"/></svg></div>'});
+  const m = L.marker([sp.la, sp.lo], {icon, zIndexOffset:2000, title:sp.name || ''});
+  m.bindTooltip(esc(sp.name || 'Searched here'), {direction:'top', offset:[0, -30]});
+  layer.addLayer(m);
 }
 function drawMarkers(fit){
   if (!mapReady || !markerLayer) return;
@@ -4226,60 +4287,9 @@ function drawMarkers(fit){
   }
   const list = mapHills();
   const cs = getComputedStyle(document.documentElement);
-  const col = {
-    planned: cs.getPropertyValue('--plan').trim() || '#5F5B8C',
-    progress: cs.getPropertyValue('--prog').trim() || '#2E6B8A',
-    none: cs.getPropertyValue('--ink-3').trim() || '#7C9080'
-  };
-  /* Wainwrights carry their book's spine colour on the map: a thin ring of it
-     while the fell is still to do, the same colour filled in once you have been.
-     Read from the live CSS variables so it follows light and dark mode. */
-  const bookCol = h => {
-    if (!h.l.includes('wainwright')) return null;
-    const v = BOOK_VAR[regionOf(h, 'wainwright')];
-    if (!v) return null;
-    return cs.getPropertyValue(v).trim() || null;
-  };
-
-  const doneOnes = [];
-  for (const h of list){
-    const st = stateOf(h.k);
-    const bc = bookCol(h);
-    if (st === 'done'){ doneOnes.push(h); continue; }   // drawn last, on top
-    const m = L.circleMarker([h.a, h.o], {
-      radius: 3 + Math.min(6, (h.h - 250) / 190),
-      color: bc || col[st],
-      weight: bc ? 2 : (st === 'none' ? 1.6 : 1),
-      fillColor: bc || col[st],
-      /* an unwalked Wainwright is outline only, whatever else it is */
-      fillOpacity: bc ? (st === 'none' ? 0 : .35) : (st === 'none' ? 0 : 1),
-      bubblingMouseEvents: false
-    });
-    m.on('click', () => openPopup(m, h));
-    markerLayer.addLayer(m);
-  }
-  /* A summit you have stood on should read as an achievement from across the
-     map, so these get a real badge — burnt orange, ringed, raised — and they
-     sit above everything else. */
-  for (const h of doneOnes){
-    const big = 26 + Math.round(Math.min(10, Math.max(0, (h.h - 400) / 90)));
-    const v = !!verifiedAt(h.k);
-    const bc = bookCol(h);
-    const icon = L.divIcon({
-      className: 'peakwrap',
-      iconSize: [big, big],
-      iconAnchor: [big/2, big/2],
-      html: '<div class="peak' + (v ? ' pkv' : '') + '" style="width:' + big + 'px;height:' + big + 'px' +
-            (bc ? ';background:' + bc : '') + '">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" ' +
-            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-            '<path d="M5 10.5 9.5 16 14 10.5 18.5 16"/></svg>' +
-            (v ? '<i class="pkring"></i>' : '') + '</div>'
-    });
-    const m = L.marker([h.a, h.o], {icon, riseOnHover:true, zIndexOffset:1000, title:h.n});
-    m.on('click', () => openPopup(m, h));
-    markerLayer.addLayer(m);
-  }
+  const z = map.getZoom();
+  for (const h of list) markerLayer.addLayer(hillMarker(h, z, cs, openPopup));
+  drawSearchPin(markerLayer);
   if (fit && list.length){
     const b = L.latLngBounds(list.map(h => [h.a, h.o]));
     map.fitBounds(b, {padding:[24,24]});
@@ -4291,6 +4301,9 @@ function openPopup(m, h){
   const html = (shot ? '<img class="popshot" data-pid="' + esc(shot.id) + '" data-up="' + (shot.up?1:0) + '" alt="">' : '') +
     '<b>' + esc(hillName(h)) + '</b><span class="pm">' + htFlat(h) + ' · ' +
     esc(h.l.map(x => LIST_BY[x].name).join(', ')) + (on && r.date ? ' · ' + esc(prettyDate(r.date)) : '') + '</span>' +
+    (h.l.includes('wainwright') && BOOK_NUM[regionOf(h, 'wainwright')]
+      ? '<span class="pm pbook"><i style="background:' + hillColour(h, getComputedStyle(document.documentElement)) + '"></i>Book ' +
+        BOOK_NUM[regionOf(h, 'wainwright')] + ' · ' + esc(regionOf(h, 'wainwright')) + '</span>' : '') +
     '<button class="popbtn' + (on ? ' off' : '') + '" data-act="tick" data-k="' + esc(h.k) + '">' +
     (on ? 'Walked \u2713 \u00b7 unmark' : 'Mark it') + '</button>' +
     '<button class="popbtn off" style="margin-top:6px" data-act="info" data-k="' + esc(h.k) + '">About this hill</button>';
@@ -4519,8 +4532,8 @@ let poiBusy = false, poiErr = '', poiTimer = null;
 
 /* kumi.systems first: it is consistently the quicker of the public mirrors. */
 const POI_MIRRORS = [
-  'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass-api.de/api/interpreter'
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
 ];
 let poiMirror = 0;
 
@@ -4544,12 +4557,26 @@ async function fetchPois(bounds){
 
   poiBusy = true; poiErr = '';
   paintPoiBar();
+  /* A mirror that never answers used to leave this stuck on "Finding places…"
+     for good — the fetch had no timeout, and every later refresh bailed out
+     because poiBusy was still true. Twelve seconds, then the other mirror. */
+  const ask = async (url) => {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), 12000);
+    try{
+      const r = await fetch(url, {method:'POST', headers:{'Content-Type':'text/plain'},
+                                  body:'data=' + encodeURIComponent(ql), signal:c.signal});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
+    } finally { clearTimeout(t); }
+  };
   try{
-    const r = await fetch(POI_MIRRORS[poiMirror], {
-      method:'POST', headers:{'Content-Type':'text/plain'}, body:'data=' + encodeURIComponent(ql)
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json();
+    let j;
+    try{ j = await ask(POI_MIRRORS[poiMirror]); }
+    catch(e1){
+      poiMirror = (poiMirror + 1) % POI_MIRRORS.length;   // remember the one that works
+      j = await ask(POI_MIRRORS[poiMirror]);
+    }
     for (const el of (j.elements || [])){
       const t = el.tags || {};
       const la = el.lat != null ? el.lat : (el.center && el.center.lat);
@@ -4562,7 +4589,6 @@ async function fetchPois(bounds){
     poiBoxes.push(b);
     if (poiBoxes.length > 14) poiBoxes.shift();
   }catch(e){
-    poiMirror = (poiMirror + 1) % POI_MIRRORS.length;
     poiErr = String((e && e.message) || e);
   }
   poiBusy = false;
@@ -4892,6 +4918,7 @@ function mountRouteMap(){
       if (editor) editor.view = {c:rmap.getCenter(), z:rmap.getZoom()};
       ui.rview = {c:{lat:rmap.getCenter().lat, lng:rmap.getCenter().lng}, z:rmap.getZoom()};
       syncBaseLayer(rmap);
+      rmDraw();                       // the hills in view, at this zoom
       poiRefresh();
       /* The forecast follows the map. Look at Langdale and you get Langdale's
          weather; pan to Skye and it changes. */
@@ -4986,20 +5013,19 @@ function rmDraw(){
    mode says it does. */
 function drawMapSummits(){
   if (!rmLayer || !rmap) return;
-  if (rmap.getZoom() < 11) return;
-  const b = rmap.getBounds().pad(0.2);
+  const z = rmap.getZoom();
+  const b = rmap.getBounds().pad(0.25);
+  const cs = getComputedStyle(document.documentElement);
   for (const h of mapHills()){
     if (!isFinite(h.a) || !b.contains([h.a, h.o])) continue;
-    const done = stateOf(h.k) === 'done';
-    const m = L.circleMarker([h.a, h.o], {radius:5, color: done ? '#B4491A' : '#6B846F',
-      fillColor: done ? '#B4491A' : '#fff', fillOpacity:1, weight:2, bubblingMouseEvents:false});
-    m.bindTooltip(hillName(h) + ' \u00b7 ' + feet(h) + ' ft');
-    m.on('click', e => {
-      if (editor && ui.rmode === 'plot') rmAdd([h.a, h.o]);
-      else { if (L.DomEvent) L.DomEvent.stopPropagation(e); openInfo(h.k); }
+    const m = hillMarker(h, z, cs, (mk, hh, e) => {
+      if (editor && ui.rmode === 'plot') rmAdd([hh.a, hh.o]);
+      else { if (L.DomEvent) L.DomEvent.stopPropagation(e); openPopup(mk, hh); }
     });
+    m.bindTooltip(hillName(h) + ' \u00b7 ' + (unitsPref() === 'm' ? h.h + ' m' : feet(h) + ' ft'));
     rmLayer.addLayer(m);
   }
+  drawSearchPin(rmLayer);
 }
 
 function saveEditor(){
@@ -5503,7 +5529,7 @@ function paintMapWeather(){
 }
 
 function renderPlans(){
-  let html = mapModeBar() + '<h2 class="pagehead">Plan a day out</h2>';
+  let html = mapModeBar() + '<h2 class="pagehead">Plan a walk</h2>';
 
   /* 1. what this screen does — headlines only until you ask */
   html += candoStrip();
@@ -6325,6 +6351,8 @@ document.addEventListener('click', async e => {
     const la = +el.dataset.la, lo = +el.dataset.lo;
     if (!isFinite(la)) return;
     ui.rq = '';
+    /* a pin where you searched, on whichever map, until the next search */
+    ui.searchPin = el.dataset.p ? null : {la, lo, name: el.dataset.name || ''};
     /* whichever map is on screen — the planner's or the Map tab's */
     const onMapTab = tab === 'm';
     if (!onMapTab) ui.rview = {c:{lat:la, lng:lo}, z:14};
@@ -6332,6 +6360,7 @@ document.addEventListener('click', async e => {
     setTimeout(() => {
       const m = onMapTab ? map : rmap;
       if (m) m.setView([la, lo], 14);
+      if (onMapTab) drawMarkers(); else rmDraw();
       /* A place opens, because that is where the hours and charges are. A hill
          does not: you are finding it on the map, not deciding whether to tick
          it, and being asked to mark it off here is the wrong question. */
@@ -8065,7 +8094,7 @@ function fbWhy(e){
   try{ console.error('[waymark] firebase', e && e.code, e); }catch(x){}
   const c = (e && e.code) || '';
   if (c === 'permission-denied')
-    return 'The server refused that. Your Firestore rules need to allow the groups collection — see the setup guide.';
+    return 'The server refused that. Your Firestore rules are out of date — paste the latest firestore.rules from the setup guide and publish them.';
   if (c === 'unavailable' || c === 'deadline-exceeded')
     return 'Could not reach the server. Check your connection and try again.';
   /* Firestore refuses a query it has no index for, and it is easy to read that
