@@ -1267,7 +1267,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .jbar .b-done{background:var(--done)}
 .jbar .b-prog{background:var(--accent)}
 .jbar .b-plan{background:var(--plan)}
-.ridge{display:block; width:100%; height:74px; margin:10px -16px -1px; width:calc(100% + 32px); position:relative; z-index:1}
+.ridge{display:block; height:110px; margin:14px -16px -1px; width:calc(100% + 32px); position:relative; z-index:1}
 .ridge path{fill:currentColor}
 
 .regionlist{border:1px solid var(--line); border-radius:var(--r); background:var(--surface); overflow:hidden; margin-top:10px}
@@ -1768,6 +1768,17 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 .nextpatch.big .patch .disc.small{width:96px; height:96px}
 .nextpatch.big .npname{font-size:22px}
 .lead .sumlabel, .loop .sumlabel{text-align:left}
+.hrow[data-row]{cursor:pointer}
+/* ---- adjusting the banner ---- */
+.leadwrap{position:relative}
+.leadadj{position:absolute; top:10px; right:10px; z-index:2; font-family:var(--font-ui); font-size:12px; padding:5px 10px; border-radius:99px;
+  background:rgba(20,51,45,.72); color:#F3EFE6; border:1px solid rgba(243,239,230,.35); cursor:pointer; backdrop-filter:blur(4px)}
+.leadadj.on{background:#B4491A; border-color:#B4491A}
+.leadhint{position:absolute; top:12px; left:12px; z-index:2; font-family:var(--font-ui); font-size:12px; color:#F3EFE6; background:rgba(20,51,45,.72); padding:4px 9px; border-radius:99px}
+.leadwrap.adjusting .leadshot{cursor:ns-resize}
+.leadwrap.adjusting .leadshot img{cursor:ns-resize; user-select:none; -webkit-user-drag:none}
+.leadwrap.adjusting .leadcap{opacity:.35}
+.sect.leadhead{margin:2px 0 10px}
 </style>
 </head>
 <body>
@@ -1788,8 +1799,9 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
         <button class="hbrand hideDesk" data-tab="d" aria-label="WayMark home"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></button>
         <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span><span id="syncTxt" style="overflow:hidden;text-overflow:ellipsis">Checking…</span></button>
+        <button class="iconbtn" id="themeBtn" aria-label="Light or dark" title="Light or dark"></button>
         <button class="iconbtn" id="menuBtn" aria-label="Settings" title="Settings">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a1.94 1.94 0 1 1-2.75 2.75l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47V21a1.94 1.94 0 0 1-3.88 0v-.1a1.6 1.6 0 0 0-1.05-1.47 1.6 1.6 0 0 0-1.77.32l-.06.06a1.94 1.94 0 1 1-2.75-2.75l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3a1.94 1.94 0 0 1 0-3.88h.1a1.6 1.6 0 0 0 1.47-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.94 1.94 0 1 1 2.75-2.75l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 .97-1.47V3a1.94 1.94 0 0 1 3.88 0v.1a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.94 1.94 0 1 1 2.75 2.75l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.47.97H21a1.94 1.94 0 0 1 0 3.88h-.1a1.6 1.6 0 0 0-1.47.97z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
         </button>
       </div>
     </header>
@@ -1802,7 +1814,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
 <div class="sheet" id="sheet">
   <div class="sheetbox">
-    <button class="xbtn" id="sheetX" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="xbtn" id="sheetX" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <h2>Settings</h2>
     <h3>Appearance</h3>
     <div id="themeBox"></div>
@@ -1828,22 +1840,22 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
 <div class="sheet" id="info">
   <div class="sheetbox">
-    <button class="xbtn" id="infoX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="xbtn" id="infoX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <div id="infoBody"></div>
   </div>
 </div>
 
 <div class="viewer" id="viewer">
-  <button class="xbtn" id="vclose" aria-label="Close photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <button class="xbtn" id="vclose" aria-label="Close photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
   <div class="vimg">
-    <button class="vnav prev" id="vprev" aria-label="Previous photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="vnav prev" id="vprev" aria-label="Previous photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:scaleX(-1)"><path d="M9 6l6 6l-6 6"/></svg></button>
     <img id="vimg" alt="">
-    <button class="vnav next" id="vnext" aria-label="Next photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="vnav next" id="vnext" aria-label="Next photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
   </div>
   <div class="vbar">
     <span class="cap" id="vcap"></span>
     <span class="vcount" id="vcount"></span>
-    <button class="vtrash" id="vdel" aria-label="Delete this photo" title="Delete this photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+    <button class="vtrash" id="vdel" aria-label="Delete this photo" title="Delete this photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l16 0"/> <path d="M10 11l0 6"/> <path d="M14 11l0 6"/> <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/> <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg></button>
   </div>
   <div class="vcapbar">
     <input id="vcapin" maxlength="140" placeholder="Add a caption&hellip;" aria-label="Photo caption" autocomplete="off">
@@ -1859,7 +1871,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
 <div class="sheet" id="listinfo" role="dialog" aria-modal="true" aria-labelledby="liTitle">
   <div class="sheetbox libox">
-    <button class="xbtn" id="liX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="xbtn" id="liX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <div id="liBody"></div>
     <div class="btnrow"><button class="btn quiet" id="liClose">Close</button></div>
   </div>
@@ -1867,7 +1879,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
 <div class="sheet" id="poisheet" role="dialog" aria-modal="true" aria-labelledby="poiTitle">
   <div class="sheetbox libox">
-    <button class="xbtn" id="poiX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="xbtn" id="poiX" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <div id="poiBody"></div>
     <div class="btnrow"><button class="btn quiet" id="poiClose">Close</button></div>
   </div>
@@ -1886,7 +1898,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
 <div class="sheet" id="avsheet" role="dialog" aria-modal="true" aria-labelledby="avTitle">
   <div class="sheetbox avbox">
-    <button class="xbtn" id="avX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="xbtn" id="avX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <h2 id="avTitle">Your picture</h2>
     <p id="avHint">Drag to move, pinch or use the slider to zoom.</p>
     <div class="avstage" id="avStage">
@@ -1909,7 +1921,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
 <div class="sheet ask" id="ask" role="dialog" aria-modal="true" aria-labelledby="askTitle">
   <div class="sheetbox askbox">
-    <button class="xbtn" id="askX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="xbtn" id="askX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <h2 id="askTitle"></h2>
     <p id="askBody"></p>
     <div class="btnrow">
@@ -1930,8 +1942,20 @@ const QUOTES = {"NY193131":{"q":"for beauty, variety and interesting detail, for
 const KEY = 'bagged.v3';
 const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
 const LOG_PATH = 'log.json';
-const ICON_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 6.5 17.5 9.5"/></svg>';
-const ICON_CHECK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 10 18 19.5 6.5"/></svg>';
+/* ---------- icons ----------
+   One family, one weight: Tabler Icons (MIT), outline set, 24-grid, drawn at
+   1.75px with round caps, which is the line the brand board's icon language
+   uses (the mountain pair, the folded map with its pin, the boot, the
+   compass). Paths are baked in from @tabler/icons 3.31 rather than drawn by
+   hand, so every glyph in the app is from the same hand.
+   https://tabler.io/icons */
+const TI = {"circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
+function ti(name, attrs){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (attrs ? ' ' + attrs : '') + '>' + (TI[name] || '') + '</svg>';
+}
+
+const ICON_PENCIL = ti('pencil');
+const ICON_CHECK = ti('check', 'width="16" height="16" style="stroke-width:2.6"');
 const BOOK_VAR = {
   'The Eastern Fells':'--bk1', 'The Far Eastern Fells':'--bk2', 'The Central Fells':'--bk3',
   'The Southern Fells':'--bk4', 'The Northern Fells':'--bk5', 'The North Western Fells':'--bk6',
@@ -2081,10 +2105,10 @@ const STATES = [
   {id:'done',    label:'Marked',      short:'Marked',     colour:'--done'}
 ];
 const ST_ICON = {
-  done:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 10 18 19.5 6.5"/></svg>',
-  progress:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M3 19h18L14 6l-4 7-2-2z"/></svg>',
-  planned:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4h11l-2 3.5L17 11H6"/></svg>',
-  none:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>'
+  done: ti('check', 'style="stroke-width:2.6"'),
+  progress: ti('mountain', 'style="stroke-width:2"'),
+  planned: ti('flag', 'style="stroke-width:2"'),
+  none: ti('x', 'style="stroke-width:2"')
 };
 /* Fill in anything a record is missing, not just an absent one. A restored
    backup or a doc written by an older build can arrive without `photos`, and
@@ -2744,17 +2768,24 @@ function dateFields(value, attrs){
   return s + '</div>';
 }
 
-const RIDGE = '<svg class="ridge" viewBox="0 0 400 74" preserveAspectRatio="none" aria-hidden="true" style="color:var(--surface-2)">' +
-  '<path opacity=".55" d="M0 52 L34 34 L58 44 L92 20 L120 40 L150 26 L186 46 L214 30 L248 48 L282 28 L312 44 L344 32 L372 46 L400 36 L400 74 L0 74Z"/>' +
-  '<path opacity=".9" d="M0 62 L28 50 L62 60 L96 40 L128 56 L164 44 L196 60 L232 46 L266 62 L300 48 L336 60 L366 50 L400 62 L400 74 L0 74Z"/>' +
+/* A Lakeland skyline rather than a zigzag: three ridges receding into haze,
+   drawn with real fell shapes, a pyramid with a shoulder, a broad whaleback, a
+   craggy pair, at a fixed aspect so the peaks keep their profile on a wide
+   screen and simply crop at the edges instead of flattening. */
+/* A Lakeland skyline rather than a zigzag: three ridges receding into haze,
+   drawn with real fell shapes, a pyramid with a shoulder, a broad whaleback, a
+   craggy pair, at a fixed aspect so the peaks keep their profile on a wide
+   screen and simply crop at the edges instead of flattening. */
+const RIDGE = '<svg class="ridge" viewBox="0 0 1200 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true" style="color:var(--surface-2)">' +
+  '<defs><linearGradient id="rhaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset="1" stop-color="currentColor" stop-opacity=".35"/></linearGradient></defs>' +
+  '<rect width="1200" height="150" fill="url(#rhaze)"/>' +
+  '<path opacity=".32" d="M0 92 C60 80 90 62 140 58 C190 54 210 74 250 70 C300 64 330 34 390 30 C440 27 470 52 520 56 C580 60 610 42 660 40 C720 38 740 60 790 62 C850 64 880 38 940 34 C1000 30 1030 56 1080 60 C1130 64 1160 54 1200 50 L1200 150 L0 150Z"/>' +
+  '<path opacity=".55" d="M0 112 L40 104 L70 96 L100 100 L140 82 L170 70 L196 78 L230 60 L262 42 L286 50 L304 46 L336 68 L360 76 L400 88 L440 96 L480 92 L530 80 L580 70 L640 66 L700 72 L750 84 L790 92 L820 90 L850 80 L880 62 L902 68 L926 54 L950 60 L980 78 L1020 90 L1060 96 L1110 92 L1160 86 L1200 88 L1200 150 L0 150Z"/>' +
+  '<path opacity=".95" d="M0 132 L30 126 L56 118 L84 122 L110 110 L134 114 L160 100 L182 96 L206 106 L240 112 L270 104 L300 96 L322 100 L346 90 L372 84 L390 90 L410 82 L432 88 L458 100 L500 110 L540 114 L580 108 L620 100 L660 104 L700 96 L724 90 L740 94 L764 84 L790 78 L806 82 L830 74 L850 80 L874 92 L910 104 L950 110 L990 114 L1030 108 L1070 112 L1110 104 L1150 110 L1200 106 L1200 150 L0 150Z"/>' +
   '</svg>';
 
 const PATCH_ICONS = {
-  summit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 20h20L14 5l-4 7-2-2z"/></svg>',
-  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h7v16H4zM13 4h7v16h-7z"/></svg>',
-  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>',
-  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.9 6.3.7-4.7 4.3 1.3 6.2L12 17l-5.6 3.1 1.3-6.2L3 9.6l6.3-.7z"/></svg>',
-  boot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3v9l-2 3v6h16v-4c0-2-2-3-4-4l-3-2V3z"/></svg>'
+  summit: ti('mountain'), book: ti('book-2'), list: ti('list-check'), star: ti('star'), boot: ti('shoe')
 };
 
 const BOOK_SLUG = {
@@ -3003,22 +3034,13 @@ function renderPatches(listId){
 /* ---------- render ---------- */
 
 /* ---------- navigation ---------- */
+/* the nav, in the brand board's icon language: the mountain pair, the folded
+   map with its pin, the boot, the compass for planning a walk */
+/* the Hills mountain is Joe's original pair of peaks, kept, at the family's line weight */
+TI['waymark-mountain'] = '<path d="M3 18.5 8.5 9.5 11 14.5"/><path d="M11 14.5 15 6.5 21 18.5"/><path d="M2.5 18.5h19"/>';   /* two peaks meeting cleanly in the col, no crossing strokes */
 const NI = {
-  d:'<path d="M4 12.5 12 5l8 7.5"/><path d="M6.5 11v8h11v-8"/><path d="M10.5 19v-4.5h3V19"/>',
-  h:'<path d="M3 18.5 9 8l4.5 7.5"/><path d="m11 12 3.5-5.5L21 18.5z"/><path d="M2.5 18.5h19"/>',
-  m:'<path d="m9 4.5-6 2.5v12l6-2.5 6 2.5 6-2.5v-12L15 7z"/><path d="M9 4.5v12M15 7v12"/>',
-  p:'<path d="M6.5 20.5c0-4 5-4 5-8s-5-3.5-5-7"/><circle cx="6.5" cy="4" r="1.6"/><circle cx="17.5" cy="20" r="1.6"/><path d="M11.5 12.5c0 4 6 3.5 6 7.5"/>',
-  f:'<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 6.2a3.2 3.2 0 0 1 0 6.1"/><path d="M17 14.9c2.2.5 3.6 2.3 3.6 4.6"/>',
-  /* a round patch with a stitched squiggle across it */
-  a:'<circle cx="12" cy="12" r="8.4"/><path d="M7.4 13.4c1.2-2.6 2.2-2.6 3.1 0 .9 2.6 1.9 2.6 3.1 0 .8-1.8 1.6-2.3 2.4-1.3"/>',
-  /* a notebook with a ribbon */
-  j:'<path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v15a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M8.5 3.5v6l2-1.4 2 1.4v-6"/><path d="M8 14.5h7M8 17.5h4.5"/>',
-  /* A walking boot, after the one Joe drew: high shaft with a collar rim, laces
-     on the instep, and a thick sole band. Redrawn as strokes on the shared
-     24x24 grid rather than dropped in as filled artwork — at 20px in the nav a
-     fine filled outline reads much lighter than the 1.7 strokes either side of
-     it, and the row stopped looking like one set. */
-  u:'<path d="M4 6.8c0-.9.7-1.5 1.6-1.5H8c.9 0 1.6.6 1.6 1.5v3c3 1.1 6.4 2.3 8.6 3.4 1.7.8 2.7 1.5 3 2.3H4z"/><path d="M4 7.7h5.6"/><path d="M2.8 15.5c-.3 1.8.8 2.9 2.6 2.9h13.2c1.8 0 2.9-1.1 2.6-2.9"/><path d="m11.4 10.6-.5 1.3M13.6 11.5l-.5 1.3M15.8 12.4l-.5 1.3"/>'
+  d: TI['home'], h: TI['waymark-mountain'], m: TI['map-2'], p: TI['map-2'],
+  j: TI['notebook'], a: TI['circle-dashed'], u: TI['shoe'], f: TI['users']
 };
 const NAV = [
   {id:'d', label:'Home',      short:'Home',   count:'h'},
@@ -3026,7 +3048,7 @@ const NAV = [
      the planner with its weather, places and routes. They are two screens
      behind one tab (tab ids 'm' and 'p'), switched by a control on the map
      itself, so the bar keeps to five and Home sits dead centre. */
-  {id:'m', label:'Map',       short:'Map',    count:'m', also:['p']},
+  {id:'p', label:'Map',       short:'Map',    count:'m', also:['m']},   // opens on Plan a walk; Mountains is the other mode
   {id:'j', label:'Journal',   short:'Journal', count:'j'},
   {id:'a', label:'Patches',   short:'Patches', count:'a'},
   /* Home and the hill list are one screen (what is next, then the list you
@@ -3058,7 +3080,7 @@ function navButton(n, c, mobile){
   const home = mobile && n.id === 'd' ? ' homebtn' : '';
   const on = tab === n.id || (n.also || []).includes(tab);
   return '<button class="navbtn tab' + home + '" role="tab" data-tab="' + n.id + '" aria-selected="' + on + '">' +
-    '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] + '</svg>' +
     '<span class="nl">' + esc(label) + '</span>' +
     (n.count && c[n.count] ? '<span class="nc">' + esc(c[n.count]) + '</span>' : '') + '</button>';
@@ -3247,7 +3269,7 @@ function renderHills(){
   html += '</div>';
 
   html += '<div class="controls"><div class="field">';
-  html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>';
+  html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>';
   html += '<input type="search" id="q" placeholder="Search a hill…" value="' + esc(ui.q) + '" autocomplete="off"></div>';
   html += '<div class="chips">';
   html += '<button class="chip" data-act="status" data-v="all" aria-pressed="' + (ui.status==='all') + '">All</button>';
@@ -3300,7 +3322,7 @@ function hillRow(h, listId){
   const bookVar = listId === 'wainwright' ? BOOK_VAR[regionOf(h, 'wainwright')] : null;
   let s = '<li class="hill s-' + stateOf(h.k) + (on ? ' on' : '') + (bookVar ? ' bk' : '') + '"' +
           (bookVar ? ' style="--bkc:var(' + bookVar + ')"' : '') + '>';
-  s += '<div class="hrow">';
+  s += '<div class="hrow" data-row="' + esc(h.k) + '">';
   const st = stateOf(h.k);
   s += '<button class="tick st-' + st + '" data-act="tick" data-k="' + esc(h.k) + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' + (st === 'none' ? '' : ST_ICON[st]) + '</button>';
   s += '<button class="hmain" data-act="open" data-k="' + esc(h.k) + '" aria-expanded="' + open + '">';
@@ -3772,7 +3794,7 @@ function latestPhoto(){
   const see = (ph, date, title) => {
     if (!ph || !ph.id) return;
     const d = date || '';
-    if (!best || d > best.date) best = {id:ph.id, up:ph.up ? 1 : 0, date:d, title};
+    if (!best || d > best.date) best = {id:ph.id, up:ph.up ? 1 : 0, date:d, title, fy: ph.fy == null ? 50 : ph.fy};
   };
   for (const [k, r] of Object.entries(state.bagged)){
     if (!isBagged(k) || !BY_KEY[k]) continue;
@@ -3830,11 +3852,18 @@ function renderDashboard(){
   } else {
     /* Nothing planned is not news. Open on the thing that is already good:
        your latest photograph of a hill, with the patch you are closest to. */
+    if (shot) s += '<h3 class="sect leadhead">Your last walk<span>' + esc(shot.title) + (shot.date ? ', ' + esc(prettyDate(shot.date)) : '') + '</span></h3>';
     s += '<div class="lead' + (shot ? ' hasshot' : '') + '">';
     if (shot){
-      s += '<button class="leadshot" data-act="viewday" data-d="' + esc(shot.date) + '" data-p="' + esc(shot.id) + '" aria-label="Open the day">' +
-        '<img data-pid="' + esc(shot.id) + '" data-up="' + shot.up + '" alt="">' +
-        '<span class="leadcap"><b>' + esc(shot.title) + '</b>' + (shot.date ? '<i>' + esc(prettyDate(shot.date)) + '</i>' : '') + '</span></button>';
+      const adj = ui.leadAdjust === shot.id;
+      s += '<div class="leadwrap' + (adj ? ' adjusting' : '') + '">' +
+        '<button class="leadshot" data-act="' + (adj ? 'noop' : 'viewday') + '" data-d="' + esc(shot.date) + '" data-p="' + esc(shot.id) + '" aria-label="Open the day">' +
+        '<img data-pid="' + esc(shot.id) + '" data-up="' + shot.up + '" alt="" style="object-position:50% ' + shot.fy + '%" draggable="false">' +
+        '<span class="leadcap"><b>' + esc(shot.title) + '</b>' + (shot.date ? '<i>' + esc(prettyDate(shot.date)) + '</i>' : '') + '</span></button>' +
+        (adj
+          ? '<span class="leadhint">Drag the photo up or down</span><button class="leadadj on" data-act="leadadjdone" data-p="' + esc(shot.id) + '">Done</button>'
+          : '<button class="leadadj" data-act="leadadj" data-p="' + esc(shot.id) + '" aria-label="Adjust which part of the photo shows">Adjust</button>') +
+        '</div>';
     }
     if (np) s += nearestPatchCard(np, ' big');
     s += '</div>';
@@ -3948,8 +3977,7 @@ function tagPanelHTML(){
     s += '</div></div>';
   }
   s += '<div class="field" style="margin-top:8px">' +
-    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
-    '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>' +
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>' +
     '<input id="tagq" placeholder="Search any other hill\u2026" value="' + esc(t.q || '') + '" autocomplete="off"></div>';
   s += '<div class="btnrow"><button class="btn" data-act="tagdone">Done</button></div>';
   return s + '</div>';
@@ -3965,7 +3993,7 @@ function renderDiary(){
   if (ui.diaryForm){
     const d = ui.dDraft || {};
     html += '<div class="form"><button class="xbtn formx" data-act="closediary" aria-label="Close">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>' +
       '<div><label>Date</label>' + dateFields(d.date, 'data-diary="1"') + '</div>' +
       '<div><label for="dt">Title</label><input id="dt" data-act="dfield" data-f="title" value="' + esc(d.title || '') +
       '" placeholder="e.g. Turned back at the col" maxlength="80"></div>' +
@@ -4141,7 +4169,7 @@ function renderFeed(){
   if (ui.postForm){
     const d = ui.pDraft || {text:'', hills:[], tags:[]};
     s += '<div class="form"><button class="xbtn formx" data-act="closepost" aria-label="Close">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>';
     s += '<div><label for="ptx">What happened</label><textarea id="ptx" data-act="postfield" data-f="text" rows="3" ' +
       'placeholder="A grand day out…">' + esc(d.text) + '</textarea></div>';
 
@@ -4294,8 +4322,7 @@ function renderMapTab(){
      pubs, car parks and villages from anywhere. Finding a place on a map of
      1,300 hills should not mean pinching around looking for it. */
   html += '<div class="controls" style="margin:10px 0 0"><div class="field">' +
-    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
-    '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>' +
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>' +
     '<input type="search" id="rq" placeholder="Find a hill or a place\u2026" value="' + esc(ui.rq || '') +
     '" autocomplete="off"></div></div>';
   html += '<div id="rqres">' + searchResultsHTML() + '</div>';
@@ -4347,7 +4374,7 @@ function mountMap(){
    it. Below zoom 9 there are too many for drawn icons, so they fall back to
    dots of the same colours. */
 const BOOK_NUM = Object.fromEntries(Object.keys(BOOK_VAR).map((k, i) => [k, i + 1]));
-const MOUNTAIN_PATH = '<path d="M3 18 8.5 8.5 11.8 13.6 14.3 10.2 21 18Z"/>';
+const MOUNTAIN_PATH = TI['waymark-mountain'];
 function hillColour(h, cs){
   if (h.l.includes('wainwright')){
     const v = BOOK_VAR[regionOf(h, 'wainwright')];
@@ -4369,10 +4396,10 @@ function hillMarker(h, zoom, cs, onClick){
     const html = done
       ? '<div class="peak' + (v ? ' pkv' : '') + '" style="width:' + big + 'px;height:' + big + 'px' +
         (h.l.includes('wainwright') ? ';background:' + col : '') + '">' +
-        '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg>' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg>' +
         (v ? '<i class="pkring"></i>' : '') + '</div>'
       : '<div class="hpin' + (st !== 'none' ? ' ' + st : '') + '" style="width:' + big + 'px;height:' + big + 'px;border-color:' + col + ';color:' + col + '">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></div>';
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></div>';
     const icon = L.divIcon({className:'peakwrap', iconSize:[big, big], iconAnchor:[big/2, big/2], html});
     m = L.marker([h.a, h.o], {icon, riseOnHover:true, zIndexOffset: done ? 1000 : 0, title:hillName(h)});
   }
@@ -4595,29 +4622,29 @@ function mapSourceNote(at){
 const POI_KINDS = {
   parking: {label:'Parking', short:'P', on:true,
     q:['nwr["amenity"="parking"]'],
-    icon:'<path d="M9 17V7h3.6a3 3 0 0 1 0 6H9"/>'},
+    icon:TI["parking"]},
   pub: {label:'Pubs & inns', short:'Pub', on:true,
     q:['nwr["amenity"~"^(pub|bar|biergarten)$"]', 'nwr["tourism"="hotel"]["real_ale"]'],
-    icon:'<path d="M7 4h8l-1 9H8zM7.6 8H5.5a1.5 1.5 0 0 0 0 3h2.2M9 13v6M8 20h6"/>'},
+    icon:TI["beer"]},
   food: {label:'Café & food', short:'Café', on:false,
     q:['nwr["amenity"~"^(cafe|restaurant|fast_food)$"]'],
-    icon:'<path d="M7 3v8M10 3v8M8.5 11v10M17 3c-1.5 2-1.5 5 0 7v11"/>'},
+    icon:TI["tools-kitchen-2"]},
   toilets: {label:'Toilets', short:'WC', on:false,
     q:['nwr["amenity"="toilets"]'],
-    icon:'<path d="M12 3v18M7 8h2l1 5H6zM15 8h2l1 5h-4z"/><circle cx="8" cy="5" r="1.4"/><circle cx="16" cy="5" r="1.4"/>'},
+    icon:TI["droplet"]},
   camp: {label:'Camping & huts', short:'Camp', on:false,
     q:['nwr["tourism"~"^(camp_site|caravan_site|hostel|alpine_hut|wilderness_hut)$"]',
        'nwr["amenity"="shelter"]'],
-    icon:'<path d="M12 4 4 20h16zM12 4v16"/>'},
+    icon:TI["tent"]},
   transport: {label:'Buses & trains', short:'Bus', on:false,
     q:['nwr["highway"="bus_stop"]', 'nwr["amenity"="bus_station"]', 'nwr["railway"="station"]'],
-    icon:'<rect x="5" y="4" width="14" height="13" rx="2"/><path d="M5 10h14M8 21l1.5-4M16 21l-1.5-4"/><circle cx="8.5" cy="14" r=".8"/><circle cx="15.5" cy="14" r=".8"/>'},
+    icon:TI["bus"]},
   water: {label:'Drinking water', short:'Water', on:false,
     q:['nwr["amenity"="drinking_water"]', 'nwr["natural"="spring"]["drinking_water"="yes"]'],
-    icon:'<path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/>'},
+    icon:TI["droplet"]},
   info: {label:'Information', short:'Info', on:false,
     q:['nwr["tourism"="information"]'],
-    icon:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.5"/>'}
+    icon:TI["info-circle"]}
 };
 
 /* One switch, not eight. Eight categories meant eight decisions before you saw
@@ -4804,8 +4831,8 @@ function poiPin(p){
   const k = POI_KINDS[p.kind];
   return L.divIcon({className:'poiwrap', iconSize:[26,26], iconAnchor:[13,26],
     html:'<span class="poipin poi-' + p.kind + '" title="' + esc(poiName(p)) + '">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round">' + k.icon + '</svg></span>'});
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + k.icon + '</svg></span>'});
 }
 
 function drawPois(){
@@ -5479,12 +5506,8 @@ function wxLook(code){
   return {t:'—', i:'cloud'};
 }
 const WX_ICON = {
-  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.5 1.5M18.3 18.3l1.5 1.5M2.5 12h2M19.5 12h2M4.2 19.8l1.5-1.5M18.3 5.7l1.5-1.5"/>',
-  cloud:'<path d="M7 18h9.5a3.7 3.7 0 0 0 .3-7.4A5.6 5.6 0 0 0 6.4 11 3.6 3.6 0 0 0 7 18z"/>',
-  fog:'<path d="M7 14h9.5a3.7 3.7 0 0 0 .3-7.4A5.6 5.6 0 0 0 6.4 7 3.6 3.6 0 0 0 7 14z"/><path d="M4 17.5h16M6.5 20.5h11"/>',
-  rain:'<path d="M7 15h9.5a3.7 3.7 0 0 0 .3-7.4A5.6 5.6 0 0 0 6.4 8 3.6 3.6 0 0 0 7 15z"/><path d="M9 18l-1 2.5M13 18l-1 2.5M17 18l-1 2.5"/>',
-  snow:'<path d="M7 15h9.5a3.7 3.7 0 0 0 .3-7.4A5.6 5.6 0 0 0 6.4 8 3.6 3.6 0 0 0 7 15z"/><path d="M9 19h.01M13 19h.01M17 19h.01M11 21.5h.01M15 21.5h.01"/>',
-  storm:'<path d="M7 14h9.5a3.7 3.7 0 0 0 .3-7.4A5.6 5.6 0 0 0 6.4 7 3.6 3.6 0 0 0 7 14z"/><path d="m13 16-3 4h4l-3 4"/>'
+  sun: TI['sun'], cloud: TI['cloud'], rain: TI['cloud-rain'], snow: TI['cloud-snow'],
+  storm: TI['cloud-storm'], fog: TI['cloud-fog'], wind: TI['wind']
 };
 /* Both units. UK walkers read distance in miles and height in feet but talk
    about visibility either way, and a forecast that says "400 m" when you are
@@ -5664,8 +5687,7 @@ function renderPlans(){
 
   /* 4. find somewhere */
   html += '<div class="controls" style="margin:12px 0 0"><div class="field">' +
-    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
-    '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>' +
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>' +
     '<input type="search" id="rq" placeholder="Find a hill or a place\u2026" value="' + esc(ui.rq || '') +
     '" autocomplete="off"></div></div>';
   html += '<div id="rqres">' + searchResultsHTML() + '</div>';
@@ -5969,8 +5991,8 @@ function rainTimelineHTML(day){
   return s;
 }
 function wxSvg(i){
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" ' +
-    'stroke-linecap="round" stroke-linejoin="round">' + WX_ICON[i] + '</svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + WX_ICON[i] + '</svg>';
 }
 function wxCell(label, val, warn){
   return '<div' + (warn ? ' class="warn"' : '') + '><dt>' + label + '</dt><dd>' + val + '</dd></div>';
@@ -6031,8 +6053,14 @@ document.addEventListener('click', async e => {
     ui.openComments=null; ui.groupForm=''; ui.found=null;
     render(); window.scrollTo({top:0}); return;
   }
-  const el = e.target.closest('[data-act]');
-  if (!el) return;
+  let el = e.target.closest('[data-act]');
+  /* the whole row opens the hill, not just its name: a tap on the dotted
+     leader, the height or the empty space counts, the tick and ⓘ keep their own jobs */
+  if (!el){
+    const row = e.target.closest('.hrow[data-row]');
+    if (row){ ui.open = ui.open === row.dataset.row ? null : row.dataset.row; render(); }
+    return;
+  }
   const a = el.dataset.act;
 
   if (a === 'tick'){
@@ -6084,6 +6112,9 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'theme'){ setTheme(el.dataset.v); }
   else if (a === 'units'){ setUnits(el.dataset.v); }
+  else if (a === 'noop'){ /* the banner is being adjusted; a tap is not a tap-through */ }
+  else if (a === 'leadadj'){ ui.leadAdjust = el.dataset.p; render(); armLeadDrag(); }
+  else if (a === 'leadadjdone'){ ui.leadAdjust = null; render(); toast('Framing saved.'); }
   else if (a === 'sharepatch'){ const p = patches().find(x => x.id === el.dataset.v); if (p) shareCard(p); }
   else if (a === 'setstate'){
     const k = el.dataset.k;
@@ -6814,6 +6845,48 @@ function closeViewer(){
 
 /* Captions save on their own — when you move photo, close the viewer, or stop
    typing. Nobody should have to find a Save button on a hillside. */
+/* Which part of a photograph shows when it is letterboxed on Home. Stored on
+   the photo record itself (a summit's or a journal entry's), as a percentage
+   from the top, so it follows the photo wherever it appears and syncs. */
+function setPhotoFocus(id, fy){
+  fy = Math.max(0, Math.min(100, Math.round(fy)));
+  let hit = false;
+  for (const [k, r] of Object.entries(state.bagged)){
+    if ((r.photos || []).some(x => x.id === id)){
+      state.bagged[k] = {...r, photos:r.photos.map(x => x.id === id ? {...x, fy} : x), t:now()}; hit = true;
+    }
+  }
+  for (const e of liveDiary()){
+    if ((e.photos || []).some(x => x.id === id)){ e.photos = e.photos.map(x => x.id === id ? {...x, fy} : x); e.t = now(); hit = true; }
+  }
+  if (hit) touched();
+  return hit;
+}
+/* Dragging the banner while adjusting: the photo slides under the frame and
+   the position is saved on release. Pointer events, so mouse and touch behave
+   the same, and the page does not scroll while you drag. */
+function armLeadDrag(){
+  const wrap = document.querySelector('.leadwrap.adjusting');
+  const img = wrap && wrap.querySelector('img');
+  if (!img) return;
+  let startY = 0, startFy = 50, dragging = false;
+  const fyNow = () => { const m = /50% ([\d.]+)%/.exec(img.style.objectPosition || ''); return m ? +m[1] : 50; };
+  img.style.touchAction = 'none';
+  img.onpointerdown = e => { dragging = true; startY = e.clientY; startFy = fyNow(); img.setPointerCapture(e.pointerId); e.preventDefault(); };
+  img.onpointermove = e => {
+    if (!dragging) return;
+    /* how far the picture can travel depends on how much of it is hidden */
+    const box = img.getBoundingClientRect();
+    const shown = box.height, natural = shown * (img.naturalHeight / img.naturalWidth) * (box.width / shown);
+    const hidden = Math.max(1, natural - shown);
+    const fy = startFy - ((e.clientY - startY) / hidden) * 100;
+    img.style.objectPosition = '50% ' + Math.max(0, Math.min(100, fy)) + '%';
+  };
+  img.onpointerup = img.onpointercancel = e => {
+    if (!dragging) return; dragging = false;
+    setPhotoFocus(img.dataset.pid, fyNow());
+  };
+}
 function saveCaption(){
   if (!viewing || viewing.friend || viewing.post) return false;
   const box = document.getElementById('vcapin');
@@ -6911,21 +6984,7 @@ document.getElementById('vyes').onclick = async () => {
    the folded map already mean "Routes tab" and "Map tab" everywhere else, so
    reusing them here said nothing. Each one now shows its own idea. */
 const DO_ICON = {
-  /* One big fingerboard on a post — the public footpath sign you meet at a
-     stile. Two boards turned to mush at 20px; one reads instantly. */
-  route:'<path d="M6 21V4"/><path d="M6 6.5h8.5l3 2.75-3 2.75H6"/>',
-  /* one arrow down, one up — a file coming in and a file going out */
-  gpx:'<path d="M7.5 3.5v11"/><path d="m4 11 3.5 3.5L11 11"/>' +
-      '<path d="M16.5 20.5v-11"/><path d="M13 13l3.5-3.5L20 13"/>',
-  /* A polyline with its vertices, one picked up. The line stops short either
-     side of the held point instead of running through it, which made the whole
-     thing read as a molecule rather than a route. */
-  map:'<path d="M4 18 7.1 14.6"/><path d="M12.7 13.7 15 15 20 6.5"/>' +
-      '<circle cx="4" cy="18" r="1.5"/><circle cx="15" cy="15" r="1.5"/>' +
-      '<circle cx="20" cy="6.5" r="1.5"/><circle cx="9.5" cy="12" r="3"/>',
-  /* a checklist, not a single tick — the point is that it does all of them */
-  tick:'<path d="m3.5 7 2 2 3.8-4"/><path d="m3.5 16.5 2 2 3.8-4"/>' +
-       '<path d="M13 7.5h7.5"/><path d="M13 17h7.5"/>'
+  route: TI['trekking'], gpx: TI['file-upload'], map: TI['pencil'], tick: TI['list-check']
 };
 /* One strip of pills, not four stacked rows. Even collapsed, four full-width
    headlines put seven hundred pixels between the top of the screen and the day
@@ -6935,8 +6994,8 @@ function canDo(icon, title, body){
   const open = (ui.doOpen || []).includes(icon);
   return '<button class="dopill' + (open ? ' on' : '') + '" data-act="dotoggle" data-v="' + icon +
     '" aria-expanded="' + open + '" title="' + esc(body) + '">' +
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-    'stroke-linecap="round" stroke-linejoin="round">' + DO_ICON[icon] + '</svg>' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + DO_ICON[icon] + '</svg>' +
     '<span>' + title + '</span></button>';
 }
 
@@ -6979,7 +7038,7 @@ function openListInfo(id){
 }
 function closeListInfo(){ document.getElementById('listinfo').classList.remove('open'); }
 function listInfoOpen(){ return document.getElementById('listinfo').classList.contains('open'); }
-const ICON_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.6"/></svg>';
+const ICON_INFO = ti('info-circle');
 const infoBtn = id => '<button class="ibtn" data-act="listinfo" data-v="' + esc(id) +
   '" aria-label="About ' + esc(LIST_BY[id].name) + '" title="About ' + esc(LIST_BY[id].name) + '">' + ICON_INFO + '</button>';
 
@@ -7007,7 +7066,13 @@ function openSheet(){
 document.getElementById('menuBtn').onclick = openSheet;
 /* flips against what is actually on screen, so one press always changes it.
    "Match my device" still lives in Settings. */
-/* (the header theme button is gone: appearance is one choice in Settings) */
+/* flips against what is actually on screen, so one press always changes it;
+   "Match device" still lives in Settings */
+document.getElementById('themeBtn').onclick = () => {
+  const next = darkNow() ? 'light' : 'dark';
+  setTheme(next);
+  toast(next === 'dark' ? 'Dark mode on' : 'Light mode on');
+};
 function closeSheetNow(){ sheet.classList.remove('open'); }
 document.getElementById('closeSheet').onclick = closeSheetNow;
 document.getElementById('sheetX').onclick = closeSheetNow;
@@ -7428,9 +7493,7 @@ function darkNow(){ const t = themePref(); return t ? t === 'dark' : systemIsDar
 function paintThemeBtn(){
   const b = document.getElementById('themeBtn'); if (!b) return;
   const d = darkNow();
-  b.innerHTML = d
-    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z"/></svg>'
-    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="3.6"/></svg>';
+  b.innerHTML = ti(d ? 'sun' : 'moon', 'width="15" height="15"');
   b.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode');
   b.setAttribute('aria-pressed', String(d));
 }
@@ -8465,13 +8528,13 @@ function boardCard(g){
 
 function groupFormHTML(){
   if (ui.groupForm === 'new'){
-    return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gname">Name it</label>' +
+    return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button><div><label for="gname">Name it</label>' +
       '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40"></div>' +
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new">Create</button></div></div>';
   }
   if (ui.groupForm === 'join'){
-    return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div><label for="gcode">Join code</label>' +
+    return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button><div><label for="gcode">Join code</label>' +
       '<input id="gcode" placeholder="ABC123" maxlength="7" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase; letter-spacing:.2em; font-weight:700"></div>' +
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="join">Join</button></div></div>';
