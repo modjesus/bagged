@@ -1747,7 +1747,17 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 
 /* ---- Home lead: a photograph of a hill, and the patch you are closest to ---- */
 .lead{display:grid; grid-template-columns:1fr; gap:12px; margin-top:6px}
-@media (min-width:720px){ .lead.hasshot{grid-template-columns:3fr 2fr} }
+/* on a wide screen the photograph runs the full width, letterboxed, and the
+   patch sits under it as a strip; side by side left the patch in a tall, empty
+   box that made the photo look like the odd one out */
+@media (min-width:720px){
+  .lead.hasshot .leadshot{aspect-ratio:21/8; max-height:300px}
+  .lead.hasshot .nextpatch.big{flex-direction:row; align-items:center; gap:18px; padding:12px 18px}
+  .lead.hasshot .nextpatch.big .sumlabel{flex:none; width:110px; margin:0}
+  .lead.hasshot .nextpatch.big .npbody{flex:1}
+  .lead.hasshot .nextpatch.big .patch .disc.small{width:72px; height:72px}
+  .lead.hasshot .nextpatch.big .npname{font-size:20px}
+}
 .leadshot{position:relative; display:block; width:100%; aspect-ratio:3/2; border:0; padding:0; border-radius:var(--r); overflow:hidden; background:var(--surface-2); cursor:pointer; box-shadow:var(--shadow)}
 .leadshot img{width:100%; height:100%; object-fit:cover; display:block}
 .leadshot .leadcap{position:absolute; left:0; right:0; bottom:0; padding:38px 16px 14px; text-align:left; color:#F3EFE6;
