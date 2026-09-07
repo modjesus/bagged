@@ -34,9 +34,9 @@
 
   /* three visible steps of paper — ground, surface, raised — so a card has an edge in daylight */
   --ground:#EEE9DD; --surface:#F8F5EC; --surface-2:#E3DDCD; --raise:#FFFDF8;
-  --ink:#14332D; --ink-2:#3E625A; --ink-3:#557570;
+  --ink:#14332D; --ink-2:#3E625A; --ink-3:#4C6C66;   /* 4.8:1 on the ground — AA for small text */
   --line:#CFC9B8; --line-soft:#DDD7C7;
-  --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#F3E0D4; --accent-text:#B4491A;
+  --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#F3E0D4; --accent-text:#A8431A;   /* text on cream: 5:1 */
   --done:#1E453E; --done-soft:#DFE9E6; --done-line:#A2BCB6;
   --plan:#5F5B8C; --plan-soft:#E7E5F2;
   --prog:#2E6B8A; --prog-soft:#DFEBF2;
@@ -107,6 +107,8 @@ body{
 button, input, textarea, select{font:inherit; color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px}
+.skiplink{position:absolute; left:-999px; top:8px; z-index:50; background:var(--surface); color:var(--ink); padding:8px 12px; border:1px solid var(--line); border-radius:8px}
+.skiplink:focus{left:8px}
 img{max-width:100%}
 .wrap{max-width:680px; margin:0 auto; padding:0 14px}
 
@@ -1680,9 +1682,86 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .pbook i{width:10px; height:10px; border-radius:99px; display:inline-block; flex:none}
 .searchpin{width:30px; height:36px; color:#B4491A; filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
 .searchpin svg{width:100%; height:100%}
+.consent{font-size:12.5px; color:var(--ink-3); margin:8px 0 0; line-height:1.45}
+.wxsrc{margin:8px 0 0; font-size:11.5px; color:var(--ink-3)}
+.wxsrc a{color:inherit}
+
+/* ================= the frame: deep pine around cream paper =================
+   Dark mode already looked more expensive because pine gives everything an
+   edge. Light mode now borrows the one surface that matters: the sidebar and
+   the phone bar are pine in both themes, so the app is cream content inside a
+   dark frame, the way a map sits inside its cover. Tokens are re-scoped so
+   every child reads on it without touching the components. */
+.side, .bnav{
+  --ink:#F3EFE6; --ink-2:#CAD9D3; --ink-3:#9DB4AD; --surface:#1B4139; --surface-2:#1F4940;
+  --line:#2C5C52; --line-soft:#26524A; --accent-text:#E8925F; --shadow:none;
+  background:#14332D; border-color:#2C5C52; color:var(--ink);
+}
+.side{border-right-color:#0F2924}
+.bnav{background:#14332D; backdrop-filter:none; border-top-color:#0F2924}
+.side .navbtn, .bnav .navbtn{color:var(--ink-2)}
+.side .navbtn:hover{background:#1B4139; color:var(--ink)}
+.side .navbtn[aria-selected="true"], .bnav .navbtn[aria-selected="true"]{background:#1F4940; border-color:#2C5C52; color:var(--ink); box-shadow:none}
+.side .navbtn[aria-selected="true"] .ni, .bnav .navbtn[aria-selected="true"] .ni{color:#E8925F}
+.side .navbtn[aria-selected="true"] .nc{color:#E8925F}
+.bnav .navbtn.homebtn .ni{border-color:#4A7A6F; color:#F3EFE6}
+.bnav .navbtn.homebtn[aria-selected="true"]{background:transparent}
+.bnav .navbtn.homebtn[aria-selected="true"] .ni{background:#B4491A; border-color:#B4491A; color:#F6EFE4}
+.bnav .navbtn.homebtn[aria-selected="true"] .nl{color:#E8925F}
+.side .sfoot{border-top-color:#2C5C52; color:#9DB4AD}
+.side .tagline{color:#9DB4AD}
+.side .brand{color:#F3EFE6}
+.side .brand em{color:#E8925F}
+.side .wmplate, .side .wmw{stroke:#F3EFE6}
+.side .wmm{stroke:#E8925F}
+/* the content gets the width it was given */
+@media (min-width:1024px){ .wrap{max-width:1000px} }
+@media (min-width:1440px){ .wrap{max-width:1240px} }
+
+/* ================= containers by role =================
+   Rows are rows (a hairline between them, no box). Panels are one bordered
+   surface. Cards are for patches and routes. Search and chips sit straight on
+   the paper. When only a few things are boxed, the boxes mean something. */
+ul.hills{background:transparent; border:0; border-radius:0; overflow:visible}
+li.hill{border-top:1px solid var(--line-soft)}
+li.hill:first-child{border-top:1px solid var(--line-soft)}
+li.hill:last-child{border-bottom:1px solid var(--line-soft)}
+.hrow{padding-left:2px; padding-right:2px}
+.regionlist{background:transparent; border:0; border-radius:0; overflow:visible}
+.rrow{padding-left:2px; padding-right:2px}
+.rrow:last-child{border-bottom:1px solid var(--line-soft)}
+.feed{background:transparent; border:0; border-radius:0}
+.field{background:var(--raise)}
+.lstrip{background:transparent; border:0; border-left:3px solid var(--accent); border-radius:0; padding:4px 0 4px 14px}
+.planintro{background:transparent; border:0; padding:0; font-size:15px; margin-top:10px}
+/* section titles: the name of the thing, in the display face, no tracking */
+.eyebrow{font-family:var(--font-display); font-size:18px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--ink); margin:28px 0 8px}
+.eyebrow::after{content:none}
+.eyebrow.eyelink, .sect.eyelink{background:none; border:0; padding:0; cursor:pointer; text-align:left}
+.sect{font-family:var(--font-display); font-size:18px; font-weight:400; color:var(--ink); margin:28px 0 8px; display:flex; align-items:baseline; gap:10px}
+.sect span{font-family:var(--font-ui); font-size:13px; color:var(--accent-text)}
+.sumlabel{font-family:var(--font-ui); font-size:12px; letter-spacing:.04em; text-transform:none; font-weight:600; color:var(--ink-3)}
+.grouphead h2{font-family:var(--font-display); font-size:17px; letter-spacing:0; text-transform:none; font-weight:400}
+/* sentences in the sans, figures in the mono */
+.lstrip span, .ssub, .dcs{font-family:var(--font-ui)}
+
+/* ---- Home lead: a photograph of a hill, and the patch you are closest to ---- */
+.lead{display:grid; grid-template-columns:1fr; gap:12px; margin-top:6px}
+@media (min-width:720px){ .lead.hasshot{grid-template-columns:3fr 2fr} }
+.leadshot{position:relative; display:block; width:100%; aspect-ratio:3/2; border:0; padding:0; border-radius:var(--r); overflow:hidden; background:var(--surface-2); cursor:pointer; box-shadow:var(--shadow)}
+.leadshot img{width:100%; height:100%; object-fit:cover; display:block}
+.leadshot .leadcap{position:absolute; left:0; right:0; bottom:0; padding:38px 16px 14px; text-align:left; color:#F3EFE6;
+  background:linear-gradient(to top, rgba(20,51,45,.88), rgba(20,51,45,0))}
+.leadshot .leadcap b{display:block; font-family:var(--font-display); font-size:24px; line-height:1.1; font-weight:400}
+.leadshot .leadcap i{font-style:normal; font-family:var(--font-data); font-size:12px; color:#CAD9D3}
+.nextpatch.big{margin-top:0; display:flex; flex-direction:column; justify-content:center}
+.nextpatch.big .patch .disc.small{width:96px; height:96px}
+.nextpatch.big .npname{font-size:22px}
+.lead .sumlabel, .loop .sumlabel{text-align:left}
 </style>
 </head>
 <body>
+<a class="skiplink" href="#main">Skip to content</a>
 
 <div class="app">
   <aside class="side">
@@ -1732,6 +1811,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
       <button class="btn ghost" id="restoreBtn">Restore from pasted text</button>
       <button class="btn quiet" id="closeSheet">Close</button>
     </div>
+    <h3>About</h3>
+    <p>WayMark is a free, personal project run by Joe Sullivan in the UK. No adverts, no analytics, no tracking. <a href="legal.html" target="_blank" rel="noopener">Privacy, terms, cookies and credits</a>.</p>
   </div>
 </div>
 
@@ -2759,7 +2840,7 @@ function patchTodo(p){
 }
 function patchDisc(p, cls){
   return '<span class="disc' + (cls || '') + '">' +
-    '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="" loading="lazy" ' +
+    '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" loading="lazy" ' +
     'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" onerror="this.remove()">' +
     PATCH_ICONS[p.icon] + '</span>';
 }
@@ -2899,7 +2980,7 @@ function renderPatches(listId){
       (p.kind === 'list' && p.listId === listId));
   }
   const got = ps.filter(p => p.got).length;
-  let s = '<button class="eyebrow eyelink" data-tab="a">Patches earned &middot; ' + got + ' of ' + ps.length + ' &rsaquo;</button><div class="patchstrip">';
+  let s = '<button class="sect eyelink" data-tab="a">Patches <span>' + got + ' of ' + ps.length + ' earned &rsaquo;</span></button><div class="patchstrip">';
   for (const p of ps.slice(0, 24))
     s += '<button class="patch' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '"' +
          ' title="' + esc(p.got ? p.label : p.need) + '">' +
@@ -3125,7 +3206,6 @@ function renderHills(){
           (ab ? ' &middot; ' + ab.rule : '') + '</span></div>' +
           '<button class="btn quiet sm" data-act="listinfo" data-v="' + esc(id) + '">About this list</button></div>';
 
-  html += '<p class="eyebrow">Your journey</p>';
   html += '<section class="journey">';
   html += '<div class="jtop"><div><div class="jpct">' + pct + '<sup>%</sup></div>' +
           '<div class="jsub">' + esc(L.name) + ' marked</div></div>' +
@@ -3143,7 +3223,7 @@ function renderHills(){
 
   html += '<div style="margin-top:18px">' + renderPatches(id) + '</div>';
 
-  html += '<p class="eyebrow">By ' + (isW ? 'book' : 'area') + '</p>';
+  html += '<h3 class="sect">By ' + (isW ? 'book' : 'area') + '</h3>';
   html += '<div class="regionlist">';
   for (const b of s.regions){
     const p = b.total ? Math.round(b.done / b.total * 100) : 0;
@@ -3602,7 +3682,8 @@ function renderOnboardSignin(){
        'loses them. Sign in and your log follows you everywhere, and you can compare with friends.</p>';
   s += '<div class="btnrow onboardbar">' +
        '<button class="btn" data-act="fbin">Sign in with Google</button>' +
-       '<button class="btn quiet" data-act="skipsignin">Not now</button></div>';
+       '<button class="btn quiet" data-act="skipsignin">Not now</button></div>' +
+       '<p class="consent">By signing in you agree to the <a href="legal.html" target="_blank" rel="noopener">terms and privacy policy</a>.</p>';
   s += '<p class="mapnote" style="margin-top:14px">You can sign in later from the cog, top right. ' +
        'Nothing you mark before signing in is lost &mdash; it uploads when you do.</p>';
   return s;
@@ -3674,12 +3755,37 @@ function shortDay(iso){
   return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()] + ' ' + d.getDate() + ' ' +
     ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
 }
+/* The most recent photograph in the log, from a summit or a journal entry,
+   so Home can open on a real hill rather than a label. */
+function latestPhoto(){
+  let best = null;
+  const see = (ph, date, title) => {
+    if (!ph || !ph.id) return;
+    const d = date || '';
+    if (!best || d > best.date) best = {id:ph.id, up:ph.up ? 1 : 0, date:d, title};
+  };
+  for (const [k, r] of Object.entries(state.bagged)){
+    if (!isBagged(k) || !BY_KEY[k]) continue;
+    for (const ph of (r.photos || [])) see(ph, r.date, hillName(BY_KEY[k]));
+  }
+  for (const e of liveDiary()) for (const ph of (e.photos || [])) see(ph, e.date, e.title || 'A day out');
+  return best;
+}
 /* The patch you are closest to: most of the way there, fewest left. */
 function nearestPatch(){
   return patches().filter(p => !p.got && p.target > 0)
     .sort((a, b) => (b.have / b.target) - (a.have / a.target) || (a.target - a.have) - (b.target - b.have))[0] || null;
 }
 
+function nearestPatchCard(np, cls){
+  const left = np.target - np.have;
+  return '<button class="dcard nextpatch' + (cls || '') + '" data-tab="a">' +
+    '<p class="sumlabel">Nearest patch</p>' +
+    '<div class="npbody"><span class="patch">' + patchDisc(np, ' small') + '</span>' +
+    '<div><b class="npname">' + np.label + '</b>' +
+    '<span class="dcs">' + (left === 1 ? 'One to go' : left + ' to go') + ', ' + np.have + ' of ' + np.target + '</span>' +
+    '<i class="rbar"><s style="width:' + Math.round(np.have / np.target * 100) + '%"></s></i></div></div></button>';
+}
 function renderDashboard(){
   const a = allStats();
   let s = '';
@@ -3697,33 +3803,32 @@ function renderDashboard(){
      its day. Nothing planned means exactly that, and a way to plan something. */
   const nr = nextRoute();
   const np = nearestPatch();
-  s += '<div class="loop">';
+  const shot = latestPhoto();
   if (nr){
+    s += '<div class="loop">';
     const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean).sort((x, y) => y.h - x.h);
     const dn = hs.filter(x => isBagged(x.k)).length;
     s += '<button class="dcard upnext" data-tab="p">' +
       '<p class="sumlabel">Up next</p>' +
       '<div class="dch"><b>' + esc(nr.name || 'Untitled route') + '</b>' +
         (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '<span class="tag">no date yet</span>') + '</div>' +
-      '<p class="dcs">' + (hs.length ? hs.length + ' hill' + (hs.length === 1 ? '' : 's') + ' &middot; ' + dn + ' walked' : 'No summits on it yet') +
-        ((nr.trk && nr.trk.length > 1) ? ' &middot; ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
+      '<p class="dcs">' + (hs.length ? hs.length + ' hill' + (hs.length === 1 ? '' : 's') + ', ' + dn + ' walked' : 'No summits on it yet') +
+        ((nr.trk && nr.trk.length > 1) ? ', ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
       (hs.length ? summitLine(hs[0], nr.date || '') : '') + '</button>';
+    if (np) s += nearestPatchCard(np);
+    s += '</div>';
   } else {
-    s += '<button class="dcard upnext quietcard" data-tab="p">' +
-      '<p class="sumlabel">Up next</p>' +
-      '<div class="dch"><b>Nothing planned yet</b></div>' +
-      '<p class="dcs">Pick a day, see the weather at the top, and plot a route &rsaquo;</p></button>';
+    /* Nothing planned is not news. Open on the thing that is already good:
+       your latest photograph of a hill, with the patch you are closest to. */
+    s += '<div class="lead' + (shot ? ' hasshot' : '') + '">';
+    if (shot){
+      s += '<button class="leadshot" data-act="viewday" data-d="' + esc(shot.date) + '" data-p="' + esc(shot.id) + '" aria-label="Open the day">' +
+        '<img data-pid="' + esc(shot.id) + '" data-up="' + shot.up + '" alt="">' +
+        '<span class="leadcap"><b>' + esc(shot.title) + '</b>' + (shot.date ? '<i>' + esc(prettyDate(shot.date)) + '</i>' : '') + '</span></button>';
+    }
+    if (np) s += nearestPatchCard(np, ' big');
+    s += '</div>';
   }
-  if (np){
-    const left = np.target - np.have;
-    s += '<button class="dcard nextpatch" data-tab="a">' +
-      '<p class="sumlabel">Nearest patch</p>' +
-      '<div class="npbody"><span class="patch">' + patchDisc(np, ' small') + '</span>' +
-      '<div><b class="npname">' + np.label + '</b>' +
-      '<span class="dcs">' + (left === 1 ? 'One to go' : left + ' to go') + ' · ' + np.have + ' of ' + np.target + '</span>' +
-      '<i class="rbar"><s style="width:' + Math.round(np.have / np.target * 100) + '%"></s></i></div></div></button>';
-  }
-  s += '</div>';
 
   /* then the list you are working through: this is the hill list, on Home */
   return s + '<div class="homelist">' + renderHills() + '</div>';
@@ -4291,8 +4396,11 @@ function drawMarkers(fit){
   for (const h of list) markerLayer.addLayer(hillMarker(h, z, cs, openPopup));
   drawSearchPin(markerLayer);
   if (fit && list.length){
-    const b = L.latLngBounds(list.map(h => [h.a, h.o]));
-    map.fitBounds(b, {padding:[24,24]});
+    /* frame the list you are working through, so the first look is the Lakes
+       at a zoom where the pins are pins, not the whole of Britain */
+    const pool = (ui.mapScope === 'enabled' && state.enabled.includes(ui.list)) ? hillsIn(ui.list) : list;
+    const b = L.latLngBounds(pool.filter(h => isFinite(h.a)).map(h => [h.a, h.o]));
+    map.fitBounds(b, {padding:[24,24], maxZoom:11});
   }
 }
 function openPopup(m, h){
@@ -4727,7 +4835,7 @@ function poiRefresh(){
 
 function poiStateText(){
   if (!poiShow) return '';
-  if (rmap && rmap.getZoom() < 12) return 'Zoom in to see what is on the ground.';
+  if (rmap && rmap.getZoom() < 12) return '';
   if (poiBusy) return 'Finding places\u2026';
   if (poiErr === 'zoom') return 'Zoom in a little.';
   if (poiErr) return 'OpenStreetMap did not answer \u2014 the map still works, it will try again as you pan.';
@@ -4939,8 +5047,9 @@ function mountRouteMap(){
 function rmFit(){
   if (!editor){
     /* No route yet: open on the hills you are working through. */
-    const hs = mapHills().filter(h => isFinite(h.a)).slice(0, 400).map(h => [h.a, h.o]);
-    if (hs.length > 1) rmap.fitBounds(L.latLngBounds(hs), {padding:[24,24]});
+    const pool = (state.enabled.includes(ui.list) ? hillsIn(ui.list) : mapHills());
+    const hs = pool.filter(h => isFinite(h.a)).slice(0, 400).map(h => [h.a, h.o]);
+    if (hs.length > 1) rmap.fitBounds(L.latLngBounds(hs), {padding:[24,24], maxZoom:11});
     else rmap.setView([54.45, -3.09], 11);
     return;
   }
@@ -5494,7 +5603,8 @@ function mapWeatherHTML(){
       (up != null ? wxCell('Wind at ' + lev.m + ' m', Math.round(up) + ' mph', up >= 35)
                   : wxCell('Wind', day.wind == null ? '\u2014' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
       wxCell('Light', (day.sunrise || '\u2014') + ' \u2013 ' + (day.sunset || '\u2014')) +
-      '</div>';
+      '</div>' +
+      '<p class="wxsrc">Forecast: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), a model estimate, not a summit reading.</p>';
     if (up != null && day.wind != null)
       s += '<p class="wxsub">Valley wind ' + Math.round(day.wind) + ' mph' +
         (day.gust != null ? ', gusting ' + Math.round(day.gust) : '') +
@@ -5582,15 +5692,12 @@ function renderPlans(){
             (editor && (editor.wp.length || editor.id) ? '<button class="btn quiet" data-act="rmdiscard">Discard</button>' : '') +
             '</div>';
   } else {
-    html += '<p class="rmhint">Tap a summit or a place to see what it is. Switch to <b>Plot a route</b> when you want to start drawing.</p>';
+    html += '<p class="rmhint">Tap a summit or a place to see what it is. Zoom in for car parks and pubs, or switch to <b>Plot a route</b> to draw.</p>';
   }
-
-  html += '<p class="pathnote">The map is Ordnance Survey; places and path-following are OpenStreetMap. ' +
-          'Charges and opening hours are as contributed &mdash; worth a check before you set off.</p>';
 
   /* 7. routes you already have */
   const plans = livePlans();
-  html += '<p class="eyebrow">Your routes</p>';
+  html += '<h3 class="sect">Your routes</h3>';
   if (!plans.length) return html + '<p class="empty">No routes yet. Switch to <b>Plot a route</b> above and tap the map, or import a GPX.</p>';
 
   const sorted = [...plans].sort((a,b) => {
@@ -5769,6 +5876,7 @@ function weatherFor(at, p, topM){
       : wxCell('Wind', day.wind == null ? '—' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
     wxCell('Light', (day.sunrise || '—') + ' – ' + (day.sunset || '—')) +
     '</div>';
+  s += '<p class="wxsrc">Forecast: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), a model estimate, not a summit reading.</p>';
 
   /* Valley wind alongside it, so the difference is visible rather than hidden. */
   if (upWind != null && day.wind != null){
@@ -6245,6 +6353,20 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'fbin'){ fbSignIn(); }
   else if (a === 'fbout'){ fbSignOut(); }
+  else if (a === 'fbdelete'){
+    const ok = await confirmAsk({
+      title:'Delete your account and cloud data?',
+      body:'Your log, public card, friendships, leaderboard rows and posts are removed from the cloud and your Google sign-in is disconnected from WayMark. The copy on this device stays until you clear it. This cannot be undone.',
+      yes:'Delete everything', no:'Keep my account'});
+    if (!ok) return;
+    toast('Deleting…');
+    const r = await deleteMyCloudData();
+    state.groups = []; friends = []; fbHandle = '';
+    try{ await fbSignOut(); }catch(e){}
+    closeSheetNow(); render();
+    toast(r && r.authGone ? 'Your cloud data and sign-in are gone.'
+        : 'Your cloud data is gone. Sign in once more and delete again to remove the sign-in itself.');
+  }
   else if (a === 'fbsyncnow'){ fbSync(); toast('Syncing\u2026'); }
   else if (a === 'picklist'){
     const id = el.dataset.v;
@@ -7090,9 +7212,9 @@ function loadFirebase(){
     s.type = 'module';
     s.textContent =
       "import { initializeApp } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-app.js';" +
-      "import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-auth.js';" +
+      "import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-auth.js';" +
       "import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-firestore.js';" +
-      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit };" +
+      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit };" +
       "window.dispatchEvent(new Event('fb-ready'));";
     s.onerror = () => resolve(null);
     window.addEventListener('fb-ready', () => resolve(window.__fb), {once:true});
@@ -7442,10 +7564,11 @@ function paintInfo(){
     s += '<p>No Wikipedia article could be matched to this summit with confidence. Rather than risk showing you the wrong place, it shows nothing.</p>' +
          '<p><a href="https://en.wikipedia.org/w/index.php?search=' + encodeURIComponent(h.n) + '" target="_blank" rel="noopener">Search Wikipedia yourself</a></p>';
   else {
-    if (v.img) s += '<img class="iimg" src="' + esc(v.img) + '" alt="' + esc(h.n) + '" loading="lazy">';
+    if (v.img) s += '<img class="iimg" src="' + esc(v.img) + '" alt="Photograph of ' + esc(hillName(h)) + ' from Wikimedia Commons" loading="lazy">';
     s += '<p class="iex">' + esc(v.extract) + '</p>';
     s += '<p class="isrc">From the Wikipedia article “' + esc(v.title) + '”, available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA</a>. ' +
-         '<a href="' + esc(v.url) + '" target="_blank" rel="noopener">Read the full article</a></p>';
+         '<a href="' + esc(v.url) + '" target="_blank" rel="noopener">Read the full article</a>' +
+         (v.img ? '. The photograph is from Wikimedia Commons; its author and licence are on the article page.' : '') + '</p>';
   }
 
   if (on && (r.date || r.notes)){
@@ -7503,7 +7626,8 @@ function renderAccountBox(){
   } else if (!FB){
     s = '<p>Could not reach the sign-in service. It needs a connection the first time.</p>';
   } else if (!fbUser){
-    s = '<div class="btnrow"><button class="btn" data-act="fbin">Sign in with Google</button></div>';
+    s = '<div class="btnrow"><button class="btn" data-act="fbin">Sign in with Google</button></div>' +
+        '<p class="consent">By signing in you agree to the <a href="legal.html" target="_blank" rel="noopener">terms and privacy policy</a>.</p>';
   } else {
     s += '<div class="profile big">' +
       '<button class="avwrap" data-act="editavatar" aria-label="Change your picture" title="Change your picture">' +
@@ -7516,10 +7640,59 @@ function renderAccountBox(){
          '<input class="fbNameIn" data-act="fbname" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
     /* Sharing defaults live in Settings now, and syncing looks after itself —
        the status pill in the header says where it is up to. */
-    s += '<div class="btnrow"><button class="btn quiet" data-act="fbout">Sign out</button></div>';
+    s += '<div class="btnrow"><button class="btn quiet" data-act="fbout">Sign out</button>' +
+         '<button class="btn danger" data-act="fbdelete">Delete my account and cloud data</button></div>';
   }
   box.innerHTML = s;
   paintShareBox();
+}
+
+/* ---------- delete everything of mine in the cloud ----------
+   Your right to be forgotten, without having to email anyone. Removes the log,
+   the public card, both sides of every friendship, every leaderboard row,
+   every post, the handle, and finally the sign-in itself. Best effort on the
+   subcollections other people wrote under your posts (their reactions and
+   comments), which the rules do not let you enumerate. The local copy stays
+   unless you clear it too. */
+async function deleteMyCloudData(){
+  if (!FB || !fbUser || !fbDb) return;
+  const uid = fbUser.uid;
+  const gone = [];
+  const zap = async (ref, what) => { try{ await FB.deleteDoc(ref); gone.push(what); }catch(e){ console.warn('[WayMark] could not delete ' + what, e); } };
+  const zapAll = async (col, what) => {
+    try{ const snap = await FB.getDocs(col); const jobs = []; snap.forEach(d => jobs.push(zap(d.ref, what))); await Promise.all(jobs); }
+    catch(e){ console.warn('[WayMark] could not list ' + what, e); }
+  };
+  /* posts first: only the ones I wrote, found through the audience query the rules allow */
+  try{
+    const q = FB.query(postsCol(), FB.where('aud', 'array-contains', uid), FB.limit(500));
+    const snap = await FB.getDocs(q);
+    const mine = []; snap.forEach(d => { if ((d.data() || {}).uid === uid) mine.push(d); });
+    for (const d of mine){
+      for (const sub of ['shots', 'comments', 'reactions']) await zapAll(FB.collection(fbDb, 'posts', d.id, sub), 'post ' + sub);
+      await zap(d.ref, 'post');
+    }
+  }catch(e){ console.warn('[WayMark] posts', e); }
+  /* leaderboards: my row on each board I am on */
+  for (const g of myGroups()) await zap(memberRef(g.code, uid), 'board row');
+  /* friendships, both directions, and requests */
+  try{
+    const fs = await FB.getDocs(FB.collection(fbDb, 'people', uid, 'friends'));
+    const jobs = [];
+    fs.forEach(d => { jobs.push(zap(friendRef(d.id, uid), 'friend link')); jobs.push(zap(d.ref, 'friend')); });
+    await Promise.all(jobs);
+  }catch(e){ console.warn('[WayMark] friends', e); }
+  await zapAll(FB.collection(fbDb, 'people', uid, 'requests'), 'request');
+  if (fbHandle) await zap(handleRef(fbHandle), 'handle');
+  await zap(personRef(uid), 'public card');
+  /* the log itself */
+  await zapAll(FB.collection(fbDb, 'users', uid, 'photos'), 'photo');
+  await zap(userRef(), 'log');
+  /* and the sign-in. Google insists on a recent login for this one. */
+  let authGone = false;
+  try{ if (FB.deleteUser && fbAuth && fbAuth.currentUser){ await FB.deleteUser(fbAuth.currentUser); authGone = true; } }
+  catch(e){ console.warn('[WayMark] auth', e); }
+  return {gone, authGone};
 }
 
 /* The default for NEW leaderboards. Lives in Settings, out of the way, because
