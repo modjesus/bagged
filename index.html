@@ -585,18 +585,21 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pbanner img{width:100%; height:100%; object-fit:cover; display:block}
 .pbanner .ridge{position:absolute; left:0; right:0; bottom:0; height:100%; margin:0; width:100%; z-index:0; color:rgba(246,239,228,.5)}
 .pbanner .pedit{position:absolute; right:10px; top:10px; background:rgba(20,51,45,.55); color:#F6EFE4; border-color:rgba(246,239,228,.4); backdrop-filter:blur(4px)}
-.pid{display:flex; align-items:flex-end; gap:14px; padding:0 14px; margin-top:-38px; position:relative; z-index:2}
-.pavatar{width:96px; height:96px; border-radius:99px; object-fit:cover; border:4px solid var(--ground); background:var(--surface-2); flex:none; box-shadow:0 4px 12px -4px rgba(0,0,0,.4)}
-.pavatar.initial{display:grid; place-items:center; background:var(--moss); color:#F6EFE4; font-family:var(--font-display); font-size:38px}
+.pid{display:flex; align-items:flex-end; gap:16px; padding:0 14px; margin-top:-56px; position:relative; z-index:2}
+.pavatar{width:132px; height:132px; border-radius:99px; object-fit:cover; border:5px solid var(--ground); background:var(--surface-2); flex:none; box-shadow:0 6px 16px -6px rgba(0,0,0,.45)}
+.pavatar.initial{display:grid; place-items:center; background:var(--moss); color:#F6EFE4; font-family:var(--font-display); font-size:52px}
+@media (min-width:700px){ .pid{margin-top:-72px; gap:20px} .pavatar{width:168px; height:168px; border-width:6px} .pavatar.initial{font-size:64px} }
 .pname{padding-bottom:6px; min-width:0}
 .pname h2{margin:0; font-family:var(--font-display); font-weight:500; font-size:24px; letter-spacing:.01em; line-height:1.1}
 .pname span{display:block; font-family:var(--font-ui); font-size:12.5px; color:var(--ink-3); margin-top:3px}
 .pquote{margin:12px 14px 0; padding:0 0 0 30px; position:relative; font-style:italic; font-size:16px; line-height:1.4; color:var(--ink-2)}
 .pquote svg{position:absolute; left:0; top:-2px; width:22px; height:22px; color:var(--accent)}
 .pquote.empty{font-style:normal; padding:0; text-align:left; font-size:13px; color:var(--ink-3)}
-.pstats{display:flex; gap:22px; margin:14px 14px 0; padding:12px 0 14px; border-top:1px solid var(--line-soft)}
+.pbody{display:flex; gap:16px; align-items:stretch; padding:0 14px}
+.pleft{flex:1; min-width:0}
+.pstats{display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 22px; margin:10px 0 0; padding:10px 0 12px; border-top:1px solid var(--line-soft)}
 .pstats div{min-width:0}
-.pstats b{display:block; font-family:var(--font-data); font-size:20px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pstats b{display:block; font-family:var(--font-display); font-weight:500; font-size:26px; line-height:1; color:var(--accent-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.01em}
 .pstats i{display:block; font-style:normal; font-family:var(--font-ui); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-top:2px}
 .yearrow{margin:-4px 14px 14px}
 .yearrow .btn svg{width:16px; height:16px; margin-right:6px; vertical-align:-3px}
@@ -1710,9 +1713,27 @@ button.pstat{cursor:pointer; border-radius:8px}
 button.pstat:hover b{color:var(--accent-text)}
 .pstats i{font-size:11.5px}
 .pstrip i{font-size:11.5px}
-.ptop{margin:0 14px 12px; font-family:var(--font-ui); font-size:13.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px}
-.ptop svg{width:16px; height:16px; color:var(--accent)}
-.ptop b{font-family:var(--font-display); font-weight:500; font-size:15px; color:var(--ink)}
+.pstat.ptop{position:relative; padding-left:22px}
+.pstat.ptop > svg{position:absolute; left:0; top:3px; width:17px; height:17px; color:var(--accent)}
+.pstat.ptop b{font-size:22px; color:var(--ink)}
+.pstats .yearbtn{margin-left:auto; align-self:center}
+.pstats .yearbtn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
+.pright{flex:none; display:flex; align-items:stretch; padding:10px 0 12px}
+.showsq{width:150px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center;
+  background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 10px; cursor:pointer; color:var(--ink); font-family:var(--font-ui)}
+.showsq .patch{width:auto; opacity:1; filter:none}
+.showsq .patch .disc{width:84px; height:84px; margin:0}
+.showsq b{display:block; font-family:var(--font-display); font-weight:500; font-size:13px; letter-spacing:.02em; line-height:1.15}
+.showsq i{display:block; font-style:normal; font-size:10.5px; color:var(--ink-3)}
+@media (max-width:699px){
+  .pbody{flex-wrap:wrap}
+  .pright{width:100%; padding:0 0 12px}
+  .showsq{width:100%; flex-direction:row; justify-content:flex-start; text-align:left; gap:12px; padding:10px 12px}
+  .showsq .patch .disc{width:56px; height:56px}
+  .showsq b{display:inline; margin-right:8px} .showsq i{display:inline}
+  .showsq span.patch{flex:none}
+  .pstats .yearbtn{margin-left:0; width:100%; justify-content:center}
+}
 .pfollow .btn.quiet{background:rgba(20,51,45,.55); color:#F6EFE4; border-color:rgba(246,239,228,.45); backdrop-filter:blur(4px)}
 .pfollow .btn:not(.quiet){box-shadow:0 2px 8px -2px rgba(0,0,0,.5)}
 .mkchip.plan{background:var(--plan-soft); color:var(--ink-2); border-color:var(--plan)}
@@ -8858,6 +8879,9 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
     shots: (shots || []).slice(0, 6),
     tags: (tags || []).slice(0, 8), aud, t: Date.now(),
     patch: patch || '', conds: (conds || []).slice(0, 4), vis, goal: goal || null,
+    /* public posts carry their time twice: `pt` is what Discover orders by, and
+       only public posts have it, so one plain range query finds them — no index */
+    pt: vis === 'public' ? Date.now() : null,
     /* a route sketch: a few dozen points is enough to draw the shape */
     trk: (trk || []).slice(0, 80), dist: dist || 0
   };
@@ -8969,7 +8993,7 @@ async function loadDiscover(){
   if (!FB || !fbUser || discoverBusy) return;
   discoverBusy = true;
   try{
-    const q = FB.query(postsCol(), FB.where('vis', '==', 'public'), FB.orderBy('t', 'desc'), FB.limit(40));
+    const q = FB.query(postsCol(), FB.where('pt', '>', 0), FB.orderBy('pt', 'desc'), FB.limit(40));
     const snap = await FB.getDocs(q);
     const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
     discover = out; discoverWhy = '';
@@ -9525,14 +9549,24 @@ function profileHeader(pp, opts){
     (pic ? '<img class="pavatar" src="' + esc(pic) + '" alt="">' : '<div class="pavatar initial">' + initial + '</div>') +
     '<div class="pname"><h2>' + esc(pp.name || 'Walker') + '</h2>' +
     '<span>' + (pp.handle ? '@' + esc(pp.handle) : (mine ? 'No handle yet' : '')) + (opts && opts.sub ? (pp.handle ? ' &middot; ' : '') + opts.sub : '') + '</span></div></div>';
+  s += '<div class="pbody"><div class="pleft">';
   if (pp.quote) s += '<blockquote class="pquote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['quote'] + '</svg>' + esc(pp.quote) + '</blockquote>';
   else if (mine && !ui.profEdit) s += '<p class="pquote empty">Add a line of your own &mdash; a motto, a favourite hill, why you walk.</p>';
   const stats = [[pp.hills || 0, 'summits', ''], [pp.pc || 0, 'patches', mine ? 'data-act="gotab" data-v="a"' : '']];
   if (mine) stats.push([followers.length, 'followers', 'data-act="peoplego" data-v="followers"'], [following().length, 'following', 'data-act="peoplego" data-v="following"']);
   s += '<div class="pstats">' + stats.map(([v, l, act]) => act
     ? '<button class="pstat" ' + act + '><b>' + v + '</b><i>' + l + '</i></button>'
-    : '<div class="pstat"><b>' + v + '</b><i>' + l + '</i></div>').join('') + '</div>';
-  if (pp.top) s += '<p class="ptop">' + ti('waymark-mountain') + 'Highest so far <b>' + esc(pp.top) + '</b></p>';
+    : '<div class="pstat"><b>' + v + '</b><i>' + l + '</i></div>').join('') +
+    (pp.top ? '<div class="pstat ptop">' + ti('waymark-mountain') + '<b>' + esc(pp.top) + '</b><i>highest so far</i></div>' : '') +
+    (mine && !ui.profEdit ? '<button class="btn sm yearbtn" data-act="yearcard">' + ti('sparkles') + 'Share my year so far</button>' : '') +
+    '</div>';
+  s += '</div>';
+  /* the patch you are proudest of sits beside the figures as a square card */
+  const show = pp.show ? patches().find(x => x.id === pp.show) : null;
+  if (show) s += '<div class="pright"><button class="showsq" data-act="' + (mine ? 'gotab' : 'noop') + '" data-v="a" title="' + esc(String(show.label).replace(/&middot;/g, '·')) + '">' +
+    '<span class="patch got">' + patchDisc({id:show.id, label:show.label, icon:show.icon}) + '</span>' +
+    '<b>' + esc(show.label) + '</b><i>' + (mine ? esc(patchDateLine(show)) : 'Showcase patch') + '</i></button></div>';
+  s += '</div>';
   return s + '</section>';
 }
 function showcaseHTML(pp, mine){
@@ -9561,8 +9595,7 @@ function renderMyProfile(){
   if (ui.profEdit && ui.pDraftProf){ const d = ui.pDraftProf; Object.assign(pp, {banner:d.banner, bfy:d.bfy, quote:d.quote, show:d.show, gear:d.gear, name:d.name || pp.name}); }
   let s = profileHeader(pp, {mine:true});
   if (ui.profEdit) s += profileEditor();
-  else s += '<div class="btnrow yearrow"><button class="btn" data-act="yearcard">' + ti('sparkles') + 'Share my year so far</button></div>';
-  s += showcaseHTML(pp, true);
+
   s += gearHTML(pp, true);
   const mine = feed.filter(p => p.uid === fbUser.uid).slice(0, 10);
   s += '<p class="eyebrow">Your walks</p>';
@@ -9712,7 +9745,6 @@ function renderFriend(){
       '<span>' + (cardVis === 'private' ? 'Ask to follow and they can let you in.' : 'Follow to see their adventures and kit.') + '</span></div>';
   }
   if (lists) html += '<div class="jcount plists">' + lists + '</div>';
-  html += showcaseHTML(pp, false);
   html += gearHTML(pp, false);
 
   /* what they have shared with you lately */
