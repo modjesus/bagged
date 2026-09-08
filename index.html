@@ -220,6 +220,26 @@ body::before{
 .mstext i{display:block; font-style:normal; font-family:var(--font-ui);
   font-size:10.5px; color:var(--ink-3); margin-top:2px}
 .milestone.got .mstext i{color:var(--accent-text)}
+/* the corkboard */
+.corkboard{position:relative; margin-top:12px; border-radius:var(--r); overflow:hidden;
+  background:#C9A66B url(cork.jpg) center/cover; border:6px solid #5A3B1E;
+  box-shadow:inset 0 0 40px rgba(60,30,0,.28), 0 4px 14px -6px rgba(0,0,0,.5)}
+.corkboard::before{content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.06), rgba(0,0,0,.14))}
+.corkboard .pinned{position:absolute; width:auto; margin:0; padding:0; border:none; background:none;
+  transform:translate(-50%, -50%) rotate(var(--rot, 0deg)); transform-origin:50% 10px;
+  opacity:1; filter:none; cursor:pointer; transition:transform .15s}
+.corkboard .pinned:hover{transform:translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1.06)}
+.corkboard .pinned .disc{margin:0; width:var(--disc, 112px); height:var(--disc, 112px); box-shadow:0 10px 16px -6px rgba(40,20,0,.6), 0 2px 4px rgba(40,20,0,.35)}
+.corkboard .pin{position:absolute; left:50%; top:-3px; z-index:6; width:16px; height:16px; margin-left:-8px; border-radius:99px;
+  background:radial-gradient(circle at 35% 32%, #F08A6A, #B4491A 55%, #7A2E0F);
+  box-shadow:0 1px 1px rgba(255,255,255,.35) inset, 0 3px 5px -1px rgba(0,0,0,.55)}
+.corkboard .pin::after{content:""; position:absolute; left:6px; top:14px; width:3px; height:6px; background:linear-gradient(#3a3a3a, #111);
+  border-radius:0 0 2px 2px; box-shadow:2px 3px 3px rgba(0,0,0,.35)}
+.corkboard .note{position:absolute; width:200px; padding:22px 16px 16px; background:#FBF5E6; color:#3A2E1F;
+  transform:translate(-50%, -50%) rotate(var(--rot, 0deg)); box-shadow:0 8px 14px -6px rgba(40,20,0,.55); text-align:center}
+.corkboard .note b{display:block; font-family:var(--font-display); font-size:15px; letter-spacing:.03em}
+.corkboard .note span{display:block; font-family:var(--font-ui); font-size:12.5px; line-height:1.4; margin-top:6px; color:#5A4A38}
 .milestone:hover .disc{transform:scale(1.06)}
 .milestone .disc{transition:transform .12s}
 
@@ -1984,7 +2004,7 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
           mapScope:'enabled', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
-          hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'',
+          hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'journey', corkSeed:0,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'lists'};
 
@@ -2850,7 +2870,12 @@ function renderPatchesPage(){
   const got = ps.filter(x => x.got).length;
   const counts = ps.filter(p => p.kind === 'count').sort((a, b) => a.sort - b.sort);
 
-  let s = '<p class="eyebrow">Your journey &middot; ' + got + ' of ' + ps.length + ' patches</p>';
+  let s = '<div class="seg hseg" role="group">' +
+    ['journey', 'cork'].map(v => '<button data-act="patchview" data-v="' + v + '" aria-pressed="' + (ui.patchView === v) + '">' +
+      (v === 'journey' ? 'Journey' : 'Corkboard') + '</button>').join('') + '</div>';
+  if (ui.patchView === 'cork') return s + renderCorkboard(ps);
+
+  s += '<p class="eyebrow">Your journey &middot; ' + got + ' of ' + ps.length + ' patches</p>';
   s += '<div class="planintro">Every milestone you have walked into, in the order you reached it. Tap a patch to see the summits behind it.</div>';
   s += trailBlock(counts);
 
@@ -2876,6 +2901,54 @@ function renderPatchesPage(){
     s += items.length > 2 ? trailBlock(items) : patchRow(items);
   }
   return s;
+}
+/* ---------- the corkboard ----------
+   Every patch you have earned, pinned up together the way they would be on the
+   wall at home: no order, no trail, a bit skew-whiff. The scatter is seeded so
+   the board looks the same each visit until you shuffle it. */
+function seededRand(seed){
+  let t = seed >>> 0;
+  return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; };
+}
+function renderCorkboard(ps){
+  const got = ps.filter(p => p.got);
+  const main = document.getElementById('main');
+  /* the board's inside width: the column minus its own padding and the frame */
+  let W = 360;
+  if (main){ const cs = getComputedStyle(main); W = main.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0) - 12; }
+  W = Math.max(240, W);
+  let s = '<p class="eyebrow">Your corkboard &middot; ' + got.length + (got.length === 1 ? ' patch' : ' patches') + '</p>';
+  s += '<div class="planintro">Everything you have earned, pinned up together. Tap one to see the summits behind it.' +
+       (got.length > 1 ? ' <button class="linkbtn" style="padding:0" data-act="corkshuffle">Shuffle</button>' : '') + '</div>';
+  if (!got.length){
+    return s + '<div class="corkboard empty" style="height:300px"><div class="note pinned" style="left:50%;top:50%;--rot:-2deg"><i class="pin"></i>' +
+      '<b>Nothing pinned yet</b><span>Your patches go up here as you earn them. Mark a summit and the first one is yours.</span></div></div>';
+  }
+  /* a loose grid, then a shuffle and a nudge: enough order that nothing is
+     buried, enough disorder that it reads as a wall rather than a table */
+  const DISC = W < 520 ? 92 : 112, CELL = DISC + 14;
+  /* wide screens would string a handful of patches out in one line, which
+     reads as a strip, not a wall — so a board is at least two rows deep */
+  const maxCols = Math.max(2, Math.floor(W / CELL));
+  const rows = Math.max(got.length >= 3 ? 2 : 1, Math.ceil(got.length / maxCols));
+  const cols = Math.max(2, Math.min(maxCols, Math.ceil(got.length / rows)));
+  const cw = W / cols, ch = DISC + 44;
+  const H = rows * ch + 48;
+  const rnd = seededRand(ui.corkSeed || got.length * 7919 + 17);
+  const cells = []; for (let i = 0; i < cols * rows; i++) cells.push(i);
+  for (let i = cells.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  s += '<div class="corkboard" style="height:' + H + 'px; --disc:' + DISC + 'px">';
+  got.forEach((p, i) => {
+    const c = cells[i], col = c % cols, row = Math.floor(c / cols);
+    const jx = (rnd() - .5) * Math.max(0, cw - DISC - 8), jy = (rnd() - .5) * 26;
+    const x = Math.min(W - DISC / 2 - 16, Math.max(DISC / 2 + 16, col * cw + cw / 2 + jx));
+    const y = 24 + row * ch + ch / 2 + jy;
+    const rot = ((rnd() - .5) * 28).toFixed(1);
+    s += '<button class="pinned patch got" data-act="openpatch" data-v="' + esc(p.id) + '" title="' + esc(String(p.label).replace(/&middot;/g, '·')) + '"' +
+         ' style="left:' + x.toFixed(0) + 'px; top:' + y.toFixed(0) + 'px; --rot:' + rot + 'deg">' +
+         '<i class="pin"></i>' + patchDisc(p) + '</button>';
+  });
+  return s + '</div>';
 }
 function renderPatchDetail(p){
   const peaks = patchPeaks(p);
@@ -6389,6 +6462,8 @@ document.addEventListener('click', async e => {
   else if (a === 'verify'){ verifyHere(el.dataset.k); }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
   else if (a === 'opensettings'){ openSheet(); }
+  else if (a === 'patchview'){ ui.patchView = el.dataset.v; render(); }
+  else if (a === 'corkshuffle'){ ui.corkSeed = (Math.random() * 1e9) | 0; render(); }
   else if (a === 'openpatch'){
     ui.patchFrom = tab;                       // so Back knows where to return to
     ui.patch = el.dataset.v; tab = 'a';
