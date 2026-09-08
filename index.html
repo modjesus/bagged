@@ -1657,6 +1657,12 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 .leadwrap.adjusting .leadshot img{cursor:ns-resize; user-select:none; -webkit-user-drag:none}
 .leadwrap.adjusting .leadcap{opacity:.35}
 .sect.leadhead{margin:2px 0 10px}
+.leadpick{margin-top:8px}
+.leadpick > span{display:block; font-size:12.5px; color:var(--ink-3); margin-bottom:6px}
+.leadpick .shots{display:flex; gap:8px; overflow-x:auto; padding-bottom:4px}
+.leadpick .shot{width:64px; height:64px; flex:none; border:2px solid transparent; border-radius:6px; overflow:hidden; padding:0; background:var(--surface-2)}
+.leadpick .shot img{width:100%; height:100%; object-fit:cover; display:block}
+.leadpick .shot.picked{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -3639,10 +3645,13 @@ function shortDay(iso){
    so Home can open on a real hill rather than a label. */
 function latestPhoto(){
   let best = null;
+  /* the most recent day with a photograph on it; within that day the one you
+     chose as the lead, otherwise the first */
   const see = (ph, date, title) => {
     if (!ph || !ph.id) return;
     const d = date || '';
-    if (!best || d > best.date) best = {id:ph.id, up:ph.up ? 1 : 0, date:d, title, fy: ph.fy == null ? 50 : ph.fy};
+    const cand = {id:ph.id, up:ph.up ? 1 : 0, date:d, title, fy: ph.fy == null ? 50 : ph.fy, lead: !!ph.lead};
+    if (!best || d > best.date || (d === best.date && cand.lead && !best.lead)) best = cand;
   };
   for (const [k, r] of Object.entries(state.bagged)){
     if (!isBagged(k) || !BY_KEY[k]) continue;
@@ -3650,6 +3659,20 @@ function latestPhoto(){
   }
   for (const e of liveDiary()) for (const ph of (e.photos || [])) see(ph, e.date, e.title || 'A day out');
   return best;
+}
+/* Choose which of a day's photographs leads Home. Kept on the photo record
+   (like the framing), so it syncs and survives a re-render. */
+function setLeadPhoto(id, dateISO){
+  const flag = ph => ({...ph, lead: ph.id === id ? 1 : undefined});
+  for (const [k, r] of Object.entries(state.bagged)){
+    if (r.date !== dateISO || !(r.photos || []).length) continue;
+    state.bagged[k] = {...r, photos:r.photos.map(flag), t:now()};
+  }
+  for (const e of liveDiary()){
+    if (e.date !== dateISO || !(e.photos || []).length) continue;
+    e.photos = e.photos.map(flag); e.t = now();
+  }
+  touched();
 }
 /* The patch you are closest to: most of the way there, fewest left. */
 function nearestPatch(){
@@ -3712,6 +3735,13 @@ function renderDashboard(){
           ? '<span class="leadhint">Drag the photo up or down</span><button class="leadadj on" data-act="leadadjdone" data-p="' + esc(shot.id) + '">Done</button>'
           : '<button class="leadadj" data-act="leadadj" data-p="' + esc(shot.id) + '" aria-label="Adjust which part of the photo shows">Adjust</button>') +
         '</div>';
+      /* more than one photograph from that walk: pick which one leads */
+      const dayShots = adj ? dayPhotos(shot.date) : [];
+      if (dayShots.length > 1){
+        s += '<div class="leadpick"><span>Which photo from this walk</span><div class="shots">' + dayShots.map(ph =>
+          '<button class="shot' + (ph.id === shot.id ? ' picked' : '') + '" data-act="leadpick" data-p="' + esc(ph.id) + '" data-d="' + esc(shot.date) + '" aria-pressed="' + (ph.id === shot.id) + '">' +
+          '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt=""></button>').join('') + '</div></div>';
+      }
     }
     if (np) s += nearestPatchCard(np, ' big');
     s += '</div>';
@@ -5919,7 +5949,13 @@ document.addEventListener('click', async e => {
   else if (a === 'status'){ ui.status = el.dataset.v; render(); }
   else if (a === 'sort'){ ui.sort = el.dataset.v; render(); }
   else if (a === 'listinfo'){ openListInfo(el.dataset.v); }
-  else if (a === 'region'){ ui.region = el.dataset.v; render(); window.scrollTo({top:0}); }
+  else if (a === 'region'){
+    ui.region = el.dataset.v; render();
+    /* the list is below the fold on Home: land on it, under the sticky header */
+    const at = document.querySelector('.grouphead') || document.getElementById('q');
+    if (at) window.scrollTo({top: at.getBoundingClientRect().top + window.scrollY - 64, behavior:'auto'});
+    else window.scrollTo({top:0});
+  }
   else if (a === 'pick-list'){ ui.list = el.dataset.v; ui.region=''; ui.q=''; ui.status='all'; render(); if (mapReady && ui.mapScope==='one') drawMarkers(true); }
   else if (a === 'open-lists'){ openSheet(); setTimeout(() => { const t = document.getElementById('listToggles'); if (t) t.scrollIntoView({block:'center'}); }, 60); }
   else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; render(); if (mapReady) drawMarkers(true); }
@@ -5949,6 +5985,7 @@ document.addEventListener('click', async e => {
   else if (a === 'noop'){ /* the banner is being adjusted; a tap is not a tap-through */ }
   else if (a === 'leadadj'){ ui.leadAdjust = el.dataset.p; render(); armLeadDrag(); }
   else if (a === 'leadadjdone'){ ui.leadAdjust = null; render(); toast('Framing saved.'); }
+  else if (a === 'leadpick'){ setLeadPhoto(el.dataset.p, el.dataset.d); ui.leadAdjust = el.dataset.p; render(); armLeadDrag(); }
   else if (a === 'sharepatch'){ const p = patches().find(x => x.id === el.dataset.v); if (p) shareCard(p); }
   else if (a === 'setstate'){
     const k = el.dataset.k;
