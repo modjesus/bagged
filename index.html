@@ -572,7 +572,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 /* a summit post's numbers */
 .pstrip{display:flex; gap:18px; margin-top:10px; padding:10px 0; border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft)}
 .pstrip div{min-width:0}
-.pstrip b{display:block; font-family:var(--font-data); font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pstrip b{display:block; font-family:var(--font-display); font-weight:400; color:var(--accent-text); font-size:22px; line-height:1.1; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pstrip i{display:block; font-style:normal; font-family:var(--font-ui); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-top:1px}
 .ppatch{display:flex; align-items:center; gap:14px; margin-top:10px; padding:10px 12px; background:var(--pine); color:#F6EFE4; border-radius:12px}
 .ppatch .patch{width:auto; opacity:1; filter:none}
@@ -658,7 +658,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pgoal div{flex:1; min-width:0}
 .pgoal b{display:block; font-family:var(--font-display); font-size:15px}
 .pgoal .rbar{display:block; margin:6px 0 4px}
-.pgoal span{font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
+.pgoal span{font-family:var(--font-display); font-size:15px; color:var(--accent-text); letter-spacing:.02em}
 .prec{display:flex; align-items:center; gap:12px; margin-top:10px; padding:12px; background:var(--surface-2); border-radius:12px}
 .prec .disc{width:44px; height:44px; border-radius:99px; background:var(--pine); color:#F6EFE4; display:grid; place-items:center; flex:none}
 .prec .disc svg{width:24px; height:24px}
@@ -717,6 +717,11 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pwho span{display:block; margin-top:2px; font-family:var(--font-ui);
   font-size:11px; color:var(--ink-3)}
 .ptext{margin:10px 0 0; font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap}
+.pedited{font-style:normal; color:var(--ink-3)}
+.pedit{margin-top:10px}
+.pedit textarea{width:100%; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-size:14.5px; line-height:1.5; outline:none; resize:vertical}
+.pedit textarea:focus{border-color:var(--accent)}
+.pedit .btnrow{margin-top:8px}
 .phills{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
 .hpill{display:inline-flex; align-items:baseline; gap:6px; background:var(--surface-2);
   border:1px solid var(--line); border-radius:99px; padding:4px 11px;
@@ -1113,6 +1118,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* map */
 #mapbox{height:min(66vh,540px); border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:var(--surface-2); margin-top:10px}
 .leaflet-container{background:var(--surface-2); font:inherit}
+.locatectl a{display:grid; place-items:center; color:var(--ink)}
+.locatectl a svg{width:18px; height:18px}
+.locatectl a.busy svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .leaflet-control-attribution{font-family:var(--font-ui); font-size:9.5px; line-height:1.25; color:var(--ink-3); background:color-mix(in srgb, var(--surface) 82%, transparent); max-width:min(78%,420px); padding:1px 6px}
 .leaflet-control-attribution a{color:inherit}
 .leaflet-attribution-flag{display:none !important}
@@ -1715,7 +1724,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 button.pstat{cursor:pointer; border-radius:8px}
 button.pstat:hover b{color:var(--accent-text)}
 .pstats i{font-size:11.5px}
-.pstrip i{font-size:11.5px}
+.pstrip i{font-size:11.5px} .pstrip b{font-size:24px}
 .pstat.ptop{position:relative; padding-left:22px}
 .pstat.ptop > svg{position:absolute; left:0; top:3px; width:17px; height:17px; color:var(--accent)}
 .pstat.ptop b{font-size:22px; color:var(--ink)}
@@ -2801,11 +2810,17 @@ async function photoSrc(p){
   return '';
 }
 async function hydratePhotos(){
+  const todo = [];
   for (const img of document.querySelectorAll('img[data-pid]')){
     if (img.dataset.done) continue;
-    const src = await photoSrc({id:img.dataset.pid, up:img.dataset.up === '1'});
-    if (src){ img.src = src; img.dataset.done = '1'; }
+    const cached = blobUrls.get(img.dataset.pid);
+    if (cached){ img.src = cached; img.dataset.done = '1'; continue; }
+    todo.push(img);
   }
+  await Promise.all(todo.map(async img => {
+    const src = await photoSrc({id:img.dataset.pid, up:img.dataset.up === '1'});
+    if (src && document.body.contains(img)){ img.src = src; img.dataset.done = '1'; }
+  }));
 }
 
 /* ---------- mutations ---------- */
@@ -3140,7 +3155,7 @@ function patchTodo(p){
 }
 function patchDisc(p, cls){
   return '<span class="disc' + (cls || '') + '">' +
-    '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" loading="lazy" ' +
+    '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
     'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" onerror="this.remove()">' +
     PATCH_ICONS[p.icon] + '</span>';
 }
@@ -3249,14 +3264,14 @@ function renderCorkboard(ps){
   }
   /* a loose grid, then a shuffle and a nudge: enough order that nothing is
      buried, enough disorder that it reads as a wall rather than a table */
-  const DISC = W < 520 ? 92 : 112, CELL = DISC + 14;
+  const DISC = W < 420 ? 118 : W < 700 ? 132 : 150, CELL = DISC + 14;
   /* wide screens would string a handful of patches out in one line, which
      reads as a strip, not a wall — so a board is at least two rows deep */
   const maxCols = Math.max(2, Math.floor(W / CELL));
   const rows = Math.max(got.length >= 3 ? 2 : 1, Math.ceil(got.length / maxCols));
   const cols = Math.max(2, Math.min(maxCols, Math.ceil(got.length / rows)));
-  const cw = W / cols, ch = DISC + 44;
-  const H = rows * ch + 48;
+  const cw = W / cols, ch = DISC + 40;
+  const H = rows * ch + 44;
   const rnd = seededRand(ui.corkSeed || got.length * 7919 + 17);
   const cells = []; for (let i = 0; i < cols * rows; i++) cells.push(i);
   for (let i = cells.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
@@ -3360,7 +3375,7 @@ const NAV = [
      the planner with its weather, places and routes. They are two screens
      behind one tab (tab ids 'm' and 'p'), switched by a control on the map
      itself, so the bar keeps to five and Home sits dead centre. */
-  {id:'p', label:'Map',       short:'Map',    count:'m', also:['m']},   // opens on Plan a walk; Mountains is the other mode
+  {id:'p', label:'Map',       short:'Map',    count:'m', also:['m']},   // opens on Plan a walk; Hills is the other mode
   {id:'j', label:'Journal',   short:'Journal', count:'j'},
   {id:'a', label:'Patches',   short:'Patches', count:'a'},
   /* Home and the hill list are one screen (what is next, then the list you
@@ -3369,7 +3384,7 @@ const NAV = [
 ];
 function mapModeBar(){
   return '<div class="seg mapmode" role="group" aria-label="Map view">' +
-    '<button data-tab="m" aria-pressed="' + (tab === 'm') + '">Mountains</button>' +
+    '<button data-tab="m" aria-pressed="' + (tab === 'm') + '">Hills</button>' +
     '<button data-tab="p" aria-pressed="' + (tab === 'p') + '">Plan a walk</button></div>';
 }
 function diaryCount(){
@@ -4456,10 +4471,8 @@ function renderDiary(){
         '<label class="linkbtn aslabel">+ Photos<input type="file" accept="image/*" multiple ' +
           'data-act="diaryphoto" data-id="' + esc(e.id) + '" hidden></label>' +
         (eps.length ? '<button class="linkbtn" data-act="tagagain" data-id="' + esc(e.id) + '">Tag photos</button>' : '') +
-        (fbConfigured()
-          ? '<button class="linkbtn" data-act="sharediary" data-id="' + esc(e.id) + '">' +
-            (e.shared ? 'Shared \u00b7 share again' : 'Share to feed') + '</button>'
-          : '') +
+        '<button class="linkbtn" data-act="sharediary" data-id="' + esc(e.id) + '">' +
+          (e.shared ? 'Shared \u00b7 share again' : 'Share to feed') + '</button>' +
         '<button class="linkbtn" data-act="deldiary" data-id="' + esc(e.id) + '">Delete</button>' +
         '</div></div>';
     }
@@ -4473,6 +4486,7 @@ function renderDiary(){
         '<label class="linkbtn aslabel">+ Photos<input type="file" accept="image/*" multiple ' +
           'data-act="dayphoto" data-d="' + esc(d.date) + '" hidden></label>' +
         (d.photos.length ? '<button class="linkbtn" data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(d.photos[0].id) + '">Open the day</button>' : '') +
+        (d.hills.length ? '<button class="linkbtn" data-act="shareday" data-d="' + esc(d.date) + '">Share to feed</button>' : '') +
         '</div>';
     }
 
@@ -4531,8 +4545,10 @@ function postHTML(p){
   s += '<div class="phead"><button class="pwhobtn" ' + whoAct + '>' + avatarHTML(p.av, p.name, 'md') + '</button>' +
     '<div class="pwho"><button class="pwhobtn" ' + whoAct + '><b>' + esc(p.name || 'Walker') + '</b></button>' +
     '<span>' + what + ' &middot; ' + esc(whenAgo(p.t)) +
-    (tagged.length ? ' &middot; with ' + esc(tagged.join(', ')) : '') + '</span></div>' +
-    visTag + (mine ? '<button class="linkbtn" data-act="delpost" data-id="' + esc(p.id) + '">Delete</button>' : '') +
+    (tagged.length ? ' &middot; with ' + esc(tagged.join(', ')) : '') +
+    (p.edited ? ' <i class="pedited">(edited)</i>' : '') + '</span></div>' +
+    visTag + (mine && p.kind !== 'patch' && ui.editPost !== p.id ? '<button class="linkbtn" data-act="editpost" data-id="' + esc(p.id) + '">Edit</button>' : '') +
+    (mine ? '<button class="linkbtn" data-act="delpost" data-id="' + esc(p.id) + '">Delete</button>' : '') +
     '</div>';
 
   if (adventure){
@@ -4558,6 +4574,10 @@ function postHTML(p){
     const pd = patches().find(x => x.id === p.patch) || {id:p.patch, label:p.text || 'Patch', icon:'star'};
     s += '<div class="ppatch"><span class="patch got">' + patchDisc({id:pd.id, label:pd.label, icon:pd.icon}) + '</span>' +
       '<div><b>' + esc(pd.label) + '</b><span>' + (p.date ? esc(prettyDate(p.date)) : 'Earned') + '</span></div></div>';
+  } else if (mine && ui.editPost === p.id){
+    s += '<div class="pedit"><textarea data-act="editfield" maxlength="600" rows="4" aria-label="Edit your post">' + esc(ui.editText == null ? (p.text || '') : ui.editText) + '</textarea>' +
+      '<div class="btnrow"><button class="btn sm" data-act="editsave" data-id="' + esc(p.id) + '">Save</button>' +
+      '<button class="btn sm ghost" data-act="editcancel">Cancel</button></div></div>';
   } else if (p.text) s += '<p class="ptext">' + esc(p.text) + '</p>';
 
   if (p.kind === 'route' && (p.trk || []).length > 1){
@@ -4985,8 +5005,9 @@ function mountMap(){
   }
   if (map && map._container !== box){ map.remove(); map = null; mapReady = false; }
   if (!map){
-    map = L.map(box, {preferCanvas:true, zoomControl:true, attributionControl:true});
+    map = L.map(box, {preferCanvas:true, zoomControl:true, attributionControl:true, keyboard:!coarsePointer()});
     if (map.attributionControl) map.attributionControl.setPrefix('');
+    guardMapTaps(box); locateControl(map);
     addBaseLayer(map, mapCentre());
     map.on('moveend', () => syncBaseLayer(map));
     map.on('zoomend', () => { const z = map.getZoom(); if ((z < 9) !== (map.__lastZ < 9)) drawMarkers(); map.__lastZ = z; });
@@ -5643,6 +5664,93 @@ function closeEditor(){ editor = null; ui.rmode = 'explore'; render(); }
    it is page, not map, so a thumb there always scrolls — which means the map
    itself can behave like a map again: one finger pans it, as everyone expects.
    Taking that away made the map the least intuitive thing on the screen. */
+/* ---------- the map and the keyboard ----------
+   On a phone, tapping the search box above the map opened the keyboard and
+   then lost it again: the map underneath took the focus back (Leaflet makes
+   its container focusable for keyboard panning, and grabs focus on any press),
+   so the tap read as a tap on the map. On a touch screen the map is never
+   focusable, and while somebody is typing, a stray press on the map is
+   swallowed rather than allowed to close the keyboard. */
+function coarsePointer(){ try{ return matchMedia('(pointer:coarse)').matches; }catch(e){ return false; } }
+let typingAt = 0;
+document.addEventListener('focusin', e => {
+  if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) typingAt = Date.now();
+});
+function isTyping(){
+  const ae = document.activeElement;
+  return !!ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && Date.now() - typingAt < 1200;
+}
+function guardMapTaps(box){
+  if (!box || box.__guarded) return;
+  box.__guarded = true;
+  if (coarsePointer()) box.tabIndex = -1;
+  for (const t of ['pointerdown', 'mousedown', 'mouseup', 'click'])
+    box.addEventListener(t, e => { if (isTyping()){ e.stopPropagation(); e.preventDefault(); } }, true);
+}
+/* If the map still manages to take the focus in the first moment after the
+   box was tapped, hand it straight back. */
+function keepSearchFocus(inp){
+  if (!inp || inp.__kept) return;
+  inp.__kept = true;
+  let at = 0;
+  inp.addEventListener('focus', () => { at = Date.now(); });
+  inp.addEventListener('blur', () => {
+    if (Date.now() - at > 1500) return;
+    setTimeout(() => {
+      const ae = document.activeElement;
+      if (document.body.contains(inp) && ae && ae.classList && ae.classList.contains('leaflet-container')) inp.focus();
+    }, 40);
+  });
+}
+
+/* ---------- where am I ----------
+   One button on each map: a fix from the phone, a blue dot with its accuracy
+   ring, and the map goes there. Nothing is stored — it is for looking around. */
+let hereLayer = null, hereBusy = false;
+function locateControl(m){
+  if (!m || !L.Control) return;
+  const C = L.Control.extend({
+    options:{position:'topleft'},
+    onAdd(){
+      const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control locatectl');
+      const a = L.DomUtil.create('a', '', div);
+      a.href = '#'; a.title = 'Where am I?'; a.setAttribute('role', 'button'); a.setAttribute('aria-label', 'Show where I am');
+      a.innerHTML = ti('current-location');
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.on(a, 'click', e => { L.DomEvent.preventDefault(e); showMeOn(m, a); });
+      return div;
+    }
+  });
+  new C().addTo(m);
+}
+async function showMeOn(m, btn){
+  if (hereBusy) return;
+  hereBusy = true; if (btn) btn.classList.add('busy');
+  try{
+    const f = await getFix();
+    if (hereLayer && hereLayer._map !== m){ hereLayer.remove(); hereLayer = null; }
+    if (!hereLayer) hereLayer = L.layerGroup().addTo(m);
+    hereLayer.clearLayers();
+    const acc = Math.max(20, Math.min(2000, f.acc || 0));
+    L.circle([f.lat, f.lon], {radius:acc, color:'#2C7BE5', weight:1, fillColor:'#2C7BE5', fillOpacity:.12, interactive:false}).addTo(hereLayer);
+    L.circleMarker([f.lat, f.lon], {radius:7, color:'#fff', weight:2.5, fillColor:'#2C7BE5', fillOpacity:1, interactive:false}).addTo(hereLayer);
+    m.setView([f.lat, f.lon], Math.max(m.getZoom() || 0, 13));
+    const near = nearestHill(f.lat, f.lon);
+    toast(near ? 'You are about ' + prettyDist(near.d) + ' from ' + hillName(near.h) : 'That is you, the blue dot.');
+  }catch(e){ toast(e.message || 'Could not find you right now.'); }
+  hereBusy = false; if (btn) btn.classList.remove('busy');
+}
+function nearestHill(la, lo){
+  let best = null;
+  for (const h of HILLS){
+    if (!isFinite(h.a)) continue;
+    const dx = (h.o - lo) * Math.cos(la * Math.PI / 180) * 111320, dy = (h.a - la) * 110540;
+    const d = Math.sqrt(dx * dx + dy * dy);
+    if (!best || d < best.d) best = {h, d};
+  }
+  return best;
+}
+
 function tameTouch(m, box){
   if (!m || !box || !m.dragging) return;
   m.dragging.enable();
@@ -5681,8 +5789,9 @@ function mountRouteMap(){
   }
   if (rmap && rmap._container !== box) killRouteMap();
   if (!rmap){
-    rmap = L.map(box, {zoomControl:true, attributionControl:true});
+    rmap = L.map(box, {zoomControl:true, attributionControl:true, keyboard:!coarsePointer()});
     if (rmap.attributionControl) rmap.attributionControl.setPrefix('');
+    guardMapTaps(box); locateControl(rmap);
     addBaseLayer(rmap, editor ? routeAt(planById(editor.id) || {}) : (ui.rview ? {la:ui.rview.c.lat, lo:ui.rview.c.lng} : null));
     rmLayer = L.layerGroup().addTo(rmap);
     poiLayer = L.layerGroup().addTo(rmap);
@@ -6702,6 +6811,7 @@ function wire(){
   /* The Routes search repaints only its results, so the map underneath is never
      torn down and rebuilt while you type. */
   const rqi = document.getElementById('rq');
+  keepSearchFocus(rqi);
   if (rqi) rqi.oninput = e => {
     ui.rq = e.target.value;
     geoSearch(ui.rq);          // hills answer at once; places follow
@@ -6966,6 +7076,28 @@ document.addEventListener('click', async e => {
       toast('Route shared to Activity.');
     }catch(e){ toast(fbWhy(e)); }
   }
+  else if (a === 'editpost'){
+    const p = knownPosts().find(x => x.id === el.dataset.id); if (!p) return;
+    ui.editPost = p.id; ui.editText = p.text || ''; render();
+    const ta = document.querySelector('.pedit textarea'); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  }
+  else if (a === 'editcancel'){ ui.editPost = null; ui.editText = null; render(); }
+  else if (a === 'editsave'){
+    const id = el.dataset.id;
+    const ta = document.querySelector('.pedit textarea');
+    const text = String(ta ? ta.value : (ui.editText || '')).trim().slice(0, 600);
+    const p = knownPosts().find(x => x.id === id);
+    if (!p) return;
+    if (!text && !(p.hills || []).length && !(p.shots || []).length){ toast('Write something, or delete the post instead.'); return; }
+    if (text === (p.text || '')){ ui.editPost = null; ui.editText = null; render(); return; }
+    el.disabled = true;
+    try{
+      await FB.setDoc(postRef(id), {text, edited: Date.now()}, {merge:true});
+      for (const q of [...feed, ...discover]) if (q.id === id){ q.text = text; q.edited = Date.now(); }
+      ui.editPost = null; ui.editText = null; render();
+      toast('Post updated.');
+    }catch(err){ el.disabled = false; toast(fbWhy(err)); }
+  }
   else if (a === 'delpost'){
     const ok = await confirmAsk({title:'Delete this post?', body:'It goes from everyone\u2019s feed, along with its comments.', yes:'Delete'});
     if (ok) deletePost(el.dataset.id);
@@ -7101,12 +7233,38 @@ document.addEventListener('click', async e => {
     const ok = await confirmAsk({title:'Delete this photo?', body:'It goes from the entry and from this device.', yes:'Delete'});
     if (ok) removeDiaryPhoto(el.dataset.id, el.dataset.p);
   }
-  else if (a === 'sharediary'){
+  else if (a === 'sharediary' || a === 'shareday'){
     /* Never automatic. A diary is private by default and each entry is offered
        to the feed one at a time, with what friends will see spelled out. */
-    const e = diaryEntry(el.dataset.id); if (!e) return;
+    let e = a === 'sharediary' ? diaryEntry(el.dataset.id) : null;
+    if (a === 'shareday'){
+      /* a day with summits but nothing written: it still makes an adventure */
+      const d = diaryDays().find(x => x.date === el.dataset.d); if (!d) return;
+      e = {id:'', date:d.date, title:'', text:'', photos:d.photos.map(p => ({id:p.id, cap:p.cap || ''})), dayOnly:true};
+    }
+    if (!e) return;
+    if (!fbConfigured()){ toast('Sharing needs the online version of WayMark.'); return; }
     if (!fbUser){ toast('Sign in first — your feed needs an account.'); return; }
     const n = (e.photos || []).length;
+    /* A bare entry makes a bare card. Say so once, and offer the form. */
+    const dayHills = Object.entries(state.bagged).filter(([k, r]) => r.date === e.date && BY_KEY[k] && isBagged(k)).length;
+    const missing = [];
+    if (!(e.title || '').trim()) missing.push('title');
+    if (!(e.text || '').trim()) missing.push('words');
+    if (!n) missing.push('photos');
+    if (missing.length >= 2 || (missing.length && !dayHills)){
+      const add = await confirmAsk({
+        title:'This one looks a bit bare',
+        body:'It has no ' + (missing.length > 1 ? missing.slice(0, -1).join(', ') + ' or ' + missing[missing.length - 1] : missing[0]) + ' yet. Add them first and the card in the feed has something to show.',
+        yes:'Add details', no:'Share anyway', tone:'plain'
+      });
+      if (add){
+        if (e.dayOnly){ ui.diaryForm = true; ui.dDraft = {id:'', date:e.date, title:'', text:''}; }
+        else { ui.diaryForm = true; ui.dDraft = {id:e.id, date:e.date, title:e.title || '', text:e.text || ''}; }
+        render(); window.scrollTo({top:0});
+        return;
+      }
+    }
     const ok = await confirmAsk({
       title: e.shared ? 'Share this entry again?' : 'Share this entry?',
       body: 'Your friends will see ' + (e.title ? '“' + e.title + '”' : 'this entry') +
@@ -7117,7 +7275,7 @@ document.addEventListener('click', async e => {
     if (!ok) return;
     try{
       await shareDiaryEntry(e);
-      setDiary(e.id, {shared: now()});
+      if (e.id) setDiary(e.id, {shared: now()});
       render();
       toast('Shared to your feed.');
     }catch(err){ toast(fbWhy(err)); }
@@ -7461,6 +7619,7 @@ document.addEventListener('input', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   if (el.dataset.act === 'dfield' && ui.dDraft){ ui.dDraft[el.dataset.f] = el.value; return; }
   if (el.dataset.act === 'postfield' && ui.pDraft){ ui.pDraft[el.dataset.f] = el.value; return; }
+  if (el.dataset.act === 'editfield'){ ui.editText = el.value; return; }
   if (el.dataset.act === 'notes'){
     const c = rec(el.dataset.k);
     state.bagged[el.dataset.k] = {...c, notes:el.value, t:now()};
@@ -8310,9 +8469,11 @@ function renderThemeBox(){
       '<button data-act="units" data-v="m" aria-pressed="' + (unitsPref() === 'm') + '">Metres</button></div>';
 }
 applyTheme(); paintThemeBtn();
-let rzT = null;
+let rzT = null, rzW = innerWidth;
 addEventListener('resize', () => {         // the trail spacing depends on width
   fitTaglines();
+  if (innerWidth === rzW) return;          // a phone's address bar is not a layout change
+  rzW = innerWidth;
   if (tab !== 'a') return;
   clearTimeout(rzT); rzT = setTimeout(render, 180);
 });
@@ -8945,11 +9106,17 @@ async function postPhoto(postId, pid){
   }catch(e){ return ''; }
 }
 async function hydratePostPhotos(){
+  const todo = [];
   for (const img of document.querySelectorAll('img[data-post]')){
     if (img.dataset.done) continue;
-    const src = await postPhoto(img.dataset.post, img.dataset.shot);
-    if (src){ img.src = src; img.dataset.done = '1'; }
+    const cached = blobUrls.get('p:' + img.dataset.post + ':' + img.dataset.shot);
+    if (cached){ img.src = cached; img.dataset.done = '1'; continue; }
+    todo.push(img);
   }
+  await Promise.all(todo.map(async img => {
+    const src = await postPhoto(img.dataset.post, img.dataset.shot);
+    if (src && document.body.contains(img)){ img.src = src; img.dataset.done = '1'; }
+  }));
 }
 async function loadFeed(){
   if (!FB || !fbUser || feedBusy) return;
@@ -9417,11 +9584,21 @@ async function friendPhoto(code, pid){
   }catch(e){ return null; }
 }
 async function hydrateFriendPhotos(){
+  const todo = [];
   for (const img of document.querySelectorAll('img[data-fp]')){
     if (img.dataset.done) continue;
-    const b = await friendPhoto(img.dataset.code, img.dataset.fp);
-    if (b){ img.src = URL.createObjectURL(b); img.dataset.done = '1'; }
+    const cached = blobUrls.get('f:' + img.dataset.code + ':' + img.dataset.fp);
+    if (cached){ img.src = cached; img.dataset.done = '1'; continue; }
+    todo.push(img);
   }
+  await Promise.all(todo.map(async img => {
+    const key = 'f:' + img.dataset.code + ':' + img.dataset.fp;
+    const b = await friendPhoto(img.dataset.code, img.dataset.fp);
+    if (!b) return;
+    const u = blobUrls.get(key) || URL.createObjectURL(b);
+    blobUrls.set(key, u);
+    if (document.body.contains(img)){ img.src = u; img.dataset.done = '1'; }
+  }));
 }
 
 /* ---------- Friends tab ---------- */
