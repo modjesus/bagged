@@ -34,7 +34,7 @@
 
   /* three visible steps of paper — ground, surface, raised — so a card has an edge in daylight */
   --ground:#EEE9DD; --surface:#F8F5EC; --surface-2:#E3DDCD; --raise:#FFFDF8;
-  --ink:#14332D; --ink-2:#3E625A; --ink-3:#4C6C66;   /* 4.8:1 on the ground — AA for small text */
+  --ink:#14332D; --ink-2:#3E625A; --ink-3:#42615B;   /* 5.0:1 on surface-2, 5.6:1 on the ground — AA for small text everywhere */
   --line:#CFC9B8; --line-soft:#DDD7C7;
   --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#F3E0D4; --accent-text:#A8431A;   /* text on cream: 5:1 */
   --done:#1E453E; --done-soft:#DFE9E6; --done-line:#A2BCB6;
@@ -59,9 +59,9 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --ground:#0C221D; --surface:#14332D; --surface-2:#1E453E; --raise:#173A33;
-    --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#7E9C95;
+    --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#A2BDB6;
     --line:#2A5A51; --line-soft:#204A42;
-    --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#D9773F;
+    --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#E8925F;
     --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558;
     --plan:#A9A3E0; --plan-soft:#2B2A44;
     --prog:#7FB6D6; --prog-soft:#1E3644;
@@ -74,9 +74,9 @@
 }
 :root[data-theme="dark"]{
   --ground:#0C221D; --surface:#14332D; --surface-2:#1E453E; --raise:#173A33;
-  --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#7E9C95;
+  --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#A2BDB6;
   --line:#2A5A51; --line-soft:#204A42;
-  --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#D9773F;
+  --accent:#B4491A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#E8925F;
   --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558;
   --plan:#A9A3E0; --plan-soft:#2B2A44;
   --prog:#7FB6D6; --prog-soft:#1E3644;
@@ -531,7 +531,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .lstrip b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
 .lstrip span{display:block; margin-top:3px; font-family:var(--font-ui);
   font-size:12px; color:var(--ink-3); line-height:1.45}
-.btn.sm{padding:7px 11px; font-size:12.5px; flex:none}
+.btn.sm{padding:8px 12px; font-size:12.5px; flex:none; min-height:36px}
 
 /* what the Routes section can actually do, said before you commit to it */
 
@@ -550,6 +550,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .avatar.md{width:44px; height:44px; border-width:1.5px}
 .avatar.md.initial{display:grid; place-items:center; background:var(--moss); color:#F6EFE4; font-family:var(--font-display); font-size:18px}
 .pwhobtn{background:none; border:none; padding:0; cursor:pointer; color:inherit; font:inherit; text-align:left}
+.pwho .pwhobtn{min-height:32px; display:inline-flex; align-items:center}
 /* the friends strip, like a row of faces at the top of a feed */
 .fstrip{display:flex; gap:12px; overflow-x:auto; padding:6px 2px 10px; margin:0 -2px; scrollbar-width:none}
 .fstrip::-webkit-scrollbar{display:none}
@@ -582,9 +583,9 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .prof{margin-top:8px}
 .pbanner{position:relative; width:100%; height:clamp(120px, 30vw, 260px); border-radius:var(--r) var(--r) 0 0; overflow:hidden; background:var(--pine)}
 .pbanner img{width:100%; height:100%; object-fit:cover; display:block}
-.pbanner .ridge{position:absolute; left:0; right:0; bottom:0; height:100%; color:rgba(246,239,228,.5)}
+.pbanner .ridge{position:absolute; left:0; right:0; bottom:0; height:100%; margin:0; width:100%; z-index:0; color:rgba(246,239,228,.5)}
 .pbanner .pedit{position:absolute; right:10px; top:10px; background:rgba(20,51,45,.55); color:#F6EFE4; border-color:rgba(246,239,228,.4); backdrop-filter:blur(4px)}
-.pid{display:flex; align-items:flex-end; gap:14px; padding:0 14px; margin-top:-38px; position:relative}
+.pid{display:flex; align-items:flex-end; gap:14px; padding:0 14px; margin-top:-38px; position:relative; z-index:2}
 .pavatar{width:96px; height:96px; border-radius:99px; object-fit:cover; border:4px solid var(--ground); background:var(--surface-2); flex:none; box-shadow:0 4px 12px -4px rgba(0,0,0,.4)}
 .pavatar.initial{display:grid; place-items:center; background:var(--moss); color:#F6EFE4; font-family:var(--font-display); font-size:38px}
 .pname{padding-bottom:6px; min-width:0}
@@ -592,11 +593,13 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pname span{display:block; font-family:var(--font-ui); font-size:12.5px; color:var(--ink-3); margin-top:3px}
 .pquote{margin:12px 14px 0; padding:0 0 0 30px; position:relative; font-style:italic; font-size:16px; line-height:1.4; color:var(--ink-2)}
 .pquote svg{position:absolute; left:0; top:-2px; width:22px; height:22px; color:var(--accent)}
-.pquote.empty{font-style:normal; padding-left:0; font-size:13px; color:var(--ink-3)}
+.pquote.empty{font-style:normal; padding:0; text-align:left; font-size:13px; color:var(--ink-3)}
 .pstats{display:flex; gap:22px; margin:14px 14px 0; padding:12px 0 14px; border-top:1px solid var(--line-soft)}
 .pstats div{min-width:0}
 .pstats b{display:block; font-family:var(--font-data); font-size:20px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pstats i{display:block; font-style:normal; font-family:var(--font-ui); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-top:2px}
+.yearrow{margin:-4px 14px 14px}
+.yearrow .btn svg{width:16px; height:16px; margin-right:6px; vertical-align:-3px}
 .plists{margin:0 14px 8px; font-family:var(--font-ui); font-size:12.5px; color:var(--ink-2)}
 .showcase{display:flex; align-items:center; gap:16px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px}
 .showcase .patch{width:auto; opacity:1; filter:none}
@@ -624,6 +627,72 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .grow .xbtn svg{width:14px; height:14px}
 @media (max-width:520px){ .grow{grid-template-columns:1fr 32px} .grow input{grid-column:1} }
 .hseg.four button{padding-left:4px; padding-right:4px; font-size:13px}
+.feedseg{margin:0 0 12px}
+.feedseg button i{font-style:normal; font-family:var(--font-data); font-size:11px; opacity:.75; margin-left:4px}
+.nobody{text-align:center; padding:28px 18px 22px; background:var(--surface); border:1px dashed var(--line); border-radius:var(--r); margin-top:12px}
+.nobody b{display:block; font-family:var(--font-display); font-weight:500; font-size:19px; letter-spacing:.01em}
+.nobody span{display:block; font-family:var(--font-ui); font-size:13.5px; color:var(--ink-3); margin:6px auto 0; max-width:360px}
+.nobody .btnrow{margin-top:14px}
+.sharemenu{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px}
+.sharekind{display:flex; align-items:center; gap:12px; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 12px; cursor:pointer; color:var(--ink); font-family:var(--font-ui)}
+.sharekind:hover{border-color:var(--accent); background:var(--raise)}
+.skicon{width:40px; height:40px; border-radius:11px; background:var(--pine); color:#F6EFE4; display:grid; place-items:center; flex:none}
+.skicon svg{width:22px; height:22px}
+.sharekind b{display:block; font-family:var(--font-display); font-weight:500; font-size:15px}
+.sharekind i{display:block; font-style:normal; font-size:11.5px; color:var(--ink-3); margin-top:2px}
+@media (max-width:520px){ .sharemenu{grid-template-columns:1fr} }
+.visrow .pill svg{width:14px; height:14px; margin-right:5px; vertical-align:-2px}
+.picked .pill i{font-style:normal; font-family:var(--font-data); font-size:11px; opacity:.7; margin-left:4px}
+.vistag{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:99px; background:var(--surface-2); color:var(--ink-3); margin-right:6px}
+.vistag svg{width:13px; height:13px}
+.advtitle{margin:10px 0 0; font-family:var(--font-display); font-weight:500; font-size:19px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink); display:flex; align-items:center; gap:8px}
+.advtitle svg{width:20px; height:20px; color:var(--accent)}
+.pgoal{display:flex; gap:12px; align-items:center; margin-top:10px; padding:12px; background:var(--surface-2); border-radius:12px}
+.pgoal > svg{width:26px; height:26px; color:var(--accent); flex:none}
+.pgoal div{flex:1; min-width:0}
+.pgoal b{display:block; font-family:var(--font-display); font-size:15px}
+.pgoal .rbar{display:block; margin:6px 0 4px}
+.pgoal span{font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
+.prec{display:flex; align-items:center; gap:12px; margin-top:10px; padding:12px; background:var(--surface-2); border-radius:12px}
+.prec .disc{width:44px; height:44px; border-radius:99px; background:var(--pine); color:#F6EFE4; display:grid; place-items:center; flex:none}
+.prec .disc svg{width:24px; height:24px}
+.prec div{flex:1; min-width:0}
+.prec b{display:block; font-family:var(--font-display); font-size:15.5px}
+.prec span{display:block; font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); margin-top:2px}
+.psaid{margin:10px 0 0; font-family:var(--font-ui); font-size:12px; color:var(--ink-3)}
+.rbtn svg{width:15px; height:15px; margin-right:4px; vertical-align:-3px}
+.rbtn span{font-family:var(--font-ui); font-size:11.5px}
+.rbtn.on svg{color:var(--accent-text)}
+.pcm svg{width:15px; height:15px; vertical-align:-3px}
+@media (max-width:420px){ .rbtn span{display:none} .rbtn svg{margin:0} }
+.hrowp{display:flex; align-items:center; gap:8px}
+.hrowp .rrow{flex:1; min-width:0}
+.hrowp .btn svg, .pfollow .btn svg{width:14px; height:14px; margin-right:5px; vertical-align:-2px}
+.pfollow{position:absolute; right:10px; top:10px}
+.feedgrid{display:block}
+.railcard{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:12px 14px; margin-bottom:12px}
+.railcard .sumlabel{margin:0 0 8px; text-align:left}
+.railhiker .btn svg, .nobody .btn svg, .prec .btn svg{width:14px; height:14px; margin-right:5px; vertical-align:-2px}
+.prec .btn{flex:none}
+.railstats{display:flex; gap:16px}
+.railstats b{display:block; font-family:var(--font-data); font-size:18px; font-weight:600}
+.railstats i{display:block; font-style:normal; font-family:var(--font-ui); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3)}
+.railnext{margin:10px 0 4px; font-family:var(--font-ui); font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px}
+.railnext svg{width:15px; height:15px; color:var(--accent)}
+.railgoal{margin:6px 0}
+.railgoal span{display:flex; justify-content:space-between; font-family:var(--font-ui); font-size:12.5px}
+.railgoal span i{font-style:normal; font-family:var(--font-data); font-size:11px; color:var(--ink-3)}
+.railgoal .rbar{display:block; margin-top:4px}
+.railhiker{display:flex; align-items:center; gap:8px; padding:6px 0; border-top:1px solid var(--line-soft)}
+.railhiker:first-of-type{border-top:none}
+.railhiker span{flex:1; min-width:0}
+.railhiker b{display:block; font-family:var(--font-display); font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.railhiker i{display:block; font-style:normal; font-family:var(--font-ui); font-size:10.5px; color:var(--ink-3)}
+@media (min-width:1024px){
+  .feedgrid{display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:20px; align-items:start}
+  .feedrail{position:sticky; top:72px}
+}
+@media (max-width:1023px){ .feedrail{display:none} }
 .pconds{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
 .cpill{display:inline-flex; align-items:center; gap:5px; padding:4px 10px 4px 7px; border-radius:99px; font-family:var(--font-ui); font-size:12px;
   background:var(--surface-2); color:var(--ink-2); border:1px solid var(--line-soft)}
@@ -1574,7 +1643,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .grouphead span, .pdate, .ddate span, .dsummits li i, .daychip i, .hpill i, .rbtn i,
 .wxaxis span, .wxsum span, .wxmf em, .wxmt i, .leaflet-control-attribution, .leaflet-popup-content .pm,
 .istats, .planmeta, .mstext i, .pinfo i, .sheetbox textarea, .results button span, .lprog, .rqm,
-.pc i, .lstrip span, .fwho2 span, .pwho span, .poikind, .rrow .rsub,
+.pc i, .lstrip span, .poikind,
 .wxgrid dd, .wxrhead dd, .lfacts dd, .ftot b, .nc, .snav .nc{font-family:var(--font-data); font-variant-numeric:tabular-nums}
 /* tracked caps read at 11px in the sans; nothing smaller */
 .eyebrow, .sumlabel, .dcount, .wxgrid dt, .wxrhead dt, .lfacts dt, .rstep, .detail label, .form label,
@@ -1604,6 +1673,56 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .dcard .rbar{display:block; height:4px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:4px}
 .dcard .rbar s{display:block; height:100%; background:var(--accent); text-decoration:none}
 .invite{text-align:center; padding:28px 18px 24px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); margin-top:6px}
+.texttabs{display:flex; align-items:flex-end; gap:18px; border-bottom:1px solid var(--line); margin:0 0 12px}
+.texttabs [role="tab"]{background:none; border:none; padding:6px 2px 10px; font-family:var(--font-display); font-weight:500; font-size:16px; letter-spacing:.02em; color:var(--ink-3); cursor:pointer; position:relative; min-height:40px}
+.texttabs [role="tab"][aria-selected="true"]{color:var(--ink)}
+.texttabs [role="tab"][aria-selected="true"]::after{content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--accent); border-radius:2px}
+.texttabs .refreshbtn{margin-left:auto; margin-bottom:6px; width:36px; height:36px}
+.sharerow{margin:6px 0 12px}
+.sharerow .btn svg{width:16px; height:16px; margin-right:6px; vertical-align:-3px}
+.fstrip{padding-top:2px}
+.fchip .avatar{position:relative}
+.fchip.fresh .avatar{border-color:var(--accent); box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--accent)}
+.fchip:not(.fresh) .avatar{border-color:var(--line)}
+.sheet.bottom{display:none; align-items:flex-end; padding:0}
+.sheet.bottom.open{display:flex}
+.sheet.bottom .sheetbox{width:100%; max-width:640px; margin:0 auto; border-radius:18px 18px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+@media (min-width:700px){ .sheet.bottom{align-items:center; padding:16px} .sheet.bottom .sheetbox{border-radius:18px} }
+.sharemenu{margin-top:6px}
+.sharekind{min-height:56px}
+.rbtn{min-height:36px; padding:6px 11px}
+.rbtn[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft)}
+.pacts{flex-wrap:nowrap}
+.pacts .pcm{margin-left:auto; min-width:44px; min-height:36px; display:inline-flex; align-items:center; justify-content:flex-end}
+@media (max-width:480px){
+  .rbtn{width:40px; height:40px; padding:0; justify-content:center; flex:none}
+  .rbtn svg{width:18px; height:18px; margin:0}
+  .rbtn span{display:none}
+  .pcm .pcmlabel{display:none}
+}
+.picked .pill{min-height:36px; padding:6px 12px}
+.picked .pill[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
+.formx{width:40px; height:40px; top:4px; right:4px}
+.grow .xbtn{width:40px; height:40px}
+.pstats{flex-wrap:wrap; gap:10px 22px}
+.pstat{background:none; border:none; padding:0; text-align:left; font:inherit; color:inherit}
+button.pstat{cursor:pointer; border-radius:8px}
+button.pstat:hover b{color:var(--accent-text)}
+.pstats i{font-size:11.5px}
+.pstrip i{font-size:11.5px}
+.ptop{margin:0 14px 12px; font-family:var(--font-ui); font-size:13.5px; color:var(--ink-2); display:flex; align-items:center; gap:6px}
+.ptop svg{width:16px; height:16px; color:var(--accent)}
+.ptop b{font-family:var(--font-display); font-weight:500; font-size:15px; color:var(--ink)}
+.pfollow .btn.quiet{background:rgba(20,51,45,.55); color:#F6EFE4; border-color:rgba(246,239,228,.45); backdrop-filter:blur(4px)}
+.pfollow .btn:not(.quiet){box-shadow:0 2px 8px -2px rgba(0,0,0,.5)}
+.mkchip.plan{background:var(--plan-soft); color:var(--ink-2); border-color:var(--plan)}
+.prec .btn svg{width:14px; height:14px}
+.tag, .plan .tag, .planhead .tag{font-size:10.5px}
+.hpill i{font-size:11px}
+.linkbtn[data-act="handleedit"]{min-height:32px; display:inline-flex; align-items:center}
+.wrow{min-height:40px}
+.pwho span{font-size:12.5px}
+.railcard .sumlabel, .weekcard .sumlabel{font-family:var(--font-display); font-weight:500; font-size:15px; letter-spacing:.01em; text-transform:none; color:var(--ink)}
 /* mark a mountain: the search that reaches every list */
 .markbar{margin:6px 0 16px}
 .markbar .field{background:var(--raise); box-shadow:var(--shadow)}
@@ -1963,6 +2082,8 @@ const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
    https://tabler.io/icons */
 const TI = {"circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
 Object.assign(TI, {"backpack": "<path d=\"M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3z\"/> <path d=\"M10 6v-1a2 2 0 1 1 4 0v1\"/> <path d=\"M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4\"/> <path d=\"M11 10h2\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
+Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path d=\"M11.5 4l-.5 2\"/> <path d=\"M18 5h2\"/> <path d=\"M19 4v2\"/> <path d=\"M15 9l-1 1\"/> <path d=\"M18 13l2 -.5\"/> <path d=\"M18 19h2\"/> <path d=\"M19 18v2\"/> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z\"/>", "dog": "<path d=\"M11 5h2\"/> <path d=\"M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8\"/> <path d=\"M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z\"/> <path d=\"M12 18v2\"/> <path d=\"M10 11v.01\"/> <path d=\"M14 11v.01\"/> <path d=\"M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z\"/> <path d=\"M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z\"/>", "sunrise": "<path d=\"M3 17h1m16 0h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7m-9.7 5.7a4 4 0 0 1 8 0\"/> <path d=\"M3 21l18 0\"/> <path d=\"M12 9v-6l3 3m-6 0l3 -3\"/>", "thumb-up": "<path d=\"M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3\"/>", "bookmark": "<path d=\"M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z\"/>", "bell": "<path d=\"M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/>", "bell-ringing": "<path d=\"M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/> <path d=\"M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727\"/> <path d=\"M3 6.727a11.05 11.05 0 0 1 2.792 -3.727\"/>", "lock": "<path d=\"M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z\"/> <path d=\"M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0\"/> <path d=\"M8 11v-4a4 4 0 1 1 8 0v4\"/>", "world": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M3.6 9h16.8\"/> <path d=\"M3.6 15h16.8\"/> <path d=\"M11.5 3a17 17 0 0 0 0 18\"/> <path d=\"M12.5 3a17 17 0 0 1 0 18\"/>", "users-group": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\"/> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\"/> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\"/>", "user-plus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M16 19h6\"/> <path d=\"M19 16v6\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/>", "user-check": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/> <path d=\"M15 19l2 2l4 -4\"/>", "user-minus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128\"/> <path d=\"M16 19h6\"/>", "eye": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\"/>", "arrows-shuffle": "<path d=\"M18 4l3 3l-3 3\"/> <path d=\"M18 20l3 -3l-3 -3\"/> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\"/> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\"/>", "target": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0\"/> <path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>", "target-arrow": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 7a5 5 0 1 0 5 5\"/> <path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/> <path d=\"M15 6v3h3l3 -3h-3v-3z\"/> <path d=\"M15 9l-3 3\"/>", "bulb": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\"/> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\"/> <path d=\"M9.7 17l4.6 0\"/>", "message-circle": "<path d=\"M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1\"/>", "eye-off": "<path d=\"M10.585 10.587a2 2 0 0 0 2.829 2.828\"/> <path d=\"M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87\"/> <path d=\"M3 3l18 18\"/>"});
+TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
 function ti(name, attrs){
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (attrs ? ' ' + attrs : '') + '>' + (TI[name] || '') + '</svg>';
 }
@@ -2366,7 +2487,21 @@ function myAvatar(){ return fbAvatar || (fbUser && fbUser.photo) || ''; }
    this device and in your public card (people/{uid}), never in the log doc,
    so a big banner cannot crowd out your summits. */
 const PROF_KEY = 'waymark.profile';
-const PROF0 = {quote:'', gear:[], show:'', banner:'', bfy:50, avHi:'', t:0};
+const PROF0 = {quote:'', gear:[], show:'', banner:'', bfy:50, avHi:'', t:0,
+               vis:'public',      // who can open your profile: public | followers | private (approve followers)
+               pvis:'public',     // where a new adventure goes: public | followers | me
+               hideRoute:false};  // never attach the shape of a route to a post
+const VIS = [
+  {id:'public',    label:'Everyone',  icon:'world', note:'Anyone on WayMark can see it'},
+  {id:'followers', label:'Followers', icon:'users-group', note:'Only people who follow you'},
+  {id:'me',        label:'Only me',   icon:'lock', note:'Stays in your own log'}
+];
+const PVIS = [
+  {id:'public',    label:'Public',    icon:'world', note:'Anyone can open your profile and follow you'},
+  {id:'followers', label:'Followers', icon:'users-group', note:'Anyone can follow; only followers see your walks and kit'},
+  {id:'private',   label:'Private',   icon:'lock', note:'You approve each follower'}
+];
+const visBy = (list, id) => list.find(v => v.id === id) || list[0];
 const GEAR_CATS = [
   {id:'boots',  label:'Boots',        icon:'shoe'},
   {id:'pack',   label:'Pack',         icon:'backpack'},
@@ -2391,7 +2526,8 @@ function saveProf(){
 /* what of the profile goes on the public card */
 function profPublic(){
   return {quote: String(prof.quote || '').slice(0, 140), gear: (prof.gear || []).slice(0, 12),
-          show: prof.show || '', banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', profT: prof.t || 0};
+          show: prof.show || '', banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', profT: prof.t || 0,
+          vis: PVIS.some(v => v.id === prof.vis) ? prof.vis : 'public'};
 }
 /* on sign-in: whichever copy is newer wins, so a new phone picks up the banner */
 async function pullProf(){
@@ -2401,8 +2537,8 @@ async function pullProf(){
     if (!snap.exists()) return;
     const d = snap.data() || {};
     if ((d.profT || 0) > (prof.t || 0)){
-      prof = {...PROF0, quote:d.quote || '', gear:Array.isArray(d.gear) ? d.gear : [], show:d.show || '',
-              banner:d.banner || '', bfy: +d.bfy || 50, avHi:d.avHi || '', t:d.profT || 0};
+      prof = {...PROF0, ...prof, quote:d.quote || '', gear:Array.isArray(d.gear) ? d.gear : [], show:d.show || '',
+              banner:d.banner || '', bfy: +d.bfy || 50, avHi:d.avHi || '', vis:d.vis || 'public', t:d.profT || 0};
       try{ localStorage.setItem(PROF_KEY, JSON.stringify(prof)); }catch(e){}
     }
   }catch(e){}
@@ -2715,7 +2851,8 @@ async function marking(fn){
 }
 /* A patch earned is worth a word to your friends. */
 async function postPatches(list){
-  if (!FB || !fbUser || !autoPostOn() || !friendUids().length) return;
+  if (!FB || !fbUser || !autoPostOn()) return;
+  if (!followerUids().length && (prof.pvis || 'public') !== 'public') return;
   for (const p of list.slice(0, 3)){
     try{ await createPost({kind:'patch', text:p.label, hills:[], date: today(), tags:[], patch:p.id}); }catch(e){}
   }
@@ -3353,7 +3490,7 @@ function render(){
      tab === 'a' ? renderPatchesPage() :
      tab === 'j' ? renderDiary() :
      tab === 'u' ? renderHikers() : renderHills());
-  if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); }
+  if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); }
   paintSync(); wire(); hydratePhotos();
   if (tab === 'u') hydratePostPhotos();
   if (tab === 'p') mountRouteMap();
@@ -4064,8 +4201,8 @@ function requestsCard(){
   return friendReqs.slice(0, 3).map(r =>
     '<div class="reqcard"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm') +
       '<div><b>' + esc(r.name || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') +
-      (r.hills || 0) + ' summits &middot; wants to be friends</span></div></div>' +
-      '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Accept</button>' +
+      (r.hills || 0) + ' summits &middot; wants to follow you</span></div></div>' +
+      '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Approve</button>' +
       '<button class="btn quiet sm" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></div></div>').join('');
 }
 
@@ -4348,24 +4485,50 @@ function postHTML(p){
   const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   const rx = reactedBy[p.id] || {};
   const counts = {};
-  for (const u of Object.keys(rx)) counts[rx[u]] = (counts[rx[u]] || 0) + 1;
-  const mineIs = fbUser ? rx[fbUser.uid] : null;
+  for (const u of Object.keys(rx)) counts[reactId(rx[u])] = (counts[reactId(rx[u])] || 0) + 1;
+  const mineIs = fbUser && rx[fbUser.uid] ? reactId(rx[fbUser.uid]) : null;
   const cs = commentsBy[p.id] || [];
   const tagged = (p.tags || []).map(u => (allFriends().find(f => f.uid === u) || {}).name).filter(Boolean);
 
-  let s = '<article class="post k-' + esc(p.kind || 'post') + '">';
+  /* a day on the hills with summits in it is an adventure, whichever way it
+     arrived — marked as you went, or written up in the journal afterwards */
+  const adventure = (p.kind === 'summit' || p.kind === 'diary') && hs.length > 0;
+  let s = '<article class="post k-' + esc(p.kind || 'post') + (adventure ? ' k-adventure' : '') + '">';
   const whoAct = mine ? 'data-act="hikertab" data-v="me"' : 'data-act="openfriend" data-uid="' + esc(p.uid) + '"';
-  const what = p.kind === 'summit' ? ((p.hills || []).length > 1 ? 'Marked ' + p.hills.length + ' summits' : 'Marked a summit')
+  const what = adventure ? 'Completed an adventure'
              : p.kind === 'diary' ? 'From the journal'
              : p.kind === 'patch' ? 'Earned a patch'
-             : p.kind === 'route' ? 'Shared a route' : 'Posted';
+             : p.kind === 'route' ? 'Shared a route'
+             : p.kind === 'goal' ? 'Set a goal'
+             : p.kind === 'rec' ? 'Recommends a hill'
+             : p.kind === 'moment' ? 'A moment from the trail' : 'Posted';
+  const visTag = mine && p.vis && p.vis !== 'public' ? '<span class="vistag" title="' + esc(visBy(VIS, p.vis).label) + '">' + ti(visBy(VIS, p.vis).icon) + '</span>' : '';
   s += '<div class="phead"><button class="pwhobtn" ' + whoAct + '>' + avatarHTML(p.av, p.name, 'md') + '</button>' +
     '<div class="pwho"><button class="pwhobtn" ' + whoAct + '><b>' + esc(p.name || 'Walker') + '</b></button>' +
     '<span>' + what + ' &middot; ' + esc(whenAgo(p.t)) +
     (tagged.length ? ' &middot; with ' + esc(tagged.join(', ')) : '') + '</span></div>' +
-    (mine ? '<button class="linkbtn" data-act="delpost" data-id="' + esc(p.id) + '">Delete</button>' : '') +
+    visTag + (mine ? '<button class="linkbtn" data-act="delpost" data-id="' + esc(p.id) + '">Delete</button>' : '') +
     '</div>';
 
+  if (adventure){
+    /* the title an adventure earns: where it was */
+    const where = [...new Set(hs.map(h => { const lid = h.l.find(x => state.enabled.includes(x)) || h.l[0]; return regionOf(h, lid).replace('The ', ''); }))].slice(0, 2).join(' & ');
+    const country = [...new Set(hs.map(h => h.c))].join(' & ');
+    s += '<h3 class="advtitle">' + ti('waymark-mountain') + esc(where || country || 'A day on the hills') + '</h3>';
+  }
+  if (p.kind === 'goal' && p.goal){
+    const g = p.goal, pct = g.target ? Math.min(100, Math.round((g.have || 0) / g.target * 100)) : 0;
+    s += '<div class="pgoal">' + ti('target-arrow') + '<div><b>' + esc(g.label || 'A goal') + '</b>' +
+      '<i class="rbar"><s style="width:' + pct + '%"></s></i><span>' + (g.have || 0) + ' / ' + g.target + '</span></div></div>';
+  }
+  if (p.kind === 'rec' && hs.length){
+    const h = hs[0], lid = h.l[0];
+    s += '<div class="prec"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['waymark-mountain'] + '</svg></span>' +
+      '<div><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; ' + esc(regionOf(h, lid).replace('The ', '')) + ' &middot; ' + esc(LIST_BY[lid].name) + '</span></div>' +
+      (isBagged(h.k) ? '<span class="mkchip">Marked</span>'
+        : stateOf(h.k) === 'planned' ? '<span class="mkchip plan">In your journey</span>'
+        : '<button class="btn sm" data-act="addjourney" data-k="' + esc(h.k) + '">' + ti('flag') + 'Add to my journey</button>') + '</div>';
+  }
   if (p.kind === 'patch' && p.patch){
     const pd = patches().find(x => x.id === p.patch) || {id:p.patch, label:p.text || 'Patch', icon:'star'};
     s += '<div class="ppatch"><span class="patch got">' + patchDisc({id:pd.id, label:pd.label, icon:pd.icon}) + '</span>' +
@@ -4380,34 +4543,37 @@ function postHTML(p){
   }
   s += condPills(p.conds);
 
-  /* a summit post gets the numbers a walker looks for first */
-  if (p.kind === 'summit' && hs.length){
+  /* an adventure gets the numbers a walker looks for first */
+  if (adventure){
     const top = hs.reduce((a, b) => b.h > a.h ? b : a, hs[0]);
     const where = [...new Set(hs.map(h => { const lid = h.l.find(x => state.enabled.includes(x)) || h.l[0]; return regionOf(h, lid).replace('The ', ''); }))].slice(0, 2).join(' & ');
     s += '<div class="pstrip"><div><b>' + hs.length + '</b><i>' + (hs.length === 1 ? 'summit' : 'summits') + '</i></div>' +
       '<div><b>' + (unitsPref() === 'm' ? top.h.toLocaleString() + ' m' : feet(top) + ' ft') + '</b><i>highest</i></div>' +
-      (where ? '<div><b>' + esc(where) + '</b><i>where</i></div>' : '') + '</div>';
+      (p.date ? '<div><b>' + esc(prettyDate(p.date).replace(/ \d{4}$/, '')) + '</b><i>when</i></div>' : '') + '</div>';
   }
 
   if ((p.shots || []).length){
     s += '<div class="pshots">' + p.shots.slice(0, 6).map(pid =>
       '<button class="shot" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '">' +
-      '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="">' +
+      '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="' + esc(p.text ? p.text.slice(0, 80) : 'Photo from ' + (p.name || 'a walker') + '\u2019s ' + (hs.length ? 'adventure' : 'post')) + '">' +
       '</button>').join('') + '</div>';
   }
 
-  if (hs.length){
+  if (hs.length && p.kind !== 'rec'){
     hs.sort((a, b) => b.h - a.h);
     s += '<div class="phills">' + hs.map(h =>
       '<span class="hpill">' + esc(hillName(h)) + '<i>' + feet(h).toLocaleString() + ' ft</i></span>').join('') + '</div>';
-    if (p.date) s += '<p class="pdate">' + esc(prettyDate(p.date)) + '</p>';
+    if (p.date && !adventure) s += '<p class="pdate">' + esc(prettyDate(p.date)) + '</p>';
   }
 
-  s += '<div class="pacts">' + REACTIONS.map(e =>
-    '<button class="rbtn' + (mineIs === e ? ' on' : '') + '" data-act="react" data-id="' + esc(p.id) +
-    '" data-e="' + e + '">' + e + (counts[e] ? '<i>' + counts[e] + '</i>' : '') + '</button>').join('') +
-    '<button class="linkbtn pcm" data-act="opencomments" data-id="' + esc(p.id) + '">' +
-    (cs.length ? cs.length + (cs.length === 1 ? ' comment' : ' comments') : 'Comment') + '</button></div>';
+  /* who has said what, in words: "12 Cheers · 3 Epic" */
+  const said = REACTIONS.filter(r => counts[r.id]).map(r => counts[r.id] + ' ' + (counts[r.id] === 1 ? r.label : r.plural));
+  if (said.length || cs.length) s += '<p class="psaid">' + esc(said.join(' · ')) + (said.length && cs.length ? ' · ' : '') +
+    (cs.length ? cs.length + (cs.length === 1 ? ' comment' : ' comments') : '') + '</p>';
+  s += '<div class="pacts">' + REACTIONS.map(r =>
+    '<button class="rbtn' + (mineIs === r.id ? ' on' : '') + '" data-act="react" data-id="' + esc(p.id) +
+    '" data-e="' + r.id + '" aria-label="' + esc(r.label) + '" aria-pressed="' + (mineIs === r.id) + '" title="' + esc(r.label) + '">' + ti(r.icon) + '<span>' + esc(r.label) + '</span></button>').join('') +
+    '<button class="linkbtn pcm" data-act="opencomments" data-id="' + esc(p.id) + '" aria-label="Comments">' + ti('message-circle') + (cs.length ? ' ' + cs.length : '<span class="pcmlabel"> Comment</span>') + '</button></div>';
 
   if (ui.openComments === p.id){
     s += '<div class="pcomments">';
@@ -4434,62 +4600,169 @@ function weekBoard(){
   }
   return Object.values(tally).sort((a, b) => b.n - a.n).slice(0, 5);
 }
+/* Who has been out this week, newest first. A dot marks somebody with an
+   adventure you have not opened Hikers since. Nobody out, no strip. */
+const SEEN_KEY = 'waymark.feedseen';
+const feedSeenAt = () => { try{ return +localStorage.getItem(SEEN_KEY) || 0; }catch(e){ return 0; } };
+function markFeedSeen(){ try{ localStorage.setItem(SEEN_KEY, String(Date.now())); }catch(e){} }
 function friendStrip(){
-  const fr = allFriends();
-  if (!fr.length) return '';
-  const me = {uid: fbUser.uid, name: fbName || fbUser.name, av: myAvatar()};
-  return '<div class="fstrip">' + [me, ...fr].map((f, i) =>
-    '<button class="fchip" data-act="' + (i ? 'openfriend' : 'hikertab') + '" ' + (i ? 'data-uid="' + esc(f.uid) + '"' : 'data-v="me"') + '>' +
-    avatarHTML(f.av, f.name, 'md') + '<span>' + esc(i ? (f.name || 'Walker').split(' ')[0] : 'You') + '</span></button>').join('') + '</div>';
+  const since = Date.now() - 7 * 86400000, seen = feedSeenAt();
+  const latest = new Map();
+  for (const p of feed){
+    if (p.uid === fbUser.uid || (p.t || 0) < since) continue;
+    if (!latest.has(p.uid) || latest.get(p.uid).t < p.t) latest.set(p.uid, {uid:p.uid, name:p.name, av:p.av, t:p.t, fresh:(p.t || 0) > seen});
+  }
+  const out = [...latest.values()].sort((a, b) => b.t - a.t).slice(0, 12);
+  if (!out.length) return '';
+  return '<div class="fstrip" aria-label="Out this week">' + out.map(f =>
+    '<button class="fchip' + (f.fresh ? ' fresh' : '') + '" data-act="openfriend" data-uid="' + esc(f.uid) + '">' +
+    avatarHTML(f.av, f.name, 'md') + '<span>' + esc((f.name || 'Walker').split(' ')[0]) + '</span></button>').join('') + '</div>';
+}
+const SHARE_KINDS = [
+  {id:'adventure', label:'An adventure',     icon:'waymark-mountain', note:'A walk, a summit or a whole day of them'},
+  {id:'moment',    label:'A moment',         icon:'camera',           note:'A photo from the trail'},
+  {id:'goal',      label:'A goal',           icon:'target-arrow',     note:'What you are working towards'},
+  {id:'post',      label:'A thought',        icon:'message-circle',   note:'A plain WayMark post'},
+  {id:'rec',       label:'A recommendation', icon:'bulb',             note:'A hill everybody should do'}
+];
+function shareMenu(){
+  return '<p class="eyebrow" style="margin:0 0 6px">What are you sharing?</p><div class="sharemenu">' +
+    SHARE_KINDS.map(k => '<button class="sharekind" data-act="sharekind" data-v="' + k.id + '">' +
+      '<span class="skicon">' + ti(k.icon) + '</span><span><b>' + esc(k.label) + '</b><i>' + esc(k.note) + '</i></span></button>').join('') + '</div>';
+}
+/* the chooser slides up over the feed rather than pushing it down */
+function openShareSheet(){
+  let el = document.getElementById('sharesheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'sharesheet'; el.className = 'sheet bottom'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'What are you sharing?');
+    el.addEventListener('click', e => { if (e.target === el) closeShareSheet(); });
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '<div class="sheetbox"><button class="xbtn" data-act="closepost" aria-label="Close">' + ti('x') + '</button>' + shareMenu() + '</div>';
+  el.classList.add('open');
+  const first = el.querySelector('.sharekind'); if (first) first.focus();
+}
+function closeShareSheet(){ const el = document.getElementById('sharesheet'); if (el) el.classList.remove('open'); }
+/* things a walker can be working towards: every list that is on, and the
+   next round number of summits */
+function goalOptions(){
+  const out = [];
+  for (const l of enabled()){ const st = statsFor(l.id); out.push({id:'list:' + l.id, label:l.name, have:st.done, target:st.total}); }
+  const n = allStats().done;
+  const next = [10, 25, 50, 100, 250, 500].find(x => x > n);
+  if (next) out.push({id:'count:' + next, label:next + ' summits', have:n, target:next});
+  return out;
+}
+function recResults(q){
+  const found = markSearch(q || '');
+  if (!found.length) return '';
+  return found.slice(0, 6).map(h => '<div class="mrow"><button class="mmain" data-act="recpick" data-k="' + esc(h.k) + '"><b>' + esc(hillName(h)) + '</b>' +
+    '<span>' + htFlat(h) + ' &middot; ' + esc(LIST_BY[h.l[0]].name) + '</span></button></div>').join('');
+}
+/* The right-hand column on a wide screen: your own journey beside everybody
+   else's, so the feed never reads as other people's lives only. */
+function feedRail(){
+  const a = allStats();
+  const next = [1, 10, 25, 50, 100, 250, 500].find(x => x > a.done);
+  let s = '<div class="railcard"><p class="sumlabel">Your journey</p>' +
+    '<div class="railstats"><div><b>' + a.done + '</b><i>summits</i></div><div><b>' + patches().filter(p => p.got).length + '</b><i>patches</i></div><div><b>' + followers.length + '</b><i>followers</i></div></div>' +
+    (next ? '<p class="railnext">' + ti('trending-up') + '<b>' + (next - a.done) + ' to go</b> to ' + next + (next === 1 ? ' summit' : ' summits') + '</p>' : '') +
+    '<button class="linkbtn" data-act="hikertab" data-v="me">Your profile &rsaquo;</button></div>';
+  const goals = goalOptions().slice(0, 4);
+  if (goals.length){
+    s += '<div class="railcard"><p class="sumlabel">Working towards</p>' + goals.map(g => { const pct = g.target ? Math.min(100, Math.round(g.have / g.target * 100)) : 0;
+      return '<div class="railgoal"><span>' + esc(g.label) + '<i>' + g.have + ' / ' + g.target + '</i></span><i class="rbar"><s style="width:' + pct + '%"></s></i></div>'; }).join('') + '</div>';
+  }
+  const sug = suggestedHikers().slice(0, 4);
+  if (sug.length){
+    s += '<div class="railcard"><p class="sumlabel">Hikers to follow</p>' + sug.map(f =>
+      '<div class="railhiker"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') + '</button>' +
+      '<span><b>' + esc(f.name || 'Walker') + '</b><i>' + esc(f.why || '') + '</i></span>' + followBtn(f.uid, true) + '</div>').join('') + '</div>';
+  }
+  return s;
 }
 function renderFeed(){
-  let s = '<p class="eyebrow">Activity</p>';
+  let s = '';
   const fr = allFriends();
-  if (socialFailed && !fr.length && !feed.length){
+  if (socialFailed && !fr.length && !feed.length && !discover.length){
     return s + '<p class="empty">' + esc(socialWhy || 'Could not reach the server.') + ' ' +
       '<button class="linkbtn" style="padding:0" data-act="refreshfeed">Try again</button></p>';
   }
-  if (!fr.length && !feed.length){
-    return s + '<p class="empty">No friends yet. Add someone below, or join a leaderboard &mdash; anyone on a board with you counts.</p>';
+  const view = ui.feedView || (following().length || feed.length ? 'following' : 'discover');
+  s += '<div class="texttabs" role="tablist">' +
+    '<button role="tab" data-act="feedview" data-v="following" aria-selected="' + (view === 'following') + '">Following</button>' +
+    '<button role="tab" data-act="feedview" data-v="discover" aria-selected="' + (view === 'discover') + '">Discover</button>' +
+    '<button class="iconbtn refreshbtn" data-act="refreshfeed" aria-label="Refresh" title="Refresh">' + ti('refresh') + '</button></div>';
+  if (view === 'discover'){
+    s += '<div class="planintro">The newest public adventures on WayMark. Follow anyone whose walks you like.</div>';
+    if (discoverWhy) s += '<p class="empty">' + esc(discoverWhy).replace(/(https?:\S+)/, '<a href="$1" target="_blank" rel="noopener">open Firebase</a>') + '</p>';
+    else if (!discover.length) s += '<p class="empty">' + (discoverBusy ? 'Looking…' : 'Nothing public yet. Share an adventure as Everyone and it will be the first.') + '</p>';
+    else for (const p of discover) s += postHTML(p);
+    return s;
   }
   s += friendStrip();
-  s += '<div class="btnrow"><button class="btn' + (ui.postForm ? ' quiet' : '') + '" data-act="newpost">' +
-    (ui.postForm ? 'Cancel' : '+ Share something') + '</button>' +
-    '<button class="btn ghost" data-act="refreshfeed">Refresh</button></div>';
+  if (!ui.postForm) s += '<div class="btnrow sharerow"><button class="btn" data-act="newpost">' + ti('plus') + 'Share</button></div>';
+  else if (ui.postForm !== 'menu') s += '<div class="btnrow sharerow"><button class="btn quiet" data-act="closepost">Cancel</button></div>';
   const wk = weekBoard();
   if (wk.length && !ui.postForm){
-    s += '<div class="weekcard"><p class="sumlabel">This week</p>' + wk.map((w, i) =>
+    s += '<div class="weekcard"><p class="sumlabel">Out this week</p>' + wk.map(w =>
       '<button class="wrow" data-act="' + (w.uid === fbUser.uid ? 'hikertab' : 'openfriend') + '" ' + (w.uid === fbUser.uid ? 'data-v="me"' : 'data-uid="' + esc(w.uid) + '"') + '>' +
-      '<i class="wrank">' + (i + 1) + '</i>' + avatarHTML(w.av, w.name, 'tiny') + '<span class="wn">' + esc(w.uid === fbUser.uid ? 'You' : w.name || 'Walker') + '</span>' +
-      '<b>' + w.n + '</b><em>' + (w.n === 1 ? 'summit' : 'summits') + ' &middot; ' + w.days.size + (w.days.size === 1 ? ' day' : ' days') + '</em></button>').join('') + '</div>';
+      avatarHTML(w.av, w.name, 'tiny') + '<span class="wn">' + esc(w.uid === fbUser.uid ? 'You' : w.name || 'Walker') + '</span>' +
+      '<em>' + w.days.size + (w.days.size === 1 ? ' day out' : ' days out') + ' &middot; ' + w.n + (w.n === 1 ? ' summit' : ' summits') + '</em></button>').join('') + '</div>';
   }
 
-  if (ui.postForm){
+  if (ui.postForm && ui.postForm !== 'menu'){
     const d = ui.pDraft || {text:'', hills:[], tags:[], conds:[]};
+    const kind = ui.postForm;
+    s += '';
     s += '<div class="form"><button class="xbtn formx" data-act="closepost" aria-label="Close">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>';
-    s += '<div><label for="ptx">What happened</label><textarea id="ptx" data-act="postfield" data-f="text" rows="3" ' +
-      'placeholder="A grand day out…">' + esc(d.text) + '</textarea></div>';
-
-    s += '<div><label>What was it like up there</label><div class="picked">' +
-      CONDITIONS.map(c => '<button class="pill' + ((d.conds || []).includes(c.id) ? ' on' : '') + '" data-act="postcond" data-v="' + c.id + '">' + esc(c.label) + '</button>').join('') + '</div></div>';
-    const recent = recentlyMarked(12);
-    if (recent.length){
-      s += '<div><label>Add summits you marked</label><div class="picked">' +
-        recent.map(r => '<button class="pill' + (d.hills.includes(r.h.k) ? ' on' : '') +
-          '" data-act="postpick" data-k="' + esc(r.h.k) + '">' + esc(hillName(r.h)) + '</button>').join('') + '</div></div>';
+    const SK = SHARE_KINDS.find(k => k.id === kind) || SHARE_KINDS[3];
+    s += '<p class="eyebrow" style="margin:0 0 8px">' + ti(SK.icon) + ' ' + esc(SK.label) + '</p>';
+    if (kind === 'adventure'){
+      const recentDays = liveDiary().filter(e => e.title || e.text || (e.photos || []).length).sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 4);
+      if (recentDays.length){
+        s += '<div><label>A day from your journal</label><div class="picked">' +
+          recentDays.map(e => '<button class="pill" data-act="sharediary" data-id="' + esc(e.id) + '">' + esc(e.title || prettyDate(e.date)) + '</button>').join('') + '</div>' +
+          '<p class="mapnote" style="margin:6px 0 0">Shares the words, the photos and the summits of that day.</p></div>';
+      }
+      const recent = recentlyMarked(12);
+      s += '<div><label>' + (recentDays.length ? 'Or put one together: which summits' : 'Which summits') + '</label>' +
+        (recent.length ? '<div class="picked">' + recent.map(r => '<button class="pill' + (d.hills.includes(r.h.k) ? ' on' : '') +
+          '" data-act="postpick" data-k="' + esc(r.h.k) + '">' + esc(hillName(r.h)) + '</button>').join('') + '</div>'
+        : '<p class="mapnote" style="margin:0">Mark a summit first and it will be here to pick.</p>') + '</div>';
+      s += '<div><label for="ptx">How was it</label><textarea id="ptx" data-act="postfield" data-f="text" rows="3" placeholder="Absolutely knackered but what a day.">' + esc(d.text) + '</textarea></div>';
+      s += '<div><label>What was it like up there</label><div class="picked">' +
+        CONDITIONS.map(c => '<button class="pill' + ((d.conds || []).includes(c.id) ? ' on' : '') + '" data-act="postcond" data-v="' + c.id + '" aria-pressed="' + (d.conds || []).includes(c.id) + '">' + esc(c.label) + '</button>').join('') + '</div></div>';
+      if (fr.length){
+        s += '<div><label>Who were you with</label><div class="picked">' +
+          fr.slice(0, 20).map(f => '<button class="pill' + (d.tags.includes(f.uid) ? ' on' : '') +
+            '" data-act="posttag" data-u="' + esc(f.uid) + '">' + esc(f.name) + '</button>').join('') + '</div>' +
+          '<p class="mapnote" style="margin:6px 0 0">Tagging someone puts the adventure in front of their followers too.</p></div>';
+      }
+    } else if (kind === 'moment'){
+      s += '<div><label>Photos</label><div class="photorow"><div class="shots">' +
+        (d.shots || []).map(ph => '<span class="shot"><img src="' + esc(ph.url) + '" alt=""></span>').join('') +
+        '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="momentphoto" hidden></label></div></div></div>';
+      s += '<div><label for="ptx">Caption</label><textarea id="ptx" data-act="postfield" data-f="text" rows="2" placeholder="Where, and what made it.">' + esc(d.text) + '</textarea></div>';
+    } else if (kind === 'goal'){
+      const opts = goalOptions();
+      s += '<div><label>What are you working towards</label><div class="picked">' +
+        opts.map(g => '<button class="pill' + (d.goal && d.goal.id === g.id ? ' on' : '') + '" data-act="postgoal" data-v="' + esc(g.id) + '" aria-pressed="' + !!(d.goal && d.goal.id === g.id) + '">' + esc(g.label) + ' <i>' + g.have + '/' + g.target + '</i></button>').join('') + '</div></div>';
+      s += '<div><label for="ptx">Why this one</label><textarea id="ptx" data-act="postfield" data-f="text" rows="2" placeholder="Optional.">' + esc(d.text) + '</textarea></div>';
+    } else if (kind === 'rec'){
+      const pick = d.hills[0] ? BY_KEY[d.hills[0]] : null;
+      s += '<div><label for="recq">Which hill</label>' + (pick
+        ? '<div class="mrow on"><button class="mmain" data-act="recclear"><b>' + esc(hillName(pick)) + '</b><span>' + htFlat(pick) + ' &middot; change</span></button></div>'
+        : '<div class="field"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['search'] + '</svg><input id="recq" placeholder="Search any hill…" autocomplete="off" value="' + esc(d.recq || '') + '"></div>' +
+          '<div id="recres">' + recResults(d.recq) + '</div>') + '</div>';
+      s += '<div><label for="ptx">Why they should go</label><textarea id="ptx" data-act="postfield" data-f="text" rows="3" placeholder="Best approach, when to go, what to look out for.">' + esc(d.text) + '</textarea></div>';
+    } else {
+      s += '<div><label for="ptx">What\u2019s on your mind</label><textarea id="ptx" data-act="postfield" data-f="text" rows="3" placeholder="A grand day out…">' + esc(d.text) + '</textarea></div>';
     }
-    if (fr.length){
-      s += '<div><label>Who were you with</label><div class="picked">' +
-        fr.slice(0, 20).map(f => '<button class="pill' + (d.tags.includes(f.uid) ? ' on' : '') +
-          '" data-act="posttag" data-u="' + esc(f.uid) + '">' + esc(f.name) + '</button>').join('') + '</div>' +
-        '<p class="mapnote" style="margin:6px 0 0">Tagging someone puts the post in front of their friends too.</p></div>';
-    }
-    const recentDays = liveDiary().filter(e => e.title || e.text || (e.photos || []).length).sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 4);
-    if (recentDays.length){
-      s += '<div><label>Or share a journal entry</label><div class="picked">' +
-        recentDays.map(e => '<button class="pill" data-act="sharediary" data-id="' + esc(e.id) + '">' + esc(e.title || prettyDate(e.date)) + '</button>').join('') + '</div></div>';
-    }
+    /* who sees it */
+    s += '<div><label>Who can see it</label><div class="picked visrow">' + VIS.map(v =>
+      '<button class="pill' + ((d.vis || prof.pvis || 'public') === v.id ? ' on' : '') + '" data-act="postvis" data-v="' + v.id + '" aria-pressed="' + ((d.vis || prof.pvis || 'public') === v.id) + '">' + ti(v.icon) + esc(v.label) + '</button>').join('') + '</div></div>';
     s += '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="sendpost">Share it</button></div></div>';
   }
 
@@ -4498,7 +4771,10 @@ function renderFeed(){
       ' Your own log is safe on this device. ' +
       '<button class="linkbtn" style="padding:0" data-act="refreshfeed">Try again</button></p>';
   } else if (!feed.length){
-    s += '<p class="empty">Nothing here yet. Mark a summit or share something above.</p>';
+    s += '<div class="nobody"><b>' + (following().length ? 'Quiet out there' : 'Nobody followed yet') + '</b>' +
+      '<span>' + (following().length ? 'The people you follow have not shared a walk lately.' : 'Find people who share your love of the hills.') + '</span>' +
+      '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="feedview" data-v="discover">Discover adventures</button>' +
+      '<button class="btn ghost" data-act="hikertab" data-v="friends">Find hikers</button></div></div>';
   } else {
     for (const p of feed) s += postHTML(p);
   }
@@ -4506,51 +4782,76 @@ function renderFeed(){
 }
 
 /* ---------- friends ---------- */
+function hikerRow(f, extra){
+  return '<div class="hrowp"><button class="rrow" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') +
+    '<span class="rn">' + esc(f.name || 'Walker') + '<i class="rsub">' + (f.handle ? '@' + esc(f.handle) : '') + (f.why ? (f.handle ? ' &middot; ' : '') + esc(f.why) : '') + '</i></span>' +
+    '<span class="rc">' + (f.hills || 0) + '</span></button>' + (extra || '') + '</div>';
+}
+function followBtn(uid, small){
+  if (!fbUser || uid === fbUser.uid) return '';
+  const cls = 'btn ' + (small ? 'sm ' : '');
+  if (isFollowing(uid)) return '<button class="' + cls + 'quiet" data-act="unfollow" data-u="' + esc(uid) + '" aria-pressed="true">' + ti('user-check') + 'Following</button>';
+  if (hasRequested(uid)) return '<button class="' + cls + 'quiet" data-act="unfollow" data-u="' + esc(uid) + '">Requested</button>';
+  return '<button class="' + cls + '" data-act="follow" data-u="' + esc(uid) + '">' + ti('user-plus') + 'Follow' + (followsMe(uid) ? ' back' : '') + '</button>';
+}
 function renderFriends(){
-  let s = '<p class="eyebrow">Friends</p>';
-  s += '<div class="planintro">Anyone on a leaderboard with you is already here. To add someone you have no board with, claim a handle and search for theirs.</div>';
+  const pv = ui.peopleView || 'following';
+  let s = '<div class="seg feedseg" role="group">' +
+    [['following', 'Following', following().length], ['followers', 'Followers', followers.length], ['discover', 'Discover', 0]].map(([v, l, n]) =>
+      '<button data-act="peopleview" data-v="' + v + '" aria-pressed="' + (pv === v) + '">' + l + (n ? ' <i>' + n + '</i>' : '') + '</button>').join('') + '</div>';
+  if (pv === 'following'){
+    const fr = following();
+    if (!fr.length) s += '<div class="nobody"><b>Nobody followed yet</b><span>Find people who share your love of the hills.</span>' +
+      '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="peopleview" data-v="discover">Discover hikers</button></div></div>';
+    else { s += '<div class="regionlist">'; for (const f of fr) s += hikerRow(f, followBtn(f.uid, true)); s += '</div>'; }
+    const pend = friends.filter(f => f.pending);
+    if (pend.length){ s += '<p class="eyebrow">Requested</p><div class="regionlist">'; for (const f of pend) s += hikerRow({...f, why:'Waiting for them to approve'}, followBtn(f.uid, true)); s += '</div>'; }
+    return s;
+  }
+  if (pv === 'followers'){
+    if (friendReqs.length){
+      s += '<p class="eyebrow">Want to follow you</p>';
+      for (const r of friendReqs)
+        s += '<div class="frow"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm') +
+          '<div><b>' + esc(r.name || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') + (r.hills || 0) + ' summits</span></div></div>' +
+          '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Approve</button>' +
+          '<button class="btn quiet sm" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></div></div>';
+    }
+    if (!followers.length) s += '<div class="nobody"><b>No followers yet</b><span>Share an adventure as Everyone and people will find you. Your handle is how they search: ' + (fbHandle ? '@' + esc(fbHandle) : 'claim one under Discover') + '.</span></div>';
+    else { s += '<div class="regionlist">'; for (const f of followers) s += hikerRow(f, followBtn(f.uid, true) + '<button class="linkbtn" data-act="removefollower" data-u="' + esc(f.uid) + '">Remove</button>'); s += '</div>'; }
+    return s;
+  }
+  /* discover: people worth a look first, then the search, then your handle */
+  const sug0 = suggestedHikers();
+  if (sug0.length){
+    s += '<p class="eyebrow">Hikers to follow</p><div class="regionlist">';
+    for (const f of sug0) s += hikerRow(f, followBtn(f.uid, true));
+    s += '</div>';
+  }
+  s += '<p class="eyebrow">Find someone</p>';
 
-  s += '<div class="form" style="margin-top:12px">';
-  s += '<div><label for="myh">Your handle</label>' +
-    '<div class="field"><input id="myh" placeholder="joesully98" maxlength="20" autocomplete="off" value="' + esc(fbHandle) + '">' +
-    '<button class="btn sm" data-act="savehandle">' + (fbHandle ? 'Change' : 'Claim') + '</button></div>' +
-    '<p class="mapnote" style="margin:6px 0 0">Letters, numbers and underscores. This is how friends find you.</p></div>';
-  s += '<div style="margin-top:12px"><label for="findh">Find someone</label>' +
-    '<div class="field"><input id="findh" placeholder="their handle" maxlength="20" autocomplete="off">' +
+  s += '<div class="form" style="margin-top:0">';
+  s += '<div><label for="findh">Their handle</label>' +
+    '<div class="field"><input id="findh" placeholder="e.g. annridge" maxlength="20" autocomplete="off">' +
     '<button class="btn sm" data-act="findfriend">Search</button></div></div>';
+  if (fbHandle && !ui.handleEdit){
+    s += '<p class="mapnote" style="margin:12px 0 0">You are <b>@' + esc(fbHandle) + '</b> &middot; <button class="linkbtn" style="padding:0" data-act="handleedit">change</button></p>';
+  } else {
+    s += '<div style="margin-top:12px"><label for="myh">Your handle</label>' +
+      '<div class="field"><input id="myh" placeholder="joesully98" maxlength="20" autocomplete="off" value="' + esc(fbHandle) + '">' +
+      '<button class="btn sm" data-act="savehandle">' + (fbHandle ? 'Change' : 'Claim') + '</button></div>' +
+      '<p class="mapnote" style="margin:6px 0 0">Letters, numbers and underscores. This is how people find you.</p></div>';
+  }
   s += '<p id="fmsg" style="font-size:13px;margin:8px 0 0"></p>';
   if (ui.found){
     const f = ui.found;
-    s += '<div class="frow"><div class="fwho2">' + avatarHTML(f.av, f.name, 'sm') +
-      '<div><b>' + esc(f.name) + '</b><span>@' + esc(f.handle || '') + ' &middot; ' + (f.hills || 0) + ' summits</span></div></div>' +
-      '<button class="btn sm" data-act="askfriend" data-u="' + esc(f.uid) + '">Send request</button></div>';
+    s += '<div class="frow"><div class="fwho2"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'sm') + '</button>' +
+      '<div><b>' + esc(f.name) + '</b><span>@' + esc(f.handle || '') + ' &middot; ' + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' &middot; private' : '') + '</span></div></div>' +
+      followBtn(f.uid, true) + '</div>';
   }
   s += '</div>';
 
-  if (friendReqs.length){
-    s += '<p class="eyebrow">Requests</p>';
-    for (const r of friendReqs)
-      s += '<div class="frow"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm') +
-        '<div><b>' + esc(r.name || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') +
-        (r.hills || 0) + ' summits</span></div></div>' +
-        '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Accept</button>' +
-        '<button class="btn quiet sm" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></div></div>';
-  }
-
-  const fr = allFriends();
-  s += '<p class="eyebrow">' + fr.length + (fr.length === 1 ? ' friend' : ' friends') + '</p>';
-  if (!fr.length){
-    s += '<p class="empty">Nobody yet.</p>';
-  } else {
-    s += '<div class="regionlist">';
-    for (const f of fr)
-      s += '<button class="rrow" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') +
-        '<span class="rn">' + esc(f.name) +
-        '<i class="rsub">' + (f.via === 'board' ? 'From a leaderboard' : (f.handle ? '@' + esc(f.handle) : 'Friend')) + '</i></span>' +
-        '<span class="rc">' + (f.hills || 0) + '</span>' +
-        '<span class="chev">&rsaquo;</span></button>';
-    s += '</div>';
-  }
+  if (!sug0.length) s += '<p class="empty">Nobody to suggest yet. Join a leaderboard, or search a handle above.</p>';
   return s;
 }
 
@@ -4560,15 +4861,14 @@ function renderHikers(){
   if (friendOpen) return renderBoard();
   let s = '';
   if (fbConfigured() && fbUser){
-    s += '<p class="pathnote cloudNote"></p>';
     s += '<div class="seg hseg four" role="group">' +
       ['feed','friends','boards','me'].map(v =>
         '<button data-act="hikertab" data-v="' + v + '" aria-pressed="' + (hikerTab() === v) + '">' +
-        (v === 'feed' ? 'Activity' : v === 'friends' ? 'Friends' + (friendReqs.length ? '<span class="nb">' + friendReqs.length + '</span>' : '')
+        (v === 'feed' ? 'Activity' : v === 'friends' ? 'People' + (friendReqs.length ? '<span class="nb">' + friendReqs.length + '</span>' : '')
          : v === 'boards' ? 'Boards' : 'Profile') + '</button>').join('') +
       '</div>';
     s += '<div style="margin-top:6px">' +
-      (hikerTab() === 'feed' ? renderFeed() :
+      (hikerTab() === 'feed' ? '<div class="feedgrid"><div class="feedmain">' + renderFeed() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>' :
        hikerTab() === 'friends' ? renderFriends() :
        hikerTab() === 'me' ? renderMyProfile() : renderBoard()) + '</div>';
   } else {
@@ -4581,7 +4881,7 @@ function renderHikers(){
    leaderboards and no friends yet should not open onto an empty Activity tab. */
 function hikerTab(){
   if (ui.hikerTab) return ui.hikerTab;
-  if (feed.length || allFriends().length) return 'feed';
+  if (feed.length || following().length || discover.length) return 'feed';
   if (myGroups().length) return 'boards';
   return 'feed';
 }
@@ -4595,7 +4895,7 @@ let socialWanted = false;
 function autoLoadSocial(){
   if (!FB || !fbUser || socialWanted) return;
   socialWanted = true;
-  loadFriends(); loadFeed();
+  loadFriends(); loadFeed(); loadDiscover();
 }
 let boardsWanted = new Set();
 function autoLoadBoards(){
@@ -6341,6 +6641,17 @@ function wire(){
   }
   const bfy = document.querySelector('[data-act="bfy"]');
   if (bfy) bfy.oninput = e => { const d = profDraft(); if (!d) return; d.bfy = +e.target.value; const img = document.querySelector('.pbanner img'); if (img) img.style.objectPosition = '50% ' + d.bfy + '%'; };
+  const mf = document.querySelector('[data-act="momentphoto"]');
+  if (mf) mf.onchange = async e => {
+    const d = ui.pDraft; if (!d) return;
+    for (const f of [...(e.target.files || [])].slice(0, 6 - (d.shots || []).length)){
+      if (!/^image\//.test(f.type)) continue;
+      try{ const blob = await shrink(f); d.shots = d.shots || []; d.shots.push({id:'ph' + uid(), blob, url:URL.createObjectURL(blob)}); }catch(err){}
+    }
+    render();
+  };
+  const rq2 = document.getElementById('recq');
+  if (rq2) rq2.oninput = e => { if (!ui.pDraft) return; ui.pDraft.recq = e.target.value; const box = document.getElementById('recres'); if (box) box.innerHTML = recResults(e.target.value); };
   const bf = document.querySelector('[data-act="bannerfile"]');
   if (bf) bf.onchange = async e => {
     const f = e.target.files && e.target.files[0]; if (!f || !/^image\//.test(f.type)){ toast('Choose a photo.'); return; }
@@ -6375,6 +6686,12 @@ function wire(){
      landing mid-sentence cannot rebuild the form over what is being written */
 }
 
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const sh = document.getElementById('sharesheet');
+  if (sh && sh.classList.contains('open')){ closeShareSheet(); ui.postForm = false; return; }
+  if (tab === 'u' && ui.postForm && ui.postForm !== 'menu'){ ui.postForm = false; ui.pDraft = null; render(); }
+});
 document.addEventListener('click', async e => {
   const tabBtn = e.target.closest('[data-tab]');
   if (tabBtn){
@@ -6567,11 +6884,10 @@ document.addEventListener('click', async e => {
   else if (a === 'hikertab'){ ui.hikerTab = el.dataset.v; ui.openComments = null; render(); window.scrollTo({top:0}); }
   else if (a === 'refreshfeed'){ loadFeed(); loadFriends(); toast('Refreshing…'); }
   else if (a === 'newpost'){
-    ui.postForm = !ui.postForm;
-    ui.pDraft = ui.postForm ? {text:'', hills:[], tags:[]} : null;
-    render();
+    ui.postForm = 'menu'; ui.pDraft = null;
+    openShareSheet();
   }
-  else if (a === 'closepost'){ ui.postForm = false; ui.pDraft = null; render(); }
+  else if (a === 'closepost'){ ui.postForm = false; ui.pDraft = null; closeShareSheet(); render(); }
   else if (a === 'postpick'){
     const k = el.dataset.k, d = ui.pDraft; if (!d) return;
     d.hills = d.hills.includes(k) ? d.hills.filter(x => x !== k) : [...d.hills, k];
@@ -6583,12 +6899,28 @@ document.addEventListener('click', async e => {
     render();
   }
   else if (a === 'sendpost'){
-    const d = ui.pDraft; if (!d) return;
-    if (!d.text.trim() && !d.hills.length){ toast('Write something or add a summit.'); return; }
+    const d = ui.pDraft, kind = ui.postForm; if (!d || !kind) return;
+    if (kind === 'adventure' && !d.hills.length){ toast('Pick at least one summit.'); return; }
+    if (kind === 'goal' && !d.goal){ toast('Pick a goal.'); return; }
+    if (kind === 'rec' && !d.hills.length){ toast('Pick a hill.'); return; }
+    if (kind === 'moment' && !(d.shots || []).length){ toast('Add a photo.'); return; }
+    if ((kind === 'post') && !d.text.trim()){ toast('Write something.'); return; }
     /* Keep the draft until the write lands. Clearing it first meant a failed
        post lost everything the walker had written. */
     try{
-      await createPost({kind:'post', text:d.text, hills:d.hills, date:today(), tags:d.tags, conds:d.conds || []});
+      let sent = [];
+      if (kind === 'moment'){
+        for (const ph of (d.shots || []).slice(0, 6)){
+          try{ const b64 = await blobToB64(ph.blob); if (b64.length > 950000) continue; shotQueue.push({pid: ph.id, post:{d:b64, owner:fbUser.uid, cap:'', t:Date.now()}}); sent.push(ph.id); }catch(e){}
+        }
+      }
+      const post = await createPost({kind: kind === 'adventure' ? 'summit' : kind, text:d.text, hills:d.hills, date:today(), tags:d.tags,
+        conds:d.conds || [], vis:d.vis, goal:d.goal ? {id:d.goal.id, label:d.goal.label, have:d.goal.have, target:d.goal.target} : null, shots:sent});
+      if (kind === 'moment' && post){
+        for (const q of shotQueue){ try{ await FB.setDoc(shotRef(post.id, q.pid), q.post); }catch(e){} }
+        shotQueue.length = 0;
+        for (const ph of (d.shots || [])) { try{ await putBlob('post:' + post.id + ':' + ph.id, ph.blob); }catch(e){} }
+      }
       ui.postForm = false; ui.pDraft = null;
       render(); toast('Shared.');
     }catch(e){ toast(fbWhy(e) + ' Your post is still here.'); }
@@ -6604,7 +6936,7 @@ document.addEventListener('click', async e => {
     const pl = livePlans().find(x => x.id === el.dataset.id); if (!pl) return;
     if (!FB || !fbUser){ toast('Sign in on Hikers to share a route.'); return; }
     try{
-      const trk = thinTrack(pl.trk || [], 80);
+      const trk = prof.hideRoute ? [] : thinTrack(pl.trk || [], 80);
       await createPost({kind:'route', text:(pl.name || 'A route') + (pl.notes ? '\n\n' + pl.notes : ''), hills:(pl.hills || []).slice(0, 12), date:pl.date || today(), tags:[], trk, dist: trk.length > 1 ? Math.round(trackLength(pl.trk)) : 0});
       toast('Route shared to Activity.');
     }catch(e){ toast(fbWhy(e)); }
@@ -6656,20 +6988,60 @@ document.addEventListener('click', async e => {
       render();
     }catch(e){ if (m){ m.textContent = fbWhy(e); m.style.color = 'var(--warn)'; } }
   }
-  else if (a === 'askfriend'){
-    try{ await requestFriend(el.dataset.u); ui.found = null; render(); toast('Request sent.'); }
-    catch(e){ toast(fbWhy(e)); }
+  else if (a === 'follow'){
+    const u = el.dataset.u;
+    const p = (ui.found && ui.found.uid === u ? ui.found : null) || personCache[u] || allFriends().find(x => x.uid === u) || friendReqs.find(x => x.uid === u);
+    if (!p) return;
+    try{
+      if (!personCache[u]) await loadPerson(u);
+      await follow({...p, ...(personCache[u] || {})});
+      render(); toast(hasRequested(u) ? 'Request sent — they approve their followers.' : 'Following ' + (p.name || 'them') + '.');
+      if (!hasRequested(u)) loadFeed();
+    }catch(e){ toast(fbWhy(e)); }
+  }
+  else if (a === 'unfollow'){
+    const u = el.dataset.u, f = friends.find(x => x.uid === u);
+    const ok = await confirmAsk({title: f && f.pending ? 'Cancel the request?' : 'Unfollow ' + esc((f || {}).name || 'them') + '?', body:'Their adventures stop arriving in your feed. You can follow again any time.', yes: f && f.pending ? 'Cancel request' : 'Unfollow'});
+    if (ok){ await unfollow(u); feed = feed.filter(p => p.uid !== u); render(); }
   }
   else if (a === 'okfriend'){
     const r = friendReqs.find(x => x.uid === el.dataset.u); if (!r) return;
-    try{ await acceptFriend(r); toast('You are now friends.'); loadFeed(); }
+    try{ await acceptFollower(r); render(); toast(esc(r.name || 'They') + ' now follows you.'); }
     catch(e){ toast(fbWhy(e)); }
   }
-  else if (a === 'nofriend'){ declineFriend(el.dataset.u).then(render); }
-  else if (a === 'unfriend'){
-    const ok = await confirmAsk({title:'Remove this friend?', body:'You will stop seeing each other\u2019s activity. A shared leaderboard still shows their totals.', yes:'Remove'});
-    if (ok){ await removeFriend(el.dataset.u); if (friendOpen && friendOpen.uid === el.dataset.u) friendOpen = null; render(); }
+  else if (a === 'nofriend'){ declineFollower(el.dataset.u).then(render); }
+  else if (a === 'removefollower'){
+    const ok = await confirmAsk({title:'Remove this follower?', body:'They stop seeing what you share with followers. They can ask to follow again.', yes:'Remove'});
+    if (ok){ await removeFollower(el.dataset.u); render(); }
   }
+  else if (a === 'unfriend'){ /* kept for old markup */ }
+  else if (a === 'peopleview'){ ui.peopleView = el.dataset.v; ui.handleEdit = false; render(); }
+  else if (a === 'handleedit'){ ui.handleEdit = true; render(); const f = document.getElementById('myh'); if (f) f.focus(); }
+  else if (a === 'peoplego'){ ui.peopleView = el.dataset.v; ui.hikerTab = 'friends'; friendOpen = null; render(); window.scrollTo({top:0}); }
+  else if (a === 'gotab'){ tab = el.dataset.v; render(); window.scrollTo({top:0}); }
+  else if (a === 'feedview'){ ui.feedView = el.dataset.v; ui.hikerTab = 'feed'; render(); if (el.dataset.v === 'discover' && !discover.length) loadDiscover(); }
+  else if (a === 'sharekind'){
+    const k = el.dataset.v;
+    closeShareSheet();
+    ui.postForm = k; ui.pDraft = {text:'', hills:[], tags:[], conds:[], shots:[], vis: prof.pvis || 'public'};
+    render();
+    const t = document.getElementById(k === 'rec' ? 'recq' : 'ptx'); if (t) t.focus();
+  }
+  else if (a === 'postvis'){ if (ui.pDraft){ ui.pDraft.vis = el.dataset.v; render(); } }
+  else if (a === 'closepostx'){ ui.postForm = false; ui.pDraft = null; render(); }
+  else if (a === 'postgoal'){
+    const g = goalOptions().find(x => x.id === el.dataset.v); if (!g || !ui.pDraft) return;
+    ui.pDraft.goal = ui.pDraft.goal && ui.pDraft.goal.id === g.id ? null : g; render();
+  }
+  else if (a === 'addjourney'){
+    const h = BY_KEY[el.dataset.k]; if (!h) return;
+    const lid = homeListFor(h);
+    if (!state.enabled.includes(lid)){ state.enabled.push(lid); state.enabledT = now(); renderListToggles(); }
+    setState(h.k, 'planned'); touched(); render();
+    toast(hillName(h) + ' added to your journey as planned.');
+  }
+  else if (a === 'recpick'){ if (ui.pDraft){ ui.pDraft.hills = [el.dataset.k]; ui.pDraft.recq = ''; render(); const t = document.getElementById('ptx'); if (t) t.focus(); } }
+  else if (a === 'recclear'){ if (ui.pDraft){ ui.pDraft.hills = []; render(); } }
   else if (a === 'newdiary'){
     ui.diaryForm = !ui.diaryForm;
     ui.dDraft = ui.diaryForm ? {id:'', date:today(), title:'', text:''} : null;
@@ -6755,6 +7127,9 @@ document.addEventListener('click', async e => {
   else if (a === 'yearcard'){ try{ await yearCard(); }catch(e){ toast('Could not make the card.'); } }
   else if (a === 'profedit'){ ui.profEdit = !ui.profEdit; if (!ui.profEdit) ui.pDraftProf = null; render(); }
   else if (a === 'profcancel'){ ui.profEdit = false; ui.pDraftProf = null; render(); }
+  else if (a === 'pfvis'){ const d = profDraft(); if (d){ d.vis = el.dataset.v; render(); } }
+  else if (a === 'pfpvis'){ const d = profDraft(); if (d){ d.pvis = el.dataset.v; render(); } }
+  else if (a === 'pfhideroute'){ const d = profDraft(); if (d){ d.hideRoute = !d.hideRoute; render(); } }
   else if (a === 'bannerclear'){ const d = profDraft(); if (d){ d.banner = ''; render(); } }
   else if (a === 'pfshow'){ const d = profDraft(); if (d){ d.show = d.show === el.dataset.v ? '' : el.dataset.v; render(); } }
   else if (a === 'gadd'){ const d = profDraft(); if (d && d.gear.length < 12){ d.gear.push({c:'boots', n:'', note:''}); render(); const last = document.querySelectorAll('[data-act="gname"]'); if (last.length) last[last.length - 1].focus(); } }
@@ -6767,6 +7142,9 @@ document.addEventListener('click', async e => {
     prof.show = d.show || '';
     prof.gear = d.gear.filter(g => g.n && g.n.trim()).map(g => ({c: GEAR_BY[g.c] ? g.c : 'other', n: g.n.trim().slice(0, 60), note: String(g.note || '').trim().slice(0, 60)})).slice(0, 12);
     prof.banner = d.banner || ''; prof.bfy = Math.max(0, Math.min(100, +d.bfy || 50));
+    prof.vis = PVIS.some(v => v.id === d.vis) ? d.vis : 'public';
+    prof.pvis = VIS.some(v => v.id === d.pvis) ? d.pvis : 'public';
+    prof.hideRoute = !!d.hideRoute;
     saveProf(); touched(); scheduleSync(400);
     ui.profEdit = false; ui.pDraftProf = null; render(); toast('Profile saved.');
   }
@@ -8154,6 +8532,17 @@ async function deleteMyCloudData(){
     await Promise.all(jobs);
   }catch(e){ console.warn('[WayMark] friends', e); }
   await zapAll(FB.collection(fbDb, 'people', uid, 'requests'), 'request');
+  /* both directions of every follow */
+  try{
+    const fo = await FB.getDocs(FB.collection(fbDb, 'people', uid, 'following'));
+    const jobs = []; fo.forEach(d => { jobs.push(zap(followerRef(d.id, uid), 'follow')); jobs.push(zap(d.ref, 'following')); });
+    await Promise.all(jobs);
+  }catch(e){ console.warn('[WayMark] following', e); }
+  try{
+    const fw = await FB.getDocs(FB.collection(fbDb, 'people', uid, 'followers'));
+    const jobs = []; fw.forEach(d => { jobs.push(zap(followingRef(d.id, uid), 'follower link')); jobs.push(zap(d.ref, 'follower')); });
+    await Promise.all(jobs);
+  }catch(e){ console.warn('[WayMark] followers', e); }
   if (fbHandle) await zap(handleRef(fbHandle), 'handle');
   await zap(personRef(uid), 'public card');
   /* the log itself */
@@ -8177,7 +8566,7 @@ function paintShareBox(){
     '<span>How a new leaderboard starts out. Each board has its own switch under Hikers, and that is the one that counts.</span></div>' +
     '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail by default"></button></div>' +
     '<div class="togglerow"><div class="tinfo"><b>Post my summits to the feed</b>' +
-    '<span>When you mark a hill, friends see it in their activity. Off means you only ever share by posting deliberately.</span></div>' +
+    '<span>When you mark a hill, your followers see it as an adventure. Off means you only ever share by posting deliberately.</span></div>' +
     '<button class="sw" data-act="toggleautopost" aria-pressed="' + autoPostOn() + '" aria-label="Post my summits"></button></div>' +
     '<div class="togglerow"><div class="tinfo"><b>Your picture</b>' +
     '<span>Replaces the one from your Google account. Friends see it on boards you share your log with.</span></div>' +
@@ -8188,16 +8577,18 @@ function paintShareBox(){
 }
 
 
-/* ---------- friends ---------- */
-/* Two ways to become friends, because they suit different people. Anyone on a
-   leaderboard with you is already a walking acquaintance, so those count
-   without any ceremony. Beyond that you can claim a handle, be found by it, and
-   accept a request — which is how you reach someone you have no board with. */
+/* ---------- following ----------
+   One-way, like a magazine subscription: follow somebody and their adventures
+   arrive in your feed; they need not follow you back. A private profile turns
+   a follow into a request its owner approves. Your followers are the audience
+   every post is addressed to, which is what the rules check. */
 
 const handleRef = h  => FB.doc(fbDb, 'handles', h);
 const personRef = u  => FB.doc(fbDb, 'people', u);
 const reqRef    = (u, from) => FB.doc(fbDb, 'people', u, 'requests', from);
-const friendRef = (u, f)    => FB.doc(fbDb, 'people', u, 'friends', f);
+const friendRef = (u, f)    => FB.doc(fbDb, 'people', u, 'friends', f);      // the old mutual list, read once to migrate
+const followerRef  = (u, f) => FB.doc(fbDb, 'people', u, 'followers', f);   // f follows u
+const followingRef = (u, t) => FB.doc(fbDb, 'people', u, 'following', t);   // u follows t
 const postsCol  = ()  => FB.collection(fbDb, 'posts');
 const postRef   = id  => FB.doc(fbDb, 'posts', id);
 const reactRef  = (id, u)  => FB.doc(fbDb, 'posts', id, 'reactions', u);
@@ -8206,8 +8597,9 @@ const commentRef  = (id, c) => FB.doc(fbDb, 'posts', id, 'comments', c);
 
 const tidyHandle = s => String(s || '').toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20);
 let fbHandle = '';                 // my claimed handle, '' if none
-let friends = [];                  // [{uid, name, av, handle, hills, via}]
-let friendReqs = [];               // people who have asked to be my friend
+let friends = [];                  // people I follow: [{uid, name, av, handle, hills, pending}]
+let followers = [];                // people who follow me
+let friendReqs = [];               // people asking to follow a private profile
 let feed = [];                     // posts I can see
 let feedBusy = false, friendsBusy = false;
 /* Set when a friends/feed fetch fails so the Hikers tab can say "couldn't
@@ -8236,14 +8628,30 @@ function boardFriends(){
   }
   return [...out.values()];
 }
-/* Board-mates plus everyone who has accepted a request, de-duplicated. */
+/* Everyone I have a thread to: who I follow, who follows me, board-mates.
+   Used for lookups and for tagging companions, never for what I get to see. */
 function allFriends(){
   const m = new Map();
   for (const f of boardFriends()) m.set(f.uid, f);
-  for (const f of friends) m.set(f.uid, {...m.get(f.uid), ...f, via:'accepted'});
+  for (const f of followers) m.set(f.uid, {...m.get(f.uid), ...f, via:'follower'});
+  for (const f of friends) m.set(f.uid, {...m.get(f.uid), ...f, via: f.pending ? 'requested' : 'following'});
   return [...m.values()].sort((a,b) => (b.hills||0) - (a.hills||0));
 }
-const friendUids = () => allFriends().map(f => f.uid);
+const following    = () => friends.filter(f => !f.pending);
+const followingUids = () => following().map(f => f.uid);
+const followerUids  = () => followers.map(f => f.uid);
+const friendUids    = () => followerUids();          // the audience of a post
+const isFollowing   = uid => friends.some(f => f.uid === uid && !f.pending);
+const hasRequested  = uid => friends.some(f => f.uid === uid && f.pending);
+const followsMe     = uid => followers.some(f => f.uid === uid);
+/* People worth a look: board-mates and followers I have not followed back. */
+function suggestedHikers(){
+  const seen = new Set(friends.map(f => f.uid));
+  const out = new Map();
+  for (const f of followers) if (!seen.has(f.uid)) out.set(f.uid, {...f, why:'Follows you'});
+  for (const f of boardFriends()) if (!seen.has(f.uid) && !out.has(f.uid)) out.set(f.uid, {...f, why:'On a leaderboard with you'});
+  return [...out.values()].slice(0, 8);
+}
 
 /* My public card: the only thing about me another walker can read directly. */
 function myPerson(){
@@ -8310,40 +8718,80 @@ async function findByHandle(want){
   if (!ps.exists()) return null;
   return {uid, ...(ps.data() || {})};
 }
-/* A request is a document written into THEIR inbox. They accept by writing the
-   friendship both ways — which they are allowed to do and I am not. */
-async function requestFriend(uid){
+const card = p => ({uid:p.uid, name:p.name||'Walker', av:p.av||'', handle:p.handle||'', hills:p.hills||0, t:Date.now()});
+/* Follow: my entry in their followers (the rules let me write only myself,
+   and only if their profile is not private), and theirs in my following.
+   A private profile gets a request instead, and my following entry waits. */
+async function follow(p){
   if (!FB || !fbUser) return;
-  await FB.setDoc(reqRef(uid, fbUser.uid), {...myPerson(), uid: fbUser.uid, t: Date.now()});
+  const priv = (p.vis || (personCache[p.uid] || {}).vis) === 'private';
+  if (priv){
+    await FB.setDoc(reqRef(p.uid, fbUser.uid), {...myPerson(), uid: fbUser.uid, t: Date.now()});
+    await FB.setDoc(followingRef(fbUser.uid, p.uid), {...card(p), pending:true});
+  } else {
+    await FB.setDoc(followerRef(p.uid, fbUser.uid), {...card(myPerson()), uid:fbUser.uid});
+    await FB.setDoc(followingRef(fbUser.uid, p.uid), card(p));
+  }
+  friends = [...friends.filter(f => f.uid !== p.uid), {...card(p), pending: priv}];
 }
-async function acceptFriend(p){
+async function unfollow(uid){
   if (!FB || !fbUser) return;
-  await FB.setDoc(friendRef(fbUser.uid, p.uid), {uid:p.uid, name:p.name||'Walker', av:p.av||'', handle:p.handle||'', hills:p.hills||0, t:Date.now()});
-  await FB.setDoc(friendRef(p.uid, fbUser.uid), {...myPerson(), uid:fbUser.uid, t:Date.now()});
-  try{ await FB.deleteDoc(reqRef(fbUser.uid, p.uid)); }catch(e){}
-  await loadFriends();
+  try{ await FB.deleteDoc(followerRef(uid, fbUser.uid)); }catch(e){}
+  try{ await FB.deleteDoc(followingRef(fbUser.uid, uid)); }catch(e){}
+  try{ await FB.deleteDoc(reqRef(uid, fbUser.uid)); }catch(e){}
+  friends = friends.filter(f => f.uid !== uid);
 }
-async function declineFriend(uid){
+/* The owner of a private profile lets somebody in: writes them into followers,
+   which is the owner's own list, and clears the request. */
+async function acceptFollower(r){
+  if (!FB || !fbUser) return;
+  await FB.setDoc(followerRef(fbUser.uid, r.uid), card(r));
+  try{ await FB.deleteDoc(reqRef(fbUser.uid, r.uid)); }catch(e){}
+  friendReqs = friendReqs.filter(x => x.uid !== r.uid);
+  followers = [...followers.filter(f => f.uid !== r.uid), card(r)];
+}
+async function declineFollower(uid){
   if (!FB || !fbUser) return;
   try{ await FB.deleteDoc(reqRef(fbUser.uid, uid)); }catch(e){}
   friendReqs = friendReqs.filter(r => r.uid !== uid);
 }
-async function removeFriend(uid){
+async function removeFollower(uid){
   if (!FB || !fbUser) return;
-  try{ await FB.deleteDoc(friendRef(fbUser.uid, uid)); }catch(e){}
-  try{ await FB.deleteDoc(friendRef(uid, fbUser.uid)); }catch(e){}
-  friends = friends.filter(f => f.uid !== uid);
+  try{ await FB.deleteDoc(followerRef(fbUser.uid, uid)); }catch(e){}
+  followers = followers.filter(f => f.uid !== uid);
+}
+/* the old friends list, carried across once as mutual follows */
+const MIG_KEY = 'waymark.followmig';
+async function migrateFriends(){
+  try{ if (localStorage.getItem(MIG_KEY) === fbUser.uid) return; }catch(e){}
+  try{
+    const fs = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'friends'));
+    const old = []; fs.forEach(d => old.push({uid:d.id, ...(d.data() || {})}));
+    for (const f of old){
+      if (friends.some(x => x.uid === f.uid)) continue;
+      try{ await follow(f); }catch(e){}
+    }
+    try{ localStorage.setItem(MIG_KEY, fbUser.uid); }catch(e){}
+  }catch(e){}
 }
 async function loadFriends(){
   if (!FB || !fbUser || friendsBusy) return;
   friendsBusy = true;
   try{
-    const fs = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'friends'));
+    const fs = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'following'));
     const out = []; fs.forEach(d => out.push({uid:d.id, ...(d.data() || {})}));
     friends = out;
+    const ws = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'followers'));
+    const fo = []; ws.forEach(d => fo.push({uid:d.id, ...(d.data() || {})}));
+    followers = fo;
     const rs = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'requests'));
     const rq = []; rs.forEach(d => rq.push({uid:d.id, ...(d.data() || {})}));
     friendReqs = rq;
+    /* a pending follow of a private profile: has it been approved since? */
+    for (const f of friends.filter(x => x.pending)){
+      try{ const ok = await FB.getDoc(followerRef(f.uid, fbUser.uid)); if (ok.exists()){ f.pending = false; FB.setDoc(followingRef(fbUser.uid, f.uid), card(f)); } }catch(e){}
+    }
+    await migrateFriends();
   }catch(e){ socialFailed = true; socialWhy = fbWhy(e); }
   friendsBusy = false;
   render();
@@ -8356,7 +8804,17 @@ async function loadFriends(){
    friends, which is how a shared walk reaches both sides. */
 const FEED_LIMIT = 60;
 const AUD_CAP = 300;
-const REACTIONS = ['👍','🎉','💪','😍','😮'];
+const REACTIONS = [
+  {id:'cheer',     label:'Cheer',      plural:'Cheers',      icon:'thumb-up'},
+  {id:'epic',      label:'Epic',       plural:'Epic',        icon:'mountain'},
+  {id:'tough',     label:'Tough one',  plural:'Tough one',   icon:'flame'},
+  {id:'beautiful', label:'Beautiful',  plural:'Beautiful',   icon:'sunrise'},
+  {id:'doggo',     label:'Good doggo', plural:'Good doggo',  icon:'dog'}
+];
+const REACT_BY = Object.fromEntries(REACTIONS.map(r => [r.id, r]));
+/* the emoji the first posts were reacted with, read as the new words */
+const REACT_LEGACY = {'👍':'cheer', '🎉':'epic', '💪':'tough', '😍':'beautiful', '😮':'epic'};
+const reactId = e => REACT_BY[e] ? e : (REACT_LEGACY[e] || 'cheer');
 /* What it was like up there. Chips on the composer, pills on the post: the
    thing a friend planning the same hill next weekend actually wants to know. */
 const CONDITIONS = [
@@ -8373,23 +8831,24 @@ function condPills(list){
 }
 
 async function audienceFor(tagUids){
-  const set = new Set([fbUser.uid, ...friendUids()]);
+  const set = new Set([fbUser.uid, ...followerUids()]);
   for (const t of (tagUids || [])){
     set.add(t);
     /* Their friends too, so a tagged walk shows up on their side. Only readable
        because you are on their friends list — which you must be to tag them. */
     try{
-      const fs = await FB.getDocs(FB.collection(fbDb, 'people', t, 'friends'));
+      const fs = await FB.getDocs(FB.collection(fbDb, 'people', t, 'followers'));
       fs.forEach(d => set.add(d.id));
     }catch(e){ /* they may have removed you; the tag still reaches them */ }
   }
   return [...set].slice(0, AUD_CAP);
 }
 
-async function createPost({kind, text, hills, date, tags, shots, patch, conds, trk, dist}){
+async function createPost({kind, text, hills, date, tags, shots, patch, conds, trk, dist, vis, goal}){
   if (!FB || !fbUser) return null;
   const id = 'po' + uid();
-  const aud = await audienceFor(tags);
+  vis = VIS.some(v => v.id === vis) ? vis : (prof.pvis || 'public');
+  const aud = vis === 'me' ? [fbUser.uid] : await audienceFor(tags);
   const post = {
     id, uid: fbUser.uid, name: fbName || fbUser.name || 'Walker', av: myAvatar() || '',
     kind: kind || 'post', text: String(text || '').slice(0, 600),
@@ -8398,7 +8857,7 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
        readable by exactly the people the post is addressed to. */
     shots: (shots || []).slice(0, 6),
     tags: (tags || []).slice(0, 8), aud, t: Date.now(),
-    patch: patch || '', conds: (conds || []).slice(0, 4),
+    patch: patch || '', conds: (conds || []).slice(0, 4), vis, goal: goal || null,
     /* a route sketch: a few dozen points is enough to draw the shape */
     trk: (trk || []).slice(0, 80), dist: dist || 0
   };
@@ -8428,8 +8887,9 @@ async function shareDiaryEntry(e){
       sent.push(p.id);
     }catch(err){ /* skip this one, keep the rest */ }
   }
+  const dayHills = Object.entries(state.bagged).filter(([k, r]) => r.date === e.date && BY_KEY[k] && isBagged(k)).map(([k]) => k);
   const created = await createPost({
-    kind:'diary', text:words, hills:[], date:e.date || '', tags:[], shots:sent
+    kind:'diary', text:words, hills:dayHills, date:e.date || '', tags:[], shots:sent
   });
   if (!created){ shotQueue.length = 0; throw new Error('could not create the post'); }
   /* The post id only exists now, so the pictures are written once it does. */
@@ -8474,8 +8934,14 @@ async function loadFeed(){
     /* Belt and braces with the read rule: being named in someone's `aud` is not
        enough to appear in my feed — the author has to be somebody I actually
        know, or a stranger could drop content in front of me. */
-    const known = new Set([fbUser.uid, ...friendUids()]);
+    const known = new Set([fbUser.uid, ...followingUids()]);
     feed = out.filter(p => known.has(p.uid));
+    /* posts from before visibility existed: mark my own as followers-only,
+       which is what they always were */
+    for (const p of feed.filter(x => x.uid === fbUser.uid && !x.vis)){
+      p.vis = 'followers';
+      FB.setDoc(postRef(p.id), {vis:'followers'}, {merge:true}).catch(() => {});
+    }
     socialFailed = false; socialWhy = '';
     /* Show the posts now rather than after the thread of every one of them has
        come back. The reactions and comments then fill in behind. */
@@ -8496,6 +8962,28 @@ async function loadFeed(){
   feedBusy = false;
   render();
 }
+/* What everybody is up to: the newest public adventures on WayMark. Lives on
+   its own so a new walker with nobody followed still opens on a live feed. */
+let discover = [], discoverBusy = false, discoverWhy = '';
+async function loadDiscover(){
+  if (!FB || !fbUser || discoverBusy) return;
+  discoverBusy = true;
+  try{
+    const q = FB.query(postsCol(), FB.where('vis', '==', 'public'), FB.orderBy('t', 'desc'), FB.limit(40));
+    const snap = await FB.getDocs(q);
+    const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
+    discover = out; discoverWhy = '';
+    discoverBusy = false; render();
+    await Promise.all(discover.slice(0, 12).map(p => loadPostBits(p.id)));
+  }catch(e){
+    /* the one query here that needs an index; Firebase puts the link to make
+       it in the error, so it is shown rather than hidden */
+    discoverWhy = /index/i.test(String(e && e.message)) ? 'This needs a one-off index in Firebase: ' + String(e.message).replace(/^.*?(https?:\S+).*$/s, '$1') : fbWhy(e);
+  }
+  discoverBusy = false; render();
+}
+/* every post I hold, whichever feed brought it */
+const knownPosts = () => { const m = new Map(); for (const p of [...discover, ...feed]) m.set(p.id, p); return [...m.values()].sort((a, b) => (b.t || 0) - (a.t || 0)); };
 async function loadPostBits(id){
   try{
     const rs = await FB.getDocs(FB.collection(fbDb, 'posts', id, 'reactions'));
@@ -8508,9 +8996,10 @@ async function loadPostBits(id){
 }
 async function react(id, emoji){
   if (!FB || !fbUser) return;
-  const mine = (reactedBy[id] || {})[fbUser.uid];
+  emoji = reactId(emoji);
+  const mine = reactId((reactedBy[id] || {})[fbUser.uid] || '');
   reactedBy[id] = reactedBy[id] || {};
-  if (mine === emoji){
+  if ((reactedBy[id] || {})[fbUser.uid] && mine === emoji){
     delete reactedBy[id][fbUser.uid];
     try{ await FB.deleteDoc(reactRef(id, fbUser.uid)); }catch(e){}
   } else {
@@ -8567,7 +9056,7 @@ const setAutoPost = v => { try{ localStorage.setItem(AUTOPOST_KEY, v ? '1' : '0'
 
 async function postSummits(keys, date){
   if (!FB || !fbUser || !autoPostOn()) return;
-  if (!friendUids().length) return;          // nobody to tell
+  if (!followerUids().length && (prof.pvis || 'public') !== 'public') return;   // nobody to tell
   const hs = keys.map(k => BY_KEY[k]).filter(Boolean);
   if (!hs.length) return;
   try{
@@ -8984,14 +9473,7 @@ function renderBoard(){
   const mine = gs.filter(g => !isGlobal(g.code));
   let html = '';
 
-  /* Once you are on it, the open board leads — it is the one everybody shares.
-     Your own boards keep their own section underneath so the two never blur. */
-  if (global){
-    html += '<p class="eyebrow">The WayMark board</p>';
-    html += '<div class="planintro">Everyone using WayMark, ranked by summits. Anyone can see this one.</div>';
-    html += boardCard(global);
-  }
-
+  /* Your own boards lead; the open board everybody shares sits underneath. */
   html += '<p class="eyebrow">Your leaderboards</p>';
   html += '<div class="planintro">A leaderboard is private to whoever has its code. Start one and send the code to your walking friends, or paste in a code someone sent you.</div>';
   html += '<div class="btnrow"><button class="btn" data-act="newgroup">+ Start one</button>' +
@@ -9004,6 +9486,11 @@ function renderBoard(){
     for (const g of mine) html += boardCard(g);
   }
 
+  if (global){
+    html += '<p class="eyebrow">The WayMark board</p>';
+    html += '<div class="planintro">Everyone using WayMark, ranked by summits. Anyone can see this one.</div>';
+    html += boardCard(global);
+  }
   /* Not on the open board: the offer goes last, so it reads as an extra rather
      than as the thing this screen is about. */
   if (!global){
@@ -9031,7 +9518,8 @@ function profileHeader(pp, opts){
   let s = '<section class="prof">';
   s += '<div class="pbanner' + (pp.banner ? ' has' : '') + '">' +
     (pp.banner ? '<img src="' + esc(pp.banner) + '" alt="" style="object-position:50% ' + (+pp.bfy || 50) + '%" draggable="false">' : RIDGE) +
-    (mine ? '<button class="btn sm pedit" data-act="profedit">' + (ui.profEdit ? 'Done' : 'Edit profile') + '</button>' : '') +
+    (mine ? '<button class="btn sm pedit" data-act="profedit">' + (ui.profEdit ? 'Done' : 'Edit profile') + '</button>'
+          : '<span class="pedit pfollow">' + followBtn(pp.uid, true) + '</span>') +
     '</div>';
   s += '<div class="pid">' +
     (pic ? '<img class="pavatar" src="' + esc(pic) + '" alt="">' : '<div class="pavatar initial">' + initial + '</div>') +
@@ -9039,9 +9527,12 @@ function profileHeader(pp, opts){
     '<span>' + (pp.handle ? '@' + esc(pp.handle) : (mine ? 'No handle yet' : '')) + (opts && opts.sub ? (pp.handle ? ' &middot; ' : '') + opts.sub : '') + '</span></div></div>';
   if (pp.quote) s += '<blockquote class="pquote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['quote'] + '</svg>' + esc(pp.quote) + '</blockquote>';
   else if (mine && !ui.profEdit) s += '<p class="pquote empty">Add a line of your own &mdash; a motto, a favourite hill, why you walk.</p>';
-  const stats = [[pp.hills || 0, 'summits'], [pp.pc || 0, 'patches']];
-  if (pp.top) stats.push([esc(pp.top), 'highest']);
-  s += '<div class="pstats">' + stats.map(([v, l]) => '<div><b>' + v + '</b><i>' + l + '</i></div>').join('') + '</div>';
+  const stats = [[pp.hills || 0, 'summits', ''], [pp.pc || 0, 'patches', mine ? 'data-act="gotab" data-v="a"' : '']];
+  if (mine) stats.push([followers.length, 'followers', 'data-act="peoplego" data-v="followers"'], [following().length, 'following', 'data-act="peoplego" data-v="following"']);
+  s += '<div class="pstats">' + stats.map(([v, l, act]) => act
+    ? '<button class="pstat" ' + act + '><b>' + v + '</b><i>' + l + '</i></button>'
+    : '<div class="pstat"><b>' + v + '</b><i>' + l + '</i></div>').join('') + '</div>';
+  if (pp.top) s += '<p class="ptop">' + ti('waymark-mountain') + 'Highest so far <b>' + esc(pp.top) + '</b></p>';
   return s + '</section>';
 }
 function showcaseHTML(pp, mine){
@@ -9056,7 +9547,7 @@ function showcaseHTML(pp, mine){
 }
 function gearHTML(pp, mine){
   const list = (pp.gear || []).filter(g => g && g.n);
-  if (!list.length) return mine && !ui.profEdit ? '<p class="eyebrow">Your kit</p><p class="empty">Nothing listed yet. Add the kit you walk in under Edit profile &mdash; friends love to compare boots.</p>' : '';
+  if (!list.length) return mine && !ui.profEdit ? '<p class="eyebrow">Your kit</p><p class="pquote empty">Nothing listed yet &mdash; <button class="linkbtn" style="padding:0" data-act="profedit">add the kit you walk in</button>. People love to compare boots.</p>' : '';
   const cats = GEAR_CATS.filter(c => list.some(g => g.c === c.id));
   let s = '<p class="eyebrow">' + (mine ? 'Your kit' : 'Their kit') + '</p><div class="gear">';
   for (const c of cats){
@@ -9070,18 +9561,20 @@ function renderMyProfile(){
   if (ui.profEdit && ui.pDraftProf){ const d = ui.pDraftProf; Object.assign(pp, {banner:d.banner, bfy:d.bfy, quote:d.quote, show:d.show, gear:d.gear, name:d.name || pp.name}); }
   let s = profileHeader(pp, {mine:true});
   if (ui.profEdit) s += profileEditor();
+  else s += '<div class="btnrow yearrow"><button class="btn" data-act="yearcard">' + ti('sparkles') + 'Share my year so far</button></div>';
   s += showcaseHTML(pp, true);
   s += gearHTML(pp, true);
   const mine = feed.filter(p => p.uid === fbUser.uid).slice(0, 10);
   s += '<p class="eyebrow">Your walks</p>';
   if (!mine.length) s += '<p class="empty">Nothing shared yet. Mark a summit, share a journal entry, or post something on Activity.</p>';
   else for (const p of mine) s += postHTML(p);
-  s += '<div class="btnrow" style="margin-top:14px"><button class="btn ghost" data-act="yearcard">Share my year so far</button><button class="btn quiet" data-act="fbout">Sign out</button></div>';
+  s += '<div class="btnrow" style="margin-top:14px"><button class="btn quiet" data-act="fbout">Sign out</button></div>';
   return s;
 }
 function profileEditor(){
   const d = ui.pDraftProf || (ui.pDraftProf = {name: fbName || fbUser.name || '', quote: prof.quote || '', show: prof.show || '',
-    gear: (prof.gear || []).map(g => ({...g})), banner: prof.banner || '', bfy: +prof.bfy || 50});
+    gear: (prof.gear || []).map(g => ({...g})), banner: prof.banner || '', bfy: +prof.bfy || 50,
+    vis: prof.vis || 'public', pvis: prof.pvis || 'public', hideRoute: !!prof.hideRoute});
   const earned = patches().filter(p => p.got);
   let s = '<div class="form profform">';
   s += '<div><label>Banner</label><div class="bpick">' +
@@ -9092,6 +9585,14 @@ function profileEditor(){
   s += '<div><label for="pfquote">A line of your own</label><input id="pfquote" data-act="pfquote" placeholder="It\u2019s character building." value="' + esc(d.quote) + '" maxlength="140">' +
        '<p class="mapnote" style="margin:6px 0 0">Shows under your name. 140 characters.</p></div>';
   s += '<div><label>Picture</label><div class="btnrow" style="margin:0"><button class="btn ghost sm" data-act="editavatar">' + (myAvatar() ? 'Change picture' : 'Choose a picture') + '</button></div></div>';
+  s += '<div><label>Who can see your profile</label><div class="picked visrow">' + PVIS.map(v =>
+    '<button class="pill' + ((d.vis || 'public') === v.id ? ' on' : '') + '" data-act="pfvis" data-v="' + v.id + '" aria-pressed="' + ((d.vis || 'public') === v.id) + '">' + ti(v.icon) + esc(v.label) + '</button>').join('') + '</div>' +
+    '<p class="mapnote" style="margin:6px 0 0">' + esc(visBy(PVIS, d.vis || 'public').note) + '.</p></div>';
+  s += '<div><label>New adventures go to</label><div class="picked visrow">' + VIS.map(v =>
+    '<button class="pill' + ((d.pvis || 'public') === v.id ? ' on' : '') + '" data-act="pfpvis" data-v="' + v.id + '" aria-pressed="' + ((d.pvis || 'public') === v.id) + '">' + ti(v.icon) + esc(v.label) + '</button>').join('') + '</div>' +
+    '<p class="mapnote" style="margin:6px 0 0">The default when you mark a summit or share. You can change it on each post.</p></div>';
+  s += '<div class="togglerow" style="margin:0"><div class="tinfo"><b>Keep route shapes private</b><span>Shared routes show distance and summits but never the line of the walk.</span></div>' +
+    '<button class="sw" data-act="pfhideroute" aria-pressed="' + !!d.hideRoute + '" aria-label="Keep route shapes private"></button></div>';
   s += '<div><label>Showcase patch</label>' + (earned.length
     ? '<div class="showpick">' + earned.map(p => '<button class="patch got' + (d.show === p.id ? ' picked' : '') + '" data-act="pfshow" data-v="' + esc(p.id) + '" aria-pressed="' + (d.show === p.id) + '" title="' + esc(String(p.label).replace(/&middot;/g, '·')) + '">' + patchDisc(p) + '</button>').join('') + '</div>'
     : '<p class="mapnote" style="margin:0">Earn a patch and you can pin it here.</p>') + '</div>';
@@ -9099,8 +9600,8 @@ function profileEditor(){
   d.gear.forEach((g, i) => {
     s += '<div class="grow"><select data-act="gcat" data-i="' + i + '" aria-label="Category">' +
       GEAR_CATS.map(c => '<option value="' + c.id + '"' + (g.c === c.id ? ' selected' : '') + '>' + esc(c.label) + '</option>').join('') + '</select>' +
-      '<input data-act="gname" data-i="' + i + '" placeholder="e.g. Scarpa Terra GTX" value="' + esc(g.n || '') + '" maxlength="60">' +
-      '<input data-act="gnote" data-i="' + i + '" placeholder="note (optional)" value="' + esc(g.note || '') + '" maxlength="60">' +
+      '<input data-act="gname" data-i="' + i + '" placeholder="e.g. Scarpa Terra GTX" aria-label="Item" value="' + esc(g.n || '') + '" maxlength="60">' +
+      '<input data-act="gnote" data-i="' + i + '" placeholder="note (optional)" aria-label="Note" value="' + esc(g.note || '') + '" maxlength="60">' +
       '<button class="xbtn" data-act="gdel" data-i="' + i + '" aria-label="Remove">' + ti('x') + '</button></div>';
   });
   s += (d.gear.length < 12 ? '<button class="btn ghost sm" data-act="gadd">+ Add kit</button>' : '') + '</div></div>';
@@ -9182,13 +9683,15 @@ function renderFriend(){
   let r = rows.find(x => x.uid === friendOpen.uid);
   if (!r){
     /* not on a board with me: their public card is all there is */
-    const f = allFriends().find(x => x.uid === friendOpen.uid) || friendReqs.find(x => x.uid === friendOpen.uid);
+    const f = allFriends().find(x => x.uid === friendOpen.uid) || friendReqs.find(x => x.uid === friendOpen.uid) ||
+      (personCache[friendOpen.uid] && personCache[friendOpen.uid].name ? personCache[friendOpen.uid] : null) ||
+      knownPosts().filter(x => x.uid === friendOpen.uid).map(x => ({uid:x.uid, name:x.name, av:x.av}))[0];
     if (!f) return '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>' +
-      '<p class="empty">That walker is no longer in your friends.</p>';
+      '<p class="empty">' + (personCache[friendOpen.uid] ? 'That walker has gone.' : 'Looking…') + '</p>';
     r = {...f, log:[], counts:{}};
   }
-  const accepted = friends.some(x => x.uid === friendOpen.uid);
-  const theirPosts = feed.filter(p => p.uid === friendOpen.uid).slice(0, 10);
+  const accepted = isFollowing(friendOpen.uid);
+  const theirPosts = knownPosts().filter(p => p.uid === friendOpen.uid).slice(0, 10);
   const log = (r.log || []).filter(e => BY_KEY[e.k]);
   const card = personCache[friendOpen.uid] || {};
   const pp = {...r, ...card, hills: card.hills || r.hills || 0};
@@ -9201,11 +9704,16 @@ function renderFriend(){
     .map(l => '<b>' + r.counts[l.id] + '</b> ' + esc(l.name)).join('<br>');
 
   let html = '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>';
-  html += profileHeader(pp, {sub: log.length ? 'Sharing their full log' : code ? 'Totals only' : accepted ? 'Friends' : 'On a leaderboard with you'});
+  const cardVis = card.vis || 'public';
+  const allowed = cardVis === 'public' || accepted;
+  html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : log.length ? 'Sharing their full log' : followsMe(friendOpen.uid) ? 'Follows you' : ''});
+  if (!allowed){
+    return html + '<div class="nobody"><b>' + (cardVis === 'private' ? 'This profile is private' : 'Followers only') + '</b>' +
+      '<span>' + (cardVis === 'private' ? 'Ask to follow and they can let you in.' : 'Follow to see their adventures and kit.') + '</span></div>';
+  }
   if (lists) html += '<div class="jcount plists">' + lists + '</div>';
   html += showcaseHTML(pp, false);
   html += gearHTML(pp, false);
-  if (accepted) html += '<div class="btnrow" style="margin-top:10px"><button class="btn quiet sm" data-act="unfriend" data-u="' + esc(friendOpen.uid) + '">Remove friend</button></div>';
 
   /* what they have shared with you lately */
   if (theirPosts.length){
