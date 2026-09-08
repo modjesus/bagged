@@ -595,9 +595,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pquote{margin:12px 14px 0; padding:0 0 0 30px; position:relative; font-style:italic; font-size:16px; line-height:1.4; color:var(--ink-2)}
 .pquote svg{position:absolute; left:0; top:-2px; width:22px; height:22px; color:var(--accent)}
 .pquote.empty{font-style:normal; padding:0; text-align:left; font-size:13px; color:var(--ink-3)}
-.pbody{display:flex; gap:16px; align-items:stretch; padding:0 14px}
-.pleft{flex:1; min-width:0}
-.pstats{display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 22px; margin:10px 0 0; padding:10px 0 12px; border-top:1px solid var(--line-soft)}
+.phead2{display:flex; gap:16px; align-items:center}
+.pmain{flex:1; min-width:0}
+.pbody{padding:0 14px}
+.pleft{min-width:0}
+.pstats{display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 22px; margin:8px 0 0; padding:10px 0 6px; border-top:1px solid var(--line-soft)}
+.prof + .eyebrow, .prof + .gear, .prof + p{margin-top:20px}
 .pstats div{min-width:0}
 .pstats b{display:block; font-family:var(--font-display); font-weight:500; font-size:26px; line-height:1; color:var(--accent-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.01em}
 .pstats i{display:block; font-style:normal; font-family:var(--font-ui); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-top:2px}
@@ -1718,7 +1721,7 @@ button.pstat:hover b{color:var(--accent-text)}
 .pstat.ptop b{font-size:22px; color:var(--ink)}
 .pstats .yearbtn{margin-left:auto; align-self:center}
 .pstats .yearbtn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
-.pright{flex:none; display:flex; align-items:stretch; padding:10px 0 12px}
+.pright{flex:none; display:flex; align-items:center; padding:12px 14px 0 0}
 .showsq{width:150px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center;
   background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 10px; cursor:pointer; color:var(--ink); font-family:var(--font-ui)}
 .showsq .patch{width:auto; opacity:1; filter:none}
@@ -1726,8 +1729,9 @@ button.pstat:hover b{color:var(--accent-text)}
 .showsq b{display:block; font-family:var(--font-display); font-weight:500; font-size:13px; letter-spacing:.02em; line-height:1.15}
 .showsq i{display:block; font-style:normal; font-size:10.5px; color:var(--ink-3)}
 @media (max-width:699px){
-  .pbody{flex-wrap:wrap}
-  .pright{width:100%; padding:0 0 12px}
+  .phead2{flex-wrap:wrap; gap:0}
+  .pmain{width:100%}
+  .pright{width:100%; padding:0 14px 12px}
   .showsq{width:100%; flex-direction:row; justify-content:flex-start; text-align:left; gap:12px; padding:10px 12px}
   .showsq .patch .disc{width:56px; height:56px}
   .showsq b{display:inline; margin-right:8px} .showsq i{display:inline}
@@ -9545,6 +9549,7 @@ function profileHeader(pp, opts){
     (mine ? '<button class="btn sm pedit" data-act="profedit">' + (ui.profEdit ? 'Done' : 'Edit profile') + '</button>'
           : '<span class="pedit pfollow">' + followBtn(pp.uid, true) + '</span>') +
     '</div>';
+  s += '<div class="phead2"><div class="pmain">';
   s += '<div class="pid">' +
     (pic ? '<img class="pavatar" src="' + esc(pic) + '" alt="">' : '<div class="pavatar initial">' + initial + '</div>') +
     '<div class="pname"><h2>' + esc(pp.name || 'Walker') + '</h2>' +
@@ -9560,13 +9565,14 @@ function profileHeader(pp, opts){
     (pp.top ? '<div class="pstat ptop">' + ti('waymark-mountain') + '<b>' + esc(pp.top) + '</b><i>highest so far</i></div>' : '') +
     (mine && !ui.profEdit ? '<button class="btn sm yearbtn" data-act="yearcard">' + ti('sparkles') + 'Share my year so far</button>' : '') +
     '</div>';
-  s += '</div>';
-  /* the patch you are proudest of sits beside the figures as a square card */
+  s += '</div></div></div>';   // pleft, pbody, pmain
+  /* the patch you are proudest of sits beside the name and the figures, so
+     the header is only as tall as the taller of the two */
   const show = pp.show ? patches().find(x => x.id === pp.show) : null;
   if (show) s += '<div class="pright"><button class="showsq" data-act="' + (mine ? 'gotab' : 'noop') + '" data-v="a" title="' + esc(String(show.label).replace(/&middot;/g, '·')) + '">' +
     '<span class="patch got">' + patchDisc({id:show.id, label:show.label, icon:show.icon}) + '</span>' +
     '<b>' + esc(show.label) + '</b><i>' + (mine ? esc(patchDateLine(show)) : 'Showcase patch') + '</i></button></div>';
-  s += '</div>';
+  s += '</div>';   // phead2
   return s + '</section>';
 }
 function showcaseHTML(pp, mine){
