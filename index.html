@@ -2382,6 +2382,88 @@ li.hill.bk .hrow{padding-left:2px}
 .sheetgo b{display:block; font-family:var(--font-ui); font-weight:700; font-size:15px}
 .sheetgo span{display:block; font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); margin-top:2px}
 .sheetlist .iconbtn{flex:none}
+
+/* you, with the way you are facing */
+.mehere{width:44px; height:44px; position:relative}
+.mehere .dot{position:absolute; left:50%; top:50%; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:99px; background:#2C7BE5; border:3px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.45)}
+.mehere .cone{position:absolute; left:50%; top:50%; width:0; height:0; margin:-22px 0 0 -12px; border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:22px solid rgba(44,123,229,.45); transform-origin:50% 100%; clip-path:polygon(50% 0, 100% 100%, 0 100%)}
+.mehere.nohd .cone{display:none}
+.walkpill{position:sticky; top:calc(var(--topH, 104px) + 6px); z-index:40; display:inline-flex; align-items:center; gap:8px; margin:0 0 8px; padding:8px 14px; border-radius:99px; border:1px solid #2C7BE5; background:var(--surface); color:#1E5FB8; font:700 13px/1 var(--font-ui); box-shadow:0 2px 8px -2px rgba(20,51,45,.35); cursor:pointer}
+.walkpill::before{content:""; width:8px; height:8px; border-radius:99px; background:#2C7BE5; animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.walkdone{margin:6px 0 16px; padding:14px 14px 12px; background:var(--surface); border:1px solid var(--line); border-left:3px solid #2C7BE5; border-radius:5px}
+.walkdone h3{margin:4px 0 0; font-family:var(--font-ui); font-weight:700; font-size:19px}
+.walkdone .pstrip{margin-top:8px}
+.walkhills{font-size:14px; color:var(--ink-2); margin:10px 0 0; line-height:1.45}
+.walkdone .btnrow{margin-top:12px}
+.walkdone .btn svg, .followrow .btn svg, .walkbtn svg, .proute .btn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
+.walkedrow{display:flex; align-items:center; gap:12px; margin:6px 0 2px; font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
+.followrow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:10px 0 2px}
+.followrow span{font-size:12.5px; color:var(--ink-3)}
+.proute{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+.pstrip{flex-wrap:wrap; gap:10px 18px}
+
+/* ---- on the hill: a sheet over the map ---- */
+body.guiding{overflow:hidden}
+.guide{position:fixed; inset:0; z-index:1200; background:#EFEDE6; opacity:0; transition:opacity .42s cubic-bezier(.32,.72,0,1)}
+.guide.in{opacity:1}
+.guide .gmap{position:absolute; inset:0}
+.guide .maplibregl-ctrl-bottom-left{bottom:calc(var(--gcard, 220px) + 4px); left:4px}
+.guide .maplibregl-ctrl-attrib{background:rgba(251,250,246,.72); border-radius:99px}
+/* floating islands: glass on the map, a hairline, concentric curves */
+.gisle{position:absolute; z-index:5; background:rgba(251,250,246,.72); -webkit-backdrop-filter:blur(18px) saturate(1.3); backdrop-filter:blur(18px) saturate(1.3);
+  box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 18px 40px -22px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7); border-radius:99px; color:var(--ink)}
+.gtop{position:absolute; left:14px; right:14px; top:calc(14px + env(safe-area-inset-top)); z-index:5; display:flex; align-items:center; gap:10px; pointer-events:none}
+.gtop > *{pointer-events:auto; position:relative}
+.gclose{width:46px; height:46px; border:0; display:grid; place-items:center; cursor:pointer; transition:transform .5s cubic-bezier(.32,.72,0,1)}
+.gclose:active{transform:scale(.94)}
+.gclose svg{width:22px; height:22px; stroke-width:1.5}
+.gstatus{height:46px; padding:0 18px 0 14px; display:inline-flex; align-items:center; gap:9px; font-family:var(--font-data); font-size:12.5px; letter-spacing:.02em; color:var(--ink-2)}
+.gdot{width:8px; height:8px; border-radius:99px; background:#A7BDB6; display:inline-block; transition:background .4s}
+.gdot.live{background:#2C7BE5; animation:livedot 1.8s cubic-bezier(.32,.72,0,1) infinite}
+@keyframes livedot{0%{box-shadow:0 0 0 0 rgba(44,123,229,.5)}100%{box-shadow:0 0 0 10px rgba(44,123,229,0)}}
+.gctl{right:14px; bottom:calc(var(--gcard, 220px) + 18px); padding:5px; display:flex; flex-direction:column; gap:2px}
+.gctl button{width:44px; height:44px; border:0; border-radius:99px; background:transparent; color:var(--ink); display:grid; place-items:center; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
+.gctl button:active{transform:scale(.92)}
+.gctl button svg{width:20px; height:20px; stroke-width:1.5}
+.gctl button.on{background:var(--ink); color:#F3EFE6}
+/* the sheet: an outer tray, an inner card, the curves concentric */
+.gshell{position:absolute; left:10px; right:10px; bottom:calc(10px + env(safe-area-inset-bottom)); z-index:6; padding:6px; border-radius:30px;
+  background:rgba(251,250,246,.6); -webkit-backdrop-filter:blur(22px) saturate(1.3); backdrop-filter:blur(22px) saturate(1.3);
+  box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 30px 60px -30px rgba(20,51,45,.55);
+  transform:translateY(24px); transition:transform .6s cubic-bezier(.32,.72,0,1)}
+.guide.in .gshell{transform:none}
+.gcard{background:#FBFAF6; border-radius:24px; padding:18px 20px 16px; box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 1px 2px rgba(20,51,45,.06)}
+.geyebrow{display:inline-block; padding:5px 10px 4px; border-radius:99px; background:rgba(20,51,45,.06); font:600 10px/1 var(--font-ui); letter-spacing:.2em; text-transform:uppercase; color:var(--ink-2)}
+.ghead{margin:12px 0 0; font-family:var(--font-display); font-weight:400; text-transform:uppercase; letter-spacing:.02em; font-size:clamp(26px, 7.6vw, 34px); line-height:.98; color:var(--accent-text); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; text-wrap:balance}
+.gsub{margin:8px 0 0; font-size:14.5px; line-height:1.4; color:var(--ink-2)}
+.gwarn{display:flex; justify-content:space-between; gap:12px; margin:12px 0 0; padding:10px 14px; border-radius:14px; background:#F6E7B8; color:#4E3600; font-size:13.5px; box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.gwarn b{font-family:var(--font-data); font-weight:700}
+.gstats{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin:16px 0 0; padding-top:14px; border-top:1px solid rgba(20,51,45,.08)}
+.gstats b{display:block; font-family:var(--font-data); font-weight:700; font-size:clamp(20px, 6vw, 26px); line-height:1; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+.gstats i{display:block; font-style:normal; font:600 10.5px/1.25 var(--font-ui); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.gbtns{display:flex; gap:8px; margin-top:14px}
+.gbtn{flex:1; display:inline-flex; align-items:center; justify-content:center; gap:10px; height:48px; padding:0 8px 0 18px; border-radius:99px; border:0; background:var(--ink); color:#F3EFE6; font:600 15px/1 var(--font-ui); cursor:pointer;
+  transition:transform .5s cubic-bezier(.32,.72,0,1), background .5s cubic-bezier(.32,.72,0,1)}
+.gbtn:active{transform:scale(.98)}
+.gbtn > svg{width:17px; height:17px; stroke-width:1.5}
+.gbtn em{margin-left:auto; width:32px; height:32px; border-radius:99px; background:rgba(243,239,230,.14); display:grid; place-items:center; transition:transform .5s cubic-bezier(.32,.72,0,1)}
+.gbtn em svg{width:15px; height:15px; stroke-width:1.75}
+.gbtn:hover em{transform:translateX(2px) scale(1.05)}
+.gbtn.ghost{background:rgba(20,51,45,.06); color:var(--ink); padding:0 14px; font-size:14px; white-space:nowrap}
+.gpicks{display:flex; flex-direction:column; gap:6px; margin-top:12px; max-height:38vh; overflow:auto}
+.gpick{display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:12px 14px; border:0; border-radius:16px; background:rgba(20,51,45,.05); color:var(--ink); text-align:left; font:inherit; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1)}
+.gpick.on{background:var(--ink); color:#F3EFE6}
+.gpick b{font-family:var(--font-ui); font-weight:700; font-size:15px}
+.gpick span{font-family:var(--font-data); font-size:11.5px; opacity:.75}
+.gnote{margin:10px 0 0; font-size:14px; color:var(--ink-2); line-height:1.45}
+.walkbtn svg, .followrow .btn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
+.followrow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:10px 0 2px}
+.followrow span{font-size:12.5px; color:var(--ink-3)}
+:root[data-theme="dark"] .gisle, :root[data-theme="dark"] .gshell{background:rgba(21,42,38,.7); box-shadow:0 0 0 1px rgba(243,239,230,.1), 0 18px 40px -22px rgba(0,0,0,.7)}
+:root[data-theme="dark"] .gcard{background:#152A26; box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+:root[data-theme="dark"] .gctl button.on, :root[data-theme="dark"] .gbtn, :root[data-theme="dark"] .gpick.on{background:#F3EFE6; color:#14332D}
+:root[data-theme="dark"] .gbtn em{background:rgba(20,51,45,.12)}
 </style>
 </head>
 <body>
@@ -2550,7 +2632,7 @@ const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
    compass). Paths are baked in from @tabler/icons 3.31 rather than drawn by
    hand, so every glyph in the app is from the same hand.
    https://tabler.io/icons */
-const TI = {"circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
+const TI = {"circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
 Object.assign(TI, {"backpack": "<path d=\"M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3z\"/> <path d=\"M10 6v-1a2 2 0 1 1 4 0v1\"/> <path d=\"M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4\"/> <path d=\"M11 10h2\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
 Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path d=\"M11.5 4l-.5 2\"/> <path d=\"M18 5h2\"/> <path d=\"M19 4v2\"/> <path d=\"M15 9l-1 1\"/> <path d=\"M18 13l2 -.5\"/> <path d=\"M18 19h2\"/> <path d=\"M19 18v2\"/> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z\"/>", "dog": "<path d=\"M11 5h2\"/> <path d=\"M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8\"/> <path d=\"M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z\"/> <path d=\"M12 18v2\"/> <path d=\"M10 11v.01\"/> <path d=\"M14 11v.01\"/> <path d=\"M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z\"/> <path d=\"M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z\"/>", "sunrise": "<path d=\"M3 17h1m16 0h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7m-9.7 5.7a4 4 0 0 1 8 0\"/> <path d=\"M3 21l18 0\"/> <path d=\"M12 9v-6l3 3m-6 0l3 -3\"/>", "thumb-up": "<path d=\"M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3\"/>", "bookmark": "<path d=\"M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z\"/>", "bell": "<path d=\"M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/>", "bell-ringing": "<path d=\"M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/> <path d=\"M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727\"/> <path d=\"M3 6.727a11.05 11.05 0 0 1 2.792 -3.727\"/>", "lock": "<path d=\"M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z\"/> <path d=\"M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0\"/> <path d=\"M8 11v-4a4 4 0 1 1 8 0v4\"/>", "world": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M3.6 9h16.8\"/> <path d=\"M3.6 15h16.8\"/> <path d=\"M11.5 3a17 17 0 0 0 0 18\"/> <path d=\"M12.5 3a17 17 0 0 1 0 18\"/>", "users-group": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\"/> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\"/> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\"/>", "user-plus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M16 19h6\"/> <path d=\"M19 16v6\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/>", "user-check": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/> <path d=\"M15 19l2 2l4 -4\"/>", "user-minus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128\"/> <path d=\"M16 19h6\"/>", "eye": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\"/>", "arrows-shuffle": "<path d=\"M18 4l3 3l-3 3\"/> <path d=\"M18 20l3 -3l-3 -3\"/> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\"/> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\"/>", "target": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0\"/> <path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>", "target-arrow": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 7a5 5 0 1 0 5 5\"/> <path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/> <path d=\"M15 6v3h3l3 -3h-3v-3z\"/> <path d=\"M15 9l-3 3\"/>", "bulb": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\"/> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\"/> <path d=\"M9.7 17l4.6 0\"/>", "message-circle": "<path d=\"M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1\"/>", "eye-off": "<path d=\"M10.585 10.587a2 2 0 0 0 2.829 2.828\"/> <path d=\"M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87\"/> <path d=\"M3 3l18 18\"/>"});
 TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
@@ -4332,6 +4414,21 @@ function thinTrack(pts, n){
   const step = (src.length - 1) / (n - 1);
   return Array.from({length:n}, (_, i) => src[Math.round(i * step)]);
 }
+/* A track packed as text: Firestore refuses an array of arrays, and text is
+   smaller anyway. "lat,lon;lat,lon" at five decimals, about a metre. */
+function packTrk(pts, max){
+  const src = (pts || []).filter(q => Array.isArray(q) && isFinite(q[0]) && isFinite(q[1]));
+  const use = max && src.length > max ? thinTrack(src, max) : src;
+  return use.map(q => (+q[0]).toFixed(5) + ',' + (+q[1]).toFixed(5)).join(';');
+}
+function unpackTrk(str){
+  if (!str || typeof str !== 'string') return [];
+  return str.split(';').map(p => p.split(',').map(Number)).filter(q => q.length === 2 && isFinite(q[0]) && isFinite(q[1]));
+}
+function postTrk(p){
+  if (p.trkS) return unpackTrk(p.trkS);
+  return (p.trk || []).filter(q => Array.isArray(q));
+}
 /* The shape of a walk as a line on a card — Strava's little map, without a map. */
 function routeSketch(trk, hills){
   if (!trk || trk.length < 2) return '';
@@ -4366,6 +4463,10 @@ function trackAscent(pts){
     else if (d < -3) last = p[2];
   }
   return Math.round(up);
+}
+function hm(mins){
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  return h ? h + ' h ' + String(m).padStart(2, '0') : m + ' min';
 }
 function prettyDist(m){
   const km = m / 1000, mi = km * 0.621371;
@@ -4405,6 +4506,20 @@ function downloadFile(name, text, type){
   const a = document.createElement('a');
   a.href = u; a.download = name; document.body.appendChild(a); a.click();
   setTimeout(() => { a.remove(); URL.revokeObjectURL(u); }, 1500);
+}
+/* On a phone the share sheet is the way out: a download link in an installed
+   app goes nowhere on iOS. Elsewhere a file lands in Downloads. */
+async function exportGPX(base, text){
+  const name = base.replace(/\.gpx$/i, '') + '.gpx';
+  try{
+    const file = new File([text], name, {type:'application/gpx+xml'});
+    if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:name});
+      return;
+    }
+  }catch(e){ if (e && e.name === 'AbortError') return; }
+  downloadFile(name, text);
+  toast('GPX saved: open it in your maps app.');
 }
 function safeName(s){ return (s || 'route').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'route'; }
 
@@ -5048,11 +5163,16 @@ function postHTML(p){
       '<button class="btn sm ghost" data-act="editcancel">Cancel</button></div></div>';
   } else if (p.text) s += '<p class="ptext">' + esc(p.text) + '</p>';
 
-  if (p.kind === 'route' && (p.trk || []).length > 1){
-    s += '<div class="psketchwrap">' + routeSketch(p.trk, p.hills) + '</div>';
-    s += '<div class="pstrip"><div><b>' + esc(prettyDist(p.dist || 0)) + '</b><i>distance</i></div>' +
-      (hs.length ? '<div><b>' + hs.length + '</b><i>' + (hs.length === 1 ? 'summit' : 'summits') + '</i></div>' +
-      '<div><b>' + (unitsPref() === 'm' ? hs.reduce((a, b) => b.h > a.h ? b : a, hs[0]).h.toLocaleString() + ' m' : feet(hs.reduce((a, b) => b.h > a.h ? b : a, hs[0])) + ' ft') + '</b><i>highest</i></div>' : '') + '</div>';
+  const ptrk = p.kind === 'route' ? postTrk(p) : [];
+  if (p.kind === 'route' && ptrk.length > 1){
+    s += '<div class="psketchwrap">' + routeSketch(ptrk, p.hills) + '</div>';
+    const pd = p.dist || trackLength(ptrk);
+    s += '<div class="pstrip"><div><b>' + (unitsPref() === 'm' ? (pd / 1000).toFixed(1) + ' km' : (pd / 1609.344).toFixed(1) + ' mi') + '</b><i>distance</i></div>' +
+      (p.asc ? '<div><b>' + (unitsPref() === 'm' ? p.asc.toLocaleString() + ' m' : Math.round(p.asc * 3.28084).toLocaleString() + ' ft') + '</b><i>climbing</i></div>' : '') +
+      (p.mins ? '<div><b>' + hm(p.mins) + '</b><i>time</i></div>' : '') +
+      (hs.length ? '<div><b>' + hs.length + '</b><i>' + (hs.length === 1 ? 'summit' : 'summits') + '</i></div>' : '') + '</div>';
+    s += '<div class="proute"><button class="btn sm ghost" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' +
+      '<button class="btn sm ghost" data-act="postcopy" data-id="' + esc(p.id) + '">' + ti('route') + 'Add to my routes</button></div>';
   }
   s += condPills(p.conds);
 
@@ -5457,7 +5577,8 @@ function renderMapTab(){
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
   html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">All my lists</button>';
   html += '<button data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope==='one') + '">' + esc(LIST_BY[ui.list].name) + ' only</button>';
-  html += '</div>' + styleSwitcher() + '</div>';
+  html += '</div>' + styleSwitcher() +
+    (coarsePointer() ? '<button class="btn walkbtn" data-act="guide">' + ti('current-location') + 'Where am I</button>' : '') + '</div>';
   /* The same search as the planner: hills instantly from our own data, then
      pubs, car parks and villages from anywhere. Finding a place on a map of
      1,300 hills should not mean pinching around looking for it. */
@@ -5629,15 +5750,19 @@ function lineFeature(pts, props){
 
 /* ---- the base map under it all ---- */
 function makeMap(box, at, opts){
+  opts = opts || {};
+  const noSheet = !!opts.noSheet, bare = !!opts.bare; delete opts.noSheet; delete opts.bare;
   const m = new maplibregl.Map(Object.assign({
     container:box, style:blankStyle(), center:[-3.1, 54.45], zoom:9, minZoom:5, maxZoom:17,
     attributionControl:false, keyboard:!coarsePointer(), dragRotate:false, pitchWithRotate:false,
     touchPitch:false, maxPitch:0, transformRequest:osRequest, fadeDuration:120
   }, opts || {}));
   m.touchZoomRotate.disableRotation();
-  m.addControl(new maplibregl.AttributionControl({compact:true}), 'bottom-right');
-  m.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-left');
-  locateControl(m);
+  m.addControl(new maplibregl.AttributionControl({compact:true}), bare ? 'bottom-left' : 'bottom-right');
+  if (!bare){
+    m.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-left');
+    locateControl(m, !noSheet);
+  }
   m.__bad = 0; m.__good = 0;
   m.on('error', e => osTrouble(m, e));
   m.on('sourcedata', e => { if (e.sourceId === 'esri' && e.tile) m.__good++; });
@@ -5830,7 +5955,7 @@ function drawMarkers(){
   const lines = [];
   for (const p of livePlans()){
     if (!p.trk || p.trk.length < 2) continue;
-    lines.push(lineFeature(p.trk, {name:p.name || 'Route', sub:prettyDist(trackLength(p.trk)), col:'#A8431A', w:4, cw:7, dash:0}));
+    lines.push(lineFeature(p.trk, {name:p.name || 'Route', sub:prettyDist(trackLength(p.trk)), col:p.walked ? '#2C7BE5' : '#A8431A', w:4, cw:7, dash:0}));
   }
   setData(map, 'wm-lines', {type:'FeatureCollection', features:lines});
   paintHills(map, mapMarks, mapHills(), (mk, h) => openPopup(mk, h, map), false);
@@ -5956,7 +6081,7 @@ const POI_KINDS = {
     q:['nwr["amenity"="parking"]'],
     icon:TI["parking"]},
   pub: {label:'Pubs & inns', short:'Pub', on:true,
-    q:['nwr["amenity"~"^(pub|bar|biergarten)$"]', 'nwr["tourism"="hotel"]["real_ale"]'],
+    q:['nwr["amenity"~"^(pub|bar|biergarten)$"]', 'nwr["tourism"~"^(hotel|guest_house)$"]'],
     icon:TI["beer"]},
   food: {label:'Café & food', short:'Café', on:false,
     q:['nwr["amenity"~"^(cafe|restaurant|fast_food)$"]'],
@@ -5998,20 +6123,39 @@ function setPlaces(on){
    between a wait and a blink. */
 const POI_QUERY = [
   'nwr["amenity"~"^(parking|pub|bar|biergarten|cafe|restaurant|toilets|drinking_water|shelter|bus_station)$"]',
-  'nwr["tourism"~"^(camp_site|caravan_site|hostel|alpine_hut|wilderness_hut|information)$"]',
+  'nwr["tourism"~"^(camp_site|caravan_site|hostel|alpine_hut|wilderness_hut|information|hotel|guest_house)$"]',
   'nwr["highway"="bus_stop"]',
   'nwr["railway"="station"]'
 ];
 
 let poiSeen = new Map();
-setTimeout(() => { try{ seedSheetPois(); }catch(e){} }, 0);
 let poiBoxes = [];
+/* What Overpass said last time is kept for a week, so the places are on the
+   map the moment it opens and the network only fills in what is new. */
+const POI_STORE = 'waymark.pois', POI_TTL = 7 * 86400e3;
+function keepPois(){
+  try{
+    const list = [...poiSeen.values()].slice(-1500);
+    localStorage.setItem(POI_STORE, JSON.stringify({t:Date.now(), list, boxes:poiBoxes.slice(-14)}));
+  }catch(e){}
+}
+function loadPois(){
+  try{
+    const j = JSON.parse(localStorage.getItem(POI_STORE) || 'null');
+    if (!j || Date.now() - j.t > POI_TTL) return;
+    for (const p of j.list || []) poiSeen.set(p.id, p);
+    /* boxes count as answered only for the first minutes offline; online a
+       fresh answer replaces them as you pan */
+    if (!navigator.onLine) for (const b of j.boxes || []) poiBoxes.push(b);
+  }catch(e){}
+}
+setTimeout(() => { try{ loadPois(); seedSheetPois(); }catch(e){} }, 0);
 let poiBusy = false, poiErr = '', poiTimer = null;
 
 /* kumi.systems first: it is consistently the quicker of the public mirrors. */
 const POI_MIRRORS = [
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter'
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass-api.de/api/interpreter'
 ];
 let poiMirror = 0;
 
@@ -6020,10 +6164,13 @@ function boxCovered(b){
 }
 
 async function fetchPois(bounds){
-  const pad = 0.01;                       // just past the edge, not a whole county
-  const b = {s:+(bounds.getSouth() - pad).toFixed(3), w:+(bounds.getWest() - pad).toFixed(3),
-             n:+(bounds.getNorth() + pad).toFixed(3), e:+(bounds.getEast() + pad).toFixed(3)};
-  if ((b.n - b.s) > 0.45 || (b.e - b.w) > 0.7){ poiErr = 'zoom'; return; }
+  /* Ask for more than the view: half a view again each way, so the next pan
+     is already answered instead of a new round trip to Overpass. */
+  const vh = bounds.getNorth() - bounds.getSouth(), vw = bounds.getEast() - bounds.getWest();
+  if (vh > 0.45 || vw > 0.7){ poiErr = 'zoom'; return; }
+  const ph = Math.min(vh * .5, (0.45 - vh) / 2), pw = Math.min(vw * .5, (0.7 - vw) / 2);
+  const b = {s:+(bounds.getSouth() - ph).toFixed(3), w:+(bounds.getWest() - pw).toFixed(3),
+             n:+(bounds.getNorth() + ph).toFixed(3), e:+(bounds.getEast() + pw).toFixed(3)};
   if (boxCovered(b)) return;
   if (poiBusy) return;
 
@@ -6031,7 +6178,7 @@ async function fetchPois(bounds){
   /* 15s not 25: a slow answer is no use to somebody moving the map, and failing
      fast lets the other mirror have a go. */
   const ql = '[out:json][timeout:15];(' +
-    POI_QUERY.map(q => q + bbox + ';').join('') + ');out center tags 200;';
+    POI_QUERY.map(q => q + bbox + ';').join('') + ');out center tags qt 300;';
 
   poiBusy = true; poiErr = '';
   paintPoiBar();
@@ -6066,6 +6213,7 @@ async function fetchPois(bounds){
     }
     poiBoxes.push(b);
     if (poiBoxes.length > 14) poiBoxes.shift();
+    keepPois();
   }catch(e){
     poiErr = String((e && e.message) || e);
   }
@@ -6082,7 +6230,7 @@ function poiKindOf(t){
   if (a === 'shelter') return 'camp';
   if (/^(camp_site|caravan_site|hostel|alpine_hut|wilderness_hut)$/.test(to)) return 'camp';
   if (to === 'information') return 'info';
-  if (to === 'hotel') return 'pub';
+  if (to === 'hotel' || to === 'guest_house') return 'pub';
   if (t.highway === 'bus_stop' || a === 'bus_station' || t.railway === 'station') return 'transport';
   return null;
 }
@@ -6198,7 +6346,7 @@ function poiRefresh(){
     await fetchPois(rmap.getBounds());
     drawPois();
     paintPoiBar();
-  }, 400);
+  }, 250);
 }
 
 function poiStateText(){
@@ -6404,10 +6552,10 @@ class LocateCtl {
   }
   onRemove(){ if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div); }
 }
-function locateControl(m){
+function locateControl(m, withSheet){
   if (!m) return;
   m.addControl(new LocateCtl(m), 'top-left');
-  if (sheetsOk()) m.addControl(new SheetCtl(m), 'top-left');
+  if (withSheet && sheetsOk()) m.addControl(new SheetCtl(m), 'top-left');
 }
 /* the same on the map: tear this sheet out to keep */
 class SheetCtl {
@@ -6601,10 +6749,23 @@ function rmDraw(){
     const mk = domMarker(rmap, rmMarks, '<div class="wp' + (i === 0 ? ' wpa' : last ? ' wpb' : '') + '">' + (i + 1) + '</div>',
       'wpwrap', 26, 26, c[0], c[1], {draggable:true});
     const el = mk.getElement();
-    el.title = 'Point ' + (i + 1) + ': drag to move, tap to remove';
+    el.title = i === 0 && editor.wp.length >= 2 ? 'Start: tap to close the loop, drag to move' : 'Point ' + (i + 1) + ': drag to move, tap to remove';
     el.style.zIndex = 6;
     mk.on('dragend', () => rmMove(i, mk.getLngLat()));
-    el.addEventListener('click', e => { e.stopPropagation(); if (!mk.__dragged) rmRemove(i); mk.__dragged = false; });
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      if (mk.__dragged){ mk.__dragged = false; return; }
+      /* Tapping the start with a line already drawn closes the loop: that is
+         what a walker means by it. Undo takes the closing leg off again. */
+      if (i === 0 && editor.wp.length >= 2){
+        const a = editor.wp[0], z = editor.wp[editor.wp.length - 1];
+        if (a[0] === z[0] && a[1] === z[1]){ toast('The loop is already closed. Undo removes the last leg.'); return; }
+        editor.wp.push([a[0], a[1]]); editor.dirty = true; rmRecompute();
+        toast('Loop closed: back to the start.');
+        return;
+      }
+      rmRemove(i);
+    });
     mk.on('dragstart', () => { mk.__dragged = true; });
   });
 }
@@ -6621,6 +6782,269 @@ function drawMapSummits(){
   drawSearchPin(rmap, rmMarks);
 }
 
+/* ---------- on the hill ----------
+   Not a tracker: a web app cannot listen to the GPS once the phone is locked,
+   so nothing here pretends to. This is the sheet you pull out when you are
+   unsure: where you are on the OS map, which way you are facing, how far the
+   route is if you have wandered off it, and what the nearest top is. Open it,
+   look, lock the phone, walk on. */
+let guideOpen = false, guidePlan = '', guideWatch = null, guideFix = null, guideErr = '', guideFollow = true;
+let gmap = null, gmapMarks = [], gmark = null, guidePick = false, guideLock = null;
+const GUIDE_KEY = 'waymark.guide';
+
+function guideRoute(){
+  if (!guidePlan) return null;
+  const p = planById(guidePlan);
+  return p && p.trk && p.trk.length > 1 ? p.trk : null;
+}
+function openGuide(planId){
+  if (!navigator.geolocation){ toast('This browser cannot do location.'); return; }
+  if (planId != null && planId !== '') guidePlan = planId;
+  else if (!guidePlan){ try{ guidePlan = localStorage.getItem(GUIDE_KEY) || ''; }catch(e){} }
+  if (guidePlan && !planById(guidePlan)) guidePlan = '';
+  try{ localStorage.setItem(GUIDE_KEY, guidePlan); }catch(e){}
+  guideOpen = true; guideFollow = true; guidePick = false;
+  startGuideWatch();
+  syncGuide();
+}
+function closeGuide(){
+  guideOpen = false; guidePick = false;
+  stopGuideWatch();
+  syncGuide();
+}
+function setGuideRoute(id){
+  guidePlan = id || '';
+  try{ localStorage.setItem(GUIDE_KEY, guidePlan); }catch(e){}
+  guidePick = false;
+  if (guideFix) guideJudge();
+  syncGuide();
+  const r = guideRoute();
+  if (r && gmap && !guideFix) fitTo(gmap, r, 60, 15);
+}
+function startGuideWatch(){
+  if (guideWatch != null || !navigator.geolocation) return;
+  guideErr = '';
+  guideWatch = navigator.geolocation.watchPosition(onGuideFix, e => {
+    guideErr = e.code === 1 ? 'Location is blocked for this site' : e.code === 3 ? 'Waiting for a fix' : 'Location unavailable';
+    paintGuide();
+  }, {enableHighAccuracy:true, maximumAge:0, timeout:30000});
+  keepGuideAwake();
+}
+function stopGuideWatch(){
+  if (guideWatch != null && navigator.geolocation) navigator.geolocation.clearWatch(guideWatch);
+  guideWatch = null;
+  if (guideLock){ try{ guideLock.release(); }catch(e){} guideLock = null; }
+}
+async function keepGuideAwake(){
+  try{ if ('wakeLock' in navigator && !guideLock) guideLock = await navigator.wakeLock.request('screen'); }catch(e){}
+}
+document.addEventListener('visibilitychange', () => {
+  if (guideOpen && document.visibilityState === 'visible'){ guideLock = null; keepGuideAwake(); }
+});
+function onGuideFix(pos){
+  const c = pos.coords;
+  const prev = guideFix;
+  const hd = c.heading != null && isFinite(c.heading) && c.speed > 0.4 ? c.heading
+           : (prev && metresBetween(prev.la, prev.lo, c.latitude, c.longitude) > 4 ? bearing(prev.la, prev.lo, c.latitude, c.longitude) : (prev ? prev.hd : null));
+  guideFix = {la:c.latitude, lo:c.longitude, acc:c.accuracy, ele:(c.altitude != null && isFinite(c.altitude)) ? Math.round(c.altitude) : null, hd, t:Date.now()};
+  guideErr = '';
+  guideJudge();
+  drawGuide();
+  paintGuide();
+}
+/* what the fix means: how far along and off the route, the nearest top, the way to it */
+function guideJudge(){
+  const f = guideFix; if (!f) return;
+  const r = guideRoute();
+  f.route = null;
+  if (r){
+    const pr = routeProgress(r, f.la, f.lo);
+    const cum = routeCum(r), total = cum[cum.length - 1];
+    f.route = {off:pr.off, along:pr.along, left:Math.max(0, total - pr.along), total, toward:bearing(f.la, f.lo, pr.near[0], pr.near[1]),
+               nextTop:nextSummit(r, pr.along, f)};
+  }
+  const near = nearestHill(f.la, f.lo);
+  f.near = near ? {h:near.h, d:near.d, brg:bearing(f.la, f.lo, near.h.a, near.h.o)} : null;
+}
+/* the next summit the route passes, measured along the line, not as the crow flies */
+function nextSummit(r, along, f){
+  const cum = routeCum(r);
+  let best = null;
+  for (const k of summitsOn(r)){
+    const h = BY_KEY[k]; if (!h) continue;
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < r.length; i++){ const d = Math.abs(r[i][0] - h.a) + Math.abs(r[i][1] - h.o) * Math.cos(h.a * Math.PI / 180); if (d < bd){ bd = d; bi = i; } }
+    const at = cum[bi];
+    if (at + 150 < along) continue;                 // already passed it
+    if (!best || at < best.at) best = {h, at, d:Math.max(0, at - along)};
+  }
+  return best;
+}
+function bearing(la1, lo1, la2, lo2){
+  const f1 = la1 * Math.PI / 180, f2 = la2 * Math.PI / 180, dl = (lo2 - lo1) * Math.PI / 180;
+  const y = Math.sin(dl) * Math.cos(f2), x = Math.cos(f1) * Math.sin(f2) - Math.sin(f1) * Math.cos(f2) * Math.cos(dl);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+function compass(b){ return ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(b / 45) % 8]; }
+function routeCum(r){
+  if (r.__cum && r.__cum.length === r.length) return r.__cum;
+  const cum = [0];
+  for (let i = 1; i < r.length; i++) cum.push(cum[i - 1] + metresBetween(r[i-1][0], r[i-1][1], r[i][0], r[i][1]));
+  r.__cum = cum;
+  return cum;
+}
+function routeProgress(r, la, lo){
+  const cum = routeCum(r);
+  const kx = Math.cos(la * Math.PI / 180) * 111320, ky = 110540;
+  let best = {off:Infinity, along:0, near:[r[0][0], r[0][1]]};
+  for (let i = 1; i < r.length; i++){
+    const ax = (r[i-1][1] - lo) * kx, ay = (r[i-1][0] - la) * ky, bx = (r[i][1] - lo) * kx, by = (r[i][0] - la) * ky;
+    const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+    let u = L2 ? -(ax * dx + ay * dy) / L2 : 0; u = Math.max(0, Math.min(1, u));
+    const px = ax + u * dx, py = ay + u * dy, d = Math.sqrt(px * px + py * py);
+    if (d < best.off) best = {off:d, along:cum[i-1] + u * (cum[i] - cum[i-1]), near:[r[i-1][0] + u * (r[i][0] - r[i-1][0]), r[i-1][1] + u * (r[i][1] - r[i-1][1])]};
+  }
+  return best;
+}
+function gDist(m){
+  if (unitsPref() === 'm') return m < 950 ? Math.round(m / 10) * 10 + ' m' : (m / 1000).toFixed(1) + ' km';
+  const mi = m / 1609.344;
+  return mi < 0.19 ? Math.round(m * 3.28084 / 50) * 50 + ' ft' : mi.toFixed(1) + ' mi';
+}
+function gHeight(m){ return unitsPref() === 'm' ? m.toLocaleString() + ' m' : Math.round(m * 3.28084).toLocaleString() + ' ft'; }
+
+/* ---- the sheet ---- */
+function guideHTML(){
+  const r = guideRoute(), p = guidePlan ? planById(guidePlan) : null, f = guideFix;
+  let s = '<div id="guidemap" class="gmap"></div>';
+  s += '<div class="gtop"><button class="gisle gclose" data-act="guideclose" aria-label="Back to WayMark">' + ti('chevron-down') + '</button>' +
+       '<div class="gisle gstatus" id="g-status">' + guideStatusHTML() + '</div></div>';
+  s += '<div class="gisle gctl"><button data-act="guidezoom" data-v="1" aria-label="Zoom in">' + ti('plus') + '</button>' +
+       '<button data-act="guidezoom" data-v="-1" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>' +
+       '<button data-act="guidecentre" id="g-centre" class="on" aria-label="Centre on me">' + ti('current-location') + '</button></div>';
+  s += '<div class="gshell"><div class="gcard" id="g-card">' + guideCardHTML() + '</div></div>';
+  return s;
+}
+function guideStatusHTML(){
+  const f = guideFix;
+  if (guideErr) return '<i class="gdot"></i>' + esc(guideErr);
+  if (!f) return '<i class="gdot"></i>Finding you';
+  return '<i class="gdot live"></i>GPS &plusmn;' + Math.round(f.acc) + ' m';
+}
+function guideCardHTML(){
+  const r = guideRoute(), p = guidePlan ? planById(guidePlan) : null, f = guideFix;
+  let s = '';
+  if (guidePick){
+    const routes = livePlans().filter(x => x.trk && x.trk.length > 1);
+    s += '<div class="geyebrow">Follow a route</div>';
+    if (!routes.length) s += '<p class="gnote">No drawn routes yet. Plot one on Plan a walk, or import a GPX, and it shows here.</p>';
+    else s += '<div class="gpicks">' + routes.map(x => '<button class="gpick' + (x.id === guidePlan ? ' on' : '') + '" data-act="guideroute" data-id="' + esc(x.id) + '"><b>' + esc(x.name || 'Route') + '</b><span>' + gDist(trackLength(x.trk)) + (x.date ? ' &middot; ' + esc(prettyDate(x.date).replace(/ \d{4}$/, '')) : '') + '</span></button>').join('') + '</div>';
+    s += '<div class="gbtns"><button class="gbtn ghost" data-act="guideroute" data-id="">' + (guidePlan ? 'Stop following' : 'Just show me') + '</button><button class="gbtn ghost" data-act="guidepick">Back</button></div>';
+    return s;
+  }
+  if (r){
+    const rf = f && f.route;
+    s += '<div class="geyebrow">Following</div>';
+    s += '<h2 class="ghead">' + esc(p.name || 'Route') + '</h2>';
+    if (rf && rf.off > 120){
+      s += '<div class="gwarn"><span>Off the route by <b>' + gDist(rf.off) + '</b></span><span>It is to the <b>' + compass(rf.toward) + '</b></span></div>';
+    }
+    s += '<div class="gstats">' +
+      '<div><b>' + (rf ? gDist(rf.left) : '–') + '</b><i>to go</i></div>' +
+      '<div><b>' + (rf && rf.nextTop ? gDist(rf.nextTop.d) : '–') + '</b><i>' + (rf && rf.nextTop ? 'to ' + esc(hillName(rf.nextTop.h)) : 'next top') + '</i></div>' +
+      '<div><b>' + (f && f.ele != null ? gHeight(f.ele) : '–') + '</b><i>height</i></div></div>';
+    s += '<div class="gbtns"><button class="gbtn" data-act="guidepick">' + ti('route') + 'Change route<em>' + ti('chevron-right') + '</em></button></div>';
+  } else {
+    s += '<div class="geyebrow">Where am I</div>';
+    const n = f && f.near;
+    s += '<h2 class="ghead">' + (n ? esc(hillName(n.h)) : 'Finding you') + '</h2>';
+    if (n) s += '<p class="gsub">' + gDist(n.d) + ' to the ' + compass(n.brg) + ', the nearest top' + (isBagged(n.h.k) ? ', marked' : '') + '.</p>';
+    else s += '<p class="gsub">Stand in the open for a moment while the phone finds you.</p>';
+    s += '<div class="gstats">' +
+      '<div><b>' + (f && f.ele != null ? gHeight(f.ele) : '–') + '</b><i>height</i></div>' +
+      '<div><b>' + (n ? gHeight(n.h.h) : '–') + '</b><i>' + (n ? esc(hillName(n.h)) : 'nearest top') + '</i></div>' +
+      '<div><b>' + (f ? compass(f.hd == null ? 0 : f.hd) : '–') + '</b><i>facing</i></div></div>';
+    s += '<div class="gbtns"><button class="gbtn" data-act="guidepick">' + ti('route') + 'Follow a route<em>' + ti('chevron-right') + '</em></button></div>';
+  }
+  return s;
+}
+/* the overlay lives outside the page, so the app underneath is untouched */
+function syncGuide(){
+  let el = document.getElementById('guide');
+  if (!guideOpen){
+    if (el){ el.classList.remove('in'); setTimeout(() => { const g = document.getElementById('guide'); if (g && !guideOpen) g.remove(); }, 420); }
+    if (gmap){ gmap.remove(); gmap = null; gmark = null; gmapMarks = []; }
+    document.body.classList.remove('guiding');
+    return;
+  }
+  if (!el){
+    el = document.createElement('div'); el.id = 'guide'; el.className = 'guide';
+    document.body.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
+  }
+  document.body.classList.add('guiding');
+  el.innerHTML = guideHTML();
+  sizeGuideCard();
+  mountGuideMap();
+}
+function sizeGuideCard(){
+  const el = document.getElementById('guide'), card = el && el.querySelector('.gshell');
+  if (card) el.style.setProperty('--gcard', card.offsetHeight + 'px');
+}
+function paintGuide(){
+  if (!guideOpen) return;
+  const st = document.getElementById('g-status'); if (st) st.innerHTML = guideStatusHTML();
+  const card = document.getElementById('g-card');
+  if (card && !guidePick){ const h = guideCardHTML(); if (card.__h !== h){ card.__h = h; card.innerHTML = h; sizeGuideCard(); } }
+  const c = document.getElementById('g-centre'); if (c) c.classList.toggle('on', guideFollow);
+}
+function mountGuideMap(){
+  const box = document.getElementById('guidemap');
+  if (!box) return;
+  if (!ML() || !webglOk()){ box.innerHTML = '<p class="empty">The map cannot draw here.</p>'; return; }
+  if (gmap && gmap.getContainer() !== box){ gmap.remove(); gmap = null; gmark = null; gmapMarks = []; }
+  if (!gmap){
+    const r = guideRoute();
+    const at = guideFix ? {la:guideFix.la, lo:guideFix.lo} : (r ? {la:r[0][0], lo:r[0][1]} : null);
+    gmap = makeMap(box, at, {zoom:14, bare:true});
+    guardMapTaps(box);
+    if (guideFix) goTo(gmap, guideFix.la, guideFix.lo, 15);
+    else if (r) fitTo(gmap, r, 60, 15);
+    gmap.on('dragstart', () => { guideFollow = false; paintGuide(); });
+    gmap.on('moveend', () => paintHills(gmap, gmapMarks, mapHills(), (mk, h) => openPopup(mk, h, gmap), false));
+    gmap.once('style.load', () => setTimeout(drawGuide, 50));
+    gmap.once('load', () => setTimeout(() => document.querySelectorAll('#guide .maplibregl-compact-show').forEach(e => e.classList.remove('maplibregl-compact-show')), 400));
+    paintHills(gmap, gmapMarks, mapHills(), (mk, h) => openPopup(mk, h, gmap), false);
+  } else {
+    setTimeout(() => gmap.resize(), 60);
+    drawGuide();
+  }
+}
+function drawGuide(){
+  if (!gmap) return;
+  const r = guideRoute(), f = guideFix;
+  const lines = [];
+  if (r) lines.push(lineFeature(r, {name:'', sub:'', col:'#A8431A', w:5, cw:9, dash:0}));
+  /* the way back to the line, drawn as a short dashed leg */
+  if (r && f && f.route && f.route.off > 120){
+    const pr = routeProgress(r, f.la, f.lo);
+    lines.push(lineFeature([[f.la, f.lo], pr.near], {name:'', sub:'', col:'#B8860B', w:3, cw:5, dash:1}));
+  }
+  setData(gmap, 'wm-lines', {type:'FeatureCollection', features:lines});
+  if (f){
+    setData(gmap, 'wm-here', {type:'FeatureCollection', features:[ringFeature(f.la, f.lo, Math.max(15, Math.min(400, f.acc || 0)))]});
+    if (!gmark){
+      const el = document.createElement('div'); el.className = 'mehere';
+      el.innerHTML = '<i class="cone"></i><i class="dot"></i>';
+      gmark = new maplibregl.Marker({element:el, anchor:'center', rotationAlignment:'map', pitchAlignment:'map'}).setLngLat([f.lo, f.la]).addTo(gmap);
+      el.style.zIndex = 7;
+    } else gmark.setLngLat([f.lo, f.la]);
+    gmark.setRotation(f.hd == null ? 0 : f.hd);
+    gmark.getElement().classList.toggle('nohd', f.hd == null);
+    if (guideFollow) gmap.easeTo({center:[f.lo, f.la], duration:600, easing:t => 1 - Math.pow(1 - t, 3)});
+  }
+}
+
 /* ---------- tear-out sheets: the map, kept for the hill ----------
    Save the view you are looking at and its tiles are stored on the phone, so
    the map draws with no signal. A sheet is every OS tile from zoom 6 to 15
@@ -6634,7 +7058,7 @@ let sheetJob = null;
 
 function sheets(){ try{ return JSON.parse(localStorage.getItem(SHEETS_KEY) || '[]'); }catch(e){ return []; } }
 function saveSheets(l){ try{ localStorage.setItem(SHEETS_KEY, JSON.stringify(l)); }catch(e){} }
-function sheetsOk(){ return !!(window.caches && window.isSecureContext); }
+function sheetsOk(){ return !!(window.caches && window.isSecureContext) && coarsePointer(); }
 
 function tileRange(b, z){
   const n = 2 ** z;
@@ -7344,6 +7768,7 @@ function renderPlans(){
     '<button class="btn ghost' + (poiShow ? ' on' : '') + '" data-act="places" aria-pressed="' + poiShow + '">' +
       (poiShow ? '\u2713 Places' : 'Places') + '</button>' +
     styleSwitcher() +
+    (coarsePointer() && !editor ? '<button class="btn walkbtn" data-act="guide">' + ti('current-location') + 'Where am I</button>' : '') +
     '</div>';
   html += '<p class="poistate" id="poistate">' + poiStateText() + '</p>';
 
@@ -7410,10 +7835,9 @@ function planCardHTML(p){
       (renaming ? 'Done' : 'Rename') + '</button>' +
     ((p.trk && p.trk.length > 1 && fbUser) ? '<button class="linkbtn" data-act="shareroute" data-id="' + esc(p.id) + '">Share</button>' : '') +
     '<button class="linkbtn" data-act="delplan" data-id="' + esc(p.id) + '">Delete</button></div>';
-  if (renaming)
-    html += '<div class="plannoteedit"><label for="pnote-' + esc(p.id) + '">Notes</label>' +
-      '<textarea id="pnote-' + esc(p.id) + '" data-act="plannote" data-id="' + esc(p.id) +
-      '" placeholder="Parking, escape routes, who is coming\u2026">' + esc(p.notes || '') + '</textarea></div>';
+  if (coarsePointer() && p.trk && p.trk.length > 1)
+    html += '<div class="followrow"><button class="btn sm" data-act="guide" data-id="' + esc(p.id) + '">' + ti('current-location') + 'Follow on the hill</button>' +
+            '<span>Your position on the OS map against this route.</span></div>';
   html += '<div class="planmeta">';
   if (p.date) html += '<span>' + esc(prettyDate(p.date)) + '</span>';
   html += '<span>' + hs.length + ' hill' + (hs.length===1?'':'s') + '</span>';
@@ -7969,10 +8393,24 @@ document.addEventListener('click', async e => {
     const pl = livePlans().find(x => x.id === el.dataset.id); if (!pl) return;
     if (!FB || !fbUser){ toast('Sign in on Hikers to share a route.'); return; }
     try{
-      const trk = prof.hideRoute ? [] : thinTrack(pl.trk || [], 80);
-      await createPost({kind:'route', text:(pl.name || 'A route') + (pl.notes ? '\n\n' + pl.notes : ''), hills:(pl.hills || []).slice(0, 12), date:pl.date || today(), tags:[], trk, dist: trk.length > 1 ? Math.round(trackLength(pl.trk)) : 0});
+      const trk = prof.hideRoute ? [] : (pl.trk || []);
+      await createPost({kind:'route', text:(pl.name || 'A route') + (pl.notes ? '\n\n' + pl.notes : ''), hills:(pl.hills || []).slice(0, 12), date:pl.date || today(), tags:[], trk,
+        dist: trk.length > 1 ? Math.round(trackLength(pl.trk)) : 0, asc: pl.asc || trackAscent(pl.trk || []) || 0, mins: pl.mins || 0});
       toast('Route shared to Activity.');
     }catch(e){ toast(fbWhy(e)); }
+  }
+  else if (a === 'postgpx'){
+    const p = knownPosts().find(x => x.id === el.dataset.id); if (!p) return;
+    const trk = postTrk(p); if (trk.length < 2){ toast('No track on this post.'); return; }
+    exportGPX(safeName((p.name || 'walker') + '-' + (p.text || 'route').split('\n')[0].slice(0, 40)), buildGPX({name:(p.text || 'Route').split('\n')[0], hills:p.hills || [], trk}));
+  }
+  else if (a === 'postcopy'){
+    const p = knownPosts().find(x => x.id === el.dataset.id); if (!p) return;
+    const trk = postTrk(p); if (trk.length < 2){ toast('No track on this post.'); return; }
+    const name = ((p.text || 'Route').split('\n')[0].slice(0, 60)) + (p.name ? ' (' + p.name + ')' : '');
+    state.plans.push({id:'p' + uid(), name, date:'', notes:'From ' + (p.name || 'a walker') + ' on Activity.', hills:summitsOn(trk),
+                      trk, wp:[], snap:false, deleted:false, t:now()});
+    touched(); toast('Added to your routes: ' + name + '.');
   }
   else if (a === 'editpost'){
     const p = knownPosts().find(x => x.id === el.dataset.id); if (!p) return;
@@ -8203,6 +8641,12 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'verify'){ verifyHere(el.dataset.k); }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
+  else if (a === 'guide'){ openGuide(el.dataset.id != null ? el.dataset.id : null); }
+  else if (a === 'guideclose'){ closeGuide(); }
+  else if (a === 'guidezoom'){ if (gmap) gmap.easeTo({zoom: gmap.getZoom() + (+el.dataset.v), duration:260, easing:t => 1 - Math.pow(1 - t, 3)}); }
+  else if (a === 'guidecentre'){ guideFollow = true; drawGuide(); paintGuide(); }
+  else if (a === 'guidepick'){ guidePick = !guidePick; syncGuide(); }
+  else if (a === 'guideroute'){ setGuideRoute(el.dataset.id || ''); }
   else if (a === 'sheetsave'){ saveSheet(); }
   else if (a === 'sheetdel'){ deleteSheet(el.dataset.v); }
   else if (a === 'sheetgo'){ goSheet(el.dataset.v); }
@@ -8307,8 +8751,7 @@ document.addEventListener('click', async e => {
   else if (a === 'gpxout'){
     const p = planById(el.dataset.id); if (!p) return;
     if (!(p.hills || []).length && !(p.trk || []).length){ toast('Nothing in this route to export yet.'); return; }
-    downloadFile(safeName(p.name) + '.gpx', buildGPX(p));
-    toast('GPX saved: open it in Organic Maps.');
+    exportGPX(safeName(p.name), buildGPX(p));
   }
   else if (a === 'cleartrk'){
     const p = planById(el.dataset.id); if (!p) return;
@@ -9931,7 +10374,7 @@ async function audienceFor(tagUids){
   return [...set].slice(0, AUD_CAP);
 }
 
-async function createPost({kind, text, hills, date, tags, shots, patch, conds, trk, dist, vis, goal}){
+async function createPost({kind, text, hills, date, tags, shots, patch, conds, trk, dist, vis, goal, asc, mins}){
   if (!FB || !fbUser) return null;
   const id = 'po' + uid();
   vis = VIS.some(v => v.id === vis) ? vis : (prof.pvis || 'public');
@@ -9948,8 +10391,8 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
     /* public posts carry their time twice: `pt` is what Discover orders by, and
        only public posts have it, so one plain range query finds them — no index */
     pt: vis === 'public' ? Date.now() : null,
-    /* a route sketch: a few dozen points is enough to draw the shape */
-    trk: (trk || []).slice(0, 80), dist: dist || 0
+    /* the route itself, packed as text: enough of it to walk again */
+    trkS: packTrk(trk, 1500), dist: dist || 0, asc: asc || 0, mins: mins || 0
   };
   await FB.setDoc(postRef(id), post);
   feed = [post, ...feed];
