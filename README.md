@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/31490985/README.md)
+[README.md](https://github.com/user-attachments/files/32007589/README.md)
 # WayMark
 
 A hill-bagging log covering 1,327 summits across ten recognised British hill lists —
@@ -62,10 +62,17 @@ old one from their offline cache.
 
 ## The map
 
-Terrain tiles come from OpenTopoMap over the internet, so the map alone needs a
-connection; every other part of the app works offline. The Leaflet mapping
-library loads from a CDN — if it can't be reached, the map tab says so and
-nothing else is affected.
+The map is Ordnance Survey vector tiles (the OS Open Outdoor style, contours
+and all) drawn by MapLibre GL, which ships in `lib/` alongside the style and
+sprite sheet in `map/`. Both folders must be deployed with `index.html` and are
+part of the offline shell. The OS key in `firebase-config.js` needs the
+OS Vector Tile API added to its Data Hub project. If OS stops answering the
+map falls back to OpenTopoMap on its own.
+
+Tear-out sheets: on the map screen, "Save this view" stores every OS tile for
+the view (zooms 6 to 15, about 4 to 15 MB) in the browser's cache so the map
+draws with no signal. The sheets live in their own cache, so bumping the app
+version never removes them. The pubs and car parks on a sheet are kept with it.
 
 ## The token, honestly
 
