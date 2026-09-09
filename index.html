@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WayMark — Mark Your Journeys</title>
-<meta name="description" content="Mark the hills you have climbed across Britain — Wainwrights, Munros, Corbetts, Marilyns, Nuttalls and more. Keep a journal, earn patches, follow other walkers.">
+<meta name="description" content="Mark the hills you have climbed across Britain. Wainwrights, Munros, Corbetts, Marilyns, Nuttalls and more. Keep a journal, earn patches, follow other walkers.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WayMark">
-<meta property="og:title" content="WayMark — Mark Your Journeys">
+<meta property="og:title" content="WayMark. Mark Your Journeys">
 <meta property="og:description" content="Mark the hills you have climbed across Britain. Keep a journal, earn patches, follow other walkers.">
 <meta property="og:image" content="https://waymark.it.com/og.png">
 <meta property="og:url" content="https://waymark.it.com/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="WayMark — Mark Your Journeys">
+<meta name="twitter:title" content="WayMark. Mark Your Journeys">
 <meta name="twitter:description" content="Mark the hills you have climbed across Britain. Keep a journal, earn patches, follow other walkers.">
 <meta name="twitter:image" content="https://waymark.it.com/og.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
@@ -28,7 +28,7 @@
 <meta name="theme-color" content="#0C221D" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Source+Code+Pro:wght@400;600&family=Caveat:wght@500;600&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 
 <style>
@@ -149,10 +149,17 @@ body::before{
     repeating-linear-gradient(0deg, rgba(20,51,45,.020) 0 1px, transparent 1px 3px),
     repeating-linear-gradient(90deg, rgba(20,51,45,.014) 0 1px, transparent 1px 4px);
 }
-:root[data-theme="dark"] body::before, :root:not([data-theme="light"]) body::before{
+:root[data-theme="dark"] body::before{
   background-image:
     repeating-linear-gradient(0deg, rgba(243,239,230,.020) 0 1px, transparent 1px 3px),
     repeating-linear-gradient(90deg, rgba(243,239,230,.013) 0 1px, transparent 1px 4px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) body::before{
+    background-image:
+      repeating-linear-gradient(0deg, rgba(243,239,230,.020) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgba(243,239,230,.013) 0 1px, transparent 1px 4px);
+  }
 }
 .app{position:relative; z-index:1}
 
@@ -1887,16 +1894,139 @@ button.pstat:hover b{color:var(--accent-text)}
 .side .brand{color:#F3EFE6}
 .side .brand em{color:#E8925F}
 
+
+/* ================= the field-guide sheet =================
+   The page is a printed sheet: near-white paper, contour ink across the whole
+   ground, heavy grotesque headlines, rubber stamps in three inks, compass
+   letters and a dashed route where there is room. Flat print, no shadows. */
+:root{
+  --ground:#F4F2EC; --surface:#FBFAF6; --raise:#FFFFFF; --surface-2:#ECE9E1;
+  --line:#CBC8BE; --line-soft:#DDDAD1;
+  --contour-ink:#65847E;
+  --stamp-orange:#C4502A; --stamp-green:#7A9A3A; --stamp-blue:#4A86B8;
+  --shadow:none;
+  --sheet:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cg fill='none' stroke='%2365847E' stroke-width='.9' stroke-opacity='.55'%3E%3Cpath d='M-30 60c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 100c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 140c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 180c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 220c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 260c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 300c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 340c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 380c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 20c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cellipse cx='300' cy='120' rx='46' ry='26'/%3E%3Cellipse cx='300' cy='120' rx='24' ry='12'/%3E%3Cellipse cx='90' cy='300' rx='56' ry='30'/%3E%3Cellipse cx='90' cy='300' rx='30' ry='14'/%3E%3C/g%3E%3Cg fill='%2365847E' fill-opacity='.7' font-family='Source Code Pro, monospace' font-size='9'%3E%3Ctext x='214' y='97'%3E280%3C/text%3E%3Ctext x='34' y='257'%3E300%3C/text%3E%3Ctext x='334' y='337'%3E260%3C/text%3E%3C/g%3E%3Cg stroke='%2314332D' stroke-opacity='.18' stroke-width='1'%3E%3Cpath d='M20 0v8M16 4h8'/%3E%3Cpath d='M230 210v8M226 214h8'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-theme="dark"]{
+  --ground:#0F1F1B; --surface:#152A26; --raise:#1A332E; --surface-2:#1E3934; --line:#2E4D47; --line-soft:#24403B;
+}
+body{background:var(--ground)}
+body::before{background-image:var(--sheet); background-size:420px 420px; opacity:1; mix-blend-mode:normal}
+:root[data-theme="dark"] body::before{background-image:var(--sheet); opacity:.28}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) body::before{background-image:var(--sheet); opacity:.28} }
+body::after{opacity:.07}
+
+/* print, not screen: flat cards with a pencil line, no shadows anywhere */
+.dcard, .post, .form, .nextpatch, .weekcard, .railcard, .invite, .banner, .field, .seg, .lchip, .chip, .btn, .iconbtn, .ibtn, .sync, .leadshot, .topo, .trail, .corkboard, .regionlist, .pdhead, .prof, .pbanner{box-shadow:none}
+.topo{background-image:none}
+.top{background:color-mix(in srgb, var(--ground) 92%, transparent)}
+
+/* the cover of the sheet */
+.cover{position:relative; padding:18px 0 22px; margin:6px 0 4px}
+.coverline{display:flex; align-items:center; gap:10px; margin:0 0 12px; font-family:var(--font-ui); font-weight:800; font-size:12.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink)}
+.coverline i{width:10px; height:10px; border-radius:99px; background:var(--ink)}
+.cover h1{font-family:var(--font-ui); font-weight:900; font-size:clamp(52px, 15vw, 96px); line-height:.9; letter-spacing:-.035em; color:var(--ink); margin:0; text-wrap:balance}
+.coversub{margin:16px 0 0; font-size:clamp(17px, 4.6vw, 21px); line-height:1.35; color:var(--ink-2); max-width:24ch}
+.coversub b{color:var(--ink); font-weight:700}
+.cover .rstamp{position:absolute; right:-6px; top:2px; transform:rotate(9deg)}
+
+/* rubber stamps: three inks, a grain mask so no two prints are the same */
+.rstamp{
+  display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:8px 12px 7px;
+  font-family:var(--font-ui); font-weight:800; font-size:13px; line-height:1; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--stamp-orange); border:2.5px solid currentColor; border-radius:5px; opacity:.86; mix-blend-mode:multiply;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.5 -.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.5 -.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.rstamp b{font-size:20px; font-weight:900; letter-spacing:-.01em}
+.rstamp.rs-green{color:var(--stamp-green)}
+.rstamp.rs-blue{color:var(--stamp-blue)}
+:root[data-theme="dark"] .rstamp{mix-blend-mode:screen; opacity:.9}
+
+/* the stamps already in the app pick up the same inks */
+.mkchip{color:var(--stamp-orange); border-color:var(--stamp-orange); box-shadow:inset 0 0 0 1px rgba(255,255,255,.6), inset 0 0 0 2.5px var(--stamp-orange)}
+.ddate b{color:var(--stamp-blue); box-shadow:0 0 0 1.5px var(--stamp-blue) inset, 0 2px 4px -2px rgba(20,51,45,.4)}
+
+/* headlines everywhere: the same heavy cut, ink black */
+.pagehead{font-size:clamp(40px, 11vw, 64px); letter-spacing:-.035em; line-height:.92; color:var(--ink)}
+.pagehead::after{content:none}
+.sect, .eyebrow{font-weight:900; letter-spacing:-.02em}
+
+/* the sheet's own furniture: a compass and a route on the welcome screen */
+.compass{position:relative; height:150px; margin:8px 0 -6px; pointer-events:none}
+.compass svg{position:absolute; inset:0; width:100%; height:100%}
+.compass text{font-family:var(--font-ui); font-weight:900; font-size:15px; fill:var(--ink); letter-spacing:.1em}
+.compass .route{fill:none; stroke:var(--ink); stroke-width:1.6; stroke-dasharray:5 6; opacity:.7}
+.compass .needle{fill:var(--ink)}
+/* the notebook page itself is paper over the sheet, so the rows stay legible */
+ul.hills{background:color-mix(in srgb, var(--surface) 88%, transparent); border:1px solid var(--line); border-radius:5px; padding:0 10px; margin:6px 0 14px; list-style:none}
+.hrow{padding-left:0; padding-right:0}
+
+/* ================= field guide =================
+   A draft of the design language: Swiss headlines, handwritten annotations,
+   rubber stamps, ruled pages, a skyline at the head of every region. */
+:root{ --font-hand:"Caveat","Segoe Print","Bradley Hand",cursive; }
+
+/* headlines: oversized, heavy, tight, pine ink; the trail rule beneath */
+.pagehead{
+  font-family:var(--font-ui); font-weight:900; color:var(--ink); text-transform:none;
+  font-size:clamp(34px, 9vw, 56px); letter-spacing:-.025em; line-height:.95;
+  margin:26px 0 16px; padding-bottom:12px; position:relative;
+}
+.pagehead::after{content:""; position:absolute; left:0; bottom:0; width:96px; border-bottom:3px dashed var(--accent); opacity:.85}
+.eyebrow{font-family:var(--font-ui); font-weight:800; font-size:19px; letter-spacing:-.01em; text-transform:none; color:var(--ink); margin:30px 0 8px; display:flex; align-items:center; gap:10px}
+.eyebrow::after{content:none}
+
+/* the region head: a chapter opener with its skyline */
+.grouphead .gt h2{font-family:var(--font-ui); font-weight:900; font-size:17px; letter-spacing:-.01em; text-transform:none; color:var(--ink)}
+.grouphead span{font-family:var(--font-data); font-size:11px}
+.skyline{display:block; width:100%; height:34px; margin:4px 0 2px}
+.skyline .sk-fill{fill:var(--ink); opacity:.07}
+.skyline .sk-line{fill:none; stroke:var(--ink-2); stroke-width:1.2; vector-effect:non-scaling-stroke}
+.skyline .sk-done circle{fill:var(--accent)}
+.gbar{display:none}
+
+/* the notebook page: ruled rows, a margin rule, a pen tick */
+.regionlist ul.hills{position:relative}
+ul.hills{position:relative}
+ul.hills::before{content:""; position:absolute; top:0; bottom:0; left:48px; border-left:1.5px solid color-mix(in srgb, var(--accent) 30%, transparent); pointer-events:none}
+.hrow{border-bottom:1px solid var(--line-soft); padding:10px 2px 9px 2px}
+.tick{border:1.8px solid var(--ink-2); border-radius:3px 5px 4px 6px; background:transparent; transform:rotate(-2deg)}
+li.hill.on .tick{background:transparent; border-color:var(--ink-2); color:var(--accent-text)}
+li.hill.on .tick svg{width:20px; height:20px; transform:translate(1px,-2px) rotate(-6deg)}
+.hname{font-family:var(--font-ui); font-weight:700; font-size:16px; letter-spacing:-.01em}
+.hh{font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
+.lead{border-bottom:1.5px dotted color-mix(in srgb, var(--line) 80%, transparent)}
+
+/* the annotation in the margin: date in handwriting */
+.hsub .stampdate{font-family:var(--font-hand); font-size:17px; font-style:italic; font-weight:600; color:var(--accent-text); letter-spacing:0; display:inline-block; transform:rotate(-2deg); line-height:1}
+
+/* the rubber stamp */
+.mkchip{
+  font-family:var(--font-ui); font-weight:800; font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--accent-text); border:1.5px solid var(--accent-text); border-radius:3px; padding:2px 6px 1px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6), inset 0 0 0 2.5px var(--accent-text);
+  transform:rotate(-6deg); opacity:.85; mix-blend-mode:multiply;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* the photograph as a print: white border, a touch faded, caption in hand */
+.leadshot{border:6px solid #FFFDF8; border-radius:3px; box-shadow:0 1px 2px rgba(20,51,45,.15), 0 10px 22px -14px rgba(20,51,45,.6); transform:rotate(-.6deg)}
+.leadshot img{filter:contrast(1.06) saturate(.86) sepia(.08)}
+.leadshot .leadcap i{font-family:var(--font-hand); font-size:18px; font-weight:500; color:#F3EFE6; letter-spacing:0; text-transform:none}
+
+/* the list description reads as a guide's chapter note */
+.listintro, .planintro{font-size:16px; line-height:1.55}
+
 /* ================= from the brand board =================
    The details the board shows, applied where the app already has the thing:
    a stitched inset on the orange chip and button, the perforated stamp on
    journal dates, the stitched progress bar with its percentage tab, and the
    section labels as torn paper strips. */
 .lchip[aria-pressed="true"], :root[data-theme="dark"] .lchip[aria-pressed="true"], :root:not([data-theme="light"]) .lchip[aria-pressed="true"]{
-  outline:1.5px dashed rgba(246,239,228,.6); outline-offset:-4px; border-radius:6px;
+  border-radius:6px;
 }
-.btn:not(.ghost):not(.quiet):not(.danger){outline:1.5px dashed rgba(246,239,228,.5); outline-offset:-5px}
-.seg button[aria-pressed="true"]{outline:1.5px dashed rgba(246,239,228,.45); outline-offset:-4px}
 
 /* the perforated stamp */
 .ddate b{
@@ -1913,7 +2043,7 @@ button.pstat:hover b{color:var(--accent-text)}
 
 /* stitched progress with the figure on a tab */
 .bar, .planstat{height:12px; border-radius:6px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--line); overflow:visible; position:relative}
-.bar > i, .planstat > i{border-radius:6px; background:var(--accent); outline:1.5px dashed rgba(246,239,228,.6); outline-offset:-4px; min-width:14px; position:relative}
+.bar > i, .planstat > i{border-radius:6px; background:var(--accent); min-width:14px; position:relative}
 .bar > i::after, .planstat > i::after{
   content:attr(data-pct); position:absolute; right:-4px; top:50%; transform:translate(100%, -50%);
   font-family:var(--font-data); font-size:10.5px; font-weight:600; color:var(--accent-text);
@@ -1921,14 +2051,17 @@ button.pstat:hover b{color:var(--accent-text)}
 }
 .bar > i:not([data-pct])::after, .planstat > i:not([data-pct])::after{content:none}
 .dcard .rbar, .nextpatch .rbar{height:12px; border-radius:6px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--line); overflow:visible; position:relative; display:block; margin-top:8px; margin-right:44px}
-.dcard .rbar s, .nextpatch .rbar s{display:block; height:100%; border-radius:6px; background:var(--accent); outline:1.5px dashed rgba(246,239,228,.6); outline-offset:-4px; min-width:14px; position:relative; text-decoration:none}
+.dcard .rbar s, .nextpatch .rbar s{display:block; height:100%; border-radius:6px; background:var(--accent); min-width:14px; position:relative; text-decoration:none}
 .dcard .rbar s::after, .nextpatch .rbar s::after{content:attr(data-pct); position:absolute; right:-4px; top:50%; transform:translate(100%, -50%); font-family:var(--font-data); font-size:10.5px; font-weight:600; color:var(--accent-text); background:var(--raise); border:1px solid var(--line); border-radius:4px; padding:1px 5px; white-space:nowrap}
 .dcard .rbar s:not([data-pct])::after, .nextpatch .rbar s:not([data-pct])::after{content:none}
 
 /* section labels as torn strips pinned to the card */
 p.sumlabel{
-  display:inline-block; text-align:left; background:#EFE7D2; color:#14332D; font-weight:700; letter-spacing:.06em; text-transform:uppercase; font-size:11px;
-  padding:5px 12px 4px; margin:0 0 8px; transform:rotate(-1.2deg); box-shadow:0 2px 4px -2px rgba(20,51,45,.45);
+  display:inline-block; width:max-content; max-width:100%; text-align:left;
+  background:#EFE7D2; color:var(--stamp-orange); font-weight:800; letter-spacing:.14em; text-transform:uppercase; font-size:11px;
+  padding:6px 14px 5px; margin:0 0 8px; transform:rotate(-1.2deg);
+  box-shadow:inset 0 0 0 1.5px var(--stamp-orange), inset 0 0 0 3px #EFE7D2, inset 0 0 0 4px color-mix(in srgb, var(--stamp-orange) 55%, transparent);
+  filter:url(#distress); opacity:.92; mix-blend-mode:multiply;
   clip-path:polygon(0 12%, 4% 0, 9% 10%, 15% 2%, 22% 9%, 30% 0, 37% 8%, 45% 2%, 53% 10%, 60% 0, 68% 9%, 75% 3%, 83% 10%, 90% 1%, 96% 8%, 100% 3%, 100% 90%, 95% 100%, 88% 92%, 80% 100%, 72% 91%, 63% 100%, 55% 93%, 47% 100%, 39% 92%, 30% 100%, 22% 91%, 14% 100%, 7% 93%, 0 100%);
 }
 .railcard p.sumlabel, .weekcard p.sumlabel{display:block; background:none; clip-path:none; transform:none; box-shadow:none; padding:0; color:var(--ink); text-transform:none; letter-spacing:.01em; font-size:15px; font-weight:500}
@@ -1947,7 +2080,7 @@ body{font-variant-numeric:tabular-nums}
 :root{--noise:.06}
 :root[data-theme="dark"]{--noise:.08}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--noise:.08} }
-body::before{opacity:.85}
+body::before{opacity:1}
 
 /* one radius rule: sheets 4px (stamps), cloth 9px (cards, inputs, buttons),
    chips 7px (stamped tabs), badges round */
@@ -2083,10 +2216,72 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 .leadpick .shot{width:64px; height:64px; flex:none; border:2px solid transparent; border-radius:6px; overflow:hidden; padding:0; background:var(--surface-2)}
 .leadpick .shot img{width:100%; height:100%; object-fit:cover; display:block}
 .leadpick .shot.picked{border-color:var(--accent)}
+/* ================= the sheet, second pass =================
+   A real map under the interface: an OS-style sheet drawn from a terrain
+   model (10 m contours, index lines every 50 m, a 1 km blue grid, streams,
+   a footpath, a trig point) at low opacity, so the clean type sits on real
+   cartography. Headlines in orange. Stamps distressed by an SVG filter. */
+:root{ --sheet:url("tex/os-sheet.svg"); --sheet-op:.34; }
+body::before{background-image:var(--sheet); background-size:1200px 1200px; background-position:-140px -60px; opacity:var(--sheet-op)}
+:root[data-theme="dark"] body::before{background-image:var(--sheet); opacity:.16; filter:invert(1) hue-rotate(180deg)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) body::before{background-image:var(--sheet); opacity:.16; filter:invert(1) hue-rotate(180deg)} }
+@media (min-width:1024px){ body::before{background-size:1500px 1500px} }
+
+/* headlines carry the orange */
+.cover h1, .pagehead{color:var(--accent-text); font-family:var(--font-display); font-weight:400; text-transform:uppercase; letter-spacing:.03em; line-height:.96}
+.cover h1{font-size:clamp(44px, 12.5vw, 84px)}
+.cover-welcome h1{font-size:clamp(34px, 9.6vw, 68px); max-width:11ch}
+.pagehead{font-size:clamp(32px, 9vw, 52px)}
+.cover{padding:10px 0 26px}
+.cover-welcome{padding-top:18px}
+.coverline{font-size:12px; letter-spacing:.24em}
+.coverline i{width:9px; height:9px}
+.coversub{font-size:clamp(17px, 4.8vw, 22px); color:var(--ink-2); max-width:26ch; margin-top:14px}
+.coversub b{color:var(--ink)}
+
+/* distressed rubber stamps: the filter roughens the edge and bites out ink,
+   a second, lighter print sits just off-register underneath */
+.rstamp{
+  position:relative; padding:9px 13px 8px; border:3px solid currentColor; border-radius:6px;
+  font-size:13.5px; letter-spacing:.06em; line-height:1.05; opacity:.92; mix-blend-mode:multiply;
+  -webkit-mask:none; mask:none; filter:url(#distress);
+  box-shadow:inset 0 0 0 1.5px var(--ground), inset 0 0 0 3px currentColor;
+}
+.rstamp b{font-size:24px; letter-spacing:-.02em; margin-top:2px}
+.rstamp::before{content:""; position:absolute; inset:-3px; border:3px solid currentColor; border-radius:6px; opacity:.28; transform:translate(1.5px, 1px)}
+.rstamp.rs-tr{position:absolute; right:-4px; top:-2px; transform:rotate(11deg)}
+.rstamp.rs-bl{position:absolute; left:-6px; bottom:-8px; transform:rotate(-9deg)}
+.cover .rstamp.rs-orange{right:-4px; top:10px; transform:rotate(9deg)}
+:root[data-theme="dark"] .rstamp{mix-blend-mode:screen; box-shadow:inset 0 0 0 1.5px var(--ground), inset 0 0 0 3px currentColor}
+.mkchip{filter:url(#distress); mix-blend-mode:multiply; -webkit-mask:none; mask:none; opacity:.9}
+.ddate b{filter:url(#distress); opacity:.92}
+.ddate b::before{display:none}
+
+/* the welcome page keeps its stamps inside the column */
+.cover-welcome{position:relative}
+.cover-welcome .rstamp.rs-tr{top:-4px; right:0}
+#main{position:relative}
+#main > .rstamp.rs-bl{position:relative; display:inline-flex; left:0; bottom:0; margin:16px 0 2px 4px; transform:rotate(-6deg)}
+
+/* print furniture: flat cards, pencil lines, tighter radius */
+.dcard, .post, .form, .nextpatch, .weekcard, .railcard, .invite, .banner, .field, .lstrip, ul.hills, .leadshot{border-radius:5px}
+.btn, .seg, .iconbtn{border-radius:6px}
+.lchip, .chip{border-radius:5px}
+.dcard{border-left-width:3px}
 </style>
 </head>
 <body>
 <a class="skiplink" href="#main">Skip to content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="distress" x="-8%" y="-12%" width="116%" height="124%">
+    <feTurbulence type="fractalNoise" baseFrequency=".055 .09" numOctaves="3" seed="4" result="warp"/>
+    <feDisplacementMap in="SourceGraphic" in2="warp" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="9" result="grain"/>
+    <feColorMatrix in="grain" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.9 -.35" result="holes"/>
+    <feComposite in="rough" in2="holes" operator="in" result="inked"/>
+    <feGaussianBlur in="inked" stdDeviation=".18"/>
+  </filter>
+</defs></svg>
 
 <div class="app">
   <aside class="side">
@@ -2123,7 +2318,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
     <h3>Appearance</h3>
     <div id="themeBox"></div>
     <h3>Hill lists</h3>
-    <p>Switch on the lists you're working through. Switching one off just hides it — nothing you've ticked is lost.</p>
+    <p>Switch on the lists you're working through. Switching one off just hides it: nothing you've ticked is lost.</p>
     <div id="listToggles"></div>
     <h3>Account</h3>
     <p class="cloudNote"></p>
@@ -2290,29 +2485,29 @@ const listTag = id => LIST_TAG[id] || (LIST_BY[id] ? LIST_BY[id].name : id);
    published any of them. `rule` is the qualifying test in one line. */
 const LIST_ABOUT = {
   wainwright: {
-    who: 'Alfred Wainwright, 1955–66',
+    who: 'Alfred Wainwright, 1955-66',
     rule: 'The 214 fells in his seven Pictorial Guides',
-    text: 'Wainwright walked and hand-drew every one of these for his seven Pictorial Guides to the Lakeland Fells, published over thirteen years. There is no height rule and no formula &mdash; a fell is a Wainwright because he gave it a chapter. That makes the list a personal one, which is exactly why walkers love it. Finishing all 214 is a life project for most people.'
+    text: 'Wainwright walked and hand-drew every one of these for his seven Pictorial Guides to the Lakeland Fells, published over thirteen years. There is no height rule and no formula: a fell is a Wainwright because he gave it a chapter. That makes the list a personal one, which is exactly why walkers love it. Finishing all 214 is a life project for most people.'
   },
   munro: {
     who: 'Sir Hugh Munro, 1891; revised by the SMC',
-    rule: 'Scottish mountains over 3,000 ft',
-    text: 'Sir Hugh Munro published his Tables in 1891, and the Scottish Mountaineering Club has revised them ever since &mdash; most recently in 2021, which is why the count is 282 rather than the 283 you may still see quoted. The 3,000 ft line is firm; what has always been argued over is which tops are separate mountains and which are shoulders of a bigger one. Completing the round is called compleation, and people have been doing it since 1901.'
+    rule: 'Scottish hills over 3,000 ft',
+    text: 'Sir Hugh Munro published his Tables in 1891, and the Scottish Mountaineering Club has revised them ever since: most recently in 2021, which is why the count is 282 rather than the 283 you may still see quoted. The 3,000 ft line is firm; what has always been argued over is which tops are separate hills and which are shoulders of a bigger one. Completing the round is called compleation, and people have been doing it since 1901.'
   },
   corbett: {
-    who: 'John Rooke Corbett, 1920s–30s',
-    rule: 'Scotland, 2,500–3,000 ft, with a 500 ft drop all round',
+    who: 'John Rooke Corbett, 1920s-30s',
+    rule: 'Scotland, 2,500-3,000 ft, with a 500 ft drop all round',
     text: 'Corbett was a Bristol surveyor who listed the Scottish hills that fall just short of Munro height. Unlike the Munros the rule here is strict: every Corbett must rise 500 ft clear of everything around it, so there are no debatable tops. They are often quieter, rougher and further from a road than the Munros, and many walkers rate them the better days out.'
   },
   graham: {
     who: 'Fiona Torbet (née Graham), 1992',
-    rule: 'Scotland, 2,000–2,500 ft, with a 150 m drop',
-    text: 'The next band down from the Corbetts, compiled by Fiona Graham shortly before her death in 1993 and completed by others. These are the smaller Scottish hills &mdash; coastal, island and lowland ones among them &mdash; and they take you to parts of Scotland the higher lists never reach.'
+    rule: 'Scotland, 2,000-2,500 ft, with a 150 m drop',
+    text: 'The next band down from the Corbetts, compiled by Fiona Graham shortly before her death in 1993 and completed by others. These are the smaller Scottish hills, coastal, island and lowland ones among them, and they take you to parts of Scotland the higher lists never reach.'
   },
   donald: {
     who: 'Percy Donald, 1935',
     rule: 'Scottish Lowland hills over 2,000 ft',
-    text: 'Percy Donald listed the 2,000 ft hills of the Scottish Lowlands, chiefly the Southern Uplands &mdash; the Moffat, Tweedsmuir, Ettrick and Lowther ranges. Rolling, grassy and often empty. His qualifying rule is famously mathematical, which has kept the list stable for ninety years.'
+    text: 'Percy Donald listed the 2,000 ft hills of the Scottish Lowlands, chiefly the Southern Uplands: the Moffat, Tweedsmuir, Ettrick and Lowther ranges. Rolling, grassy and often empty. His qualifying rule is famously mathematical, which has kept the list stable for ninety years.'
   },
   'hewitt-england': {
     who: 'Dave Hewitt / Alan Dawson, 1990s',
@@ -2327,7 +2522,7 @@ const LIST_ABOUT = {
   'hewitt-ni': {
     who: 'Dave Hewitt / Alan Dawson, 1990s',
     rule: 'Northern Ireland, over 2,000 ft, with a 30 m drop',
-    text: 'A short list &mdash; twenty summits, nearly all of them in the Mourne Mountains behind Newcastle, with a couple in the Sperrins. Compact enough that a fit walker can make real progress in a long weekend.'
+    text: 'A short list: twenty summits, nearly all of them in the Mourne Mountains behind Newcastle, with a couple in the Sperrins. Compact enough that a fit walker can make real progress in a long weekend.'
   },
   ethel: {
     who: 'Sheffield Ramblers, 2021',
@@ -2342,7 +2537,7 @@ const LIST_ABOUT = {
   yorkshire3: {
     who: 'A walking tradition since the 1880s',
     rule: 'Ingleborough, Whernside and Pen-y-ghent',
-    text: 'The classic Yorkshire circuit &mdash; about 24 miles and 1,600 m of ascent, traditionally walked inside twelve hours. It began in 1887 with two Giggleswick schoolmasters. Do it as a day if you want the challenge, or over a weekend if you would rather enjoy it.'
+    text: 'The classic Yorkshire circuit: about 24 miles and 1,600 m of ascent, traditionally walked inside twelve hours. It began in 1887 with two Giggleswick schoolmasters. Do it as a day if you want the challenge, or over a weekend if you would rather enjoy it.'
   },
   welsh3000: {
     who: 'The Welsh 3000s / Y Tri Mil',
@@ -2352,17 +2547,17 @@ const LIST_ABOUT = {
   'three-peaks': {
     who: 'A challenge since the 1800s',
     rule: 'The highest point of England, Wales and Scotland',
-    text: 'Ben Nevis, Yr Wyddfa and Scafell Pike &mdash; the highest ground in each of the three nations. Usually attempted inside 24 hours with a driver, though there is no obligation to rush it. Marking all three earns the set piece patch.'
+    text: 'Ben Nevis, Yr Wyddfa and Scafell Pike: the highest ground in each of the three nations. Usually attempted inside 24 hours with a driver, though there is no obligation to rush it. Marking all three earns the set piece patch.'
   },
   nuttall: {
-    who: 'John and Anne Nuttall, 1989–90',
+    who: 'John and Anne Nuttall, 1989-90',
     rule: 'England and Wales, over 2,000 ft, with a 15 m drop',
-    text: 'The Nuttalls came from two walking guides, <em>The Mountains of England and Wales</em>, and the rule is deliberately generous: any top over 2,000 ft that drops 15 m before the ground rises again. That lets in the summits the stricter 30 m Hewitt rule leaves out &mdash; Corn Du beside Pen y Fan, Crib Goch on the Snowdon horseshoe, Pillar Rock &mdash; so it is the fuller round of the high ground south of the border. Every Hewitt is a Nuttall; the reverse is not true.'
+    text: 'The Nuttalls came from two walking guides, <em>The Mountains of England and Wales</em>, and the rule is deliberately generous: any top over 2,000 ft that drops 15 m before the ground rises again. That lets in the summits the stricter 30 m Hewitt rule leaves out (Corn Du beside Pen y Fan, Crib Goch on the Snowdon horseshoe, Pillar Rock), so it is the fuller round of the high ground south of the border. Every Hewitt is a Nuttall; the reverse is not true.'
   },
   marilyn: {
     who: 'Alan Dawson, 1992',
     rule: 'Any hill with a 150 m drop on every side',
-    text: 'Dawson&rsquo;s idea was that what makes a hill is not its height but how far it stands clear of everything around it. The only rule is a 150 m drop all round, so the list runs from Ben Nevis to a 168 m rise on the Lincolnshire Wolds, and it is the one that takes in the famous lower hills the other lists miss &mdash; Sugar Loaf, Pendle Hill, Arthur&rsquo;s Seat, Leith Hill. Over 1,500 of them, in every corner of the island; finishing is a life&rsquo;s work, but there is one near almost everybody.'
+    text: 'Dawson&rsquo;s idea was that what makes a hill is not its height but how far it stands clear of everything around it. The only rule is a 150 m drop all round, so the list runs from Ben Nevis to a 168 m rise on the Lincolnshire Wolds, and it is the one that takes in the famous lower hills the other lists miss. Sugar Loaf, Pendle Hill, Arthur&rsquo;s Seat, Leith Hill. Over 1,500 of them, in every corner of the island; finishing is a life&rsquo;s work, but there is one near almost everybody.'
   }
 };
 const BY_KEY = Object.fromEntries(HILLS.map(h => [h.k, h]));
@@ -2565,7 +2760,7 @@ function loadLocal(){
 }
 function saveLocal(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch(e){ toast('This browser is blocking storage — your log may not stick.'); }
+  catch(e){ toast('This browser is blocking storage: your log may not stick.'); }
 }
 function touched(){ saveLocal(); scheduleSync(); }
 function merge(a, b){
@@ -2841,7 +3036,7 @@ async function addPhotos(key, files){
   if (added){
     touched(); render();
     toast(added + (added === 1 ? ' photo added' : ' photos added') +
-      (failed ? ' — ' + failed + (failed === 1 ? ' could not be read.' : ' could not be read.') : '.'));
+      (failed ? ': ' + failed + (failed === 1 ? ' could not be read.' : ' could not be read.') : '.'));
   }
   else if (failed) toast(failed === 1 ? 'Could not read that image.' : 'Could not read any of those images.');
 }
@@ -3097,7 +3292,7 @@ async function shareCard(p){
   const file = new File([blob], 'waymark-' + p.id + '.png', {type:'image/png'});
   try{
     if (navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file], title: label + ' — WayMark'});
+      await navigator.share({files:[file], title: label + '. WayMark'});
       return;
     }
   }catch(e){ if (e && e.name === 'AbortError') return; }
@@ -3358,7 +3553,7 @@ function renderPatchesPage(){
   if (three.length){
     const g = three.filter(x => x.got).length;
     s += '<p class="eyebrow">National Three Peaks &middot; ' + g + ' of ' + three.length + '</p>';
-    s += '<div class="planintro">The highest summit in England, Wales and Scotland &mdash; and a patch for doing all three.</div>';
+    s += '<div class="planintro">The highest summit in England, Wales and Scotland: and a patch for doing all three.</div>';
     s += trailBlock(three);
   }
 
@@ -3441,7 +3636,7 @@ function renderPatchDetail(p){
     '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
     '<div class="pdt"><h2>' + esc(p.label) + '</h2>' +
     '<p>' + (p.got ? 'Earned' : esc(p.need)) +
-      (p.target > 1 ? ' &middot; ' + (p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%' : '') +
+      (p.target > 1 ? ' &middot; ' + (p.have || 0) + ' of ' + p.target + ' (' + pct + '%)' : '') +
       (p.note ? ' &middot; ' + p.note : '') + '</p>' +
     '<div class="planstat"><i style="width:' + pct + '%" data-pct="' + pct + '%"></i></div>' +
     (p.got ? '<div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-act="sharepatch" data-v="' + esc(p.id) + '">Share this patch</button></div>' : '') +
@@ -3700,7 +3895,7 @@ function renderHills(){
      to a line with a way in, so it teaches without getting in the way. */
   const ab = LIST_ABOUT[id];
   html += '<div class="lstrip"><div><b>' + esc(L.name) + '</b>' +
-          '<span>' + esc(L.where) + ' &middot; ' + L.count.toLocaleString() + ' summits' +
+          '<span>' + esc(L.where) + ', ' + L.count.toLocaleString() + ' summits' +
           (ab ? ' &middot; ' + ab.rule : '') + '</span></div>' +
           '<button class="btn quiet sm" data-act="listinfo" data-v="' + esc(id) + '">About this list</button></div>';
 
@@ -3741,7 +3936,7 @@ function renderHills(){
   html += '<button class="chip" data-act="status" data-v="all" aria-pressed="' + (ui.status==='all') + '">All</button>';
   for (const sd of STATES)
     html += '<button class="chip c-' + sd.id + '" data-act="status" data-v="' + sd.id + '" aria-pressed="' + (ui.status===sd.id) + '">' + esc(sd.short) + '</button>';
-  html += '<button class="chip" data-act="sort" data-v="' + (ui.sort==='height'?'az':'height') + '">' + (ui.sort==='height'?'↕ Height':'↕ A–Z') + '</button>';
+  html += '<button class="chip" data-act="sort" data-v="' + (ui.sort==='height'?'az':'height') + '">' + (ui.sort==='height'?'↕ Height':'↕ A-Z') + '</button>';
   html += '</div>';
   if (ui.region) html += '<div class="chips regionbar"><button class="chip back" data-act="region" data-v="" aria-pressed="false">&larr; All areas</button>' +
     '<button class="chip" data-act="region" data-v="' + esc(ui.region) + '" aria-pressed="true">' + esc(ui.region.replace('The ','')) + '</button></div>';
@@ -3776,6 +3971,7 @@ function hillResults(id, s){
     html += '<div class="grouphead"><div class="gt"><h2>' +
       (isW && BOOK_VAR[b.g] ? '<i class="swatch" style="background:var(' + BOOK_VAR[b.g] + ')"></i>' : '') +
       esc(b.g) + '</h2><span>' + d + '/' + inG.length + ' · ' + gp + '%</span></div>';
+    html += skyline(inG);
     html += '<i class="gbar"><i style="width:' + gp + '%"></i></i></div><ul class="hills">';
     for (const h of inG) html += hillRow(h, id);
     html += '</ul>';
@@ -3783,6 +3979,22 @@ function hillResults(id, s){
   return html + COLOPHON;
 }
 
+/* The skyline of a region: its hills as an elevation profile, marked ones
+   filled in. A field guide would print this at the head of each chapter. */
+function skyline(hs){
+  const pts = hs.filter(h => isFinite(h.h));
+  if (pts.length < 2) return '';
+  const W = 300, H = 34, lo = Math.min(...pts.map(h => h.h)) * .85, hi = Math.max(...pts.map(h => h.h));
+  const x = i => (i / (pts.length - 1)) * W, y = h => H - 3 - ((h.h - lo) / Math.max(1, hi - lo)) * (H - 8);
+  let line = '', done = '';
+  pts.forEach((h, i) => {
+    line += (i ? ' L' : 'M') + x(i).toFixed(1) + ' ' + y(h).toFixed(1);
+    if (isBagged(h.k)) done += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(h).toFixed(1) + '" r="2.4"/>';
+  });
+  return '<svg class="skyline" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
+    '<path class="sk-fill" d="' + line + ' L' + W + ' ' + H + ' L0 ' + H + 'Z"/>' +
+    '<path class="sk-line" d="' + line + '"/>' + '<g class="sk-done">' + done + '</g></svg>';
+}
 function hillRow(h, listId){
   const on = isBagged(h.k), r = rec(h.k), open = ui.open === h.k;
   const bookVar = listId === 'wainwright' ? BOOK_VAR[regionOf(h, 'wainwright')] : null;
@@ -3812,8 +4024,8 @@ function hillRow(h, listId){
   if (open){
     s += '<div class="detail">';
     s += '<div><label>Date climbed</label>' + dateFields(r.date, 'data-k="' + esc(h.k) + '"');
-    if (!r.date) s += '<p class="dhint">Only remember the year? Set the year and leave the rest — it ticks the hill either way.</p>';
-    else if (!dateParts(r.date).d) s += '<p class="dhint">Logged as ' + esc(prettyDate(r.date)) + ' — day is optional.</p>';
+    if (!r.date) s += '<p class="dhint">Only remember the year? Set the year and leave the rest: it ticks the hill either way.</p>';
+    else if (!dateParts(r.date).d) s += '<p class="dhint">Logged as ' + esc(prettyDate(r.date)) + ': day is optional.</p>';
     s += '</div>';
     s += '<div><label>Status</label><div class="states">';
     for (const sd of STATES){
@@ -3828,7 +4040,7 @@ function hillRow(h, listId){
            prettyDate(new Date(vf.t).toISOString().slice(0,10)) + '</p>';
     } else if (isFinite(h.a)){
       s += '<button class="btn ghost vbtn" data-act="verify" data-k="' + esc(h.k) + '"' + (locating ? ' disabled' : '') + '>' +
-           (locating ? 'Finding you…' : 'I am here — verify with GPS') + '</button>';
+           (locating ? 'Finding you…' : 'I am here: verify with GPS') + '</button>';
     }
     s += '</div>';
     s += '<div><label for="nt-' + esc(h.k) + '">Notes</label><textarea id="nt-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes||'') + '</textarea></div>';
@@ -3869,7 +4081,7 @@ function getFix(){
       p => res({lat:p.coords.latitude, lon:p.coords.longitude, acc:p.coords.accuracy}),
       e => rej(new Error(
         e.code === 1 ? 'Location is blocked for this site. Turn it on in your browser settings and try again.' :
-        e.code === 3 ? 'Could not get a fix in time — try again in the open.' :
+        e.code === 3 ? 'Could not get a fix in time: try again in the open.' :
                        'Location is unavailable right now.')),
       {enableHighAccuracy:true, timeout:20000, maximumAge:15000});
   });
@@ -4167,14 +4379,15 @@ function renderOnboard(){
 
 function renderPickLists(){
   const n = ui.pick.length;
-  let s = '<div class="welcomemark" aria-hidden="true"><svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="M8.25 13.03 10.38 15.98 16.35 7.77 22.50 16.23"/></svg></div><h2 class="pagehead">Welcome to WayMark</h2>';
-  /* Most people arrive knowing the hills they have walked, not the lists those
-     hills sit on. So the search leads: type a hill, mark it, and WayMark works
-     out the list. The lists themselves are the second route, for those who
-     already think that way. */
-  s += '<p class="planintro" style="margin-bottom:10px">Which mountains have you climbed? Type one &mdash; ' +
-       'Snowdon, Pen y Fan, Helvellyn, anything &mdash; and mark it. WayMark works out which list it belongs to.</p>';
+  const yr = new Date().getFullYear();
+  let s = '<header class="cover cover-welcome">' +
+    '<span class="rstamp rs-green rs-tr" aria-hidden="true">WayMark<b>' + yr + '</b></span>' +
+    '<p class="coverline"><i></i>WayMark field guide</p>' +
+    '<h1>Which hills have you climbed?</h1>' +
+    '<p class="coversub">Type one, any one, and mark it. WayMark works out <b>which list it belongs to</b>.</p>' +
+    '</header>';
   s += markBar();
+  s += '<span class="rstamp rs-orange rs-bl" aria-hidden="true">Field<br>guide<b>' + yr + '</b></span>';
   s += '<p class="eyebrow">Or pick the lists you are working through</p>';
   s += '<p class="planintro" style="margin-bottom:12px">Tick as many as you like. You can change this any time under Settings, ' +
        'and switching one off never loses anything you have marked.</p>';
@@ -4201,14 +4414,14 @@ function renderPickLists(){
 function renderOnboardSignin(){
   let s = '<h2 class="pagehead">Keep your log safe</h2>';
   s += '<p class="planintro" style="margin-bottom:14px">Without an account your ticks live only in ' +
-       'this browser, on this device &mdash; clearing your history or picking up a different phone ' +
+       'this browser, on this device: clearing your history or picking up a different phone ' +
        'loses them. Sign in and your log follows you everywhere, and you can compare with friends.</p>';
   s += '<div class="btnrow onboardbar">' +
        '<button class="btn" data-act="fbin">Sign in with Google</button>' +
        '<button class="btn quiet" data-act="skipsignin">Not now</button></div>' +
        '<p class="consent">By signing in you agree to the <a href="legal.html" target="_blank" rel="noopener">terms and privacy policy</a>.</p>';
   s += '<p class="mapnote" style="margin-top:14px">You can sign in later from the cog, top right. ' +
-       'Nothing you mark before signing in is lost &mdash; it uploads when you do.</p>';
+       'Nothing you mark before signing in is lost: it uploads when you do.</p>';
   return s;
 }
 
@@ -4338,7 +4551,7 @@ function markResults(){
 function markBar(){
   return '<div class="markbar"><div class="field">' +
     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['search'] + '</svg>' +
-    '<input type="search" id="mq" placeholder="Mark a mountain…" value="' + esc(ui.mq || '') + '" autocomplete="off" aria-label="Mark a mountain"></div>' +
+    '<input type="search" id="mq" placeholder="Mark a hill…" value="' + esc(ui.mq || '') + '" autocomplete="off" aria-label="Mark a hill"></div>' +
     '<div id="mres">' + markResults() + '</div></div>';
 }
 /* Marking from the search: switch the hill's list on if it is not, land on
@@ -4395,6 +4608,17 @@ function renderDashboard(){
       '<p>Every hill you walk goes in the log, earns you patches, and draws your journey on the map. Search for one above, or tick one below that you have already done.</p></div>';
     return s + renderHills();
   }
+
+  /* The cover line: how far the log has come, in one figure. */
+  const days = diaryDays().length;
+  const yr = new Date().getFullYear();
+  s += '<header class="cover">' +
+    '<p class="coverline"><i></i>Your log, ' + yr + '</p>' +
+    '<h1>' + a.done.toLocaleString() + (a.done === 1 ? ' hill' : ' hills') + '<br>marked.</h1>' +
+    '<p class="coversub"><b>' + a.remaining.toLocaleString() + ' to go</b> across ' + enabled().length + (enabled().length === 1 ? ' list' : ' lists') +
+      (days ? ', ' + days + (days === 1 ? ' day' : ' days') + ' out' : '') + '.</p>' +
+    '<span class="rstamp rs-orange" aria-hidden="true">Field log<b>' + yr + '</b></span>' +
+    '</header>';
 
   /* What is next: the route you have planned, with the forecast for its top on
      its day. Nothing planned means exactly that, and a way to plan something. */
@@ -4545,7 +4769,7 @@ function tagPanelHTML(){
 function renderDiary(){
   const days = diaryDays();
   let html = '<h2 class="pagehead">Your journal</h2>';
-  html += '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too &mdash; a reccy, a washout, a walk that is not on any list.</div>';
+  html += '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button></div>';
 
@@ -4702,7 +4926,7 @@ function postHTML(p){
   if (p.kind === 'rec' && hs.length){
     const h = hs[0], lid = h.l[0];
     s += '<div class="prec"><span class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['waymark-mountain'] + '</svg></span>' +
-      '<div><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; ' + esc(regionOf(h, lid).replace('The ', '')) + ' &middot; ' + esc(LIST_BY[lid].name) + '</span></div>' +
+      '<div><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ', ' + esc(regionOf(h, lid).replace('The ', '')) + ' &middot; ' + esc(LIST_BY[lid].name) + '</span></div>' +
       (isBagged(h.k) ? '<span class="mkchip">Marked</span>'
         : stateOf(h.k) === 'planned' ? '<span class="mkchip plan">In your journey</span>'
         : '<button class="btn sm" data-act="addjourney" data-k="' + esc(h.k) + '">' + ti('flag') + 'Add to my journey</button>') + '</div>';
@@ -4750,7 +4974,7 @@ function postHTML(p){
 
   /* who has said what, in words: "12 Cheers · 3 Epic" */
   const said = REACTIONS.filter(r => counts[r.id]).map(r => counts[r.id] + ' ' + (counts[r.id] === 1 ? r.label : r.plural));
-  if (said.length || cs.length) s += '<p class="psaid">' + esc(said.join(' · ')) + (said.length && cs.length ? ' · ' : '') +
+  if (said.length || cs.length) s += '<p class="psaid">' + esc(said.join(', ')) + (said.length && cs.length ? ' · ' : '') +
     (cs.length ? cs.length + (cs.length === 1 ? ' comment' : ' comments') : '') + '</p>';
   s += '<div class="pacts">' + REACTIONS.map(r =>
     '<button class="rbtn' + (mineIs === r.id ? ' on' : '') + '" data-act="react" data-id="' + esc(p.id) +
@@ -5048,7 +5272,7 @@ function renderFriends(){
   if (ui.found){
     const f = ui.found;
     s += '<div class="frow"><div class="fwho2"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'sm') + '</button>' +
-      '<div><b>' + esc(f.name) + '</b><span>@' + esc(f.handle || '') + ' &middot; ' + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' &middot; private' : '') + '</span></div></div>' +
+      '<div><b>' + esc(f.name) + '</b><span>@' + esc(f.handle || '') + ' &middot; ' + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' (private)' : '') + '</span></div></div>' +
       followBtn(f.uid, true) + '</div>';
   }
   s += '</div>';
@@ -5157,7 +5381,7 @@ function mountMap(){
   const box = document.getElementById('mapbox');
   if (!box) return;
   if (typeof L === 'undefined'){
-    box.innerHTML = '<p class="empty">The map library could not load. It needs a connection the first time — try again when you have signal.</p>';
+    box.innerHTML = '<p class="empty">The map library could not load. It needs a connection the first time: try again when you have signal.</p>';
     return;
   }
   if (map && map._container !== box){ map.remove(); map = null; mapReady = false; }
@@ -5364,7 +5588,7 @@ function addBaseLayer(m, at){
         if (map === m){ map.remove(); map = null; mapReady = false; }
         if (rmap === m) killRouteMap();
         render();
-        toast('OS Maps is not answering — showing OpenTopoMap for now.');
+        toast('OS Maps is not answering: showing OpenTopoMap for now.');
       }
     };
     layer.on('tileload', () => { good++; });
@@ -5409,7 +5633,7 @@ function styleSwitcher(){
 /* What the map under you actually is, said plainly beneath it. */
 function mapSourceNote(at){
   const key = baseStyle(at);
-  if (key !== 'topo') return 'Ordnance Survey ' + BASEMAPS[key].name + ' mapping. The map needs a connection — everything else in the app works offline.';
+  if (key !== 'topo') return 'Ordnance Survey ' + BASEMAPS[key].name + ' mapping. The map needs a connection: everything else in the app works offline.';
   if (at && outsideOs(at.la, at.lo))
     return 'Ordnance Survey does not map Northern Ireland, so the Mournes are drawn on OpenTopoMap. Everywhere else uses OS.';
   return 'OS maps are unavailable just now, so this is OpenTopoMap. It goes back to OS on its own shortly.';
@@ -5584,13 +5808,11 @@ function prettyHours(v){
     let x = part.trim();
     if (!x) return '';
     x = x.replace(/\b(Mo|Tu|We|Th|Fr|Sa|Su|PH)\b/g, d => DAYS[d] || d);
-    /* en dashes for both ranges, so "Mon–Sun 11:00–23:00" reads as one thing */
-    x = x.replace(/(\d{2}:\d{2})-(\d{2}:\d{2})/g, '$1\u2013$2');
-    x = x.replace(/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)-(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/g, '$1\u2013$2');
+    /* plain hyphens for both ranges: "Mon-Sun 11:00-23:00" */
     x = x.replace(/,\s*/g, ', ');
     x = x.replace(/\boff\b/i, 'closed');
     return x;
-  }).filter(Boolean).join(' \u00b7 ');
+  }).filter(Boolean).join('; ');
 }
 
 /* The facts worth showing for each sort of place, in the order a walker wants
@@ -5601,7 +5823,7 @@ function poiFacts(p){
   if (p.kind === 'parking'){
     if (t.fee === 'no') add('Cost', 'Free');
     else if (t.charge) add('Cost', t.charge.replace(/;/g, ' \u00b7 '));
-    else if (t.fee === 'yes') add('Cost', 'Charged — amount not recorded');
+    else if (t.fee === 'yes') add('Cost', 'Charged: amount not recorded');
     add('Spaces', t.capacity);
     add('Max stay', t.maxstay);
     add('Surface', t.surface);
@@ -5684,7 +5906,7 @@ function poiStateText(){
   if (rmap && rmap.getZoom() < 12) return '';
   if (poiBusy) return 'Finding places\u2026';
   if (poiErr === 'zoom') return 'Zoom in a little.';
-  if (poiErr) return 'OpenStreetMap did not answer \u2014 the map still works, it will try again as you pan.';
+  if (poiErr) return 'OpenStreetMap did not answer. The map still works, it will try again as you pan.';
   const b = rmap && rmap.getBounds().pad(0.1);
   const shown = b ? [...poiSeen.values()].filter(p => b.contains([p.la, p.lo])).length : 0;
   return shown ? shown + ' places \u00b7 tap one for hours, charges and a way to start there'
@@ -5729,7 +5951,7 @@ function openPoi(id){
     '<button class="btn" data-act="poistart" data-id="' + esc(p.id) + '">Start the route here</button>' +
     '<button class="btn ghost" data-act="poiadd" data-id="' + esc(p.id) + '">Add as a point</button>' +
     '</div>';
-  s += '<p class="poisrc">From OpenStreetMap, as contributed. Charges and hours change &mdash; ' +
+  s += '<p class="poisrc">From OpenStreetMap, as contributed. Charges and hours change: ' +
        'worth a check before you set off. ' +
        '<a href="https://www.openstreetmap.org/' + esc(p.id.replace(/^(node|way|relation)/, '$1/')) +
        '" target="_blank" rel="noopener noreferrer">See or fix this entry</a>.</p>';
@@ -5923,7 +6145,7 @@ function killRouteMap(){
 function editorStatsHTML(){
   const t = editor.trk || [];
   if (!editor.wp.length) return 'Tap the map to drop your first point.';
-  if (editor.wp.length === 1) return 'One point down — tap again to start the line.';
+  if (editor.wp.length === 1) return 'One point down: tap again to start the line.';
   if (rmBusy) return 'Finding a way through…';
   if (!t.length) return editor.wp.length + ' points';
   const a = trackAscent(t);
@@ -6046,7 +6268,7 @@ function rmDraw(){
     });
     mk.on('dragend', e => rmMove(i, e.target.getLatLng()));
     mk.on('click', () => rmRemove(i));
-    mk.bindTooltip('Point ' + (i+1) + ' — drag to move, tap to remove');
+    mk.bindTooltip('Point ' + (i+1) + ': drag to move, tap to remove');
     rmLayer.addLayer(mk);
   });
 }
@@ -6099,7 +6321,7 @@ function saveEditor(){
   p.t = now();
   editor = null; ui.rmode = 'explore';
   touched(); render();
-  toast('Route saved \u2014 find it under Your routes.');
+  toast('Route saved. Find it under Your routes.');
 }
 
 /* Which summits a drawn line actually goes over, so a plotted route arrives
@@ -6125,7 +6347,7 @@ function gpxControls(p, id){
   if (pts.length){
     const asc = trackAscent(pts);
     s += '<div class="trackbox"><div class="tinfo"><b>' + prettyDist(trackLength(pts)) + '</b>' +
-         pts.length.toLocaleString() + ' points' + (asc ? ' · about ' + Math.round(asc * 3.28084).toLocaleString() + ' ft (' + asc.toLocaleString() + ' m) of climbing' : ' · no heights in this track') +
+         pts.length.toLocaleString() + ' points' + (asc ? ', about ' + Math.round(asc * 3.28084).toLocaleString() + ' ft (' + asc.toLocaleString() + ' m) of climbing' : ', no heights in this track') +
          '</div>' +
          '<button class="btn ghost" data-act="gpxout" data-id="' + esc(id) + '">Download GPX</button>' +
          '<button class="linkbtn" data-act="cleartrk" data-id="' + esc(id) + '">Remove track</button></div>';
@@ -6144,7 +6366,7 @@ function gpxControls(p, id){
   /* Said before you route and kept after, because the caveat matters most once
      there is a line on the map that looks authoritative. */
   if ((p.hills || []).length > 1 || pts.length)
-    s += '<p class="pathnote">The map is Ordnance Survey; the path-following is OpenStreetMap, which carries England and Wales rights of way from the definitive maps. OS sells mapping, not routing, so there is no OS equivalent. Usually right — check the map before relying on a right of way.</p>';
+    s += '<p class="pathnote">The map is Ordnance Survey; the path-following is OpenStreetMap, which carries England and Wales rights of way from the definitive maps. OS sells mapping, not routing, so there is no OS equivalent. Usually right: check the map before relying on a right of way.</p>';
   return s;
 }
 /* ---------- weather for a route ---------- */
@@ -6400,7 +6622,7 @@ function wxLook(code){
   if (c >= 80 && c <= 82) return {t:'Showers', i:'rain'};
   if (c >= 85 && c <= 86) return {t:'Snow showers', i:'snow'};
   if (c >= 95) return {t:'Thunderstorms', i:'storm'};
-  return {t:'—', i:'cloud'};
+  return {t:'-', i:'cloud'};
 }
 const WX_ICON = {
   sun: TI['sun'], cloud: TI['cloud'], rain: TI['cloud-rain'], snow: TI['cloud-snow'],
@@ -6411,7 +6633,7 @@ const WX_ICON = {
    deciding whether to go is worth also saying in yards. */
 const MI = 1609.344;
 const prettyVis = m => {
-  if (m == null) return '—';
+  if (m == null) return '-';
   if (m >= 10000) return 'Over 10 km / 6 mi';
   if (m >= 1000){
     const km = (m / 1000).toFixed(m >= 5000 ? 0 : 1);
@@ -6503,7 +6725,7 @@ function mapWeatherHTML(){
   if (!day)
     return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
            '<span>No forecast for ' + esc(prettyDate(ui.rday)) +
-           ' \u2014 it only reaches seven days out. Come back nearer the time.</span></div>';
+           '. It only reaches seven days out. Come back nearer the time.</span></div>';
 
   /* Condensed: one line you can read at a glance, with the detail a tap away. */
   const look = wxLook(day.code);
@@ -6521,18 +6743,18 @@ function mapWeatherHTML(){
       (area ? ' \u00b7 ' + esc(area) : '') + '</i></span>' +
     '<span class="wxmf">' +
       '<em>' + Math.round(day.hi) + '&deg;</em>' +
-      '<em' + (day.rain >= 60 ? ' class="warn"' : '') + '>' + (day.rain == null ? '\u2014' : day.rain + '%') + '</em>' +
-      '<em' + (wind >= 35 ? ' class="warn"' : '') + '>' + (wind == null ? '\u2014' : wind + ' mph') + '</em>' +
+      '<em' + (day.rain >= 60 ? ' class="warn"' : '') + '>' + (day.rain == null ? '-' : day.rain + '%') + '</em>' +
+      '<em' + (wind >= 35 ? ' class="warn"' : '') + '>' + (wind == null ? '-' : wind + ' mph') + '</em>' +
       '<em' + (visWarn(day.vis) ? ' class="warn"' : '') + '>' + shortVis(day.vis) + '</em>' +
     '</span><i class="dochev" aria-hidden="true">&rsaquo;</i></button>';
   if (open){
     s += '<div class="wxminibody">';
     s += '<div class="wxgrid">' +
       wxCell('Visibility', prettyVis(day.vis), visWarn(day.vis)) +
-      wxCell('Chance of rain', day.rain == null ? '\u2014' : day.rain + '%', day.rain >= 60) +
+      wxCell('Chance of rain', day.rain == null ? '-' : day.rain + '%', day.rain >= 60) +
       (up != null ? wxCell('Wind at ' + lev.m + ' m', Math.round(up) + ' mph', up >= 35)
-                  : wxCell('Wind', day.wind == null ? '\u2014' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
-      wxCell('Light', (day.sunrise || '\u2014') + ' \u2013 ' + (day.sunset || '\u2014')) +
+                  : wxCell('Wind', day.wind == null ? '-' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
+      wxCell('Light', (day.sunrise || '-') + ' to ' + (day.sunset || '-')) +
       '</div>' +
       '<p class="wxsrc">Forecast: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), a model estimate, not a summit reading.</p>';
     if (up != null && day.wind != null)
@@ -6542,13 +6764,13 @@ function mapWeatherHTML(){
     s += rainTimelineHTML(day);
     if (day.freeze != null && day.freeze < top + 300)
       s += '<p class="wxnote' + (day.freeze <= top ? ' warn' : '') + '">Freezing level around ' +
-        Math.round(day.freeze) + ' m' + (day.freeze <= top ? ' \u2014 below the tops here.' : '.') + '</p>';
+        Math.round(day.freeze) + ' m' + (day.freeze <= top ? ', below the tops here.' : '.') + '</p>';
     if (visWarn(day.vis)) s += '<p class="wxnote warn">Under a kilometre of visibility. Map and compass weather.</p>';
     s += '</div>';
   }
   return s + '</div>';
 }
-const shortVis = m => m == null ? '\u2014' : m >= 10000 ? '10 km+' : m >= 1000 ? (m/1000).toFixed(m >= 5000 ? 0 : 1) + ' km' : Math.round(m/50)*50 + ' m';
+const shortVis = m => m == null ? '-' : m >= 10000 ? '10 km+' : m >= 1000 ? (m/1000).toFixed(m >= 5000 ? 0 : 1) + ' km' : Math.round(m/50)*50 + ' m';
 
 /* How high the ground is where you are looking, so the wind figure is read at
    the right level rather than at the model's idea of the valley floor. */
@@ -6577,7 +6799,7 @@ function renderPlans(){
   /* 2. which day. Nothing is picked to begin with, because a forecast you did
         not ask for is a forecast for the wrong day. */
   html += '<p class="rstep">Pick your day</p>' + dayChipsHTML();
-  html += '<p class="wxcaution">Forecasts move &mdash; check again the night before.</p>';
+  html += '<p class="wxcaution">Forecasts move: check again the night before.</p>';
 
   /* 3. the forecast, once there is a day to forecast for */
   if (ui.rday) html += '<div id="mapwx">' + mapWeatherHTML() + '</div>';
@@ -6772,7 +6994,7 @@ function weatherFor(at, p, topM){
   }
   if (!wx.days.length){
     return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
-           '<span>No forecast right now' + (wx.err ? ' — ' + esc(wx.err) : '') + '. ' +
+           '<span>No forecast right now' + (wx.err ? ': ' + esc(wx.err) : '') + '. ' +
            '<button class="linkbtn" style="padding:0" data-act="wxretry" data-id="' + esc((p && p.id) || '') + '">Try again</button></span></div>';
   }
   p = p || {};
@@ -6793,18 +7015,18 @@ function weatherFor(at, p, topM){
     '<div class="wxsum"><b>' + look.t + '</b>' +
     '<span>' + (where ? esc(where) + ' \u00b7 ' : '') +
       (target ? 'On ' + esc(prettyDate(day.date))
-              : far ? 'Nearest forecast — ' + esc(prettyDate(day.date))
-              : undated ? 'No date set — showing ' + esc(prettyDate(day.date))
+              : far ? 'Nearest forecast: ' + esc(prettyDate(day.date))
+              : undated ? 'No date set: showing ' + esc(prettyDate(day.date))
                     : esc(prettyDate(day.date))) + '</span></div>' +
     '<div class="wxtemp"><b>' + Math.round(day.hi) + '&deg;</b><i>' + Math.round(day.lo) + '&deg;</i></div></div>';
 
   s += '<div class="wxgrid">' +
     wxCell('Visibility', prettyVis(day.vis), visWarn(day.vis)) +
-    wxCell('Chance of rain', day.rain == null ? '—' : day.rain + '%', day.rain >= 60) +
+    wxCell('Chance of rain', day.rain == null ? '-' : day.rain + '%', day.rain >= 60) +
     (upWind != null
       ? wxCell('Wind at ' + lev.m + ' m', Math.round(upWind) + ' mph', upWind >= 35)
-      : wxCell('Wind', day.wind == null ? '—' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
-    wxCell('Light', (day.sunrise || '—') + ' – ' + (day.sunset || '—')) +
+      : wxCell('Wind', day.wind == null ? '-' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
+    wxCell('Light', (day.sunrise || '-') + ' - ' + (day.sunset || '-')) +
     '</div>';
   s += '<p class="wxsrc">Forecast: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), a model estimate, not a summit reading.</p>';
 
@@ -6821,9 +7043,9 @@ function weatherFor(at, p, topM){
   if (day.freeze != null && day.freeze < top + 300){
     s += '<p class="wxnote' + (day.freeze <= top ? ' warn' : '') + '">Freezing level around ' +
       Math.round(day.freeze) + ' m' +
-      (day.freeze <= top ? ' — below the top of this route. Expect ice underfoot.' : '.') + '</p>';
+      (day.freeze <= top ? ': below the top of this route. Expect ice underfoot.' : '.') + '</p>';
   }
-  if (undated) s += '<p class="wxnote warn">This route has no date, so this is simply the next forecast — not the day you are walking. Set a date above.</p>';
+  if (undated) s += '<p class="wxnote warn">This route has no date, so this is simply the next forecast: not the day you are walking. Set a date above.</p>';
   if (far) s += '<p class="wxnote">Your date is further out than the seven-day forecast reaches.</p>';
   if (visWarn(day.vis)) s += '<p class="wxnote warn">Under a kilometre of visibility. Map and compass weather.</p>';
   s += '</div>';
@@ -6858,7 +7080,7 @@ function rainSummary(hs){
     if (w.a <= first && w.b >= last) return 'Wet all day';
     if (w.a <= first) return 'Wet until about ' + hh(w.b + 1);
     if (w.b >= last)  return 'Rain arriving about ' + hh(w.a);
-    return 'Wet ' + hh(w.a) + '–' + hh(w.b + 1);
+    return 'Wet ' + hh(w.a) + '-' + hh(w.b + 1);
   }
   return wet.length + ' wet spells &middot; ' + wet.map(w => hh(w.a)).join(', ');
 }
@@ -6875,7 +7097,7 @@ function rainTimelineHTML(day){
     '<div class="wxbars"><i class="wxhalf" aria-hidden="true"></i>';
   for (const h of hs){
     const pop = Math.max(0, Math.min(100, h.pop));
-    const label = String(h.hr).padStart(2,'0') + ':00 — ' + pop + '% chance' +
+    const label = String(h.hr).padStart(2,'0') + ':00: ' + pop + '% chance' +
                   (h.mm ? ', ' + h.mm.toFixed(1) + ' mm' : '');
     s += '<span class="wxbar' + (pop >= 50 ? ' on' : '') + '" title="' + esc(label) + '">' +
          '<i style="height:' + pop + '%"></i></span>';
@@ -7160,7 +7382,7 @@ document.addEventListener('click', async e => {
     const code = el.dataset.v;
     const ok = await leaveGroup(code);
     toast(ok ? (isGlobal(code) ? 'Left the open board.' : 'Left that leaderboard.')
-             : 'Removed here, but the server could not be reached — your row is still on that board.');
+             : 'Removed here, but the server could not be reached: your row is still on that board.');
   }
   else if (a === 'refreshgroup'){ loadGroup(el.dataset.v); }
   else if (a === 'copycode'){
@@ -7309,7 +7531,7 @@ document.addEventListener('click', async e => {
     try{
       if (!personCache[u]) await loadPerson(u);
       await follow({...p, ...(personCache[u] || {})});
-      render(); toast(hasRequested(u) ? 'Request sent — they approve their followers.' : 'Following ' + (p.name || 'them') + '.');
+      render(); toast(hasRequested(u) ? 'Request sent: they approve their followers.' : 'Following ' + (p.name || 'them') + '.');
       if (!hasRequested(u)) loadFeed();
     }catch(e){ toast(fbWhy(e)); }
   }
@@ -7401,7 +7623,7 @@ document.addEventListener('click', async e => {
     }
     if (!e) return;
     if (!fbConfigured()){ toast('Sharing needs the online version of WayMark.'); return; }
-    if (!fbUser){ toast('Sign in first — your feed needs an account.'); return; }
+    if (!fbUser){ toast('Sign in first: your feed needs an account.'); return; }
     const n = (e.photos || []).length;
     /* A bare entry makes a bare card. Say so once, and offer the form. */
     const dayHills = Object.entries(state.bagged).filter(([k, r]) => r.date === e.date && BY_KEY[k] && isBagged(k)).length;
@@ -7564,7 +7786,7 @@ document.addEventListener('click', async e => {
     const p = planById(el.dataset.id); if (!p) return;
     if (!(p.hills || []).length && !(p.trk || []).length){ toast('Nothing in this route to export yet.'); return; }
     downloadFile(safeName(p.name) + '.gpx', buildGPX(p));
-    toast('GPX saved — open it in Organic Maps.');
+    toast('GPX saved: open it in Organic Maps.');
   }
   else if (a === 'cleartrk'){
     const p = planById(el.dataset.id); if (!p) return;
@@ -7586,7 +7808,7 @@ document.addEventListener('click', async e => {
       if (!cur){ routingBusy = false; render(); return; }
       cur.trk = fitTrack(line);
       routingBusy = false; savePlanEdit(id);
-      toast('Routed along paths — ' + prettyDist(trackLength(line)) + ' (OpenStreetMap rights of way).');
+      toast('Routed along paths: ' + prettyDist(trackLength(line)) + ' (OpenStreetMap rights of way).');
     }catch(err){
       routingBusy = false; render();
       toast(err.message || 'Could not find a path route.');
@@ -7640,7 +7862,7 @@ document.addEventListener('click', async e => {
          does not: you are finding it on the map, not deciding whether to tick
          it, and being asked to mark it off here is the wrong question. */
       if (el.dataset.p) openPoi(el.dataset.p);
-      else if (el.dataset.name) toast(el.dataset.name + ' \u2014 centred on the map.');
+      else if (el.dataset.name) toast(el.dataset.name + ', centred on the map.');
     }, 120);
   }
   else if (a === 'places'){
@@ -7750,8 +7972,8 @@ document.addEventListener('change', e => {
       const p2 = planById(id);
       const thinned = p2 && p2.trk.length < before;
       toast('Imported ' + prettyDist(trackLength(g.pts)) +
-            (thinned ? ' — thinned to fit sync' : '') +
-            (g.date ? ' — dated ' + prettyDate(g.date) + ' from the file.' : '. Set a date for the forecast.'));
+            (thinned ? ': thinned to fit sync' : '') +
+            (g.date ? ': dated ' + prettyDate(g.date) + ' from the file.' : '. Set a date for the forecast.'));
     }).catch(() => toast('Could not read that file.'));
   }
   else if (a === 'gpxin' && el.files && el.files.length){
@@ -7767,7 +7989,7 @@ document.addEventListener('change', e => {
       if (!p.date && g.date) p.date = g.date;   // never overwrite a date they chose
       if (p.trk.length < before) setTimeout(() => toast('Thinned ' + before.toLocaleString() + ' points to ' + p.trk.length.toLocaleString() + ' so it syncs.'), 1600);
       savePlanEdit(id);
-      toast('Track loaded — ' + prettyDist(trackLength(g.pts)) + '.');
+      toast('Track loaded: ' + prettyDist(trackLength(g.pts)) + '.');
     }).catch(() => toast('Could not read that file.'));
   }
 });
@@ -7906,7 +8128,7 @@ async function paintViewer(){
   } else if (viewing.friend){
     const f = viewing.friend;
     document.getElementById('vcap').textContent =
-      h.n + (f.date ? ' · ' + prettyDate(f.date) : '') + ' · ' + f.who;
+      h.n + (f.date ? ', ' + prettyDate(f.date) : '') + ' · ' + f.who;
     document.getElementById('vcapro').textContent = p.cap || '';
   } else {
     const r = rec(viewing.key);
@@ -8162,7 +8384,7 @@ function renderListToggles(){
     const on = state.enabled.includes(l.id);
     const s = statsFor(l.id);
     return '<div class="togglerow"><div class="tinfo"><b>' + esc(l.name) + '</b>' +
-      '<span>' + esc(l.where) + ' · ' + l.count + ' hills' + (s.done ? ' · ' + s.done + ' marked' : '') + '</span></div>' +
+      '<span>' + esc(l.where) + ', ' + l.count + ' hills' + (s.done ? ' · ' + s.done + ' marked' : '') + '</span></div>' +
       infoBtn(l.id) +
       '<button class="sw" data-act="togglelist" data-v="' + l.id + '" aria-pressed="' + on + '" aria-label="' + esc(l.name) + '"></button></div>';
   }).join('');
@@ -8326,7 +8548,7 @@ document.getElementById('syncBtn').onclick = () => { if (cloudOn()) syncNow(); t
 document.getElementById('copyBtn').onclick = async () => {
   const ta = document.getElementById('backupText');
   try{ await navigator.clipboard.writeText(ta.value); toast('Backup copied.'); }
-  catch(err){ ta.select(); toast('Press copy on your keyboard — the text is selected.'); }
+  catch(err){ ta.select(); toast('Press copy on your keyboard: the text is selected.'); }
 };
 document.getElementById('restoreBtn').onclick = () => {
   try{
@@ -9509,9 +9731,9 @@ function setGroupDetail(code, on){
    away, it never changes under you, and on the open board a walker count would
    only ever be the page cap rather than the real total. */
 function friendsTabLabel(){
-  if (!fbUser) return '—';
+  if (!fbUser) return '-';
   const n = myGroups().length;
-  if (!n) return '—';
+  if (!n) return '-';
   return n + (n === 1 ? ' board' : ' boards');
 }
 
@@ -9613,7 +9835,7 @@ function fbWhy(e){
   try{ console.error('[waymark] firebase', e && e.code, e); }catch(x){}
   const c = (e && e.code) || '';
   if (c === 'permission-denied')
-    return 'The server refused that. Your Firestore rules are out of date — paste the latest firestore.rules from the setup guide and publish them.';
+    return 'The server refused that. Your Firestore rules are out of date: paste the latest firestore.rules from the setup guide and publish them.';
   if (c === 'unavailable' || c === 'deadline-exceeded')
     return 'Could not reach the server. Check your connection and try again.';
   /* Firestore refuses a query it has no index for, and it is easy to read that
@@ -9622,7 +9844,7 @@ function fbWhy(e){
      the form. */
   if (c === 'failed-precondition')
     return 'The activity feed needs a Firestore index (aud + t) that has not been created yet. ' +
-           'Open the browser console — Firestore prints a link that builds it in one click.';
+           'Open the browser console. Firestore prints a link that builds it in one click.';
   if (c === 'unauthenticated') return 'You have been signed out. Sign in again and retry.';
   if (c === 'not-signed-in')   return 'Sign in from the Profile section first.';
   if (c === 'resource-exhausted') return 'That project has hit its Firestore quota for today.';
@@ -9860,7 +10082,7 @@ function renderBoard(){
     html += '<article class="plan globalcard" style="margin-top:0">' +
       '<div class="planhead"><h3>' + GLOBAL_NAME + '</h3><span class="tag">open to all</span></div>' +
       '<p class="planintro" style="margin:8px 0 0">One board for everyone using WayMark. ' +
-      'Anyone can see it, so joining shares your name and your total &mdash; nothing else. ' +
+      'Anyone can see it, so joining shares your name and your total: nothing else. ' +
       'Your dates, notes and photos stay off it unless you switch them on afterwards, ' +
       'and you can leave whenever you like.</p>' +
       '<div class="btnrow" style="margin-top:12px">' +
@@ -9890,7 +10112,7 @@ function profileHeader(pp, opts){
     '<span>' + (pp.handle ? '@' + esc(pp.handle) : (mine ? 'No handle yet' : '')) + (opts && opts.sub ? (pp.handle ? ' &middot; ' : '') + opts.sub : '') + '</span></div></div>';
   s += '<div class="pbody"><div class="pleft">';
   if (pp.quote) s += '<blockquote class="pquote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['quote'] + '</svg>' + esc(pp.quote) + '</blockquote>';
-  else if (mine && !ui.profEdit) s += '<p class="pquote empty">Add a line of your own &mdash; a motto, a favourite hill, why you walk.</p>';
+  else if (mine && !ui.profEdit) s += '<p class="pquote empty">Add a line of your own: a motto, a favourite hill, why you walk.</p>';
   const stats = [[pp.hills || 0, 'summits', ''], [pp.pc || 0, 'patches', mine ? 'data-act="gotab" data-v="a"' : '']];
   if (mine) stats.push([followers.length, 'followers', 'data-act="peoplego" data-v="followers"'], [following().length, 'following', 'data-act="peoplego" data-v="following"']);
   s += '<div class="pstats">' + stats.map(([v, l, act]) => act
@@ -9921,7 +10143,7 @@ function showcaseHTML(pp, mine){
 }
 function gearHTML(pp, mine){
   const list = (pp.gear || []).filter(g => g && g.n);
-  if (!list.length) return mine && !ui.profEdit ? '<p class="eyebrow">Your kit</p><p class="pquote empty">Nothing listed yet &mdash; <button class="linkbtn" style="padding:0" data-act="profedit">add the kit you walk in</button>. People love to compare boots.</p>' : '';
+  if (!list.length) return mine && !ui.profEdit ? '<p class="eyebrow">Your kit</p><p class="pquote empty">Nothing listed yet: <button class="linkbtn" style="padding:0" data-act="profedit">add the kit you walk in</button>. People love to compare boots.</p>' : '';
   const cats = GEAR_CATS.filter(c => list.some(g => g.c === c.id));
   let s = '<p class="eyebrow">' + (mine ? 'Your kit' : 'Their kit') + '</p><div class="gear">';
   for (const c of cats){
