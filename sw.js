@@ -1,7 +1,7 @@
 // WayMark — offline shell.
 // Bump the version below every time you change index.html, or phones will keep
 // showing the old build from their cache.
-const CACHE = 'waymark-v102';
+const CACHE = 'waymark-v106';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
@@ -39,6 +39,8 @@ self.addEventListener('fetch', e => {
   // path router are cross-origin and stay live.
   if (url.href.indexOf(OS_VTS) === 0){ e.respondWith(mapFetch(e.request)); return; }
   if (url.origin !== self.location.origin) return;
+  // the places files: what is cached is shown at once, and refreshed behind
+  if (url.pathname.includes('/places/')){ e.respondWith(placesFetch(e.request)); return; }
   e.respondWith(
     fetch(e.request)
       .then(res => {
@@ -50,6 +52,14 @@ self.addEventListener('fetch', e => {
   );
 });
 
+async function placesFetch(req){
+  const c = await caches.open(CACHE);
+  const hit = await c.match(req);
+  const refresh = fetch(req).then(res => { if (res.ok) c.put(req, res.clone()).catch(() => {}); return res; }).catch(() => null);
+  if (hit){ refresh.catch(() => {}); return hit; }
+  const res = await refresh;
+  return res || new Response('{"list":[]}', {status:404, headers:{'Content-Type':'application/json'}});
+}
 let putCount = 0;
 async function mapFetch(req){
   const saved = await caches.match(req, {cacheName:SHEETS}).catch(() => null);
