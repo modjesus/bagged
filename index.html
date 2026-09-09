@@ -2489,6 +2489,9 @@ body.guiding{overflow:hidden}
 .mctl button:active{transform:scale(.92)}
 .mctl button:hover{background:rgba(20,51,45,.07)}
 .mctl button.busy svg{animation:spin 1s linear infinite}
+.mctl .mguide{background:var(--accent); color:#FFF3E9}
+.mctl .mguide svg{width:20px; height:20px; stroke-width:2.4; fill:#FFF3E9}
+.mctl .mguide:hover{background:#8E3813}
 .mmode{left:12px; bottom:12px; padding:4px; display:flex; gap:2px}
 .mmode button{height:38px; padding:0 15px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1)}
 .mmode button[aria-pressed="true"]{background:var(--ink); color:#F3EFE6}
@@ -2528,6 +2531,68 @@ body.guiding{overflow:hidden}
 .routeshead .linkbtn{cursor:pointer}
 :root[data-theme="dark"] .misle, :root[data-theme="dark"] .mmenu, :root[data-theme="dark"] .mresults .rqres{background:rgba(21,42,38,.86); box-shadow:0 0 0 1px rgba(243,239,230,.1), 0 18px 40px -22px rgba(0,0,0,.7)}
 :root[data-theme="dark"] .mlayers.on, :root[data-theme="dark"] .mmode button[aria-pressed="true"], :root[data-theme="dark"] .mrow.on{background:#F3EFE6; color:#14332D}
+
+/* ---- the journey ---- */
+.nextpatch{display:flex; align-items:center; gap:16px; margin-top:12px; padding:14px 16px 14px 14px; background:var(--surface); border:1px solid var(--line); border-radius:5px; border-left:3px solid var(--accent)}
+.nextpatch.done{display:block}
+.nextpatch.done h2{margin:6px 0 0; font-family:var(--font-display); font-weight:400; text-transform:uppercase; color:var(--accent-text); font-size:28px}
+.npdisc{position:relative; flex:none; width:120px; height:120px; border:0; background:none; padding:0; cursor:pointer}
+.npdisc .patch{display:block; width:auto; opacity:1; filter:none}
+.npdisc .patch .disc{width:96px; height:96px; margin:12px; background:var(--surface-2) !important}
+.npdisc .patch .disc .pimg{filter:grayscale(1) blur(1.2px); opacity:.9}
+.npring{position:absolute; inset:0; width:120px; height:120px; transform:rotate(-90deg)}
+.npring circle{fill:none; stroke-width:5; stroke-linecap:round}
+.npr-track{stroke:var(--line-soft)}
+.npr-fill{stroke:var(--accent); transition:stroke-dasharray .8s cubic-bezier(.32,.72,0,1)}
+.nptext{min-width:0}
+.npeyebrow{margin:0; font:600 10px/1 var(--font-ui); letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3)}
+.nptext h2{margin:8px 0 0; font-family:var(--font-display); font-weight:400; text-transform:uppercase; letter-spacing:.02em; font-size:clamp(24px, 6.4vw, 30px); line-height:1; color:var(--accent-text)}
+.nptext p{margin:8px 0 0; font-size:14.5px; line-height:1.4; color:var(--ink-2)}
+.nptext p b{font-family:var(--font-data); color:var(--ink)}
+.trail.journey{background:transparent; border:0; border-radius:0; overflow:visible; margin-top:8px}
+.jnode{position:absolute; transform:translate(-50%,-50%); z-index:2; display:flex; flex-direction:column; align-items:center; gap:7px; width:170px; background:none; border:0; padding:0; text-align:center; color:inherit; font:inherit}
+.jnode.got, .jnode.next, .jnode.far{cursor:pointer}
+.jnode .patch{width:auto; opacity:1; filter:none}
+.jnode .patch .disc{margin:0; box-shadow:0 10px 18px -10px rgba(20,51,45,.55), 0 2px 6px -3px rgba(0,0,0,.35); transition:transform .5s cubic-bezier(.32,.72,0,1)}
+.jnode:hover .patch .disc{transform:translateY(-2px) scale(1.03)}
+.jnode.got .patch .disc{width:124px; height:124px}
+.jnode.next .patch .disc{width:100px; height:100px}
+.jnode.far .patch .disc{width:62px; height:62px; box-shadow:0 4px 10px -6px rgba(20,51,45,.4)}
+.jnode.next .patch .disc .pimg, .jnode.far .patch .disc .pimg{filter:grayscale(1) blur(1.4px); opacity:.9}
+.jnode.far .patch .disc .pimg{filter:grayscale(1) blur(1.8px); opacity:.85}
+/* the ink over it: black and white underneath, burnt orange laid on top */
+.npdisc .patch .disc::before, .jnode.next .patch .disc::before, .jnode.far .patch .disc::before{content:""; position:absolute; inset:0; border-radius:99px; background:#A8431A; mix-blend-mode:multiply; opacity:.9; z-index:3; pointer-events:none}
+.npdisc .patch .disc, .jnode.next .patch .disc, .jnode.far .patch .disc{isolation:isolate}
+.jnode.next .patch .disc, .jnode.far .patch .disc{background:var(--surface-2) !important; border-color:transparent}
+.jnode .patch .disc svg{width:38px; height:38px}
+.jnode.far .patch .disc svg{width:24px; height:24px}
+.jtext{display:block; line-height:1.2}
+.jtext b{display:block; font-family:var(--font-ui); font-weight:700; font-size:14px; color:var(--ink)}
+.jnode.far .jtext b{font-size:12.5px; color:var(--ink-2); font-weight:600}
+.jtext em{display:block; font-family:var(--font-hand); font-style:normal; font-weight:600; font-size:18px; color:var(--accent-text); margin-top:2px; transform:rotate(-2deg)}
+.jtext i{display:block; font-style:normal; font-size:12px; color:var(--ink-3); margin-top:2px}
+.jnode.next .jtext i{font-family:var(--font-data); color:var(--accent-text); font-weight:600}
+.jnode.you{width:auto; flex-direction:row; gap:10px; z-index:3}
+.trig{width:54px; height:54px; border-radius:99px; background:var(--ground); display:grid; place-items:center; box-shadow:0 0 0 3px var(--ground)}
+.trig svg{width:42px; height:42px; fill:none; stroke:var(--accent); stroke-width:2.6; stroke-linejoin:round}
+.trig svg circle{fill:var(--accent); stroke:none}
+.youlbl{margin:0; white-space:nowrap; font-size:10px; padding:6px 12px 5px; transform:rotate(-2deg)}
+.jnode.chapter{width:auto; gap:4px}
+.jnode.chapter .sumlabel{margin:0}
+.jnode.chapter span{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); background:var(--ground); padding:2px 6px; border-radius:6px}
+.jnote{font-size:13px; color:var(--ink-3); margin:6px 0 0; text-align:center}
+.disc.hasimg > svg{display:none}
+.mplot{left:12px; right:12px; bottom:12px; padding:5px; display:flex; align-items:center; gap:4px}
+.mplot button{height:40px; padding:0 14px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
+.mplot button:disabled{opacity:.4; cursor:default}
+.mplot button:not(:disabled):hover{background:rgba(20,51,45,.07)}
+.mplot .mp-exit{width:40px; padding:0; display:grid; place-items:center}
+.mplot .mp-exit svg{width:18px; height:18px; stroke-width:1.5}
+.mplot .mp-save{margin-left:auto; background:var(--accent); color:#FFF3E9; padding:0 18px}
+.mplot .mp-save:not(:disabled):hover{background:#8E3813}
+.mplot .mp-save:disabled{background:var(--accent); opacity:.35}
+@media (max-width:420px){ .mplot button{padding:0 11px; font-size:13px} .mplot .mp-save{padding:0 14px} }
+:root[data-theme="dark"] .mplot .mp-save{background:#F3EFE6; color:#14332D}
 </style>
 </head>
 <body>
@@ -2696,7 +2761,7 @@ const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
    compass). Paths are baked in from @tabler/icons 3.31 rather than drawn by
    hand, so every glyph in the app is from the same hand.
    https://tabler.io/icons */
-const TI = {"circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
+const TI = {"circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","navigation":"<path d=\"M12 18.5l7.5 3.5l-7.5 -18l-7.5 18l7.5 -3.5\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
 Object.assign(TI, {"backpack": "<path d=\"M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3z\"/> <path d=\"M10 6v-1a2 2 0 1 1 4 0v1\"/> <path d=\"M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4\"/> <path d=\"M11 10h2\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
 Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path d=\"M11.5 4l-.5 2\"/> <path d=\"M18 5h2\"/> <path d=\"M19 4v2\"/> <path d=\"M15 9l-1 1\"/> <path d=\"M18 13l2 -.5\"/> <path d=\"M18 19h2\"/> <path d=\"M19 18v2\"/> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z\"/>", "dog": "<path d=\"M11 5h2\"/> <path d=\"M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8\"/> <path d=\"M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z\"/> <path d=\"M12 18v2\"/> <path d=\"M10 11v.01\"/> <path d=\"M14 11v.01\"/> <path d=\"M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z\"/> <path d=\"M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z\"/>", "sunrise": "<path d=\"M3 17h1m16 0h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7m-9.7 5.7a4 4 0 0 1 8 0\"/> <path d=\"M3 21l18 0\"/> <path d=\"M12 9v-6l3 3m-6 0l3 -3\"/>", "thumb-up": "<path d=\"M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3\"/>", "bookmark": "<path d=\"M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z\"/>", "bell": "<path d=\"M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/>", "bell-ringing": "<path d=\"M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/> <path d=\"M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727\"/> <path d=\"M3 6.727a11.05 11.05 0 0 1 2.792 -3.727\"/>", "lock": "<path d=\"M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z\"/> <path d=\"M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0\"/> <path d=\"M8 11v-4a4 4 0 1 1 8 0v4\"/>", "world": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M3.6 9h16.8\"/> <path d=\"M3.6 15h16.8\"/> <path d=\"M11.5 3a17 17 0 0 0 0 18\"/> <path d=\"M12.5 3a17 17 0 0 1 0 18\"/>", "users-group": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\"/> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\"/> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\"/>", "user-plus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M16 19h6\"/> <path d=\"M19 16v6\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/>", "user-check": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/> <path d=\"M15 19l2 2l4 -4\"/>", "user-minus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128\"/> <path d=\"M16 19h6\"/>", "eye": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\"/>", "arrows-shuffle": "<path d=\"M18 4l3 3l-3 3\"/> <path d=\"M18 20l3 -3l-3 -3\"/> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\"/> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\"/>", "target": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0\"/> <path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>", "target-arrow": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 7a5 5 0 1 0 5 5\"/> <path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/> <path d=\"M15 6v3h3l3 -3h-3v-3z\"/> <path d=\"M15 9l-3 3\"/>", "bulb": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\"/> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\"/> <path d=\"M9.7 17l4.6 0\"/>", "message-circle": "<path d=\"M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1\"/>", "eye-off": "<path d=\"M10.585 10.587a2 2 0 0 0 2.829 2.828\"/> <path d=\"M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87\"/> <path d=\"M3 3l18 18\"/>"});
 TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
@@ -3780,6 +3845,120 @@ function patchRow(list){
   }
   return s + '</div>';
 }
+/* ---------- the journey: patches as milestones along one trail ----------
+   The trail reads as a walk through your own log: every patch you have earned
+   in the order you earned it, with the date and the summit that tipped it, a
+   boot where you are now, the next patch ahead with how far it is, and the
+   rest as small blurred waypoints further along. Chapters are stamped where a
+   list begins. */
+function earnedOn(p){
+  /* the hill and date that completed a patch */
+  let hs;
+  if (p.kind === 'count') hs = markedInDateOrder(null).slice(0, p.n);
+  else hs = patchPeaks(p);
+  const last = hs[hs.length - 1];
+  return last ? {h:last.h, date:last.r.date || ''} : null;
+}
+function earnedKey(p){ const e = earnedOn(p); return e ? (e.date || '9999') : '9999'; }
+function toGo(p){ return Math.max(0, (p.target || 0) - (p.have || 0)); }
+function weekdayOf(d){ try{ return new Date(d + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long'}); }catch(e){ return ''; } }
+/* what the next planned walk would do to the count */
+function nudgeFor(p){
+  if (!p || p.kind !== 'count') return '';
+  const t = today();
+  const plans = livePlans().filter(x => x.date && x.date >= t && (x.hills || []).some(k => !isBagged(k))).sort((a, b) => a.date.localeCompare(b.date));
+  const pl = plans[0]; if (!pl) return '';
+  const fresh = pl.hills.filter(k => !isBagged(k)).map(k => BY_KEY[k]).filter(Boolean);
+  if (!fresh.length) return '';
+  const after = (p.have || 0) + fresh.length;
+  const when = pl.date === t ? 'today' : 'on ' + weekdayOf(pl.date);
+  const what = fresh.length === 1 ? hillName(fresh[0]) : hillName(fresh[0]) + ' and ' + (fresh.length - 1) + ' more';
+  return after >= p.target ? what + ' ' + when + ' earns it.' : what + ' ' + when + ' makes it ' + after + '.';
+}
+function nextPatch(ps){
+  const counts = ps.filter(p => p.kind === 'count' && !p.got).sort((a, b) => a.sort - b.sort);
+  if (counts.length) return counts[0];
+  return ps.filter(p => !p.got).sort((a, b) => (toGo(a) / (a.target || 1)) - (toGo(b) / (b.target || 1)))[0] || null;
+}
+function nextPatchHTML(ps, got){
+  const p = nextPatch(ps);
+  if (!p) return '<section class="nextpatch done"><p class="sumlabel">Every patch earned</p><h2>The board is full.</h2></section>';
+  const pct = p.target ? Math.min(100, (p.have || 0) / p.target) : 0;
+  const R = 54, C = 2 * Math.PI * R;
+  return '<section class="nextpatch"><button class="npdisc" data-act="openpatch" data-v="' + esc(p.id) + '" aria-label="' + esc(p.label) + '">' +
+    '<span class="patch">' + patchDisc(p) + '</span>' +
+    '<svg class="npring" viewBox="0 0 120 120" aria-hidden="true"><circle class="npr-track" cx="60" cy="60" r="' + R + '"/>' +
+    '<circle class="npr-fill" cx="60" cy="60" r="' + R + '" stroke-dasharray="' + (C * pct).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg></button>' +
+    '<div class="nptext"><p class="npeyebrow">Next patch &middot; ' + got + ' of ' + ps.length + ' earned</p>' +
+    '<h2>' + esc(p.label) + '</h2>' +
+    '<p><b>' + toGo(p) + ' to go.</b> ' + esc(nudgeFor(p) || p.need || '') + '</p></div></section>';
+}
+/* the trail itself: a list of nodes, each with a height, alternating sides */
+function journeyNodes(ps){
+  const nodes = [];
+  const earned = ps.filter(p => p.got).sort((a, b) => earnedKey(a).localeCompare(earnedKey(b)) || a.sort - b.sort);
+  for (const p of earned) nodes.push({t:'got', p});
+  nodes.push({t:'you'});
+  const nxt = nextPatch(ps);
+  const counts = ps.filter(p => p.kind === 'count' && !p.got).sort((a, b) => a.sort - b.sort);
+  for (const p of counts) nodes.push({t: p === nxt ? 'next' : 'far', p});
+  const three = ps.filter(p => (p.kind === 'peak' || p.kind === 'set') && !p.got).sort((a, b) => a.sort - b.sort);
+  if (three.length){ nodes.push({t:'chapter', label:'National Three Peaks', sub: ps.filter(p => (p.kind === 'peak' || p.kind === 'set') && p.got).length + ' of ' + ps.filter(p => p.kind === 'peak' || p.kind === 'set').length}); for (const p of three) nodes.push({t: p === nxt ? 'next' : 'far', p}); }
+  for (const l of enabled()){
+    if (l.id === 'three-peaks') continue;
+    const all = ps.filter(p => (p.kind === 'list' && p.listId === l.id) || (p.kind === 'book' && l.id === 'wainwright'));
+    const items = all.filter(p => !p.got).sort((a, b) => a.sort - b.sort);
+    if (!items.length) continue;
+    nodes.push({t:'chapter', label:l.name, sub: all.filter(p => p.got).length + ' of ' + all.length});
+    for (const p of items) nodes.push({t: p === nxt ? 'next' : 'far', p});
+  }
+  return nodes;
+}
+const NODE_H = {got:206, you:96, next:196, far:122, chapter:72};
+function journeyTrail(ps){
+  const nodes = journeyNodes(ps);
+  const wide = typeof innerWidth !== 'undefined' && innerWidth >= 768;
+  const k = wide ? 1.12 : 1;
+  let y = 70, side = 0, d = '', pts = [];
+  const laid = nodes.map(n => {
+    const h = NODE_H[n.t] * k;
+    const cy = y + h * .42;
+    let x;
+    if (n.t === 'chapter') x = 50;
+    else { x = side === 0 ? 30 : 70; side ^= 1; }
+    const o = {n, x, y:cy};
+    pts.push([x, cy]);
+    y += h;
+    return o;
+  });
+  const H = y + 40;
+  pts.forEach((c, i) => {
+    if (i === 0){ d += 'M' + c[0] + ' ' + c[1]; return; }
+    const p = pts[i - 1], dy = (c[1] - p[1]) * .5;
+    d += ' C' + p[0] + ' ' + (p[1] + dy) + ', ' + c[0] + ' ' + (c[1] - dy) + ', ' + c[0] + ' ' + c[1];
+  });
+  let s = '<div class="trail journey" style="height:' + H + 'px">';
+  s += '<svg class="trailline" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
+       '<path class="tl-under" d="' + d + '"/><path class="tl-over" d="' + d + '"/></svg>';
+  for (const o of laid){
+    const n = o.n, pos = ' style="left:' + o.x + '%; top:' + o.y + 'px"';
+    if (n.t === 'you'){
+      s += '<div class="jnode you"' + pos + '><span class="trig" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 6 L35 33 H5 Z"/><circle cx="20" cy="24" r="3.2"/></svg></span><p class="sumlabel youlbl">You are here</p></div>';
+    } else if (n.t === 'chapter'){
+      s += '<div class="jnode chapter"' + pos + '><p class="sumlabel">' + esc(n.label) + '</p><span>' + esc(n.sub) + '</span></div>';
+    } else {
+      const p = n.p, e = n.t === 'got' ? earnedOn(p) : null;
+      s += '<button class="jnode ' + n.t + '" data-act="openpatch" data-v="' + esc(p.id) + '"' + pos + '>' +
+        '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
+        '<span class="jtext"><b>' + esc(p.label) + '</b>' +
+        (n.t === 'got' ? (e && e.date ? '<em class="stampdate">' + esc(prettyDate(e.date)) + '</em>' : '') + (e ? '<i>' + esc(hillName(e.h)) + '</i>' : '')
+          : '<i>' + (p.note ? esc(p.note.replace(/&middot;/g, '·')) : toGo(p) + ' to go') + '</i>') +
+        '</span></button>';
+    }
+  }
+  return s + '</div>';
+}
+
 function renderPatchesPage(){
   const ps = patches();
   if (ui.patch){
@@ -3795,31 +3974,9 @@ function renderPatchesPage(){
       (v === 'journey' ? 'Journey' : 'Corkboard') + '</button>').join('') + '</div>';
   if (ui.patchView === 'cork') return s + renderCorkboard(ps);
 
-  s += '<p class="eyebrow">Your journey &middot; ' + got + ' of ' + ps.length + ' patches</p>';
-  s += '<div class="planintro">Every milestone you have walked into, in the order you reached it. Tap a patch to see the summits behind it.</div>';
-  s += trailBlock(counts);
-
-  const three = ps.filter(p => p.kind === 'peak' || p.kind === 'set').sort((a, b) => a.sort - b.sort);
-  if (three.length){
-    const g = three.filter(x => x.got).length;
-    s += '<p class="eyebrow">National Three Peaks &middot; ' + g + ' of ' + three.length + '</p>';
-    s += '<div class="planintro">The highest summit in England, Wales and Scotland: and a patch for doing all three.</div>';
-    s += trailBlock(three);
-  }
-
-  /* each hill list keeps its own run of patches, so the Wainwright books do not
-     get tangled up with the Munros */
-  for (const l of enabled()){
-    if (l.id === 'three-peaks') continue;
-    const items = ps.filter(p =>
-      (p.kind === 'list' && p.listId === l.id) ||
-      (p.kind === 'book' && l.id === 'wainwright')
-    ).sort((a, b) => a.sort - b.sort);
-    if (!items.length) continue;
-    const g = items.filter(x => x.got).length;
-    s += '<p class="eyebrow">' + esc(l.name) + ' &middot; ' + g + ' of ' + items.length + '</p>';
-    s += items.length > 2 ? trailBlock(items) : patchRow(items);
-  }
+  s += nextPatchHTML(ps, got);
+  s += journeyTrail(ps);
+  s += '<p class="jnote">Tap a patch to see the summits behind it.</p>';
   return s;
 }
 /* ---------- the corkboard ----------
@@ -6225,6 +6382,47 @@ const POI_MIRRORS = [
 ];
 let poiMirror = 0;
 
+/* the cells a box touches, and the files behind them */
+let placeIndex = null, placeIndexAt = 0;
+const placeCells = new Map();          // key -> 'ok' | 'none' | Promise
+function cellKeyOf(la, lo){ return (Math.floor(la * 2) / 2).toFixed(1) + '_' + (Math.floor(lo * 2) / 2).toFixed(1); }
+function cellsFor(b){
+  const out = new Set();
+  for (let la = Math.floor(b.s * 2) / 2; la <= b.n; la += .5)
+    for (let lo = Math.floor(b.w * 2) / 2; lo <= b.e; lo += .5) out.add(cellKeyOf(la, lo));
+  return [...out];
+}
+async function loadPlaceIndex(){
+  if (placeIndex && Date.now() - placeIndexAt < 3600e3) return placeIndex;
+  try{
+    const r = await fetch('places/index.json');
+    if (!r.ok) throw new Error(r.status);
+    placeIndex = (await r.json()).cells || {}; placeIndexAt = Date.now();
+  }catch(e){ placeIndex = placeIndex || {}; placeIndexAt = Date.now(); }
+  return placeIndex;
+}
+/* true when every cell the box touches came from a file */
+async function loadPlaceCells(b){
+  const idx = await loadPlaceIndex();
+  const keys = cellsFor(b);
+  let all = true;
+  await Promise.all(keys.map(async k => {
+    if (!(k in idx)){ all = false; return; }
+    const st = placeCells.get(k);
+    if (st === 'ok') return;
+    if (st === 'none'){ all = false; return; }
+    const job = st || fetch('places/' + k + '.json').then(async r => {
+      if (!r.ok) throw new Error(r.status);
+      const j = await r.json();
+      for (const p of j.list || []) if (!poiSeen.has(p.id)) poiSeen.set(p.id, p);
+      placeCells.set(k, 'ok');
+    }).catch(() => { placeCells.set(k, 'none'); });
+    if (!st) placeCells.set(k, job);
+    await job;
+    if (placeCells.get(k) !== 'ok') all = false;
+  }));
+  return all;
+}
 function boxCovered(b){
   return poiBoxes.some(p => p.s <= b.s && p.w <= b.w && p.n >= b.n && p.e >= b.e);
 }
@@ -6239,6 +6437,21 @@ async function fetchPois(bounds){
              n:+(bounds.getNorth() + ph).toFixed(3), e:+(bounds.getEast() + pw).toFixed(3)};
   if (boxCovered(b)) return;
   if (poiBusy) return;
+
+  /* The built files first: one small JSON per half-degree cell, made weekly
+     from OpenStreetMap and kept by the service worker, so the places are on
+     the map at once. Overpass is only asked live for a cell with no file. */
+  poiBusy = true; poiErr = '';
+  paintPoiBar();
+  try{
+    if (await loadPlaceCells(b)){
+      poiBoxes.push(b);
+      if (poiBoxes.length > 14) poiBoxes.shift();
+      poiBusy = false;
+      return;
+    }
+  }catch(e){}
+  poiBusy = false;
 
   const bbox = '(' + b.s + ',' + b.w + ',' + b.n + ',' + b.e + ')';
   /* 15s not 25: a slow answer is no use to somebody moving the map, and failing
@@ -6666,7 +6879,7 @@ async function showMeOn(m, btn){
   try{
     const f = await getFix();
     if (hereAt && hereAt.m !== m) setData(hereAt.m, 'wm-here', {type:'FeatureCollection', features:[]});
-    hereAt = {m, f};
+    hereAt = {m, f, t:Date.now()};
     redrawHere(m);
     m.easeTo({center:[f.lon, f.lat], zoom:Math.max(m.getZoom() || 0, 13), duration:400});
     const near = nearestHill(f.lat, f.lon);
@@ -6705,8 +6918,9 @@ function editorStatsHTML(){
 function paintEditorStats(){
   const el = document.getElementById('rmstats');
   if (el) el.innerHTML = editorStatsHTML();
-  const s = document.getElementById('rmsave');
-  if (s) s.disabled = rmBusy;
+  const s = document.querySelector('.mp-save');
+  if (s) s.disabled = rmBusy || !(editor && editor.wp.length);
+  for (const q of ['rmundo', 'rmclear']){ const b = document.querySelector('.mplot [data-act="' + q + '"]'); if (b) b.disabled = !(editor && editor.wp.length); }
 }
 
 let rmMarks = [];
@@ -6721,6 +6935,7 @@ function mountRouteMap(){
   if (!rmap){
     rmap = makeMap(box, editor ? routeAt(planById(editor.id) || {}) : (ui.rview ? {la:ui.rview.c.lat, lo:ui.rview.c.lng} : null), {bare:true});
     guardMapTaps(box);
+    if (hereAt && Date.now() - (hereAt.t || 0) < 20 * 60000) hereAt.m = rmap;   // the blue dot survives a redraw
     /* Exploring is the default. A tap only puts a point down once you have
        said you are plotting — otherwise looking at the map built a route by
        accident, which is exactly what made this screen hard to work out. */
@@ -7808,12 +8023,9 @@ function renderPlans(){
         (editor && editor.snap ? '✓ Following paths' : 'Straight lines') + '</button></div>' +
       '<p class="plothint">Tap the map to drop points. Tap a summit to route through it. Tap the start to close the loop.</p>' +
       '<div class="btnrow plotrow">' +
-      '<button class="btn quiet" data-act="rmundo"' + (editor && editor.wp.length ? '' : ' disabled') + '>Undo</button>' +
-      '<button class="btn quiet" data-act="rmclear"' + (editor && editor.wp.length ? '' : ' disabled') + '>Clear</button>' +
       '<label class="btn quiet">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label>' +
       '<span class="grow"></span>' +
       (editor && (editor.wp.length || editor.id) ? '<button class="btn quiet" data-act="rmdiscard">Discard</button>' : '') +
-      '<button class="btn" id="rmsave" data-act="rmsave"' + (editor && editor.wp.length ? '' : ' disabled') + '>Save this route</button>' +
       '</div></section>';
   } else {
     /* the day, and what the sky is doing on it */
@@ -7848,10 +8060,17 @@ function mapStageHTML(){
     '<div id="layers" class="mmenu"' + (ui.layersOpen ? '' : ' hidden') + '>' + layersHTML() + '</div>' +
     '<div class="misle mctl"><button data-act="mzoom" data-v="1" aria-label="Zoom in">' + ti('plus') + '</button>' +
       '<button data-act="mzoom" data-v="-1" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>' +
-      '<button data-act="mlocate" aria-label="' + (coarsePointer() ? 'Where am I' : 'Show where I am') + '" title="' + (coarsePointer() ? 'Where am I' : 'Show where I am') + '">' + ti('current-location') + '</button></div>' +
-    '<div class="misle mmode" role="group" aria-label="What tapping does">' +
-      '<button data-act="rmode" data-v="explore" aria-pressed="' + (ui.rmode !== 'plot') + '">Explore</button>' +
-      '<button data-act="rmode" data-v="plot" aria-pressed="' + (ui.rmode === 'plot') + '">Plot a route</button></div>' +
+      '<button data-act="mlocate" aria-label="Show where I am" title="Show where I am">' + ti('current-location') + '</button>' +
+      (coarsePointer() ? '<button class="mguide" data-act="guide" aria-label="Where am I" title="Where am I">' + ti('navigation') + '</button>' : '') + '</div>' +
+    (ui.rmode === 'plot'
+      ? '<div class="misle mplot" role="toolbar" aria-label="Plotting">' +
+        '<button class="mp-exit" data-act="rmode" data-v="explore" aria-label="Stop plotting">' + ti('arrow-left') + '</button>' +
+        '<button data-act="rmundo"' + (editor && editor.wp.length ? '' : ' disabled') + '>Undo</button>' +
+        '<button data-act="rmclear"' + (editor && editor.wp.length ? '' : ' disabled') + '>Clear</button>' +
+        '<button class="mp-save" data-act="rmsave"' + (editor && editor.wp.length ? '' : ' disabled') + '>Save this route</button></div>'
+      : '<div class="misle mmode" role="group" aria-label="What tapping does">' +
+        '<button data-act="rmode" data-v="explore" aria-pressed="true">Explore</button>' +
+        '<button data-act="rmode" data-v="plot" aria-pressed="false">Plot a route</button></div>') +
     '<div class="scrollgrip" aria-hidden="true"><span></span><span></span><span></span></div>' +
     '</div>';
   return s;
@@ -8725,7 +8944,7 @@ document.addEventListener('click', async e => {
   else if (a === 'guide'){ openGuide(el.dataset.id != null ? el.dataset.id : null); }
   else if (a === 'layers'){ ui.layersOpen = !ui.layersOpen; paintLayers(); }
   else if (a === 'mzoom'){ if (rmap) rmap.easeTo({zoom: rmap.getZoom() + (+el.dataset.v), duration:260, easing:t => 1 - Math.pow(1 - t, 3)}); }
-  else if (a === 'mlocate'){ if (coarsePointer()) openGuide(''); else if (rmap) showMeOn(rmap, el); }
+  else if (a === 'mlocate'){ if (rmap) showMeOn(rmap, el); }
   else if (a === 'guideclose'){ closeGuide(); }
   else if (a === 'guidezoom'){ if (gmap) gmap.easeTo({zoom: gmap.getZoom() + (+el.dataset.v), duration:260, easing:t => 1 - Math.pow(1 - t, 3)}); }
   else if (a === 'guidecentre'){ guideFollow = true; drawGuide(); paintGuide(); }
