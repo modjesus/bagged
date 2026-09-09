@@ -1,9 +1,9 @@
 // WayMark — offline shell.
 // Bump the version below every time you change index.html, or phones will keep
 // showing the old build from their cache.
-const CACHE = 'waymark-v84';
+const CACHE = 'waymark-v87';
 
-const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './firebase-config.js', './manifest.webmanifest',
+const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './tex/os-sheet.svg', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png'];
 
 self.addEventListener('install', e => {
