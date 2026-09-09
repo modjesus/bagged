@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WayMark — Mark Your Journeys</title>
+<meta name="description" content="Mark the hills you have climbed across Britain — Wainwrights, Munros, Corbetts, Marilyns, Nuttalls and more. Keep a journal, earn patches, follow other walkers.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WayMark">
+<meta property="og:title" content="WayMark — Mark Your Journeys">
+<meta property="og:description" content="Mark the hills you have climbed across Britain. Keep a journal, earn patches, follow other walkers.">
+<meta property="og:image" content="https://waymark.it.com/og.png">
+<meta property="og:url" content="https://waymark.it.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WayMark — Mark Your Journeys">
+<meta name="twitter:description" content="Mark the hills you have climbed across Britain. Keep a journal, earn patches, follow other walkers.">
+<meta name="twitter:image" content="https://waymark.it.com/og.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
@@ -105,6 +116,8 @@ img{max-width:100%}
 .wrap{max-width:680px; margin:0 auto; padding:0 14px}
 
 /* ================= dashboard ================= */
+.welcomemark{margin:26px 0 -14px; color:var(--ink)}
+.welcomemark .mark{width:64px; height:64px}
 .pagehead{
   font-family:var(--font-display); color:var(--accent-text);
   font-size:clamp(24px,6.4vw,34px); letter-spacing:.03em; line-height:1.05;
@@ -331,6 +344,7 @@ body::before{
   min-width:0; overflow:visible; flex:0 1 auto; text-align:center;
 }
 .hbrand{background:none; border:none; padding:0; cursor:pointer; color:inherit}
+.sbrand .mark{width:30px; height:30px; flex:none; color:#F3EFE6}
 /* the tagline is tracked out by script to sit exactly under the wordmark */
 .tagline{display:block}
 .tagline{
@@ -399,6 +413,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   }
   .sbrand{background:none; border:none; padding:6px 0 14px; display:grid; place-items:center; cursor:pointer}
   .side .sbt, .side .sfoot, .side .navbtn .nl, .side .navbtn .nc{display:none}
+  .side .sbrand .mark{width:34px; height:34px}
   .side .navbtn{justify-content:center; padding:11px 0}
   .side .navbtn .ni{width:21px; height:21px}
   .snav{display:flex; flex-direction:column; gap:4px}
@@ -1873,6 +1888,84 @@ button.pstat:hover b{color:var(--accent-text)}
 .side .tagline{color:#9DB4AD}
 .side .brand{color:#F3EFE6}
 .side .brand em{color:#E8925F}
+
+/* ================= redesign pass 1 =================
+   Targeted upgrades from the field audit, in the order of least risk: type
+   polish, a visible grain, hover and press states, one radius rule, stamped
+   list tabs, skeleton loading. No layout or feature changes. */
+
+/* type: balanced headings, no orphans, figures that line up */
+h1, h2, h3, .pagehead, .eyebrow, .advtitle, .npname{text-wrap:balance}
+p, .planintro, .ptext, .dentry p{text-wrap:pretty}
+body{font-variant-numeric:tabular-nums}
+
+/* texture you can actually see: paper tooth and grain at a whisper, not a rumour */
+:root{--noise:.06}
+:root[data-theme="dark"]{--noise:.08}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--noise:.08} }
+body::before{opacity:.85}
+
+/* one radius rule: sheets 4px (stamps), cloth 9px (cards, inputs, buttons),
+   chips 7px (stamped tabs), badges round */
+:root{--r:9px}
+.btn{border-radius:9px}
+.seg{border-radius:9px}
+.seg button{border-radius:6px}
+.lchip, .chip, .pill{border-radius:7px}
+.iconbtn{border-radius:9px}
+.field{border-radius:9px}
+
+/* everything you can press moves */
+.btn, .lchip, .chip, .seg button, .iconbtn, .ibtn, .linkbtn, .rbtn, .navbtn, .rqrow, .sharekind, .pstat, .info-btn{
+  transition:background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .08s ease;
+}
+.btn{box-shadow:inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.18)}
+.btn.ghost, .btn.quiet, .btn.danger{box-shadow:inset 0 -2px 0 rgba(20,51,45,.10)}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost:hover, .btn.quiet:hover, .btn.danger:hover{background:var(--surface-2); filter:none}
+.btn:active, .lchip:active, .chip:active, .seg button:active, .iconbtn:active, .rbtn:active, .sharekind:active{transform:translateY(1px)}
+.btn:active{box-shadow:inset 0 1px 2px rgba(0,0,0,.28)}
+.btn:disabled{transform:none; opacity:.6}
+.lchip:hover, .chip:hover{border-color:var(--ink-3)}
+.linkbtn:hover{color:var(--accent)}
+.rbtn:hover{border-color:var(--accent); color:var(--accent-text)}
+.iconbtn:hover, .ibtn:hover{background:var(--surface-2)}
+@media (prefers-reduced-motion:reduce){
+  .btn, .lchip, .chip, .seg button, .iconbtn, .ibtn, .linkbtn, .rbtn, .navbtn, .rqrow, .sharekind, .pstat, .info-btn{transition:none}
+  .btn:active, .lchip:active, .chip:active, .seg button:active, .iconbtn:active, .rbtn:active, .sharekind:active{transform:none}
+}
+
+/* the selected list is a stamped tab, not a tinted pill */
+.lchip{box-shadow:inset 0 -1.5px 0 rgba(20,51,45,.08)}
+.lchip[aria-pressed="true"], :root[data-theme="dark"] .lchip[aria-pressed="true"], :root:not([data-theme="light"]) .lchip[aria-pressed="true"]{
+  background:var(--accent); color:#F6EFE4; border-color:#8E3813;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22), inset 0 -2px 0 rgba(0,0,0,.25);
+}
+.lchip[aria-pressed="true"] b, :root[data-theme="dark"] .lchip[aria-pressed="true"] b, :root:not([data-theme="light"]) .lchip[aria-pressed="true"] b{color:#F6EFE4; opacity:.85}
+.seg button[aria-pressed="true"]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.2)}
+
+/* progress bars read as a ruled line, not a slider */
+.planstat{border-radius:2px}
+.planstat > i{border-radius:1px}
+
+/* skeleton loading: the shape of what is coming, not a spinner */
+.skel{position:relative; overflow:hidden; background:var(--surface-2); border-radius:6px; color:transparent}
+.skel::after{content:""; position:absolute; inset:0; transform:translateX(-100%);
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); animation:skel 1.4s ease-in-out infinite}
+@keyframes skel{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){ .skel::after{animation:none} }
+.skelpost{background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--r); padding:14px; margin-top:12px}
+.skelpost .skrow{display:flex; gap:10px; align-items:center}
+.skelpost .skav{width:40px; height:40px; border-radius:99px; flex:none}
+.skelpost .skl{height:12px; flex:1}
+.skelpost .skl.short{flex:0 0 42%}
+.skelpost .skt{height:14px; margin-top:12px}
+.skelpost .skt.w60{width:60%}
+.skelpost .skt.w85{width:85%}
+.skelrow{display:flex; gap:10px; align-items:center; padding:10px 0; border-top:1px solid var(--line-soft)}
+.skelrow .skav{width:28px; height:28px; border-radius:99px; flex:none}
+.skelrow .skl{height:12px; flex:1}
+.skelrow .skn{width:44px; height:12px}
 .side .wmplate, .side .wmw{stroke:#F3EFE6}
 .side .wmm{stroke:#E8925F}
 /* the content gets the width it was given */
@@ -1954,7 +2047,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 <div class="app">
   <aside class="side">
     <button class="sbrand" data-tab="d" aria-label="WayMark home">
-      <span class="sbt"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></span>
+      <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="M8.25 13.03 10.38 15.98 16.35 7.77 22.50 16.23"/></svg><span class="sbt"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></span>
     </button>
     <nav class="snav" id="snav" role="tablist" aria-label="Sections"></nav>
     <p class="sfoot">A walking log for the hills of Britain.</p>
@@ -3364,7 +3457,7 @@ function renderPatches(listId){
 /* the nav, in the brand board's icon language: the mountain pair, the folded
    map with its pin, the boot, the compass for planning a walk */
 /* the Hills mountain is Joe's original pair of peaks, kept, at the family's line weight */
-TI['waymark-mountain'] = '<path d="M3 18.5 8.5 9.5 11 14.5"/><path d="M11 14.5 15 6.5 21 18.5"/><path d="M2.5 18.5h19"/>';   /* two peaks meeting cleanly in the col, no crossing strokes */
+TI['waymark-mountain'] = '<path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="M8.25 13.03 10.38 15.98 16.35 7.77 22.50 16.23"/>';   /* Joe's mark: two peaks, the tick in the col (WM - ICON.svg, Sep 2026) */
 const NI = {
   d: TI['home'], h: TI['waymark-mountain'], m: TI['map-2'], p: TI['map-2'],
   j: TI['notebook'], a: TI['circle-dashed'], u: TI['shoe'], f: TI['users']
@@ -4030,7 +4123,7 @@ function renderOnboard(){
 
 function renderPickLists(){
   const n = ui.pick.length;
-  let s = '<h2 class="pagehead">Welcome to WayMark</h2>';
+  let s = '<div class="welcomemark" aria-hidden="true"><svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="M8.25 13.03 10.38 15.98 16.35 7.77 22.50 16.23"/></svg></div><h2 class="pagehead">Welcome to WayMark</h2>';
   /* Most people arrive knowing the hills they have walked, not the lists those
      hills sit on. So the search leads: type a hill, mark it, and WayMark works
      out the list. The lists themselves are the second route, for those who
@@ -4633,6 +4726,24 @@ function postHTML(p){
   return s + '</article>';
 }
 
+/* Loading shapes: a post-shaped card and a row-shaped line, so the page keeps
+   its layout while the network answers instead of showing a word. */
+function skeletonPosts(n){
+  let s = '';
+  for (let i = 0; i < n; i++){
+    s += '<div class="skelpost" aria-hidden="true"><div class="skrow"><span class="skel skav"></span>' +
+      '<span class="skel skl short"></span></div>' +
+      '<div class="skel skt w60"></div><div class="skel skt w85"></div><div class="skel skt"></div></div>';
+  }
+  return '<div role="status" aria-label="Loading posts">' + s + '</div>';
+}
+function skeletonRows(n){
+  let s = '<div role="status" aria-label="Loading" style="margin-top:10px">';
+  for (let i = 0; i < n; i++)
+    s += '<div class="skelrow" aria-hidden="true"><span class="skel skav"></span><span class="skel skl"></span><span class="skel skn"></span></div>';
+  return s + '</div>';
+}
+
 /* The week so far: who has been out, from what the feed already holds. A
    nudge, not a scoreboard — it only counts summit posts. */
 function weekBoard(){
@@ -4815,6 +4926,8 @@ function renderFeed(){
     s += '<p class="empty">' + esc(socialWhy || 'Could not reach the server.') +
       ' Your own log is safe on this device. ' +
       '<button class="linkbtn" style="padding:0" data-act="refreshfeed">Try again</button></p>';
+  } else if (!feed.length && feedBusy){
+    s += skeletonPosts(2);
   } else if (!feed.length){
     s += '<div class="nobody"><b>' + (following().length ? 'Quiet out there' : 'Nobody followed yet') + '</b>' +
       '<span>' + (following().length ? 'The people you follow have not shared a walk lately.' : 'Find people who share your love of the hills.') + '</span>' +
@@ -9630,7 +9743,7 @@ function boardCard(g){
     '<button class="sw" data-act="groupdetail" data-v="' + esc(g.code) + '" aria-pressed="' + shares +
     '" aria-label="Share detail with ' + esc(glob ? GLOBAL_NAME : (g.name || 'this leaderboard')) + '"></button></div>';
 
-  if (groupBusy === g.code || !rows) html += '<p class="empty" style="padding:18px">Loading…</p>';
+  if (groupBusy === g.code || !rows) html += skeletonRows(4);
   else if (!rows.length) html += '<p class="empty" style="padding:18px">' +
     (glob ? 'Nobody on it yet. You are the first.' : 'Just you so far. Send the code to a friend.') + '</p>';
   else {
