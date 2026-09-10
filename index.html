@@ -783,6 +783,27 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .ptopline svg{width:16px; height:16px; color:var(--accent)}
 .ptopline b{font-family:var(--font-display); font-weight:400; font-size:16px; color:var(--ink)}
 .pedit.solid{background:var(--ink); color:var(--ground); border-color:var(--ink); backdrop-filter:none}
+/* who sent you here, at the top of the welcome */
+.invited{display:flex; gap:12px; align-items:flex-start; margin:10px 0 16px; padding:13px 14px;
+  background:var(--accent-soft); border:1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius:var(--r)}
+.invited > svg, .invited > span > svg{width:20px; height:20px; flex:0 0 auto; color:var(--accent-text); margin-top:2px}
+.invited.pending{align-items:flex-start}
+.invited .btnrow{margin-top:10px}
+.invited b{display:block; font-family:var(--font-display); font-size:15.5px; color:var(--ink)}
+.invited span{display:block; margin-top:3px; font-family:var(--font-ui); font-size:13px; color:var(--ink-2); line-height:1.45}
+.invhandle{margin:2px 0 12px; font-family:var(--font-data); font-size:17px; color:var(--accent-text)}
+.invbox{text-align:left}
+.avatar.lg{width:64px; height:64px; border-width:2px; flex:0 0 auto}
+.avatar.lg.initial{display:grid; place-items:center; background:var(--moss); color:#F6EFE4;
+  font-family:var(--font-display); font-size:27px}
+.invwho{display:flex; align-items:center; gap:14px; margin:10px 0 0}
+.invdisc{width:64px; height:64px; flex:0 0 auto; border-radius:50%; display:grid; place-items:center;
+  background:var(--accent-soft); border:2px solid var(--accent); color:var(--accent-text)}
+.invdisc svg{width:30px; height:30px}
+.invwho b{display:block; font-family:var(--font-display); font-size:21px; color:var(--ink)}
+.invwho span{display:block; margin-top:2px; font-family:var(--font-ui); font-size:13px; color:var(--ink-3)}
+.invnote{margin:14px 0 0; font-family:var(--font-ui); font-size:14px; line-height:1.55; color:var(--ink-2)}
 .invitecard{display:flex; align-items:center; gap:12px; margin:4px 0 14px;
   background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:12px 14px}
 .invitecard div{flex:1; min-width:0}
@@ -1508,7 +1529,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* No band behind it at all: every fade or slab ended somewhere on the paper and
    looked like a mistake. The button floats over the rows on its own shadow. */
 .onboardbar .btn{width:100%; justify-content:center; box-shadow:0 6px 18px -4px rgba(20,51,45,.45), 0 1px 3px rgba(20,51,45,.25)}
-.onboardbar .btn[disabled]{opacity:.5; cursor:default}
+.onboardbar .btn[disabled]{cursor:default; background:var(--surface-2); border-color:var(--line); color:var(--ink-3)}
 @media (min-width:768px){
   /* no bottom nav on desktop, so it only needs a little breathing room */
   .onboardbar{bottom:16px}
@@ -1676,6 +1697,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .empty{text-align:center; color:var(--ink-3); padding:40px 20px; font-size:14px}
 .planintro{ border-radius:var(--r); color:var(--ink-2); line-height:1.5 }
 .btn{border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); border-radius:11px; padding:10px 14px; font-weight:600; font-size:14px}
+/* Every icon button in the app sized its own icon, so a button in a new place
+   drew the glyph at whatever size the box allowed — one of them came out three
+   centimetres tall. This is the floor; the scoped rules below still win. */
+.btn svg{width:15px; height:15px; flex:none; margin-right:6px; vertical-align:-3px}
+.btn.sm svg{width:14px; height:14px; margin-right:5px; vertical-align:-2px}
 /* three tiers: primary (filled), secondary (outlined in ink), tertiary (quiet). One primary per screen. */
 .btn.ghost{background:transparent; border-color:var(--ink-2); color:var(--ink-2)}
 .btn.quiet{background:transparent; border-color:var(--line); color:var(--ink-2); font-weight:500}
@@ -4388,7 +4414,7 @@ function render(){
   /* Signed out is the normal state for most walkers, not a fault, so it gets a
      calm card on Home once rather than an orange bar above every page title.
      The header already says "Sign in". */
-  if (cloudReady && !cloudOn() && !ui.bannerHidden && tab === 'd'){
+  if (cloudReady && !cloudOn() && !ui.bannerHidden && tab === 'd' && !readInvite()){
     banner = '<div class="banner soft"><div><b>Your log lives on this device</b>Sign in and it follows you to every device. Friends keep their own.</div><button data-act="hidebanner" aria-label="Dismiss">×</button></div>';
   /* The two banners are dismissed separately. They used to share one flag, so
      waving away the sign-in nudge — which every signed-out walker does — also
@@ -4967,14 +4993,22 @@ function renderOnboard(){
 function renderPickLists(){
   const n = ui.pick.length;
   const yr = new Date().getFullYear();
-  let s = '<header class="cover cover-welcome">' +
+  const inv = readInvite();
+  let s = '';
+  if (inv){
+    s += '<div class="invited">' + ti(inv.kind === 'board' ? 'medal' : 'user-plus') +
+      '<div><b>' + (inv.kind === 'board' ? 'You have been sent a leaderboard' : 'You have been invited by @' + esc(inv.handle)) + '</b>' +
+      '<span>' + (inv.kind === 'board'
+        ? 'Code ' + esc(inv.code) + '. Set your log up first and it is waiting for you on Hikers.'
+        : 'Set your own log up first \u2014 two taps \u2014 and you can follow them at the end.') + '</span></div></div>';
+  }
+  s += '<header class="cover cover-welcome">' +
     '<span class="rstamp rs-green rs-tr" aria-hidden="true">WayMark<b>' + yr + '</b></span>' +
     '<p class="coverline"><i></i>WayMark field guide</p>' +
     '<h1>Which hills have you climbed?</h1>' +
     '<p class="coversub">Type one, any one, and mark it. WayMark works out <b>which list it belongs to</b>.</p>' +
     '</header>';
   s += markBar();
-  s += '<span class="rstamp rs-orange rs-bl" aria-hidden="true">Field<br>guide<b>' + yr + '</b></span>';
   s += '<p class="eyebrow">Or pick the lists you are working through</p>';
   s += '<p class="planintro" style="margin-bottom:12px">Tick as many as you like. You can change this any time under Settings, ' +
        'and switching one off never loses anything you have marked.</p>';
@@ -4999,8 +5033,15 @@ function renderPickLists(){
 }
 
 function renderOnboardSignin(){
-  let s = '<h2 class="pagehead">Keep your log safe</h2>';
-  s += '<p class="planintro" style="margin-bottom:14px">Without an account your ticks live only in ' +
+  const inv = readInvite();
+  let s = '<h2 class="pagehead">' + (!inv ? 'Keep your log safe'
+    : inv.kind === 'profile' ? 'Sign in to follow' : 'Sign in to join the board') + '</h2>';
+  if (inv) s += '<p class="invhandle">' + (inv.kind === 'profile' ? '@' + esc(inv.handle) : 'Code ' + esc(inv.code)) + '</p>';
+  if (inv)
+    s += '<p class="planintro" style="margin-bottom:14px">' +
+         (inv.kind === 'profile' ? 'Following somebody needs an account' : 'A leaderboard needs an account') +
+         ', and it keeps your log safe at the same time. Without one your ticks live only in this browser, on this device.</p>';
+  else s += '<p class="planintro" style="margin-bottom:14px">Without an account your ticks live only in ' +
        'this browser, on this device: clearing your history or picking up a different phone ' +
        'loses them. Sign in and your log follows you everywhere, and you can compare with friends.</p>';
   s += '<div class="btnrow onboardbar">' +
@@ -5189,9 +5230,24 @@ function requestsCard(){
       '<button class="btn quiet sm" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></div></div>').join('');
 }
 
+/* An invitation that cannot be opened yet — they are signed out, or they said
+   not now — waits here rather than disappearing. The club case: a link posted
+   into a group chat, tapped by people at every stage of having the app. */
+function pendingInviteCard(){
+  const v = readInvite();
+  if (!v || !fbConfigured() || onboarding()) return '';
+  const what = v.kind === 'profile'
+    ? ['@' + esc(v.handle) + ' invited you', 'Sign in and you can follow them.']
+    : ['You have been sent a leaderboard', 'Code ' + esc(v.code) + '. Sign in to join it.'];
+  return '<div class="invited pending"><span>' + ti(v.kind === 'board' ? 'medal' : 'user-plus') + '</span>' +
+    '<div><b>' + what[0] + '</b><span>' + what[1] + '</span>' +
+    '<div class="btnrow" style="margin-top:10px"><button class="btn sm" data-act="invopen">' +
+      (fbUser ? 'Open it' : 'Sign in') + '</button>' +
+    '<button class="btn sm quiet" data-act="invdrop">No thanks</button></div></div></div>';
+}
 function renderDashboard(){
   const a = allStats();
-  let s = requestsCard() + markBar();
+  let s = pendingInviteCard() + requestsCard() + markBar();
 
   if (!a.done){
     /* Before the first hill there is one thing to say; the list is right below. */
@@ -9277,7 +9333,33 @@ document.addEventListener('click', async e => {
     markOnboarded();
     ui.onboard = 'done';
     tab = 'd'; render();
+    if (readInvite() && readInvite().kind === 'profile')
+      toast('Sign in whenever you like and you can follow whoever sent you here.');
   }
+  else if (a === 'invfollow'){
+    const u = el.dataset.u;
+    closeInviteSheet();
+    const p = personCache[u];
+    if (!p) return;
+    try{ await follow({...p, uid:u}); render(); toast(hasRequested(u) ? 'Request sent.' : 'Following ' + (p.name || 'them') + '.'); loadFeed(); }
+    catch(e){ toast(fbWhy(e)); }
+    tab = 'u'; openFriend(u);
+  }
+  else if (a === 'invjoin'){
+    const code = el.dataset.v, m = document.getElementById('invmsg');
+    if (m) m.textContent = 'Joining\u2026';
+    try{
+      const r = await joinGroup(code);
+      if (!r.ok){ if (m){ m.textContent = r.msg; m.style.color = 'var(--warn)'; } return; }
+      closeInviteSheet();
+      tab = 'u'; ui.hikerTab = 'boards'; render(); loadGroup(code);
+      /* the same question everybody else gets on joining: how much can it see */
+      await askShareFor(code, r.name || code);
+    }catch(e){ if (m){ m.textContent = fbWhy(e); m.style.color = 'var(--warn)'; } }
+  }
+  else if (a === 'invskip'){ closeInviteSheet(); }
+  else if (a === 'invopen'){ if (fbUser) openInvite(); else fbSignIn(); }
+  else if (a === 'invdrop'){ clearInvite(); render(); }
   else if (a === 'golist'){ ui.list = el.dataset.v; ui.region = ''; ui.q = ''; tab = 'h'; render(); window.scrollTo({top:0}); }
   else if (a === 'editroute'){ openEditor(el.dataset.id); }
   else if (a === 'editorclose'){
@@ -10164,10 +10246,9 @@ async function fbStart(){
       await fbSync(true);
       await pullProf();
       pushPerson(); loadFriends(); loadFeed();
-      /* somebody who arrived on a shared link goes where it points */
-      openWmLink();
-    } else if (location.hash && /^#(@|board=)/.test(location.hash)){
-      toast('Sign in to open that link.');
+      /* somebody who arrived on a shared link goes where it points. Only once
+         the welcome is behind them: the card should not land over the lists. */
+      if (!onboarding()) openInvite();
     }
     renderAccountBox(); render();
   });
@@ -10808,26 +10889,105 @@ async function shareLink(url, title, text){
   try{ await navigator.clipboard.writeText(url); toast('Link copied. Paste it to whoever you walk with.'); return; }catch(e){}
   prompt('Copy this link', url);
 }
-/* Somebody arrived on a link: open that profile, or hold the board code ready
-   for the join box. Runs once the account is up, since both need a signed-in
-   read; the hash is cleared so a refresh does not fire it twice. */
-async function openWmLink(){
+/* Somebody arrived on a link. Reading who it points at needs an account, and
+   most people who follow one of these do not have one yet: so the invitation is
+   taken off the address and kept, the walker goes through the ordinary welcome,
+   and it is opened on the other side. It has to be kept rather than left in the
+   address because signing in with Google leaves the page and comes back. */
+const INVITE_KEY = 'waymark-invite';
+function readInvite(){
+  try{
+    const v = JSON.parse(localStorage.getItem(INVITE_KEY) || 'null');
+    if (!v || !v.t || Date.now() - v.t > 30 * 86400000) return null;
+    return v;
+  }catch(e){ return null; }
+}
+function clearInvite(){ try{ localStorage.removeItem(INVITE_KEY); }catch(e){} }
+function takeInviteFromHash(){
   const h = decodeURIComponent(location.hash || '');
-  if (!h) return;
+  if (!h) return null;
   const who = h.match(/^#@([A-Za-z0-9_]{2,20})$/);
   const brd = h.match(/^#board=([A-Za-z0-9]{4,12})$/i);
-  if (!who && !brd) return;
+  if (!who && !brd) return null;
   history.replaceState(null, '', location.pathname + location.search);
-  tab = 'u';
-  if (brd){ ui.hikerTab = 'boards'; ui.joinCode = brd[1].toUpperCase(); render(); toast('Board code ready: tap Join.'); return; }
-  ui.hikerTab = 'friends'; ui.peopleView = 'discover'; render();
-  try{
-    const f = await findByHandle(who[1]);
-    if (f){ ui.found = f; openFriend(f.uid); }
-    else toast('Nobody with the handle @' + who[1] + '.');
-  }catch(e){ toast(fbWhy(e)); }
-  render();
+  const v = who ? {kind:'profile', handle:who[1], t:Date.now()}
+                : {kind:'board', code:brd[1].toUpperCase(), t:Date.now()};
+  try{ localStorage.setItem(INVITE_KEY, JSON.stringify(v)); }catch(e){}
+  return v;
 }
+/* Once there is an account: a board code goes into the join box, a handle is
+   looked up and offered as a card with one button on it. */
+async function openInvite(){
+  const v = readInvite();
+  if (!v || !fbUser) return;
+  if (v.kind === 'board'){
+    /* already on it: nothing to ask, just show them the board */
+    if (myGroups().some(g => g.code === v.code)){
+      clearInvite(); tab = 'u'; ui.hikerTab = 'boards'; render();
+      toast('You are already on that board.');
+      return;
+    }
+    let name = '';
+    try{
+      const snap = await FB.getDoc(groupRef(v.code));
+      if (!snap.exists()){ clearInvite(); toast('That board has gone: the code no longer exists.'); return; }
+      name = (snap.data() || {}).name || '';
+    }catch(e){ toast(fbWhy(e)); return; }        // keep it for the next try
+    clearInvite();
+    tab = 'u'; ui.hikerTab = 'boards'; render();
+    showBoardSheet(v.code, name);
+    return;
+  }
+  try{
+    const f = await findByHandle(v.handle);
+    clearInvite();
+    if (!f){ toast('Nobody with the handle @' + v.handle + ' now.'); return; }
+    if (isFollowing(f.uid) || hasRequested(f.uid)){ tab = 'u'; openFriend(f.uid); return; }
+    showInviteSheet(f);
+  }catch(e){ toast(fbWhy(e)); }
+}
+/* the card a new walker sees at the end of the welcome: who sent them here */
+function inviteSheetEl(){
+  let el = document.getElementById('invsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'invsheet'; el.className = 'sheet bottom';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'An invitation');
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function showInviteSheet(f){
+  const el = inviteSheetEl();
+  el.innerHTML = '<div class="sheetbox invbox">' +
+    '<p class="eyebrow" style="margin:0">You were invited by</p>' +
+    '<div class="invwho">' + avatarHTML(f.av, f.name, 'lg') +
+      '<div><b>' + esc(f.name || 'A walker') + '</b>' +
+      '<span>@' + esc(f.handle || '') + ' &middot; ' + (f.hills || 0) + ' summits marked</span></div></div>' +
+    '<p class="invnote">Follow them and their days out land on your Activity. They will see yours if they follow you back.</p>' +
+    '<div class="btnrow"><button class="btn" data-act="invfollow" data-u="' + esc(f.uid) + '">' + ti('user-plus') + 'Follow ' + esc((f.name || 'them').split(' ')[0]) + '</button>' +
+    '<button class="btn quiet" data-act="invskip">Not now</button></div></div>';
+  el.classList.add('open');
+  personCache[f.uid] = {...(personCache[f.uid] || {}), ...f};
+}
+/* the same card for a leaderboard: posted into a club chat, most of the people
+   who tap it will not be on WayMark at all, so it has to say what the thing is
+   and what joining shares before anything of theirs goes anywhere */
+function showBoardSheet(code, name){
+  const el = inviteSheetEl();
+  el.innerHTML = '<div class="sheetbox invbox">' +
+    '<p class="eyebrow" style="margin:0">You have been invited to</p>' +
+    '<div class="invwho"><span class="invdisc">' + ti('medal') + '</span>' +
+      '<div><b>' + esc(name || 'A leaderboard') + '</b>' +
+      '<span>Private leaderboard &middot; code ' + esc(code) + '</span></div></div>' +
+    '<p class="invnote">Everyone on it sees your name and how many hills you have marked. Your dates, ' +
+      'notes and photos stay off it unless you turn them on, and you can leave whenever you like.</p>' +
+    '<div class="btnrow"><button class="btn" data-act="invjoin" data-v="' + esc(code) + '">' + ti('medal') + 'Join ' + esc(name || 'the board') + '</button>' +
+    '<button class="btn quiet" data-act="invskip">Not now</button></div>' +
+    '<p id="invmsg" class="invnote" style="margin-top:10px"></p></div>';
+  el.classList.add('open');
+}
+function closeInviteSheet(){ const el = document.getElementById('invsheet'); if (el) el.classList.remove('open'); }
 async function findByHandle(want){
   const h = tidyHandle(want);
   if (!FB || !fbUser || h.length < 3) return null;
@@ -12292,6 +12452,7 @@ window.addEventListener('pageshow', fontWatch);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fontWatch(); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fontWatch);
 
+takeInviteFromHash();
 state = loadLocal();
 /* Nothing is switched on for a new walker. They choose what they are working
    through on first run, rather than inheriting somebody else's two lists. */
