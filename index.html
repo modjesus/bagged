@@ -605,6 +605,9 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pbanner img{width:100%; height:100%; object-fit:cover; display:block}
 .pbanner .ridge{position:absolute; left:0; right:0; bottom:0; height:100%; margin:0; width:100%; z-index:0; color:rgba(246,239,228,.5)}
 .pbanner .pedit{position:absolute; right:10px; top:10px; background:rgba(20,51,45,.55); color:#F6EFE4; border-color:rgba(246,239,228,.4); backdrop-filter:blur(4px)}
+/* over a bright sky the glass version vanished: the button is solid ink */
+.pbanner .pedit.solid{background:var(--pine, #14332D); color:#F6EFE4; border-color:rgba(246,239,228,.55);
+  backdrop-filter:none; box-shadow:0 2px 8px rgba(12,26,22,.35)}
 .pid{display:flex; align-items:flex-end; gap:16px; padding:0 14px; margin-top:-56px; position:relative; z-index:2}
 .pavatar{width:132px; height:132px; border-radius:99px; object-fit:cover; border:5px solid var(--ground); background:var(--surface-2); flex:none; box-shadow:0 6px 16px -6px rgba(0,0,0,.45)}
 .pavatar.initial{display:grid; place-items:center; background:var(--moss); color:#F6EFE4; font-family:var(--font-display); font-size:52px}
@@ -686,11 +689,11 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .prec b{display:block; font-family:var(--font-display); font-size:15.5px}
 .prec span{display:block; font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); margin-top:2px}
 .psaid{margin:10px 0 0; font-family:var(--font-ui); font-size:12px; color:var(--ink-3)}
-.rbtn svg{width:15px; height:15px; margin-right:4px; vertical-align:-3px}
+.rbtn svg{width:16px; height:16px; flex:0 0 auto}
 .rbtn span{font-family:var(--font-ui); font-size:11.5px}
 .rbtn.on svg{color:var(--accent-text)}
 .pcm svg{width:15px; height:15px; vertical-align:-3px}
-@media (max-width:420px){ .rbtn span{display:none} .rbtn svg{margin:0} }
+/* the words stay: the row scrolls instead of hiding them (see .ract) */
 .hrowp{display:flex; align-items:center; gap:8px}
 .hrowp .rrow{flex:1; min-width:0}
 .hrowp .btn svg, .pfollow .btn svg{width:14px; height:14px; margin-right:5px; vertical-align:-2px}
@@ -737,6 +740,69 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pwho span{display:block; margin-top:2px; font-family:var(--font-ui);
   font-size:11px; color:var(--ink-3)}
 .ptext{margin:10px 0 0; font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap}
+/* a long write-up folds to four lines with the paper fading out under it */
+.ptextwrap{position:relative}
+.ptextwrap.clamped .ptext{max-height:6.4em; overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom, #000 4.2em, transparent 6.4em);
+  mask-image:linear-gradient(to bottom, #000 4.2em, transparent 6.4em)}
+.moretext{margin-top:2px; font-size:13px; min-height:36px}
+.ptextwrap:not(.clamped) .moretext::after{content:'';}
+/* the row under the four tabs: filters, small and quiet */
+.subfilter{display:flex; align-items:center; gap:6px; margin:10px 0 12px; overflow-x:auto;
+  scrollbar-width:none}
+.subfilter::-webkit-scrollbar{display:none}
+.subfilter button{flex:0 0 auto; min-height:38px; padding:0 13px; border-radius:99px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+  font-family:var(--font-ui); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap}
+.subfilter button[aria-pressed="true"], .subfilter button[aria-selected="true"]{
+  background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text)}
+.subfilter button i{font-style:normal; font-family:var(--font-data); font-size:11px; opacity:.8; margin-left:5px}
+.subfilter .refreshbtn{margin-left:auto; width:38px; padding:0; display:grid; place-items:center}
+.hrowp .rc{display:flex; flex-direction:column; align-items:flex-end; line-height:1.15}
+.hrowp .rc i{font-style:normal; font-family:var(--font-ui); font-size:9.5px; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.walklist{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); overflow:hidden}
+.walkrow{display:flex; align-items:center; gap:12px; width:100%; min-height:60px; padding:8px 12px;
+  background:none; border:0; border-top:1px solid var(--line-soft); cursor:pointer; text-align:left}
+.walkrow:first-child{border-top:0}
+.walkrow:hover{background:var(--surface-2)}
+.wshot{flex:0 0 auto; width:44px; height:44px; border-radius:8px; overflow:hidden;
+  background:var(--surface-2); display:grid; place-items:center; color:var(--ink-3)}
+.wshot img{width:100%; height:100%; object-fit:cover}
+.wshot svg{width:20px; height:20px}
+.wtext{flex:1; min-width:0}
+.wtext b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.wtext i{display:block; font-style:normal; font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); margin-top:1px}
+.walkrow > svg{width:16px; height:16px; color:var(--ink-3); flex:0 0 auto}
+.post.flash{outline:2px solid var(--accent); outline-offset:2px}
+.pactions{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.pactions .btn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
+.ptopline{display:flex; align-items:center; gap:7px; margin:8px 0 0;
+  font-family:var(--font-ui); font-size:13px; color:var(--ink-2)}
+.ptopline svg{width:16px; height:16px; color:var(--accent)}
+.ptopline b{font-family:var(--font-display); font-weight:400; font-size:16px; color:var(--ink)}
+.pedit.solid{background:var(--ink); color:var(--ground); border-color:var(--ink); backdrop-filter:none}
+.invitecard{display:flex; align-items:center; gap:12px; margin:4px 0 14px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:12px 14px}
+.invitecard div{flex:1; min-width:0}
+.invitecard b{display:block; font-family:var(--font-display); font-size:15px; color:var(--ink)}
+.invitecard span{display:block; font-family:var(--font-data); font-size:11.5px; color:var(--ink-3);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px}
+.invitecard .btn{flex:0 0 auto}
+.invitecard .btn svg{width:14px; height:14px; margin-right:5px; vertical-align:-2px}
+.pmenuwrap{position:relative; flex:0 0 auto}
+.pmenu{width:40px; height:40px; border-radius:50%; display:grid; place-items:center; color:var(--ink-3)}
+.pmenu svg{width:18px; height:18px}
+.pmenubox{position:absolute; right:0; top:42px; z-index:60; min-width:150px;
+  background:var(--raise); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow); padding:6px; display:grid; gap:2px}
+.pmenubox button{display:flex; align-items:center; gap:9px; width:100%; min-height:44px;
+  padding:0 12px; background:none; border:0; border-radius:8px; cursor:pointer;
+  font-family:var(--font-ui); font-size:14px; color:var(--ink); text-align:left}
+.pmenubox button:hover{background:var(--surface-2)}
+.pmenubox button svg{width:17px; height:17px; color:var(--ink-3)}
+.pmenubox .danger, .pmenubox .danger svg{color:#A8321A}
 .pedited{font-style:normal; color:var(--ink-3)}
 .pedit{margin-top:10px}
 .pedit textarea{width:100%; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-size:14.5px; line-height:1.5; outline:none; resize:vertical}
@@ -748,14 +814,23 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   font-family:var(--font-display); font-size:13px; color:var(--ink)}
 .hpill i{font-style:normal; font-family:var(--font-ui); font-size:10.5px; color:var(--ink-3)}
 .pdate{margin:8px 0 0; font-family:var(--font-ui); font-size:11px; color:var(--ink-3)}
-.pacts{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:12px;
+.pacts{display:flex; align-items:center; gap:8px; margin-top:12px;
   padding-top:10px; border-top:1px solid var(--line-soft)}
+/* the five words never wrap and never shrink below the thumb: they scroll */
+.ract{display:flex; gap:6px; overflow-x:auto; flex:1; min-width:0; padding-right:2px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
+  /* the last pill fades at the edge, so the row reads as something you can push */
+  -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 22px), transparent 100%);
+  mask-image:linear-gradient(to right, #000 calc(100% - 22px), transparent 100%)}
+.ract::-webkit-scrollbar{display:none}
 .rbtn{border:1px solid var(--line); background:var(--raise); border-radius:99px;
-  padding:4px 9px; font-size:14px; cursor:pointer; line-height:1.2;
-  display:inline-flex; align-items:center; gap:5px}
+  padding:0 12px; min-height:44px; font-size:14px; cursor:pointer; line-height:1.2;
+  display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; white-space:nowrap; scroll-snap-align:start}
 .rbtn i{font-style:normal; font-family:var(--font-ui); font-size:11px; color:var(--ink-2)}
 .rbtn.on{border-color:var(--accent); background:var(--accent-soft)}
-.pcm{margin-left:auto; padding:0; font-size:12.5px}
+.rbtn.on i{color:var(--accent-text)}
+.pcm{flex:0 0 auto}
+@media (max-width:420px){ .pcm span{display:none} }
 .pcomments{margin-top:10px; padding-top:10px; border-top:1px solid var(--line-soft)}
 .pc{display:flex; gap:9px; padding:6px 0}
 .pc b{font-family:var(--font-display); font-size:13.5px; color:var(--ink); margin-right:6px}
@@ -931,8 +1006,12 @@ li.hill.s-progress{background:linear-gradient(90deg, var(--prog-soft), transpare
 li.hill.bk::before{content:none}
 li.hill.bk .hrow{padding-left:12px}
 .lead{flex:1; min-width:14px; border-bottom:1.5px dotted var(--line); margin:0 8px 5px; align-self:flex-end}
+/* the leader is for a bare row: beside a stamp and a date it was a stray
+   two-centimetre dash floating mid-row */
+.hrow:has(.hsub) .lead{border-bottom:0}
 .hrow{display:flex; align-items:center; gap:10px; padding:9px 12px 9px 10px}
 .tick{
+  position:relative;
   flex:none; width:27px; height:27px; border-radius:4px 6px 5px 7px;
   border:2px solid var(--ink-3); background:var(--raise);
   display:grid; place-items:center; color:transparent; padding:0;
@@ -940,6 +1019,13 @@ li.hill.bk .hrow{padding-left:12px}
 }
 li.hill.on .tick{background:var(--done); border-color:var(--done); color:var(--surface)}
 .tick svg{width:16px; height:16px}
+/* the tick and the ⓘ are the two things a thumb goes for all day: both drew at
+   under 30px. The box stays small, the target does not. */
+.tick::after{content:""; position:absolute; inset:-9px; border-radius:12px}
+.info-btn{position:relative}
+.info-btn::after{content:""; position:absolute; inset:-10px; border-radius:99px}
+.ibtn{position:relative}
+.ibtn::after{content:""; position:absolute; inset:-7px; border-radius:99px}
 .tick.st-planned{border-color:var(--plan); color:var(--plan); background:var(--plan-soft)}
 .tick.st-progress{border-color:var(--prog); color:var(--prog); background:var(--prog-soft)}
 li.hill.s-planned{border-color:var(--plan)}
@@ -965,7 +1051,12 @@ li.hill.s-progress{border-color:var(--prog)}
 .tick:active{transform:scale(.88) rotate(-3deg)}
 .hmain{flex:0 1 auto; min-width:0; background:none; border:none; padding:2px 0; text-align:left}
 .hname{font-size:16px; line-height:1.3; display:block; font-family:var(--font-display); letter-spacing:.005em}
-.hsub{font-size:11.5px; color:var(--ink-3); display:block; margin-top:1px}
+/* one line, whatever is on it: the stamp used to wrap and leave the middot
+   stranded at the end of the row above */
+.hsub{font-size:11.5px; color:var(--ink-3); display:flex; align-items:center; gap:9px;
+  flex-wrap:nowrap; margin-top:2px; min-width:0}
+.hsub > *{flex:0 0 auto}
+.hsub .wel{flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .hsub .stampdate{color:var(--done); font-weight:700; letter-spacing:.04em}
 .hsub .wel{font-style:italic}
 .thumb{flex:none; width:34px; height:34px; border-radius:8px; object-fit:cover; background:var(--surface-2); border:1px solid var(--line)}
@@ -1750,16 +1841,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 @media (min-width:700px){ .sheet.bottom{align-items:center; padding:16px} .sheet.bottom .sheetbox{border-radius:18px} }
 .sharemenu{margin-top:6px}
 .sharekind{min-height:56px}
-.rbtn{min-height:36px; padding:6px 11px}
+.rbtn{min-height:44px; padding:0 12px}
 .rbtn[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft)}
 .pacts{flex-wrap:nowrap}
-.pacts .pcm{margin-left:auto; min-width:44px; min-height:36px; display:inline-flex; align-items:center; justify-content:flex-end}
-@media (max-width:480px){
-  .rbtn{width:40px; height:40px; padding:0; justify-content:center; flex:none}
-  .rbtn svg{width:18px; height:18px; margin:0}
-  .rbtn span{display:none}
-  .pcm .pcmlabel{display:none}
-}
+.pacts .pcm{min-height:44px; display:inline-flex; align-items:center}
 .picked .pill{min-height:36px; padding:6px 12px}
 .picked .pill[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
 .formx{width:40px; height:40px; top:4px; right:4px}
@@ -1968,7 +2053,8 @@ body::after{opacity:.07}
 
 /* the stamps already in the app pick up the same inks */
 .mkchip{color:var(--stamp-orange); border-color:var(--stamp-orange); box-shadow:inset 0 0 0 1px rgba(255,255,255,.6), inset 0 0 0 2.5px var(--stamp-orange)}
-.ddate b{color:var(--stamp-blue); box-shadow:0 0 0 1.5px var(--stamp-blue) inset, 0 2px 4px -2px rgba(20,51,45,.4)}
+/* the journal date stamp was the only blue in the app: pine ink instead */
+.ddate b{color:var(--ink); box-shadow:0 0 0 1.5px var(--ink) inset, 0 2px 4px -2px rgba(20,51,45,.4)}
 
 /* headlines everywhere: the same heavy cut, ink black */
 .pagehead{font-size:clamp(40px, 11vw, 64px); letter-spacing:-.035em; line-height:.92; color:var(--ink)}
@@ -2342,7 +2428,7 @@ li.hill.bk .hrow{padding-left:2px}
 /* the profile figures. Desktop: a strip of paper printed over the banner,
    bottom right. Phones: the strip under the banner, as before. */
 .prof{position:relative; display:flex; flex-direction:column}
-.prof > .pbanner{order:1} .prof > .phead2{order:2} .prof > .pbar{order:3}
+.prof > .pbanner{order:1} .prof > .phead2{order:2} .prof > .pbar{order:3} .prof > .ptopline{order:4} .prof > .pactions{order:5}
 .pbar .yearbtn{margin-left:auto; align-self:center}
 .pbar .yearbtn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
 .pyear{display:none}
@@ -2503,7 +2589,10 @@ body.guiding{overflow:hidden}
 .mctl .mguide{background:var(--accent); color:#FFF3E9}
 .mctl .mguide svg{width:20px; height:20px; stroke-width:2.4; fill:#FFF3E9}
 .mctl .mguide:hover{background:#8E3813}
-.mmode{left:12px; bottom:12px; padding:4px; display:flex; gap:2px}
+.mmode{left:12px; right:12px; bottom:12px; padding:4px; display:flex; gap:2px;
+  max-width:calc(100% - 24px); overflow-x:auto; scrollbar-width:none; justify-content:flex-start}
+.mmode::-webkit-scrollbar{display:none}
+@media (min-width:520px){ .mmode{right:auto; width:auto} }
 .mmode button{height:38px; padding:0 15px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1)}
 .mmode button[aria-pressed="true"]{background:var(--ink); color:#F3EFE6}
 .mm-import{height:38px; padding:0 14px 0 11px; border-radius:99px; display:inline-flex; align-items:center; gap:6px; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap}
@@ -2576,7 +2665,9 @@ body.guiding{overflow:hidden}
 .jnode.next .patch .disc, .jnode.far .patch .disc{border-color:transparent}
 .jnode .patch .disc svg{width:38px; height:38px}
 .jnode.far .patch .disc svg{width:24px; height:24px}
+/* the trail passes behind the words rather than through them */
 .jtext{display:block; line-height:1.2}
+.jtext b, .jtext em, .jtext i{text-shadow:0 0 4px var(--ground), 0 0 8px var(--ground), 0 0 12px var(--ground)}
 .jtext b{display:block; font-family:var(--font-ui); font-weight:700; font-size:14px; color:var(--ink)}
 .jnode.far .jtext b{font-size:12.5px; color:var(--ink-2); font-weight:600}
 .jtext em{display:block; font-family:var(--font-hand); font-style:normal; font-weight:600; font-size:18px; color:var(--accent-text); margin-top:2px; transform:rotate(-2deg)}
@@ -2604,6 +2695,19 @@ body.guiding{overflow:hidden}
 @media (max-width:420px){ .mplot button{padding:0 11px; font-size:13px} .mplot .mp-save{padding:0 14px} }
 :root[data-theme="dark"] .mplot .mp-save{background:#F3EFE6; color:#14332D}
 .daytop{margin-top:10px}
+.bklegend{display:grid; grid-template-columns:1fr 1fr; gap:5px 12px; padding:4px 2px 2px}
+.bklegend span{display:flex; align-items:center; gap:7px; font-family:var(--font-ui); font-size:12px; color:var(--ink-2)}
+.bklegend i{width:11px; height:11px; border-radius:50%; flex:0 0 auto}
+.bknote{margin:8px 2px 0; font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); line-height:1.5}
+.dayfold{display:flex; align-items:center; gap:9px; width:100%; min-height:44px; padding:0 12px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  font-family:var(--font-ui); font-size:14px; color:var(--ink); cursor:pointer}
+.dayfold b{font-family:var(--font-display); font-weight:400; font-size:16px}
+.dayfold i{margin-left:auto; font-style:normal; font-size:12px; color:var(--ink-3)}
+.dayfold > svg{width:17px; height:17px; color:var(--ink-3); flex:0 0 auto}
+.dayfold.on > svg:last-child{transform:rotate(180deg)}
+.dayfold.on{border-color:var(--accent)}
+.daytop .daystrip{margin-top:8px}
 .daytop .daystrip{margin:0}
 .wxtop{margin-top:8px}
 .wxtop .wxmini{margin:0}
@@ -2775,7 +2879,7 @@ const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
    compass). Paths are baked in from @tabler/icons 3.31 rather than drawn by
    hand, so every glyph in the app is from the same hand.
    https://tabler.io/icons */
-const TI = {"circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","navigation":"<path d=\"M12 18.5l7.5 3.5l-7.5 -18l-7.5 18l7.5 -3.5\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
+const TI = {"dots":"<path d=\"M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/>","circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","navigation":"<path d=\"M12 18.5l7.5 3.5l-7.5 -18l-7.5 18l7.5 -3.5\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
 Object.assign(TI, {"backpack": "<path d=\"M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3z\"/> <path d=\"M10 6v-1a2 2 0 1 1 4 0v1\"/> <path d=\"M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4\"/> <path d=\"M11 10h2\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
 Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path d=\"M11.5 4l-.5 2\"/> <path d=\"M18 5h2\"/> <path d=\"M19 4v2\"/> <path d=\"M15 9l-1 1\"/> <path d=\"M18 13l2 -.5\"/> <path d=\"M18 19h2\"/> <path d=\"M19 18v2\"/> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z\"/>", "dog": "<path d=\"M11 5h2\"/> <path d=\"M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8\"/> <path d=\"M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z\"/> <path d=\"M12 18v2\"/> <path d=\"M10 11v.01\"/> <path d=\"M14 11v.01\"/> <path d=\"M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z\"/> <path d=\"M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z\"/>", "sunrise": "<path d=\"M3 17h1m16 0h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7m-9.7 5.7a4 4 0 0 1 8 0\"/> <path d=\"M3 21l18 0\"/> <path d=\"M12 9v-6l3 3m-6 0l3 -3\"/>", "thumb-up": "<path d=\"M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3\"/>", "bookmark": "<path d=\"M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z\"/>", "bell": "<path d=\"M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/>", "bell-ringing": "<path d=\"M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/> <path d=\"M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727\"/> <path d=\"M3 6.727a11.05 11.05 0 0 1 2.792 -3.727\"/>", "lock": "<path d=\"M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z\"/> <path d=\"M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0\"/> <path d=\"M8 11v-4a4 4 0 1 1 8 0v4\"/>", "world": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M3.6 9h16.8\"/> <path d=\"M3.6 15h16.8\"/> <path d=\"M11.5 3a17 17 0 0 0 0 18\"/> <path d=\"M12.5 3a17 17 0 0 1 0 18\"/>", "users-group": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\"/> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\"/> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\"/>", "user-plus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M16 19h6\"/> <path d=\"M19 16v6\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/>", "user-check": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/> <path d=\"M15 19l2 2l4 -4\"/>", "user-minus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128\"/> <path d=\"M16 19h6\"/>", "eye": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\"/>", "arrows-shuffle": "<path d=\"M18 4l3 3l-3 3\"/> <path d=\"M18 20l3 -3l-3 -3\"/> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\"/> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\"/>", "target": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0\"/> <path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>", "target-arrow": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 7a5 5 0 1 0 5 5\"/> <path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/> <path d=\"M15 6v3h3l3 -3h-3v-3z\"/> <path d=\"M15 9l-3 3\"/>", "bulb": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\"/> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\"/> <path d=\"M9.7 17l4.6 0\"/>", "message-circle": "<path d=\"M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1\"/>", "eye-off": "<path d=\"M10.585 10.587a2 2 0 0 0 2.829 2.828\"/> <path d=\"M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87\"/> <path d=\"M3 3l18 18\"/>"});
 TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
@@ -2909,6 +3013,7 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
           mapScope:'enabled', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'journey', corkSeed:0,
+          postMenu:null, joinCode:'', peopleView:null, openPost:null, dayOpen:false,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'lists'};
 
@@ -3929,7 +4034,7 @@ function nextPatchHTML(ps, got){
     '<svg class="npring" viewBox="0 0 120 120" aria-hidden="true"><circle class="npr-track" cx="60" cy="60" r="' + R + '"/>' +
     '<circle class="npr-fill" cx="60" cy="60" r="' + R + '" stroke-dasharray="' + (C * pct).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg></button>' +
     '<div class="nptext"><p class="npeyebrow">Next patch &middot; ' + got + ' of ' + ps.length + ' earned</p>' +
-    '<h2>' + esc(p.label) + '</h2>' +
+    '<h2>' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</h2>' +
     '<p><b>' + toGo(p) + ' to go.</b> ' + esc(nudgeFor(p) || p.need || '') + '</p></div></section>';
 }
 /* the trail itself: a list of nodes, each with a height, alternating sides */
@@ -4458,8 +4563,8 @@ function hillRow(h, listId){
   if (h.w && h.w !== h.n) bits.push('<span class="wel">' + esc(h.w) + '</span>');
   if (on) bits.push('<span class="mkchip">Marked</span>');
   if (on && r.date) bits.push('<span class="stampdate">' + esc(prettyDate(r.date)) + '</span>');
-  if (r.notes) bits.push('note');
-  if (bits.length) s += '<span class="hsub">' + bits.join(' · ') + '</span>';
+  if (r.notes) bits.push('<span class="hnote">note</span>');
+  if (bits.length) s += '<span class="hsub">' + bits.join('') + '</span>';
   const others = h.l.filter(x => x !== listId && state.enabled.includes(x));
   if (others.length) s += '<span class="tags">' + others.map(x => '<span class="tag">' + esc(listTag(x)) + '</span>').join('') + '</span>';
   s += '</button>';
@@ -4996,7 +5101,8 @@ function nearestPatchCard(np, cls){
   return '<button class="dcard nextpatch' + (cls || '') + '" data-tab="a">' +
     '<p class="sumlabel">Nearest patch</p>' +
     '<div class="npbody"><span class="patch">' + patchDisc(np, ' small') + '</span>' +
-    '<div><b class="npname">' + np.label + '</b>' +
+    /* the same past tense as the Patches page had: this one is not earned yet */
+    '<div><b class="npname">' + esc(String(np.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b>' +
     '<span class="dcs">' + (left === 1 ? 'One to go' : left + ' to go') + ', ' + np.have + ' of ' + np.target + '</span>' +
     '<i class="rbar"><s style="width:' + Math.round(np.have / np.target * 100) + '%" data-pct="' + Math.round(np.have / np.target * 100) + '%"></s></i></div></div></button>';
 }
@@ -5258,7 +5364,11 @@ function tagPanelHTML(){
 function renderDiary(){
   const days = diaryDays();
   let html = '<h2 class="pagehead">Your journal</h2>';
-  html += '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
+  /* the full explanation is for somebody who has never seen this page; once
+     there are entries on it, it is four lines in the way */
+  html += days.length
+    ? '<div class="planintro">Every day you have been out, newest first.</div>'
+    : '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button></div>';
 
@@ -5369,6 +5479,14 @@ function avatarHTML(av, name, cls){
   return av ? '<img class="avatar ' + cls + '" src="' + esc(av) + '" alt="">'
             : '<div class="avatar ' + cls + ' initial">' + esc((name || 'W').trim().charAt(0).toUpperCase()) + '</div>';
 }
+/* A write-up runs to whatever length the walker felt like. Past a few lines it
+   is folded, so one chatty post cannot fill the whole screen in a feed. */
+const CLAMP_AT = 240;
+function ptextHTML(p){
+  const long = (p.text || '').length > CLAMP_AT || (p.text || '').split('\n').length > 4;
+  return '<div class="ptextwrap' + (long ? ' clamped' : '') + '"><p class="ptext">' + esc(p.text) + '</p>' +
+    (long ? '<button class="linkbtn moretext" data-act="moretext">Read more</button>' : '') + '</div>';
+}
 function postHTML(p){
   const mine = fbUser && p.uid === fbUser.uid;
   const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
@@ -5382,9 +5500,11 @@ function postHTML(p){
   /* a day on the hills with summits in it is an adventure, whichever way it
      arrived — marked as you went, or written up in the journal afterwards */
   const adventure = (p.kind === 'summit' || p.kind === 'diary') && hs.length > 0;
-  let s = '<article class="post k-' + esc(p.kind || 'post') + (adventure ? ' k-adventure' : '') + '">';
+  let textHTML = '';
+  let s = '<article class="post k-' + esc(p.kind || 'post') + (adventure ? ' k-adventure' : '') +
+    (ui.openPost === p.id ? ' flash' : '') + '" data-post-id="' + esc(p.id) + '">';
   const whoAct = mine ? 'data-act="hikertab" data-v="me"' : 'data-act="openfriend" data-uid="' + esc(p.uid) + '"';
-  const what = adventure ? 'Completed an adventure'
+  const what = adventure ? (hs.length + (hs.length === 1 ? ' summit' : ' summits'))
              : p.kind === 'diary' ? 'From the journal'
              : p.kind === 'patch' ? 'Earned a patch'
              : p.kind === 'route' ? 'Shared a route'
@@ -5397,8 +5517,16 @@ function postHTML(p){
     '<span>' + what + ' &middot; ' + esc(whenAgo(p.t)) +
     (tagged.length ? ' &middot; with ' + esc(tagged.join(', ')) : '') +
     (p.edited ? ' <i class="pedited">(edited)</i>' : '') + '</span></div>' +
-    visTag + (mine && p.kind !== 'patch' && ui.editPost !== p.id ? '<button class="linkbtn" data-act="editpost" data-id="' + esc(p.id) + '">Edit</button>' : '') +
-    (mine ? '<button class="linkbtn" data-act="delpost" data-id="' + esc(p.id) + '">Delete</button>' : '') +
+    visTag +
+    /* Edit and Delete were 22px and 35px text links side by side at the top of
+       every post: a mis-tap away from deleting a write-up. One menu button now,
+       at a proper size, and Delete still asks. */
+    (mine ? '<div class="pmenuwrap">' +
+      '<button class="iconbtn pmenu" data-act="postmenu" data-id="' + esc(p.id) + '" aria-label="More" aria-expanded="' + (ui.postMenu === p.id) + '">' + ti('dots') + '</button>' +
+      (ui.postMenu === p.id ? '<div class="pmenubox" role="menu">' +
+        (p.kind !== 'patch' && ui.editPost !== p.id ? '<button role="menuitem" data-act="editpost" data-id="' + esc(p.id) + '">' + ti('pencil') + 'Edit</button>' : '') +
+        '<button role="menuitem" class="danger" data-act="delpost" data-id="' + esc(p.id) + '">' + ti('trash') + 'Delete</button></div>' : '') +
+      '</div>' : '') +
     '</div>';
 
   if (adventure){
@@ -5424,11 +5552,12 @@ function postHTML(p){
     const pd = patches().find(x => x.id === p.patch) || {id:p.patch, label:p.text || 'Patch', icon:'star'};
     s += '<div class="ppatch"><span class="patch got">' + patchDisc({id:pd.id, label:pd.label, icon:pd.icon}) + '</span>' +
       '<div><b>' + esc(pd.label) + '</b><span>' + (p.date ? esc(prettyDate(p.date)) : 'Earned') + '</span></div></div>';
+    textHTML = '';
   } else if (mine && ui.editPost === p.id){
     s += '<div class="pedit"><textarea data-act="editfield" maxlength="600" rows="4" aria-label="Edit your post">' + esc(ui.editText == null ? (p.text || '') : ui.editText) + '</textarea>' +
       '<div class="btnrow"><button class="btn sm" data-act="editsave" data-id="' + esc(p.id) + '">Save</button>' +
       '<button class="btn sm ghost" data-act="editcancel">Cancel</button></div></div>';
-  } else if (p.text) s += '<p class="ptext">' + esc(p.text) + '</p>';
+  } else if (p.text){ if (adventure) textHTML = ptextHTML(p); else s += ptextHTML(p); }
 
   const ptrk = p.kind === 'route' ? postTrk(p) : [];
   if (p.kind === 'route' && ptrk.length > 1){
@@ -5444,36 +5573,47 @@ function postHTML(p){
   s += condPills(p.conds);
 
   /* an adventure gets the numbers a walker looks for first */
+  let stripHTML = '';
   if (adventure){
     const top = hs.reduce((a, b) => b.h > a.h ? b : a, hs[0]);
-    const where = [...new Set(hs.map(h => { const lid = h.l.find(x => state.enabled.includes(x)) || h.l[0]; return regionOf(h, lid).replace('The ', ''); }))].slice(0, 2).join(' & ');
-    s += '<div class="pstrip"><div><b>' + hs.length + '</b><i>' + (hs.length === 1 ? 'summit' : 'summits') + '</i></div>' +
+    stripHTML = '<div class="pstrip"><div><b>' + hs.length + '</b><i>' + (hs.length === 1 ? 'summit' : 'summits') + '</i></div>' +
       '<div><b>' + (unitsPref() === 'm' ? top.h.toLocaleString() + ' m' : feet(top) + ' ft') + '</b><i>highest</i></div>' +
       (p.date ? '<div><b>' + esc(prettyDate(p.date).replace(/ \d{4}$/, '')) + '</b><i>when</i></div>' : '') + '</div>';
   }
 
+  let shotsHTML = '';
   if ((p.shots || []).length){
-    s += '<div class="pshots">' + p.shots.slice(0, 6).map(pid =>
+    shotsHTML = '<div class="pshots' + (p.shots.length === 1 ? ' one' : '') + '">' + p.shots.slice(0, 6).map(pid =>
       '<button class="shot" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '">' +
       '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="' + esc(p.text ? p.text.slice(0, 80) : 'Photo from ' + (p.name || 'a walker') + '\u2019s ' + (hs.length ? 'adventure' : 'post')) + '">' +
       '</button>').join('') + '</div>';
   }
 
+  let hillsHTML = '';
   if (hs.length && p.kind !== 'rec'){
     hs.sort((a, b) => b.h - a.h);
-    s += '<div class="phills">' + hs.map(h =>
-      '<span class="hpill">' + esc(hillName(h)) + '<i>' + feet(h).toLocaleString() + ' ft</i></span>').join('') + '</div>';
-    if (p.date && !adventure) s += '<p class="pdate">' + esc(prettyDate(p.date)) + '</p>';
+    hillsHTML = '<div class="phills">' + hs.map(h =>
+      '<span class="hpill">' + esc(hillName(h)) + '<i>' + feet(h).toLocaleString() + ' ft</i></span>').join('') + '</div>' +
+      ((p.date && !adventure) ? '<p class="pdate">' + esc(prettyDate(p.date)) + '</p>' : '');
   }
+  /* An adventure leads with the day itself — the photographs, the figures, the
+     summits — and the write-up follows. It used to open with the words, so a
+     chatty post filled the screen before you knew where anybody had been. */
+  s += adventure ? (shotsHTML + stripHTML + hillsHTML + textHTML) : (shotsHTML + hillsHTML);
 
   /* who has said what, in words: "12 Cheers · 3 Epic" */
   const said = REACTIONS.filter(r => counts[r.id]).map(r => counts[r.id] + ' ' + (counts[r.id] === 1 ? r.label : r.plural));
   if (said.length || cs.length) s += '<p class="psaid">' + esc(said.join(', ')) + (said.length && cs.length ? ' · ' : '') +
     (cs.length ? cs.length + (cs.length === 1 ? ' comment' : ' comments') : '') + '</p>';
-  s += '<div class="pacts">' + REACTIONS.map(r =>
+  /* The five words used to wrap onto two lines and sit under 44px, with
+     Comment as a bare link at the card's edge. One row now: the reactions
+     scroll sideways at full height, Comment is a pill like the rest. */
+  s += '<div class="pacts"><div class="ract">' + REACTIONS.map(r =>
     '<button class="rbtn' + (mineIs === r.id ? ' on' : '') + '" data-act="react" data-id="' + esc(p.id) +
-    '" data-e="' + r.id + '" aria-label="' + esc(r.label) + '" aria-pressed="' + (mineIs === r.id) + '" title="' + esc(r.label) + '">' + ti(r.icon) + '<span>' + esc(r.label) + '</span></button>').join('') +
-    '<button class="linkbtn pcm" data-act="opencomments" data-id="' + esc(p.id) + '" aria-label="Comments">' + ti('message-circle') + (cs.length ? ' ' + cs.length : '<span class="pcmlabel"> Comment</span>') + '</button></div>';
+    '" data-e="' + r.id + '" aria-label="' + esc(r.label) + '" aria-pressed="' + (mineIs === r.id) + '" title="' + esc(r.label) + '">' + ti(r.icon) +
+    '<span>' + esc(r.label) + '</span>' + (counts[r.id] ? '<i>' + counts[r.id] + '</i>' : '') + '</button>').join('') + '</div>' +
+    '<button class="rbtn pcm" data-act="opencomments" data-id="' + esc(p.id) + '" aria-label="Comments">' + ti('message-circle') +
+    '<span>Comment</span>' + (cs.length ? '<i>' + cs.length + '</i>' : '') + '</button></div>';
 
   if (ui.openComments === p.id){
     s += '<div class="pcomments">';
@@ -5607,9 +5747,9 @@ function renderFeed(){
       '<button class="linkbtn" style="padding:0" data-act="refreshfeed">Try again</button></p>';
   }
   const view = ui.feedView || (following().length || feed.length ? 'following' : 'discover');
-  s += '<div class="texttabs" role="tablist">' +
-    '<button role="tab" data-act="feedview" data-v="following" aria-selected="' + (view === 'following') + '">Following</button>' +
-    '<button role="tab" data-act="feedview" data-v="discover" aria-selected="' + (view === 'discover') + '">Discover</button>' +
+  s += '<div class="subfilter" role="tablist">' +
+    '<button role="tab" data-act="feedview" data-v="following" aria-selected="' + (view === 'following') + '" aria-pressed="' + (view === 'following') + '">Following</button>' +
+    '<button role="tab" data-act="feedview" data-v="discover" aria-selected="' + (view === 'discover') + '" aria-pressed="' + (view === 'discover') + '">Discover</button>' +
     '<button class="iconbtn refreshbtn" data-act="refreshfeed" aria-label="Refresh" title="Refresh">' + ti('refresh') + '</button></div>';
   if (view === 'discover'){
     s += '<div class="planintro">The newest public adventures on WayMark. Follow anyone whose walks you like.</div>';
@@ -5705,7 +5845,7 @@ function renderFeed(){
 function hikerRow(f, extra){
   return '<div class="hrowp"><button class="rrow" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') +
     '<span class="rn">' + esc(f.name || 'Walker') + '<i class="rsub">' + (f.handle ? '@' + esc(f.handle) : '') + (f.why ? (f.handle ? ' &middot; ' : '') + esc(f.why) : '') + '</i></span>' +
-    '<span class="rc">' + (f.hills || 0) + '</span></button>' + (extra || '') + '</div>';
+    '<span class="rc">' + (f.hills || 0) + '<i>summits</i></span></button>' + (extra || '') + '</div>';
 }
 function followBtn(uid, small){
   if (!fbUser || uid === fbUser.uid) return '';
@@ -5716,8 +5856,10 @@ function followBtn(uid, small){
 }
 function renderFriends(){
   const pv = ui.peopleView || 'following';
-  let s = '<div class="seg feedseg" role="group">' +
-    [['following', 'Following', following().length], ['followers', 'Followers', followers.length], ['discover', 'Discover', 0]].map(([v, l, n]) =>
+  /* A second full-width bar under the first ate 110px before any content.
+     These read as filters now, because that is what they are. */
+  let s = '<div class="subfilter" role="group">' +
+    [['following', 'Following', following().length], ['followers', 'Followers', followers.length], ['discover', 'Find someone', 0]].map(([v, l, n]) =>
       '<button data-act="peopleview" data-v="' + v + '" aria-pressed="' + (pv === v) + '">' + l + (n ? ' <i>' + n + '</i>' : '') + '</button>').join('') + '</div>';
   if (pv === 'following'){
     const fr = following();
@@ -5748,12 +5890,20 @@ function renderFriends(){
     for (const f of sug0) s += hikerRow(f, followBtn(f.uid, true));
     s += '</div>';
   }
+  /* Sending your own link is the way most people will do this, so it comes
+     first: nobody has to spell a handle down the phone. */
+  if (fbHandle){
+    s += '<div class="invitecard"><div><b>Your link</b><span>' + esc(profileLink(fbHandle).replace(/^https?:\/\//, '')) + '</span></div>' +
+      '<button class="btn sm quiet" data-act="shareme">' + ti('share') + 'Link</button>' +
+      '<button class="btn sm" data-act="invitecard">' + ti('photo') + 'Card</button></div>';
+  }
   s += '<p class="eyebrow">Find someone</p>';
 
   s += '<div class="form" style="margin-top:0">';
-  s += '<div><label for="findh">Their handle</label>' +
-    '<div class="field"><input id="findh" placeholder="e.g. annridge" maxlength="20" autocomplete="off">' +
-    '<button class="btn sm" data-act="findfriend">Search</button></div></div>';
+  s += '<div><label for="findh">Their handle or name</label>' +
+    '<div class="field"><input id="findh" placeholder="annridge, or Ann" maxlength="30" autocomplete="off">' +
+    '<button class="btn sm" data-act="findfriend">Search</button></div>' +
+    '<p class="mapnote" style="margin:6px 0 0">A handle finds anybody on WayMark. A name finds people you already share a board, a follow or a public adventure with.</p></div>';
   if (fbHandle && !ui.handleEdit){
     s += '<p class="mapnote" style="margin:12px 0 0">You are <b>@' + esc(fbHandle) + '</b> &middot; <button class="linkbtn" style="padding:0" data-act="handleedit">change</button></p>';
   } else {
@@ -5763,15 +5913,15 @@ function renderFriends(){
       '<p class="mapnote" style="margin:6px 0 0">Letters, numbers and underscores. This is how people find you.</p></div>';
   }
   s += '<p id="fmsg" style="font-size:13px;margin:8px 0 0"></p>';
-  if (ui.found){
-    const f = ui.found;
+  const foundList = ui.found ? (Array.isArray(ui.found) ? ui.found : [ui.found]) : [];
+  for (const f of foundList){
     s += '<div class="frow"><div class="fwho2"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'sm') + '</button>' +
-      '<div><b>' + esc(f.name) + '</b><span>@' + esc(f.handle || '') + ' &middot; ' + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' (private)' : '') + '</span></div></div>' +
+      '<div><b>' + esc(f.name || 'Walker') + '</b><span>' + (f.handle ? '@' + esc(f.handle) + ' &middot; ' : '') + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' (private)' : '') + '</span></div></div>' +
       followBtn(f.uid, true) + '</div>';
   }
   s += '</div>';
 
-  if (!sug0.length) s += '<p class="empty">Nobody to suggest yet. Join a leaderboard, or search a handle above.</p>';
+  if (!sug0.length) s += '<p class="empty">Nobody to suggest yet. Send someone your link, join a board, or search above.</p>';
   return s;
 }
 
@@ -5799,8 +5949,9 @@ function renderHikers(){
 }
 /* Land on the section that actually has something in it. Somebody with three
    leaderboards and no friends yet should not open onto an empty Activity tab. */
+const HIKER_TABS = ['feed', 'friends', 'boards', 'me'];
 function hikerTab(){
-  if (ui.hikerTab) return ui.hikerTab;
+  if (ui.hikerTab) return HIKER_TABS.includes(ui.hikerTab) ? ui.hikerTab : 'feed';
   if (feed.length || following().length || discover.length) return 'feed';
   if (myGroups().length) return 'boards';
   return 'feed';
@@ -7936,7 +8087,7 @@ function dayChipsHTML(){
     const on = ui.rday === iso;
     s += '<button class="daychip' + (on ? ' on' : '') + '" data-act="rday" data-v="' + iso + '"' +
       ' aria-pressed="' + on + '">' +
-      '<b>' + (i === 0 ? 'Today' : i === 1 ? 'Tom' : DAY_SHORT[d.getDay()]) + '</b>' +
+      '<b>' + (i === 0 ? 'Today' : DAY_SHORT[d.getDay()]) + '</b>' +
       '<i>' + d.getDate() + ' ' + MON_SHORT[d.getMonth()] + '</i></button>';
   }
   /* Any other date — a walk further out, or one already done that you are
@@ -8060,8 +8211,15 @@ function renderPlans(){
   let html = listBar();
   /* the day first: a walk is planned around the weather, so the chips and the
      forecast sit above the map where they are seen without a scroll */
-  html += '<div class="daytop">' + dayChipsHTML() + '</div>';
-  if (ui.rday) html += '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>';
+  /* The picker and the forecast used to push the map a third of the way down
+     the screen before anyone had seen it. Folded by default; the day you are
+     looking at stays on the button. */
+  const dayLbl = !ui.rday ? 'Pick a day' : ui.rday === today() ? 'Today' : prettyDate(ui.rday).replace(/ \d{4}$/, '');
+  html += '<div class="daytop">' +
+    '<button class="dayfold' + (ui.dayOpen ? ' on' : '') + '" data-act="dayfold" aria-expanded="' + !!ui.dayOpen + '">' +
+      ti('cloud') + '<b>' + esc(dayLbl) + '</b><i>' + (ui.dayOpen ? 'Hide forecast' : 'Forecast') + '</i>' + ti('chevron-down') + '</button>' +
+    (ui.dayOpen ? dayChipsHTML() : '') + '</div>';
+  if (ui.rday && ui.dayOpen) html += '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>';
   html += mapStageHTML();
   html += '<p class="poistate" id="poistate">' + poiStateText() + '</p>';
 
@@ -8133,6 +8291,14 @@ function layersHTML(){
   if (state.enabled.length > 1)
     s += '<button class="mrow' + (ui.mapScope === 'one' ? ' on' : '') + '" data-act="mapscope" data-v="' + (ui.mapScope === 'one' ? 'enabled' : 'one') + '" aria-pressed="' + (ui.mapScope === 'one') + '">Only ' + esc(LIST_BY[ui.list].name) + '<small>hide the other lists</small></button>';
   s += '<div class="mlegend"><span><i class="mk"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span></div>';
+  /* The pins are coloured by Wainwright's seven books, which everybody reads as
+     red-means-something-is-wrong until they are told otherwise. */
+  if (state.enabled.includes('wainwright')){
+    s += '<div class="mh">Pin colours</div><div class="bklegend">' +
+      Object.entries(BOOK_VAR).map(([name, v]) =>
+        '<span><i style="background:var(' + v + ')"></i>' + esc(name.replace('The ', '')) + '</span>').join('') +
+      '</div><p class="bknote">Wainwright\u2019s seven books. A filled pin is one you have marked, an outlined one is still to go.</p>';
+  }
   if (sheetsOk()) s += '<div class="mh">Keep offline</div><div id="sheets">' + sheetsHTML() + '</div>';
   return s;
 }
@@ -8608,9 +8774,9 @@ document.addEventListener('click', async e => {
     toast(autoPostOn() ? 'Your summits will show in the feed.' : 'Your summits stay off the feed.');
   }
   else if (a === 'toggledetail'){ fbDetail = !fbDetail; markDirty('detail'); renderAccountBox(); scheduleSync(400); }
-  else if (a === 'closegroupform'){ ui.groupForm = ''; render(); }
+  else if (a === 'closegroupform'){ ui.groupForm = ''; ui.joinCode = ''; render(); }
   else if (a === 'newgroup'){ ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
-  else if (a === 'joingroup'){ ui.groupForm = ui.groupForm === 'join' ? '' : 'join'; render(); }
+  else if (a === 'joingroup'){ ui.groupForm = ui.groupForm === 'join' ? '' : 'join'; if (!ui.groupForm) ui.joinCode = ''; render(); }
   else if (a === 'dogroup'){
     /* Both branches MUST catch. Without it a rejected Firestore write leaves the
        form sitting on "Creating\u2026" for ever with nothing to tell the walker why. */
@@ -8620,6 +8786,7 @@ document.addEventListener('click', async e => {
       m.textContent = t;
       m.style.color = bad ? 'var(--warn)' : '';
     };
+    ui.joinCode = '';
     if (el.dataset.v === 'new'){
       const nm = (document.getElementById('gname').value || '').trim() || 'My leaderboard';
       say('Creating\u2026');
@@ -8759,6 +8926,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'editpost'){
     const p = knownPosts().find(x => x.id === el.dataset.id); if (!p) return;
+    ui.postMenu = null;
     ui.editPost = p.id; ui.editText = p.text || ''; render();
     const ta = document.querySelector('.pedit textarea'); if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
   }
@@ -8780,10 +8948,28 @@ document.addEventListener('click', async e => {
     }catch(err){ el.disabled = false; toast(fbWhy(err)); }
   }
   else if (a === 'delpost'){
+    ui.postMenu = null; render();
     const ok = await confirmAsk({title:'Delete this post?', body:'It goes from everyone\u2019s feed, along with its comments.', yes:'Delete'});
     if (ok) deletePost(el.dataset.id);
   }
   else if (a === 'react'){ react(el.dataset.id, el.dataset.e); }
+  /* a walk from the profile list opens where the whole post lives */
+  else if (a === 'openpost'){
+    ui.hikerTab = 'feed'; ui.feedView = 'following'; ui.openPost = el.dataset.id; render();
+    setTimeout(() => {
+      const n = document.querySelector('[data-post-id="' + CSS.escape(el.dataset.id) + '"]');
+      if (n) window.scrollTo({top: n.getBoundingClientRect().top + window.scrollY - 70, behavior:'smooth'});
+    }, 60);
+  }
+  else if (a === 'dayfold'){ ui.dayOpen = !ui.dayOpen; render(); }
+  else if (a === 'postmenu'){ ui.postMenu = ui.postMenu === el.dataset.id ? null : el.dataset.id; render(); }
+  /* unfolding a write-up is a local thing: no re-render, so the feed does not
+     jump under the reader's thumb */
+  else if (a === 'moretext'){
+    const w = el.closest('.ptextwrap'); if (!w) return;
+    const open = w.classList.toggle('clamped');
+    el.textContent = open ? 'Read more' : 'Show less';
+  }
   else if (a === 'opencomments'){
     const id = el.dataset.id;
     ui.openComments = ui.openComments === id ? null : id;
@@ -8817,15 +9003,25 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'findfriend'){
     const box = document.getElementById('findh'), m = document.getElementById('fmsg');
-    if (!box) return;
+    if (!box || !box.value.trim()) return;
     if (m){ m.textContent = 'Looking\u2026'; m.style.color = ''; }
     try{
       const f = await findByHandle(box.value);
-      ui.found = f;
-      if (m){ m.textContent = f ? '' : 'Nobody with that handle.'; m.style.color = f ? '' : 'var(--warn)'; }
+      /* People are only ever fetched by uid — the rules never list them, which
+         is what keeps everyone's card private. So a name is matched against the
+         people this account can already see: boards, follows, public posts. */
+      const byName = f ? [] : searchKnownPeople(box.value);
+      ui.found = f ? [f] : byName;
+      if (m){
+        m.textContent = (f || byName.length) ? ''
+          : 'Nobody by that name here. If they are on WayMark, ask them for their handle \u2014 or send them your link and let them follow you.';
+        m.style.color = (f || byName.length) ? '' : 'var(--ink-3)';
+      }
       render();
     }catch(e){ if (m){ m.textContent = fbWhy(e); m.style.color = 'var(--warn)'; } }
   }
+  else if (a === 'shareme'){ shareLink(profileLink(fbHandle), 'Follow me on WayMark', 'This is my hill log on WayMark.'); }
+  else if (a === 'shareboard'){ shareLink(boardLink(el.dataset.v), 'Join my WayMark board', 'Tap to join my leaderboard on WayMark.'); }
   else if (a === 'follow'){
     const u = el.dataset.u;
     const p = (ui.found && ui.found.uid === u ? ui.found : null) || personCache[u] || allFriends().find(x => x.uid === u) || friendReqs.find(x => x.uid === u);
@@ -9001,6 +9197,7 @@ document.addEventListener('click', async e => {
   else if (a === 'opensettings'){ openSheet(); }
   else if (a === 'patchview'){ ui.patchView = el.dataset.v; render(); }
   else if (a === 'yearcard'){ try{ await yearCard(); }catch(e){ toast('Could not make the card.'); } }
+  else if (a === 'invitecard'){ try{ await inviteCard(); }catch(e){ toast('Could not make the card.'); } }
   else if (a === 'profedit'){ ui.profEdit = !ui.profEdit; if (!ui.profEdit) ui.pDraftProf = null; render(); }
   else if (a === 'profcancel'){ ui.profEdit = false; ui.pDraftProf = null; render(); }
   else if (a === 'pfvis'){ const d = profDraft(); if (d){ d.vis = el.dataset.v; render(); } }
@@ -9967,6 +10164,10 @@ async function fbStart(){
       await fbSync(true);
       await pullProf();
       pushPerson(); loadFriends(); loadFeed();
+      /* somebody who arrived on a shared link goes where it points */
+      openWmLink();
+    } else if (location.hash && /^#(@|board=)/.test(location.hash)){
+      toast('Sign in to open that link.');
     }
     renderAccountBox(); render();
   });
@@ -10329,13 +10530,14 @@ function paintSync(){
     syncState === 'pending' ? 'Save now' :
     syncState === 'error'   ? 'Retry' :
     syncState === 'synced'  ? (mins < 1 ? 'Saved' : mins < 60 ? 'Saved ' + mins + 'm' : 'Saved') :
-    fbUser ? 'Saved' : 'Sign in';
-  b.title = fbUser ? 'Signed in as ' + (fbName || fbUser.name) : 'Tap to sign in and sync';
+    fbUser ? 'Saved' : fbConfigured() ? 'Sign in' : 'On this device';
+  b.title = fbUser ? 'Signed in as ' + (fbName || fbUser.name)
+          : fbConfigured() ? 'Tap to sign in and sync' : 'Accounts are not switched on here';
 }
 function paintCloudNote(){
   const txt = cloudOn()
     ? 'Signed in and syncing. Your log is kept on this device too, so it works with no signal.'
-    : 'Sign in to sync across your devices and compare with friends.';
+    : fbConfigured() ? 'Sign in to sync across your devices and compare with friends.' : '';
   document.querySelectorAll('.cloudNote').forEach(el => { el.textContent = txt; });
 }
 function renderAccountBox(){
@@ -10344,7 +10546,10 @@ function renderAccountBox(){
   const box = {set innerHTML(v){ boxes.forEach(b => { b.innerHTML = v; }); }};
   let s = '';
   if (!fbConfigured()){
-    s = '<p>This copy of WayMark runs without accounts: your log stays on this device.</p>';
+    /* One message for this, in one place. The page used to say accounts were
+       unavailable while the header still offered Sign in. */
+    s = '<div class="nobody"><b>Accounts are not switched on here</b>' +
+        '<span>Your log is safe on this device and works with no signal. Hikers, leaderboards and syncing between devices need an account.</span></div>';
   } else if (!fbReady){
     s = '<p>Connecting\u2026</p>';
   } else if (!FB){
@@ -10586,6 +10791,43 @@ async function claimHandle(want){
   touched();
   return h;
 }
+/* A link anybody can open. Handles were the only way to find a person, which
+   meant reading one down the phone; this is the thing you paste into WhatsApp.
+   The hash keeps it a single-page URL, so GitHub Pages serves it happily and
+   the service worker still answers offline. */
+const wmBase = () => location.origin + location.pathname.replace(/index\.html$/, '');
+const profileLink = h => wmBase() + '#@' + h;
+const boardLink = c => wmBase() + '#board=' + c;
+/* what a person reads on a card or a story: 404.html sends /@handle back to
+   the hash form, so this can be typed as well as scanned */
+const prettyLink = h => (wmBase() + '@' + h).replace(/^https?:\/\//, '');
+async function shareLink(url, title, text){
+  try{
+    if (navigator.share){ await navigator.share({title, text, url}); return; }
+  }catch(e){ if (e && e.name === 'AbortError') return; }
+  try{ await navigator.clipboard.writeText(url); toast('Link copied. Paste it to whoever you walk with.'); return; }catch(e){}
+  prompt('Copy this link', url);
+}
+/* Somebody arrived on a link: open that profile, or hold the board code ready
+   for the join box. Runs once the account is up, since both need a signed-in
+   read; the hash is cleared so a refresh does not fire it twice. */
+async function openWmLink(){
+  const h = decodeURIComponent(location.hash || '');
+  if (!h) return;
+  const who = h.match(/^#@([A-Za-z0-9_]{2,20})$/);
+  const brd = h.match(/^#board=([A-Za-z0-9]{4,12})$/i);
+  if (!who && !brd) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  tab = 'u';
+  if (brd){ ui.hikerTab = 'boards'; ui.joinCode = brd[1].toUpperCase(); render(); toast('Board code ready: tap Join.'); return; }
+  ui.hikerTab = 'friends'; ui.peopleView = 'discover'; render();
+  try{
+    const f = await findByHandle(who[1]);
+    if (f){ ui.found = f; openFriend(f.uid); }
+    else toast('Nobody with the handle @' + who[1] + '.');
+  }catch(e){ toast(fbWhy(e)); }
+  render();
+}
 async function findByHandle(want){
   const h = tidyHandle(want);
   if (!FB || !fbUser || h.length < 3) return null;
@@ -10596,6 +10838,21 @@ async function findByHandle(want){
   const ps = await FB.getDoc(personRef(uid));
   if (!ps.exists()) return null;
   return {uid, ...(ps.data() || {})};
+}
+/* Everyone this account has legitimately seen: follows, board members, the
+   authors of public adventures, and anyone cached from opening their profile. */
+function searchKnownPeople(q){
+  const t = String(q || '').trim().toLowerCase().replace(/^@/, '');
+  if (t.length < 2) return [];
+  const m = new Map();
+  const add = p => { if (p && p.uid && p.uid !== (fbUser || {}).uid && !m.has(p.uid)) m.set(p.uid, p); };
+  allFriends().forEach(add);
+  followers.forEach(add);
+  Object.values(personCache || {}).forEach(add);
+  for (const g of (state.groups || [])) for (const mem of (g.members || [])) add(mem);
+  for (const p of [...discover, ...feed]) add({uid:p.uid, name:p.name, av:p.av, handle:p.handle || ''});
+  return [...m.values()].filter(p =>
+    String(p.name || '').toLowerCase().includes(t) || String(p.handle || '').toLowerCase().includes(t)).slice(0, 12);
 }
 const card = p => ({uid:p.uid, name:p.name||'Walker', av:p.av||'', handle:p.handle||'', hills:p.hills||0, t:Date.now()});
 /* Follow: my entry in their followers (the rules let me write only myself,
@@ -11045,10 +11302,13 @@ function setGroupDetail(code, on){
    away, it never changes under you, and on the open board a walker count would
    only ever be the page cap rather than the real total. */
 function friendsTabLabel(){
-  if (!fbUser) return '-';
+  /* a bare hyphen under the tab looked like something had failed to load */
+  if (!fbUser) return '';
+  const f = following().length;
   const n = myGroups().length;
-  if (!n) return '-';
-  return n + (n === 1 ? ' board' : ' boards');
+  if (f) return f + ' following';
+  if (n) return n + (n === 1 ? ' board' : ' boards');
+  return '';
 }
 
 /* What I publish into ONE group: always totals, plus detail only if I opted in
@@ -11302,13 +11562,16 @@ function boardCard(g){
   const rows = groupRows[g.code];
   let html = '<article class="plan' + (glob ? ' globalcard' : '') + '" style="margin-top:14px">';
   html += '<div class="planhead"><h3>' + esc(glob ? GLOBAL_NAME : g.name) + '</h3>' +
-    '<button class="linkbtn" data-act="leavegroup" data-v="' + esc(g.code) + '">Leave</button></div>';
+    '<button class="linkbtn" data-act="refreshgroup" data-v="' + esc(g.code) + '">Refresh</button></div>';
   html += '<div class="planmeta">' +
     (glob
       ? '<span class="tag">open to all</span><span>Top ' + GLOBAL_TOP + ' by summits</span>'
       : '<span>Code <b class="gcode">' + esc(g.code) + '</b></span>' +
-        '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(g.code) + '">Copy code</button>') +
-    '<button class="linkbtn" style="padding:0" data-act="refreshgroup" data-v="' + esc(g.code) + '">Refresh</button></div>';
+        '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(g.code) + '">Copy code</button>' +
+        '<button class="linkbtn" style="padding:0" data-act="leavegroup" data-v="' + esc(g.code) + '">Leave</button>') + '</div>';
+  /* Reading a six-character code down the phone was the only way in. The link
+     carries the code and drops it straight into the join box. */
+  if (!glob) html += '<div class="btnrow" style="margin-top:10px"><button class="btn sm" data-act="shareboard" data-v="' + esc(g.code) + '">' + ti('share') + 'Invite by link</button></div>';
 
   /* One decision per board: the club can have the lot, the work one only totals. */
   const shares = groupDetail(g.code);
@@ -11325,7 +11588,7 @@ function boardCard(g){
 
   if (groupBusy === g.code || !rows) html += skeletonRows(4);
   else if (!rows.length) html += '<p class="empty" style="padding:18px">' +
-    (glob ? 'Nobody on it yet. You are the first.' : 'Just you so far. Send the code to a friend.') + '</p>';
+    (glob ? 'Nobody on it yet. You are the first.' : 'Just you so far. Send the invite link to whoever you walk with.') + '</p>';
   else {
     html += '<div class="regionlist" style="margin-top:10px">';
     rows.forEach((r, i) => {
@@ -11352,9 +11615,10 @@ function groupFormHTML(){
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new">Create</button></div></div>';
   }
+  if (ui.joinCode && ui.groupForm !== 'join') ui.groupForm = 'join';
   if (ui.groupForm === 'join'){
     return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button><div><label for="gcode">Join code</label>' +
-      '<input id="gcode" placeholder="ABC123" maxlength="7" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase; letter-spacing:.2em; font-weight:700"></div>' +
+      '<input id="gcode" placeholder="ABC123" maxlength="7" autocapitalize="characters" spellcheck="false" value="' + esc(ui.joinCode || '') + '" style="text-transform:uppercase; letter-spacing:.2em; font-weight:700"></div>' +
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="join">Join</button></div></div>';
   }
@@ -11362,7 +11626,7 @@ function groupFormHTML(){
 }
 
 function renderBoard(){
-  if (!fbConfigured()) return '<p class="empty">Friends and leaderboards need accounts, which this copy runs without.</p>';
+  if (!fbConfigured()) return '';
   if (!fbUser) return '<p class="empty">Sign in above and you can start or join a leaderboard with friends.</p>';
   if (friendOpen) return renderFriend();
 
@@ -11415,17 +11679,26 @@ function profileHeader(pp, opts){
   const initial = esc((pp.name || 'W').trim().charAt(0).toUpperCase());
   let s = '<section class="prof">';
   /* the figures sit in a bar printed over the banner, bottom right */
+  /* Three figures, not five: the fifth was a hill name set twice the size of
+     the numbers beside it, and at phone width the row had nowhere to go. */
   const stats = [[pp.hills || 0, 'summits', ''], [pp.pc || 0, 'patches', mine ? 'data-act="gotab" data-v="a"' : '']];
-  if (mine) stats.push([followers.length, 'followers', 'data-act="peoplego" data-v="followers"'], [following().length, 'following', 'data-act="peoplego" data-v="following"']);
-  const bar = '<div class="pbar">' + stats.map(([v, l, act]) => act
+  if (mine){
+    /* Nobody wants a nought for followers on the day they arrive: the slot
+       offers the link that would fix it instead. */
+    if (followers.length) stats.push([followers.length, 'followers', 'data-act="peoplego" data-v="followers"']);
+    stats.push([following().length, 'following', 'data-act="peoplego" data-v="following"']);
+  }
+  const bar = '<div class="pbar">' + stats.slice(0, 3).map(([v, l, act]) => act
     ? '<button class="pstat" ' + act + '><b>' + v + '</b><i>' + l + '</i></button>'
     : '<div class="pstat"><b>' + v + '</b><i>' + l + '</i></div>').join('') +
-    (pp.top ? '<div class="pstat ptop">' + ti('waymark-mountain') + '<b>' + esc(pp.top) + '</b><i>highest so far</i></div>' : '') +
-    (mine && !ui.profEdit ? '<button class="btn sm yearbtn" data-act="yearcard">' + ti('sparkles') + 'Share my year so far</button>' : '') +
-    '</div>';
+    '</div>' +
+    (pp.top ? '<p class="ptopline">' + ti('waymark-mountain') + 'Highest so far <b>' + esc(pp.top) + '</b></p>' : '') +
+    (mine && !ui.profEdit ? '<div class="pactions">' +
+      '<button class="btn sm ghost" data-act="invitecard">' + ti('share') + 'Invite card</button>' +
+      '<button class="btn sm yearbtn" data-act="yearcard">' + ti('sparkles') + 'Share my year so far</button></div>' : '');
   s += '<div class="pbanner' + (pp.banner ? ' has' : '') + '">' +
     (pp.banner ? '<img src="' + esc(pp.banner) + '" alt="" style="object-position:50% ' + (+pp.bfy || 50) + '%" draggable="false">' : RIDGE) +
-    (mine ? '<button class="btn sm pedit" data-act="profedit">' + (ui.profEdit ? 'Done' : 'Edit profile') + '</button>'
+    (mine ? '<button class="btn sm pedit solid" data-act="profedit">' + (ui.profEdit ? 'Done' : 'Edit profile') + '</button>'
           : '<span class="pedit pfollow">' + followBtn(pp.uid, true) + '</span>') +
     '</div>' + bar;
   s += '<div class="phead2"><div class="pmain">';
@@ -11475,10 +11748,23 @@ function renderMyProfile(){
   if (ui.profEdit) s += profileEditor();
 
   s += gearHTML(pp, true);
-  const mine = feed.filter(p => p.uid === fbUser.uid).slice(0, 10);
+  const mine = feed.filter(p => p.uid === fbUser.uid).slice(0, 20);
   s += '<p class="eyebrow">Your walks</p>';
   if (!mine.length) s += '<p class="empty">Nothing shared yet. Mark a summit, share a journal entry, or post something on Activity.</p>';
-  else for (const p of mine) s += postHTML(p);
+  /* This used to print every post again at full length, so the same wall of
+     words appeared twice in one section. A line each, opened on the feed. */
+  else s += '<div class="walklist">' + mine.map(p => {
+    const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+    const where = hs.length ? [...new Set(hs.map(h => regionOf(h, h.l.find(x => state.enabled.includes(x)) || h.l[0]).replace('The ', '')))].slice(0, 2).join(' & ') : '';
+    return '<button class="walkrow" data-act="openpost" data-id="' + esc(p.id) + '">' +
+      '<span class="wshot">' + ((p.shots || []).length
+        ? '<img data-post="' + esc(p.id) + '" data-shot="' + esc(p.shots[0]) + '" alt="">'
+        : ti(p.kind === 'patch' ? 'rosette' : 'waymark-mountain')) + '</span>' +
+      '<span class="wtext"><b>' + esc(where || p.title || (p.text || '').slice(0, 40) || 'A day out') + '</b>' +
+      '<i>' + (p.date ? esc(prettyDate(p.date)) : esc(whenAgo(p.t))) +
+      (hs.length ? ' &middot; ' + hs.length + (hs.length === 1 ? ' summit' : ' summits') : '') + '</i></span>' +
+      ti('chevron-right') + '</button>';
+  }).join('') + '</div>';
   s += '<div class="btnrow" style="margin-top:14px"><button class="btn quiet" data-act="fbout">Sign out</button></div>';
   return s;
 }
@@ -11523,6 +11809,328 @@ function profDraft(){ return ui.pDraftProf; }
 
 /* Your year so far as one picture: summits, days out, the highest, the
    patches. Drawn here, handed to the share sheet, saved as a file otherwise. */
+/* ---------- the invite card ----------
+   A story-sized picture of one walker's log with their own code on it: sent to
+   a friend, or put on a story. The code and the link both land on their
+   profile, so nobody has to spell a handle down the phone. */
+/* A small QR encoder: byte mode, error correction M, versions 1-10, all eight
+   masks scored the way the spec says. Enough for a waymark.it.com/#@handle. */
+function qrMatrix(text){
+  const EXP = new Array(512), LOG = new Array(256);
+  for (let i = 0, x = 1; i < 255; i++){ EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11d; }
+  for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  const mul = (a, b) => (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
+
+  // data codewords and ec codewords per block, error correction level M, v1..10
+  const CAP = [
+    null,
+    {tot:26,  ec:10, g1:1, d1:16, g2:0, d2:0},
+    {tot:44,  ec:16, g1:1, d1:28, g2:0, d2:0},
+    {tot:70,  ec:26, g1:1, d1:44, g2:0, d2:0},
+    {tot:100, ec:18, g1:2, d1:32, g2:0, d2:0},
+    {tot:134, ec:24, g1:2, d1:43, g2:0, d2:0},
+    {tot:172, ec:16, g1:4, d1:27, g2:0, d2:0},
+    {tot:196, ec:18, g1:4, d1:31, g2:0, d2:0},
+    {tot:242, ec:22, g1:2, d1:38, g2:2, d2:39},
+    {tot:292, ec:22, g1:3, d1:36, g2:2, d2:37},
+    {tot:346, ec:26, g1:4, d1:43, g2:1, d2:44}
+  ];
+  const ALIGN = [null, [], [6,18], [6,22], [6,26], [6,30], [6,34], [6,22,38], [6,24,42], [6,26,46], [6,28,50]];
+
+  const bytes = [];
+  for (const ch of unescape(encodeURIComponent(text))) bytes.push(ch.charCodeAt(0));
+
+  let ver = 0;
+  for (let v = 1; v <= 10; v++){
+    const c = CAP[v];
+    const dataCw = c.g1 * c.d1 + c.g2 * c.d2;
+    const lenBits = v < 10 ? 8 : 16;
+    if (4 + lenBits + bytes.length * 8 <= dataCw * 8){ ver = v; break; }
+  }
+  if (!ver) throw new Error('too long for a small code');
+  const cap = CAP[ver], dataCw = cap.g1 * cap.d1 + cap.g2 * cap.d2;
+
+  // ---- bit stream
+  const bits = [];
+  const put = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+  put(4, 4);
+  put(bytes.length, ver < 10 ? 8 : 16);
+  for (const b of bytes) put(b, 8);
+  for (let i = 0; i < 4 && bits.length < dataCw * 8; i++) bits.push(0);
+  while (bits.length % 8) bits.push(0);
+  const data = [];
+  for (let i = 0; i < bits.length; i += 8){ let b = 0; for (let j = 0; j < 8; j++) b = (b << 1) | bits[i + j]; data.push(b); }
+  for (let i = 0; data.length < dataCw; i++) data.push(i % 2 ? 0x11 : 0xEC);
+
+  // ---- blocks and Reed-Solomon
+  /* the generator polynomial, highest power first, so the division below can
+     take rem[j] as the leading coefficient */
+  const gen = n => { let g = [1]; for (let i = 0; i < n; i++){ const ng = new Array(g.length + 1).fill(0);
+      for (let j = 0; j < g.length; j++){ ng[j] ^= g[j]; ng[j + 1] ^= mul(g[j], EXP[i]); } g = ng; } return g; };
+  const G = gen(cap.ec);
+  const blocks = [], ecs = [];
+  let at = 0;
+  for (let i = 0; i < cap.g1 + cap.g2; i++){
+    const n = i < cap.g1 ? cap.d1 : cap.d2;
+    const blk = data.slice(at, at + n); at += n;
+    const rem = blk.concat(new Array(cap.ec).fill(0));
+    for (let j = 0; j < n; j++){
+      const f = rem[j]; if (!f) continue;
+      for (let k = 0; k < G.length; k++) rem[j + k] ^= mul(G[k], f);
+    }
+    blocks.push(blk); ecs.push(rem.slice(n));
+  }
+  const out = [];
+  const maxD = Math.max(cap.d1, cap.d2 || 0);
+  for (let i = 0; i < maxD; i++) for (const b of blocks) if (i < b.length) out.push(b[i]);
+  for (let i = 0; i < cap.ec; i++) for (const e of ecs) out.push(e[i]);
+
+  // ---- the grid
+  const size = 17 + ver * 4;
+  const m = Array.from({length:size}, () => new Array(size).fill(null));
+  const setF = (r, c, v) => { if (r >= 0 && r < size && c >= 0 && c < size) m[r][c] = v; };
+  const finder = (r, c) => {
+    for (let i = -1; i <= 7; i++) for (let j = -1; j <= 7; j++){
+      const on = (i >= 0 && i <= 6 && (j === 0 || j === 6)) || (j >= 0 && j <= 6 && (i === 0 || i === 6)) ||
+                 (i >= 2 && i <= 4 && j >= 2 && j <= 4);
+      setF(r + i, c + j, on ? 1 : 0);
+    }
+  };
+  finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+  for (let i = 8; i < size - 8; i++){ m[6][i] = i % 2 === 0 ? 1 : 0; m[i][6] = i % 2 === 0 ? 1 : 0; }
+  for (const r of ALIGN[ver]) for (const c of ALIGN[ver]){
+    if ((r < 8 && c < 8) || (r < 8 && c > size - 9) || (r > size - 9 && c < 8)) continue;
+    for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++)
+      m[r + i][c + j] = (Math.abs(i) === 2 || Math.abs(j) === 2 || (i === 0 && j === 0)) ? 1 : 0;
+  }
+  m[size - 8][8] = 1;                                   // the dark module
+  // format areas reserved
+  for (let i = 0; i < 9; i++){ if (m[8][i] === null) m[8][i] = 0; if (m[i][8] === null) m[i][8] = 0; }
+  for (let i = 0; i < 8; i++){ if (m[8][size - 1 - i] === null) m[8][size - 1 - i] = 0; if (m[size - 1 - i][8] === null) m[size - 1 - i][8] = 0; }
+  // version info for 7 and up
+  if (ver >= 7){
+    let d = ver << 12, g = 0x1f25;
+    for (let i = 17; i >= 12; i--) if ((d >> i) & 1) d ^= g << (i - 12);
+    const vi = (ver << 12) | d;
+    for (let i = 0; i < 18; i++){
+      const bit = (vi >> i) & 1;
+      m[Math.floor(i / 3)][size - 11 + (i % 3)] = bit;
+      m[size - 11 + (i % 3)][Math.floor(i / 3)] = bit;
+    }
+  }
+
+  // ---- lay the codewords in, then pick the mask
+  const free = [];
+  let up = true;
+  for (let c = size - 1; c > 0; c -= 2){
+    if (c === 6) c--;
+    for (let n = 0; n < size; n++){
+      const r = up ? size - 1 - n : n;
+      for (const cc of [c, c - 1]) if (m[r][cc] === null) free.push([r, cc]);
+    }
+    up = !up;
+  }
+  const bitAt = i => (out[i >> 3] >> (7 - (i & 7))) & 1;
+  const MASK = [
+    (r, c) => (r + c) % 2 === 0,
+    (r, c) => r % 2 === 0,
+    (r, c) => c % 3 === 0,
+    (r, c) => (r + c) % 3 === 0,
+    (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+    (r, c) => (r * c) % 2 + (r * c) % 3 === 0,
+    (r, c) => ((r * c) % 2 + (r * c) % 3) % 2 === 0,
+    (r, c) => ((r + c) % 2 + (r * c) % 3) % 2 === 0
+  ];
+  const fmtBits = mask => {
+    const d = (0 << 3) | mask;                 // 00 = error correction level M
+    let v = d << 10, g = 0x537;
+    for (let i = 14; i >= 10; i--) if ((v >> i) & 1) v ^= g << (i - 10);
+    return ((d << 10) | v) ^ 0x5412;
+  };
+  const penalty = g => {
+    let p = 0;
+    for (let r = 0; r < size; r++){
+      let run = 1;
+      for (let c = 1; c < size; c++){
+        if (g[r][c] === g[r][c - 1]) run++; else { if (run >= 5) p += 3 + (run - 5); run = 1; }
+      }
+      if (run >= 5) p += 3 + (run - 5);
+    }
+    for (let c = 0; c < size; c++){
+      let run = 1;
+      for (let r = 1; r < size; r++){
+        if (g[r][c] === g[r - 1][c]) run++; else { if (run >= 5) p += 3 + (run - 5); run = 1; }
+      }
+      if (run >= 5) p += 3 + (run - 5);
+    }
+    for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++)
+      if (g[r][c] === g[r][c + 1] && g[r][c] === g[r + 1][c] && g[r][c] === g[r + 1][c + 1]) p += 3;
+    const pat = [1,0,1,1,1,0,1,0,0,0,0];
+    const has = (arr, i) => pat.every((v, k) => arr[i + k] === v);
+    for (let r = 0; r < size; r++){
+      const row = g[r], col = g.map(x => x[r]);
+      for (let i = 0; i + 11 <= size; i++){ if (has(row, i)) p += 40; if (has(col, i)) p += 40; }
+    }
+    let dark = 0;
+    for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) dark += g[r][c];
+    p += Math.floor(Math.abs(dark * 100 / (size * size) - 50) / 5) * 10;
+    return p;
+  };
+
+  let best = null, bestP = Infinity;
+  for (let mask = 0; mask < 8; mask++){
+    const g = m.map(row => row.slice());
+    free.forEach(([r, c], i) => {
+      const b = i < out.length * 8 ? bitAt(i) : 0;
+      g[r][c] = MASK[mask](r, c) ? b ^ 1 : b;
+    });
+    const f = fmtBits(mask);
+    for (let i = 0; i < 15; i++){
+      /* the first module carries the most significant bit: writing these the
+         other way round produced a symbol that only my own reader could parse */
+      const bit = (f >> (14 - i)) & 1;
+      if (i < 6) g[8][i] = bit;
+      else if (i === 6) g[8][7] = bit;
+      else if (i === 7) g[8][8] = bit;
+      else if (i === 8) g[7][8] = bit;
+      else g[14 - i][8] = bit;
+      if (i < 8) g[size - 1 - i][8] = bit;
+      else g[8][size - 15 + i] = bit;
+    }
+    g[size - 8][8] = 1;            // the dark module, over the format bit that lands there
+    const p = penalty(g);
+    if (p < bestP){ bestP = p; best = g; }
+  }
+  return best;
+}
+
+/* the code drawn onto a canvas, dark modules on a light panel */
+function drawQR(x, text, cx, cy, box, dark, light){
+  const m = qrMatrix(text);
+  const n = m.length, quiet = 4, unit = box / (n + quiet * 2);
+  const r = 26, x0 = cx - box / 2, y0 = cy - box / 2;
+  x.fillStyle = light;
+  x.beginPath(); x.moveTo(x0 + r, y0);
+  x.arcTo(x0 + box, y0, x0 + box, y0 + box, r);
+  x.arcTo(x0 + box, y0 + box, x0, y0 + box, r);
+  x.arcTo(x0, y0 + box, x0, y0, r);
+  x.arcTo(x0, y0, x0 + box, y0, r);
+  x.closePath(); x.fill();
+  x.fillStyle = dark;
+  for (let row = 0; row < n; row++) for (let col = 0; col < n; col++){
+    if (m[row][col] !== 1) continue;
+    x.fillRect(Math.round(x0 + (col + quiet) * unit), Math.round(y0 + (row + quiet) * unit),
+               Math.ceil(unit), Math.ceil(unit));
+  }
+}
+async function inviteCard(){
+  if (!fbHandle){ toast('Claim a handle first: it is what the link points at.'); tab = 'u'; ui.hikerTab = 'friends'; ui.peopleView = 'discover'; render(); return; }
+  const url = profileLink(fbHandle);
+  const done = HILLS.filter(h => isBagged(h.k));
+  const top = done.reduce((a, b) => (!a || b.h > a.h) ? b : a, null);
+  const days = diaryDays().length;
+  const got = patches().filter(p => p.got).length;
+  const name = fbName || (fbUser && fbUser.name) || 'A walker';
+  const W = 1080, H = 1920, CX = W / 2;
+  const INK = '#14332D', CREAM = '#F6EFE4', ACC = '#A8431A', SAGE = '#8FB0A6';
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  x.fillStyle = INK; x.fillRect(0, 0, W, H);
+  x.strokeStyle = 'rgba(243,239,230,.055)'; x.lineWidth = 2;
+  for (let r = 90; r < 1900; r += 58){ x.beginPath(); x.arc(CX, 470, r, 0, Math.PI * 2); x.stroke(); }
+  try{ if (document.fonts && document.fonts.load) await Promise.all([
+    document.fonts.load('400 76px Wildkins'), document.fonts.load('400 34px "Source Code Pro"'),
+    document.fonts.load('600 30px "Source Sans 3"')]); }catch(e){}
+
+  /* the wordmark, in its two inks */
+  x.font = '400 60px Wildkins, Georgia, serif';
+  const wA = x.measureText('WAY').width, wB = x.measureText('MARK').width;
+  x.textAlign = 'left';
+  x.fillStyle = CREAM; x.fillText('WAY', CX - (wA + wB) / 2, 296);
+  x.fillStyle = ACC;   x.fillText('MARK', CX - (wA + wB) / 2 + wA, 296);
+  x.textAlign = 'center';
+  x.fillStyle = SAGE; x.font = '400 22px "Source Code Pro", ui-monospace, monospace';
+  x.fillText('M A R K   Y O U R   J O U R N E Y S', CX, 338);
+
+  /* their picture */
+  const pic = prof.avHi || myAvatar();
+  let drew = false;
+  if (pic){
+    const img = new Image();
+    await new Promise(res => { img.onload = res; img.onerror = res; img.src = pic; });
+    if (img.naturalWidth){
+      x.save(); x.beginPath(); x.arc(CX, 500, 118, 0, Math.PI * 2); x.closePath(); x.clip();
+      x.drawImage(img, CX - 118, 382, 236, 236); x.restore(); drew = true;
+    }
+  }
+  if (!drew){
+    x.fillStyle = '#1F4A40'; x.beginPath(); x.arc(CX, 500, 118, 0, Math.PI * 2); x.fill();
+    x.fillStyle = CREAM; x.font = '400 96px Wildkins, Georgia, serif';
+    x.fillText(name.trim().charAt(0).toUpperCase(), CX, 536);
+  }
+  x.strokeStyle = ACC; x.lineWidth = 8; x.beginPath(); x.arc(CX, 500, 122, 0, Math.PI * 2); x.stroke();
+
+  /* who they are */
+  x.fillStyle = CREAM; x.font = '400 72px Wildkins, Georgia, serif';
+  let nm = name; while (x.measureText(nm).width > W - 160 && nm.length > 4) nm = nm.slice(0, -2);
+  x.fillText(nm, CX, 700);
+  x.fillStyle = ACC; x.font = '400 34px "Source Code Pro", ui-monospace, monospace';
+  x.fillText('@' + fbHandle, CX, 748);
+
+  /* what the log says */
+  const cells = [[done.length, done.length === 1 ? 'SUMMIT' : 'SUMMITS'],
+                 [got, got === 1 ? 'PATCH' : 'PATCHES'],
+                 [days, days === 1 ? 'DAY OUT' : 'DAYS OUT']];
+  cells.forEach(([v, l], i) => {
+    const cx = CX + (i - 1) * 300;
+    x.fillStyle = CREAM; x.font = '400 104px Wildkins, Georgia, serif';
+    x.fillText(String(v), cx, 880);
+    x.fillStyle = 'rgba(246,239,228,.62)'; x.font = '600 24px "Source Sans 3", system-ui, sans-serif';
+    x.fillText(l, cx, 920);
+  });
+  if (top){
+    x.strokeStyle = 'rgba(246,239,228,.18)'; x.lineWidth = 1.5;
+    x.beginPath(); x.moveTo(180, 972); x.lineTo(W - 180, 972); x.stroke();
+    x.fillStyle = 'rgba(246,239,228,.62)'; x.font = '600 22px "Source Sans 3", system-ui, sans-serif';
+    x.fillText('HIGHEST SO FAR', CX, 1016);
+    x.fillStyle = CREAM; x.font = '400 52px Wildkins, Georgia, serif';
+    x.fillText(top.n, CX, 1070);
+    x.fillStyle = ACC; x.font = '400 28px "Source Code Pro", ui-monospace, monospace';
+    x.fillText(htFlat(top), CX, 1112);
+  }
+
+  /* the code, and the link under it for anyone reading rather than scanning */
+  /* a story app covers the top and bottom of the picture with its own bars, so
+     nothing that matters goes below about 1650 */
+  drawQR(x, url, CX, 1332, 360, INK, CREAM);
+  x.fillStyle = CREAM; x.font = '600 30px "Source Sans 3", system-ui, sans-serif';
+  x.fillText('SCAN TO FOLLOW ME ON WAYMARK', CX, 1572);
+  x.fillStyle = ACC; x.font = '400 30px "Source Code Pro", ui-monospace, monospace';
+  x.fillText(prettyLink(fbHandle), CX, 1618);
+
+  /* the mark */
+  x.strokeStyle = ACC; x.lineWidth = 8; x.lineCap = 'round'; x.lineJoin = 'round';
+  x.beginPath();
+  x.moveTo(CX - 60, 1690); x.lineTo(CX - 28, 1660); x.lineTo(CX - 6, 1684);
+  x.moveTo(CX + 4, 1690); x.lineTo(CX + 34, 1656); x.lineTo(CX + 64, 1690);
+  x.stroke();
+
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  if (!blob){ toast('Could not draw the card.'); return; }
+  const file = new File([blob], 'waymark-' + fbHandle + '.png', {type:'image/png'});
+  const text = name + ' on WayMark. Scan the code or open ' + url;
+  try{
+    if (navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'Follow me on WayMark', text});
+      return;
+    }
+  }catch(e){ if (e && e.name === 'AbortError') return; }
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = u; a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 4000);
+  toast('Card saved. Put it on your story.');
+}
 async function yearCard(){
   const yr = new Date().getFullYear();
   const done = HILLS.filter(h => isBagged(h.k));
