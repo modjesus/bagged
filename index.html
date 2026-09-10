@@ -62,7 +62,7 @@
      only — heights, dates, grid refs, counts — the way a guidebook sets them. */
   --font-ui:"Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-data:"Source Code Pro", ui-monospace, "SF Mono", Menlo, monospace;
-  --font-display:"Wildkins", Georgia, serif;
+  --font-display:"Wildkins", "Arial Black", "Helvetica Neue", Arial, sans-serif;
   /* Wainwright's seven books — sampled from the Frances Lincoln box set */
   --bk1:#71AA47; --bk2:#E12E35; --bk3:#095FD3; --bk4:#E06237;
   --bk5:#6C261D; --bk6:#C09400; --bk7:#2E714A;
@@ -1403,9 +1403,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .onboardbar{
   margin-top:18px; position:sticky; z-index:940;
   bottom:calc(90px + env(safe-area-inset-bottom, 0px));
-  padding:10px 0; background:var(--ground);
-  box-shadow:0 -10px 14px -8px var(--ground);
+  padding:8px 0; background:transparent;
 }
+/* No band behind it at all: every fade or slab ended somewhere on the paper and
+   looked like a mistake. The button floats over the rows on its own shadow. */
+.onboardbar .btn{width:100%; justify-content:center; box-shadow:0 6px 18px -4px rgba(20,51,45,.45), 0 1px 3px rgba(20,51,45,.25)}
 .onboardbar .btn[disabled]{opacity:.5; cursor:default}
 @media (min-width:768px){
   /* no bottom nav on desktop, so it only needs a little breathing room */
@@ -3548,8 +3550,32 @@ async function postPatches(list){
   }
 }
 
+/* Patches this device has already celebrated. Anything earned that is not
+   here gets its moment the next time Home is drawn, so a patch unlocked by a
+   path that skipped marking() — a date typed in, an import — is never lost.
+   Seeded with everything already earned when the log loads or a sync lands,
+   so a restored log does not fire thirty popups. */
+const WIN_SEEN_KEY = 'waymark-seen';
+let seenWins = null;
+function loadSeen(){ try{ seenWins = new Set(JSON.parse(localStorage.getItem(WIN_SEEN_KEY) || 'null') || []); }catch(e){ seenWins = new Set(); } }
+function saveSeen(){ try{ localStorage.setItem(WIN_SEEN_KEY, JSON.stringify([...seenWins])); }catch(e){} }
+function seedSeen(){
+  if (!seenWins) loadSeen();
+  for (const p of patches()) if (p.got) seenWins.add(p.id);
+  saveSeen();
+}
+function settleWins(){
+  if (!seenWins || onboarding() || winOpen()) return;
+  const due = patches().filter(p => p.got && !seenWins.has(p.id));
+  if (!due.length) return;
+  due.forEach(p => seenWins.add(p.id)); saveSeen();
+  if (due.length <= 3) celebrate(due);
+}
+
 let celebrating = null;                 // the patches currently on the popup
 function celebrate(list){
+  if (!seenWins) loadSeen();
+  list.forEach(p => seenWins.add(p.id)); saveSeen();
   celebrating = list;
   const box = document.getElementById('winBody');
   const many = list.length > 1;
@@ -3561,6 +3587,7 @@ function celebrate(list){
     '<h2>' + (many ? 'Patches earned' : list[0].label) + '</h2>' +
     '<p class="winnames">' + (many ? list.map(p => esc(p.label)).join('<br>') : esc(patchDateLine(list[0]))) + '</p>';
   document.getElementById('win').classList.add('open');
+  const go = document.getElementById('winGo'); if (go) go.hidden = !state.enabled.length;
   const sh = document.getElementById('winShare');
   if (sh) sh.onclick = () => shareCard(list[0]);
   hydratePhotos();
@@ -4278,6 +4305,8 @@ function render(){
   if (tab === 'u') hydratePostPhotos();
   if (tab === 'p') mountRouteMap();
   if (tab === 'm') mountMap();
+  /* anything earned but never celebrated gets its moment on Home */
+  if (tab === 'd') setTimeout(settleWins, 400);
 }
 
 function listBar(){
@@ -5009,11 +5038,15 @@ async function markFromSearch(k){
     const fresh = !ui.pick.includes(lid);
     if (fresh) ui.pick = [...ui.pick, lid];
     ui.mq = '';
-    /* no patch fanfare mid-welcome — it would pull them off this page */
-    setBagged(k, true, '');
+    /* Through marking(), so the first peak earns its patch here and now. For a
+       casual walker this may be the only patch for months, and it used to be
+       swallowed: the welcome page marked the hill quietly and the celebration
+       never fired later either. The popup is a sheet over this page, not a
+       move away from it; Keep walking lands them back at the search. */
+    await marking(() => { setBagged(k, true, ''); });
     render();
     toast('Marked ' + hillName(h) + (fresh ? ' · ' + LIST_BY[lid].name + ' ticked for you' : ''));
-    const f = document.getElementById('mq'); if (f) f.focus();
+    if (!winOpen()){ const f = document.getElementById('mq'); if (f) f.focus(); }
     return;
   }
   const lid = homeListFor(h);
@@ -9836,6 +9869,7 @@ document.getElementById('restoreBtn').onclick = () => {
              groups:(m.groups && m.groups.length) ? m.groups : (state.groups || []),
              enabled:(m.enabled && m.enabled.length) ? m.enabled : state.enabled,
              enabledT:m.enabledT || state.enabledT || 0};
+    seedSeen();
     touched(); render(); sheet.classList.remove('open'); toast('Log restored.');
   }catch(err){ toast('That does not look like a WayMark backup.'); }
 };
@@ -10027,7 +10061,7 @@ async function fbSync(initial){
   syncState = 'saving'; paintSync();
   try{
     const remote = await fbPull();
-    if (remote) state = merge(state, remote);
+    if (remote){ state = merge(state, remote); seedSeen(); }
 
     const pending = [];
     for (const r of Object.values(state.bagged))
@@ -11621,6 +11655,26 @@ function renderFriend(){
 }
 
 
+/* iOS Safari sometimes drops a data: font when it restores a tab from the
+   background, and every heading falls back to the system face. Check the
+   face is really there whenever the page comes back, and re-add it if not. */
+function fontWatch(){
+  try{
+    if (!document.fonts || document.fonts.check('16px Wildkins')) return;
+    let src = '';
+    for (const sh of document.styleSheets){
+      try{ for (const r of sh.cssRules){ if (r instanceof CSSFontFaceRule && /Wildkins/.test(r.style.fontFamily)){ src = r.style.src; break; } } }catch(e){}
+      if (src) break;
+    }
+    if (!src) return;
+    const f = new FontFace('Wildkins', src);
+    f.load().then(() => { document.fonts.add(f); }).catch(() => {});
+  }catch(e){}
+}
+window.addEventListener('pageshow', fontWatch);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fontWatch(); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fontWatch);
+
 state = loadLocal();
 /* Nothing is switched on for a new walker. They choose what they are working
    through on first run, rather than inheriting somebody else's two lists. */
@@ -11629,6 +11683,7 @@ saveLocal();   // persist the migration immediately, so it happens once
 if (state.enabled.length && !state.enabled.includes(ui.list)) ui.list = state.enabled[0];
 /* an existing walker has already answered all this */
 if (seenOnboard() || state.enabled.length) ui.onboard = 'done';
+seedSeen();
 render();
 cloudReady = true;
 fbStart();
