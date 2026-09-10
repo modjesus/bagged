@@ -878,6 +878,15 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .ibtn svg{width:16px; height:16px}
 .pickrow{display:flex; align-items:center; gap:8px; padding-right:12px;
   border-top:1px solid var(--line-soft); background:none}
+/* A ticked list tints the whole row. The tint used to live on the button
+   inside it, which stops short of the ⓘ, so the highlight ended in a hard
+   vertical edge two thirds of the way across. */
+.pickrow{position:relative}
+/* the card insets its rows by 12px, so a background on the row alone left a
+   white gutter each side: the tint bleeds out to the card's own edges */
+.pickrow.on::before{content:""; position:absolute; inset:0 -12px; background:var(--accent-soft); pointer-events:none}
+.pickrow > *{position:relative}
+.pickrow.on .rrow[aria-pressed="true"]{background:transparent}
 .pickrow:first-child{border-top:none}
 .pickrow .rrow{border-top:none; flex:1; min-width:0}
 
@@ -4867,7 +4876,7 @@ function renderPickLists(){
   s += '<div class="regionlist">';
   for (const l of LISTS){
     const on = ui.pick.includes(l.id);
-    s += '<div class="pickrow">' +
+    s += '<div class="pickrow' + (on ? ' on' : '') + '">' +
       '<button class="rrow picker' + (on ? ' on' : '') + '" data-act="picklist" data-v="' + esc(l.id) + '"' +
       ' aria-pressed="' + on + '">' +
       '<span class="pbox">' + (on ? ICON_CHECK : '') + '</span>' +
