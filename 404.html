@@ -28,8 +28,12 @@ small{display:block; margin-top:18px; font-family:"Source Code Pro",ui-monospace
 (function(){
   var m = location.pathname.match(/^\/@([A-Za-z0-9_]{2,20})\/?$/);
   var b = location.pathname.match(/^\/board\/([A-Za-z0-9]{4,12})\/?$/i);
+  /* /supplies has a real file of its own; /supplies/<design> does not, so one
+     tee sent to somebody arrives here and goes the same way. */
+  var t = location.pathname.match(/^\/supplies\/([a-z0-9-]{2,40})\/?$/i);
   if (m) location.replace('/#@' + m[1]);
   else if (b) location.replace('/#board=' + b[1].toUpperCase());
+  else if (t) location.replace('/#supplies=' + t[1].toLowerCase());
 })();
 </script>
 <body>
