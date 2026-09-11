@@ -8313,6 +8313,14 @@ async function saveSheet(){
   const b = sheetBox(m);
   if (sheetTooBig(b)){ toast('Zoom in a little: a sheet covers about a day’s walking.'); paintSheets(); return; }
   if (outsideOs(m.getCenter().lat, m.getCenter().lng)){ toast('OS does not map Northern Ireland, so there is no sheet to save here.'); return; }
+  return saveSheetBox(b);
+}
+
+/* The saving itself, given a box. Split out from the button above so a route
+   can hand it the ground the route actually crosses rather than whatever the
+   map happened to be showing when it was drawn. */
+async function saveSheetBox(b){
+  if (sheetJob) return;
   const keys = sheetTiles(b);
   const urls = keys.map(tileKeyUrl).concat(glyphUrls());
   const id = 's' + uid();
@@ -8355,6 +8363,73 @@ async function saveSheet(){
   toast('Sheet saved: ' + sheetName(b) + ', ' + fmtMB(job.bytes) + '.');
   paintSheets();
 }
+/* ---- the sheet a route needs ----
+   The moment a route is drawn is the moment its map is worth keeping: the
+   walker is sitting at home on wifi, and the day they need that map they will
+   be halfway up something with one bar. So ask then, rather than leaving it to
+   be remembered in a car park.
+
+   Asked once per route. A route already inside a saved sheet is not asked
+   about at all, and neither is one that was declined — the record lives in
+   localStorage rather than on the plan, so it never has to survive a sync. */
+const SHEET_ASK_KEY = 'waymark.sheetasked';
+function askedSheet(id){
+  try{ return (JSON.parse(localStorage.getItem(SHEET_ASK_KEY) || '[]')).includes(id); }
+  catch(e){ return false; }
+}
+function markAskedSheet(id){
+  try{
+    const l = JSON.parse(localStorage.getItem(SHEET_ASK_KEY) || '[]');
+    if (l.includes(id)) return;
+    l.push(id);
+    localStorage.setItem(SHEET_ASK_KEY, JSON.stringify(l.slice(-200)));
+  }catch(e){}
+}
+
+/* the ground a route crosses, with about a kilometre of margin so the walker
+   can see where they are when they wander off the line */
+function routeBox(pts, pad){
+  if (!pts || !pts.length) return null;
+  let s = 90, n = -90, w = 180, e = -180, any = false;
+  for (const c of pts){
+    if (!c || !isFinite(c[0]) || !isFinite(c[1])) continue;
+    s = Math.min(s, c[0]); n = Math.max(n, c[0]);
+    w = Math.min(w, c[1]); e = Math.max(e, c[1]);
+    any = true;
+  }
+  if (!any) return null;
+  const p = pad == null ? 0.012 : pad;
+  return {s:+(s - p).toFixed(4), n:+(n + p).toFixed(4),
+          w:+(w - p).toFixed(4), e:+(e + p).toFixed(4)};
+}
+/* `boxCovered` further up is about the places cache, not sheets — same idea,
+   different store, so this one carries its own name. */
+const sheetCovers = b => sheets().some(x =>
+  x.box.s <= b.s && x.box.n >= b.n && x.box.w <= b.w && x.box.e >= b.e);
+
+async function offerRouteSheet(p){
+  if (!p || sheetJob || askedSheet(p.id)) return;
+  if (!sheetsOk() || !osUsable()) return;
+  const pts = (p.trk && p.trk.length > 1) ? p.trk : (p.wp || []);
+  const b = routeBox(pts);
+  if (!b) return;
+  if (outsideOs((b.s + b.n) / 2, (b.w + b.e) / 2)) return;
+  if (sheetCovers(b)){ markAskedSheet(p.id); return; }
+  markAskedSheet(p.id);
+  if (sheetTooBig(b)){
+    toast('That route is too long for one offline sheet — save it in parts from the map menu.');
+    return;
+  }
+  const est = sheetEstimate(b);
+  const ok = await confirmAsk({
+    title:'Save this map for offline?',
+    body:'About ' + est.mb + ' MB of Ordnance Survey, covering the route and a '
+       + 'kilometre either side. Kept now, it draws on the hill with no signal.',
+    yes:'Save the map', no:'Not now', tone:'plain'});
+  if (!ok) return;
+  await saveSheetBox(b);
+}
+
 async function deleteSheet(id){
   const l = sheets(), s = l.find(x => x.id === id);
   if (!s) return;
@@ -8457,6 +8532,9 @@ function saveEditor(){
   editor = null; ui.rmode = 'explore';
   touched(); render();
   toast('Route saved. Find it under Your routes.');
+  /* after the paint, so the question lands on the saved route rather than on
+     top of the editor it just came out of */
+  setTimeout(() => offerRouteSheet(p), 600);
 }
 
 /* Which summits a drawn line actually goes over, so a plotted route arrives
