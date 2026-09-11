@@ -8369,19 +8369,24 @@ async function saveSheetBox(b){
    be halfway up something with one bar. So ask then, rather than leaving it to
    be remembered in a car park.
 
-   Asked once per route. A route already inside a saved sheet is not asked
-   about at all, and neither is one that was declined — the record lives in
-   localStorage rather than on the plan, so it never has to survive a sync. */
+   Asked once per route per patch of ground. A route already inside a saved
+   sheet is not asked about at all, and neither is one that was declined — but
+   drop a GPX of somewhere else onto the same route and it asks again, because
+   the map it needs is a different map. The record is keyed on the box rounded
+   to about a kilometre, so nudging a waypoint is not a new question. It lives
+   in localStorage rather than on the plan, so it never has to survive a sync. */
 const SHEET_ASK_KEY = 'waymark.sheetasked';
-function askedSheet(id){
-  try{ return (JSON.parse(localStorage.getItem(SHEET_ASK_KEY) || '[]')).includes(id); }
+const sheetAskKey = (id, b) =>
+  id + '@' + [b.s, b.w, b.n, b.e].map(v => v.toFixed(2)).join(',');
+function askedSheet(k){
+  try{ return (JSON.parse(localStorage.getItem(SHEET_ASK_KEY) || '[]')).includes(k); }
   catch(e){ return false; }
 }
-function markAskedSheet(id){
+function markAskedSheet(k){
   try{
     const l = JSON.parse(localStorage.getItem(SHEET_ASK_KEY) || '[]');
-    if (l.includes(id)) return;
-    l.push(id);
+    if (l.includes(k)) return;
+    l.push(k);
     localStorage.setItem(SHEET_ASK_KEY, JSON.stringify(l.slice(-200)));
   }catch(e){}
 }
@@ -8408,14 +8413,16 @@ const sheetCovers = b => sheets().some(x =>
   x.box.s <= b.s && x.box.n >= b.n && x.box.w <= b.w && x.box.e >= b.e);
 
 async function offerRouteSheet(p){
-  if (!p || sheetJob || askedSheet(p.id)) return;
+  if (!p || sheetJob) return;
   if (!sheetsOk() || !osUsable()) return;
   const pts = (p.trk && p.trk.length > 1) ? p.trk : (p.wp || []);
   const b = routeBox(pts);
   if (!b) return;
+  const key = sheetAskKey(p.id, b);
+  if (askedSheet(key)) return;
   if (outsideOs((b.s + b.n) / 2, (b.w + b.e) / 2)) return;
-  if (sheetCovers(b)){ markAskedSheet(p.id); return; }
-  markAskedSheet(p.id);
+  if (sheetCovers(b)){ markAskedSheet(key); return; }
+  markAskedSheet(key);
   if (sheetTooBig(b)){
     toast('That route is too long for one offline sheet — save it in parts from the map menu.');
     return;
@@ -10332,6 +10339,8 @@ document.addEventListener('change', e => {
       toast('Imported ' + prettyDist(trackLength(g.pts)) +
             (thinned ? ': thinned to fit sync' : '') +
             (g.date ? ': dated ' + prettyDate(g.date) + ' from the file.' : '. Set a date for the forecast.'));
+      /* a file is a route too: offer its map the same way a drawn one gets it */
+      setTimeout(() => offerRouteSheet(planById(id)), 900);
     }).catch(() => toast('Could not read that file.'));
   }
   else if (a === 'gpxin' && el.files && el.files.length){
@@ -10348,6 +10357,7 @@ document.addEventListener('change', e => {
       if (p.trk.length < before) setTimeout(() => toast('Thinned ' + before.toLocaleString() + ' points to ' + p.trk.length.toLocaleString() + ' so it syncs.'), 1600);
       savePlanEdit(id);
       toast('Track loaded: ' + prettyDist(trackLength(g.pts)) + '.');
+      setTimeout(() => offerRouteSheet(planById(id)), 900);
     }).catch(() => toast('Could not read that file.'));
   }
 });
