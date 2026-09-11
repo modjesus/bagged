@@ -1845,22 +1845,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 
 /* ---- the page on its own address ----
-   Somebody arriving at /supplies from a link has not signed up for anything and
-   should not be shown five tabs of an app to prove it. The shell keeps the
-   name over the door and takes everything else away. */
-body.solo{padding-bottom:0}
-body.solo .side, body.solo .bnav, body.solo #syncBtn{display:none !important}
-body.solo .app{display:block}
-body.solo .col{min-height:100dvh}
-body.solo .hbrand{display:flex !important}
-body.solo .brandrow{justify-content:space-between}
-@media (min-width:768px){
-  /* the header row is full-bleed in the app because the sidebar carries the
-     name; with no sidebar it has to line up with the sheet instead */
-  body.solo .top .wrap{max-width:760px; margin:0 auto}
-}
-@media (min-width:1024px){ body.solo .top .wrap{max-width:860px} }
-@media (min-width:1440px){ body.solo .top .wrap{max-width:1040px} }
+   Somebody arriving at /supplies gets the app exactly as it is, tabs and all —
+   the tees are a room in the building, not a pop-up next to it. What they do
+   not get is the welcome asking which hills they have climbed, because they
+   came to look at shirts. It is waiting for them the moment they go anywhere
+   else, which is the right moment to ask. */
 .supfoot{
   margin:40px 0 0; padding:20px 0 8px; border-top:1px solid var(--line);
   font-size:13.5px; line-height:1.65; color:var(--ink-3); max-width:54ch;
@@ -4436,7 +4425,7 @@ let supUid = null;          /* whoever they are: their account, or an anonymous 
 let supOff = null;          /* unsubscribe from the live tally                       */
 let supBusy = false;
 let supFlipped = {};        /* n -> the side a card is currently showing             */
-let supSolo = false;        /* arrived on /supplies rather than through the app      */
+let supRoute = false;       /* arrived on /supplies rather than through the app      */
 
 const supUp   = n => supTally['u' + n] || 0;
 const supDown = n => supTally['d' + n] || 0;
@@ -4479,7 +4468,7 @@ function supWatch(){
   try{
     supOff = FB.onSnapshot(SUP_TALLY(), snap => {
       supTally = snap.exists() ? (snap.data() || {}) : {};
-      if (supSolo || (tab === 'a' && ui.patchView === 'supplies')) supPaint();
+      if (tab === 'a' && ui.patchView === 'supplies') supPaint();
     }, () => {});
   }catch(e){}
 }
@@ -4624,10 +4613,13 @@ function renderSupplies(){
     : '<div class="supempty"><b>Nothing matches that</b>' +
       '<span>Try the other side of the shirt, or clear the filters.</span></div>';
 
-  if (supSolo){
+  /* Somebody who followed a link here has not met the app yet; say what it is
+     once, at the bottom, rather than making them work it out from the tabs. */
+  if (!state.enabled.length){
     s += '<div class="supfoot"><b>WayMark</b> is a walking log for the hills of Britain — ' +
       'mark a summit and it works out which lists it belongs to. ' +
-      '<a href="/">Have a look</a>.<br>Printed in the UK on heavyweight cotton when these are made.</div>';
+      '<button class="linkbtn" data-tab="d">Start your log</button>' +
+      '<br>Printed in the UK on heavyweight cotton when these are made.</div>';
   } else {
     s += '<p class="jnote">Printed in the UK on heavyweight cotton. ' +
       'Share the whole sheet at <b>waymark.it.com/supplies</b>.</p>';
@@ -4749,20 +4741,27 @@ function supPaint(){
    GitHub Pages has no server to rewrite paths, so /supplies is a stub file that
    hands the app the same thing in the hash. The app puts the tidy address back
    with replaceState, so what somebody copies out of the bar is what they were
-   given — and opening a design pushes, so the back button does what a back
-   button should. */
+   given. The address follows the view rather than the session: walk off the
+   tees and it goes back to the front door, which is where they now are. */
 const supUrl = d => location.origin + SUP_BASE + 'supplies' + (d ? '/' + d.slug : '');
+const supHere = () => tab === 'a' && ui.patchView === 'supplies';
 
+function supSyncUrl(){
+  if (!supRoute) return;
+  const d = supHere() && ui.supOpen ? supById(ui.supOpen) : null;
+  const want = supHere() ? SUP_BASE + 'supplies' + (d ? '/' + d.slug : '') : SUP_BASE;
+  if (location.pathname === want) return;
+  try{ history.replaceState({sup: d ? d.n : 0}, '', want); }catch(e){}
+}
+
+/* Opening a design pushes rather than replaces, so the back button goes back to
+   the sheet instead of off the site. */
 function supGo(n, push){
   supZoomOff();
   ui.supOpen = n || null;
-  if (supSolo){
+  if (supRoute && push){
     const d = n ? supById(n) : null;
-    const path = SUP_BASE + 'supplies' + (d ? '/' + d.slug : '');
-    try{
-      if (push) history.pushState({sup: n || 0}, '', path);
-      else history.replaceState({sup: n || 0}, '', path);
-    }catch(e){}
+    try{ history.pushState({sup: n || 0}, '', SUP_BASE + 'supplies' + (d ? '/' + d.slug : '')); }catch(e){}
   }
   render(); window.scrollTo({top:0});
 }
@@ -4772,19 +4771,20 @@ function takeSuppliesRoute(){
   const m = h.match(/^#supplies(?:[=\/]([a-z0-9-]+))?$/i)
          || location.pathname.match(/\/supplies(?:\/([a-z0-9-]+))?\/?$/i);
   if (!m) return false;
-  supSolo = true;
+  supRoute = true;
   tab = 'a'; ui.patchView = 'supplies';
   const d = m[1] ? supBySlug(m[1]) : null;
   if (d) ui.supOpen = d.n;
-  try{ document.body.classList.add('solo'); }catch(e){}
   try{ history.replaceState({sup: d ? d.n : 0}, '', SUP_BASE + 'supplies' + (d ? '/' + d.slug : '')); }catch(e){}
   return true;
 }
 
 window.addEventListener('popstate', () => {
-  if (!supSolo) return;
-  const m = location.pathname.match(/\/supplies\/([a-z0-9-]+)/i);
-  const d = m ? supBySlug(m[1]) : null;
+  if (!supRoute) return;
+  const m = location.pathname.match(/\/supplies(\/([a-z0-9-]+))?/i);
+  if (!m){ return; }
+  const d = m[2] ? supBySlug(m[2]) : null;
+  tab = 'a'; ui.patchView = 'supplies';
   ui.supOpen = d ? d.n : null;
   render(); window.scrollTo({top:0});
 });
@@ -5060,9 +5060,10 @@ function paintNav(){
 
 /* True while the walker still has something to answer on first run. */
 function onboarding(){
-  /* Somebody who followed a link to /supplies came to look at tees, not to
-     answer which hills they have climbed. The wall is for the app. */
-  if (supSolo) return false;
+  /* A link to /supplies is a link to the tees, so the tees are what opens —
+     with the whole app around them. Step off this one view and the welcome
+     takes over as it would for anybody else arriving cold. */
+  if (supRoute && tab === 'a' && ui.patchView === 'supplies') return false;
   if (!state.enabled.length) return true;
   return ui.onboard === 'signin' && fbConfigured() && !fbUser && !seenOnboard();
 }
@@ -5073,14 +5074,7 @@ function render(){
   if (tab === 'f') tab = 'u';
   if (tab === 'h') tab = 'd';
   if (tab === 'm') tab = 'p';
-
-  /* On its own address the page IS the page: no tabs, no nav, no banners. */
-  if (supSolo){
-    supWatch();
-    document.getElementById('main').innerHTML = renderSupplies();
-    wire(); supMountSlides();
-    return;
-  }
+  supSyncUrl();
   paintNav();
 
   let banner = '';
