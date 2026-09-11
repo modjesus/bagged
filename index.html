@@ -1632,6 +1632,114 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .avpen svg{width:14px; height:14px}
 .avwrap:active .avatar{filter:brightness(.92)}
 
+/* ---- camp supplies ---- */
+/* A contact sheet of the range, not a storefront: paper ground, the shirt
+   doing the talking, and one number per design so a tee can be named out loud.
+   Nothing here is for sale, so the only things that look tappable are the two
+   that are — open the design, and say whether you would wear it. */
+.supbar{
+  display:flex; gap:10px 14px; flex-wrap:wrap; align-items:center; margin-top:12px;
+}
+.supbar .tally{
+  margin-left:auto; font-family:var(--font-data); font-size:11.5px;
+  color:var(--ink-3); font-variant-numeric:tabular-nums; letter-spacing:.02em;
+}
+.supnote{
+  display:block; margin-top:12px; padding:14px 15px 13px;
+  border:1px solid var(--line); border-left:3px solid var(--accent);
+  border-radius:var(--r); background:var(--surface);
+}
+.supnote b{display:block; font-family:var(--font-display); font-size:17px; color:var(--ink); letter-spacing:.01em}
+.supnote span{display:block; margin-top:5px; font-size:13.5px; line-height:1.55; color:var(--ink-2); max-width:52ch}
+
+.supgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:14px; margin-top:14px}
+.supcard{display:flex; flex-direction:column; min-width:0}
+.supplate{
+  position:relative; display:block; width:100%; padding:8px 8px 6px; cursor:pointer;
+  /* white, both themes: the shirts are shot on white, and a tinted plate
+     behind a white image leaves a visible seam round the picture */
+  background:#FFF; border:1px solid var(--line); border-radius:var(--r);
+  color:inherit; text-align:left; box-shadow:var(--shadow);
+}
+.supplate:active{transform:translateY(1px)}
+.supplate img.main{display:block; width:100%; height:auto; border-radius:3px}
+.supplate .inset{
+  position:absolute; right:10px; bottom:8px; width:30%;
+  border-left:1px solid var(--line-soft); padding-left:5px;
+}
+.supplate .inset img{display:block; width:100%; height:auto}
+.supnum{
+  position:absolute; left:10px; top:7px; z-index:1;
+  font-family:var(--font-data); font-size:12px; font-weight:700;
+  color:#A8431A; font-variant-numeric:tabular-nums;
+}
+.supcard h3{
+  margin:9px 0 0; font-family:var(--font-display); font-weight:500;
+  font-size:14.5px; line-height:1.25; letter-spacing:.01em; color:var(--ink);
+}
+.supcard .supmeta{
+  margin:3px 0 0; font-family:var(--font-data); font-size:10.5px;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3);
+}
+
+/* the vote: two buttons, the count inside each, the shirt's own accent when set */
+.supvote{display:flex; gap:6px; margin-top:8px}
+.vbtn{
+  flex:1; display:inline-flex; align-items:center; justify-content:center; gap:5px;
+  min-height:38px; padding:6px 8px; cursor:pointer;
+  background:var(--raise); border:1px solid var(--line); border-radius:8px;
+  color:var(--ink-2); font-family:var(--font-data); font-size:12px; font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.vbtn svg{width:15px; height:15px; flex:none}
+.vbtn[aria-pressed="true"].up{background:var(--moss); border-color:var(--moss); color:#F6EFE4}
+.vbtn[aria-pressed="true"].down{background:var(--sage); border-color:var(--sage); color:#F6EFE4}
+.vbtn:disabled{opacity:.6; cursor:default}
+
+/* the design, opened */
+.supdetail .pdnav{margin-bottom:6px}
+.supsides{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px}
+.supsides figure{margin:0; background:#FFF; border:1px solid var(--line); border-radius:var(--r); padding:10px}
+.supsides figcaption{
+  font-family:var(--font-data); font-size:10.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:#7A8380; margin-bottom:8px;
+}
+.supsides .zoomhit{display:block; width:100%; padding:0; border:0; background:none; cursor:zoom-in}
+.supsides img{display:block; width:100%; height:auto; border-radius:3px}
+.supdetail .supvote{margin-top:14px}
+.supdetail .vbtn{min-height:46px; font-size:13.5px}
+@media (max-width:560px){ .supsides{grid-template-columns:1fr} }
+
+/* the design, zoomed. A plain scroll box at natural size: pinch and drag do
+   the work on a phone, the scrollbars do it on a desktop, and nothing has to
+   reimplement gestures the browser already has. */
+.supzoom{
+  position:fixed; inset:0; z-index:900; display:none;
+  background:#FFF; overflow:auto; -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain; touch-action:pan-x pan-y pinch-zoom;
+}
+.supzoom.on{display:block}
+.supzoom img{display:block; margin:0 auto; max-width:none; cursor:zoom-out}
+.supzoom.fit img{width:100%; height:auto; max-width:100%; cursor:zoom-in}
+.supzoom .zbar{
+  /* fixed, not sticky: at actual size the box scrolls sideways too, and a
+     sticky bar slides off the left edge with the image */
+  position:fixed; top:0; left:0; right:0; z-index:2;
+  display:flex; gap:10px; align-items:center;
+  padding:10px 12px; background:rgba(255,255,255,.94);
+  backdrop-filter:saturate(1.2) blur(6px); border-bottom:1px solid #E4DED0;
+}
+.supzoom img{margin-top:58px}
+.supzoom .zbar b{
+  font-family:var(--font-data); font-size:12px; font-weight:700; color:#14332D;
+  letter-spacing:.04em; margin-right:auto;
+}
+.supzoom .zbar button{
+  min-height:38px; padding:7px 13px; cursor:pointer; background:#FFF;
+  border:1px solid #D7D2C3; border-radius:8px; color:#14332D;
+  font-family:var(--font-data); font-size:12px; font-weight:600; letter-spacing:.04em;
+}
+
 /* ---- patch unlocked ---- */
 .win .sheetbox{max-width:380px; text-align:center}
 /* Specificity has to beat `.sheetbox h2` further down, which is equal weight
@@ -3040,6 +3148,7 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'journey', corkSeed:0,
           postMenu:null, joinCode:'', peopleView:null, openPost:null, dayOpen:false,
+          supSort:'sheet', supOpen:null,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'lists'};
 
@@ -4129,6 +4238,273 @@ function journeyTrail(ps){
   return s + '</div>';
 }
 
+/* ---------- camp supplies ----------
+   The whole range on one sheet, front and back, and a straight question under
+   each: would you wear it? Nothing is for sale and the page says so twice —
+   this exists to find the shortlist before anything goes to a printer.
+
+   The vote is public and live. Counts live in one tally document that every
+   visitor reads, so a shirt's score is one small read rather than a scan of
+   every voter; each voter's own choices live in their own document, which is
+   what lets them change their mind. Both move in a single batch, and the tally
+   moves by increments — server-side arithmetic, so two people voting at the
+   same moment cannot overwrite each other. */
+
+const SUP_TALLY = () => FB.doc(fbDb, 'supplies', 'tally');
+const SUP_MINE  = uid => FB.doc(fbDb, 'supplyVotes', uid);
+
+/* `lead` names the side that carries the design. Most tees are back prints;
+   a few are front-led and their back is only the neck mark. */
+const SUPPLIES = [
+  {n:1,  name:'Scafell Pike (contours)',  coll:'One',   shirt:'cream'},
+  {n:2,  name:'Summit Stamp',             coll:'One',   shirt:'pine',  lead:'front'},
+  {n:3,  name:'The Mark',                 coll:'One',   shirt:'sand',  lead:'front'},
+  {n:4,  name:'Summit Roundel',           coll:'One',   shirt:'cream'},
+  {n:5,  name:'Three Peaks',              coll:'One',   shirt:'pine'},
+  {n:6,  name:'The Key',                  coll:'One',   shirt:'cream'},
+  {n:8,  name:'Word Stack',               coll:'One',   shirt:'pine'},
+  {n:9,  name:'The Trig',                 coll:'One',   shirt:'cream', lead:'front'},
+  {n:10, name:'Character Building',       coll:'One',   shirt:'pine'},
+  {n:13, name:'Mark Your Journeys',       coll:'Two',   shirt:'cream'},
+  {n:14, name:'The WayMark Club',         coll:'Two',   shirt:'sand'},
+  {n:16, name:'One More Peak',            coll:'Two',   shirt:'cream'},
+  {n:17, name:'Waymarker',                coll:'Two',   shirt:'pine'},
+  {n:18, name:'Field Notes',              coll:'Two',   shirt:'cream'},
+  {n:19, name:'214 Completed',            coll:'Two',   shirt:'sand'},
+  {n:20, name:'Scafell Pike',             coll:'Two',   shirt:'cream'},
+  {n:27, name:'The Real Summit',          coll:'Two',   shirt:'cream'},
+  {n:22, name:'Standard Issue',           coll:'Three', shirt:'sand'},
+  {n:23, name:'The Fingerpost',           coll:'Three', shirt:'cream'},
+  {n:24, name:'A Bad Day Out',            coll:'Three', shirt:'cream'},
+  {n:25, name:'Hiking Dept.',             coll:'Three', shirt:'sand'},
+  {n:26, name:'I Like My Rocks In Piles', coll:'Three', shirt:'cream'}
+];
+const supById = n => SUPPLIES.find(d => d.n === n);
+const sup2 = n => (n < 10 ? '0' : '') + n;
+const supImg = (n, side, size) => 'supplies/' + sup2(n) + '-' + side + '-' + size + '.png';
+const supLead = d => d.lead || 'back';
+const supOther = d => (supLead(d) === 'back' ? 'front' : 'back');
+
+let supTally = {};          /* {'u13': 4, 'd13': 1, ...} straight from the tally doc */
+let supMine = {};           /* {13: 1, 16: -1} — this visitor's own votes           */
+let supUid = null;          /* whoever they are: their account, or an anonymous one */
+let supOff = null;          /* unsubscribe from the live tally                       */
+let supBusy = false;
+
+const supUp   = n => supTally['u' + n] || 0;
+const supDown = n => supTally['d' + n] || 0;
+
+const SUP_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z"/>' +
+  '<path d="M7 11l4.2-7.6a1.6 1.6 0 0 1 3 .8V9h4.4a2 2 0 0 1 2 2.4l-1.3 6.4a2 2 0 0 1-2 1.2H7"/></svg>';
+const SUP_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M7 13V4H4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1z"/>' +
+  '<path d="M7 13l4.2 7.6a1.6 1.6 0 0 0 3-.8V15h4.4a2 2 0 0 0 2-2.4l-1.3-6.4a2 2 0 0 0-2-1.2H7"/></svg>';
+
+/* Reading the tally needs no account. Voting does — an anonymous one is minted
+   on the first vote rather than on arrival, so a walker who only looks never
+   becomes a row in anybody's user table. */
+async function supSignIn(){
+  if (supUid) return supUid;
+  if (!FB || !fbAuth) return null;
+  if (fbUser) { supUid = fbUser.uid; return supUid; }
+  try{
+    const cred = await FB.signInAnonymously(fbAuth);
+    supUid = cred.user.uid;
+    return supUid;
+  }catch(e){ return null; }
+}
+
+async function supLoadMine(){
+  if (!supUid) return;
+  try{
+    const snap = await FB.getDoc(SUP_MINE(supUid));
+    const d = snap.exists() ? (snap.data() || {}) : {};
+    supMine = {};
+    for (const k of Object.keys(d)) if (d[k] === 1 || d[k] === -1) supMine[+k] = d[k];
+  }catch(e){}
+}
+
+function supWatch(){
+  if (supOff || !FB || !fbDb || !FB.onSnapshot) return;
+  try{
+    supOff = FB.onSnapshot(SUP_TALLY(), snap => {
+      supTally = snap.exists() ? (snap.data() || {}) : {};
+      if (tab === 'a' && ui.patchView === 'supplies') supPaint();
+    }, () => {});
+  }catch(e){}
+}
+
+async function supVote(n, v){
+  if (supBusy) return;
+  supBusy = true;
+  try{
+    const uid = await supSignIn();
+    if (!uid){ toast('Could not record that vote. Try again in a moment.'); return; }
+    if (!Object.keys(supMine).length) await supLoadMine();
+    const was = supMine[n] || 0;
+    const now = was === v ? 0 : v;
+    if (was === now) return;
+
+    /* the tally moves by the difference, so a changed mind corrects both sides */
+    const delta = {};
+    if (was === 1)  delta['u' + n] = FB.increment(-1);
+    if (was === -1) delta['d' + n] = FB.increment(-1);
+    if (now === 1)  delta['u' + n] = FB.increment(1);
+    if (now === -1) delta['d' + n] = FB.increment(1);
+
+    if (now) supMine[n] = now; else delete supMine[n];
+    supPaint();                                   /* answer the tap immediately */
+
+    const batch = FB.writeBatch(fbDb);
+    batch.set(SUP_MINE(uid), {[String(n)]: now || FB.deleteField(), at: Date.now()}, {merge:true});
+    batch.set(SUP_TALLY(), delta, {merge:true});
+    await batch.commit();
+  }catch(e){
+    toast('That vote did not save. Check your connection and try again.');
+    await supLoadMine(); supPaint();
+  }finally{ supBusy = false; }
+}
+
+function supVoteRow(d, big){
+  const mine = supMine[d.n] || 0;
+  const one = (dir, icon, count) =>
+    '<button class="vbtn ' + dir + '" data-act="supvote" data-v="' + d.n + '" data-d="' + dir + '"' +
+    ' aria-pressed="' + (mine === (dir === 'up' ? 1 : -1)) + '"' +
+    ' aria-label="' + (dir === 'up' ? 'Yes, I would wear ' : 'Not for me: ') + esc(d.name) + '">' +
+    icon + '<span>' + count + '</span></button>';
+  return '<div class="supvote">' + one('up', SUP_UP, supUp(d.n)) + one('down', SUP_DOWN, supDown(d.n)) + '</div>';
+}
+
+function supCard(d){
+  const lead = supLead(d), other = supOther(d);
+  return '<article class="supcard">' +
+    '<button class="supplate" data-act="supopen" data-v="' + d.n + '" aria-label="Open ' + esc(d.name) + '">' +
+      '<span class="supnum">' + sup2(d.n) + '</span>' +
+      '<img class="main" loading="lazy" decoding="async" alt="' + esc(d.name) + '" src="' + supImg(d.n, lead, 'sm') + '">' +
+      '<span class="inset"><img loading="lazy" decoding="async" alt="" src="' + supImg(d.n, other, 'sm') + '"></span>' +
+    '</button>' +
+    '<h3>' + esc(d.name) + '</h3>' +
+    '<p class="supmeta">' + esc(d.shirt) + ' &middot; collection ' + d.coll.toLowerCase() + '</p>' +
+    supVoteRow(d, false) +
+  '</article>';
+}
+
+function supSorted(){
+  const list = SUPPLIES.slice();
+  if (ui.supSort === 'liked')
+    list.sort((a, b) => (supUp(b.n) - supDown(b.n)) - (supUp(a.n) - supDown(a.n)) || a.n - b.n);
+  return list;
+}
+
+function renderSupplies(){
+  if (ui.supOpen){
+    const d = supById(ui.supOpen);
+    if (d) return supDetail(d);
+    ui.supOpen = null;
+  }
+  let s = '<p class="eyebrow">Camp supplies</p>';
+  s += '<div class="supnote">' +
+    '<b>None of these are for sale yet</b>' +
+    '<span>Every design is drawn and ready for a printer, but nothing has been made. ' +
+    'Before anything gets ordered we want to know which ones people would actually wear. ' +
+    'Tap a tee to see the front and the back, then say yes or no — the counts are live and shared.</span>' +
+    '</div>';
+
+  const rated = SUPPLIES.filter(d => supMine[d.n]).length;
+  let cast = 0; for (const d of SUPPLIES) cast += supUp(d.n) + supDown(d.n);
+  s += '<div class="supbar">' +
+    '<div class="seg" role="group">' +
+      ['sheet', 'liked'].map(v =>
+        '<button data-act="supsort" data-v="' + v + '" aria-pressed="' + ((ui.supSort || 'sheet') === v) + '">' +
+        (v === 'sheet' ? 'The range' : 'Most liked') + '</button>').join('') +
+    '</div>' +
+    '<span class="tally">' + cast + (cast === 1 ? ' vote' : ' votes') +
+      ' &middot; you have rated ' + rated + ' of ' + SUPPLIES.length + '</span>' +
+    '</div>';
+
+  s += '<div class="supgrid">' + supSorted().map(supCard).join('') + '</div>';
+  s += '<p class="jnote">Printed in the UK on heavyweight cotton. Numbers are fixed &mdash; ' +
+       'a gap means that design is being reworked.</p>';
+  return s;
+}
+
+function supDetail(d){
+  const lead = supLead(d), other = supOther(d);
+  const big = side =>
+    '<figure><figcaption>' + (side === 'front' ? 'Front' : 'Back') + ' &middot; tap to zoom</figcaption>' +
+    '<button class="zoomhit" data-act="supzoom" data-v="' + d.n + '" data-d="' + side + '"' +
+    ' aria-label="Zoom in on the ' + side + ' of ' + esc(d.name) + '">' +
+    '<img loading="lazy" decoding="async" alt="' + esc(d.name) + ', ' + side +
+    '" src="' + supImg(d.n, side, 'lg') + '"></button></figure>';
+  let s = '<div class="supdetail">';
+  s += '<div class="pdnav">' +
+    '<button class="backbtn" data-act="supclose">&larr; Camp supplies</button>' +
+    '<button class="linkbtn" data-act="supstep" data-v="1">Next design &rsaquo;</button>' +
+    '</div>';
+  s += '<p class="eyebrow">' + sup2(d.n) + ' &middot; ' + esc(d.name) + '</p>';
+  s += '<p class="planintro">' + esc(d.shirt.charAt(0).toUpperCase() + d.shirt.slice(1)) +
+       ' shirt &middot; collection ' + d.coll.toLowerCase() +
+       ' &middot; <b>not for sale yet</b></p>';
+  s += '<div class="supsides">' + big(lead) + big(other) + '</div>';
+  s += supVoteRow(d, true);
+  s += '<p class="jnote">Would you wear this one? Your answer is the only thing deciding what gets made.</p>';
+  return s + '</div>';
+}
+
+/* Zoom lives outside the rendered tab: render() replaces #main wholesale, and
+   a sheet appended to the body survives that, keeps its scroll position, and
+   cannot be closed by a repaint underneath it. */
+function supZoom(n, side){
+  const d = supById(n); if (!d) return;
+  let z = document.getElementById('supzoom');
+  if (!z){
+    z = document.createElement('div');
+    z.id = 'supzoom'; z.className = 'supzoom fit';
+    z.innerHTML = '<div class="zbar"><b id="zlabel"></b>' +
+      '<button type="button" id="zfit">Actual size</button>' +
+      '<button type="button" id="zclose">Close</button></div>' +
+      '<img id="zimg" alt="">';
+    document.body.appendChild(z);
+    z.querySelector('#zclose').addEventListener('click', supZoomOff);
+    z.querySelector('#zfit').addEventListener('click', () => {
+      const fit = z.classList.toggle('fit');
+      z.querySelector('#zfit').textContent = fit ? 'Actual size' : 'Fit to screen';
+      if (!fit){ z.scrollLeft = (z.scrollWidth - z.clientWidth) / 2; }
+    });
+    z.querySelector('#zimg').addEventListener('click', () => z.querySelector('#zfit').click());
+  }
+  z.querySelector('#zlabel').textContent = sup2(d.n) + ' · ' + d.name + ' · ' + side;
+  z.querySelector('#zimg').src = supImg(d.n, side, 'lg');
+  z.querySelector('#zimg').alt = d.name + ', ' + side + ' of shirt';
+  z.classList.add('fit', 'on');
+  z.querySelector('#zfit').textContent = 'Actual size';
+  z.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function supZoomOff(){
+  const z = document.getElementById('supzoom');
+  if (z) z.classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+/* the counts on screen without rebuilding the whole tab under the walker */
+function supPaint(){
+  const rated = SUPPLIES.filter(d => supMine[d.n]).length;
+  let cast = 0; for (const d of SUPPLIES) cast += supUp(d.n) + supDown(d.n);
+  const t = document.querySelector('.supbar .tally');
+  if (t) t.textContent = cast + (cast === 1 ? ' vote' : ' votes') +
+    ' · you have rated ' + rated + ' of ' + SUPPLIES.length;
+  for (const b of document.querySelectorAll('[data-act="supvote"]')){
+    const n = +b.dataset.v, dir = b.dataset.d;
+    b.setAttribute('aria-pressed', String((supMine[n] || 0) === (dir === 'up' ? 1 : -1)));
+    const sp = b.querySelector('span');
+    if (sp) sp.textContent = dir === 'up' ? supUp(n) : supDown(n);
+  }
+}
+
 function renderPatchesPage(){
   const ps = patches();
   if (ui.patch){
@@ -4139,10 +4515,12 @@ function renderPatchesPage(){
   const got = ps.filter(x => x.got).length;
   const counts = ps.filter(p => p.kind === 'count').sort((a, b) => a.sort - b.sort);
 
+  const VIEWS = {journey:'Journey', cork:'Corkboard', supplies:'Supplies'};
   let s = '<div class="seg hseg" role="group">' +
-    ['journey', 'cork'].map(v => '<button data-act="patchview" data-v="' + v + '" aria-pressed="' + (ui.patchView === v) + '">' +
-      (v === 'journey' ? 'Journey' : 'Corkboard') + '</button>').join('') + '</div>';
+    Object.keys(VIEWS).map(v => '<button data-act="patchview" data-v="' + v + '" aria-pressed="' + (ui.patchView === v) + '">' +
+      VIEWS[v] + '</button>').join('') + '</div>';
   if (ui.patchView === 'cork') return s + renderCorkboard(ps);
+  if (ui.patchView === 'supplies'){ supWatch(); return s + renderSupplies(); }
 
   s += nextPatchHTML(ps, got);
   s += journeyTrail(ps);
@@ -8711,6 +9089,8 @@ function wire(){
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
+  const z = document.getElementById('supzoom');
+  if (z && z.classList.contains('on')){ supZoomOff(); return; }
   const sh = document.getElementById('sharesheet');
   if (sh && sh.classList.contains('open')){ closeShareSheet(); ui.postForm = false; return; }
   if (tab === 'u' && ui.postForm && ui.postForm !== 'menu'){ ui.postForm = false; ui.pDraft = null; render(); }
@@ -9277,6 +9657,16 @@ document.addEventListener('click', async e => {
     saveProf(); touched(); scheduleSync(400);
     ui.profEdit = false; ui.pDraftProf = null; render(); toast('Profile saved.');
   }
+  else if (a === 'supsort'){ ui.supSort = el.dataset.v; render(); }
+  else if (a === 'supopen'){ ui.supOpen = +el.dataset.v; render(); window.scrollTo({top:0}); }
+  else if (a === 'supclose'){ supZoomOff(); ui.supOpen = null; render(); window.scrollTo({top:0}); }
+  else if (a === 'supstep'){
+    const list = supSorted(), i = list.findIndex(x => x.n === ui.supOpen);
+    ui.supOpen = list[(i + (+el.dataset.v) + list.length) % list.length].n;
+    render(); window.scrollTo({top:0});
+  }
+  else if (a === 'supvote'){ await supVote(+el.dataset.v, el.dataset.d === 'up' ? 1 : -1); }
+  else if (a === 'supzoom'){ supZoom(+el.dataset.v, el.dataset.d); }
   else if (a === 'corkshuffle'){ ui.corkSeed = (Math.random() * 1e9) | 0; render(); }
   else if (a === 'openpatch'){
     ui.patchFrom = tab;                       // so Back knows where to return to
@@ -10216,9 +10606,9 @@ function loadFirebase(){
     s.type = 'module';
     s.textContent =
       "import { initializeApp } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-app.js';" +
-      "import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-auth.js';" +
-      "import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-firestore.js';" +
-      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit };" +
+      "import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-auth.js';" +
+      "import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-firestore.js';" +
+      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously, getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField };" +
       "window.dispatchEvent(new Event('fb-ready'));";
     s.onerror = () => resolve(null);
     window.addEventListener('fb-ready', () => resolve(window.__fb), {once:true});
