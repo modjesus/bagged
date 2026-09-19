@@ -621,7 +621,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .prof + .eyebrow, .prof + .gear, .prof + p{margin-top:20px}
 .yearrow{margin:-4px 14px 14px}
 .yearrow .btn svg{width:16px; height:16px; margin-right:6px; vertical-align:-3px}
-.plists{margin:0 14px 8px; font-family:var(--font-ui); font-size:12.5px; color:var(--ink-2)}
+
 .showcase{display:flex; align-items:center; gap:16px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px}
 .showcase .patch{width:auto; opacity:1; filter:none}
 .showcase .patch .disc{margin:0; width:96px; height:96px}
@@ -1708,6 +1708,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .pfigs.four > *{padding:11px 3px 10px}
+/* two or three figures should not each be half a window wide */
+.pfigs.few{max-width:560px; margin-inline:auto}
 
 /* a section: a rule, an icon, a shouted label, a way through */
 .pcard{margin:20px 0 0}
@@ -1773,6 +1775,25 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .pchip.shown .disc{box-shadow:0 0 0 2px var(--ground), 0 0 0 4px var(--accent)}
 .pchip.shown i{color:var(--accent-text)}
+
+/* a list or a region, a row each, with how far through it they are. It sits
+   on paper of its own so it reads as a block, like the kit below it. */
+.pregions{padding:2px 13px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+.pregion{display:flex; align-items:center; gap:11px; padding:9px 0; border-top:1px solid var(--line-soft)}
+.pregion:first-child{border-top:0}
+.pregion .prn{
+  flex:0 0 34%; min-width:0; font-size:13px; color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.pregion .prb{
+  flex:1; min-width:0; height:8px; overflow:hidden;
+  border-radius:4px; background:var(--surface-2); border:1px solid var(--line);
+}
+.pregion .prb s{display:block; height:100%; text-decoration:none; border-radius:3px 0 0 3px}
+.pregion b{
+  flex:none; font-family:var(--font-data); font-weight:400; font-size:10.5px;
+  color:var(--ink-3); font-variant-numeric:tabular-nums;
+}
 
 /* the photographs. .pshots is already the block of photos on a post, and that
    one wraps; this one runs off the edge, so it needs a name of its own. */
@@ -3029,6 +3050,7 @@ li.hill.bk .hrow{padding-left:2px}
   .pchip, .pchip .patch, .pchip .disc{width:92px}
   .pchip .disc{height:92px}
   .pcshot{width:128px; height:128px}
+  .pregion .prn{flex:0 0 190px}
   .pyear{display:block}
 }
 .pyear{margin:12px 0 0}
@@ -6981,7 +7003,7 @@ async function markFromSearch(k){
 function requestsCard(){
   if (!fbUser || !friendReqs.length) return '';
   return friendReqs.slice(0, 3).map(r =>
-    '<div class="reqcard"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm') +
+    '<div class="reqcard"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm', r.uid) +
       '<div><b>' + esc(niceName(r.name) || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') +
       (r.hills || 0) + ' summits &middot; wants to follow you</span></div></div>' +
       '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Approve</button>' +
@@ -7289,9 +7311,23 @@ function whenAgo(t){
   if (s < 7 * 86400) return Math.round(s / 86400) + 'd ago';
   return prettyDate(new Date(t).toISOString().slice(0, 10));
 }
-function avatarHTML(av, name, cls){
-  return av ? '<img class="avatar ' + cls + '" src="' + esc(av) + '" alt="">'
-            : '<div class="avatar ' + cls + ' initial">' + esc((name || 'W').trim().charAt(0).toUpperCase()) + '</div>';
+/* Every small avatar in the app used to draw whatever picture was copied into
+   the row when it was written — a post from March carries March's photograph
+   for ever, and somebody who had no picture then stays a coloured initial no
+   matter what they have changed since. Given the uid, the living card wins,
+   and my own picture comes straight from this device so it is right the
+   instant I change it. */
+function avatarHTML(av, name, cls, uid){
+  let src = av, nm = name;
+  if (uid){
+    if (fbUser && uid === fbUser.uid) src = myAvatar() || src;
+    else {
+      const live = personCache[uid];
+      if (live){ if (live.av) src = live.av; if (live.name) nm = live.name; }
+    }
+  }
+  return src ? '<img class="avatar ' + cls + '" src="' + esc(src) + '" alt="">'
+             : '<div class="avatar ' + cls + ' initial">' + esc((nm || 'W').trim().charAt(0).toUpperCase()) + '</div>';
 }
 /* A write-up runs to whatever length the walker felt like. Past a few lines it
    is folded, so one chatty post cannot fill the whole screen in a feed. */
@@ -7326,7 +7362,7 @@ function postHTML(p){
              : p.kind === 'rec' ? 'Recommends a hill'
              : p.kind === 'moment' ? 'A moment from the trail' : 'Posted';
   const visTag = mine && p.vis && p.vis !== 'public' ? '<span class="vistag" title="' + esc(visBy(VIS, p.vis).label) + '">' + ti(visBy(VIS, p.vis).icon) + '</span>' : '';
-  s += '<div class="phead"><button class="pwhobtn" ' + whoAct + '>' + avatarHTML(p.av, p.name, 'md') + '</button>' +
+  s += '<div class="phead"><button class="pwhobtn" ' + whoAct + '>' + avatarHTML(p.av, p.name, 'md', p.uid) + '</button>' +
     '<div class="pwho"><button class="pwhobtn" ' + whoAct + '><b>' + esc(niceName(p.name) || 'Walker') + '</b></button>' +
     /* The line used to read off `p.t`, the moment the post was written — so a
        hill walked in 2019 and logged tonight said "just now". What a reader
@@ -7438,7 +7474,7 @@ function postHTML(p){
   if (ui.openComments === p.id){
     s += '<div class="pcomments">';
     for (const c of cs)
-      s += '<div class="pc">' + avatarHTML(c.av, c.name, 'tiny') +
+      s += '<div class="pc">' + avatarHTML(c.av, c.name, 'tiny', c.uid) +
         '<div><b>' + esc(niceName(c.name) || 'Walker') + '</b><span>' + esc(c.text) + '</span>' +
         '<i>' + esc(whenAgo(c.t)) + '</i></div></div>';
     s += '<div class="field"><input id="cm-' + esc(p.id) + '" placeholder="Say something…" maxlength="400" autocomplete="off">' +
@@ -7494,7 +7530,7 @@ function friendStrip(){
   if (!out.length) return '';
   return '<div class="fstrip" aria-label="Out this week">' + out.map(f =>
     '<button class="fchip' + (f.fresh ? ' fresh' : '') + '" data-act="openfriend" data-uid="' + esc(f.uid) + '">' +
-    avatarHTML(f.av, f.name, 'md') + '<span>' + esc((niceName(f.name) || 'Walker').split(' ')[0]) + '</span></button>').join('') + '</div>';
+    avatarHTML(f.av, f.name, 'md', f.uid) + '<span>' + esc((niceName(f.name) || 'Walker').split(' ')[0]) + '</span></button>').join('') + '</div>';
 }
 const SHARE_KINDS = [
   {id:'adventure', label:'An adventure',     icon:'waymark-mountain', note:'A walk, a summit or a whole day of them'},
@@ -7554,7 +7590,7 @@ function feedRail(){
   const sug = suggestedHikers().slice(0, 4);
   if (sug.length){
     s += '<div class="railcard"><p class="sumlabel">Hikers to follow</p>' + sug.map(f =>
-      '<div class="railhiker"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') + '</button>' +
+      '<div class="railhiker"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny', f.uid) + '</button>' +
       '<span><b>' + esc(niceName(f.name) || 'Walker') + '</b><i>' + esc(f.why || '') + '</i></span>' + followBtn(f.uid, true) + '</div>').join('') + '</div>';
   }
   return s;
@@ -7585,7 +7621,7 @@ function renderFeed(){
   if (wk.length && !ui.postForm){
     s += '<div class="weekcard"><p class="sumlabel">Out this week</p>' + wk.map(w =>
       '<button class="wrow" data-act="' + (w.uid === fbUser.uid ? 'hikertab' : 'openfriend') + '" ' + (w.uid === fbUser.uid ? 'data-v="me"' : 'data-uid="' + esc(w.uid) + '"') + '>' +
-      avatarHTML(w.av, w.name, 'tiny') + '<span class="wn">' + esc(w.uid === fbUser.uid ? 'You' : niceName(w.name) || 'Walker') + '</span>' +
+      avatarHTML(w.av, w.name, 'tiny', w.uid) + '<span class="wn">' + esc(w.uid === fbUser.uid ? 'You' : niceName(w.name) || 'Walker') + '</span>' +
       '<em>' + w.days.size + (w.days.size === 1 ? ' day out' : ' days out') + ' &middot; ' + w.n + (w.n === 1 ? ' summit' : ' summits') + '</em></button>').join('') + '</div>';
   }
 
@@ -7663,7 +7699,7 @@ function renderFeed(){
 
 /* ---------- friends ---------- */
 function hikerRow(f, extra){
-  return '<div class="hrowp"><button class="rrow" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') +
+  return '<div class="hrowp"><button class="rrow" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny', f.uid) +
     '<span class="rn">' + esc(niceName(f.name) || 'Walker') + '<i class="rsub">' + (f.handle ? '@' + esc(f.handle) : '') + (f.why ? (f.handle ? ' &middot; ' : '') + esc(f.why) : '') + '</i></span>' +
     '<span class="rc">' + (f.hills || 0) + '<i>summits</i></span></button>' + (extra || '') + '</div>';
 }
@@ -7694,7 +7730,7 @@ function renderFriends(){
     if (friendReqs.length){
       s += '<p class="eyebrow">Want to follow you</p>';
       for (const r of friendReqs)
-        s += '<div class="frow"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm') +
+        s += '<div class="frow"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm', r.uid) +
           '<div><b>' + esc(niceName(r.name) || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') + (r.hills || 0) + ' summits</span></div></div>' +
           '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Approve</button>' +
           '<button class="btn quiet sm" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></div></div>';
@@ -7735,7 +7771,7 @@ function renderFriends(){
   s += '<p id="fmsg" style="font-size:13px;margin:8px 0 0"></p>';
   const foundList = ui.found ? (Array.isArray(ui.found) ? ui.found : [ui.found]) : [];
   for (const f of foundList){
-    s += '<div class="frow"><div class="fwho2"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'sm') + '</button>' +
+    s += '<div class="frow"><div class="fwho2"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'sm', f.uid) + '</button>' +
       '<div><b>' + esc(niceName(f.name) || 'Walker') + '</b><span>' + (f.handle ? '@' + esc(f.handle) + ' &middot; ' : '') + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' (private)' : '') + '</span></div></div>' +
       followBtn(f.uid, true) + '</div>';
   }
@@ -7786,7 +7822,7 @@ let socialWanted = false;
 function autoLoadSocial(){
   if (!FB || !fbUser || socialWanted) return;
   socialWanted = true;
-  loadFriends(); loadFeed(); loadDiscover();
+  loadFriends(); loadFeed().then(() => refreshPeople()).catch(() => {}); loadDiscover();
 }
 let boardsWanted = new Set();
 function autoLoadBoards(){
@@ -13177,7 +13213,7 @@ function showInviteSheet(f){
   const el = inviteSheetEl();
   el.innerHTML = '<div class="sheetbox invbox">' +
     '<p class="eyebrow" style="margin:0">You were invited by</p>' +
-    '<div class="invwho">' + avatarHTML(f.av, f.name, 'lg') +
+    '<div class="invwho">' + avatarHTML(f.av, f.name, 'lg', f.uid) +
       '<div><b>' + esc(f.name || 'A walker') + '</b>' +
       '<span>@' + esc(f.handle || '') + ' &middot; ' + (f.hills || 0) + ' summits marked</span></div></div>' +
     '<p class="invnote">Follow them and their days out land on your Activity. They will see yours if they follow you back.</p>' +
@@ -13316,8 +13352,12 @@ async function loadFriends(){
 let peopleBusy = false;
 async function refreshPeople(){
   if (!FB || !fbUser || peopleBusy) return;
-  const due = allFriends()
-    .map(f => f.uid)
+  const mine = fbUser ? fbUser.uid : '';
+  const due = [...new Set([
+      ...allFriends().map(f => f.uid),
+      ...knownPosts().map(p => p.uid),          // people whose faces are in the feed
+    ])]
+    .filter(uid => uid && uid !== mine)
     .filter(uid => { const p = personCache[uid]; return !p || !p.name || Date.now() - (p._t || 0) > PERSON_TTL; })
     .slice(0, 24);
   if (!due.length) return;
@@ -14243,13 +14283,59 @@ function myStats(){
     '</div>';
 }
 function friendStats(pp){
-  const pct = pp.pct != null ? pp.pct : null;
-  return '<div class="pfigs' + (pct != null && pp.ftUp ? ' four' : '') + '">' +
-    figCell((pp.hills || 0).toLocaleString(), 'Marked', '') +
-    (pct != null ? figCell(pct + '%', 'Complete', 'pct') : '') +
-    figCell((pp.pc || 0).toLocaleString(), 'Patches', '') +
-    (pp.ftUp ? figCell((pp.ftUp).toLocaleString() + '<em> ft</em>', 'Total feet', '') : '') +
-    '</div>';
+  /* Two figures stretched across a desktop looked like a page that had failed
+     to load. Take everything the card and their shared log can answer, and if
+     it is still only two or three, keep the box to a readable width instead of
+     letting each cell run half the window wide. */
+  const cells = [figCell((pp.hills || 0).toLocaleString(), 'Marked', '')];
+  const log = Array.isArray(pp.log) ? pp.log.filter(e => BY_KEY[e.k]) : [];
+  if (pp.pct != null) cells.push(figCell(pp.pct + '%', 'Complete', ''));
+  const yr = String(new Date().getFullYear());
+  const thisYear = log.filter(e => String(e.d || '').startsWith(yr)).length;
+  if (log.length) cells.push(figCell(thisYear.toLocaleString(), 'This year', ''));
+  cells.push(figCell((pp.pc || 0).toLocaleString(), 'Patches', ''));
+  let ft = pp.ftUp;
+  if (!ft && log.length) ft = Math.round(log.reduce((a, e) => a + (BY_KEY[e.k].h || 0), 0) * 3.28084);
+  if (ft) cells.push(figCell(ft.toLocaleString() + '<em> ft</em>', 'Total feet', ''));
+  const n = Math.min(cells.length, 5);
+  return '<div class="pfigs' + (n >= 4 ? ' four' : ' few') + '">' + cells.slice(0, 5).join('') + '</div>';
+}
+
+/* ---- the lists they walk, as rows rather than a right-aligned column ----
+   The breakdown used to float at the edge in small type with nothing round it.
+   A row each, with how far through that list they are, fills the same space
+   and actually says something. */
+function friendLists(counts){
+  const rows = LISTS.filter(l => (counts || {})[l.id])
+    .map(l => ({name:l.name, n:counts[l.id], of:l.count || 0}))
+    .sort((a, b) => b.n - a.n);
+  if (!rows.length) return '';
+  const POOL = ['--moss', '--accent', '--sage', '--plan', '--prog', '--bk5', '--bk1'];
+  return pcard('list-check', 'Their lists', rows.length + (rows.length === 1 ? ' list' : ' lists'), null,
+    '<div class="pregions">' + rows.slice(0, 7).map((r, i) =>
+      '<div class="pregion"><span class="prn">' + esc(r.name) + '</span>' +
+      '<span class="prb"><s style="width:' + (r.of ? Math.max(2, Math.round(r.n / r.of * 100)) : 2) +
+        '%; background:var(' + POOL[i % POOL.length] + ')"></s></span>' +
+      '<b>' + r.n + (r.of ? ' / ' + r.of.toLocaleString() : '') + '</b></div>').join('') +
+    '</div>');
+}
+
+/* ---- their photographs, from the log they have shared with me ---- */
+function friendShots(log, code){
+  const shots = [];
+  for (const e of log){
+    for (const pid of (e.p || [])) shots.push({pid, k:e.k, d:e.d || '', cap:(e.c || {})[pid] || ''});
+    if (shots.length > 40) break;
+  }
+  if (!shots.length) return '';
+  shots.sort((a, b) => (b.d || '').localeCompare(a.d || ''));
+  return pcard('camera', 'Their photos', '', null,
+    '<div class="pcshots">' + shots.slice(0, 12).map(sh =>
+      '<button class="pcshot" data-act="viewfriendphoto" data-code="' + esc(code || '') +
+      '" data-k="' + esc(sh.k) + '" data-p="' + esc(sh.pid) + '"' +
+      ' aria-label="' + esc(sh.cap || ('Photo of ' + (BY_KEY[sh.k] || {}).n)) + '">' +
+      '<img data-fp="' + esc(sh.pid) + '" data-code="' + esc(code || '') + '" alt=""></button>').join('') +
+    '</div>');
 }
 
 
@@ -14930,7 +15016,7 @@ function renderFriend(){
   const theirPosts = knownPosts().filter(p => p.uid === friendOpen.uid).slice(0, 10);
   const log = (r.log || []).filter(e => BY_KEY[e.k]);
   const card = personCache[friendOpen.uid] || {};
-  const pp = {...r, ...card, hills: card.hills || r.hills || 0};
+  const pp = {...r, ...card, hills: card.hills || r.hills || 0, log};
   log.sort((a,b) => (b.d || '').localeCompare(a.d || '') || BY_KEY[b.k].h - BY_KEY[a.k].h);
 
   /* Their face and their name lead this screen — you came here to read one
@@ -14947,18 +15033,23 @@ function renderFriend(){
     return html + '<div class="nobody"><b>' + (cardVis === 'private' ? 'This profile is private' : 'Followers only') + '</b>' +
       '<span>' + (cardVis === 'private' ? 'Ask to follow and they can let you in.' : 'Follow to see their adventures and kit.') + '</span></div>';
   }
-  if (lists) html += '<div class="jcount plists">' + lists + '</div>';
-  html += gearHTML(pp, false);
+  html += friendLists(r.counts);
+  html += friendShots(log, friendOpen.code);
+  const kit = gearHTML(pp, false);
+  if (kit) html += '<div class="pcard"><div class="pchead">' + ti('shoe') + '<b>Their kit</b></div>' +
+    kit.replace(/^<p class="eyebrow">[^<]*<\/p>/, '') + '</div>';
 
   /* what they have shared with you lately */
   if (theirPosts.length){
-    html += '<p class="eyebrow">Their walks</p>';
+    html += '<div class="pcard"><div class="pchead">' + ti('walk') + '<b>Their walks</b>' +
+      '<span>' + theirPosts.length + (theirPosts.length === 1 ? ' post' : ' posts') + '</span></div></div>';
     for (const p of theirPosts) html += postHTML(p);
   }
 
   if (!log.length) return html + (theirPosts.length ? '' : '<p class="empty">' +
     (code ? 'No detail shared on your leaderboard.' : 'Nothing shared yet. Their summits show here once they post a walk, or once you are on a leaderboard together.') + '</p>');
-  html += '<p class="eyebrow">Their log</p><ul class="hills">';
+  html += '<div class="pcard"><div class="pchead">' + ti('waymark-mountain') + '<b>Their log</b>' +
+    '<span>' + log.length + (log.length === 1 ? ' summit' : ' summits') + '</span></div></div><ul class="hills">';
   for (const e of log){
     const hh = BY_KEY[e.k];
     html += '<li class="hill on"><div class="hrow">' +
