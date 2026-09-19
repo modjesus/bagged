@@ -609,9 +609,9 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pbanner .pedit.solid{background:var(--pine, #14332D); color:#F6EFE4; border-color:rgba(246,239,228,.55);
   backdrop-filter:none; box-shadow:0 2px 8px rgba(12,26,22,.35)}
 .pid{display:flex; align-items:flex-end; gap:16px; padding:0 14px; margin-top:-56px; position:relative; z-index:2}
-.pavatar{width:96px; height:96px; border-radius:99px; object-fit:cover; border:4px solid var(--ground); background:var(--surface-2); flex:none; box-shadow:0 6px 16px -6px rgba(0,0,0,.45)}
+.pavatar{width:88px; height:88px; border-radius:99px; object-fit:cover; border:4px solid var(--ground); background:var(--surface-2); flex:none; box-shadow:0 6px 16px -6px rgba(0,0,0,.45)}
 .pavatar.initial{display:grid; place-items:center; background:var(--moss); color:#F6EFE4; font-family:var(--font-display); font-size:40px}
-@media (min-width:700px){ .pavatar{width:124px; height:124px; border-width:5px} .pavatar.initial{font-size:52px} }
+
 .pname{padding-bottom:6px; min-width:0}
 .pname h2{margin:0; font-family:var(--font-display); font-weight:500; font-size:24px; letter-spacing:.01em; line-height:1.1}
 .pname span{display:block; font-family:var(--font-ui); font-size:12.5px; color:var(--ink-3); margin-top:3px}
@@ -1265,7 +1265,9 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .maplibregl-ctrl-group button{background:transparent; width:32px; height:32px}
 .maplibregl-ctrl-group button + button{border-top:1px solid var(--line-soft)}
 .maplibregl-ctrl-group button:hover{background:var(--surface-2)}
-.maplibregl-popup-content{border-radius:12px; background:var(--surface); color:var(--ink); box-shadow:var(--shadow); padding:11px 30px 11px 13px; font-size:14px; font-family:inherit}
+.maplibregl-popup-content{border-radius:12px; background:var(--surface); color:var(--ink); box-shadow:var(--shadow); padding:11px 30px 11px 13px; font-size:14px; font-family:inherit;
+  /* a backstop for a very tall popup on a very short map: it scrolls rather than spilling */
+  max-height:min(70vh, 460px); overflow-y:auto; overscroll-behavior:contain}
 .maplibregl-popup-content b{font-size:15px; display:block}
 .maplibregl-popup-content .pm{font-family:var(--font-ui); font-size:11.5px; color:var(--ink-3); display:block; margin:2px 0 8px}
 .maplibregl-popup-close-button{font-size:18px; color:var(--ink-3); padding:2px 9px; border-radius:0 12px 0 8px}
@@ -1643,12 +1645,13 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
    part people scroll past on the way to the goods. Then one ruled box of
    figures, the journey, and the sections. */
 .prof > .phead2{display:block; text-align:center}
+.prof > .phead2{padding-top:10px}
 .prof > .phead2 > .pid{
   display:flex; justify-content:center; padding:0 14px;
-  margin-top:-38px; position:relative; z-index:2;
+  margin-top:-48px; position:relative; z-index:2;
 }
-.prof > .phead2 > .pname{padding:9px 14px 0; min-width:0}
-.prof > .phead2 > .pname h2{font-size:26px; line-height:1.1}
+.prof > .phead2 > .pname{padding:11px 14px 0; min-width:0}
+.prof > .phead2 > .pname h2{font-size:24px; line-height:1.15}
 .ploc{
   display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:5px; margin:5px 0 0;
   font-family:var(--font-ui); font-size:12.5px; color:var(--ink-3);
@@ -3001,17 +3004,21 @@ li.hill.bk .hrow{padding-left:2px}
   /* one line: the picture on the banner's corner, the name beside it, and the
      highest summit set against the far margin. Stacked, this left the whole
      right half of a desktop window empty. */
+  /* The whole row drops 18px and the picture's overlap grows to match, so the
+     name stops sitting on the banner's edge without the portrait moving. */
   .prof > .phead2{
     display:grid; grid-template-columns:auto minmax(0, 1fr) auto;
-    align-items:end; column-gap:22px; padding:0 20px; text-align:left;
+    align-items:end; column-gap:22px; padding:18px 20px 0; text-align:left;
   }
-  .prof > .phead2 > .pid{margin:-52px 0 0; padding:0; justify-content:flex-start}
+  .prof > .phead2 > .pid{align-self:start; margin:-70px 0 0; padding:0; justify-content:flex-start}
+  .pavatar{width:124px; height:124px; border-width:5px}
+  .pavatar.initial{font-size:52px}
   .prof > .phead2 > .pname{padding:0 0 4px}
   .prof > .phead2 .ploc{justify-content:flex-start}
   .prof > .phead2 .ptag{margin-inline:0; max-width:56ch}
   .prof > .phead2 > .ptop2{display:block; margin:0 0 7px; text-align:right; white-space:nowrap}
   .ploc .lochigh, .ploc .hsep{display:none}
-  .prof > .phead2 > .pname h2{font-size:32px}
+  .prof > .phead2 > .pname h2{font-size:32px; line-height:1.1}
   .ptag{font-size:14px}
   .pfigs{margin-top:18px}
   .pfigs > *, .pfigs.four > *{padding:15px 10px 13px}
@@ -3027,12 +3034,11 @@ li.hill.bk .hrow{padding-left:2px}
 .pyear{margin:12px 0 0}
 .pyear .yearbtn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
 
-/* tighter profile head */
+/* tighter profile head. The profile's own sizes live with the base rules and
+   inside the 700px query, not here: this block is below that query, so
+   anything set here wins at every width whether it means to or not. */
 :root{ --bannerH:clamp(150px, 24vw, 210px); }
 .prof{margin-top:4px}
-.prof > .phead2 > .pid{margin-top:-36px}
-.pavatar{width:88px; height:88px; border-width:4px}
-.prof > .phead2 > .pname h2{font-size:24px}
 
 .pyear{margin:10px 0 0}
 .prof + .eyebrow, .prof + .gear, .prof + p{margin-top:14px}
@@ -3825,7 +3831,7 @@ let syncTimer = null, syncErr = '';
 let tab = 'd';
 let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null, breakdown:false,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
-          mapScope:'enabled', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null,
+          mapScope:'one', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'journey', corkSeed:0, supSide:'', supTodo:false, ascAll:null, ascEdit:null, editDate:null,
           postMenu:null, joinCode:'', peopleView:null, openPost:null, dayOpen:false,
@@ -4183,6 +4189,15 @@ async function shrink(file){
 }
 /* Your picture, if you have set one, else whatever Google gave us. */
 function myAvatar(){ return fbAvatar || (fbUser && fbUser.photo) || ''; }
+/* A phone keyboard gives you no capitals, so a name typed in a hurry arrives
+   as "amelia bunker" and reads like a username rather than a person. Only a
+   name with no capital in it at all is touched — McTavish, van der Berg and
+   anyone who meant their own lowercase keep exactly what they typed. */
+function niceName(v){
+  const s = String(v == null ? '' : v).trim();
+  if (!s || /\p{Lu}/u.test(s)) return s;
+  return s.replace(/(^|[\s\-'’.])(\p{Ll})/gu, (m, a, b) => a + b.toUpperCase());
+}
 
 /* ---------- your profile ----------
    The public face of you on Hikers: a banner, a sharper picture, a line of
@@ -4190,7 +4205,7 @@ function myAvatar(){ return fbAvatar || (fbUser && fbUser.photo) || ''; }
    this device and in your public card (people/{uid}), never in the log doc,
    so a big banner cannot crowd out your summits. */
 const PROF_KEY = 'waymark.profile';
-const PROF0 = {quote:'', gear:[], show:'', banner:'', bfy:50, avHi:'', t:0,
+const PROF0 = {quote:'', gear:[], show:'', banner:'', bfy:50, avHi:'', home:'', t:0,
                vis:'public',      // who can open your profile: public | followers | private (approve followers)
                pvis:'public',     // where a new adventure goes: public | followers | me
                hideRoute:false};  // never attach the shape of a route to a post
@@ -4229,7 +4244,7 @@ function saveProf(){
 /* what of the profile goes on the public card */
 function profPublic(){
   return {quote: String(prof.quote || '').slice(0, 140), gear: (prof.gear || []).slice(0, 12),
-          show: prof.show || '', banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', profT: prof.t || 0,
+          show: prof.show || '', banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', home: prof.home || '', profT: prof.t || 0,
           vis: PVIS.some(v => v.id === prof.vis) ? prof.vis : 'public'};
 }
 /* on sign-in: whichever copy is newer wins, so a new phone picks up the banner */
@@ -4241,7 +4256,7 @@ async function pullProf(){
     const d = snap.data() || {};
     if ((d.profT || 0) > (prof.t || 0)){
       prof = {...PROF0, ...prof, quote:d.quote || '', gear:Array.isArray(d.gear) ? d.gear : [], show:d.show || '',
-              banner:d.banner || '', bfy: +d.bfy || 50, avHi:d.avHi || '', vis:d.vis || 'public', t:d.profT || 0};
+              banner:d.banner || '', bfy: +d.bfy || 50, avHi:d.avHi || '', home:d.home || '', vis:d.vis || 'public', t:d.profT || 0};
       try{ localStorage.setItem(PROF_KEY, JSON.stringify(prof)); }catch(e){}
     }
   }catch(e){}
@@ -6967,7 +6982,7 @@ function requestsCard(){
   if (!fbUser || !friendReqs.length) return '';
   return friendReqs.slice(0, 3).map(r =>
     '<div class="reqcard"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm') +
-      '<div><b>' + esc(r.name || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') +
+      '<div><b>' + esc(niceName(r.name) || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') +
       (r.hills || 0) + ' summits &middot; wants to follow you</span></div></div>' +
       '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Approve</button>' +
       '<button class="btn quiet sm" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></div></div>').join('');
@@ -7312,7 +7327,7 @@ function postHTML(p){
              : p.kind === 'moment' ? 'A moment from the trail' : 'Posted';
   const visTag = mine && p.vis && p.vis !== 'public' ? '<span class="vistag" title="' + esc(visBy(VIS, p.vis).label) + '">' + ti(visBy(VIS, p.vis).icon) + '</span>' : '';
   s += '<div class="phead"><button class="pwhobtn" ' + whoAct + '>' + avatarHTML(p.av, p.name, 'md') + '</button>' +
-    '<div class="pwho"><button class="pwhobtn" ' + whoAct + '><b>' + esc(p.name || 'Walker') + '</b></button>' +
+    '<div class="pwho"><button class="pwhobtn" ' + whoAct + '><b>' + esc(niceName(p.name) || 'Walker') + '</b></button>' +
     /* The line used to read off `p.t`, the moment the post was written — so a
        hill walked in 2019 and logged tonight said "just now". What a reader
        wants is the day on the hill; the posting time is only worth saying when
@@ -7424,7 +7439,7 @@ function postHTML(p){
     s += '<div class="pcomments">';
     for (const c of cs)
       s += '<div class="pc">' + avatarHTML(c.av, c.name, 'tiny') +
-        '<div><b>' + esc(c.name || 'Walker') + '</b><span>' + esc(c.text) + '</span>' +
+        '<div><b>' + esc(niceName(c.name) || 'Walker') + '</b><span>' + esc(c.text) + '</span>' +
         '<i>' + esc(whenAgo(c.t)) + '</i></div></div>';
     s += '<div class="field"><input id="cm-' + esc(p.id) + '" placeholder="Say something…" maxlength="400" autocomplete="off">' +
       '<button class="btn sm" data-act="sendcomment" data-id="' + esc(p.id) + '">Send</button></div>';
@@ -7479,7 +7494,7 @@ function friendStrip(){
   if (!out.length) return '';
   return '<div class="fstrip" aria-label="Out this week">' + out.map(f =>
     '<button class="fchip' + (f.fresh ? ' fresh' : '') + '" data-act="openfriend" data-uid="' + esc(f.uid) + '">' +
-    avatarHTML(f.av, f.name, 'md') + '<span>' + esc((f.name || 'Walker').split(' ')[0]) + '</span></button>').join('') + '</div>';
+    avatarHTML(f.av, f.name, 'md') + '<span>' + esc((niceName(f.name) || 'Walker').split(' ')[0]) + '</span></button>').join('') + '</div>';
 }
 const SHARE_KINDS = [
   {id:'adventure', label:'An adventure',     icon:'waymark-mountain', note:'A walk, a summit or a whole day of them'},
@@ -7540,7 +7555,7 @@ function feedRail(){
   if (sug.length){
     s += '<div class="railcard"><p class="sumlabel">Hikers to follow</p>' + sug.map(f =>
       '<div class="railhiker"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') + '</button>' +
-      '<span><b>' + esc(f.name || 'Walker') + '</b><i>' + esc(f.why || '') + '</i></span>' + followBtn(f.uid, true) + '</div>').join('') + '</div>';
+      '<span><b>' + esc(niceName(f.name) || 'Walker') + '</b><i>' + esc(f.why || '') + '</i></span>' + followBtn(f.uid, true) + '</div>').join('') + '</div>';
   }
   return s;
 }
@@ -7570,7 +7585,7 @@ function renderFeed(){
   if (wk.length && !ui.postForm){
     s += '<div class="weekcard"><p class="sumlabel">Out this week</p>' + wk.map(w =>
       '<button class="wrow" data-act="' + (w.uid === fbUser.uid ? 'hikertab' : 'openfriend') + '" ' + (w.uid === fbUser.uid ? 'data-v="me"' : 'data-uid="' + esc(w.uid) + '"') + '>' +
-      avatarHTML(w.av, w.name, 'tiny') + '<span class="wn">' + esc(w.uid === fbUser.uid ? 'You' : w.name || 'Walker') + '</span>' +
+      avatarHTML(w.av, w.name, 'tiny') + '<span class="wn">' + esc(w.uid === fbUser.uid ? 'You' : niceName(w.name) || 'Walker') + '</span>' +
       '<em>' + w.days.size + (w.days.size === 1 ? ' day out' : ' days out') + ' &middot; ' + w.n + (w.n === 1 ? ' summit' : ' summits') + '</em></button>').join('') + '</div>';
   }
 
@@ -7649,7 +7664,7 @@ function renderFeed(){
 /* ---------- friends ---------- */
 function hikerRow(f, extra){
   return '<div class="hrowp"><button class="rrow" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny') +
-    '<span class="rn">' + esc(f.name || 'Walker') + '<i class="rsub">' + (f.handle ? '@' + esc(f.handle) : '') + (f.why ? (f.handle ? ' &middot; ' : '') + esc(f.why) : '') + '</i></span>' +
+    '<span class="rn">' + esc(niceName(f.name) || 'Walker') + '<i class="rsub">' + (f.handle ? '@' + esc(f.handle) : '') + (f.why ? (f.handle ? ' &middot; ' : '') + esc(f.why) : '') + '</i></span>' +
     '<span class="rc">' + (f.hills || 0) + '<i>summits</i></span></button>' + (extra || '') + '</div>';
 }
 function followBtn(uid, small){
@@ -7680,7 +7695,7 @@ function renderFriends(){
       s += '<p class="eyebrow">Want to follow you</p>';
       for (const r of friendReqs)
         s += '<div class="frow"><div class="fwho2">' + avatarHTML(r.av, r.name, 'sm') +
-          '<div><b>' + esc(r.name || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') + (r.hills || 0) + ' summits</span></div></div>' +
+          '<div><b>' + esc(niceName(r.name) || 'Walker') + '</b><span>' + (r.handle ? '@' + esc(r.handle) + ' &middot; ' : '') + (r.hills || 0) + ' summits</span></div></div>' +
           '<div class="btnrow" style="margin:0"><button class="btn sm" data-act="okfriend" data-u="' + esc(r.uid) + '">Approve</button>' +
           '<button class="btn quiet sm" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></div></div>';
     }
@@ -7721,7 +7736,7 @@ function renderFriends(){
   const foundList = ui.found ? (Array.isArray(ui.found) ? ui.found : [ui.found]) : [];
   for (const f of foundList){
     s += '<div class="frow"><div class="fwho2"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'sm') + '</button>' +
-      '<div><b>' + esc(f.name || 'Walker') + '</b><span>' + (f.handle ? '@' + esc(f.handle) + ' &middot; ' : '') + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' (private)' : '') + '</span></div></div>' +
+      '<div><b>' + esc(niceName(f.name) || 'Walker') + '</b><span>' + (f.handle ? '@' + esc(f.handle) + ' &middot; ' : '') + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' (private)' : '') + '</span></div></div>' +
       followBtn(f.uid, true) + '</div>';
   }
   s += '</div>';
@@ -7914,9 +7929,40 @@ function domMarker(m, arr, html, cls, w, h, lat, lon, opts){
 function clearMarks(arr){ while (arr.length) arr.pop().remove(); }
 function showPopup(m, lat, lon, html, offset){
   closePopups(m);
-  m.__popup = new maplibregl.Popup({offset: offset == null ? 16 : offset, maxWidth:'280px', closeButton:true, className:'wmpop'})
+  const pop = new maplibregl.Popup({offset: offset == null ? 16 : offset, maxWidth:'280px', closeButton:true, className:'wmpop'})
     .setLngLat([lon, lat]).setHTML(html).addTo(m);
-  return m.__popup;
+  m.__popup = pop;
+  fitPopup(m, pop);
+  return pop;
+}
+/* MapLibre anchors a popup to its point and leaves it there, so a hill near the
+   bottom of the frame opens a box that runs off the edge — you tap a summit and
+   the buttons are somewhere below the map. The popup is pinned to a place, so
+   the way to show all of it is to move the map under it. Measured twice: once
+   now, and again once the photograph has loaded and the box has grown. */
+function fitPopup(m, pop){
+  if (!m || !pop) return;
+  const nudge = () => {
+    if (!m || m.__popup !== pop) return;
+    const el = pop.getElement();
+    if (!el || !el.isConnected) return;
+    const p = el.getBoundingClientRect(), c = m.getContainer().getBoundingClientRect();
+    if (!p.height || !c.height) return;
+    const pad = 12;
+    let dx = 0, dy = 0;
+    if (p.height + pad * 2 < c.height){
+      if (p.top < c.top + pad) dy = p.top - (c.top + pad);
+      else if (p.bottom > c.bottom - pad) dy = p.bottom - (c.bottom - pad);
+    } else dy = p.top - (c.top + pad);        // taller than the map: show the head of it
+    if (p.left < c.left + pad) dx = p.left - (c.left + pad);
+    else if (p.right > c.right - pad) dx = p.right - (c.right - pad);
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) m.panBy([dx, dy], {duration:240});
+  };
+  requestAnimationFrame(nudge);
+  setTimeout(nudge, 260);
+  setTimeout(nudge, 700);
+  const img = pop.getElement() && pop.getElement().querySelector('img');
+  if (img) img.addEventListener('load', () => setTimeout(nudge, 30), {once:true});
 }
 function closePopups(m){ if (m && m.__popup){ m.__popup.remove(); m.__popup = null; } }
 
@@ -10666,12 +10712,13 @@ function wire(){
   };
   keep('pq','planQ');
   /* profile editor: typing updates the draft, nothing repaints */
-  for (const el of document.querySelectorAll('[data-act="pfname"],[data-act="pfquote"],[data-act="gname"],[data-act="gnote"],[data-act="gcat"]')){
+  for (const el of document.querySelectorAll('[data-act="pfname"],[data-act="pfquote"],[data-act="pfhome"],[data-act="gname"],[data-act="gnote"],[data-act="gcat"]')){
     el.oninput = e => {
       const d = profDraft(); if (!d) return;
       const a = e.target.dataset.act, i = +e.target.dataset.i;
       if (a === 'pfname') d.name = e.target.value;
       else if (a === 'pfquote') d.quote = e.target.value;
+      else if (a === 'pfhome') d.home = e.target.value;
       else if (d.gear[i]){ if (a === 'gname') d.gear[i].n = e.target.value; else if (a === 'gnote') d.gear[i].note = e.target.value; else d.gear[i].c = e.target.value; }
     };
   }
@@ -10969,7 +11016,7 @@ document.addEventListener('click', async e => {
   else if (a === 'openfriend'){
     friendOpen = {code:el.dataset.code || '', uid:el.dataset.uid}; render(); window.scrollTo({top:0}); hydrateFriendPhotos();
     /* their card brings the banner, the quote and the kit; paint again when it lands */
-    if (!personCache[friendOpen.uid]) loadPerson(friendOpen.uid).then(() => { if (friendOpen && friendOpen.uid === el.dataset.uid){ render(); hydrateFriendPhotos(); hydratePostPhotos(); } });
+    loadPerson(friendOpen.uid).then(() => { if (friendOpen && friendOpen.uid === el.dataset.uid){ render(); hydrateFriendPhotos(); hydratePostPhotos(); } });
   }
   else if (a === 'closefriend'){ friendOpen = null; render(); }
   /* ---- friends and the feed ---- */
@@ -11367,8 +11414,9 @@ document.addEventListener('click', async e => {
   else if (a === 'profsave'){
     const d = profDraft(); if (!d) return;
     const name = String(d.name || '').trim().slice(0, 40);
-    if (name && name !== fbName){ fbName = name; markDirty('name'); }
+    if (name && niceName(name) !== fbName){ fbName = niceName(name); markDirty('name'); }
     prof.quote = String(d.quote || '').trim().slice(0, 140);
+    prof.home = String(d.home || '').trim().slice(0, 40);
     prof.show = d.show || '';
     prof.gear = d.gear.filter(g => g.n && g.n.trim()).map(g => ({c: GEAR_BY[g.c] ? g.c : 'other', n: g.n.trim().slice(0, 60), note: String(g.note || '').trim().slice(0, 60)})).slice(0, 12);
     prof.banner = d.banner || ''; prof.bfy = Math.max(0, Math.min(100, +d.bfy || 50));
@@ -11729,7 +11777,7 @@ document.addEventListener('input', e => {
     }
   }
   if (el.dataset.act === 'fbname' && fbUser){
-    fbName = el.value.trim().slice(0,40) || fbUser.name;
+    fbName = niceName(el.value.trim().slice(0,40)) || niceName(fbUser.name);
     document.querySelectorAll('.fbNameIn').forEach(x => { if (x !== el) x.value = el.value; });
     markDirty('name'); scheduleSync(600);
   }
@@ -12436,7 +12484,7 @@ async function fbPull(){
   if (!snap.exists()) return null;
   const d = snap.data() || {};
   /* Each preference is held back only by its own unsaved change. */
-  if (d.name && !fbDirty.has('name')) fbName = d.name;
+  if (d.name && !fbDirty.has('name')) fbName = niceName(d.name);
   if (typeof d.avatar === 'string' && !fbDirty.has('avatar')) fbAvatar = d.avatar;
   if (typeof d.handle === 'string' && !fbDirty.has('handle')) fbHandle = d.handle;
   if (typeof d.detail === 'boolean' && !fbDirty.has('detail')) fbDetail = d.detail;
@@ -12459,7 +12507,7 @@ async function fbPush(){
     try{ await fbPull(); }catch(e){ throw e; }
   }
   await FB.setDoc(userRef(), {
-    log: payload, name: fbName || (fbUser && fbUser.name) || 'Walker',
+    log: payload, name: niceName(fbName || (fbUser && fbUser.name)) || 'Walker',
     avatar: fbAvatar || '', handle: fbHandle || '',
     detail: !!fbDetail, groups: myGroups(),
     enabled: state.enabled, enabledT: state.enabledT || 0, updatedAt: Date.now()
@@ -12936,6 +12984,8 @@ function allFriends(){
   for (const f of boardFriends()) m.set(f.uid, f);
   for (const f of followers) m.set(f.uid, {...m.get(f.uid), ...f, via:'follower'});
   for (const f of friends) m.set(f.uid, {...m.get(f.uid), ...f, via: f.pending ? 'requested' : 'following'});
+  /* a live card, where we have one, over the snapshot in the row */
+  for (const [uid, f] of m) m.set(uid, personView(uid, f) || f);
   return [...m.values()].sort((a,b) => (b.hills||0) - (a.hills||0));
 }
 const following    = () => friends.filter(f => !f.pending);
@@ -12960,13 +13010,14 @@ function myPerson(){
   const done = HILLS.filter(h => isBagged(h.k));
   const top = done.reduce((a, b) => (!a || b.h > a.h) ? b : a, null);
   return {
-    name: fbName || (fbUser && fbUser.name) || 'Walker',
+    name: niceName(fbName || (fbUser && fbUser.name)) || 'Walker',
     av: myAvatar() || '',
     handle: fbHandle || '',
     hills: done.length,
     sky: myHeights(),                             // the shape of their own log
     ftUp: myFeetUp(),
     pc: ps.filter(p => p.got).length,             // patches earned
+    home: (prof.home || homeGround() || ''),      // where they walk from
     top: top ? top.n : '',                        // highest summit marked
     updatedAt: Date.now()
   };
@@ -12988,13 +13039,31 @@ function personReady(){
 }
 /* Other people's cards, fetched when you open their profile. */
 const personCache = {};
-async function loadPerson(uid){
+const PERSON_TTL = 5 * 60000;
+async function loadPerson(uid, force){
   if (!FB || !fbUser) return null;
+  const have = personCache[uid];
+  if (!force && have && have.name && Date.now() - (have._t || 0) < PERSON_TTL) return have;
   try{
     const s = await FB.getDoc(personRef(uid));
-    personCache[uid] = s.exists() ? {uid, ...(s.data() || {})} : {uid};
+    personCache[uid] = s.exists() ? {uid, ...(s.data() || {}), _t:Date.now()} : {uid, _t:Date.now()};
   }catch(e){ personCache[uid] = personCache[uid] || {uid}; }
   return personCache[uid];
+}
+/* What a follower row, a board row or a friend record holds is a snapshot taken
+   the day you followed them: it never hears about a new picture or a changed
+   name. The card at people/{uid} is the living one, so wherever both exist the
+   live card wins and the snapshot only fills the gaps. */
+function personView(uid, snap){
+  const live = personCache[uid];
+  if (!live || !live.name) return snap || null;
+  if (!snap) return live;
+  const out = {...snap};
+  for (const [k, v] of Object.entries(live)){
+    if (k === '_t') continue;
+    if (v !== undefined && v !== null && v !== '') out[k] = v;
+  }
+  return out;
 }
 
 /* Claiming a handle is first-come. The registry doc is what makes it unique —
@@ -13161,7 +13230,7 @@ function searchKnownPeople(q){
   return [...m.values()].filter(p =>
     String(p.name || '').toLowerCase().includes(t) || String(p.handle || '').toLowerCase().includes(t)).slice(0, 12);
 }
-const card = p => ({uid:p.uid, name:p.name||'Walker', av:p.av||'', handle:p.handle||'', hills:p.hills||0, t:Date.now()});
+const card = p => ({uid:p.uid, name:niceName(p.name)||'Walker', av:p.av||'', handle:p.handle||'', hills:p.hills||0, t:Date.now()});
 /* Follow: my entry in their followers (the rules let me write only myself,
    and only if their profile is not private), and theirs in my following.
    A private profile gets a request instead, and my following entry waits. */
@@ -13237,6 +13306,26 @@ async function loadFriends(){
     await migrateFriends();
   }catch(e){ socialFailed = true; socialWhy = fbWhy(e); }
   friendsBusy = false;
+  render();
+  refreshPeople();
+}
+/* The rows hold a snapshot taken the day you followed somebody. Opening their
+   profile fetches the living card, but a list you never tap would stay years
+   out of date, so the cards come in quietly behind the list too: the ones we
+   have not looked at lately, a few at a time, and a repaint when they land. */
+let peopleBusy = false;
+async function refreshPeople(){
+  if (!FB || !fbUser || peopleBusy) return;
+  const due = allFriends()
+    .map(f => f.uid)
+    .filter(uid => { const p = personCache[uid]; return !p || !p.name || Date.now() - (p._t || 0) > PERSON_TTL; })
+    .slice(0, 24);
+  if (!due.length) return;
+  peopleBusy = true;
+  try{
+    for (const uid of due) await loadPerson(uid, true);
+  }catch(e){}
+  peopleBusy = false;
   render();
 }
 
@@ -13630,7 +13719,7 @@ function myMemberDoc(code){
   hills = Object.keys(state.bagged).filter(isBagged).length;
   const share = code ? groupDetail(code) : !!fbDetail;
   const doc = {
-    name: fbName || (fbUser && fbUser.name) || 'Walker',
+    name: niceName(fbName || (fbUser && fbUser.name)) || 'Walker',
     hills, counts, detail: share, updatedAt: Date.now()
   };
   /* Your face only goes to boards you have opened your log to. On a totals-only
@@ -14083,7 +14172,9 @@ function profileHeader(pp, opts){
   /* 2 — who this is: the picture on the banner's corner, the name beside the
      margin, the place under it and their own line under that. Tight: this is
      the part of a profile people scroll past on the way to the goods. */
-  const where = mine ? homeGround() : (pp.home || '');
+  /* what they typed beats what their log implies, and an empty field falls
+     back to the area they have marked most of rather than showing nothing */
+  const where = mine ? (prof.home || homeGround()) : (pp.home || '');
   const handle = pp.handle ? '@' + esc(pp.handle) : '';
   /* One line of small print, not three: where they walk, who they are, and
      the highest thing they have stood on, with separators only between the
@@ -14098,7 +14189,7 @@ function profileHeader(pp, opts){
     '<span class="lochigh">Highest <b>' + esc(pp.top) + '</b></span>';
   s += '<div class="phead2"><div class="pid">' +
     (pic ? '<img class="pavatar" src="' + esc(pic) + '" alt="">' : '<div class="pavatar initial">' + initial + '</div>') +
-    '</div><div class="pname"><h2>' + esc(pp.name || 'Walker') + '</h2>' +
+    '</div><div class="pname"><h2>' + esc(niceName(pp.name) || 'Walker') + '</h2>' +
     '<p class="ploc">' + line + '</p>';
   if (pp.quote) s += '<p class="ptag">' + esc(pp.quote) + '</p>';
   else if (mine && !ui.profEdit) s += '<p class="ptag empty">Add a line of your own: a motto, a favourite hill, why you walk.</p>';
@@ -14258,7 +14349,7 @@ function renderMyProfile(){
   return s;
 }
 function profileEditor(){
-  const d = ui.pDraftProf || (ui.pDraftProf = {name: fbName || fbUser.name || '', quote: prof.quote || '', show: prof.show || '',
+  const d = ui.pDraftProf || (ui.pDraftProf = {name: fbName || fbUser.name || '', quote: prof.quote || '', show: prof.show || '', home: prof.home || '',
     gear: (prof.gear || []).map(g => ({...g})), banner: prof.banner || '', bfy: +prof.bfy || 50,
     vis: prof.vis || 'public', pvis: prof.pvis || 'public', hideRoute: !!prof.hideRoute});
   const earned = patches().filter(p => p.got);
@@ -14268,6 +14359,10 @@ function profileEditor(){
     (d.banner ? '<button class="btn quiet sm" data-act="bannerclear">Remove</button>' : '') + '</div>' +
     (d.banner ? '<label for="bfy" style="margin-top:8px">Which part shows</label><input type="range" id="bfy" min="0" max="100" value="' + d.bfy + '" data-act="bfy">' : '') + '</div>';
   s += '<div><label for="pfname">Name</label><input id="pfname" data-act="pfname" value="' + esc(d.name) + '" maxlength="40"></div>';
+  s += '<div><label for="pfhome">Where you walk from</label><input id="pfhome" data-act="pfhome" placeholder="' +
+       esc(homeGround() || 'Bristol, UK') + '" value="' + esc(d.home) + '" maxlength="40">' +
+       '<p class="mapnote" style="margin:6px 0 0">Shows beside your name. Leave it empty and WayMark uses the area you have marked most of' +
+       (homeGround() ? ' \u2014 ' + esc(homeGround()) + ' at the moment' : '') + '.</p></div>';
   s += '<div><label for="pfquote">A line of your own</label><input id="pfquote" data-act="pfquote" placeholder="It\u2019s character building." value="' + esc(d.quote) + '" maxlength="140">' +
        '<p class="mapnote" style="margin:6px 0 0">Shows under your name. 140 characters.</p></div>';
   s += '<div><label>Picture</label><div class="btnrow" style="margin:0"><button class="btn ghost sm" data-act="editavatar">' + (myAvatar() ? 'Change picture' : 'Choose a picture') + '</button></div></div>';
@@ -14821,14 +14916,15 @@ function renderFriend(){
   if (code) friendOpen.code = code;
   const rows = code ? (groupRows[code] || []) : [];
   let r = rows.find(x => x.uid === friendOpen.uid);
+  if (r) r = {...r, ...personView(friendOpen.uid, r)};
   if (!r){
     /* not on a board with me: their public card is all there is */
-    const f = allFriends().find(x => x.uid === friendOpen.uid) || friendReqs.find(x => x.uid === friendOpen.uid) ||
-      (personCache[friendOpen.uid] && personCache[friendOpen.uid].name ? personCache[friendOpen.uid] : null) ||
+    const snap = allFriends().find(x => x.uid === friendOpen.uid) || friendReqs.find(x => x.uid === friendOpen.uid) ||
       knownPosts().filter(x => x.uid === friendOpen.uid).map(x => ({uid:x.uid, name:x.name, av:x.av}))[0];
+    const f = personView(friendOpen.uid, snap);
     if (!f) return '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>' +
-      '<p class="empty">' + (personCache[friendOpen.uid] ? 'That walker has gone.' : 'Looking…') + '</p>';
-    r = {...f, log:[], counts:{}};
+      '<p class="empty">' + (personCache[friendOpen.uid] ? 'That walker has gone.' : 'Looking&hellip;') + '</p>';
+    r = {...f, log:r && r.log ? r.log : [], counts:{}};
   }
   const accepted = isFollowing(friendOpen.uid);
   const theirPosts = knownPosts().filter(p => p.uid === friendOpen.uid).slice(0, 10);
