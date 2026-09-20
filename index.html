@@ -382,7 +382,10 @@ body::before{
 .navbtn[aria-selected="true"] .nc{color:var(--accent-text)}
 
 /* mobile: a fixed bottom bar that behaves like a native app */
-.bnav{ position:fixed; left:0; right:0; bottom:0; z-index:950; display:flex; gap:1px; padding:6px 4px calc(6px + env(safe-area-inset-bottom)); border-top:1px solid var(--line) }
+/* 850, under the patch popup's 900: inside .app the bar inherited that
+   element's z-index:1 and every overlay cleared it for free. Out here it needs
+   to be ranked against them itself. */
+.bnav{ position:fixed; left:0; right:0; bottom:0; z-index:850; display:flex; gap:1px; padding:6px 4px calc(6px + env(safe-area-inset-bottom)); border-top:1px solid var(--line) }
 .bnav .navbtn{
   flex:1 1 0; min-width:0; flex-direction:column; gap:3px; padding:7px 1px 5px; justify-content:center;
   font-size:clamp(8.5px, 2.7vw, 10.5px); letter-spacing:.01em; border-radius:9px; text-align:center;
@@ -605,7 +608,9 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pbanner{position:relative; width:100%; height:clamp(112px, 25vw, 200px); border-radius:var(--r) var(--r) 0 0; overflow:hidden; background:var(--pine)}
 .pbanner img{width:100%; height:100%; object-fit:cover; display:block}
 .pbanner .ridge{position:absolute; left:0; right:0; bottom:0; height:100%; margin:0; width:100%; z-index:0; color:rgba(246,239,228,.5)}
-.pbanner .pedit{position:absolute; right:10px; top:10px; background:rgba(20,51,45,.55); color:#F6EFE4; border-color:rgba(246,239,228,.4); backdrop-filter:blur(4px)}
+.pbanner .pedit2{display:flex; gap:7px}
+.pedit2 .btn{flex:none}
+.pedit{position:absolute; right:10px; top:10px; background:rgba(20,51,45,.55); color:#F6EFE4; border-color:rgba(246,239,228,.4); backdrop-filter:blur(4px)}
 /* over a bright sky the glass version vanished: the button is solid ink */
 .pbanner .pedit.solid{background:var(--pine, #14332D); color:#F6EFE4; border-color:rgba(246,239,228,.55);
   backdrop-filter:none; box-shadow:0 2px 8px rgba(12,26,22,.35)}
@@ -3581,10 +3586,17 @@ body.guiding{overflow:hidden}
     </header>
 
     <main class="wrap" id="main"></main>
-
-    <nav class="bnav" id="bnav" role="tablist" aria-label="Sections"></nav>
   </div>
 </div>
+
+<!-- The tab bar sits at the top level rather than two divs inside .app. A
+     position:fixed element is only fixed to the viewport for as long as no
+     ancestor carries a transform, filter or other containing-block property;
+     the moment one does, fixed quietly becomes absolute and the bar scrolls
+     with the page — drifting up at one scroll position and dropping back when
+     you return to it, which is exactly what was reported. With body as its
+     parent there is no ancestor left that can do that to it. -->
+<nav class="bnav" id="bnav" role="tablist" aria-label="Sections"></nav>
 
 <div class="sheet" id="sheet">
   <div class="sheetbox">
@@ -8017,8 +8029,9 @@ function renderMapTab(){
   if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
   let html = mapModeBar() + listBar();
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
-  html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">All my lists</button>';
-  html += '<button data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope==='one') + '">' + esc(LIST_BY[ui.list].name) + ' only</button>';
+  html += '<button data-act="mapscope" data-v="all" aria-pressed="' + (ui.mapScope==='all') + '">All hills</button>';
+  html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">My lists</button>';
+  html += '<button data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope==='one') + '">This list</button>';
   html += '</div>' + styleSwitcher() +
     (coarsePointer() ? '<button class="btn walkbtn" data-act="guide">' + ti('current-location') + 'Where am I</button>' : '') + '</div>';
   /* The same search as the planner: hills instantly from our own data, then
@@ -8045,6 +8058,11 @@ function mapCentre(){
           lo: hs.reduce((a,h) => a + h.o, 0) / hs.length};
 }
 function mapHills(){
+  /* Three scopes: this one list, the lists you follow, or every hill WayMark
+     holds. The last one matters because a walk is a route, not a list — the
+     Pen y Fan horseshoe crosses Corn Du, and with Nuttalls switched off there
+     was no way to see it on the map at all, never mind mark it. */
+  if (ui.mapScope === 'all') return HILLS;
   const ids = ui.mapScope === 'one' ? [ui.list] : state.enabled;
   return HILLS.filter(h => h.l.some(x => ids.includes(x)));
 }
@@ -10608,8 +10626,11 @@ function layersHTML(){
   else s += '<div class="mrow"><span>OpenTopoMap</span><small>OS unavailable</small></div>';
   s += '<div class="mh">Show</div>';
   s += '<button class="mrow' + (poiShow ? ' on' : '') + '" data-act="places" aria-pressed="' + poiShow + '">Places<small>pubs, parking, toilets</small></button>';
+  s += '<div class="mh">Which hills</div>';
+  s += '<button class="mrow' + (ui.mapScope === 'all' ? ' on' : '') + '" data-act="mapscope" data-v="all" aria-pressed="' + (ui.mapScope === 'all') + '">All hills<small>every list, including the ones you have not switched on</small></button>';
+  s += '<button class="mrow' + (ui.mapScope === 'enabled' ? ' on' : '') + '" data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope === 'enabled') + '">My lists<small>' + state.enabled.length + (state.enabled.length === 1 ? ' list switched on' : ' lists switched on') + '</small></button>';
   if (state.enabled.length > 1)
-    s += '<button class="mrow' + (ui.mapScope === 'one' ? ' on' : '') + '" data-act="mapscope" data-v="' + (ui.mapScope === 'one' ? 'enabled' : 'one') + '" aria-pressed="' + (ui.mapScope === 'one') + '">Only ' + esc(LIST_BY[ui.list].name) + '<small>hide the other lists</small></button>';
+    s += '<button class="mrow' + (ui.mapScope === 'one' ? ' on' : '') + '" data-act="mapscope" data-v="one" aria-pressed="' + (ui.mapScope === 'one') + '">Only ' + esc(LIST_BY[ui.list].name) + '<small>hide the other lists</small></button>';
   s += '<div class="mlegend"><span><i class="mk"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span></div>';
   /* The pins are coloured by Wainwright's seven books, which everybody reads as
      red-means-something-is-wrong until they are told otherwise. */
@@ -11412,15 +11433,25 @@ document.addEventListener('click', async e => {
   else if (a === 'shareme'){ shareLink(profileLink(fbHandle), 'Follow me on WayMark', 'This is my hill log on WayMark.'); }
   else if (a === 'shareboard'){ shareLink(boardLink(el.dataset.v), 'Join my WayMark board', 'Tap to join my leaderboard on WayMark.'); }
   else if (a === 'follow'){
-    const u = el.dataset.u;
-    const p = (ui.found && ui.found.uid === u ? ui.found : null) || personCache[u] || allFriends().find(x => x.uid === u) || friendReqs.find(x => x.uid === u);
-    if (!p) return;
+    const u = el.dataset.u; if (!u) return;
+    /* This used to look the walker up first and return silently when it found
+       nothing — no follow, no message, a button that did nothing at all. That
+       is what "Follow back" hit: somebody can follow you without us holding a
+       card for them. A uid is all following needs, so the lookup is for the
+       name on the toast now, not permission to proceed. */
+    el.disabled = true;
     try{
       if (!personCache[u]) await loadPerson(u);
-      await follow({...p, ...(personCache[u] || {})});
+      const p = (ui.found && ui.found.uid === u ? ui.found : null)
+             || personCache[u]
+             || allFriends().find(x => x.uid === u)
+             || friendReqs.find(x => x.uid === u)
+             || followers.find(x => x.uid === u)
+             || {uid:u};
+      await follow({...p, ...(personCache[u] || {}), uid:u});
       render(); toast(hasRequested(u) ? 'Request sent: they approve their followers.' : 'Following ' + (p.name || 'them') + '.');
       if (!hasRequested(u)) loadFeed();
-    }catch(e){ toast(fbWhy(e)); }
+    }catch(e){ el.disabled = false; toast(fbWhy(e) || 'Could not follow them. Try again.'); }
   }
   else if (a === 'unfollow'){
     const u = el.dataset.u, f = friends.find(x => x.uid === u);
@@ -11608,6 +11639,14 @@ document.addEventListener('click', async e => {
     }, 80);
   }
   else if (a === 'profedit'){ ui.profEdit = !ui.profEdit; if (!ui.profEdit) ui.pDraftProf = null; render(); }
+  /* Closing with work in hand asks rather than throwing it away. */
+  else if (a === 'profdone'){
+    if (profDirty()){
+      const ok = await confirmAsk({title:'Save your changes?', body:'You have edited your profile but not saved it.', yes:'Save', no:'Discard'});
+      if (ok){ document.querySelector('[data-act="profsave"]').click(); return; }
+    }
+    ui.profEdit = false; ui.pDraftProf = null; render();
+  }
   else if (a === 'profcancel'){ ui.profEdit = false; ui.pDraftProf = null; render(); }
   else if (a === 'pfvis'){ const d = profDraft(); if (d){ d.vis = el.dataset.v; render(); } }
   else if (a === 'pfpvis'){ const d = profDraft(); if (d){ d.pvis = el.dataset.v; render(); } }
@@ -14391,7 +14430,13 @@ function profileHeader(pp, opts){
                : (hasSky ? skylineArt(sky) : RIDGE)) +
     (hasSky ? '<span class="skylab">' + (pp.hills || 0).toLocaleString() +
        (pp.hills === 1 ? ' summit' : ' summits') + ', drawn to scale</span>' : '') +
-    (mine ? '<button class="btn sm pedit solid" data-act="profedit">' + (ui.profEdit ? 'Done' : 'Edit profile') + '</button>'
+    (mine ? (ui.profEdit
+            /* Done used to close the editor and bin the draft without a word,
+               and it is the button nearest the thumb. Save sits beside it. */
+            ? '<span class="pedit pedit2">' +
+              '<button class="btn sm solid" data-act="profsave">Save</button>' +
+              '<button class="btn sm quiet" data-act="profdone">Done</button></span>'
+            : '<button class="btn sm pedit solid" data-act="profedit">Edit profile</button>')
           : '<span class="pedit pfollow">' + followBtn(pp.uid, true) + '</span>') +
     '</div>';
 
@@ -14680,6 +14725,17 @@ function profileEditor(){
   return s + '</div>';
 }
 function profDraft(){ return ui.pDraftProf; }
+/* Has anything in the editor actually been changed? */
+function profDirty(){
+  const d = ui.pDraftProf; if (!d) return false;
+  const same = (a, b) => JSON.stringify(a || '') === JSON.stringify(b || '');
+  return !same(d.name, fbName || (fbUser || {}).name || '') ||
+         !same(d.quote, prof.quote) || !same(d.home, prof.home) ||
+         !same(d.banner, prof.banner) || (+d.bfy || 50) !== (+prof.bfy || 50) ||
+         !same(d.vis, prof.vis || 'public') || !same(d.pvis, prof.pvis || 'public') ||
+         !!d.hideRoute !== !!prof.hideRoute ||
+         !same(d.porder, patchOrder()) || !same(d.gear, prof.gear);
+}
 
 /* Your year so far as one picture: summits, days out, the highest, the
    patches. Drawn here, handed to the share sheet, saved as a file otherwise. */
