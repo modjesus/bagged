@@ -277,6 +277,7 @@ body::before{
   border:3px solid var(--line); background:var(--surface-2); color:var(--ink-3);
   position:relative; overflow:hidden; box-shadow:inset 0 0 0 2px var(--surface)}
 .pdhead .patch.got .disc{border-color:var(--accent); background:var(--pine); color:#F6EFE4}
+.pdblurb{margin:9px 0 0; font-size:14px; line-height:1.55; color:var(--ink-2); text-wrap:pretty}
 .pdhead .disc svg{width:48px; height:48px}
 .pdt{flex:1; min-width:0}
 .pdt h2{font-family:var(--font-display); font-size:20px; margin:0}
@@ -637,10 +638,20 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .gcat b span{font-weight:400; color:var(--ink-3)}
 .profform{margin-top:12px}
 .bpick{display:flex; gap:8px; align-items:center}
-.showpick{display:flex; gap:10px; flex-wrap:wrap}
-.showpick .patch{width:auto; background:none; border:2px solid transparent; border-radius:99px; padding:2px; cursor:pointer}
-.showpick .patch .disc{width:64px; height:64px; margin:0}
-.showpick .patch.picked{border-color:var(--accent)}
+.showpick{display:flex; gap:10px 8px; flex-wrap:wrap}
+/* Putting them in order means telling them apart, so each one carries its
+   name. Four to a row on a phone, which is the width of the discs plus air. */
+.showpick .patch{
+  width:76px; background:none; border:2px solid transparent; border-radius:14px;
+  padding:3px 2px 5px; cursor:pointer; text-align:center;
+}
+.showpick .patch .disc{width:64px; height:64px; margin:0 auto}
+.showpick .patch.picked{border-color:var(--accent); background:var(--accent-soft)}
+.showpick .spl{
+  display:block; width:100%; overflow:hidden; max-height:2.4em;
+  margin-top:5px; font-style:normal; font-family:var(--font-ui); font-size:9.5px;
+  line-height:1.2; font-weight:700; color:var(--ink-2); text-align:center;
+}
 .gearedit{display:flex; flex-direction:column; gap:8px}
 .grow{display:grid; grid-template-columns:118px 1fr 1fr 32px; gap:6px; align-items:center}
 .grow select, .grow input{min-width:0; padding:9px 10px; font-size:13.5px}
@@ -1688,7 +1699,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
 }
 .pfigs > *{
-  flex:1 1 0; min-width:0; padding:11px 5px 10px; text-align:center;
+  flex:1 1 auto; min-width:0; padding:11px 5px 10px; text-align:center;
   background:none; border:0; font:inherit; color:inherit;
 }
 .pfigs > button{cursor:pointer}
@@ -1696,7 +1707,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .pfigs > * + *{border-left:1px solid var(--line-soft)}
 .pfigs b{
   display:block; font-family:var(--font-display); font-weight:400;
-  font-size:clamp(19px, 5.4vw, 26px); line-height:1; letter-spacing:.01em;
+  font-size:clamp(17px, 4.9vw, 26px); line-height:1; letter-spacing:.01em;
   color:var(--accent-text); font-variant-numeric:tabular-nums;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
@@ -1704,12 +1715,15 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .pfigs i{
   display:block; margin-top:6px; font-style:normal; font-family:var(--font-ui);
   font-size:clamp(8px, 2.3vw, 9.5px); font-weight:700; letter-spacing:.06em;
-  line-height:1.3; text-transform:uppercase; color:var(--ink-2);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  line-height:1.25; text-transform:uppercase; color:var(--ink-2);
+  text-wrap:balance;
 }
 .pfigs.four > *{padding:11px 3px 10px}
-/* two or three figures should not each be half a window wide */
-.pfigs.few{max-width:560px; margin-inline:auto}
+/* Two or three figures used to be capped at 560 and centred, which on a
+   desktop left a small raft of numbers adrift in the column. They line up with
+   the rest of the page now; the cells themselves no longer over-stretch
+   because each is sized by what is in it. */
+.pfigs.few > *{padding-inline:14px}
 
 /* a section: a rule, an icon, a shouted label, a way through */
 .pcard{margin:20px 0 0}
@@ -1733,32 +1747,34 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .pcempty svg{flex:none; width:17px; height:17px; margin-top:1px; color:var(--ink-3); opacity:.8}
 .pcempty b{color:var(--ink)}
-/* the showcase: a choice, made to look like one */
-.pshow{
-  display:flex; align-items:center; flex-wrap:wrap; gap:9px 12px;
-  margin:11px 0 0; padding:11px 13px;
-  background:var(--done-soft); border:1px solid var(--done-line); border-radius:var(--r);
+/* Singling one patch out said nothing the row did not already say, and it
+   cost a bar of its own underneath. What is worth choosing is the order they
+   sit in, and that asks for a chip at the end of the row, not a slab. */
+.pcorder{
+  display:inline-flex; align-items:center; gap:4px; margin-left:8px; padding:3px 9px 3px 7px;
+  background:var(--surface); border:1px solid var(--line); border-radius:99px; cursor:pointer;
+  font-family:var(--font-ui); font-size:11px; font-weight:700; letter-spacing:.01em;
+  color:var(--ink-2); vertical-align:1px;
 }
-.pshow.none{
-  border-style:dashed; background:var(--accent-soft);
-  border-color:color-mix(in srgb, var(--accent) 45%, transparent);
-}
-.pshowtx{flex:1 1 180px; min-width:0; font-size:13px; line-height:1.4; color:var(--ink-2)}
-.pshowtx b{
-  display:block; margin-top:1px; font-family:var(--font-display); font-weight:400;
-  font-size:16px; color:var(--ink);
-}
-.pshow .btn{flex:none}
-.pshow .btn svg{width:14px; height:14px; margin-right:6px; vertical-align:-2px}
-.pchip .flag{display:none}
-.pchip.shown .flag{
-  display:block; margin-top:3px; font-style:normal; font-family:var(--font-data);
-  font-size:8px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-text);
+.pcorder svg{width:13px; height:13px; color:var(--ink-3)}
+.pcorder:hover{border-color:var(--ink-3); color:var(--ink)}
+/* the number a patch carries once it has been placed */
+.showpick .patch{position:relative}
+.showpick .ordn{
+  position:absolute; top:-3px; right:-3px; z-index:4;
+  min-width:20px; height:20px; padding:0 5px; border-radius:99px;
+  display:grid; place-items:center;
+  background:var(--accent); color:#F6EFE4; border:2px solid var(--ground);
+  font-style:normal; font-family:var(--font-data); font-size:11px; line-height:1;
+  font-variant-numeric:tabular-nums;
 }
 
 /* the patch discs: a row that runs off the edge rather than a block that wraps */
+/* overflow-x:auto makes the block axis clip as well, so the row has to carry
+   the room the discs' rims and shadows need — at 1px they came out shaved off
+   top and bottom, and a ring round one of them was cut in half. */
 .prow{
-  display:flex; gap:12px; overflow-x:auto; padding:1px 1px 4px;
+  display:flex; gap:12px; overflow-x:auto; padding:8px 3px 10px;
   scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch;
 }
 .prow::-webkit-scrollbar{display:none}
@@ -1769,12 +1785,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .pchip .patch{width:80px; margin:0}
 .pchip .disc{width:80px; height:80px; margin:0}
 .pchip i{
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  display:block; width:100%; overflow:hidden; max-height:2.5em;
   margin-top:6px; font-style:normal; font-family:var(--font-ui); font-size:10.5px;
-  line-height:1.25; font-weight:700; color:var(--ink-2);
+  line-height:1.25; font-weight:700; color:var(--ink-2); text-align:center;
 }
-.pchip.shown .disc{box-shadow:0 0 0 2px var(--ground), 0 0 0 4px var(--accent)}
-.pchip.shown i{color:var(--accent-text)}
 
 /* a list or a region, a row each, with how far through it they are. It sits
    on paper of its own so it reads as a block, like the kit below it. */
@@ -2210,6 +2224,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* `.sheetbox p` is later and equal weight, so these need the extra class too */
 .win .sheetbox .wineyebrow{ font-family:var(--font-ui); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; margin:0 0 28px }
 .win .sheetbox .winnames{ line-height:1.5; margin:0 0 2px }
+.win .sheetbox .winblurb{
+  max-width:34ch; margin:13px auto 0; font-size:14px; line-height:1.55;
+  color:#A3BEB8; text-wrap:pretty;
+}
 .windiscs{display:flex; justify-content:center; flex-wrap:wrap; gap:18px; padding:4px 0 2px}
 /* the patch itself is the point of the popup, so it is drawn large */
 .windiscs .patch{width:auto; opacity:1; filter:none}
@@ -3720,6 +3738,7 @@ const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
 const TI = {"dots":"<path d=\"M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/>","circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","navigation":"<path d=\"M12 18.5l7.5 3.5l-7.5 -18l-7.5 18l7.5 -3.5\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
 Object.assign(TI, {"backpack": "<path d=\"M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3z\"/> <path d=\"M10 6v-1a2 2 0 1 1 4 0v1\"/> <path d=\"M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4\"/> <path d=\"M11 10h2\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
 Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path d=\"M11.5 4l-.5 2\"/> <path d=\"M18 5h2\"/> <path d=\"M19 4v2\"/> <path d=\"M15 9l-1 1\"/> <path d=\"M18 13l2 -.5\"/> <path d=\"M18 19h2\"/> <path d=\"M19 18v2\"/> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z\"/>", "dog": "<path d=\"M11 5h2\"/> <path d=\"M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8\"/> <path d=\"M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z\"/> <path d=\"M12 18v2\"/> <path d=\"M10 11v.01\"/> <path d=\"M14 11v.01\"/> <path d=\"M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z\"/> <path d=\"M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z\"/>", "sunrise": "<path d=\"M3 17h1m16 0h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7m-9.7 5.7a4 4 0 0 1 8 0\"/> <path d=\"M3 21l18 0\"/> <path d=\"M12 9v-6l3 3m-6 0l3 -3\"/>", "thumb-up": "<path d=\"M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3\"/>", "bookmark": "<path d=\"M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z\"/>", "bell": "<path d=\"M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/>", "bell-ringing": "<path d=\"M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/> <path d=\"M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727\"/> <path d=\"M3 6.727a11.05 11.05 0 0 1 2.792 -3.727\"/>", "lock": "<path d=\"M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z\"/> <path d=\"M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0\"/> <path d=\"M8 11v-4a4 4 0 1 1 8 0v4\"/>", "world": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M3.6 9h16.8\"/> <path d=\"M3.6 15h16.8\"/> <path d=\"M11.5 3a17 17 0 0 0 0 18\"/> <path d=\"M12.5 3a17 17 0 0 1 0 18\"/>", "users-group": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\"/> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\"/> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\"/>", "user-plus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M16 19h6\"/> <path d=\"M19 16v6\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/>", "user-check": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/> <path d=\"M15 19l2 2l4 -4\"/>", "user-minus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128\"/> <path d=\"M16 19h6\"/>", "eye": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\"/>", "arrows-shuffle": "<path d=\"M18 4l3 3l-3 3\"/> <path d=\"M18 20l3 -3l-3 -3\"/> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\"/> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\"/>", "target": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0\"/> <path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>", "target-arrow": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 7a5 5 0 1 0 5 5\"/> <path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/> <path d=\"M15 6v3h3l3 -3h-3v-3z\"/> <path d=\"M15 9l-3 3\"/>", "bulb": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\"/> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\"/> <path d=\"M9.7 17l4.6 0\"/>", "message-circle": "<path d=\"M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1\"/>", "eye-off": "<path d=\"M10.585 10.587a2 2 0 0 0 2.829 2.828\"/> <path d=\"M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87\"/> <path d=\"M3 3l18 18\"/>"});
+TI['arrows-sort'] = '<path d="M3 9l4 -4l4 4"/><path d="M7 5v14"/><path d="M21 15l-4 4l-4 -4"/><path d="M17 19v-14"/>';
 TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
 function ti(name, attrs){
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (attrs ? ' ' + attrs : '') + '>' + (TI[name] || '') + '</svg>';
@@ -4227,7 +4246,7 @@ function niceName(v){
    this device and in your public card (people/{uid}), never in the log doc,
    so a big banner cannot crowd out your summits. */
 const PROF_KEY = 'waymark.profile';
-const PROF0 = {quote:'', gear:[], show:'', banner:'', bfy:50, avHi:'', home:'', t:0,
+const PROF0 = {quote:'', gear:[], show:'', porder:null, banner:'', bfy:50, avHi:'', home:'', t:0,
                vis:'public',      // who can open your profile: public | followers | private (approve followers)
                pvis:'public',     // where a new adventure goes: public | followers | me
                hideRoute:false};  // never attach the shape of a route to a post
@@ -4266,7 +4285,7 @@ function saveProf(){
 /* what of the profile goes on the public card */
 function profPublic(){
   return {quote: String(prof.quote || '').slice(0, 140), gear: (prof.gear || []).slice(0, 12),
-          show: prof.show || '', banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', home: prof.home || '', profT: prof.t || 0,
+          show: prof.show || '', porder: patchOrder().slice(0, 40), banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', home: prof.home || '', profT: prof.t || 0,
           vis: PVIS.some(v => v.id === prof.vis) ? prof.vis : 'public'};
 }
 /* on sign-in: whichever copy is newer wins, so a new phone picks up the banner */
@@ -4278,6 +4297,7 @@ async function pullProf(){
     const d = snap.data() || {};
     if ((d.profT || 0) > (prof.t || 0)){
       prof = {...PROF0, ...prof, quote:d.quote || '', gear:Array.isArray(d.gear) ? d.gear : [], show:d.show || '',
+              porder: Array.isArray(d.porder) ? d.porder : null,
               banner:d.banner || '', bfy: +d.bfy || 50, avHi:d.avHi || '', home:d.home || '', vis:d.vis || 'public', t:d.profT || 0};
       try{ localStorage.setItem(PROF_KEY, JSON.stringify(prof)); }catch(e){}
     }
@@ -4650,6 +4670,25 @@ function seedSeen(){
   for (const p of patches()) if (p.got) seenWins.add(p.id);
   saveSeen();
 }
+/* Everest arrived after the fact, which seedSeen() would file straight into
+   "already seen": a walker long past 8,848 m would carry a patch they were
+   never shown earning. Once, on the first load that has it, it is held back
+   and put up the way it would have gone up on the day they passed the height.
+   The key is burned on that first load either way, so nobody gets it twice and
+   anyone still short of it earns it the ordinary way. */
+const EVEREST_INTRO = 'waymark-everest-intro';
+function introEverest(){
+  let first;
+  try{
+    first = !localStorage.getItem(EVEREST_INTRO);
+    localStorage.setItem(EVEREST_INTRO, '1');
+  }catch(e){ return; }
+  if (!first || onboarding()) return;
+  const ev = patches().find(p => p.id === 'everest');
+  if (!ev || !ev.got) return;
+  if (seenWins) seenWins.delete('everest');
+  setTimeout(() => { if (!winOpen() && !onboarding()) celebrate([ev]); }, 900);
+}
 function settleWins(){
   if (!seenWins || onboarding() || winOpen()) return;
   const due = patches().filter(p => p.got && !seenWins.has(p.id));
@@ -4671,7 +4710,10 @@ function celebrate(list){
       list.map(p => '<span class="patch got">' + patchDisc(p) + '</span>').join('') +
     '</div>' +
     '<h2>' + (many ? 'Patches earned' : list[0].label) + '</h2>' +
-    '<p class="winnames">' + (many ? list.map(p => esc(p.label)).join('<br>') : esc(patchDateLine(list[0]))) + '</p>';
+    '<p class="winnames">' + (many ? list.map(p => esc(p.label)).join('<br>') : esc(patchDateLine(list[0]))) + '</p>' +
+    /* some patches need a sentence to mean anything: a number on its own does
+       not tell a walker what they have just done */
+    (!many && list[0].blurb ? '<p class="winblurb">' + esc(list[0].blurb) + '</p>' : '');
   document.getElementById('win').classList.add('open');
   const go = document.getElementById('winGo'); if (go) go.hidden = !state.enabled.length;
   const sh = document.getElementById('winShare');
@@ -4874,6 +4916,34 @@ function patches(){
       sort: n
     });
   }
+  /* The one patch that is not a count of summits but the sum of them. Every
+     metre you have stood on, added together, against the height of Everest —
+     which is about fourteen Wainwrights, near enough to walk towards and far
+     enough to be worth the walk. It is height stood on, not ascent, which is
+     the same figure the profile already prints as total feet. */
+  {
+    const mUp = Math.round(HILLS.filter(h => isBagged(h.k) && isFinite(h.h)).reduce((a, h) => a + h.h, 0));
+    /* the height the 2020 survey settled on, carried at its real precision
+       rather than rounded, because the whole patch is that one number */
+    const EV = 8848.86, EV_M = '8,848.86 m', EV_FT = '29,031.7 ft', m = unitsPref() === 'm';
+    const EV_HT = m ? EV_M : EV_FT, EV_ALT = m ? EV_FT : EV_M;
+    const asHt = v => m ? Math.round(v).toLocaleString() + ' m' : Math.round(v * 3.28084).toLocaleString() + ' ft';
+    out.push({
+      id:'everest', got: mUp >= EV, icon:'summit',
+      label:'Everest height', need:'Stand on ' + EV_HT + ' of summits, added together',
+      note: mUp >= EV ? asHt(mUp) + ' of summits stood on' : '',
+      prog: asHt(Math.min(mUp, EV)) + ' of ' + EV_HT,
+      togo: asHt(Math.max(0, EV - mUp)) + ' to go',
+      blurb: 'Not Everest itself \u2014 your own hills, added together. Stack every ' +
+        'summit you have stood on, one on top of the last, and ' + (mUp >= EV
+          ? 'the pile now stands as high as Everest\u2019s summit: ' + EV_HT +
+            ' above sea level (' + EV_ALT + ').'
+          : 'when the pile reaches ' + EV_HT + ' you have matched the height ' +
+            'Everest\u2019s summit stands above sea level (' + EV_ALT + ').'),
+      kind:'climb', have: Math.min(mUp, EV), target: EV,
+      sort: 14
+    });
+  }
   if (state.enabled.includes('wainwright')){
     for (const b of DATA.order.wainwright){
       const inB = hillsIn('wainwright').filter(h => regionOf(h, 'wainwright') === b);
@@ -4915,6 +4985,15 @@ function patchPeaks(p){
   if (p.kind === 'set' || p.kind === 'peak') return markedInDateOrder((p.keys || []).map(k => BY_KEY[k]).filter(Boolean));
   if (p.kind === 'book') return markedInDateOrder(hillsIn('wainwright').filter(x => regionOf(x, 'wainwright') === p.region));
   if (p.kind === 'list') return markedInDateOrder(hillsIn(p.listId));
+  if (p.kind === 'climb'){
+    /* the summits that stacked up to the height, in the order they were walked */
+    let m = 0; const out = [];
+    for (const x of markedInDateOrder(null)){
+      out.push(x); m += isFinite(x.h.h) ? x.h.h : 0;
+      if (m >= (p.target || 0)) break;
+    }
+    return out;
+  }
   return markedInDateOrder(null).slice(0, p.n);   // the summits that earned it
 }
 function patchTodo(p){
@@ -4949,7 +5028,7 @@ function trailBlock(list){
          ' style="left:' + x + '%; top:' + y + 'px">' +
          '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
          '<span class="mstext"><b>' + esc(p.label) + '</b>' +
-           '<i>' + (p.got ? 'Earned' : (p.note || ((p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%'))) + '</i></span>' +
+           '<i>' + (p.got ? 'Earned' : (p.prog || p.note || ((p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%'))) + '</i></span>' +
          '</button>';
   });
   return s + '</div>';
@@ -4961,7 +5040,7 @@ function patchRow(list){
     s += '<button class="milestone flow' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '">' +
          '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
          '<span class="mstext"><b>' + esc(p.label) + '</b>' +
-           '<i>' + (p.got ? 'Earned' : (p.note || ((p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%'))) + '</i></span>' +
+           '<i>' + (p.got ? 'Earned' : (p.prog || p.note || ((p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%'))) + '</i></span>' +
          '</button>';
   }
   return s + '</div>';
@@ -4997,7 +5076,7 @@ function nudgeFor(p){
   return after >= p.target ? what + ' ' + when + ' earns it.' : what + ' ' + when + ' makes it ' + after + '.';
 }
 function nextPatch(ps){
-  const counts = ps.filter(p => p.kind === 'count' && !p.got).sort((a, b) => a.sort - b.sort);
+  const counts = ps.filter(p => (p.kind === 'count' || p.kind === 'climb') && !p.got).sort((a, b) => a.sort - b.sort);
   if (counts.length) return counts[0];
   return ps.filter(p => !p.got).sort((a, b) => (toGo(a) / (a.target || 1)) - (toGo(b) / (b.target || 1)))[0] || null;
 }
@@ -5012,7 +5091,7 @@ function nextPatchHTML(ps, got){
     '<circle class="npr-fill" cx="60" cy="60" r="' + R + '" stroke-dasharray="' + (C * pct).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg></button>' +
     '<div class="nptext"><p class="npeyebrow">Next patch &middot; ' + got + ' of ' + ps.length + ' earned</p>' +
     '<h2>' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</h2>' +
-    '<p><b>' + toGo(p) + ' to go.</b> ' + esc(nudgeFor(p) || p.need || '') + '</p></div></section>';
+    '<p><b>' + esc(p.togo || (toGo(p) + ' to go')) + '.</b> ' + esc(nudgeFor(p) || p.need || '') + '</p></div></section>';
 }
 /* the trail itself: a list of nodes, each with a height, alternating sides */
 function journeyNodes(ps){
@@ -5021,7 +5100,7 @@ function journeyNodes(ps){
   for (const p of earned) nodes.push({t:'got', p});
   nodes.push({t:'you'});
   const nxt = nextPatch(ps);
-  const counts = ps.filter(p => p.kind === 'count' && !p.got).sort((a, b) => a.sort - b.sort);
+  const counts = ps.filter(p => (p.kind === 'count' || p.kind === 'climb') && !p.got).sort((a, b) => a.sort - b.sort);
   for (const p of counts) nodes.push({t: p === nxt ? 'next' : 'far', p});
   const three = ps.filter(p => (p.kind === 'peak' || p.kind === 'set') && !p.got).sort((a, b) => a.sort - b.sort);
   if (three.length){ nodes.push({t:'chapter', label:'National Three Peaks', sub: ps.filter(p => (p.kind === 'peak' || p.kind === 'set') && p.got).length + ' of ' + ps.filter(p => p.kind === 'peak' || p.kind === 'set').length}); for (const p of three) nodes.push({t: p === nxt ? 'next' : 'far', p}); }
@@ -5073,7 +5152,7 @@ function journeyTrail(ps){
         '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
         '<span class="jtext"><b>' + esc(p.label) + '</b>' +
         (n.t === 'got' ? (e && e.date ? '<em class="stampdate">' + esc(prettyDate(e.date)) + '</em>' : '') + (e ? '<i>' + esc(hillName(e.h)) + '</i>' : '')
-          : '<i>' + (p.note ? esc(p.note.replace(/&middot;/g, '·')) : toGo(p) + ' to go') + '</i>') +
+          : '<i>' + (p.togo ? esc(p.togo) : p.note ? esc(p.note.replace(/&middot;/g, '·')) : toGo(p) + ' to go') + '</i>') +
         '</span></button>';
     }
   }
@@ -5600,8 +5679,10 @@ function renderPatchDetail(p){
     '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
     '<div class="pdt"><h2>' + esc(p.label) + '</h2>' +
     '<p>' + (p.got ? 'Earned' : esc(p.need)) +
-      (p.target > 1 ? ' &middot; ' + (p.have || 0) + ' of ' + p.target + ' (' + pct + '%)' : '') +
+      (p.prog ? (p.got ? '' : ' &middot; ' + esc(p.prog) + ' (' + pct + '%)')
+        : p.target > 1 ? ' &middot; ' + (p.have || 0) + ' of ' + p.target + ' (' + pct + '%)' : '') +
       (p.note ? ' &middot; ' + p.note : '') + '</p>' +
+    (p.blurb ? '<p class="pdblurb">' + esc(p.blurb) + '</p>' : '') +
     '<div class="planstat"><i style="width:' + pct + '%" data-pct="' + pct + '%"></i></div>' +
     (p.got ? '<div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-act="sharepatch" data-v="' + esc(p.id) + '">Share this patch</button></div>' : '') +
     '</div></section>';
@@ -5639,7 +5720,7 @@ function renderPatches(listId){
   let ps = patches();
   if (listId){
     ps = ps.filter(p =>
-      p.kind === 'count' || p.kind === 'peak' || p.kind === 'set' ||   // always shown
+      p.kind === 'count' || p.kind === 'climb' || p.kind === 'peak' || p.kind === 'set' ||   // always shown
       (p.kind === 'book' && listId === 'wainwright') ||
       (p.kind === 'list' && p.listId === listId));
   }
@@ -5806,7 +5887,13 @@ function render(){
   /* Signed out is the normal state for most walkers, not a fault, so it gets a
      calm card on Home once rather than an orange bar above every page title.
      The header already says "Sign in". */
-  if (cloudReady && !cloudOn() && !ui.bannerHidden && tab === 'd' && !readInvite()){
+  const pend = tab === 'd' && fbUser ? readInvite() : null;
+  if (pend && pend.kind === 'profile'){
+    banner = '<div class="banner soft"><div><b>@' + esc(pend.handle) + ' invited you</b>' +
+      'Somebody sent you their WayMark link. Open it and you can follow them.</div>' +
+      '<button class="btn sm" data-act="invopen">Open</button>' +
+      '<button data-act="invdrop" aria-label="Dismiss">\u00d7</button></div>';
+  } else if (cloudReady && !cloudOn() && !ui.bannerHidden && tab === 'd' && !readInvite()){
     banner = '<div class="banner soft"><div><b>Your log lives on this device</b>Sign in and it follows you to every device. Friends keep their own.</div><button data-act="hidebanner" aria-label="Dismiss">×</button></div>';
   /* The two banners are dismissed separately. They used to share one flag, so
      waving away the sign-in nudge — which every signed-out walker does — also
@@ -11444,7 +11531,16 @@ document.addEventListener('click', async e => {
   else if (a === 'pfpvis'){ const d = profDraft(); if (d){ d.pvis = el.dataset.v; render(); } }
   else if (a === 'pfhideroute'){ const d = profDraft(); if (d){ d.hideRoute = !d.hideRoute; render(); } }
   else if (a === 'bannerclear'){ const d = profDraft(); if (d){ d.banner = ''; render(); } }
-  else if (a === 'pfshow'){ const d = profDraft(); if (d){ d.show = d.show === el.dataset.v ? '' : el.dataset.v; render(); } }
+  else if (a === 'pfshow'){
+    /* tapping places a patch at the back of the chosen ones; tapping it again
+       takes it out and everything behind it moves up a number */
+    const d = profDraft(); if (!d) return;
+    const o = Array.isArray(d.porder) ? d.porder : (d.porder = []);
+    const at = o.indexOf(el.dataset.v);
+    if (at >= 0) o.splice(at, 1); else o.push(el.dataset.v);
+    render();
+  }
+  else if (a === 'porderclear'){ const d = profDraft(); if (d){ d.porder = []; render(); } }
   else if (a === 'gadd'){ const d = profDraft(); if (d && d.gear.length < 12){ d.gear.push({c:'boots', n:'', note:''}); render(); const last = document.querySelectorAll('[data-act="gname"]'); if (last.length) last[last.length - 1].focus(); } }
   else if (a === 'gdel'){ const d = profDraft(); if (d){ d.gear.splice(+el.dataset.i, 1); render(); } }
   else if (a === 'profsave'){
@@ -11453,7 +11549,8 @@ document.addEventListener('click', async e => {
     if (name && niceName(name) !== fbName){ fbName = niceName(name); markDirty('name'); }
     prof.quote = String(d.quote || '').trim().slice(0, 140);
     prof.home = String(d.home || '').trim().slice(0, 40);
-    prof.show = d.show || '';
+    prof.porder = (Array.isArray(d.porder) ? d.porder : []).slice(0, 40);
+    prof.show = '';                       // the single showcase is gone; the order replaces it
     prof.gear = d.gear.filter(g => g.n && g.n.trim()).map(g => ({c: GEAR_BY[g.c] ? g.c : 'other', n: g.n.trim().slice(0, 60), note: String(g.note || '').trim().slice(0, 60)})).slice(0, 12);
     prof.banner = d.banner || ''; prof.bfy = Math.max(0, Math.min(100, +d.bfy || 50));
     prof.vis = PVIS.some(v => v.id === d.vis) ? d.vis : 'public';
@@ -11532,6 +11629,9 @@ document.addEventListener('click', async e => {
     ui.onboard = askSignin ? 'signin' : 'done';
     if (!askSignin) markOnboarded();
     touched(); render();
+    /* somebody who arrived on a link and was already signed in gets it here,
+       on the far side of the list picker */
+    if (!askSignin && fbUser) openInvite();
   }
   else if (a === 'skipsignin'){
     markOnboarded();
@@ -11563,6 +11663,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'invskip'){ closeInviteSheet(); }
   else if (a === 'invopen'){ if (fbUser) openInvite(); else fbSignIn(); }
+  else if (a === 'invdrop'){ clearInvite(); render(); }
   else if (a === 'invdrop'){ clearInvite(); render(); }
   else if (a === 'golist'){ ui.list = el.dataset.v; ui.region = ''; ui.q = ''; tab = 'h'; render(); window.scrollTo({top:0}); }
   else if (a === 'editroute'){ openEditor(el.dataset.id); }
@@ -12461,14 +12562,17 @@ async function fbStart(){
       fbName = fbName || fbUser.name;
       /* they answered the sign-in step by signing in */
       markOnboarded(); ui.onboard = 'done';
-      await fbSync(true);
-      await pullProf();
+      /* A first sync that fails must not strand somebody who arrived on a
+         shared link: the invitation is opened either way, and it keeps until
+         it is acted on. */
+      try{ await fbSync(true); }catch(e){}
+      try{ await pullProf(); }catch(e){}
       /* after the sync, not beside it: the counts on the card come from the
          log, and the log has only just arrived */
       pushPerson(); loadFriends(); loadFeed();
       /* somebody who arrived on a shared link goes where it points. Only once
          the welcome is behind them: the card should not land over the lists. */
-      if (!onboarding()) openInvite();
+      openInvite();
     }
     renderAccountBox(); render();
   });
@@ -14362,7 +14466,19 @@ function photoCard(){
 
 /* ---- the patches ----
    They only ever lived on their own tab, so a profile could say "7 patches"
-   and show none of them. The showcase leads and the row scrolls sideways. */
+   and show none of them. The row scrolls sideways, in the walker's own order. */
+/* An order the walker has set, or the old single showcase carried over, or
+   nothing — in which case the board's own order stands. */
+function patchOrder(){
+  if (Array.isArray(prof.porder)) return prof.porder;
+  return prof.show ? [prof.show] : [];
+}
+/* Whatever has been placed, in the order it was placed, then everything else
+   as the board already had it. Placing three patches is a complete answer. */
+function orderedPatches(got, ord){
+  const o = (ord || patchOrder()).filter(id => got.some(p => p.id === id));
+  return o.map(id => got.find(p => p.id === id)).concat(got.filter(p => !o.includes(p.id)));
+}
 function patchCard(){
   const all = patches(), got = all.filter(p => p.got);
   if (!got.length){
@@ -14372,27 +14488,22 @@ function patchCard(){
       (np ? 'None yet. The first is <b>' + esc(String(np.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b>.'
           : 'Mark a hill and the first one is yours.') + '</p>');
   }
-  const showId = prof.show || '';
-  const show = showId ? all.find(x => x.id === showId) : null;
-  const ordered = got.slice().sort((a, b) => (b.id === showId) - (a.id === showId));
-  return pcard('award', 'Patches', got.length + ' of ' + all.length, ['See the board', 'a'],
+  /* while the editor is open the row follows the draft, so tapping a patch
+     below visibly moves it up here */
+  const draft = ui.profEdit && ui.pDraftProf && Array.isArray(ui.pDraftProf.porder) ? ui.pDraftProf.porder : null;
+  const ordered = orderedPatches(got, draft);
+  /* the handle sits in the head, where it is read without scrolling the row */
+  const meta = got.length + ' of ' + all.length +
+    (ui.profEdit || got.length < 2 ? '' :
+      '<button class="pcorder" data-act="pickshow" title="Choose the order your patches sit in">' +
+      ti('arrows-sort') + 'Order</button>');
+  return pcard('award', 'Patches', meta, ['See the board', 'a'],
     '<div class="prow">' + ordered.map(p =>
-      '<button class="pchip' + (p.id === showId ? ' shown' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '"' +
+      '<button class="pchip" data-act="openpatch" data-v="' + esc(p.id) + '"' +
       ' title="' + esc(String(p.label).replace(/&middot;/g, '·')) + '">' +
       '<span class="patch got">' + patchDisc({id:p.id, label:p.label, icon:p.icon}) + '</span>' +
-      '<i>' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</i>' +
-      '<em class="flag">Showcase</em></button>').join('') +
-    '</div>' +
-    /* Choosing the one you are proudest of was a text link nobody saw. It is
-       a row of its own now, in the marked green once you have chosen and as a
-       dashed invitation until you do. */
-    (ui.profEdit ? '' :
-      '<div class="pshow' + (show ? '' : ' none') + '">' + (show
-        ? '<span class="pshowtx">Showcase patch<b>' + esc(String(show.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b></span>' +
-          '<button class="btn sm ghost" data-act="pickshow">Change</button>'
-        : '<span class="pshowtx">Pin the one you are proudest of to the top of your profile.</span>' +
-          '<button class="btn sm solid" data-act="pickshow">' + ti('star') + 'Choose a patch</button>') +
-      '</div>'));
+      '<i>' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</i></button>').join('') +
+    '</div>');
 }
 
 
@@ -14409,7 +14520,7 @@ function gearHTML(pp, mine){
 }
 function renderMyProfile(){
   const pp = {...myPerson(), ...profPublic()};
-  if (ui.profEdit && ui.pDraftProf){ const d = ui.pDraftProf; Object.assign(pp, {banner:d.banner, bfy:d.bfy, quote:d.quote, show:d.show, gear:d.gear, name:d.name || pp.name}); }
+  if (ui.profEdit && ui.pDraftProf){ const d = ui.pDraftProf; Object.assign(pp, {banner:d.banner, bfy:d.bfy, quote:d.quote, porder:d.porder, gear:d.gear, name:d.name || pp.name}); }
   let s = profileHeader(pp, {mine:true});
   if (ui.profEdit) s += profileEditor();
 
@@ -14435,7 +14546,7 @@ function renderMyProfile(){
   return s;
 }
 function profileEditor(){
-  const d = ui.pDraftProf || (ui.pDraftProf = {name: fbName || fbUser.name || '', quote: prof.quote || '', show: prof.show || '', home: prof.home || '',
+  const d = ui.pDraftProf || (ui.pDraftProf = {name: fbName || fbUser.name || '', quote: prof.quote || '', porder: patchOrder().slice(), home: prof.home || '',
     gear: (prof.gear || []).map(g => ({...g})), banner: prof.banner || '', bfy: +prof.bfy || 50,
     vis: prof.vis || 'public', pvis: prof.pvis || 'public', hideRoute: !!prof.hideRoute});
   const earned = patches().filter(p => p.got);
@@ -14460,9 +14571,20 @@ function profileEditor(){
     '<p class="mapnote" style="margin:6px 0 0">The default when you mark a summit or share. You can change it on each post.</p></div>';
   s += '<div class="togglerow" style="margin:0"><div class="tinfo"><b>Keep route shapes private</b><span>Shared routes show distance and summits but never the line of the walk.</span></div>' +
     '<button class="sw" data-act="pfhideroute" aria-pressed="' + !!d.hideRoute + '" aria-label="Keep route shapes private"></button></div>';
-  s += '<div><label>Showcase patch</label>' + (earned.length
-    ? '<div class="showpick">' + earned.map(p => '<button class="patch got' + (d.show === p.id ? ' picked' : '') + '" data-act="pfshow" data-v="' + esc(p.id) + '" aria-pressed="' + (d.show === p.id) + '" title="' + esc(String(p.label).replace(/&middot;/g, '·')) + '">' + patchDisc(p) + '</button>').join('') + '</div>'
-    : '<p class="mapnote" style="margin:0">Earn a patch and you can pin it here.</p>') + '</div>';
+  const ord = Array.isArray(d.porder) ? d.porder : (d.porder = patchOrder().slice());
+  s += '<div><label>Patch order</label>' + (earned.length > 1
+    ? '<p class="mapnote" style="margin:0 0 9px">Tap them in the order you want them to sit on your profile. Anything you leave alone follows on behind.</p>' +
+      '<div class="showpick">' + orderedPatches(earned, ord).map(p => {
+        const at = ord.indexOf(p.id);
+        return '<button class="patch got' + (at >= 0 ? ' picked' : '') + '" data-act="pfshow" data-v="' + esc(p.id) + '"' +
+          ' aria-pressed="' + (at >= 0) + '" title="' + esc(String(p.label).replace(/&middot;/g, '·')) + '">' +
+          patchDisc(p) + '<i class="spl">' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</i>' +
+          (at >= 0 ? '<em class="ordn">' + (at + 1) + '</em>' : '') + '</button>';
+      }).join('') + '</div>' +
+      (ord.length ? '<button class="linkbtn" style="padding:7px 0 0" data-act="porderclear">Clear the order</button>' : '')
+    : earned.length === 1
+      ? '<p class="mapnote" style="margin:0">One patch so far. Earn another and you can put them in the order you want.</p>'
+      : '<p class="mapnote" style="margin:0">Earn a patch and it turns up on your profile.</p>') + '</div>';
   s += '<div><label>Your kit</label><div class="gearedit">';
   d.gear.forEach((g, i) => {
     s += '<div class="grow"><select data-act="gcat" data-i="' + i + '" aria-label="Category">' +
@@ -15112,6 +15234,7 @@ if (state.enabled.length && !state.enabled.includes(ui.list)) ui.list = state.en
 if (seenOnboard() || state.enabled.length) ui.onboard = 'done';
 seedSeen();
 render();
+introEverest();
 cloudReady = true;
 fbStart();
 
