@@ -1849,11 +1849,17 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 .chwarn svg{flex:none; width:17px; height:17px; margin-top:1px; color:var(--accent-text)}
 /* the route drawn as its own skyline */
-.chprof{display:block; width:100%; height:84px; margin:0 0 10px}
+.chprofwrap{position:relative; margin:0 0 10px}
+/* a fixed 84px against a 1,150px column is a 13:1 box, and the ridge flattens
+   into a straight line. The height grows with the screen so the shape holds. */
+.chprof{display:block; width:100%; height:clamp(84px, 9vw, 140px)}
 .cp-fill{fill:color-mix(in srgb, var(--accent) 14%, transparent); stroke:none}
-.cp-line{fill:none; stroke:var(--accent); stroke-width:1.6; stroke-linejoin:round}
-.cp-dot{fill:var(--surface); stroke:var(--line); stroke-width:1.6}
-.cp-dot.on{fill:var(--accent); stroke:var(--accent)}
+.cp-line{fill:none; stroke:var(--accent); stroke-width:1.8; stroke-linejoin:round; stroke-linecap:round}
+.cp-dot{
+  position:absolute; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; border-radius:99px;
+  background:var(--surface); border:1.6px solid var(--line); box-sizing:border-box;
+}
+.cp-dot.on{background:var(--accent); border-color:var(--accent)}
 /* the summits, in the order the route walks them */
 .chtops{list-style:none; margin:0 0 14px; padding:0 12px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
 .chtops li{display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--line-soft); color:var(--ink-3)}
@@ -5990,14 +5996,22 @@ function routeProfile(tops){
   const x = i => 10 + (i / (tops.length - 1)) * (W - 20);
   const y = h => H - 14 - ((h - lo) / Math.max(1, mx - lo)) * (H - 30);
   const line = tops.map((h, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(h.h).toFixed(1)).join(' ');
-  let s = '<svg class="chprof" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">';
+  /* The line and the fill stretch to whatever width the column is, which is
+     what you want from terrain. The summits do not: a circle drawn inside a
+     stretched viewBox comes out an ellipse, and on a desktop the dots were
+     eggs. They are laid over the top in percentages instead, so they stay
+     round at any width, and the stroke is told not to scale with the box. */
+  let s = '<div class="chprofwrap">';
+  s += '<svg class="chprof" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">';
   s += '<path class="cp-fill" d="' + line + ' L' + x(tops.length - 1).toFixed(1) + ' ' + H + ' L' + x(0).toFixed(1) + ' ' + H + 'Z"/>';
-  s += '<path class="cp-line" d="' + line + '"/>';
+  s += '<path class="cp-line" vector-effect="non-scaling-stroke" d="' + line + '"/>';
+  s += '</svg>';
   tops.forEach((h, i) => {
-    s += '<circle class="cp-dot' + (isBagged(h.k) ? ' on' : '') + '" cx="' + x(i).toFixed(1) +
-         '" cy="' + y(h.h).toFixed(1) + '" r="3.4"/>';
+    s += '<i class="cp-dot' + (isBagged(h.k) ? ' on' : '') + '"' +
+         ' style="left:' + (x(i) / W * 100).toFixed(2) + '%; top:' + (y(h.h) / H * 100).toFixed(2) + '%"' +
+         ' title="' + esc(hillName(h)) + '"></i>';
   });
-  return s + '</svg>';
+  return s + '</div>';
 }
 
 /* ---------- challenges ----------
