@@ -891,6 +891,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .dnote{margin:10px 0 0; font-size:14px; line-height:1.6; color:var(--ink-2)}
 .dnote b{display:block; font-family:var(--font-ui); font-size:10px;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:3px}
+.dday.justsaved{animation:jsaved 2.2s ease}
+@keyframes jsaved{
+  0%, 62%{ box-shadow:0 0 0 3px var(--accent); border-radius:10px }
+  100%{ box-shadow:0 0 0 3px transparent; border-radius:10px }
+}
+@media (prefers-reduced-motion: reduce){ .dday.justsaved{animation:none} }
 .dentry{ margin-top:12px; border-radius:0 10px 10px 0 }
 .dentry h3{ margin:0 0 5px; font-family:var(--font-display); color:var(--ink) }
 .dentry p{ margin:0; white-space:pre-wrap }
@@ -1975,6 +1981,16 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 }
 /* Remove only exists once Edit is on: a record of twelve good days should not
    carry twelve delete buttons. */
+.ascrow.ed{flex-wrap:wrap; padding:9px 10px}
+.ascrow.ed .dategroup{flex:1 1 210px; min-width:0}
+.ascrow.ed .dsel{font-size:14px; padding:7px 5px 7px 8px}
+/* "Today" belongs on a date being set for the first time, not on a row that
+   already has one — and on a phone it was squeezing the month and the year
+   down to "Septe" and "202". */
+.ascrow.ed .dtoday{display:none}
+.ascrow.ed .dsel.dd{flex:0 1 74px}
+.ascrow.ed .dsel.dm{flex:1 1 110px}
+.ascrow.ed .dsel.dy{flex:0 1 88px}
 .ascrow.ed .ascago{margin-left:auto}
 .ascrow .ascdel{
   display:grid; place-items:center; width:38px; height:38px; flex:none; margin:-6px -7px -6px 2px;
@@ -4094,12 +4110,24 @@ function mergeRec(x, y){
   if (!y) return x;
   const win = (y.t || 0) > (x.t || 0) ? y : x;
   if (!win.done) return win;
+  /* Dates taken off the record are remembered, because a union can never
+     express a deletion: without this the other copy puts a removed ascent
+     straight back, and because the row's date follows the newest ascent the
+     date is dragged forward to it too. */
+  const gone = new Set([
+    ...(Array.isArray(x.ascX) ? x.ascX : []),
+    ...(Array.isArray(y.ascX) ? y.ascX : [])
+  ].filter(Boolean));
+  const X = gone.size ? [...gone].sort().slice(-60) : undefined;
   const all = [...new Set([
     ...(Array.isArray(x.asc) ? x.asc : []),
     ...(Array.isArray(y.asc) ? y.asc : [])
-  ].filter(Boolean))].sort();
-  if (all.length < 2) return win;
-  return {...win, asc:all, date:all[all.length - 1]};
+  ].filter(Boolean))].filter(d => !gone.has(d)).sort();
+  /* the old shortcut handed back the winner untouched, which would return its
+     stale list along with the very date that had just been deleted */
+  if (!all.length) return X ? {...win, ascX:X} : win;
+  if (all.length < 2) return {...win, asc:undefined, ascX:X, date:all[0]};
+  return {...win, asc:all, ascX:X, date:all[all.length - 1]};
 }
 
 function merge(a, b){
@@ -4579,6 +4607,11 @@ function applyDate(el, value){
     render();
     return;
   }
+  /* One ascent in the list, moved to another day. Edit used to offer a Remove
+     and nothing else, so correcting a date meant deleting the day and adding
+     it back — and adding one back starts at today, which is the very date you
+     were trying to get away from. */
+  if (el.dataset.ascd){ moveAscent(el.dataset.k, el.dataset.ascd, value); return; }
   const k = el.dataset.k; if (!k) return;
   const c = rec(k);
   /* Clearing the date on a hill that was never marked leaves nothing worth
@@ -4644,7 +4677,11 @@ async function marking(fn){
      route read as one day out rather than ten notifications. */
   const fresh = Object.keys(state.bagged).filter(k => isBagged(k) && !before.has(k));
   if (fresh.length) postSummits(fresh, (state.bagged[fresh[0]] || {}).date);
-  const won = newlyEarned();
+  /* seenWins is the record of what has already been shown. newlyEarned() only
+     knows about this one action, so a patch lost and won back came round as a
+     fresh popup — which Everest does easily, hanging as it does on a total
+     that moves whenever a summit or an ascent does. */
+  const won = newlyEarned().filter(p => !(seenWins && seenWins.has(p.id)));
   if (won.length){ celebrate(won); postPatches(won); }
 }
 /* A patch earned is worth a word to your friends. */
@@ -6120,8 +6157,10 @@ function hillRow(h, listId){
           const y = (dateParts(d).y || '');
           if (all && y && y !== year){ year = y; s += '<p class="ascyear">' + esc(y) + '</p>'; }
           s += '<div class="ascrow' + (editing ? ' ed' : '') + '">' +
-               '<span class="ascd">' + esc(prettyDate(d)) + '</span>' +
-               '<span class="ascago">' + esc(agoWords(d)) + '</span>' +
+               (editing
+                 ? dateFields(d, 'data-k="' + esc(h.k) + '" data-ascd="' + esc(d) + '"')
+                 : '<span class="ascd">' + esc(prettyDate(d)) + '</span>' +
+                   '<span class="ascago">' + esc(agoWords(d)) + '</span>') +
                (editing ? '<button class="ascdel" data-act="ascdel" data-k="' + esc(h.k) + '" data-d="' + esc(d) + '"' +
                  ' aria-label="Remove the ' + esc(prettyDate(d)) + ' ascent">' + ti('x') + '</button>' : '') +
                '</div>';
@@ -6237,11 +6276,15 @@ function agoWords(iso){
   const p = dateParts(iso);
   if (!p.y) return '';
   const then = new Date(+p.y, (+p.mo || 1) - 1, +p.d || 1);
-  const days = Math.round((Date.now() - then.getTime()) / 86400000);
+  /* Both ends floored to midnight. Measuring from the current moment made this
+     a count of elapsed hours wearing a day's clothes, so from lunchtime onwards
+     a hill walked this morning was reported as "yesterday". */
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  const days = Math.round((t0.getTime() - then.getTime()) / 86400000);
   if (!isFinite(days)) return '';
   if (days < 0) return 'ahead of today';
-  if (days < 1) return 'today';
-  if (days < 2) return 'yesterday';
+  if (days === 0) return 'today';
+  if (days === 1) return 'yesterday';
   if (days < 14) return days + ' days ago';
   if (days < 60) return Math.round(days / 7) + ' weeks ago';
   /* months all the way to two years: "about a year ago" was being said about
@@ -6274,19 +6317,41 @@ function addAscent(key, date, v){
   const list = ascents(key).filter(Boolean);
   if (list.includes(d)) return false;
   list.push(d); list.sort();
+  /* putting a day back clears its headstone, so the next sync does not take
+     it straight out again */
+  const gone = (Array.isArray(c.ascX) ? c.ascX : []).filter(z => z !== d);
   state.bagged[key] = {...c, st:'done', done:true, asc:list,
+                       ascX: gone.length ? gone : undefined,
                        date:list[list.length - 1],
                        v: v || c.v, t:now()};
   touched();
   return true;
 }
+/* Put one visit on a different day, keeping the rest of the record as it is. */
+function moveAscent(key, from, to){
+  if (!to || to === from) return;
+  const c = rec(key);
+  const list = ascents(key).filter(Boolean);
+  if (list.includes(to)){ toast('That day is already on the record.'); render(); return; }
+  const next = list.filter(d => d !== from).concat(to).sort();
+  /* the day it came off is remembered and the day it moved to is forgiven, so
+     neither the old copy nor a stale headstone can undo this on the next sync */
+  const gone = [...new Set([...(Array.isArray(c.ascX) ? c.ascX : []), from].filter(Boolean))]
+    .filter(z => z !== to).sort().slice(-60);
+  state.bagged[key] = {...c, asc:next, ascX: gone.length ? gone : undefined,
+                       date:next[next.length - 1], t:now()};
+  touched(); render();
+  if (mapReady) drawMarkers();
+}
 /* Take one visit back off. The last one standing falls back to the plain
    single-date shape rather than leaving a one-item list behind. */
 function dropAscent(key, date){
-  const list = ascents(key).filter(Boolean).filter(d => d !== date);
   const c = rec(key);
-  if (!list.length){ state.bagged[key] = {...c, asc:undefined, t:now()}; touched(); render(); return; }
-  state.bagged[key] = {...c, asc:list, date:list[list.length - 1], t:now()};
+  const list = ascents(key).filter(Boolean).filter(d => d !== date);
+  /* written down so a sync cannot put it back again — see mergeRec */
+  const gone = [...new Set([...(Array.isArray(c.ascX) ? c.ascX : []), date].filter(Boolean))].sort().slice(-60);
+  if (!list.length){ state.bagged[key] = {...c, asc:undefined, ascX:gone, t:now()}; touched(); render(); return; }
+  state.bagged[key] = {...c, asc:list, ascX:gone, date:list[list.length - 1], t:now()};
   touched(); render();
 }
 /* the badge: nothing at all on a hill walked once */
@@ -7210,6 +7275,22 @@ function diaryDays(){
   return Object.values(days).sort((a, b) => b.date.localeCompare(a.date));
 }
 
+/* Take the page to a day in the journal and light it up for a moment. The
+   journal is newest first, so an entry written up weeks later lands well down
+   the page: without this it looks as though nothing was saved. */
+function showJournalDay(date){
+  requestAnimationFrame(() => {
+    const el = document.querySelector('.dday[data-jday="' + CSS.escape(date) + '"]');
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 84;
+    window.scrollTo({top: Math.max(0, top), behavior:'smooth'});
+    el.classList.remove('justsaved');
+    void el.offsetWidth;                        // restart the animation
+    el.classList.add('justsaved');
+    setTimeout(() => el.classList.remove('justsaved'), 2400);
+  });
+}
+
 /* Where a day's walking was, so the entry can say more than a date. */
 function dayWhere(d){
   const areas = new Set();
@@ -7316,7 +7397,7 @@ function renderDiary(){
 
   for (const d of days){
     const where = dayWhere(d);
-    html += '<article class="dday">';
+    html += '<article class="dday" data-jday="' + esc(d.date) + '">';
     html += '<div class="ddate"><b>' + esc(prettyDate(d.date)) + '</b>' +
       (where ? '<span>' + esc(where) + '</span>' : '') + '</div>';
 
@@ -11413,6 +11494,7 @@ document.addEventListener('click', async e => {
     }
     ui.diaryForm = false; ui.dDraft = null;
     touched(); render(); toast('Entry saved.');
+    showJournalDay(d.date);
   }
   else if (a === 'deldiaryphoto'){
     const ok = await confirmAsk({title:'Delete this photo?', body:'It goes from the entry and from this device.', yes:'Delete'});
