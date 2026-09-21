@@ -4269,6 +4269,16 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 .inrow.bug .intag{color:var(--accent-text)}
 .inrow .innote, .inrow .indev{font-size:12.5px; color:var(--ink-2)}
 .inrow .btnrow{margin:6px 0 0}
+
+.pstrava{margin:6px 0 0; font-size:13.5px}
+.pstrava a{color:#FC5200; font-weight:700; text-decoration:underline; text-underline-offset:2px}
+/* a close button you can actually see */
+.sthead .xbtn{width:40px; height:40px; flex:none; border-radius:50%; border:1px solid var(--line); background:var(--surface); color:var(--ink); display:grid; place-items:center; cursor:pointer; box-shadow:var(--shadow-1)}
+.sthead .xbtn:hover{background:var(--surface-2)}
+.sthead .xbtn svg{width:20px; height:20px; stroke-width:2.2}
+.stgps{display:flex; gap:8px; align-items:flex-start; color:var(--done); font-weight:600}
+.stgps svg{width:18px; height:18px; flex:none; stroke-width:2.4; margin-top:1px}
+.stjournal{display:flex; flex-wrap:wrap; align-items:center; gap:10px}
 @media (prefers-reduced-motion: reduce){
   .seg button, .lchip, .chip, .bnav .navbtn .ni, .top .iconbtn{transition:none}
 }
@@ -4768,7 +4778,7 @@ function normalise(s){
     }
     /* Carry the GPS verification through. Leaving it off this list quietly
        deleted every "verified at the summit" badge on reload and on sync. */
-    if (v.v && v.v.t) next.v = {t:v.v.t, d:v.v.d, acc:v.v.acc};
+    if (v.v && v.v.t){ next.v = {t:v.v.t, d:v.v.d, acc:v.v.acc}; if (v.v.src) next.v.src = v.v.src; }
     out.bagged[nk] = !cur || next.t >= cur.t ? next : cur;
   }
   for (const p of ((s && s.plans) || [])){
@@ -4791,10 +4801,15 @@ function normalise(s){
     if (!d || !d.id) continue;
     /* photos have to be carried, exactly like the ones on a summit record —
        anything not named here is deleted on every load and every sync. */
-    out.diary.push({id:d.id, date:d.date||'', title:d.title||'', text:d.text||'',
+    const e = {id:d.id, date:d.date||'', title:d.title||'', text:d.text||'',
                     photos:Array.isArray(d.photos) ? d.photos : [],
                     shared:d.shared || 0,
-                    deleted:!!d.deleted, t:d.t||0});
+                    deleted:!!d.deleted, t:d.t||0};
+    /* a walk brought in from Strava: kept whole, or it vanished on every reload and sync */
+    if (d.strava && d.strava.id) e.strava = {id:String(d.strava.id), name:d.strava.name||'', dist:+d.strava.dist||0, mins:+d.strava.mins||0,
+      elapsed:+d.strava.elapsed||0, asc:+d.strava.asc||0, trk:Array.isArray(d.strava.trk) ? d.strava.trk : [],
+      hills:Array.isArray(d.strava.hills) ? d.strava.hills : [], at:d.strava.at||0};
+    out.diary.push(e);
   }
   if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id]);
   out.groups = (s && Array.isArray(s.groups)) ? s.groups.filter(g => g && g.code) : [];
@@ -6937,7 +6952,33 @@ function onboarding(){
   return ui.onboard === 'signin' && fbConfigured() && !fbUser && !seenOnboard();
 }
 
+/* Pull down to refresh, or a reload, lands you back where you were: the tab,
+   the Hikers section, the profile you had open. Only for this browser tab, and
+   never over a link that asked for somewhere in particular. */
+const VIEW_KEY = 'waymark.view';
+var viewRestored = false;
+function restoreView(){
+  viewRestored = true;
+  if (location.hash || /[?&](code|error|state)=/.test(location.search) || !/^\/(index\.html)?$/.test(location.pathname)) return;
+  let v = null; try{ v = JSON.parse(sessionStorage.getItem(VIEW_KEY) || 'null'); }catch(e){}
+  if (!v || !v.tab || Date.now() - (v.at || 0) > 6 * 3600e3) return;
+  tab = v.tab;
+  if (v.hikerTab) ui.hikerTab = v.hikerTab;
+  if (v.peopleView) ui.peopleView = v.peopleView;
+  if (v.profTab) ui.profTab = v.profTab;
+  if (v.patchView) ui.patchView = v.patchView;
+  if (v.friend) setTimeout(() => { try{ friendOpen = {code: v.friendCode || '', uid: v.friend}; render(); }catch(e){} }, 0);
+  if (v.y) setTimeout(() => window.scrollTo(0, v.y), 350);
+}
+function saveView(){
+  let fo = null; try{ fo = friendOpen; }catch(e){}
+  try{ sessionStorage.setItem(VIEW_KEY, JSON.stringify({tab, hikerTab: ui.hikerTab || '', peopleView: ui.peopleView || '', profTab: ui.profTab || '',
+    patchView: ui.patchView || '', friend: fo && fo.uid || '', friendCode: fo && fo.code || '', y: Math.round(window.scrollY || 0), at: Date.now()})); }catch(e){}
+}
+addEventListener('pagehide', saveView);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveView(); });
 function render(){
+  if (!viewRestored) restoreView();
   if (FB && fbUser && !notesUnsub && !notesFailed) watchNotes();
   try{ setTimeout(paintSync, 0); }catch(e){}
   /* 'f' was the old Friends tab; anything still pointing there lands on Hikers.
@@ -6948,6 +6989,7 @@ function render(){
   supSyncUrl();
   paintNav();
   document.documentElement.dataset.screen = tab;   /* not data-tab: clicks look for [data-tab] */
+  if (viewRestored) setTimeout(saveView, 0);
 
   let banner = '';
   /* Signed out is the normal state for most walkers, not a fault, so it gets a
@@ -8434,7 +8476,7 @@ function renderDiary(){
     : '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button>' +
-    (stravaCfg() && !ui.diaryForm && stravaOn() ? '<button class="btn ghost" data-act="stopen">' + ti('download') + 'Bring in from Strava</button>' : '') +
+    (stravaCfg() && !ui.diaryForm && stravaOn() ? '<button class="btn ghost" data-act="stopen">' + ti('download') + 'Bring in from Strava</button>' + stravaPowered() : '') +
     '</div>' +
     (stravaCfg() && !ui.diaryForm && !stravaOn() ? '<div class="stjoin"><span>Bring your Strava walks into your journal and mark the summits they passed.</span>' + stravaConnectBtn() + '</div>' : '');
 
@@ -12431,7 +12473,7 @@ document.addEventListener('click', async e => {
       title: e.shared ? 'Share this entry again?' : 'Share this entry?',
       body: 'Your friends will see ' + (e.title ? '“' + e.title + '”' : 'this entry') +
             ', the words you wrote' + (n ? ' and ' + (n === 1 ? 'the photo' : 'all ' + n + ' photos') : '') +
-            '. Nothing else from your journal is shared.',
+            (e.strava ? ', the summits, and a “View on Strava” link to the walk. The route, times and stats stay in your journal: Strava only lets apps show them to you.' : '. Nothing else from your journal is shared.'),
       yes: 'Share'
     });
     if (!ok) return;
@@ -13635,6 +13677,7 @@ async function fbPull(){
   if (typeof d.avatar === 'string' && !fbDirty.has('avatar')) fbAvatar = d.avatar;
   if (typeof d.handle === 'string' && !fbDirty.has('handle')) fbHandle = d.handle;
   if (typeof d.detail === 'boolean' && !fbDirty.has('detail')) fbDetail = d.detail;
+  if (d.strava) stravaFromCloud(d.strava);
   fbPulled = true;
   try{
     const parsed = normalise(JSON.parse(d.log || '{}'));
@@ -13657,7 +13700,8 @@ async function fbPush(){
     log: payload, name: niceName(fbName || (fbUser && fbUser.name)) || 'Walker',
     avatar: fbAvatar || '', handle: fbHandle || '',
     detail: !!fbDetail, groups: myGroups(),
-    enabled: state.enabled, enabledT: state.enabledT || 0, updatedAt: Date.now()
+    enabled: state.enabled, enabledT: state.enabledT || 0, updatedAt: Date.now(),
+    strava: stravaRec() || null
   });
 }
 async function fbGetPhoto(id){
@@ -13677,6 +13721,10 @@ async function fbPutPhoto(id, blob){
   await FB.setDoc(photoRef(id), {d:b64, t:Date.now()});
 }
 let fbSyncing = false;
+var syncFails = 0;
+/* back online, or back to the app: catch up straight away */
+addEventListener('online', () => { if (FB && fbUser) setTimeout(() => fbSync(), 800); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && FB && fbUser && syncState !== 'synced') setTimeout(() => fbSync(), 800); });
 async function fbSync(initial){
   if (!FB || !fbUser || fbSyncing) return;
   fbSyncing = true;
@@ -13720,14 +13768,25 @@ async function fbSync(initial){
     await fbPush();
     await pushGroups();
     fbDirty.clear();
-    cloudSig = sig(state); lastSynced = now(); syncState = 'synced'; syncErr = '';
+    cloudSig = sig(state); lastSynced = now(); syncState = 'synced'; syncErr = ''; syncFails = 0;
     saveLocal();
     if (pending.length > 4) scheduleSync(1500);
   }catch(e){
-    syncErr = String((e && e.message) || e);
-    syncState = 'error';
+    /* "The client is offline" is usually a blip: a phone waking up, a tab coming
+       back from the background, a moment between networks. Wait quietly and try
+       again, and only raise the alarm if it keeps happening while online. */
+    const msg = String((e && (e.code || e.message)) || e);
+    const blip = !navigator.onLine || /offline|unavailable|network|deadline|timeout|failed to fetch/i.test(msg);
+    syncFails = (syncFails || 0) + 1;
     clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => fbSync(), 25000);
+    if (blip && syncFails < 4){
+      syncState = 'pending'; syncErr = '';
+      syncTimer = setTimeout(() => fbSync(), Math.min(60000, 6000 * syncFails));
+    } else {
+      syncState = 'error';
+      syncErr = blip ? 'WayMark can’t reach the cloud from here at the moment' : String((e && e.message) || e);
+      syncTimer = setTimeout(() => fbSync(), 30000);
+    }
   }
   fbSyncing = false;
   render();
@@ -14525,7 +14584,9 @@ function mapStrip(hs, p){
   const os = osUsable(), key = encodeURIComponent(osKey());
   const otm = (x, y) => 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
   let tiles = '';
-  for (let dx = -2; dx <= 4; dx++) for (let dy = -1; dy <= 1; dy++){
+  const skey = stripKey(os, z, cx, cy), baked = stripMem.get(skey);
+  if (baked) tiles = '<img class="mst msbake" alt="" src="' + baked + '" style="left:' + STRIP_BOX.x + 'px;top:' + STRIP_BOX.y + 'px;width:' + STRIP_BOX.w + 'px;height:' + STRIP_BOX.h + 'px">';
+  else for (let dx = -2; dx <= 4; dx++) for (let dy = -1; dy <= 1; dy++){
     const x = tx0 + dx, y = ty0 + dy;
     const src = os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key : otm(x, y);
     tiles += '<img class="mst" loading="lazy" decoding="async" alt="" src="' + src + '"' +
@@ -14547,10 +14608,79 @@ function mapStrip(hs, p){
   }).join('');
   const top = pts.reduce((a, b) => b.h > a.h ? b : a, pts[0]);
   const names = pts.map(h => hillName(h));
-  return '<div class="pmedia mstrip' + (multi ? ' multi' : '') + '" role="img" aria-label="Map: ' + esc(names.join(', ')) + '"><div class="msc">' + tiles + pins + '</div>' +
+  return '<div class="pmedia mstrip' + (multi ? ' multi' : '') + '" role="img" aria-label="Map: ' + esc(names.join(', ')) + '"><div class="msc"' +
+    (baked || stripNo.has(skey) ? '' : ' data-bake="' + esc(JSON.stringify({k:skey, z, cx, cy, os})) + '"') + '>' + tiles + pins + '</div>' +
     '<div class="mswash"></div>' + (multi ? summitList(pts, p && p.date, gpsOn) : summitStampSVG(top, 1, p && p.date) + (gpsOn(top) ? gpsSeal() : '')) +
     '<span class="msattr">' + (os ? '© Crown copyright, OS' : '© OpenStreetMap, OpenTopoMap') + '</span></div>';
 }
+/* Post maps as pictures. The first time a post's map is on screen its map
+   squares are drawn once into a single picture and kept on this device, so
+   the feed shows it instantly afterwards instead of rebuilding it from tiles
+   on every refresh. Nothing is uploaded: each device makes its own. If the map
+   server will not let the squares be drawn (no CORS), the live tiles stay. */
+const STRIP_BOX = {x:-576, y:-112, w:1280, h:224};   // covers the widest strip around the anchor
+const STRIP_CACHE = 'waymark-strips', STRIP_V = 'v1';
+const stripMem = new Map(), stripNo = new Set();
+let stripQ = Promise.resolve(), stripIO = null, stripMO = null;
+function stripKey(os, z, cx, cy){ return STRIP_V + '/' + (os ? 'os' : 'otm') + '/' + z + '/' + Math.round(cx) + '/' + Math.round(cy); }
+const stripURL = k => 'https://waymark.local/strip/' + k + '.jpg';
+function stripWatch(){
+  if (stripMO || !('IntersectionObserver' in window) || !('caches' in window)) return;
+  stripIO = new IntersectionObserver(es => es.forEach(en => {
+    if (!en.isIntersecting) return;
+    stripIO.unobserve(en.target);
+    stripQ = stripQ.then(() => bakeStrip(en.target)).catch(() => {});
+  }), {rootMargin:'300px 0px'});
+  let pend = false;
+  const scan = () => { pend = false; document.querySelectorAll('.msc[data-bake]:not([data-obs])').forEach(el => { el.dataset.obs = '1'; stripIO.observe(el); }); };
+  stripMO = new MutationObserver(() => { if (!pend){ pend = true; requestAnimationFrame(scan); } });
+  stripMO.observe(document.body, {childList:true, subtree:true});
+  scan();
+}
+function stripSwap(el, url){
+  if (!el.isConnected) return;
+  const im = new Image(); im.alt = ''; im.className = 'mst msbake';
+  Object.assign(im.style, {left:STRIP_BOX.x + 'px', top:STRIP_BOX.y + 'px', width:STRIP_BOX.w + 'px', height:STRIP_BOX.h + 'px'});
+  im.src = url;
+  (im.decode ? im.decode() : Promise.resolve()).then(() => {
+    if (!el.isConnected) return;
+    el.querySelectorAll('img.mst').forEach(t => t.remove());
+    el.prepend(im); el.removeAttribute('data-bake');
+  }).catch(() => {});
+}
+async function bakeStrip(el){
+  let b; try{ b = JSON.parse(el.dataset.bake); }catch(e){ return; }
+  if (stripMem.has(b.k)) return stripSwap(el, stripMem.get(b.k));
+  if (stripNo.has(b.k)) return;
+  const c = await caches.open(STRIP_CACHE);
+  const hit = await c.match(stripURL(b.k));
+  if (hit){ const u = URL.createObjectURL(await hit.blob()); stripMem.set(b.k, u); return stripSwap(el, u); }
+  const cv = document.createElement('canvas'); cv.width = STRIP_BOX.w; cv.height = STRIP_BOX.h;
+  const g = cv.getContext('2d'); g.fillStyle = '#EEE9DF'; g.fillRect(0, 0, cv.width, cv.height);
+  const key = encodeURIComponent(osKey()), z = b.z;
+  const x0 = Math.floor((b.cx + STRIP_BOX.x) / 256), x1 = Math.floor((b.cx + STRIP_BOX.x + STRIP_BOX.w) / 256);
+  const y0 = Math.floor((b.cy + STRIP_BOX.y) / 256), y1 = Math.floor((b.cy + STRIP_BOX.y + STRIP_BOX.h) / 256);
+  const jobs = [];
+  for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++){
+    const src = b.os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key
+      : 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
+    jobs.push(fetch(src, {mode:'cors'}).then(r => { if (!r.ok) throw new Error('tile ' + r.status); return r.blob(); })
+      .then(bl => createImageBitmap(bl)).then(bm => { g.drawImage(bm, Math.round(x * 256 - b.cx - STRIP_BOX.x), Math.round(y * 256 - b.cy - STRIP_BOX.y)); bm.close && bm.close(); }));
+  }
+  try{ await Promise.all(jobs); }
+  catch(e){ stripNo.add(b.k); return; }   // keep the live tiles for this one
+  const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.84));
+  if (!blob) return;
+  try{
+    await c.put(stripURL(b.k), new Response(blob, {headers:{'Content-Type':'image/jpeg'}}));
+    const ks = await c.keys();
+    if (ks.length > 240) for (const r of ks.slice(0, ks.length - 200)) c.delete(r);   // oldest out
+  }catch(e){}
+  const u = URL.createObjectURL(blob); stripMem.set(b.k, u);
+  stripSwap(el, u);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', stripWatch); else setTimeout(stripWatch, 0);
+
 /* several summits: a numbered list on the paper side instead of the stamp */
 function summitList(pts, iso, gpsOn){
   const d = iso ? new Date(iso + 'T12:00:00') : null;
@@ -14695,6 +14825,7 @@ function postHTML(p){
     const names = hs.slice().sort((a, b) => b.h - a.h).map(h => hillName(h));
     s += '<h3 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <i>+' + (names.length - 3) + ' more</i>' : '') + '</h3>';
     s += dataLine(p, hs);
+    if (p.strava) s += '<p class="pstrava"><a href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a></p>';
   } else if (p.kind === 'route'){
     s += dataLine(p, hs);
     s += '<div class="proute"><button class="btn sm ghost" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' +
@@ -14731,6 +14862,7 @@ function postHTML(p){
   s += '</div>';
 
   const n = likeCount(p.id), on = iLike(p.id);
+  if (p.strava && !adventure) s += '<p class="pstrava"><a href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a></p>';
   s += '<div class="pbar">' +
     '<button class="pact like' + (on ? ' on' : '') + '" data-act="react" data-id="' + esc(p.id) + '" data-like="' + esc(p.id) + '" aria-pressed="' + on + '" aria-label="' + (on ? 'Unlike' : 'Like') + '">' + ti('heart') + '<b>' + (n || '') + '</b></button>' +
     '<button class="pact" data-act="opencomments" data-id="' + esc(p.id) + '" aria-label="Comments" aria-expanded="' + open + '">' + ti('message-circle') + '<b>' + (cs.length || '') + '</b></button>' +
@@ -15518,8 +15650,26 @@ function stravaCfg(){
   const id = String(window.STRAVA_CLIENT_ID || '').trim(), w = String(window.STRAVA_WORKER || '').trim().replace(/\/$/, '');
   return id && w ? {id, worker: w} : null;
 }
-function stravaAuth(){ try{ return JSON.parse(localStorage.getItem(STRAVA_KEY) || 'null'); }catch(e){ return null; } }
-function stravaSave(a){ try{ a ? localStorage.setItem(STRAVA_KEY, JSON.stringify(a)) : localStorage.removeItem(STRAVA_KEY); }catch(e){} }
+/* The connection lives on this device and on your own private cloud record, so
+   connecting on your phone connects the laptop too. `at` says which is newer;
+   a disconnect is remembered as an empty record with its own time. */
+function stravaRec(){ try{ return JSON.parse(localStorage.getItem(STRAVA_KEY) || 'null'); }catch(e){ return null; } }
+function stravaAuth(){ const r = stravaRec(); return r && r.access ? r : null; }
+function stravaSave(a, fromCloud){
+  const rec = a ? {...a, at: fromCloud ? (a.at || Date.now()) : Date.now()} : {off:1, at: Date.now()};
+  try{ localStorage.setItem(STRAVA_KEY, JSON.stringify(rec)); }catch(e){}
+  if (!fromCloud && FB && fbUser) FB.setDoc(userRef(), {strava: rec}, {merge:true}).catch(() => {});
+}
+/* called with whatever the cloud record holds */
+function stravaFromCloud(remote){
+  if (!remote || !remote.at) return;
+  const mine = stravaRec();
+  if (!mine || (mine.at || 0) < remote.at){
+    try{ localStorage.setItem(STRAVA_KEY, JSON.stringify(remote)); }catch(e){}
+  } else if ((mine.at || 0) > remote.at && FB && fbUser){
+    FB.setDoc(userRef(), {strava: mine}, {merge:true}).catch(() => {});
+  }
+}
 const stravaOn = () => !!(stravaCfg() && stravaAuth());
 /* Strava's own artwork, used exactly as supplied (developers.strava.com/guidelines):
    the Connect button at 48px high linking straight to Strava's authorise page,
@@ -15610,9 +15760,9 @@ function summitsOnTrack(pts){
     if (!isFinite(h.a) || h.a < a0 - pad || h.a > a1 + pad || h.o < o0 - pad || h.o > o1 + pad) continue;
     let best = Infinity, at = 0;
     for (let i = 0; i < pts.length; i++){ const d = metresBetween(h.a, h.o, pts[i][0], pts[i][1]); if (d < best){ best = d; at = i; } }
-    if (best <= 60) out.push({h, at});
+    if (best <= 60) out.push({h, at, d: Math.round(best)});
   }
-  return out.sort((x, y) => x.at - y.at).map(x => x.h);
+  return out.sort((x, y) => x.at - y.at);
 }
 function thinTrack(pts, max){
   if (pts.length <= max) return pts.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]);
@@ -15627,8 +15777,8 @@ async function stravaPrepare(id){
   try{
     const st = await stravaGet('/activities/' + id + '/streams?keys=latlng&key_by_type=true');
     const pts = (st && st.latlng && st.latlng.data) || [];
-    const hs = summitsOnTrack(pts);
-    ui.stravaPick = {id: String(id), act, trk: thinTrack(pts, 500), hills: hs.map(h => h.k), chosen: new Set(hs.map(h => h.k)), busy: false};
+    const on = summitsOnTrack(pts), hs = on.map(x => x.h);
+    ui.stravaPick = {id: String(id), act, trk: thinTrack(pts, 500), hills: hs.map(h => h.k), near: Object.fromEntries(on.map(x => [x.h.k, x.d])), chosen: new Set(hs.map(h => h.k)), busy: false};
   }catch(e){ ui.stravaPick = null; toast(e.message || 'Couldn’t read that walk'); }
   paintStrava();
 }
@@ -15644,9 +15794,19 @@ async function stravaCommit(){
   /* quiet: nothing from Strava goes to the feed on its own — the Share button
      on the day is where that choice is made */
   if (mark.length) await marking(() => { for (const k of mark) setBagged(k, true, date); }, {quiet: true});
+  /* The GPS track went over the top, so every ticked summit on it is verified —
+     the ones marked just now and any already marked but never verified. */
+  const t0 = Date.parse(a.start_date || a.start_date_local || '') || now();
+  let vcount = 0;
+  for (const k of P.chosen){
+    const r = state.bagged[k];
+    if (!r || !isBagged(k) || (r.v && r.v.t)) continue;
+    r.v = {t: t0, d: (P.near || {})[k] || null, acc: null, src: 'strava'}; r.t = now(); vcount++;
+  }
   touched();
   ui.stravaPick = null;
-  toast(mark.length ? 'Added to your journal, with ' + mark.length + (mark.length === 1 ? ' summit' : ' summits') + ' marked.' : 'Added to your journal.');
+  toast((mark.length ? 'Added to your journal, with ' + mark.length + (mark.length === 1 ? ' summit' : ' summits') + ' marked' : 'Added to your journal') +
+    (vcount ? ' and ' + vcount + ' GPS verified.' : '.'));
   paintStrava(); render();
 }
 function stravaStats(s){
@@ -15670,9 +15830,10 @@ function paintStrava(){
       const hs = P.hills.map(k => BY_KEY[k]).filter(Boolean);
       h += hs.length ? '<p class="replab">Summits on this route</p><div class="stpick">' + hs.map(x =>
           '<label><input type="checkbox" data-act="stpick" data-k="' + esc(x.k) + '"' + (P.chosen.has(x.k) ? ' checked' : '') + (isBagged(x.k) ? ' disabled' : '') + '>' +
-          '<b>' + esc(hillName(x)) + '</b><span>' + (isBagged(x.k) ? 'already marked' : htFlat(x).replace(/\s*\(.*\)$/, '')) + '</span></label>').join('') + '</div>'
+          '<b>' + esc(hillName(x)) + '</b><span>' + (isBagged(x.k) ? (verifiedAt(x.k) ? 'marked · verified' : 'marked · will verify') : htFlat(x).replace(/\s*\(.*\)$/, '')) + '</span></label>').join('') + '</div>' +
+          '<p class="stnote stgps">' + ti('check') + (m => m < 15 ? 'Your Strava track went right over ' + (hs.length === 1 ? 'the top' : 'each top') + ', so ' : 'Your Strava track passed within ' + Math.round(m * 3.281) + ' ft of ' + (hs.length === 1 ? 'the summit' : 'each summit') + ', so ')(Math.max(...hs.map(x => (P.near || {})[x.k] || 0))) + (hs.length === 1 ? 'it’s' : 'they’re') + ' marked as GPS verified.</p>'
         : '<p class="stnote">No summits on your lists within 60 m of this route. It still goes in your journal.</p>';
-      h += '<p class="stnote">Only you see the route, times and stats. Strava lets apps show them to you alone. Share the day and your followers see the summits, your words and your photos.</p>' +
+      h += '<p class="stnote">Only you see the route, times and stats. Strava lets apps show them to you alone. Share the day and your followers see the summits, your words, your photos and a link to the activity on Strava.</p>' +
         '<div class="btnrow"><button class="btn quiet" data-act="stback">Back</button><button class="btn" data-act="stcommit">Add to journal</button></div>';
     }
   } else {
@@ -15737,7 +15898,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v172';
+const APP_VERSION = 'v174';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -15945,7 +16106,7 @@ async function audienceFor(tagUids){
   return [...set].slice(0, AUD_CAP);
 }
 
-async function createPost({kind, text, hills, date, tags, shots, patch, conds, trk, dist, vis, goal, asc, mins}){
+async function createPost({kind, text, hills, date, tags, shots, patch, conds, trk, dist, vis, goal, asc, mins, strava}){
   if (!FB || !fbUser) return null;
   const id = 'po' + uid();
   vis = VIS.some(v => v.id === vis) ? vis : (prof.pvis || 'public');
@@ -15965,7 +16126,10 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
     /* the route itself, packed as text: enough of it to walk again */
     trkS: packTrk(trk, 1500), dist: dist || 0, asc: asc || 0, mins: mins || 0,
     /* the summits you stood on with the GPS running, so followers see the seal too */
-    gps: (hills || []).filter(k => verifiedAt(k)).slice(0, 12)
+    gps: (hills || []).filter(k => verifiedAt(k)).slice(0, 12),
+    /* only the activity's id, for a "View on Strava" link: Strava lets apps show
+       a walker's route, times and stats to that walker alone */
+    strava: strava ? String(strava) : ''
   };
   await FB.setDoc(postRef(id), post);
   feed = [post, ...feed];
@@ -15994,8 +16158,11 @@ async function shareDiaryEntry(e){
     }catch(err){ /* skip this one, keep the rest */ }
   }
   const dayHills = Object.entries(state.bagged).filter(([k, r]) => r.date === e.date && BY_KEY[k] && isBagged(k)).map(([k]) => k);
+  /* a Strava day also carries the tops its track went over, even ones first marked on another day */
+  if (e.strava && Array.isArray(e.strava.hills)) for (const k of e.strava.hills) if (BY_KEY[k] && isBagged(k) && !dayHills.includes(k)) dayHills.push(k);
   const created = await createPost({
-    kind:'diary', text:words, hills:dayHills, date:e.date || '', tags:[], shots:sent
+    kind:'diary', text:words, hills:dayHills, date:e.date || '', tags:[], shots:sent,
+    strava: e.strava && e.strava.id ? e.strava.id : ''
   });
   if (!created){ shotQueue.length = 0; throw new Error('could not create the post'); }
   /* The post id only exists now, so the pictures are written once it does. */
