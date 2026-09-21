@@ -1,7 +1,7 @@
 // WayMark — offline shell.
 // Bump the version below every time you change index.html, or phones will keep
 // showing the old build from their cache.
-const CACHE = 'waymark-v160';
+const CACHE = 'waymark-v164';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
@@ -13,7 +13,7 @@ const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './firebase-c
 // away a sheet somebody saved for a walk.
 //   waymark-sheets  — tiles and fonts saved on purpose, from the map screen
 //   waymark-map     — whatever the map fetched in passing, capped, oldest out
-const SHEETS = 'waymark-sheets', RECENT = 'waymark-map', RECENT_MAX = 3000;
+const SHEETS = 'waymark-sheets', RECENT = 'waymark-map', RECENT_MAX = 3000, FONTS = 'waymark-fonts';
 const OS_VTS = 'https://api.os.uk/maps/vector/v1/vts/';
 
 self.addEventListener('install', e => {
@@ -27,7 +27,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== SHEETS && k !== RECENT).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== SHEETS && k !== RECENT && k !== FONTS).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 
@@ -38,6 +38,9 @@ self.addEventListener('fetch', e => {
   // then whatever came past recently. Firebase, Overpass, Wikipedia and the
   // path router are cross-origin and stay live.
   if (url.href.indexOf(OS_VTS) === 0){ e.respondWith(mapFetch(e.request)); return; }
+  // Google Fonts: kept once seen, so the hand-drawn dates and the UI type
+  // still look right on a hill with no signal
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com'){ e.respondWith(fontFetch(e.request)); return; }
   if (url.origin !== self.location.origin) return;
   // the places files: what is cached is shown at once, and refreshed behind
   if (url.pathname.includes('/places/')){ e.respondWith(placesFetch(e.request)); return; }
@@ -52,6 +55,13 @@ self.addEventListener('fetch', e => {
   );
 });
 
+async function fontFetch(req){
+  const c = await caches.open(FONTS);
+  const hit = await c.match(req);
+  const fresh = fetch(req).then(res => { if (res.ok || res.type === 'opaque') c.put(req, res.clone()).catch(() => {}); return res; }).catch(() => null);
+  if (hit){ fresh.catch(() => {}); return hit; }
+  return (await fresh) || new Response('', {status:504, statusText:'offline'});
+}
 async function placesFetch(req){
   const c = await caches.open(CACHE);
   const hit = await c.match(req);
