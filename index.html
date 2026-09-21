@@ -2166,6 +2166,27 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   border:1.5px solid var(--accent-text); border-radius:4px; padding:4px 8px 3px;
   transform:rotate(-1.2deg);
 }
+.nosale.onsale{color:#2E6B4F; border-color:#2E6B4F}
+.shoptag{font:700 13px var(--font-ui); color:var(--accent-text); margin-left:4px; white-space:nowrap}
+.shopbuy{display:flex; flex-direction:column; gap:12px; margin:18px 0 6px; padding:16px 0 4px; border-top:1px solid var(--line)}
+.shopprice{display:flex; align-items:baseline; gap:10px; margin:0}
+.shopprice b{font:700 28px var(--font-ui); color:var(--ink)}
+.shopprice span{font-size:13.5px; color:var(--ink-3)}
+.shopsizes{display:flex; flex-wrap:wrap; gap:8px}
+.shopsizes .chip{min-width:48px; min-height:44px; justify-content:center}
+.shopgo{align-self:flex-start; min-width:180px; min-height:48px; font-size:16px}
+.shopgo[disabled]{opacity:.5; cursor:default}
+.shopnote{margin:0; font-size:13px; line-height:1.5; color:var(--ink-3); max-width:52ch}
+.shopsheet{max-width:560px; width:min(560px, calc(100vw - 24px)); max-height:calc(100dvh - 32px); overflow:auto}
+.shophead{display:flex; align-items:center; justify-content:space-between; margin:0 0 12px}
+.shophead b{font:700 17px var(--font-ui)}
+.shophead .xbtn{position:static; inset:auto; transform:none; width:40px; height:40px}
+.shopsum{margin:0 0 12px; font-size:14px; color:var(--ink-2)}
+.shopwait{margin:18px 0; font-size:15px; color:var(--ink-2)}
+.shopthanks{display:flex; flex-direction:column; align-items:flex-start; gap:10px; padding:8px 0}
+.shopthanks svg{width:36px; height:36px; color:#2E6B4F}
+.shopthanks h3{margin:0; font:700 22px var(--font-ui)}
+.shopthanks p{margin:0 0 6px; color:var(--ink-2); line-height:1.55}
 .supprog{display:flex; align-items:center; gap:11px; margin:18px 0 0}
 .supprog .track{
   flex:1; min-width:0; height:8px; border-radius:99px; overflow:hidden;
@@ -6135,6 +6156,88 @@ const SUPPLIES = [
 ];
 const SHIRTS = {cream:'Cream', sand:'Sand', pine:'Pine'};
 
+/* ---------- the shop: Stripe takes the money, Printful prints and posts ----------
+   What is on sale, at what price and in which sizes, lives in the shop helper
+   (SHOP_WORKER in firebase-config.js), so a tee goes on sale without a new
+   release. Nothing here decides a price: the helper does, from its own list. */
+const shopCfg = () => ({ w: String(window.SHOP_WORKER || '').trim().replace(/\/$/, ''), pk: String(window.STRIPE_PUBLISHABLE_KEY || '').trim() });
+let shopCat = null, shopLoading = false, shopCheckout = null;
+async function shopLoad(){
+  const {w, pk} = shopCfg();
+  if (!w || !pk || shopCat || shopLoading) return;
+  shopLoading = true;
+  try{
+    const r = await fetch(w + '/catalog'); const j = await r.json();
+    shopCat = j && j.items ? j : {items:{}};
+  }catch(e){ shopCat = {items:{}}; }
+  shopLoading = false;
+  if (ui.patchView === 'supplies') render();
+}
+const shopItem = n => shopCat && shopCat.items && shopCat.items[String(n)] || null;
+const gbp = p => '£' + (p / 100).toFixed(p % 100 ? 2 : 0);
+function shopBuyHTML(d){
+  const it = shopItem(d.n); if (!it) return '';
+  const size = ui.shopSize && it.sizes.includes(ui.shopSize) ? ui.shopSize : '';
+  return '<div class="shopbuy">' +
+    '<p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (shopCat.shipping ? '+ ' + gbp(shopCat.shipping) + ' UK delivery' : 'Free UK delivery') + '</span></p>' +
+    '<div class="shopsizes" role="group" aria-label="Size">' + it.sizes.map(z =>
+      '<button class="chip" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
+    '<button class="btn shopgo" data-act="shopbuy" data-v="' + d.n + '"' + (size ? '' : ' disabled') + '>' +
+      (size ? 'Buy · ' + esc(size) : 'Pick a size') + '</button>' +
+    '<p class="shopnote">Printed to order and posted in the UK, usually within 4–10 working days. Secure payment by Stripe.</p>' +
+  '</div>';
+}
+function shopScript(){
+  if (window.Stripe) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = 'https://js.stripe.com/v3/';
+    s.onload = res; s.onerror = () => rej(new Error('Could not load Stripe'));
+    document.head.appendChild(s);
+  });
+}
+function shopSheet(inner){
+  let el = document.getElementById('shopsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'shopsheet'; el.className = 'repback';
+    el.innerHTML = '<div class="repsheet shopsheet" role="dialog" aria-modal="true" aria-label="Checkout">' +
+      '<div class="shophead"><b>Checkout</b><button class="xbtn" data-act="shopclose" aria-label="Close">' + ti('x') + '</button></div>' +
+      '<div id="shopbody"></div></div>';
+    document.body.appendChild(el);
+  }
+  document.getElementById('shopbody').innerHTML = inner;
+  return el;
+}
+async function shopBuy(n){
+  const d = supById(n), it = shopItem(n), size = ui.shopSize;
+  if (!d || !it || !size) return;
+  const {w, pk} = shopCfg();
+  shopSheet('<p class="shopwait">Opening secure checkout…</p>');
+  try{
+    await shopScript();
+    const r = await fetch(w + '/checkout', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({n, size})});
+    const j = await r.json();
+    if (!r.ok || !j.clientSecret) throw new Error(j.message || 'Checkout would not open');
+    const stripe = window.Stripe(pk);
+    if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
+    shopSheet('<p class="shopsum">' + esc(d.name) + ' · ' + esc(size) + ' · ' + gbp(it.price) + '</p><div id="shopmount"></div>');
+    shopCheckout = await stripe.initEmbeddedCheckout({clientSecret: j.clientSecret, onComplete: () => shopDone(d, j.id)});
+    shopCheckout.mount('#shopmount');
+  }catch(e){
+    shopSheet('<p class="shopwait">' + esc(e.message || 'Checkout would not open.') + ' Nothing has been charged.</p>' +
+      '<button class="btn" data-act="shopclose">Close</button>');
+  }
+}
+function shopDone(d, id){
+  if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
+  shopSheet('<div class="shopthanks">' + ti('check') + '<h3>Order in. Thank you.</h3>' +
+    '<p>Your ' + esc(d.name) + ' tee is being printed for you. A receipt is on its way by email, and another when it is posted.</p>' +
+    '<button class="btn" data-act="shopclose">Back to Camp Supplies</button></div>');
+}
+function shopClose(){
+  if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
+  const el = document.getElementById('shopsheet'); if (el) el.remove();
+}
+
 const supById   = n => SUPPLIES.find(d => d.n === n);
 const supBySlug = s => SUPPLIES.find(d => d.slug === String(s || '').toLowerCase());
 const sup2 = n => (n < 10 ? '0' : '') + n;
@@ -6265,7 +6368,7 @@ function supCard(d){
         side + ' of shirt" src="' + supImg(d.n, side, 'sm') + '"></span>' +
       '</button>' +
     '</div>' +
-    '<h3>' + esc(d.name) + '</h3>' +
+    '<h3>' + esc(d.name) + (shopItem(d.n) ? ' <span class="shoptag">' + gbp(shopItem(d.n).price) + '</span>' : '') + '</h3>' +
     '<p class="shirtline">' + SHIRTS[d.shirt] + ' shirt' +
       '<button class="supflip" data-act="supflip" data-v="' + d.n + '"' +
       ' aria-label="Show the ' + other + ' of ' + esc(d.name) + '">See ' + other + '</button></p>' +
@@ -6371,7 +6474,7 @@ function supDetail(d){
     '<button class="linkbtn grow" data-act="supstep" data-v="-1">&lsaquo; Prev</button>' +
     '<button class="linkbtn" data-act="supstep" data-v="1">Next &rsaquo;</button>' +
     '</div>';
-  s += '<span class="nosale">Not for sale yet</span>';
+  s += shopItem(d.n) ? '<span class="nosale onsale">On sale</span>' : '<span class="nosale">Not for sale yet</span>';
   s += '<h2>' + esc(d.name) + '</h2>';
   s += '<p class="shirtline">' + SHIRTS[d.shirt] + ' shirt</p>';
   s += '<div class="supsides" id="supsides">' + big(lead) + big(other) + '</div>';
@@ -6379,6 +6482,7 @@ function supDetail(d){
     [lead, other].map((side, i) =>
       '<button type="button" class="chip" aria-current="' + (i === 0) + '">' + supCap(side) + '</button>'
     ).join('') + '</div>';
+  s += shopBuyHTML(d);
   s += supVoteRow(d);
   s += '<p class="jnote">Would you wear this one? Your answer is the only thing deciding ' +
        'what gets made. <button class="linkbtn" data-act="supshare" data-v="' + d.n + '">Share this design</button></p>';
@@ -6534,7 +6638,7 @@ function renderPatchesPage(){
       VIEWS[v] + '</button>').join('') + '</div>';
   if (ui.patchView === 'challenges') return s + renderChallenges(ps);
   if (ui.patchView === 'cork') return s + renderCorkboard(ps);
-  if (ui.patchView === 'supplies'){ supWatch(); return s + renderSupplies(); }
+  if (ui.patchView === 'supplies'){ supWatch(); shopLoad(); return s + renderSupplies(); }
 
   s += nextPatchHTML(ps, got);
   s += journeyTrail(ps);
@@ -12637,6 +12741,9 @@ document.addEventListener('click', async e => {
     const d = supById(+el.dataset.v);
     if (d) await shareLink(supUrl(d), d.name + ' — WayMark', 'Would you wear this one?');
   }
+  else if (a === 'shopsize'){ ui.shopSize = el.dataset.v; render(); }
+  else if (a === 'shopbuy'){ await shopBuy(+el.dataset.v); }
+  else if (a === 'shopclose'){ shopClose(); }
   else if (a === 'supvote'){ await supVote(+el.dataset.v, el.dataset.d === 'up' ? 1 : -1); }
   else if (a === 'supzoom'){ supZoom(+el.dataset.v, el.dataset.d); }
   else if (a === 'corkshuffle'){ ui.corkSeed = (Math.random() * 1e9) | 0; render(); }
@@ -15992,7 +16099,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v176';
+const APP_VERSION = 'v177';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
