@@ -4085,7 +4085,6 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 /* ---- desktop: reading widths, and Home in two columns ---- */
 @media (min-width:1024px){
   :root[data-screen="j"] #main, :root[data-screen="a"] #main{max-width:780px}
-  :root[data-screen="u"] #main .prof, :root[data-screen="u"] #main .feedsolo{max-width:780px}
   :root[data-screen="d"] .lead.hasshot{display:grid; grid-template-columns:minmax(0, 1fr) 300px; gap:20px; align-items:stretch}
   /* the photo takes the height of the column beside it, not the other way round */
   :root[data-screen="d"] .lead.hasshot .leadwrap.hero{position:relative; height:auto; min-height:420px}
@@ -4094,7 +4093,6 @@ ul.hills::before, ul.hills .hrow::before{display:none}
   :root[data-screen="d"] .lead.hasshot .np2 .npbody{flex-direction:column; align-items:flex-start; gap:16px; margin:auto 0; height:auto; flex:none}
   :root[data-screen="d"] .lead.hasshot .np2 .npbody > div{width:100%; max-width:none}
   :root[data-screen="d"] .lead.hasshot .np2 .npbody .patch .disc{width:112px; height:112px}
-  :root[data-screen="d"] .homelist{max-width:880px}
 }
 
 
@@ -4124,6 +4122,68 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 .railfigs b{display:block; font-family:var(--font-display); font-size:26px; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums}
 .railfigs div:first-child b{color:var(--accent-text)}
 .railfigs i{display:block; font-style:normal; font-size:12px; color:var(--ink-3); margin-top:4px}
+
+/* ---- map strip for posts with no photo: summits left, the stamp inked on the right ---- */
+.pmedia.mstrip{position:relative; height:190px; overflow:hidden; border-radius:12px; background:var(--surface-2); isolation:isolate}
+.mstrip .msc{position:absolute; left:calc(50% - 90px); top:50%; width:0; height:0}
+.mstrip .mst{position:absolute; width:256px; height:256px; max-width:none; filter:saturate(.8) contrast(.96); user-select:none; pointer-events:none}
+.mstrip .mspin{position:absolute; width:0; height:0; z-index:2}
+.mstrip .mspin .mscoin{position:absolute; left:0; top:0; transform:translate(-50%, -50%); cursor:default}
+.mstrip .mspin .mscoin:hover{transform:translate(-50%, -50%)}
+.mstrip .mspin .mscoin b{font:800 12px var(--font-ui); color:#FFF3E9; line-height:1}
+/* a paper wash coming in from the right, so the ink has something to sit on */
+.mstrip .mswash{position:absolute; inset:0; z-index:3; pointer-events:none;
+  background:linear-gradient(90deg, rgba(246,239,228,0) 38%, rgba(246,239,228,.55) 62%, rgba(246,239,228,.82) 100%)}
+.mstrip::after{content:""; position:absolute; inset:0; z-index:5; pointer-events:none; border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(20,51,45,.08)}
+.mstrip .msstamp{position:absolute; right:14px; top:50%; width:172px; height:172px; z-index:4; transform:translateY(-50%) rotate(-7deg);
+  color:#8E3616; mix-blend-mode:multiply;
+  -webkit-mask-image:var(--ink-grain); mask-image:var(--ink-grain); -webkit-mask-size:140px 140px; mask-size:140px 140px}
+.msstamp .rim{font-family:var(--font-data); font-weight:600; fill:currentColor}
+.msstamp .nm{font-family:var(--font-display); fill:currentColor}
+.msstamp .ht{font-family:var(--font-display); fill:#C8562A}
+.msstamp .dot{fill:#C8562A}
+.mstrip .msattr{position:absolute; left:8px; bottom:6px; z-index:5; font:500 9.5px var(--font-ui); color:rgba(20,51,45,.6)}
+@media (min-width:1024px){ .pmedia.mstrip{height:210px} .mstrip .msstamp{width:188px; height:188px; right:26px} .mstrip .msc{left:calc(50% - 60px)} }
+/* dark: dim the map, darken the wash, and let the ink be cream instead of multiplied rust */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .mstrip .mst{filter:saturate(.7) brightness(.72) contrast(1.05)}
+  :root:not([data-theme="light"]) .mstrip .mswash{background:linear-gradient(90deg, rgba(12,34,29,0) 38%, rgba(12,34,29,.6) 62%, rgba(12,34,29,.85) 100%)}
+  :root:not([data-theme="light"]) .mstrip .msstamp{color:#F1E6D6; mix-blend-mode:normal}
+  :root:not([data-theme="light"]) .mstrip .msattr{color:rgba(243,239,230,.6)}
+}
+:root[data-theme="dark"] .mstrip .mst{filter:saturate(.7) brightness(.72) contrast(1.05)}
+:root[data-theme="dark"] .mstrip .mswash{background:linear-gradient(90deg, rgba(12,34,29,0) 38%, rgba(12,34,29,.6) 62%, rgba(12,34,29,.85) 100%)}
+:root[data-theme="dark"] .mstrip .msstamp{color:#F1E6D6; mix-blend-mode:normal}
+:root[data-theme="dark"] .mstrip .msattr{color:rgba(243,239,230,.6)}
+
+/* several summits: numbered pins and a list on the paper side */
+.mstrip.multi .mswash{background:linear-gradient(90deg, rgba(246,239,228,0) 34%, rgba(246,239,228,.78) 56%, rgba(246,239,228,.94) 100%)}
+.mstrip.multi .msc{left:max(80px, 26%)}
+.mslist{position:absolute; right:14px; top:50%; transform:translateY(-50%); z-index:4; width:min(47%, 230px)}
+.mseye{margin:0 0 8px; font:700 11px var(--font-ui); letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text)}
+.mslist ol{list-style:none; margin:0; padding:0; display:grid; gap:7px}
+.mslist li{display:grid; grid-template-columns:20px minmax(0, 1fr) auto; align-items:baseline; gap:8px; color:#14332D}
+.mslist li i{font:800 10.5px var(--font-ui); font-style:normal; width:20px; height:20px; border-radius:50%; background:#A8431A; color:#FFF3E9; display:grid; place-items:center; align-self:center; border:2px solid #FFF6EE; box-sizing:border-box; box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.mslist li b{font-family:var(--font-display); font-weight:400; font-size:15px; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.mslist li span{font:600 12px var(--font-data); color:#3E625A; font-variant-numeric:tabular-nums}
+.mslist li.hi span{color:var(--accent-text)}
+.mslist li.more{display:block; padding-left:28px; font:600 12px var(--font-ui); color:#3E625A}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .mstrip.multi .mswash{background:linear-gradient(90deg, rgba(12,34,29,0) 34%, rgba(12,34,29,.8) 56%, rgba(12,34,29,.95) 100%)}
+  :root:not([data-theme="light"]) .mslist li, :root:not([data-theme="light"]) .mslist li span, :root:not([data-theme="light"]) .mslist li.more{color:#F1E6D6}
+  :root:not([data-theme="light"]) .mseye{color:#E0703D}
+}
+:root[data-theme="dark"] .mstrip.multi .mswash{background:linear-gradient(90deg, rgba(12,34,29,0) 34%, rgba(12,34,29,.8) 56%, rgba(12,34,29,.95) 100%)}
+:root[data-theme="dark"] .mslist li, :root[data-theme="dark"] .mslist li span, :root[data-theme="dark"] .mslist li.more{color:#F1E6D6}
+:root[data-theme="dark"] .mseye{color:#E0703D}
+
+/* GPS verified: seal on the stamp's corner, second ring on the coin, a tick in the list */
+/* sits just outside the stamp's ring at about eight o'clock, so it never covers a word */
+.mstrip .msseal{position:absolute; z-index:5; right:163px; bottom:12px; width:50px; height:50px; margin:0; transform:rotate(12deg); filter:drop-shadow(0 2px 3px rgba(40,20,0,.35))}
+.mstrip .mspin .mscoin .pkring{position:absolute; inset:-8px; border-radius:99px; border:2px solid #A8431A; opacity:.6; pointer-events:none}
+.mslist .msgps{display:inline-grid; place-items:center; width:14px; height:14px; margin-left:5px; border-radius:50%; background:#A8431A; color:#F6EFE4; vertical-align:2px}
+.mslist .msgps svg{width:9px; height:9px}
+@media (min-width:1024px){ .mstrip .msseal{right:188px; bottom:15px; width:54px; height:54px} }
 @media (prefers-reduced-motion: reduce){
   .seg button, .lchip, .chip, .bnav .navbtn .ni, .top .iconbtn{transition:none}
 }
@@ -9045,7 +9105,7 @@ function paintHills(m, arr, hs, onClick, withTip){
   const z = m.getZoom();
   const box = viewBox(m, .25);
   const cs = getComputedStyle(document.documentElement);
-  const dots = [];
+  const dots = [], placed = [];
   let n = 0;
   for (const h of hs){
     if (!isFinite(h.a)) continue;
@@ -9053,9 +9113,44 @@ function paintHills(m, arr, hs, onClick, withTip){
     if (z < 9 && !done){ dots.push(hillDot(h, cs)); continue; }
     if (!box.has(h.a, h.o)) continue;
     if (++n > 900) continue;                 // a readable map beats a complete one
-    hillMarker(m, arr, h, cs, onClick, withTip ? hillName(h) + ' · ' + (unitsPref() === 'm' ? h.h + ' m' : feet(h) + ' ft') : '');
+    const mk = hillMarker(m, arr, h, cs, onClick, withTip ? hillName(h) + ' · ' + (unitsPref() === 'm' ? h.h + ' m' : feet(h) + ' ft') : '');
+    const pt = m.project([h.o, h.a]);
+    placed.push({mk, x:pt.x, y:pt.y, r:(parseFloat(mk.getElement().style.width) || 24) / 2});
   }
   setData(m, 'wm-dots', {type:'FeatureCollection', features:dots});
+  fanOut(placed).forEach(p => { if (p.ox || p.oy) p.mk.setOffset([p.ox, p.oy]); });
+}
+/* Markers that would sit on top of each other are pushed apart, a little at a
+   time, until none hides another: each overlapping pair moves half the overlap
+   away from the other. Local and steady, so markers only move as far as they
+   must. Worked out afresh at each zoom. */
+function fanOut(items, gap){
+  gap = gap || 1.05;                       // the coins' rims and halos count, so touching is too close
+  const cell = 64;
+  const P = items.map((p, i) => ({x:p.x, y:p.y, r:p.r, i}));
+  for (let it = 0; it < 24; it++){
+    const grid = new Map(); let moved = false;
+    P.forEach((p, i) => { const k = Math.floor(p.x / cell) + ',' + Math.floor(p.y / cell); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(i); });
+    P.forEach((p, i) => {
+      const gx = Math.floor(p.x / cell), gy = Math.floor(p.y / cell);
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++){
+        for (const j of (grid.get((gx + dx) + ',' + (gy + dy)) || [])){
+          if (j <= i) continue;
+          const q = P[j], need = (p.r + q.r) * gap;
+          let vx = q.x - p.x, vy = q.y - p.y, d = Math.hypot(vx, vy);
+          if (d >= need) continue;
+          if (d < 0.01){ const a = (i * 2.39996) % (2 * Math.PI); vx = Math.cos(a); vy = Math.sin(a); d = 1; }
+          const push = (need - d) / 2 + 0.5;
+          vx /= d; vy /= d;
+          p.x -= vx * push; p.y -= vy * push; q.x += vx * push; q.y += vy * push;
+          moved = true;
+        }
+      }
+    });
+    if (!moved) break;
+  }
+  items.forEach((p, i) => { p.ox = Math.round(P[i].x - p.x); p.oy = Math.round(P[i].y - p.y); });
+  return items;
 }
 /* the pin you searched for, so you can see what you asked about */
 function drawSearchPin(m, arr){
@@ -14279,15 +14374,119 @@ function mediaHTML(p, hs, adventure){
       (shots.length > 1 ? '<span class="pcount">1/' + shots.length + '</span><div class="pdots">' + shots.slice(0, 6).map((_, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>' : '') +
       '</div>';
   }
-  if (adventure && hs.length){
-    /* no photo: the hills themselves, drawn to scale in the order they were walked */
-    const heights = [hs[0].h * .45];
-    hs.forEach((h, i) => { if (i) heights.push(Math.min(hs[i - 1].h, h.h) * .7); heights.push(h.h); });
-    heights.push(hs[hs.length - 1].h * .55);
-    return '<div class="pmedia art" aria-hidden="true">' + skylineArt(heights, 'partline') +
-      '<span class="partlab">' + (hs.length > 1 ? hs.length + ' summits, drawn to scale' : esc(hillName(hs[0])) + ', ' + htFlat(hs[0])) + '</span></div>';
-  }
+  if (adventure && hs.length) return mapStrip(hs, p);
   return '';
+}
+/* No photo: a strip of the actual map where the day was, with each summit
+   marked on the left and the summit stamp inked onto the right, the same
+   stamp as the camera overlay. Several summits: every one is marked, the
+   stamp names the highest and says how many more. Tiles are placed around a
+   fixed anchor in pixels, so it is right at any width without measuring. OS
+   Outdoor when the key works, OpenTopoMap otherwise (or if an OS tile fails). */
+function mapStrip(hs, p){
+  const pts = hs.filter(h => isFinite(h.a) && isFinite(h.o));
+  if (!pts.length) return '';
+  const wx = (lon, z) => (lon + 180) / 360 * 256 * Math.pow(2, z);
+  const wy = (lat, z) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256 * Math.pow(2, z); };
+  let z = 14;
+  for (; z > 9; z--){
+    const xs = pts.map(h => wx(h.o, z)), ys = pts.map(h => wy(h.a, z));
+    if (Math.max(...xs) - Math.min(...xs) < (pts.length > 1 ? 120 : 180) && Math.max(...ys) - Math.min(...ys) < 110) break;
+  }
+  const xs = pts.map(h => wx(h.o, z)), ys = pts.map(h => wy(h.a, z));
+  const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+  const tx0 = Math.floor(cx / 256), ty0 = Math.floor(cy / 256);
+  const os = osUsable(), key = encodeURIComponent(osKey());
+  const otm = (x, y) => 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
+  let tiles = '';
+  for (let dx = -2; dx <= 4; dx++) for (let dy = -1; dy <= 1; dy++){
+    const x = tx0 + dx, y = ty0 + dy;
+    const src = os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key : otm(x, y);
+    tiles += '<img class="mst" loading="lazy" decoding="async" alt="" src="' + src + '"' +
+      (os ? ' data-otm="' + otm(x, y) + '" onerror="if(this.dataset.otm){this.src=this.dataset.otm;this.removeAttribute(\'data-otm\')}"' : '') +
+      ' style="left:' + Math.round(x * 256 - cx) + 'px;top:' + Math.round(y * 256 - cy) + 'px">';
+  }
+  const multi = pts.length > 1;
+  /* the same coin as the main map, in WayMark orange with the cream rim.
+     One fell carries the WayMark mark; several are numbered in the order walked. */
+  const size = multi ? 24 : 32;
+  const spots = fanOut(pts.map((h, i) => ({h, i, x:wx(h.o, z) - cx, y:wy(h.a, z) - cy, r:size / 2})));
+  const gpsOn = h => (p && Array.isArray(p.gps) && p.gps.includes(h.k)) || (p && fbUser && p.uid === fbUser.uid && !!verifiedAt(h.k));
+  const pins = spots.map(s2 => {
+    const h = s2.h, col = '#A8431A';
+    return '<i class="mspin" style="left:' + Math.round(s2.x + (s2.ox || 0)) + 'px;top:' + Math.round(s2.y + (s2.oy || 0)) + 'px" title="' + esc(hillName(h)) + '">' +
+      '<span class="peak mscoin" style="width:' + size + 'px;height:' + size + 'px;background:' + col + '">' +
+      (multi ? '<b>' + (s2.i + 1) + '</b>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg>') +
+      (gpsOn(h) ? '<i class="pkring"></i>' : '') + '</span></i>';
+  }).join('');
+  const top = pts.reduce((a, b) => b.h > a.h ? b : a, pts[0]);
+  const names = pts.map(h => hillName(h));
+  return '<div class="pmedia mstrip' + (multi ? ' multi' : '') + '" role="img" aria-label="Map: ' + esc(names.join(', ')) + '"><div class="msc">' + tiles + pins + '</div>' +
+    '<div class="mswash"></div>' + (multi ? summitList(pts, p && p.date, gpsOn) : summitStampSVG(top, 1, p && p.date) + (gpsOn(top) ? gpsSeal() : '')) +
+    '<span class="msattr">' + (os ? '© Crown copyright, OS' : '© OpenStreetMap, OpenTopoMap') + '</span></div>';
+}
+/* several summits: a numbered list on the paper side instead of the stamp */
+function summitList(pts, iso, gpsOn){
+  const d = iso ? new Date(iso + 'T12:00:00') : null;
+  const when = d && !isNaN(d) ? d.getDate() + ' ' + d.toLocaleString('en-GB', {month:'short'}).slice(0, 3) : '';
+  const MAX = 4, shown = pts.slice(0, pts.length > MAX ? MAX - 1 : MAX);
+  const topH = Math.max(...pts.map(h => h.h));
+  return '<div class="mslist"><p class="mseye">' + pts.length + ' summits' + (when ? ' · ' + esc(when) : '') + '</p><ol>' +
+    shown.map((h, i) => '<li' + (h.h === topH ? ' class="hi"' : '') + '><i>' + (i + 1) + '</i><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h).replace(/\s*\(.*\)$/, '') + '</span></li>').join('') +
+    (pts.length > shown.length ? '<li class="more">+' + (pts.length - shown.length) + ' more</li>' : '') +
+    '</ol></div>';
+}
+/* GPS verified: a small seal pressed onto the corner of the stamp */
+function gpsSeal(){
+  let d = '';
+  for (let i = 0; i < 28; i++){ const a = i * Math.PI / 14, r = i % 2 ? 28.5 : 31.5; d += (i ? 'L' : 'M') + (r * Math.cos(a)).toFixed(1) + ' ' + (r * Math.sin(a)).toFixed(1); }
+  return '<svg class="msseal" viewBox="-32 -32 64 64" role="img" aria-label="GPS verified at the summit"><title>GPS verified at the summit</title>' +
+    '<path d="' + d + 'Z" fill="#A8431A"/><circle r="24.5" fill="none" stroke="#F6EFE4" stroke-width="1.4"/>' +
+    '<path d="M-8.5 -6.5 l5 5 l12 -12" fill="none" stroke="#F6EFE4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<text y="15" text-anchor="middle" font-family="Source Sans 3, system-ui, sans-serif" font-size="13" font-weight="900" letter-spacing="1.2" fill="#F6EFE4">GPS</text></svg>';
+}
+/* the camera's summit stamp, as ink: rings, date and grid reference round the
+   rim, the name in the middle, the height in rust */
+var stampSeq = 0;
+function summitStampSVG(h, n, iso){
+  const id = 'st' + (++stampSeq);
+  const up = x => String(x).toUpperCase();
+  const d = iso ? new Date(iso + 'T12:00:00') : null;
+  const when = d && !isNaN(d) ? d.getDate() + ' ' + d.toLocaleString('en-GB', {month:'short'}).slice(0, 3).toUpperCase() + ' ' + d.getFullYear() : '';
+  let topRim = (n > 1 ? n + ' SUMMITS' : 'SUMMIT') + (when ? ' · ' + when : '');
+  let gr = ''; try{ gr = osGridRef(h.a, h.o) || ''; }catch(e){}
+  const reg = up(String(regionOf(h, homeListFor(h)) || '').replace(/^The /, ''));
+  let botRim = [gr, reg !== 'OTHER' ? reg : ''].filter(Boolean).join(' · ');
+  if (botRim.length > 36) botRim = gr || reg;
+  if (topRim.length > 28) topRim = n > 1 ? n + ' SUMMITS' : 'SUMMIT';
+  /* the name: one line if it fits, else split near the middle; sized to the ring */
+  const name = up(hillName(h));
+  let lines = [name];
+  if (name.length > 10 && name.includes(' ')){
+    const w = name.split(' '); let best = null;
+    for (let i = 1; i < w.length; i++){ const a = w.slice(0, i).join(' '), b = w.slice(i).join(' '); const m = Math.max(a.length, b.length); if (!best || m < best[0]) best = [m, [a, b]]; }
+    lines = best[1];
+  }
+  const longest = Math.max(...lines.map(l => l.length));
+  const fs = Math.max(13, Math.min(24, 118 / (longest * 0.6)));
+  const lh = fs * 1.02;
+  const nameTop = lines.length > 1 ? -26 : -12;
+  const ft = h.f ? h.f.toLocaleString() + ' FT' : Math.round(h.h * 3.28084).toLocaleString() + ' FT';
+  const small = h.h + ' M' + (n > 1 ? ' · +' + (n - 1) + ' MORE' : '');
+  const T = (y, t, size, extra) => '<text y="' + y.toFixed(1) + '" font-size="' + size.toFixed(1) + '" text-anchor="middle" ' + (extra || '') + '>' + esc(t) + '</text>';
+  return '<svg class="msstamp" viewBox="-110 -110 220 220" aria-hidden="true">' +
+    '<defs><path id="' + id + 't" d="M -80,0 a 80,80 0 0 1 160,0"/><path id="' + id + 'b" d="M -89,0 a 89,89 0 0 0 178,0"/></defs>' +
+    '<g class="ink">' +
+      '<circle r="102" fill="none" stroke="currentColor" stroke-width="4"/><circle r="91" fill="none" stroke="currentColor" stroke-width="1.4"/>' +
+      '<text class="rim" font-size="10.5" letter-spacing="2.2" text-anchor="middle"><textPath href="#' + id + 't" startOffset="50%">' + esc(topRim) + '</textPath></text>' +
+      (botRim ? '<text class="rim" font-size="9.5" letter-spacing="1.6" text-anchor="middle"><textPath href="#' + id + 'b" startOffset="50%">' + esc(botRim) + '</textPath></text>' : '') +
+      lines.map((l, i) => T(nameTop + i * lh, l, fs, 'class="nm"')).join('') +
+      '<rect x="-46" y="' + (nameTop + (lines.length - 1) * lh + 9).toFixed(1) + '" width="92" height="2" fill="currentColor"/>' +
+      T(nameTop + (lines.length - 1) * lh + 35, ft, 21, 'class="ht"') +
+      T(nameTop + (lines.length - 1) * lh + 50, small, 9.5, 'class="rim" letter-spacing="2"') +
+    '</g>' +
+    '<circle class="dot" cx="-96" r="2.6"/><circle class="dot" cx="96" r="2.6"/>' +
+    '</svg>';
 }
 function dataLine(p, hs){
   const bits = [];
@@ -15196,7 +15395,9 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
        only public posts have it, so one plain range query finds them — no index */
     pt: vis === 'public' ? Date.now() : null,
     /* the route itself, packed as text: enough of it to walk again */
-    trkS: packTrk(trk, 1500), dist: dist || 0, asc: asc || 0, mins: mins || 0
+    trkS: packTrk(trk, 1500), dist: dist || 0, asc: asc || 0, mins: mins || 0,
+    /* the summits you stood on with the GPS running, so followers see the seal too */
+    gps: (hills || []).filter(k => verifiedAt(k)).slice(0, 12)
   };
   await FB.setDoc(postRef(id), post);
   feed = [post, ...feed];
