@@ -1,13 +1,15 @@
 // WayMark — offline shell.
 // Bump the version below every time you change index.html, or phones will keep
 // showing the old build from their cache.
-const CACHE = 'waymark-v169';
+const CACHE = 'waymark-v172';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
                './lib/maplibre-gl.js', './lib/maplibre-gl.css',
                './map/os-open-outdoor.json', './map/os-open-road.json',
-               './map/sprite.json', './map/sprite.png', './map/sprite@2x.json', './map/sprite@2x.png'];
+               './map/sprite.json', './map/sprite.png', './map/sprite@2x.json', './map/sprite@2x.png',
+               './strava/btn_strava_connect_with_orange.svg', './strava/btn_strava_connect_with_white.svg',
+               './strava/api_logo_pwrdBy_strava_horiz_orange.svg', './strava/api_logo_pwrdBy_strava_horiz_white.svg'];
 
 // The map's own stores. They are not versioned: a new build must never throw
 // away a sheet somebody saved for a walk.
