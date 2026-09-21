@@ -4184,6 +4184,91 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 .mslist .msgps{display:inline-grid; place-items:center; width:14px; height:14px; margin-left:5px; border-radius:50%; background:#A8431A; color:#F6EFE4; vertical-align:2px}
 .mslist .msgps svg{width:9px; height:9px}
 @media (min-width:1024px){ .mstrip .msseal{right:188px; bottom:15px; width:54px; height:54px} }
+
+/* ---- safety: report sheet, profile menu ---- */
+.pfollows{position:relative}
+.pfollows .profmenu{margin-left:auto}
+.pfollows .profmenu .pmenubox{right:0; left:auto}
+.plink.quietlink{color:var(--ink-3); font-weight:500}
+.repback{position:fixed; inset:0; z-index:3000; background:rgba(12,34,29,.45); display:grid; place-items:end center; padding:12px; -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px)}
+@media (min-width:700px){ .repback{place-items:center} }
+.repsheet{width:min(460px, 100%); background:var(--raise); color:var(--ink); border-radius:18px; padding:20px 18px calc(16px + env(safe-area-inset-bottom)); box-shadow:0 20px 60px -20px rgba(0,0,0,.6)}
+.repsheet h3{margin:0 0 4px; font-family:var(--font-display); font-weight:400; font-size:22px}
+.repsub{margin:0 0 14px; font-size:13.5px; color:var(--ink-2)}
+.repwhy{display:grid; gap:6px; margin-bottom:14px}
+.repwhy button{text-align:left; padding:11px 14px; border-radius:12px; border:0; background:var(--tint); color:var(--ink); font:500 14.5px var(--font-ui); display:flex; align-items:center; gap:10px}
+.repwhy button::before{content:""; width:16px; height:16px; border-radius:50%; box-shadow:inset 0 0 0 2px var(--line); flex:none}
+.repwhy button[aria-checked="true"]{background:var(--thumb); box-shadow:var(--shadow-1); font-weight:650}
+.repwhy button[aria-checked="true"]::before{box-shadow:inset 0 0 0 5px var(--accent)}
+.replab{display:block; font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
+.replab i{font-style:normal; font-weight:400; color:var(--ink-3)}
+.repsheet textarea{width:100%; box-sizing:border-box; border-radius:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:10px 12px; font:15px var(--font-ui); resize:vertical}
+.repblock{display:flex; align-items:center; gap:8px; margin:12px 0 2px; font-size:14px; color:var(--ink-2)}
+.repsheet .btnrow{justify-content:flex-end; margin-top:14px}
+.repsheet .btn[disabled]{opacity:.45; pointer-events:none}
+
+/* ---- Strava ---- */
+.stconnect{display:inline-block; line-height:0; border-radius:6px}
+.stconnect img{height:48px; width:auto; display:block}
+.stconnect:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+.stpowered{display:inline-flex; align-items:center; line-height:0}
+.stpowered img{height:15px; width:auto; display:block}
+.stl-dark{display:none !important}
+:root[data-theme="dark"] .stl-light{display:none !important}
+:root[data-theme="dark"] .stl-dark{display:block !important}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .stl-light{display:none !important}
+  :root:not([data-theme="light"]) .stl-dark{display:block !important}
+}
+.stjoin{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:12px 0 4px; padding:14px 16px; border-radius:var(--r-card); background:var(--raise); box-shadow:var(--shadow-1)}
+.stjoin span{flex:1 1 200px; font-size:14px; color:var(--ink-2)}
+#connBox .stconnect, #connBox .stpowered{margin:4px 0 12px}
+.stsheet .stpowered{margin:0 0 10px}
+.stsheet{max-height:min(86vh, 720px); overflow:auto}
+.sthead{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.sthead .xbtn{width:36px; height:36px; border-radius:50%; border:0; background:var(--tint); display:grid; place-items:center; color:var(--ink-2)}
+.sthead .xbtn svg{width:18px; height:18px}
+.stnote{font-size:13.5px; color:var(--ink-2); margin:10px 0}
+.stlist{display:grid; gap:2px; margin:6px 0 10px}
+.strow{display:flex; align-items:center; gap:12px; justify-content:space-between; padding:10px 2px; border-bottom:1px solid var(--line-soft)}
+.strow b{display:block; font:600 15px var(--font-ui); color:var(--ink)}
+.strow span{font-size:12.5px; color:var(--ink-3)}
+.sthave{display:inline-flex; align-items:center; gap:4px; font:600 12.5px var(--font-ui); color:var(--done); white-space:nowrap}
+.sthave svg{width:14px; height:14px}
+.stpick{display:grid; gap:6px; margin-bottom:6px}
+.stpick label{display:grid; grid-template-columns:22px 1fr auto; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background:var(--tint)}
+.stpick label b{font-family:var(--font-display); font-weight:400; font-size:16px; color:var(--ink)}
+.stpick label span{font:600 12px var(--font-data); color:var(--ink-3)}
+.stpick input{width:18px; height:18px; accent-color:#A8431A}
+.stfoot{display:flex; justify-content:space-between; align-items:center; margin-top:8px}
+
+.dstrava{margin:10px 0 8px}
+.dstrava .pmedia.trackstrip{height:200px}
+.trackstrip .msc{left:50%}
+.trackstrip svg.mstrk{position:absolute; left:0; top:0; overflow:visible; margin:0; z-index:1}
+.mstrk .u{fill:none; stroke:#F6EFE4; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; opacity:.9}
+.mstrk .o{fill:none; stroke:#FC5200; stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.mstrk .st{fill:#14332D; stroke:#F6EFE4; stroke-width:2}
+.trackstrip .mspin .mscoin{position:absolute; left:0; top:0; transform:translate(-50%, -50%)}
+.dststats{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:10px 0 4px}
+.dststats b{display:block; font-family:var(--font-display); font-weight:400; font-size:20px; color:var(--ink); font-variant-numeric:tabular-nums}
+.dststats i{font-style:normal; font-size:11.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.08em}
+.dstfoot{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin:8px 0 0; font-size:13px}
+.dstfoot a{color:#FC5200; font-weight:700; text-decoration:underline; text-underline-offset:2px}
+.dentry .dstonly, .dstonly{margin:4px 0 0; font-size:12.5px; line-height:1.4; color:var(--ink-3)}
+
+/* ---- feedback + inbox ---- */
+#helpBox .btnrow .btn svg, .btn.ghost svg{width:17px; height:17px}
+.fbdev{margin:10px 0 0; font:500 12px var(--font-data); color:var(--ink-3)}
+.inboxnote{font:italic 500 12px var(--font-ui); color:var(--ink-3); margin-left:6px}
+.inbox{display:grid; gap:10px}
+.inrow{padding:12px 14px; border-radius:12px; background:var(--tint); border-left:0}
+.inrow p{margin:0 0 6px; font-size:14px; color:var(--ink)}
+.inrow .intag{font:700 11px var(--font-ui); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.inrow.rep .intag{color:#B3261E}
+.inrow.bug .intag{color:var(--accent-text)}
+.inrow .innote, .inrow .indev{font-size:12.5px; color:var(--ink-2)}
+.inrow .btnrow{margin:6px 0 0}
 @media (prefers-reduced-motion: reduce){
   .seg button, .lchip, .chip, .bnav .navbtn .ni, .top .iconbtn{transition:none}
 }
@@ -4245,6 +4330,10 @@ ul.hills::before, ul.hills .hrow::before{display:none}
     <p class="cloudNote"></p>
     <div class="accountBox"></div>
     <div id="shareBox"></div>
+    <div id="connBox"></div>
+    <h3>Help make WayMark better</h3>
+    <div id="helpBox"></div>
+    <div id="inboxBox"></div>
     <h3>Backup</h3>
     <p>Your marks, dates, notes and routes as text you can keep somewhere safe. Photos are kept with the app and are not included.</p>
     <textarea id="backupText" spellcheck="false"></textarea>
@@ -5316,14 +5405,14 @@ function newlyEarned(){
   return patches().filter(p => p.got && !before.has(p.id));
 }
 /* Run a marking action and celebrate anything it unlocked. */
-async function marking(fn){
+async function marking(fn, opts){
   watchPatches();
   const before = new Set(Object.keys(state.bagged).filter(isBagged));
   await fn();
   /* Anything newly marked goes to the feed as one post, so ten fells from a
      route read as one day out rather than ten notifications. */
   const fresh = Object.keys(state.bagged).filter(k => isBagged(k) && !before.has(k));
-  if (fresh.length) postSummits(fresh, (state.bagged[fresh[0]] || {}).date);
+  if (fresh.length && !(opts && opts.quiet)) postSummits(fresh, (state.bagged[fresh[0]] || {}).date);
   /* seenWins is the record of what has already been shown. newlyEarned() only
      knows about this one action, so a patch lost and won back came round as a
      fresh popup — which Everest does easily, hanging as it does on a total
@@ -8344,7 +8433,10 @@ function renderDiary(){
     ? '<div class="planintro">Every day you have been out, newest first.</div>'
     : '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
-    (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button></div>';
+    (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button>' +
+    (stravaCfg() && !ui.diaryForm && stravaOn() ? '<button class="btn ghost" data-act="stopen">' + ti('download') + 'Bring in from Strava</button>' : '') +
+    '</div>' +
+    (stravaCfg() && !ui.diaryForm && !stravaOn() ? '<div class="stjoin"><span>Bring your Strava walks into your journal and mark the summits they passed.</span>' + stravaConnectBtn() + '</div>' : '');
 
   if (ui.diaryForm){
     const d = ui.dDraft || {};
@@ -8388,6 +8480,7 @@ function renderDiary(){
       const eps = e.photos || [];
       html += '<div class="dentry">' +
         (e.title ? '<h3>' + esc(e.title) + '</h3>' : '') +
+        (e.strava ? stravaDayHTML(e.strava) : '') +
         (e.text ? '<p>' + esc(e.text) + '</p>' : '');
 
       if (eps.length){
@@ -8626,6 +8719,11 @@ function renderFriends(){
     }
     if (!followers.length) s += '<div class="nobody"><b>No followers yet</b><span>Share an adventure as Everyone and people will find you. Your handle is how they search: ' + (fbHandle ? '@' + esc(fbHandle) : 'claim one under Discover') + '.</span></div>';
     else { s += '<div class="regionlist">'; for (const f of followers) s += hikerRow(f, followBtn(f.uid, true) + '<button class="linkbtn" data-act="removefollower" data-u="' + esc(f.uid) + '">Remove</button>'); s += '</div>'; }
+    if ((ui.blockedList || []).length){
+      s += '<h3 class="sect" style="margin-top:22px">Blocked</h3><div class="regionlist">' + ui.blockedList.map(b =>
+        '<div class="frow"><div class="fwho2"><div><b>' + esc(niceName(b.name) || 'Hiker') + '</b><span>Blocked ' + esc(whenAgo(b.t || Date.now())) + '</span></div></div>' +
+        '<button class="btn ghost sm" data-act="unblock" data-uid="' + esc(b.uid) + '">Unblock</button></div>').join('') + '</div>';
+    }
     return s;
   }
   /* discover: people worth a look first, then the search, then your handle */
@@ -12115,6 +12213,30 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'dayfold'){ ui.dayOpen = !ui.dayOpen; render(); }
   else if (a === 'postmenu'){ ui.postMenu = ui.postMenu === el.dataset.id ? null : el.dataset.id; render(); }
+  else if (a === 'profmenu'){ ui.profMenu = !ui.profMenu; render(); }
+  else if (a === 'fbopen'){ openFeedback(el.dataset.v); }
+  else if (a === 'fbcancel'){ ui.fb = null; paintFeedback(); }
+  else if (a === 'fbsend'){ sendFeedback(); }
+  else if (a === 'indone'){ inboxDone(el.dataset.col, el.dataset.id); }
+  else if (a === 'inprofile'){ sheet.classList.remove('open'); tab = 'u'; singlePost = null; ui.profTab = 'adv'; friendOpen = {code:'', uid:el.dataset.uid}; render(); loadPersonPosts(el.dataset.uid); loadPerson(el.dataset.uid).then(render); window.scrollTo({top:0}); }
+  else if (a === 'inpost'){ sheet.classList.remove('open'); tab = 'u'; openPostById(el.dataset.post, false); }
+  else if (a === 'stconnect'){ stravaConnect(); }
+  else if (a === 'stopen'){ ui.stravaOpen = true; ui.stravaPick = null; paintStrava(); stravaLoadList(); }
+  else if (a === 'stclose'){ ui.stravaOpen = false; ui.stravaPick = null; paintStrava(); }
+  else if (a === 'stretry'){ stravaLoadList(); }
+  else if (a === 'stprep'){ stravaPrepare(el.dataset.id); }
+  else if (a === 'stback'){ ui.stravaPick = null; paintStrava(); }
+  else if (a === 'stcommit'){ stravaCommit(); }
+  else if (a === 'stpick'){ const P = ui.stravaPick; if (P){ el.checked ? P.chosen.add(el.dataset.k) : P.chosen.delete(el.dataset.k); } }
+  else if (a === 'stdisconnect'){ stravaDisconnect(); }
+  else if (a === 'blockuser'){ ui.postMenu = null; ui.profMenu = false; blockUser(el.dataset.uid, el.dataset.n); }
+  else if (a === 'unblock'){ unblockUser(el.dataset.uid); }
+  else if (a === 'reportpost'){ const p = findPost(el.dataset.id); ui.postMenu = null; render(); if (p) openReport({uid:p.uid, name:p.name, post:p.id, snip:postSnip(p) + (p.text ? ' — ' + p.text : '')}); }
+  else if (a === 'reportcomment'){ const c = (commentsBy[el.dataset.id] || []).find(x => x.id === el.dataset.c); if (c) openReport({uid:c.uid, name:c.name, post:el.dataset.id, comment:c.id, snip:c.text}); }
+  else if (a === 'reportuser'){ ui.profMenu = false; render(); openReport({uid:el.dataset.uid, name:el.dataset.n}); }
+  else if (a === 'repwhy'){ if (ui.report){ ui.report.note = (document.getElementById('repNote') || {}).value || ''; ui.report.alsoBlock = !!(document.getElementById('repBlock') || {}).checked; ui.report.why = el.dataset.v; paintReport(); } }
+  else if (a === 'repcancel'){ ui.report = null; paintReport(); }
+  else if (a === 'repsend'){ sendReport(); }
   /* unfolding a write-up is a local thing: no re-render, so the feed does not
      jump under the reader's thumb */
   else if (a === 'moretext'){
@@ -13180,7 +13302,7 @@ const sheet = document.getElementById('sheet');
 function openSheet(){
   document.getElementById('backupText').value = JSON.stringify(state);
   paintCloudNote();
-  renderThemeBox(); renderListToggles(); renderAccountBox();
+  renderThemeBox(); renderListToggles(); renderAccountBox(); renderHelpBox(); renderConnBox();
   sheet.classList.add('open');
 }
 document.getElementById('menuBtn').onclick = openSheet;
@@ -13657,6 +13779,7 @@ function renderThemeBox(){
       '<button data-act="units" data-v="m" aria-pressed="' + (unitsPref() === 'm') + '">Metres</button></div>';
 }
 applyTheme(); paintThemeBtn();
+setTimeout(() => { try{ stravaReturn(); }catch(e){} }, 1200);
 let rzT = null, rzW = innerWidth;
 addEventListener('resize', () => {         // the trail spacing depends on width
   fitTaglines();
@@ -14049,6 +14172,8 @@ let commentsBy = {};               // postId -> [comments]
      title, the figures in one line of data. */
 
 TI['heart'] = '<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/>';
+TI['flag'] = '<path d="M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z"/><path d="M5 21v-7"/>';
+TI['ban'] = '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/>';
 TI['corner-down-right'] = '<path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4"/>';
 TI['send'] = '<path d="M10 14l11 -11"/><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5"/>';
 TI['arrow-up-right'] = '<path d="M17 7l-10 10"/><path d="M8 7l9 0l0 9"/>';
@@ -14101,7 +14226,7 @@ async function loadFeed(){
       }
     }));
     const known = new Set([fbUser.uid, ...fl]);
-    feed = [...byId.values()].filter(p => known.has(p.uid)).sort((a, b) => (b.t || 0) - (a.t || 0)).slice(0, 150);
+    feed = [...byId.values()].filter(p => known.has(p.uid) && !isBlocked(p.uid)).sort((a, b) => (b.t || 0) - (a.t || 0)).slice(0, 150);
     for (const p of feed.filter(x => x.uid === fbUser.uid && !x.vis)){
       p.vis = 'followers';
       FB.setDoc(postRef(p.id), {vis:'followers'}, {merge:true}).catch(() => {});
@@ -14160,9 +14285,9 @@ async function loadPostBits(id){
       FB.getDocs(FB.collection(fbDb, 'posts', id, 'reactions')),
       FB.getDocs(FB.query(commentsCol(id), FB.orderBy('t', 'asc'), FB.limit(80)))
     ]);
-    const m = {}; rs.forEach(d => { const v = d.data() || {}; m[d.id] = typeof v === 'object' ? v : {e:v}; });
+    const m = {}; rs.forEach(d => { if (isBlocked(d.id)) return; const v = d.data() || {}; m[d.id] = typeof v === 'object' ? v : {e:v}; });
     reactedBy[id] = m;
-    const list = []; cs.forEach(d => list.push({id:d.id, ...(d.data() || {})}));
+    const list = []; cs.forEach(d => { const v = d.data() || {}; if (!isBlocked(v.uid)) list.push({id:d.id, ...v}); });
     commentsBy[id] = list;
   }catch(e){}
 }
@@ -14305,6 +14430,7 @@ function notesHTML(){
   /* likes on the same post collapse into one line */
   const rows = [], likeRow = {};
   for (const n of notes){
+    if (isBlocked(n.from)) continue;
     if (n.type === 'like' && n.post){
       if (likeRow[n.post]){ likeRow[n.post].count++; likeRow[n.post].fresh = likeRow[n.post].fresh || n.t > seen; continue; }
       const r = {n, count:1, fresh:n.t > seen}; likeRow[n.post] = r; rows.push(r);
@@ -14518,6 +14644,7 @@ function threadHTML(p, open){
     '<div class="cmeta"><span>' + esc(whenAgo(c.t)) + '</span>' +
     '<button class="plink" data-act="replyto" data-id="' + esc(p.id) + '" data-c="' + esc(reply ? (c.re || c.id) : c.id) + '" data-u="' + esc(c.uid) + '" data-n="' + esc(firstName(c.name)) + '">Reply</button>' +
     (fbUser && (c.uid === fbUser.uid || mine) ? '<button class="plink" data-act="delcomment" data-id="' + esc(p.id) + '" data-c="' + esc(c.id) + '">Delete</button>' : '') +
+    (fbUser && c.uid !== fbUser.uid ? '<button class="plink quietlink" data-act="reportcomment" data-id="' + esc(p.id) + '" data-c="' + esc(c.id) + '">Report</button>' : '') +
     '</div></div></div>';
   let s = '<div class="pthread">';
   if (!cs.length) s += '<p class="cnone">No comments yet. Say something nice.</p>';
@@ -14550,7 +14677,12 @@ function postHTML(p){
       (ui.postMenu === p.id ? '<div class="pmenubox" role="menu">' +
         (p.kind !== 'patch' && ui.editPost !== p.id ? '<button role="menuitem" data-act="editpost" data-id="' + esc(p.id) + '">' + ti('pencil') + 'Edit</button>' : '') +
         '<button role="menuitem" class="danger" data-act="delpost" data-id="' + esc(p.id) + '">' + ti('trash') + 'Delete</button></div>' : '') +
-      '</div>' : '') + '</header>';
+      '</div>' : (fbUser ? '<div class="pmenuwrap">' +
+      '<button class="iconbtn pmenu" data-act="postmenu" data-id="' + esc(p.id) + '" aria-label="More" aria-expanded="' + (ui.postMenu === p.id) + '">' + ti('dots') + '</button>' +
+      (ui.postMenu === p.id ? '<div class="pmenubox" role="menu">' +
+        '<button role="menuitem" data-act="reportpost" data-id="' + esc(p.id) + '">' + ti('flag') + 'Report post</button>' +
+        '<button role="menuitem" class="danger" data-act="blockuser" data-uid="' + esc(p.uid) + '" data-n="' + esc(p.name || '') + '">' + ti('ban') + 'Block ' + esc(firstName(p.name) || 'hiker') + '</button></div>' : '') +
+      '</div>' : '')) + '</header>';
 
   const ptrk = p.kind === 'route' ? postTrk(p) : [];
   if (p.kind === 'route' && ptrk.length > 1) s += '<div class="pmedia art route">' + routeSketch(ptrk, p.hills) + '</div>';
@@ -14737,7 +14869,7 @@ function composeFormHTML(fr){
 }
 /* Discover: people first, then what everybody is out doing. */
 function discoverPeople(){
-  const seen = new Set([fbUser.uid, ...followingUids()]);
+  const seen = new Set([fbUser.uid, ...followingUids(), ...blocked]);
   const out = [];
   for (const f of suggestedHikers()) if (!seen.has(f.uid)){ seen.add(f.uid); out.push(f); }
   for (const p of discover){
@@ -14774,7 +14906,7 @@ function renderDiscover(){
   s += '<div class="dhead"><h3>Out on the hills</h3>' + refreshBtn() + '</div>';
   if (discoverWhy) s += '<p class="empty">' + esc(discoverWhy).replace(/(https?:\S+)/, '<a href="$1" target="_blank" rel="noopener">open Firebase</a>') + '</p>';
   else if (!discover.length) s += discoverBusy ? skeletonPosts(2) : '<div class="nobody"><b>Nobody’s shared publicly yet</b><span>Share a day out with Everyone and yours will be the first here.</span></div>';
-  else for (const p of discover) s += postHTML(p);
+  else for (const p of discover) if (!isBlocked(p.uid)) s += postHTML(p);
   return s;
 }
 
@@ -14821,12 +14953,21 @@ function renderFriend(){
   const allowed = cardVis === 'public' || accepted;
 
   let html = '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>';
+  if (isBlocked(uidX)){
+    return html + '<div class="nobody"><b>You’ve blocked ' + esc(nm) + '</b><span>You don’t see each other’s posts, and they can’t follow you, comment or like. They haven’t been told.</span>' +
+      '<div class="btnrow" style="justify-content:center"><button class="btn ghost" data-act="unblock" data-uid="' + esc(uidX) + '">Unblock ' + esc(nm) + '</button></div></div>';
+  }
   html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : ''});
   const pc = personCounts[uidX] || {};
   html += '<div class="pfollows">' +
     '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="followers"><b>' + (pc.followers == null ? '–' : pc.followers.toLocaleString()) + '</b> followers</button>' +
     '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="following"><b>' + (pc.following == null ? '–' : pc.following.toLocaleString()) + '</b> following</button>' +
-    (followsMe(uidX) ? '<span class="fyou">Follows you</span>' : '') + '</div>';
+    (followsMe(uidX) ? '<span class="fyou">Follows you</span>' : '') +
+    '<div class="pmenuwrap profmenu"><button class="iconbtn pmenu" data-act="profmenu" aria-label="More options for ' + esc(nm) + '" aria-expanded="' + !!ui.profMenu + '">' + ti('dots') + '</button>' +
+    (ui.profMenu ? '<div class="pmenubox" role="menu">' +
+      '<button role="menuitem" data-act="reportuser" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || '') + '">' + ti('flag') + 'Report ' + esc(nm) + '</button>' +
+      '<button role="menuitem" class="danger" data-act="blockuser" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || '') + '">' + ti('ban') + 'Block ' + esc(nm) + '</button></div>' : '') +
+    '</div></div>';
   if (!allowed){
     return html + '<div class="nobody"><b>' + (cardVis === 'private' ? esc(nm) + ' keeps their profile private' : esc(nm) + ' shares with followers') + '</b>' +
       '<span>' + (hasRequested(uidX) ? 'Your request is with them. When they approve it, their days out appear here and in your feed.'
@@ -14990,8 +15131,8 @@ const followsMe     = uid => followers.some(f => f.uid === uid);
 function suggestedHikers(){
   const seen = new Set(friends.map(f => f.uid));
   const out = new Map();
-  for (const f of followers) if (!seen.has(f.uid)) out.set(f.uid, {...f, why:'Follows you'});
-  for (const f of boardFriends()) if (!seen.has(f.uid) && !out.has(f.uid)) out.set(f.uid, {...f, why:'On a leaderboard with you'});
+  for (const f of followers) if (!seen.has(f.uid) && !isBlocked(f.uid)) out.set(f.uid, {...f, why:'Follows you'});
+  for (const f of boardFriends()) if (!seen.has(f.uid) && !out.has(f.uid) && !isBlocked(f.uid)) out.set(f.uid, {...f, why:'On a leaderboard with you'});
   return [...out.values()].slice(0, 8);
 }
 
@@ -15268,6 +15409,431 @@ async function removeFollower(uid){
   try{ await FB.deleteDoc(followerRef(fbUser.uid, uid)); }catch(e){}
   followers = followers.filter(f => f.uid !== uid);
 }
+
+/* ---------- safety: block and report ----------
+   Blocking is quiet and two-way: they can't follow you, see your followers-only
+   posts, like, comment or leave notifications, and you stop seeing them. They
+   are not told. Reports go to a collection only the WayMark owner can read. */
+var blocked = new Set();
+const blockRef = (uid) => FB.doc(fbDb, 'people', fbUser.uid, 'blocks', uid);
+const isBlocked = uid => !!uid && blocked.has(uid);
+async function loadBlocks(){
+  if (!FB || !fbUser) return;
+  try{
+    const bs = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'blocks'));
+    const out = new Set(); ui.blockedList = [];
+    bs.forEach(d => { out.add(d.id); ui.blockedList.push({uid:d.id, ...(d.data() || {})}); });
+    blocked = out;
+  }catch(e){}
+}
+async function blockUser(uid, name){
+  if (!FB || !fbUser || !uid || uid === fbUser.uid) return;
+  const nm = firstName(name) || 'this hiker';
+  const ok = await confirmAsk({title:'Block ' + nm + '?',
+    body:'They won’t be able to follow you, see your followers-only posts, like, comment or mention you, and you won’t see their posts or comments. They aren’t told. You can unblock them any time from your Followers list.',
+    yes:'Block', tone:'danger'});
+  if (!ok) return;
+  blocked.add(uid);
+  ui.blockedList = [...(ui.blockedList || []).filter(b => b.uid !== uid), {uid, name: name || '', t: Date.now()}];
+  try{ await FB.setDoc(blockRef(uid), {uid, name: name || '', t: Date.now()}); }catch(e){ toast(fbWhy(e)); return; }
+  /* cut every tie both ways that this account is allowed to cut */
+  try{ if (isFollowing(uid) || friends.some(f => f.uid === uid)) await unfollow(uid); }catch(e){}
+  try{ await removeFollower(uid); }catch(e){}
+  try{ await declineFollower(uid); }catch(e){}
+  /* and take them off the audience of my own posts, so older followers-only days close too */
+  try{
+    const snap = await FB.getDocs(FB.query(postsCol(), FB.where('uid', '==', fbUser.uid)));
+    snap.forEach(d => { const v = d.data() || {}; if (Array.isArray(v.aud) && v.aud.includes(uid))
+      FB.setDoc(postRef(d.id), {aud: v.aud.filter(x => x !== uid)}, {merge:true}).catch(() => {}); });
+  }catch(e){}
+  feed = feed.filter(p => p.uid !== uid);
+  if (friendOpen && friendOpen.uid === uid) friendOpen = null;
+  ui.postMenu = null; ui.profMenu = false;
+  toast(nm + ' is blocked.');
+  render();
+}
+async function unblockUser(uid){
+  if (!FB || !fbUser) return;
+  try{ await FB.deleteDoc(blockRef(uid)); }catch(e){ toast(fbWhy(e)); return; }
+  blocked.delete(uid);
+  ui.blockedList = (ui.blockedList || []).filter(b => b.uid !== uid);
+  toast('Unblocked.');
+  render(); loadFeed();
+}
+const REPORT_WHY = [
+  ['spam', 'Spam or selling'],
+  ['abuse', 'Harassment or abuse'],
+  ['photo', 'An inappropriate photo'],
+  ['fake', 'Pretending to be someone else'],
+  ['unsafe', 'Dangerous or unsafe advice'],
+  ['other', 'Something else']
+];
+function openReport(o){
+  ui.report = {...o, why:'', note:'', alsoBlock:false};
+  paintReport();
+}
+function paintReport(){
+  let el = document.getElementById('repSheet');
+  if (!ui.report){ if (el) el.remove(); return; }
+  if (!el){ el = document.createElement('div'); el.id = 'repSheet'; el.className = 'repback'; document.body.appendChild(el); }
+  const r = ui.report, nm = firstName(r.name) || 'this hiker';
+  const what = r.comment ? 'this comment' : r.post ? 'this post' : nm;
+  el.innerHTML = '<div class="repsheet" role="dialog" aria-modal="true" aria-labelledby="repTitle">' +
+    '<h3 id="repTitle">Report ' + esc(what) + '</h3>' +
+    '<p class="repsub">Only the WayMark team sees reports. ' + esc(nm) + ' isn’t told who reported them.</p>' +
+    '<div class="repwhy" role="radiogroup" aria-label="What’s wrong">' + REPORT_WHY.map(([v, l]) =>
+      '<button role="radio" aria-checked="' + (r.why === v) + '" data-act="repwhy" data-v="' + v + '">' + esc(l) + '</button>').join('') + '</div>' +
+    '<label class="replab" for="repNote">Anything we should know? <i>(optional)</i></label>' +
+    '<textarea id="repNote" maxlength="500" rows="3" placeholder="What happened">' + esc(r.note || '') + '</textarea>' +
+    (fbUser && r.uid !== fbUser.uid && !isBlocked(r.uid) ? '<label class="repblock"><input type="checkbox" id="repBlock"' + (r.alsoBlock ? ' checked' : '') + '> Also block ' + esc(nm) + '</label>' : '') +
+    '<div class="btnrow"><button class="btn quiet" data-act="repcancel">Cancel</button>' +
+    '<button class="btn" data-act="repsend"' + (r.why ? '' : ' disabled') + '>Send report</button></div></div>';
+}
+async function sendReport(){
+  const r = ui.report; if (!r || !r.why || !FB || !fbUser) return;
+  const note = (document.getElementById('repNote') || {}).value || '';
+  const also = !!(document.getElementById('repBlock') || {}).checked;
+  try{
+    await FB.setDoc(FB.doc(fbDb, 'reports', 'r' + uid()), {
+      by: fbUser.uid, uid: r.uid || '', post: r.post || '', comment: r.comment || '',
+      why: r.why, note: String(note).slice(0, 500), snip: String(r.snip || '').slice(0, 280), t: Date.now()
+    });
+  }catch(e){ toast(fbWhy(e)); return; }
+  const who = r.uid, nm = r.name;
+  ui.report = null; paintReport();
+  toast('Thanks — your report has been sent.');
+  if (also && who) blockUser(who, nm);
+}
+
+/* ---------- Strava: your walks into your own journal ----------
+   Strava's API rules let an app show a person's Strava data to that person
+   only. So an imported walk's route, times and stats live in your journal,
+   seen by you alone. What can go to the feed is WayMark's own: the summits you
+   mark, your words and your photos. The secret half of the Strava key never
+   touches this page: a small Cloudflare Worker swaps the sign-in code for a
+   token (STRAVA_WORKER in firebase-config.js). */
+const STRAVA_KEY = 'waymark.strava';
+const STRAVA_TYPES = ['Walk', 'Hike', 'TrailRun'];
+function stravaCfg(){
+  const id = String(window.STRAVA_CLIENT_ID || '').trim(), w = String(window.STRAVA_WORKER || '').trim().replace(/\/$/, '');
+  return id && w ? {id, worker: w} : null;
+}
+function stravaAuth(){ try{ return JSON.parse(localStorage.getItem(STRAVA_KEY) || 'null'); }catch(e){ return null; } }
+function stravaSave(a){ try{ a ? localStorage.setItem(STRAVA_KEY, JSON.stringify(a)) : localStorage.removeItem(STRAVA_KEY); }catch(e){} }
+const stravaOn = () => !!(stravaCfg() && stravaAuth());
+/* Strava's own artwork, used exactly as supplied (developers.strava.com/guidelines):
+   the Connect button at 48px high linking straight to Strava's authorise page,
+   and the Powered by Strava logo beside anything that came from Strava. Orange
+   on light grounds, white on dark. */
+function stravaState(){
+  let st = ''; try{ st = sessionStorage.getItem('waymark.stravastate') || ''; }catch(e){}
+  if (!st){ st = 'wm' + uid(); try{ sessionStorage.setItem('waymark.stravastate', st); }catch(e){} }
+  return st;
+}
+function stravaAuthURL(){
+  const c = stravaCfg(); if (!c) return '';
+  return 'https://www.strava.com/oauth/authorize?client_id=' + encodeURIComponent(c.id) +
+    '&redirect_uri=' + encodeURIComponent(location.origin + location.pathname) + '&response_type=code&approval_prompt=auto' +
+    '&scope=' + encodeURIComponent('read,activity:read_all') + '&state=' + encodeURIComponent(stravaState());
+}
+function stravaConnectBtn(){
+  return '<a class="stconnect" href="' + esc(stravaAuthURL()) + '">' +
+    '<img class="stl-light" src="strava/btn_strava_connect_with_orange.svg" width="237" height="48" alt="Connect with Strava">' +
+    '<img class="stl-dark" src="strava/btn_strava_connect_with_white.svg" width="237" height="48" alt="Connect with Strava"></a>';
+}
+function stravaPowered(){
+  return '<span class="stpowered"><img class="stl-light" src="strava/api_logo_pwrdBy_strava_horiz_orange.svg" width="146" height="15" alt="Powered by Strava">' +
+    '<img class="stl-dark" src="strava/api_logo_pwrdBy_strava_horiz_white.svg" width="146" height="15" alt="Powered by Strava"></span>';
+}
+function stravaConnect(){ const u = stravaAuthURL(); if (u) location.href = u; }
+/* back from Strava's sign-in page with ?code=… */
+async function stravaReturn(){
+  const q = new URLSearchParams(location.search);
+  if (!q.has('code') && !q.has('error')) return;
+  const code = q.get('code'), st = q.get('state'), scope = q.get('scope') || '';
+  history.replaceState(null, '', location.pathname + location.hash);
+  let want = ''; try{ want = sessionStorage.getItem('waymark.stravastate') || ''; }catch(e){}
+  if (!code || !st || st !== want){ if (q.has('error')) toast('Strava wasn’t connected.'); return; }
+  if (!/activity:read/.test(scope)){ toast('Strava was connected without access to your activities, so there’s nothing to import. Try again and leave “View data about your activities” ticked.'); return; }
+  const c = stravaCfg(); if (!c) return;
+  try{
+    const r = await fetch(c.worker + '/token', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code})});
+    const j = await r.json();
+    if (!r.ok || !j.access_token) throw new Error(j.message || 'no token');
+    stravaSave({access: j.access_token, refresh: j.refresh_token, exp: j.expires_at, athlete: j.athlete ? {id: j.athlete.id, name: [j.athlete.firstname, j.athlete.lastname].filter(Boolean).join(' ')} : null});
+    toast('Strava connected. Your walks can come into your journal now.');
+    tab = 'j'; ui.stravaOpen = true; render(); stravaLoadList();
+  }catch(e){ toast('Couldn’t finish connecting Strava. Try again in a minute.'); }
+}
+async function stravaToken(){
+  const a = stravaAuth(), c = stravaCfg(); if (!a || !c) return null;
+  if (a.exp && a.exp * 1000 > Date.now() + 120000) return a.access;
+  const r = await fetch(c.worker + '/refresh', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({refresh_token: a.refresh})});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.access_token){ if (r.status === 400 || r.status === 401){ stravaSave(null); } throw new Error('Strava sign-in has expired'); }
+  stravaSave({...a, access: j.access_token, refresh: j.refresh_token || a.refresh, exp: j.expires_at});
+  return j.access_token;
+}
+async function stravaGet(path){
+  const c = stravaCfg(), tok = await stravaToken();
+  if (!tok) throw new Error('not connected');
+  const r = await fetch(c.worker + '/api' + path, {headers:{Authorization: 'Bearer ' + tok}});
+  if (r.status === 401){ stravaSave(null); throw new Error('Strava sign-in has expired'); }
+  if (r.status === 429) throw new Error('Strava is busy — try again in 15 minutes');
+  if (!r.ok) throw new Error('Strava said no (' + r.status + ')');
+  return r.json();
+}
+async function stravaDisconnect(){
+  const ok = await confirmAsk({title:'Disconnect Strava?', body:'Walks you’ve already brought in stay in your journal. Nothing more comes across until you connect again.', yes:'Disconnect'});
+  if (!ok) return;
+  const c = stravaCfg(), a = stravaAuth();
+  if (c && a){ try{ await fetch(c.worker + '/deauthorize', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({access_token: a.access})}); }catch(e){} }
+  stravaSave(null); ui.stravaOpen = false; ui.stravaList = null; render();
+  toast('Strava disconnected.');
+}
+const stravaImported = () => new Set(liveDiary().filter(e => e.strava && e.strava.id).map(e => String(e.strava.id)));
+async function stravaLoadList(){
+  ui.stravaBusy = true; ui.stravaErr = ''; paintStrava();
+  try{
+    const acts = await stravaGet('/athlete/activities?per_page=60');
+    ui.stravaList = (acts || []).filter(x => STRAVA_TYPES.includes(x.sport_type || x.type));
+  }catch(e){ ui.stravaErr = e.message || 'Couldn’t reach Strava'; }
+  ui.stravaBusy = false; paintStrava();
+}
+/* the summits a track passes: within 60 m of the trig point */
+function summitsOnTrack(pts){
+  if (!pts.length) return [];
+  let a0 = 90, a1 = -90, o0 = 180, o1 = -180;
+  for (const [a, o] of pts){ if (a < a0) a0 = a; if (a > a1) a1 = a; if (o < o0) o0 = o; if (o > o1) o1 = o; }
+  const pad = 0.002, out = [];
+  for (const h of HILLS){
+    if (!isFinite(h.a) || h.a < a0 - pad || h.a > a1 + pad || h.o < o0 - pad || h.o > o1 + pad) continue;
+    let best = Infinity, at = 0;
+    for (let i = 0; i < pts.length; i++){ const d = metresBetween(h.a, h.o, pts[i][0], pts[i][1]); if (d < best){ best = d; at = i; } }
+    if (best <= 60) out.push({h, at});
+  }
+  return out.sort((x, y) => x.at - y.at).map(x => x.h);
+}
+function thinTrack(pts, max){
+  if (pts.length <= max) return pts.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]);
+  const step = pts.length / max, out = [];
+  for (let i = 0; i < max; i++) out.push(pts[Math.floor(i * step)]);
+  out.push(pts[pts.length - 1]);
+  return out.map(p => [+p[0].toFixed(5), +p[1].toFixed(5)]);
+}
+async function stravaPrepare(id){
+  const act = (ui.stravaList || []).find(x => String(x.id) === String(id)); if (!act) return;
+  ui.stravaPick = {id: String(id), busy: true}; paintStrava();
+  try{
+    const st = await stravaGet('/activities/' + id + '/streams?keys=latlng&key_by_type=true');
+    const pts = (st && st.latlng && st.latlng.data) || [];
+    const hs = summitsOnTrack(pts);
+    ui.stravaPick = {id: String(id), act, trk: thinTrack(pts, 500), hills: hs.map(h => h.k), chosen: new Set(hs.map(h => h.k)), busy: false};
+  }catch(e){ ui.stravaPick = null; toast(e.message || 'Couldn’t read that walk'); }
+  paintStrava();
+}
+async function stravaCommit(){
+  const P = ui.stravaPick; if (!P || !P.act) return;
+  const a = P.act, date = String(a.start_date_local || a.start_date || '').slice(0, 10) || today();
+  const strava = {id: String(a.id), name: a.name || '', dist: Math.round(a.distance || 0), mins: Math.round((a.moving_time || 0) / 60),
+    elapsed: Math.round((a.elapsed_time || 0) / 60), asc: Math.round(a.total_elevation_gain || 0), trk: P.trk || [], hills: P.hills, at: now()};
+  let e = liveDiary().find(x => x.date === date && !x.strava);
+  if (e){ e.strava = strava; if (!e.title) e.title = a.name || ''; e.t = now(); }
+  else { e = {id:'d' + uid(), date, title: a.name || '', text:'', photos:[], shared:0, deleted:false, t:now(), strava}; state.diary = [...(state.diary || []), e]; }
+  const mark = [...P.chosen].filter(k => BY_KEY[k] && !isBagged(k));
+  /* quiet: nothing from Strava goes to the feed on its own — the Share button
+     on the day is where that choice is made */
+  if (mark.length) await marking(() => { for (const k of mark) setBagged(k, true, date); }, {quiet: true});
+  touched();
+  ui.stravaPick = null;
+  toast(mark.length ? 'Added to your journal, with ' + mark.length + (mark.length === 1 ? ' summit' : ' summits') + ' marked.' : 'Added to your journal.');
+  paintStrava(); render();
+}
+function stravaStats(s){
+  const km = unitsPref() === 'm' ? (s.dist / 1000).toFixed(1) + ' km' : (s.dist / 1609.344).toFixed(1) + ' mi';
+  const up = unitsPref() === 'm' ? s.asc.toLocaleString() + ' m' : Math.round(s.asc * 3.28084).toLocaleString() + ' ft';
+  return [['Distance', km], ['Moving time', hm(s.mins)], ['Climbed', up]];
+}
+function paintStrava(){
+  let el = document.getElementById('stravaSheet');
+  if (!ui.stravaOpen){ if (el) el.remove(); return; }
+  if (!el){ el = document.createElement('div'); el.id = 'stravaSheet'; el.className = 'repback'; document.body.appendChild(el); }
+  const done = stravaImported(), P = ui.stravaPick, who = (stravaAuth() || {}).athlete;
+  let h = '<div class="repsheet stsheet" role="dialog" aria-modal="true" aria-labelledby="stTitle">' +
+    '<div class="sthead"><h3 id="stTitle">' + (P && P.act ? esc(P.act.name || 'Walk') : 'Walks from Strava') + '</h3>' +
+    '<button class="xbtn" data-act="stclose" aria-label="Close">' + ti('x') + '</button></div>';
+  if (P && P.act){
+    const s = {dist: P.act.distance || 0, mins: Math.round((P.act.moving_time || 0) / 60), asc: P.act.total_elevation_gain || 0};
+    h += '<p class="repsub">' + esc(prettyDate(String(P.act.start_date_local || '').slice(0, 10))) + ' · ' + stravaStats(s).map(x => x[1]).join(' · ') + '</p>' + stravaPowered();
+    if (P.busy) h += '<p class="stnote">Reading the route…</p>';
+    else {
+      const hs = P.hills.map(k => BY_KEY[k]).filter(Boolean);
+      h += hs.length ? '<p class="replab">Summits on this route</p><div class="stpick">' + hs.map(x =>
+          '<label><input type="checkbox" data-act="stpick" data-k="' + esc(x.k) + '"' + (P.chosen.has(x.k) ? ' checked' : '') + (isBagged(x.k) ? ' disabled' : '') + '>' +
+          '<b>' + esc(hillName(x)) + '</b><span>' + (isBagged(x.k) ? 'already marked' : htFlat(x).replace(/\s*\(.*\)$/, '')) + '</span></label>').join('') + '</div>'
+        : '<p class="stnote">No summits on your lists within 60 m of this route. It still goes in your journal.</p>';
+      h += '<p class="stnote">Only you see the route, times and stats. Strava lets apps show them to you alone. Share the day and your followers see the summits, your words and your photos.</p>' +
+        '<div class="btnrow"><button class="btn quiet" data-act="stback">Back</button><button class="btn" data-act="stcommit">Add to journal</button></div>';
+    }
+  } else {
+    h += '<p class="repsub">' + (who && who.name ? 'Connected as ' + esc(who.name) + '. ' : '') + 'Your recent walks and hikes. Bring one in to see its route in your journal and mark the summits it passed.</p>';
+    if (ui.stravaBusy) h += '<p class="stnote">Fetching your walks…</p>';
+    else if (ui.stravaErr) h += '<p class="stnote">' + esc(ui.stravaErr) + '</p><div class="btnrow"><button class="btn" data-act="stretry">Try again</button></div>';
+    else if (!(ui.stravaList || []).length) h += '<p class="stnote">No walks or hikes in your last 60 Strava activities.</p>';
+    else h += '<div class="stlist">' + ui.stravaList.map(x => {
+      const d = String(x.start_date_local || '').slice(0, 10), have = done.has(String(x.id));
+      const s = {dist: x.distance || 0, mins: Math.round((x.moving_time || 0) / 60), asc: x.total_elevation_gain || 0};
+      return '<div class="strow"><div><b>' + esc(x.name || 'Walk') + '</b><span>' + esc(prettyDate(d)) + ' · ' + stravaStats(s).map(y => y[1]).join(' · ') + '</span></div>' +
+        (have ? '<span class="sthave">' + ti('check') + 'In journal</span>' : '<button class="btn sm" data-act="stprep" data-id="' + esc(String(x.id)) + '">Bring in</button>') + '</div>';
+    }).join('') + '</div>';
+    h += '<div class="stfoot">' + stravaPowered() + '<button class="linkbtn" data-act="stdisconnect">Disconnect Strava</button></div>';
+  }
+  el.innerHTML = h + '</div>';
+}
+/* the Strava part of a journal day: the route on the OS map, the stats, a link back */
+function stravaDayHTML(s){
+  const hs = (s.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  return '<div class="dstrava">' + trackStrip(s.trk || [], hs) +
+    '<div class="dststats">' + stravaStats(s).map(([l, v]) => '<div><b>' + esc(v) + '</b><i>' + l + '</i></div>').join('') + '</div>' +
+    '<p class="dstfoot"><a href="https://www.strava.com/activities/' + encodeURIComponent(s.id) + '" target="_blank" rel="noopener">View on Strava</a>' +
+    stravaPowered() + '</p><p class="dstonly">Only you see the route, times and stats.</p></div>';
+}
+/* a walked line on the OS map, fitted to the strip, summits as the map's coins */
+function trackStrip(trk, hs){
+  if (trk.length < 2) return '';
+  const wx = (lon, z) => (lon + 180) / 360 * 256 * Math.pow(2, z);
+  const wy = (lat, z) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256 * Math.pow(2, z); };
+  let z = 15;
+  for (; z > 8; z--){
+    const xs = trk.map(p => wx(p[1], z)), ys = trk.map(p => wy(p[0], z));
+    if (Math.max(...xs) - Math.min(...xs) < 300 && Math.max(...ys) - Math.min(...ys) < 150) break;
+  }
+  const xs = trk.map(p => wx(p[1], z)), ys = trk.map(p => wy(p[0], z));
+  const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+  const tx0 = Math.floor(cx / 256), ty0 = Math.floor(cy / 256);
+  const os = osUsable(), key = encodeURIComponent(osKey());
+  const otm = (x, y) => 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
+  let tiles = '';
+  for (let dx = -3; dx <= 3; dx++) for (let dy = -1; dy <= 1; dy++){
+    const x = tx0 + dx, y = ty0 + dy;
+    const src = os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key : otm(x, y);
+    tiles += '<img class="mst" loading="lazy" decoding="async" alt="" src="' + src + '"' +
+      (os ? ' data-otm="' + otm(x, y) + '" onerror="if(this.dataset.otm){this.src=this.dataset.otm;this.removeAttribute(\'data-otm\')}"' : '') +
+      ' style="left:' + Math.round(x * 256 - cx) + 'px;top:' + Math.round(y * 256 - cy) + 'px">';
+  }
+  const line = trk.map(p => (wx(p[1], z) - cx).toFixed(1) + ',' + (wy(p[0], z) - cy).toFixed(1)).join(' ');
+  const svg = '<svg class="mstrk" width="1" height="1" aria-hidden="true"><polyline points="' + line + '" class="u"/><polyline points="' + line + '" class="o"/>' +
+    '<circle class="st" cx="' + (xs[0] - cx).toFixed(1) + '" cy="' + (ys[0] - cy).toFixed(1) + '" r="4.5"/></svg>';
+  const spots = fanOut(hs.filter(h => isFinite(h.a)).map((h, i) => ({h, i, x: wx(h.o, z) - cx, y: wy(h.a, z) - cy, r: 11})));
+  const pins = spots.map(s2 => '<i class="mspin" style="left:' + Math.round(s2.x + (s2.ox || 0)) + 'px;top:' + Math.round(s2.y + (s2.oy || 0)) + 'px" title="' + esc(hillName(s2.h)) + '">' +
+    '<span class="peak mscoin" style="width:22px;height:22px;background:#A8431A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></span></i>').join('');
+  return '<div class="pmedia mstrip trackstrip" aria-hidden="true"><div class="msc">' + tiles + svg + pins + '</div>' +
+    '<span class="msattr">' + (os ? '© Crown copyright, OS' : '© OpenStreetMap, OpenTopoMap') + '</span></div>';
+}
+
+
+/* ---------- feedback: report a bug, suggest a feature ----------
+   Saved to the `feedback` collection with a little about the device, so a bug
+   can be found again. Reports and feedback land in an inbox inside Settings
+   that only shows for accounts listed in the `admins` collection (added by
+   hand in the Firebase console), and in the console itself. */
+const APP_VERSION = 'v172';
+function deviceLine(){
+  const ua = navigator.userAgent || '';
+  const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
+  const br = /CriOS|Chrome/.test(ua) ? 'Chrome' : /FxiOS|Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'Browser';
+  const pwa = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone ? ' · installed' : '';
+  return 'WayMark ' + APP_VERSION + ' · ' + dev + ' ' + br + pwa + ' · ' + innerWidth + '×' + innerHeight;
+}
+function renderHelpBox(){
+  const box = document.getElementById('helpBox'); if (!box) return;
+  box.innerHTML = '<p>Something broken, or something you wish it did? It comes straight to Joe, who reads every one.</p>' +
+    '<div class="btnrow"><button class="btn ghost" data-act="fbopen" data-v="bug">' + ti('alert-triangle') + 'Report a bug</button>' +
+    '<button class="btn ghost" data-act="fbopen" data-v="idea">' + ti('star') + 'Suggest a feature</button></div>';
+  paintInbox();
+}
+function renderConnBox(){
+  const box = document.getElementById('connBox'); if (!box) return;
+  if (!stravaCfg()){ box.innerHTML = ''; return; }
+  const a = stravaAuth();
+  box.innerHTML = '<h3>Connections</h3><div class="togglerow"><div class="tinfo"><b>Strava</b><span>' +
+    (a ? 'Connected' + (a.athlete && a.athlete.name ? ' as ' + esc(a.athlete.name) : '') + '. Bring walks into your journal from the Journal page.' : 'Bring your Strava walks and hikes into your journal, and mark the summits they passed.') + '</span></div>' +
+    (a ? '<button class="btn quiet sm" data-act="stdisconnect">Disconnect</button>' : '') + '</div>' +
+    (a ? stravaPowered() : stravaConnectBtn());
+}
+function openFeedback(kind){
+  ui.fb = {kind, text:'', steps:''};
+  paintFeedback();
+}
+function paintFeedback(){
+  let el = document.getElementById('fbSheet');
+  if (!ui.fb){ if (el) el.remove(); return; }
+  if (!el){ el = document.createElement('div'); el.id = 'fbSheet'; el.className = 'repback'; document.body.appendChild(el); }
+  const f = ui.fb, bug = f.kind === 'bug', can = !!(FB && fbUser);
+  el.innerHTML = '<div class="repsheet" role="dialog" aria-modal="true" aria-labelledby="fbTitle">' +
+    '<h3 id="fbTitle">' + (bug ? 'Report a bug' : 'Suggest a feature') + '</h3>' +
+    '<p class="repsub">' + (bug ? 'Tell me what went wrong and I’ll get it fixed.' : 'What would make WayMark better for your days out?') + '</p>' +
+    '<label class="replab" for="fbText">' + (bug ? 'What happened?' : 'Your idea') + '</label>' +
+    '<textarea id="fbText" maxlength="2000" rows="4" placeholder="' + (bug ? 'e.g. The map went blank when I zoomed in on Snowdon' : 'e.g. Let me plan a route with friends') + '">' + esc(f.text) + '</textarea>' +
+    (bug ? '<label class="replab" for="fbSteps" style="margin-top:10px">What were you doing just before? <i>(optional)</i></label>' +
+      '<textarea id="fbSteps" maxlength="1000" rows="2">' + esc(f.steps) + '</textarea>' : '') +
+    '<p class="fbdev">Sent with: ' + esc(deviceLine()) + (can ? '' : '') + '</p>' +
+    (can ? '' : '<p class="stnote">Sign in to send this from the app.</p>') +
+    '<div class="btnrow"><button class="btn quiet" data-act="fbcancel">Cancel</button>' +
+    '<button class="btn" data-act="fbsend"' + (can ? '' : ' disabled') + '>Send</button></div></div>';
+}
+async function sendFeedback(){
+  const f = ui.fb; if (!f || !FB || !fbUser) return;
+  const text = ((document.getElementById('fbText') || {}).value || '').trim();
+  const steps = ((document.getElementById('fbSteps') || {}).value || '').trim();
+  if (text.length < 3){ toast('Add a few words first.'); return; }
+  try{
+    await FB.setDoc(FB.doc(fbDb, 'feedback', 'f' + uid()), {
+      by: fbUser.uid, name: fbName || fbUser.name || '', kind: f.kind, text: text.slice(0, 2000), steps: steps.slice(0, 1000),
+      device: deviceLine(), screen: tab, t: Date.now(), status: 'open'
+    });
+  }catch(e){ toast(fbWhy(e)); return; }
+  ui.fb = null; paintFeedback();
+  toast(f.kind === 'bug' ? 'Thanks — bug report sent.' : 'Thanks — idea sent.');
+}
+/* the owner's inbox: reports and feedback, newest first */
+var isAdmin = false, adminChecked = false;
+async function checkAdmin(){
+  if (adminChecked || !FB || !fbUser) return;
+  adminChecked = true;
+  try{ const d = await FB.getDoc(FB.doc(fbDb, 'admins', fbUser.uid)); isAdmin = d.exists(); }catch(e){ isAdmin = false; }
+}
+async function loadInbox(){
+  if (!isAdmin) return;
+  const grab = async name => { const out = []; try{ const q = await FB.getDocs(FB.query(FB.collection(fbDb, name), FB.orderBy('t', 'desc'), FB.limit(100))); q.forEach(d => out.push({id:d.id, col:name, ...(d.data() || {})})); }catch(e){} return out; };
+  const [r, f] = await Promise.all([grab('reports'), grab('feedback')]);
+  ui.inbox = [...r, ...f].sort((a, b) => (b.t || 0) - (a.t || 0));
+  paintInbox();
+}
+function paintInbox(){
+  const box = document.getElementById('inboxBox'); if (!box) return;
+  if (!isAdmin){ box.innerHTML = ''; return; }
+  const items = ui.inbox || [];
+  const open = items.filter(x => x.status !== 'done');
+  const why = Object.fromEntries(REPORT_WHY);
+  box.innerHTML = '<h3>Inbox <i class="inboxnote">only you see this</i></h3>' +
+    (!ui.inbox ? '<p>Loading…</p>' : !open.length ? '<p>Nothing waiting. ' + (items.length ? items.length + ' handled.' : '') + '</p>' :
+    '<div class="inbox">' + open.slice(0, 40).map(x => {
+      const tag = x.col === 'reports' ? 'Report · ' + (why[x.why] || x.why) : x.kind === 'bug' ? 'Bug' : 'Idea';
+      return '<div class="inrow ' + (x.col === 'reports' ? 'rep' : x.kind) + '"><p class="intag">' + esc(tag) + ' · ' + esc(whenAgo(x.t)) + '</p>' +
+        (x.col === 'reports' ? '<p>' + esc(x.snip || '(a profile)') + '</p>' + (x.note ? '<p class="innote">“' + esc(x.note) + '”</p>' : '') :
+          '<p>' + esc(x.text || '') + '</p>' + (x.steps ? '<p class="innote">Before: ' + esc(x.steps) + '</p>' : '') + '<p class="indev">' + esc(x.name || '') + ' · ' + esc(x.device || '') + '</p>') +
+        '<div class="btnrow">' + (x.col === 'reports' && x.uid ? '<button class="btn quiet sm" data-act="inprofile" data-uid="' + esc(x.uid) + '">See profile</button>' : '') +
+        (x.col === 'reports' && x.post ? '<button class="btn quiet sm" data-act="inpost" data-post="' + esc(x.post) + '">See post</button>' : '') +
+        '<button class="btn sm" data-act="indone" data-id="' + esc(x.id) + '" data-col="' + esc(x.col) + '">Done</button></div></div>';
+    }).join('') + '</div>');
+}
+async function inboxDone(col, id){
+  try{ await FB.setDoc(FB.doc(fbDb, col, id), {status:'done', doneT: Date.now()}, {merge:true}); }catch(e){ toast(fbWhy(e)); return; }
+  const x = (ui.inbox || []).find(i => i.id === id); if (x) x.status = 'done';
+  paintInbox();
+}
+
 /* the old friends list, carried across once as mutual follows */
 const MIG_KEY = 'waymark.followmig';
 async function migrateFriends(){
@@ -15300,6 +15866,8 @@ async function loadFriends(){
       try{ const ok = await FB.getDoc(followerRef(f.uid, fbUser.uid)); if (ok.exists()){ f.pending = false; FB.setDoc(followingRef(fbUser.uid, f.uid), card(f)); } }catch(e){}
     }
     await migrateFriends();
+    await loadBlocks();
+    await checkAdmin(); if (isAdmin) loadInbox();
   }catch(e){ socialFailed = true; socialWhy = fbWhy(e); }
   friendsBusy = false;
   render();
