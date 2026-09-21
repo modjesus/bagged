@@ -3793,16 +3793,16 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .np2 .npbody{display:flex; align-items:center; gap:14px}
 .np2 .npbody > .patch{width:auto; min-width:0; flex:none; padding:0; margin:0}
 .np2 .npbody > div{gap:3px}
-.np2 p.sumlabel{margin:0 0 4px; font-size:10px; padding:4px 10px 3px}
+.np2 p.sumlabel, .lead.hasshot .nextpatch.big.np2 p.sumlabel{display:inline-block; width:max-content !important; max-width:100%; flex:none; align-self:flex-start; margin:0 0 4px; font-size:10px; padding:4px 10px 3px}
 .np2 .npname{font-size:19px; line-height:1.1}
 .np2 .dcs{font-size:13px}
 .np2 .rbar{margin-top:6px}
 .nextpatch.big.np2 .patch .disc.small{width:68px; height:68px}
-@media (min-width:900px){ .lead.hasshot .nextpatch.big.np2{display:block} .lead.hasshot .nextpatch.big.np2 .sumlabel{width:auto} }
+@media (min-width:900px){ .lead.hasshot .nextpatch.big.np2{display:block} .np2 .npbody > div{max-width:560px} }
 
 /* ---- list progress on Home: slimmer, the ridge sits behind the words ---- */
 .journey{padding:14px 16px 16px; isolation:isolate}
-.journey .ridge{position:absolute; left:0; right:0; bottom:0; width:100%; height:78%; margin:0; z-index:0; opacity:.9}
+.journey .ridge{position:absolute; left:0; right:0; bottom:0; width:100%; height:72%; margin:0; z-index:0; opacity:.9}
 .journey .jtop{align-items:center}
 .journey .jpct{font-size:clamp(38px,10.5vw,52px)}
 .journey .jsub{margin-top:4px}
@@ -3815,9 +3815,9 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .refreshbtn.rf2:active{transform:scale(.94)}
 .refreshbtn.rf2 svg{width:18px; height:18px; transition:transform .3s ease}
 .refreshbtn.rf2.spinning{color:var(--accent-text); border-color:color-mix(in srgb, var(--accent-text) 45%, var(--line))}
-.refreshbtn.rf2.spinning svg{animation:rfspin .75s cubic-bezier(.45,.05,.55,.95) infinite}
+.refreshbtn.rf2.spinning svg{animation:rfspin .8s linear infinite}
 @keyframes rfspin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){ .refreshbtn.rf2.spinning svg{animation-duration:2s} }
+
 </style>
 </head>
 <body>
@@ -6575,7 +6575,7 @@ function renderHills(){
           '<i class="b-done" style="width:' + pDone + '%"></i>' +
           '<i class="b-prog" style="width:' + pProg + '%"></i>' +
           '<i class="b-plan" style="width:' + pPlan + '%"></i></div>';
-  html += RIDGE + '</section>';
+  html += RIDGE.replace('xMidYMax slice', 'none') + '</section>';   // stretched, never cropped: a wide card kept slicing the tops off
   if (s.highest)
     html += '<p class="mapnote" style="margin:8px 2px 0">Highest marked: <b>' + esc(s.highest.n) + '</b>, ' + htFlat(s.highest) + '</p>';
 
@@ -8347,7 +8347,7 @@ function renderFeed(){
     '<button role="tab" data-act="feedview" data-v="following" aria-selected="' + (view === 'following') + '" aria-pressed="' + (view === 'following') + '">Following</button>' +
     '<button role="tab" data-act="feedview" data-v="discover" aria-selected="' + (view === 'discover') + '" aria-pressed="' + (view === 'discover') + '">Discover</button>' +
     '<button class="refreshbtn rf2' + (socialRefreshing ? ' spinning' : '') + '" data-act="refreshfeed" aria-label="' + (socialRefreshing ? 'Refreshing' : 'Refresh') + '" title="Refresh"' + (socialRefreshing ? ' aria-busy="true"' : '') + '>' +
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v3.3h-3.3"/></svg></button></div>';
+    '<svg' + (socialRefreshing ? ' style="animation-delay:' + spinDelay() + '"' : '') + ' viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v3.3h-3.3"/></svg></button></div>';
   if (view === 'discover'){
     s += '<div class="planintro">The newest public adventures on WayMark. Follow anyone whose walks you like.</div>';
     if (discoverWhy) s += '<p class="empty">' + esc(discoverWhy).replace(/(https?:\S+)/, '<a href="$1" target="_blank" rel="noopener">open Firebase</a>') + '</p>';
@@ -14414,13 +14414,19 @@ async function loadFeed(){
 /* What everybody is up to: the newest public adventures on WayMark. Lives on
    its own so a new walker with nobody followed still opens on a live feed. */
 let discover = [], discoverBusy = false, discoverWhy = '';
-let socialRefreshing = false;
+let socialRefreshing = false, socialSpinT0 = 0;
+const SPIN_MS = 800;
+/* The feed re-renders several times while it loads, which rebuilt the button
+   and restarted its spin each time. Each new button now picks the turn up
+   where the last one left it, and the spin always ends on a whole turn. */
+const spinDelay = () => '-' + ((Date.now() - socialSpinT0) % SPIN_MS) + 'ms';
 async function refreshSocial(){
   if (socialRefreshing) return;
-  socialRefreshing = true; render();
-  const t0 = Date.now();
+  socialRefreshing = true; socialSpinT0 = Date.now(); render();
+  const t0 = socialSpinT0;
   await Promise.all([loadFeed(), loadFriends(), loadDiscover()].map(p => Promise.resolve(p).catch(() => {})));
-  const wait = 700 - (Date.now() - t0); if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  const spent = Date.now() - t0, turns = Math.max(1, Math.ceil(spent / SPIN_MS));
+  const wait = turns * SPIN_MS - spent; if (wait > 0) await new Promise(r => setTimeout(r, wait));
   socialRefreshing = false; render();
   toast(socialFailed ? 'Could not refresh. Check your signal and try again.' : 'Up to date.');
 }
