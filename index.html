@@ -785,6 +785,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .subfilter button[aria-pressed="true"], .subfilter button[aria-selected="true"]{
   background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text)}
 .subfilter button i{font-style:normal; font-family:var(--font-data); font-size:11px; opacity:.8; margin-left:5px}
+.refreshbtn.spinning svg{animation:syncspin .8s linear infinite; color:var(--accent-text)}
 .subfilter .refreshbtn{margin-left:auto; width:38px; padding:0; display:grid; place-items:center}
 .hrowp .rc{display:flex; flex-direction:column; align-items:flex-end; line-height:1.15}
 .hrowp .rc i{font-style:normal; font-family:var(--font-ui); font-size:9.5px; letter-spacing:.07em;
@@ -3703,7 +3704,7 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-dock{flex:1; min-height:196px; display:flex; flex-direction:column; justify-content:space-evenly; gap:10px; padding:8px 0 calc(env(safe-area-inset-bottom) + 10px); transition:opacity .2s}
 .cx-lenses{display:flex; justify-content:center; gap:18px}
 .cx-lens{background:none; border:none; padding:0; color:#A9BBAF; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase}
-.cx-lens canvas{width:45px; height:60px; border-radius:9px; border:2px solid rgba(246,239,228,.25); transition:transform .15s, border-color .15s}
+.cx-lens canvas{height:60px; width:auto; max-width:60px; border-radius:9px; border:2px solid rgba(246,239,228,.25); transition:transform .15s, border-color .15s}
 .cx-lens[aria-checked="true"]{color:#F6EFE4}
 .cx-lens[aria-checked="true"] canvas{border-color:#E0784F; transform:scale(1.14)}
 .cx-shoot{display:flex; align-items:center; justify-content:space-between; padding:0 34px}
@@ -3729,10 +3730,13 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-note{background:#14332D; border:1px solid rgba(246,239,228,.16); border-radius:14px; padding:12px 14px; font-size:15px; font-weight:600; display:flex; justify-content:space-between; align-items:center; gap:10px}
 .cx-note.ok{color:#F6EFE4}
 .cx-link{background:none; border:none; color:#E0784F; font-weight:700; font-size:15px; padding:8px}
+.cx-info{margin:0; font-size:14px; line-height:1.4; color:#C9D6CE}
 .cx-retake{color:#A9BBAF; align-self:center}
 .cx-panel{position:absolute; left:0; right:0; bottom:0; z-index:2; background:#14332D; border-radius:24px 24px 0 0; padding:10px 18px calc(env(safe-area-inset-bottom) + 16px); box-shadow:0 -12px 32px rgba(0,0,0,.45)}
 .cx-panel[hidden]{display:none}
-.cx-grab{width:40px; height:5px; border-radius:3px; background:rgba(246,239,228,.3); margin:0 auto 12px}
+.cx-grab{width:44px; height:5px; border-radius:3px; background:rgba(246,239,228,.35); margin:0 auto 12px; position:relative}
+.cx-grab::before{content:""; position:absolute; left:-40px; right:-40px; top:-14px; bottom:-14px}
+.cx-panel{touch-action:none}
 .cx-panel h4{margin:0 0 4px; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#A9BBAF}
 .cx-row{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 0; border-top:1px solid rgba(246,239,228,.1); font-size:16px; font-weight:600}
 .cx-row i{display:block; font-style:normal; font-weight:400; font-size:13px; color:#A9BBAF; margin-top:2px}
@@ -3766,6 +3770,23 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 @keyframes syncspin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){ .sync.acct .si-spin{animation-duration:2.4s} }
 .brandrow{gap:8px}
+
+/* ---- formats ---- */
+.cx-view{aspect-ratio:var(--cxar, .75); width:min(100%, calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 60px - 236px) * var(--cxar, .75))); margin:0 auto; border-radius:0}
+.camx.review .cx-view{width:min(100%, calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 60px - 236px) * var(--cxar, .75)))}
+.camx[data-fmt="story"] .cx-view, .camx[data-fmt="video"] .cx-view, .camx[data-fmt="square"] .cx-view{border-radius:12px}
+.cx-fmts{display:flex; justify-content:center; gap:4px; margin-bottom:2px}
+.cx-fmts button{border:none; background:none; color:#A9BBAF; font:700 12.5px var(--font-ui); letter-spacing:.1em; text-transform:uppercase; padding:7px 11px; border-radius:999px; min-height:32px}
+.cx-fmts button[aria-checked="true"]{color:#F6EFE4; background:rgba(246,239,228,.14)}
+.camx.recording .cx-fmts, .camx.recording .cx-lenses, .camx.recording .cx-lib, .camx.recording [data-c="flip"]{opacity:.25; pointer-events:none}
+.cx-shutter.vid i{background:#C8432B}
+.camx.recording .cx-shutter.vid{padding:22px}
+.camx.recording .cx-shutter.vid i{border-radius:7px}
+.cx-rec{position:absolute; top:12px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:8px; background:rgba(11,21,18,.75); color:#F6EFE4; font:700 14px var(--font-ui); padding:6px 12px; border-radius:999px; font-variant-numeric:tabular-nums}
+.cx-rec[hidden]{display:none}
+.cx-rec i{width:9px; height:9px; border-radius:99px; background:#E0482F; animation:pulse 1s ease-in-out infinite}
+.cx-clip{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#0B1512}
+.cx-clip[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -8291,7 +8312,7 @@ function renderFeed(){
   s += '<div class="subfilter" role="tablist">' +
     '<button role="tab" data-act="feedview" data-v="following" aria-selected="' + (view === 'following') + '" aria-pressed="' + (view === 'following') + '">Following</button>' +
     '<button role="tab" data-act="feedview" data-v="discover" aria-selected="' + (view === 'discover') + '" aria-pressed="' + (view === 'discover') + '">Discover</button>' +
-    '<button class="iconbtn refreshbtn" data-act="refreshfeed" aria-label="Refresh" title="Refresh">' + ti('refresh') + '</button></div>';
+    '<button class="iconbtn refreshbtn' + (socialRefreshing ? ' spinning' : '') + '" data-act="refreshfeed" aria-label="' + (socialRefreshing ? 'Refreshing' : 'Refresh') + '" title="Refresh"' + (socialRefreshing ? ' aria-busy="true"' : '') + '>' + ti('refresh') + '</button></div>';
   if (view === 'discover'){
     s += '<div class="planintro">The newest public adventures on WayMark. Follow anyone whose walks you like.</div>';
     if (discoverWhy) s += '<p class="empty">' + esc(discoverWhy).replace(/(https?:\S+)/, '<a href="$1" target="_blank" rel="noopener">open Firebase</a>') + '</p>';
@@ -11751,7 +11772,7 @@ document.addEventListener('click', async e => {
   else if (a === 'closefriend'){ friendOpen = null; render(); }
   /* ---- friends and the feed ---- */
   else if (a === 'hikertab'){ ui.hikerTab = el.dataset.v; ui.openComments = null; render(); window.scrollTo({top:0}); }
-  else if (a === 'refreshfeed'){ loadFeed(); loadFriends(); toast('Refreshing…'); }
+  else if (a === 'refreshfeed'){ refreshSocial(); }
   else if (a === 'newpost'){
     ui.postForm = 'menu'; ui.pDraft = null;
     openShareSheet();
@@ -14358,6 +14379,16 @@ async function loadFeed(){
 /* What everybody is up to: the newest public adventures on WayMark. Lives on
    its own so a new walker with nobody followed still opens on a live feed. */
 let discover = [], discoverBusy = false, discoverWhy = '';
+let socialRefreshing = false;
+async function refreshSocial(){
+  if (socialRefreshing) return;
+  socialRefreshing = true; render();
+  const t0 = Date.now();
+  await Promise.all([loadFeed(), loadFriends(), loadDiscover()].map(p => Promise.resolve(p).catch(() => {})));
+  const wait = 700 - (Date.now() - t0); if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  socialRefreshing = false; render();
+  toast(socialFailed ? 'Could not refresh. Check your signal and try again.' : 'Up to date.');
+}
 async function loadDiscover(){
   if (!FB || !fbUser || discoverBusy) return;
   discoverBusy = true;
@@ -15977,7 +16008,23 @@ fbStart();
    The walker can flip between the two by hand (bad signal, a photo taken a
    minute below the cairn). Three looks: stamp, strip (default) and minimal.
    Weather and coordinates can be switched off for a shorter caption. */
-const CAM_W = 1080, CAM_H = 1440, CAM_L = 56, CAM_R = 1024, CAM_CW = CAM_R - CAM_L;
+/* Every look is laid out on a 1080-wide board of height CAM_H. A format is a
+   frame of height CAM_FH; Story and Video keep that board inside Instagram's
+   safe area (CAM_T at the top, where the name and progress bar sit; CAM_B at
+   the bottom, where "Send message" sits) and carry the fades out to the edges,
+   so nothing floats and nothing hides under Instagram's own buttons. */
+const CAM_FORMATS = {
+  photo:  {h: 1440, t: 0,   b: 0,   label: 'Photo'},
+  square: {h: 1080, t: 0,   b: 0,   label: 'Square'},
+  story:  {h: 1920, t: 170, b: 200, label: 'Story'},
+  video:  {h: 1920, t: 170, b: 200, label: 'Video'}
+};
+const CAM_W = 1080, CAM_L = 56, CAM_R = 1024, CAM_CW = CAM_R - CAM_L;
+let CAM_H = 1440, CAM_FH = 1440, CAM_T = 0, CAM_B = 0;
+function camSetFormat(f){
+  const F = CAM_FORMATS[f] || CAM_FORMATS.photo;
+  CAM_FH = F.h; CAM_T = F.t; CAM_B = F.b; CAM_H = F.h - F.t - F.b;
+}
 const CC = {cream:'#F6EFE4', rust:'#E0784F', sage:'#A9BBAF', sub:'#D5DFD9', dim:'#E6ECE8'};
 const CAM_KEY = 'waymark.cam';
 const CAM_MONO = '"Source Code Pro", ui-monospace, Menlo, monospace';
@@ -16105,6 +16152,10 @@ function cFade(ctx, y, h, stops, alpha){
   const g = ctx.createLinearGradient(0, y, 0, y + h);
   stops.forEach(([o, a]) => g.addColorStop(o, 'rgba(14,35,30,' + (a * (alpha || 1)) + ')'));
   ctx.fillStyle = g; ctx.fillRect(0, y, CAM_W, h);
+  /* a fade that meets the edge of the safe area carries on to the edge of the frame */
+  const tint = a => 'rgba(14,35,30,' + (a * (alpha || 1)) + ')';
+  if (CAM_T && y <= 0.5){ ctx.fillStyle = tint(stops[0][1]); ctx.fillRect(0, -CAM_T, CAM_W, CAM_T + Math.max(0, y)); }
+  if (CAM_B && y + h >= CAM_H - 0.5){ ctx.fillStyle = tint(stops[stops.length - 1][1]); ctx.fillRect(0, y + h, CAM_W, CAM_B + CAM_H - y - h); }
 }
 const FADE = [[0, 0], [0.4, 0.62], [1, 0.9]], FTOP = [[0, 0.7], [1, 0]], FBOT = [[0, 0], [1, 0.55]];
 function cShadow(ctx, on){
@@ -16332,8 +16383,8 @@ function camC(ctx, F){
    laid over every video frame, so the live view stays smooth ---- */
 const CAM_LOOKS = [['stamp', 'Stamp'], ['strip', 'Strip'], ['minimal', 'Minimal']];
 function camLayer(style, F){
-  const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_H;
-  const ctx = c.getContext('2d');
+  const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH;
+  const ctx = c.getContext('2d'); ctx.translate(0, CAM_T);
   if (F.main) ({stamp: camA, strip: camB, minimal: camC})[style](ctx, F);
   else {                             // no place yet: the photo still carries the mark
     cFade(ctx, CAM_H - 260, 260, FBOT); cShadow(ctx, true);
@@ -16349,7 +16400,7 @@ function camLayers(){
   if (!cam.still) cam.when = new Date();
   const F = camFacts();
   cam.layers = {}; for (const [k] of CAM_LOOKS) cam.layers[k] = camLayer(k, F);
-  cam.sig = cam.mode + '|' + (cam.hill && cam.hill.k) + '|' + cam.when.getHours() + ':' + cam.when.getMinutes() + '|' + !!cam.wx +
+  cam.sig = cam.prefs.format + '|' + cam.mode + '|' + (cam.hill && cam.hill.k) + '|' + cam.when.getHours() + ':' + cam.when.getMinutes() + '|' + !!cam.wx +
             '|' + (cam.fix ? Math.round((cam.fix.alt || 0) / 10) + '|' + Math.round((cam.dist || 0) / 100) : '') + '|' + JSON.stringify(cam.prefs);
   camPaint(); camThumbs(); camChrome();
 }
@@ -16365,9 +16416,11 @@ function camCover(ctx, src, w, h){
 function camPaint(){
   const cv = document.getElementById('cxCan'); if (!cv || !cam) return;
   const ctx = cv.getContext('2d'); const src = camSource();
-  ctx.fillStyle = '#0B1512'; ctx.fillRect(0, 0, CAM_W, CAM_H);
-  if (src) camCover(ctx, src, CAM_W, CAM_H);
+  if (cv.height !== CAM_FH) cv.height = CAM_FH;
+  ctx.fillStyle = '#0B1512'; ctx.fillRect(0, 0, CAM_W, CAM_FH);
+  if (src) camCover(ctx, src, CAM_W, CAM_FH);
   if (cam.layers) ctx.drawImage(cam.layers[cam.prefs.style], 0, 0);
+  if (cam.rec && cam.recCtx){ cam.recCtx.drawImage(cv, 0, 0); }
 }
 function camLoop(){
   if (!cam || cam.still) return;
@@ -16388,6 +16441,50 @@ function camThumbs(){
 }
 
 /* ---- where you are, and which moment it is ---- */
+/* Where and when a photo from the library was taken, read from its EXIF.
+   JPEG only (what phones hand a web page); anything else answers null. */
+async function photoMeta(file){
+  try{
+    const buf = await file.slice(0, 256 * 1024).arrayBuffer(), v = new DataView(buf);
+    if (v.getUint16(0) !== 0xFFD8) return null;
+    let o = 2;
+    while (o + 4 < v.byteLength){
+      const m = v.getUint16(o), len = v.getUint16(o + 2);
+      if (m === 0xFFE1 && v.getUint32(o + 4) === 0x45786966) return exifRead(v, o + 10);
+      if ((m & 0xFF00) !== 0xFF00) break;
+      o += 2 + len;
+    }
+  }catch(e){}
+  return null;
+}
+function exifRead(v, t){
+  const le = v.getUint16(t) === 0x4949;
+  const u16 = p => v.getUint16(t + p, le), u32 = p => v.getUint32(t + p, le);
+  const ifd = p => { const out = {}, n = u16(p);
+    for (let i = 0; i < n; i++){ const e = p + 2 + i * 12; out[u16(e)] = {type: u16(e + 2), count: u32(e + 4), at: e + 8}; }
+    return out; };
+  const rat = (e, i) => { const p = u32(e.at) + i * 8; const d = u32(p + 4); return d ? u32(p) / d : 0; };
+  const str = e => { const p = e.count > 4 ? u32(e.at) : e.at; let s = ''; for (let i = 0; i < e.count - 1; i++) s += String.fromCharCode(v.getUint8(t + p + i)); return s; };
+  const ascii1 = e => String.fromCharCode(v.getUint8(t + e.at));
+  const zero = ifd(u32(4)), out = {};
+  if (zero[0x8769]){ const sub = ifd(u32(zero[0x8769].at)), d = sub[0x9003] || zero[0x0132];
+    if (d){ const m = str(d).match(/(\d{4}):(\d\d):(\d\d) (\d\d):(\d\d):(\d\d)/);
+      if (m) out.when = new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]); } }
+  if (zero[0x8825]){ const g = ifd(u32(zero[0x8825].at));
+    const dms = e => rat(e, 0) + rat(e, 1) / 60 + rat(e, 2) / 3600;
+    if (g[2] && g[4]){
+      let lat = dms(g[2]), lon = dms(g[4]);
+      if (g[1] && ascii1(g[1]) === 'S') lat = -lat;
+      if (g[3] && ascii1(g[3]) === 'W') lon = -lon;
+      if (isFinite(lat) && isFinite(lon) && (lat || lon)){
+        out.fix = {lat, lon, acc: 25, alt: null};
+        if (g[6]){ let a = rat(g[6], 0); if (g[5] && v.getUint8(t + g[5].at) === 1) a = -a; if (isFinite(a)) out.fix.alt = a; }
+      }
+    }
+  }
+  return out;
+}
+
 function camJudge(){
   const fx = cam.fix;
   if (fx){ const n = nearestHill(fx.lat, fx.lon); cam.hill = n ? n.h : null; cam.dist = n ? n.d : null; }
@@ -16398,25 +16495,40 @@ function camWatch(){
   if (!navigator.geolocation || cam.watch != null) return;
   cam.watch = navigator.geolocation.watchPosition(p => {
     if (!cam) return;
-    cam.fix = {lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy,
+    cam.liveFix = {lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy,
                alt: (p.coords.altitude != null && isFinite(p.coords.altitude)) ? p.coords.altitude : null};
-    cam.locErr = ''; camJudge();
+    cam.locErr = '';
+    if (cam.photoFix) return;
+    cam.fix = cam.liveFix; camJudge();
     if (cam.prefs.weather && !cam.wx) camWeather();
     if (!cam.still) camLayers(); else camChrome();
   }, e => { if (!cam) return; cam.locErr = e.code === 1 ? 'off' : 'wait'; camChrome(); },
   {enableHighAccuracy: true, maximumAge: 5000, timeout: 30000});
 }
 async function camWeather(){
-  if (!cam || cam.wxBusy || cam.wx || !cam.fix) return; cam.wxBusy = true;
+  if (!cam || cam.wxBusy || cam.wx || !cam.fix || (cam.still && !cam.live && !cam.photoFix)) return; cam.wxBusy = true;
   try{
     const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 6000);
-    const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + cam.fix.lat.toFixed(3) + '&longitude=' + cam.fix.lon.toFixed(3) +
-      '&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&timezone=Europe%2FLondon', {signal: ctl.signal});
+    const at = 'latitude=' + cam.fix.lat.toFixed(3) + '&longitude=' + cam.fix.lon.toFixed(3);
+    const past = cam.still && !cam.live && (Date.now() - cam.when.getTime() > 2 * 3600e3);
+    if (!past){
+      const r = await fetch('https://api.open-meteo.com/v1/forecast?' + at +
+        '&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&timezone=Europe%2FLondon', {signal: ctl.signal});
+      const c = (await r.json()).current;
+      if (c && cam) cam.wx = {temp: c.temperature_2m, code: c.weather_code, wind: c.wind_speed_10m, dir: c.wind_direction_10m};
+    } else {
+      const w = cam.when, day = w.getFullYear() + '-' + String(w.getMonth() + 1).padStart(2, '0') + '-' + String(w.getDate()).padStart(2, '0');
+      const recent = Date.now() - w.getTime() < 80 * 864e5;
+      const r = await fetch((recent ? 'https://api.open-meteo.com/v1/forecast?' : 'https://archive-api.open-meteo.com/v1/archive?') + at +
+        '&start_date=' + day + '&end_date=' + day +
+        '&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&timezone=Europe%2FLondon', {signal: ctl.signal});
+      const h = (await r.json()).hourly, i = w.getHours();
+      if (h && h.temperature_2m && h.temperature_2m[i] != null && cam)
+        cam.wx = {temp: h.temperature_2m[i], code: h.weather_code[i], wind: h.wind_speed_10m[i], dir: h.wind_direction_10m[i]};
+    }
     clearTimeout(t);
-    const c = (await r.json()).current;
-    if (c && cam) cam.wx = {temp: c.temperature_2m, code: c.weather_code, wind: c.wind_speed_10m, dir: c.wind_direction_10m};
   }catch(e){ /* no signal: the picture goes without weather */ }
-  if (cam){ cam.wxBusy = false; if (!cam.still) camLayers(); }
+  if (cam){ cam.wxBusy = false; camLayers(); }
 }
 async function camStart(){
   const msg = document.getElementById('cxMsg');
@@ -16466,8 +16578,11 @@ function camBuild(){
       '<button class="cx-ib" data-c="opts" aria-label="Caption settings" aria-expanded="false">' + cxI('opts') + '</button></div>' +
     '<div class="cx-view" id="cxView"><video id="cxVid" playsinline muted autoplay></video>' +
       '<canvas id="cxCan" width="' + CAM_W + '" height="' + CAM_H + '" role="img" aria-label="Camera view with your caption"></canvas>' +
+      '<video id="cxClip" class="cx-clip" playsinline loop muted hidden></video><div class="cx-rec" id="cxRec" hidden><i></i><span>0:00</span></div>' +
       '<div class="cx-hint" id="cxHint">Swipe to change the look</div><div class="cx-msg" id="cxMsg" hidden></div></div>' +
     '<div class="cx-dock" id="cxDock">' +
+      '<div class="cx-fmts" role="radiogroup" aria-label="Format">' + Object.entries(CAM_FORMATS).map(([k, f]) =>
+        '<button role="radio" data-c="fmt" data-v="' + k + '">' + f.label + '</button>').join('') + '</div>' +
       '<div class="cx-lenses" role="radiogroup" aria-label="Caption look">' + CAM_LOOKS.map(([k, t]) =>
         '<button class="cx-lens" role="radio" data-c="look" data-v="' + k + '"><canvas width="90" height="120"></canvas><span>' + t + '</span></button>').join('') + '</div>' +
       '<div class="cx-shoot"><label class="cx-lib" aria-label="Use a photo you have already taken">' + cxI('photo') +
@@ -16477,6 +16592,24 @@ function camBuild(){
     '<div class="cx-after" id="cxAfter" hidden></div>' +
     '<div class="cx-panel" id="cxPanel" hidden></div>';
   el.addEventListener('click', camClick);
+  /* drag the settings sheet down by its handle (or anywhere on it) to close */
+  const panel = el.querySelector('#cxPanel'); let py = null, pdy = 0;
+  panel.addEventListener('touchstart', e => {
+    if (e.target.closest('button') && !e.target.closest('.cx-grab')) return;
+    py = e.touches[0].clientY; pdy = 0; panel.style.transition = 'none';
+  }, {passive: true});
+  panel.addEventListener('touchmove', e => {
+    if (py == null) return; pdy = Math.max(0, e.touches[0].clientY - py);
+    panel.style.transform = 'translateY(' + pdy + 'px)';
+  }, {passive: true});
+  panel.addEventListener('touchend', () => {
+    if (py == null) return; py = null;
+    panel.style.transition = 'transform .2s ease';
+    if (pdy > Math.min(120, panel.offsetHeight * 0.3)){
+      panel.style.transform = 'translateY(100%)';
+      setTimeout(() => { camPanelClose(); panel.style.transition = ''; panel.style.transform = ''; }, 200);
+    } else panel.style.transform = '';
+  });
   el.addEventListener('change', e => { const i = e.target.closest('[data-c="lib"]'); if (i && i.files && i.files[0]) camPick(i.files[0]); if (i) i.value = ''; });
   /* swipe sideways on the picture to change the look; tap it to hide the controls */
   const view = el.querySelector('#cxView'); let sx = 0, sy = 0, st = 0;
@@ -16488,6 +16621,65 @@ function camBuild(){
   });
   document.body.appendChild(el);
   return el;
+}
+function camFormat(k){
+  if (!CAM_FORMATS[k] || cam.rec) return;
+  cam.prefs.format = k; camKeep(); camSetFormat(k); camSizeView(); camLayers();
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+function camSizeView(){
+  const el = document.getElementById('camx'); if (!el) return;
+  el.style.setProperty('--cxar', String(CAM_W / CAM_FH));
+  el.dataset.fmt = cam.prefs.format;
+  document.getElementById('cxCan').height = CAM_FH;
+  document.querySelectorAll('#camx .cx-lens canvas').forEach(c => { c.width = 90; c.height = Math.round(90 * CAM_FH / CAM_W); });
+  document.querySelectorAll('#camx [data-c="fmt"]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === cam.prefs.format)));
+  const sh = document.querySelector('#camx .cx-shutter');
+  sh.classList.toggle('vid', cam.prefs.format === 'video');
+  sh.setAttribute('aria-label', cam.prefs.format === 'video' ? (cam.rec ? 'Stop recording' : 'Start recording') : 'Take photo');
+}
+/* Video: the live picture and its caption are recorded together, with sound
+   when the phone allows it, up to a minute. */
+const CAM_REC_MAX = 60;
+async function camRecStart(){
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream){ toast('This phone cannot record video here. Try Story instead.'); return; }
+  if (!camSource()){ toast('The camera is not ready yet.'); return; }
+  const rc = document.createElement('canvas'); rc.width = CAM_W; rc.height = CAM_FH;
+  cam.recCtx = rc.getContext('2d');
+  const stream = rc.captureStream(30);
+  try{
+    const mic = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+    mic.getAudioTracks().forEach(t => stream.addTrack(t)); cam.mic = mic;
+  }catch(e){ /* no microphone: a silent clip */ }
+  const type = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const mr = new MediaRecorder(stream, type ? {mimeType: type, videoBitsPerSecond: 6e6} : {});
+  const parts = []; mr.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
+  mr.onstop = () => {
+    if (cam && cam.mic){ cam.mic.getTracks().forEach(t => t.stop()); cam.mic = null; }
+    if (!cam) return;
+    const t = (mr.mimeType || type || 'video/webm').split(';')[0];
+    const blob = new Blob(parts, {type: t});
+    cam.clip = {blob, type: t, ext: /mp4/.test(t) ? 'mp4' : 'webm', url: URL.createObjectURL(blob)};
+    cam.recCtx = null;
+    camFreeze(camSource() || rc, cam.recStart, true);   // the raw last frame; the caption is laid over it again
+    const v = document.getElementById('cxClip'); v.src = cam.clip.url; v.hidden = false; v.play().catch(() => {});
+  };
+  cam.rec = mr; cam.recStart = new Date(); mr.start(500);
+  document.getElementById('camx').classList.add('recording'); document.getElementById('cxRec').hidden = false;
+  camSizeView();
+  const tick = () => {
+    if (!cam || cam.rec !== mr) return;
+    const secs = Math.floor((Date.now() - cam.recStart) / 1000);
+    document.querySelector('#cxRec span').textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+    if (secs >= CAM_REC_MAX) camRecStop(); else setTimeout(tick, 250);
+  };
+  tick();
+}
+function camRecStop(){
+  const mr = cam && cam.rec; if (!mr) return;
+  cam.rec = null; document.getElementById('camx').classList.remove('recording'); document.getElementById('cxRec').hidden = true;
+  camSizeView();
+  try{ mr.stop(); }catch(e){}
 }
 function camStep(d){
   const i = CAM_LOOKS.findIndex(([k]) => k === cam.prefs.style);
@@ -16504,11 +16696,16 @@ function camChrome(){
   let p;
   if (!cam.fix) p = cam.locErr === 'off' ? '<span class="dim">Location off · no place on the caption</span>' : '<span class="dim">Finding where you are…</span>';
   else if (!h) p = '<span class="dim">No listed hill near here</span>';
-  else if (cam.mode === 'summit') p = '<b class="tri">▲</b> Summit · ' + esc(hillName(h));
+  else if (cam.still && !cam.live && cam.photoNoPlace) p = '<span class="dim">No location in this photo</span>';
+  else if (cam.mode === 'summit') p = (cam.photoFix && cam.still ? '<b class="tri">▲</b> ' + esc(hillName(h)) + ' <span class="dim">· photo</span>' : '<b class="tri">▲</b> Summit · ' + esc(hillName(h)));
   else p = '<b class="tri dim">△</b> ' + gDist(cam.dist) + ' to ' + esc(hillName(h));
   pill.innerHTML = p;
   document.querySelectorAll('#camx .cx-lens').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === cam.prefs.style)));
   if (!document.getElementById('cxPanel').hidden) camPanel();
+}
+function camPanelClose(){
+  document.getElementById('cxPanel').hidden = true;
+  const o = document.querySelector('#camx [data-c="opts"]'); if (o) o.setAttribute('aria-expanded', 'false');
 }
 function camPanel(){
   const P = cam.prefs, auto = cam.auto === 'summit' ? 'Summit' : 'On the way';
@@ -16516,7 +16713,7 @@ function camPanel(){
     '<button data-c="moment" data-v="' + v + '" aria-pressed="' + (P.moment === v) + '">' + t + '</button>').join('');
   const sw = (k, t, sub) => '<div class="cx-row"><span>' + t + '<i>' + sub + '</i></span>' +
     '<button class="cx-sw" data-c="' + k + '" role="switch" aria-checked="' + !!P[k] + '" aria-label="' + t + '"></button></div>';
-  document.getElementById('cxPanel').innerHTML = '<div class="cx-grab"></div><h4>Caption</h4>' +
+  document.getElementById('cxPanel').innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Caption</h4>' +
     '<div class="cx-row"><span>Moment<i>Right now: ' + auto + '</i></span><div class="cx-seg">' + seg + '</div></div>' +
     sw('weather', 'Weather', 'Temperature, sky and wind') + sw('coords', 'Coordinates', 'Latitude and longitude') +
     '<button class="cx-btn ghost" data-c="opts">Done</button>';
@@ -16529,7 +16726,8 @@ function camClick(e){
   else if (a === 'moment'){ cam.prefs.moment = b.dataset.v; camKeep(); camJudge(); camLayers(); camPanel(); }
   else if (a === 'weather' || a === 'coords'){ cam.prefs[a] = !cam.prefs[a]; camKeep(); if (a === 'weather') camWeather(); camLayers(); camPanel(); }
   else if (a === 'look') camLook(b.dataset.v);
-  else if (a === 'shoot') camShoot();
+  else if (a === 'fmt') camFormat(b.dataset.v);
+  else if (a === 'shoot'){ if (cam.prefs.format === 'video') (cam.rec ? camRecStop() : camRecStart()); else camShoot(); }
   else if (a === 'flip'){ cam.facing = cam.facing === 'environment' ? 'user' : 'environment'; camStart(); }
   else if (a === 'retake') camRetake();
   else if (a === 'mark') camMark();
@@ -16541,9 +16739,9 @@ function camClick(e){
 
 /* ---- taking the picture ---- */
 function camFreeze(src, when, live){
-  const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_H;
-  camCover(c.getContext('2d'), src, CAM_W, CAM_H);
-  cam.still = c; cam.when = when; cam.live = live; cam.saved = false; cam.asked = false; cam.marked = null;
+  const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH;
+  camCover(c.getContext('2d'), src, CAM_W, CAM_FH);
+  cam.still = c; cam.when = when; cam.live = live; cam.saved = false; cam.asked = false; cam.marked = null; cam.verified = false;
   cancelAnimationFrame(cam.raf);
   document.getElementById('camx').classList.add('review'); document.getElementById('camx').classList.remove('clean');
   camLayers(); camAfter();
@@ -16559,11 +16757,21 @@ async function camPick(file){
   try{
     const img = window.createImageBitmap ? await createImageBitmap(file, {imageOrientation: 'from-image'}).catch(() => createImageBitmap(file))
       : await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
-    camFreeze(img, new Date(file.lastModified || Date.now()), false);
+    const meta = await photoMeta(file) || {};
+    cam.photoFix = meta.fix || null; cam.photoNoPlace = !meta.fix;
+    cam.fix = cam.photoFix || cam.liveFix || null; if (cam.fix) camJudge();
+    cam.wx = null;
+    camFreeze(img, meta.when || new Date(file.lastModified || Date.now()), false);
+    if (cam.prefs.weather && cam.photoFix) camWeather();   // a photo with no place gets no weather: we cannot know it
   }catch(err){ toast('That photo would not open. If it came from iCloud, open it in Photos first.'); }
 }
 function camRetake(){
+  if (cam.photoFix || cam.photoNoPlace){ cam.photoFix = null; cam.photoNoPlace = false; cam.wx = null;
+    cam.fix = cam.liveFix || null; if (cam.fix) camJudge(); }
   cam.still = null; cam.saved = false; cam.marked = null;
+  if (cam.clip){ URL.revokeObjectURL(cam.clip.url); cam.clip = null; }
+  const cv = document.getElementById('cxClip'); cv.pause(); cv.removeAttribute('src'); cv.hidden = true;
+  if (!cam.wx && cam.fix && cam.prefs.weather) camWeather();
   const el = document.getElementById('camx'); el.classList.remove('review');
   document.getElementById('cxAfter').hidden = true;
   camLayers(); if (cam.stream) camLoop(); else camStart();
@@ -16574,13 +16782,23 @@ function camAfter(){
   const box = document.getElementById('cxAfter'); box.hidden = false;
   const h = cam.hill, onTop = cam.live && cam.mode === 'summit' && h && cam.fix;
   let s = '';
-  if (cam.marked) s += '<div class="cx-note ok">✓ ' + esc(hillName(h)) + ' marked · ' + esc(prettyDate(cam.marked.date)) +
+  if (cam.still && !cam.live && cam.photoNoPlace)
+    s += '<p class="cx-info">This photo has no location saved, so the caption uses where you are now.</p>';
+  /* already marked but never verified: a live photo on the top proves it, so say so */
+  if (onTop && isBagged(h.k) && !cam.marked && !cam.verified && !verifiedAt(h.k)){
+    const c = rec(h.k);
+    state.bagged[h.k] = {...c, v: {t: Date.now(), d: Math.round(cam.dist || 0), acc: Math.round(cam.fix.acc)}, t: now()};
+    touched(); cam.verified = true;
+    if (typeof mapReady !== 'undefined' && mapReady) drawMarkers();
+  }
+  if (cam.verified) s += '<div class="cx-note ok"><span>✓ ' + esc(hillName(h)) + ' is now <b>GPS verified</b></span></div>';
+  if (cam.marked) s += '<div class="cx-note ok"><span>✓ ' + esc(hillName(h)) + ' marked and <b>GPS verified</b> · ' + esc(prettyDate(cam.marked.date)) + '</span>' +
     ' <button class="cx-link" data-c="undo">Undo</button></div>';
   if (onTop && !cam.asked && !cam.marked && !isBagged(h.k)){
-    s += '<div class="cx-ask"><p>You’re on the summit of <b>' + esc(hillName(h)) + '</b></p><span>Mark it as climbed today?</span>' +
+    s += '<div class="cx-ask"><p>You’re on the summit of <b>' + esc(hillName(h)) + '</b></p><span>Mark it as climbed today? Your location proves it, so it will be GPS verified.</span>' +
          '<div class="cx-two"><button class="cx-btn" data-c="mark">Mark as climbed</button><button class="cx-btn ghost light" data-c="notnow">Not now</button></div></div>';
   } else if (!cam.saved){
-    s += '<button class="cx-btn big" data-c="save">' + cxI('save') + ' Save photo</button>' +
+    s += '<button class="cx-btn big" data-c="save">' + cxI('save') + (cam.clip ? ' Save video' : ' Save photo') + '</button>' +
          '<button class="cx-btn ghost big" data-c="share">' + cxI('share') + ' Share</button>';
   } else {
     s += '<div class="cx-note ok">✓ Saved to your ' + (camIOS() ? 'photos' : 'phone') + '</div>' +
@@ -16602,7 +16820,7 @@ async function camMark(){
   cam.marked = {key, prev, date: state.bagged[key].date};
   camAfter();
   /* the summit photo belongs with the hill */
-  camBlob().then(b => addPhotos(key, [new File([b], camFileName(), {type: 'image/jpeg'})])).catch(() => {});
+  camStillBlob().then(b => addPhotos(key, [new File([b], camFileName('jpg'), {type: 'image/jpeg'})])).catch(() => {});
   if (typeof mapReady !== 'undefined' && mapReady) drawMarkers();
 }
 function camUndo(){
@@ -16613,12 +16831,16 @@ function camUndo(){
 }
 const camIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 function camBlob(){
-  const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_H; const ctx = c.getContext('2d');
+  if (cam.clip) return Promise.resolve(cam.clip.blob);
+  return camStillBlob();
+}
+function camStillBlob(){
+  const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH; const ctx = c.getContext('2d');
   ctx.drawImage(cam.still, 0, 0); ctx.drawImage(cam.layers[cam.prefs.style], 0, 0);
   return new Promise(res => c.toBlob(res, 'image/jpeg', 0.92));
 }
-function camFileName(){ const h = cam.hill; return 'waymark-' + (h ? String(h.n).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' : '') + cam.when.toISOString().slice(0, 10) + '.jpg'; }
-async function camFile(){ return new File([await camBlob()], camFileName(), {type: 'image/jpeg'}); }
+function camFileName(ext){ const h = cam.hill; return 'waymark-' + (h ? String(h.n).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' : '') + cam.when.toISOString().slice(0, 10) + '.' + (ext || (cam.clip ? cam.clip.ext : 'jpg')); }
+async function camFile(){ return new File([await camBlob()], camFileName(), {type: cam.clip ? cam.clip.type : 'image/jpeg'}); }
 /* iPhone: a web app can only reach Photos through the share sheet ("Save Image").
    Everywhere else the file downloads straight to the phone. */
 async function camSaveOut(){
@@ -16648,6 +16870,8 @@ function camOpen(){
   document.getElementById('cxAfter').hidden = true; document.getElementById('cxPanel').hidden = true;
   document.getElementById('cxHint').classList.remove('gone');
   cam.video = document.getElementById('cxVid');
+  if (!CAM_FORMATS[cam.prefs.format]) cam.prefs.format = 'photo';
+  camSetFormat(cam.prefs.format); camSizeView();
   el.classList.add('open'); document.documentElement.classList.add('camlock');
   try{ history.pushState({waymarkCam: 1}, ''); cam.pushed = true; }catch(e){}
   camLayers(); camChrome();
@@ -16658,6 +16882,9 @@ function camOpen(){
 }
 function camClose(fromHistory){
   if (!cam) return;
+  if (cam.rec) camRecStop();
+  if (cam.clip){ URL.revokeObjectURL(cam.clip.url); cam.clip = null; }
+  const cv = document.getElementById('cxClip'); if (cv){ cv.pause(); cv.removeAttribute('src'); cv.hidden = true; }
   camStop();
   if (cam.watch != null) navigator.geolocation.clearWatch(cam.watch);
   const pushed = cam.pushed; cam = null;
