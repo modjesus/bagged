@@ -33,3 +33,6 @@ window.FIREBASE_CONFIG = {
 // OS Maps API key from the Data Hub. Everyone using the site draws on this
 // allowance. If OS stops answering, WayMark falls back to OpenTopoMap on its own.
 window.OS_MAPS_KEY = "7dr6PaxTGBDvEAweDivDRhkL1s7XFPJw";
+
+window.STRAVA_CLIENT_ID = "280997";
+window.STRAVA_WORKER = "https://waymark-strava.joesullivan1998.workers.dev";
