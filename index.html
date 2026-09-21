@@ -4255,6 +4255,13 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 .dststats i{font-style:normal; font-size:11.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.08em}
 .dstfoot{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin:8px 0 0; font-size:13px}
 .dstfoot a{color:#FC5200; font-weight:700; text-decoration:underline; text-underline-offset:2px}
+.dstgpx{display:flex; gap:10px; align-items:flex-start; margin:12px 0 0; padding:12px 14px; border-radius:12px; background:var(--tint, rgba(168,67,26,.06)); font-size:13.5px; line-height:1.45}
+.dstgpx > svg{flex:none; width:20px; height:20px; margin-top:1px; color:var(--rust, #A8431A)}
+.dstgpx b{display:block; font-weight:700; color:var(--ink)}
+.dstgpx span{display:block; color:var(--ink-2); margin:2px 0 8px}
+.dstgpx .linkbtn{padding:0}
+.dstgpx.on > svg{color:#2E7D4F}
+.pwroute{margin-top:8px}
 .dentry .dstonly, .dstonly{margin:4px 0 0; font-size:12.5px; line-height:1.4; color:var(--ink-3)}
 
 /* ---- feedback + inbox ---- */
@@ -4809,6 +4816,9 @@ function normalise(s){
     if (d.strava && d.strava.id) e.strava = {id:String(d.strava.id), name:d.strava.name||'', dist:+d.strava.dist||0, mins:+d.strava.mins||0,
       elapsed:+d.strava.elapsed||0, asc:+d.strava.asc||0, trk:Array.isArray(d.strava.trk) ? d.strava.trk : [],
       hills:Array.isArray(d.strava.hills) ? d.strava.hills : [], at:d.strava.at||0};
+    /* the walker's own GPX export of that walk: theirs to share, unlike Strava's copy */
+    if (e.strava && d.strava.gpx && Array.isArray(d.strava.gpx.trk)) e.strava.gpx = {trk:d.strava.gpx.trk, dist:+d.strava.gpx.dist||0,
+      asc:+d.strava.gpx.asc||0, mins:+d.strava.gpx.mins||0, at:d.strava.gpx.at||0};
     out.diary.push(e);
   }
   if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id]);
@@ -7743,7 +7753,9 @@ function parseGPX(text){
              '-' + String(d.getDate()).padStart(2, '0');
     }
   }
-  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts, date};
+  const times = [...doc.getElementsByTagName('trkpt')].map(el => { const t = el.getElementsByTagName('time')[0]; return t ? Date.parse(t.textContent.trim()) : NaN; }).filter(isFinite);
+  const mins = times.length > 1 ? Math.round((Math.max(...times) - Math.min(...times)) / 60000) : 0;
+  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts, date, mins};
 }
 
 /* Firestore documents are capped, and a phone-recorded walk can run to tens of
@@ -8522,7 +8534,7 @@ function renderDiary(){
       const eps = e.photos || [];
       html += '<div class="dentry">' +
         (e.title ? '<h3>' + esc(e.title) + '</h3>' : '') +
-        (e.strava ? stravaDayHTML(e.strava) : '') +
+        (e.strava ? stravaDayHTML(e.strava, e.id) : '') +
         (e.text ? '<p>' + esc(e.text) + '</p>' : '');
 
       if (eps.length){
@@ -8590,6 +8602,26 @@ function whenAgo(t){
    matter what they have changed since. Given the uid, the living card wins,
    and my own picture comes straight from this device so it is right the
    instant I change it. */
+/* Profile pictures arrive as long data: strings. Put straight into the page,
+   every refresh re-reads and re-decodes each one (a busy feed carried over
+   1 MB of them). Turned into a short blob: link once, the browser keeps the
+   decoded picture and refreshes are instant. */
+const picMem = new Map();
+function picURL(src){
+  if (typeof src !== 'string' || src.slice(0, 5) !== 'data:' || src.length < 2000) return src;
+  let u = picMem.get(src);
+  if (u) return u;
+  try{
+    const i = src.indexOf(','), head = src.slice(5, i), b64 = /;base64/.test(head);
+    const raw = b64 ? atob(src.slice(i + 1)) : decodeURIComponent(src.slice(i + 1));
+    const bytes = new Uint8Array(raw.length);
+    for (let k = 0; k < raw.length; k++) bytes[k] = raw.charCodeAt(k);
+    u = URL.createObjectURL(new Blob([bytes], {type: head.split(';')[0] || 'image/jpeg'}));
+  }catch(e){ return src; }
+  if (picMem.size > 300) picMem.clear();   // old links stay valid; this only stops the map growing
+  picMem.set(src, u);
+  return u;
+}
 function avatarHTML(av, name, cls, uid){
   let src = av, nm = name;
   if (uid){
@@ -8599,7 +8631,7 @@ function avatarHTML(av, name, cls, uid){
       if (live){ if (live.av) src = live.av; if (live.name) nm = live.name; }
     }
   }
-  return src ? '<img class="avatar ' + cls + '" src="' + esc(src) + '" alt="">'
+  return src ? '<img class="avatar ' + cls + '" src="' + esc(picURL(src)) + '" alt="" decoding="async">'
              : '<div class="avatar ' + cls + ' initial">' + esc((nm || 'W').trim().charAt(0).toUpperCase()) + '</div>';
 }
 /* A write-up runs to whatever length the walker felt like. Past a few lines it
@@ -12473,7 +12505,8 @@ document.addEventListener('click', async e => {
       title: e.shared ? 'Share this entry again?' : 'Share this entry?',
       body: 'Your friends will see ' + (e.title ? '“' + e.title + '”' : 'this entry') +
             ', the words you wrote' + (n ? ' and ' + (n === 1 ? 'the photo' : 'all ' + n + ' photos') : '') +
-            (e.strava ? ', the summits, and a “View on Strava” link to the walk. The route, times and stats stay in your journal: Strava only lets apps show them to you.' : '. Nothing else from your journal is shared.'),
+            (e.strava ? (e.strava.gpx ? ', the summits, your route and its stats from the GPX you added, and a “View on Strava” link.'
+              : ', the summits and a “View on Strava” link. Strava doesn’t allow apps to show your route, times or stats to anyone else, so those stay in your journal. Add your GPX to the day to share the route.') : '. Nothing else from your journal is shared.'),
       yes: 'Share'
     });
     if (!ok) return;
@@ -12902,6 +12935,28 @@ document.addEventListener('change', e => {
       /* a file is a route too: offer its map the same way a drawn one gets it */
       setTimeout(() => offerRouteSheet(planById(id)), 900);
     }).catch(() => toast('Could not read that file.'));
+  }
+  else if (a === 'stgpx' && el.files && el.files.length){
+    const f = el.files[0], e = diaryEntry(el.dataset.id); el.value = '';
+    if (!e || !e.strava) return;
+    f.text().then(txt => {
+      let g;
+      try{ g = parseGPX(txt); }catch(err){ toast(err.message); return; }
+      if (g.pts.length < 2){ toast('That file has no track in it.'); return; }
+      /* the right walk? Same day, or starting near where the Strava one did */
+      const st = e.strava.trk && e.strava.trk[0];
+      const near = st ? metresBetween(st[0], st[1], g.pts[0][0], g.pts[0][1]) < 2000 : true;
+      if (g.date && g.date !== e.date && !near){ toast('That GPX looks like a different walk (' + prettyDate(g.date) + ').'); return; }
+      const trk = fitTrack(g.pts);
+      e.strava.gpx = {trk, dist:Math.round(trackLength(g.pts)), asc:trackAscent(g.pts) || 0, mins:g.mins || 0, at:now()};
+      setDiary(e.id, {strava:e.strava});
+      render();
+      toast('Route added. Share the day and followers will see it.');
+    }).catch(() => toast('Could not read that file.'));
+  }
+  else if (a === 'stgpxoff'){
+    const e = diaryEntry(el.dataset.id); if (!e || !e.strava) return;
+    delete e.strava.gpx; setDiary(e.id, {strava:e.strava}); render();
   }
   else if (a === 'gpxin' && el.files && el.files.length){
     const f = el.files[0], id = el.dataset.id;
@@ -14552,13 +14607,17 @@ function postVerb(p, hs){
 }
 function mediaHTML(p, hs, adventure){
   const shots = p.shots || [];
+  /* a walk shared with its own GPX: the route on the map, under any photos */
+  const wtrk = p.kind !== 'route' ? postTrk(p) : [];
+  const route = wtrk.length > 1 ? trackStrip(wtrk, hs) : '';
   if (shots.length){
     return '<div class="pmedia" data-n="' + shots.length + '"><div class="pcar">' + shots.slice(0, 6).map((pid, i) =>
       '<button class="shot" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '" aria-label="Photo ' + (i + 1) + ' of ' + shots.length + '">' +
       '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="' + esc(p.text ? p.text.slice(0, 80) : 'Photo from ' + (p.name || 'a walker') + '’s day out') + '"></button>').join('') + '</div>' +
       (shots.length > 1 ? '<span class="pcount">1/' + shots.length + '</span><div class="pdots">' + shots.slice(0, 6).map((_, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>' : '') +
-      '</div>';
+      '</div>' + (route ? '<div class="pwroute">' + route + '</div>' : '');
   }
+  if (route) return route;
   if (adventure && hs.length) return mapStrip(hs, p);
   return '';
 }
@@ -14583,16 +14642,10 @@ function mapStrip(hs, p){
   const tx0 = Math.floor(cx / 256), ty0 = Math.floor(cy / 256);
   const os = osUsable(), key = encodeURIComponent(osKey());
   const otm = (x, y) => 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
-  let tiles = '';
-  const skey = stripKey(os, z, cx, cy), baked = stripMem.get(skey);
-  if (baked) tiles = '<img class="mst msbake" alt="" src="' + baked + '" style="left:' + STRIP_BOX.x + 'px;top:' + STRIP_BOX.y + 'px;width:' + STRIP_BOX.w + 'px;height:' + STRIP_BOX.h + 'px">';
-  else for (let dx = -2; dx <= 4; dx++) for (let dy = -1; dy <= 1; dy++){
-    const x = tx0 + dx, y = ty0 + dy;
-    const src = os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key : otm(x, y);
-    tiles += '<img class="mst" loading="lazy" decoding="async" alt="" src="' + src + '"' +
-      (os ? ' data-otm="' + otm(x, y) + '" onerror="if(this.dataset.otm){this.src=this.dataset.otm;this.removeAttribute(\'data-otm\')}"' : '') +
-      ' style="left:' + Math.round(x * 256 - cx) + 'px;top:' + Math.round(y * 256 - cy) + 'px">';
-  }
+  const skey = stripKey(os, z, cx, cy), box = stripDims, fk = box ? stripFull(skey, box) : '', baked = fk && stripMem.get(fk);
+  /* a finished picture if this device has one; otherwise the paper shows for a
+     moment while the picture is made, and live tiles only if that cannot work */
+  const tiles = baked ? stripImg(baked, box) : stripNo.has(skey) || !('IntersectionObserver' in window) ? stripTiles(os, z, cx, cy) : '';
   const multi = pts.length > 1;
   /* the same coin as the main map, in WayMark orange with the cream rim.
      One fell carries the WayMark mark; several are numbered in the order walked. */
@@ -14618,66 +14671,103 @@ function mapStrip(hs, p){
    the feed shows it instantly afterwards instead of rebuilding it from tiles
    on every refresh. Nothing is uploaded: each device makes its own. If the map
    server will not let the squares be drawn (no CORS), the live tiles stay. */
-const STRIP_BOX = {x:-576, y:-112, w:1280, h:224};   // covers the widest strip around the anchor
-const STRIP_CACHE = 'waymark-strips', STRIP_V = 'v1';
+const STRIP_CACHE = 'waymark-strips', STRIP_V = 'v2';
 const stripMem = new Map(), stripNo = new Set();
-let stripQ = Promise.resolve(), stripIO = null, stripMO = null;
+let stripDims = null, stripIO = null, stripMO = null, stripBusy = 0;
+const stripWait = [];
 function stripKey(os, z, cx, cy){ return STRIP_V + '/' + (os ? 'os' : 'otm') + '/' + z + '/' + Math.round(cx) + '/' + Math.round(cy); }
+const stripFull = (k, b) => k + '/' + b.w + 'x' + b.h + '/' + b.x + '/' + b.y;
 const stripURL = k => 'https://waymark.local/strip/' + k + '.jpg';
+const stripImg = (u, b) => '<img class="mst msbake" alt="" src="' + u + '" style="left:' + b.x + 'px;top:' + b.y + 'px;width:' + b.w + 'px;height:' + b.h + 'px">';
+function stripTiles(os, z, cx, cy){
+  const key = encodeURIComponent(osKey()), tx0 = Math.floor(cx / 256), ty0 = Math.floor(cy / 256);
+  const otm = (x, y) => 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
+  let t = '';
+  for (let dx = -2; dx <= 2; dx++) for (let dy = -1; dy <= 1; dy++){
+    const x = tx0 + dx, y = ty0 + dy;
+    const src = os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key : otm(x, y);
+    t += '<img class="mst" loading="lazy" decoding="async" alt="" src="' + src + '"' +
+      (os ? ' data-otm="' + otm(x, y) + '" onerror="if(this.dataset.otm){this.src=this.dataset.otm;this.removeAttribute(\'data-otm\')}"' : '') +
+      ' style="left:' + Math.round(x * 256 - cx) + 'px;top:' + Math.round(y * 256 - cy) + 'px">';
+  }
+  return t;
+}
 function stripWatch(){
-  if (stripMO || !('IntersectionObserver' in window) || !('caches' in window)) return;
+  if (stripMO || !('IntersectionObserver' in window)) return;
   stripIO = new IntersectionObserver(es => es.forEach(en => {
     if (!en.isIntersecting) return;
     stripIO.unobserve(en.target);
-    stripQ = stripQ.then(() => bakeStrip(en.target)).catch(() => {});
-  }), {rootMargin:'300px 0px'});
+    stripWait.push(en.target); stripPump();
+  }), {rootMargin:'600px 0px'});
   let pend = false;
   const scan = () => { pend = false; document.querySelectorAll('.msc[data-bake]:not([data-obs])').forEach(el => { el.dataset.obs = '1'; stripIO.observe(el); }); };
   stripMO = new MutationObserver(() => { if (!pend){ pend = true; requestAnimationFrame(scan); } });
   stripMO.observe(document.body, {childList:true, subtree:true});
   scan();
 }
-function stripSwap(el, url){
+/* three maps at a time, nearest first, so a long feed never floods the map server */
+function stripPump(){
+  while (stripBusy < 3 && stripWait.length){
+    const el = stripWait.shift();
+    if (!el.isConnected || !el.dataset.bake) continue;
+    stripBusy++;
+    bakeStrip(el).catch(() => stripFallback(el)).finally(() => { stripBusy--; stripPump(); });
+  }
+}
+function stripFallback(el){
+  let b; try{ b = JSON.parse(el.dataset.bake); }catch(e){ return; }
+  stripNo.add(b.k);
+  if (el.isConnected && !el.querySelector('img.mst')) el.insertAdjacentHTML('afterbegin', stripTiles(b.os, b.z, b.cx, b.cy));
+  el.removeAttribute('data-bake');
+}
+function stripSwap(el, url, box, fade){
   if (!el.isConnected) return;
   const im = new Image(); im.alt = ''; im.className = 'mst msbake';
-  Object.assign(im.style, {left:STRIP_BOX.x + 'px', top:STRIP_BOX.y + 'px', width:STRIP_BOX.w + 'px', height:STRIP_BOX.h + 'px'});
+  Object.assign(im.style, {left:box.x + 'px', top:box.y + 'px', width:box.w + 'px', height:box.h + 'px'});
+  if (fade){ im.style.opacity = '0'; im.style.transition = 'opacity .35s ease'; }
   im.src = url;
-  (im.decode ? im.decode() : Promise.resolve()).then(() => {
+  (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => {
     if (!el.isConnected) return;
     el.querySelectorAll('img.mst').forEach(t => t.remove());
     el.prepend(im); el.removeAttribute('data-bake');
-  }).catch(() => {});
+    if (fade) requestAnimationFrame(() => { im.style.opacity = '1'; });
+  });
 }
 async function bakeStrip(el){
-  let b; try{ b = JSON.parse(el.dataset.bake); }catch(e){ return; }
-  if (stripMem.has(b.k)) return stripSwap(el, stripMem.get(b.k));
-  if (stripNo.has(b.k)) return;
-  const c = await caches.open(STRIP_CACHE);
-  const hit = await c.match(stripURL(b.k));
-  if (hit){ const u = URL.createObjectURL(await hit.blob()); stripMem.set(b.k, u); return stripSwap(el, u); }
-  const cv = document.createElement('canvas'); cv.width = STRIP_BOX.w; cv.height = STRIP_BOX.h;
+  const b = JSON.parse(el.dataset.bake);
+  const strip = el.parentElement;
+  const box = {x:-el.offsetLeft, y:-el.offsetTop, w:Math.ceil(strip.clientWidth), h:Math.ceil(strip.clientHeight)};
+  if (!box.w || !box.h) throw new Error('not laid out');
+  stripDims = box;
+  const fk = stripFull(b.k, box);
+  if (stripMem.has(fk)) return stripSwap(el, stripMem.get(fk), box, false);
+  const c = 'caches' in window ? await caches.open(STRIP_CACHE).catch(() => null) : null;
+  const hit = c && await c.match(stripURL(fk));
+  if (hit){ const u = URL.createObjectURL(await hit.blob()); stripMem.set(fk, u); return stripSwap(el, u, box, false); }
+  const cv = document.createElement('canvas'); cv.width = box.w; cv.height = box.h;
   const g = cv.getContext('2d'); g.fillStyle = '#EEE9DF'; g.fillRect(0, 0, cv.width, cv.height);
   const key = encodeURIComponent(osKey()), z = b.z;
-  const x0 = Math.floor((b.cx + STRIP_BOX.x) / 256), x1 = Math.floor((b.cx + STRIP_BOX.x + STRIP_BOX.w) / 256);
-  const y0 = Math.floor((b.cy + STRIP_BOX.y) / 256), y1 = Math.floor((b.cy + STRIP_BOX.y + STRIP_BOX.h) / 256);
+  const x0 = Math.floor((b.cx + box.x) / 256), x1 = Math.floor((b.cx + box.x + box.w - 1) / 256);
+  const y0 = Math.floor((b.cy + box.y) / 256), y1 = Math.floor((b.cy + box.y + box.h - 1) / 256);
   const jobs = [];
   for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++){
-    const src = b.os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key
-      : 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
-    jobs.push(fetch(src, {mode:'cors'}).then(r => { if (!r.ok) throw new Error('tile ' + r.status); return r.blob(); })
-      .then(bl => createImageBitmap(bl)).then(bm => { g.drawImage(bm, Math.round(x * 256 - b.cx - STRIP_BOX.x), Math.round(y * 256 - b.cy - STRIP_BOX.y)); bm.close && bm.close(); }));
+    const otm = 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
+    const get = u => fetch(u, {mode:'cors'}).then(r => { if (!r.ok) throw new Error('tile ' + r.status); return r.blob(); });
+    jobs.push((b.os ? get('https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key).catch(() => get(otm)) : get(otm))
+      .then(bl => createImageBitmap(bl)).then(bm => { g.drawImage(bm, Math.round(x * 256 - b.cx - box.x), Math.round(y * 256 - b.cy - box.y)); bm.close && bm.close(); }));
   }
-  try{ await Promise.all(jobs); }
-  catch(e){ stripNo.add(b.k); return; }   // keep the live tiles for this one
-  const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.84));
-  if (!blob) return;
-  try{
-    await c.put(stripURL(b.k), new Response(blob, {headers:{'Content-Type':'image/jpeg'}}));
-    const ks = await c.keys();
-    if (ks.length > 240) for (const r of ks.slice(0, ks.length - 200)) c.delete(r);   // oldest out
-  }catch(e){}
-  const u = URL.createObjectURL(blob); stripMem.set(b.k, u);
-  stripSwap(el, u);
+  await Promise.all(jobs);
+  const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.86));
+  if (!blob) throw new Error('no picture');
+  if (c){
+    try{
+      await c.put(stripURL(fk), new Response(blob, {headers:{'Content-Type':'image/jpeg'}}));
+      const ks = await c.keys();
+      if (ks.length > 400) for (const r of ks.slice(0, ks.length - 300)) c.delete(r);   // oldest out
+    }catch(e){}
+  }
+  const u = URL.createObjectURL(blob); stripMem.set(fk, u);
+  stripSwap(el, u, box, true);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', stripWatch); else setTimeout(stripWatch, 0);
 
@@ -14826,6 +14916,9 @@ function postHTML(p){
     s += '<h3 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <i>+' + (names.length - 3) + ' more</i>' : '') + '</h3>';
     s += dataLine(p, hs);
     if (p.strava) s += '<p class="pstrava"><a href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a></p>';
+    if ((p.trkS || (p.trk && p.trk.length)) && postTrk(p).length > 1)
+      s += '<div class="proute"><button class="btn sm ghost" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' +
+        '<button class="btn sm ghost" data-act="postcopy" data-id="' + esc(p.id) + '">' + ti('route') + 'Add to my routes</button></div>';
   } else if (p.kind === 'route'){
     s += dataLine(p, hs);
     s += '<div class="proute"><button class="btn sm ghost" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' +
@@ -15833,7 +15926,7 @@ function paintStrava(){
           '<b>' + esc(hillName(x)) + '</b><span>' + (isBagged(x.k) ? (verifiedAt(x.k) ? 'marked · verified' : 'marked · will verify') : htFlat(x).replace(/\s*\(.*\)$/, '')) + '</span></label>').join('') + '</div>' +
           '<p class="stnote stgps">' + ti('check') + (m => m < 15 ? 'Your Strava track went right over ' + (hs.length === 1 ? 'the top' : 'each top') + ', so ' : 'Your Strava track passed within ' + Math.round(m * 3.281) + ' ft of ' + (hs.length === 1 ? 'the summit' : 'each summit') + ', so ')(Math.max(...hs.map(x => (P.near || {})[x.k] || 0))) + (hs.length === 1 ? 'it’s' : 'they’re') + ' marked as GPS verified.</p>'
         : '<p class="stnote">No summits on your lists within 60 m of this route. It still goes in your journal.</p>';
-      h += '<p class="stnote">Only you see the route, times and stats. Strava lets apps show them to you alone. Share the day and your followers see the summits, your words, your photos and a link to the activity on Strava.</p>' +
+      h += '<p class="stnote">Strava’s rules, not WayMark’s: routes, times and stats from Strava can only be shown to you. Share the day and followers see the summits, your words, your photos and a “View on Strava” link. Add the walk’s GPX afterwards and they see the route too.</p>' +
         '<div class="btnrow"><button class="btn quiet" data-act="stback">Back</button><button class="btn" data-act="stcommit">Add to journal</button></div>';
     }
   } else {
@@ -15852,12 +15945,19 @@ function paintStrava(){
   el.innerHTML = h + '</div>';
 }
 /* the Strava part of a journal day: the route on the OS map, the stats, a link back */
-function stravaDayHTML(s){
+function stravaDayHTML(s, eid){
   const hs = (s.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   return '<div class="dstrava">' + trackStrip(s.trk || [], hs) +
     '<div class="dststats">' + stravaStats(s).map(([l, v]) => '<div><b>' + esc(v) + '</b><i>' + l + '</i></div>').join('') + '</div>' +
     '<p class="dstfoot"><a href="https://www.strava.com/activities/' + encodeURIComponent(s.id) + '" target="_blank" rel="noopener">View on Strava</a>' +
-    stravaPowered() + '</p><p class="dstonly">Only you see the route, times and stats.</p></div>';
+    stravaPowered() + '</p>' +
+    (s.gpx
+      ? '<div class="dstgpx on">' + ti('check') + '<div><b>Your route is ready to share</b><span>From the GPX you added: ' + esc(prettyDist(s.gpx.dist)) + (s.gpx.mins ? ' · ' + hm(s.gpx.mins) : '') + '. Share the day and followers see it.</span>' +
+        '<button class="linkbtn" data-act="stgpxoff" data-id="' + esc(eid || '') + '">Remove</button></div></div>'
+      : '<div class="dstgpx">' + ti('route') + '<div><b>Want followers to see the route?</b>' +
+        '<span>Strava’s rules, not ours: routes, times and stats from Strava can only be shown to you. Your own GPX file is yours to share. On Strava, open this walk, tap ⋯ and choose Export GPX, then add it here.</span>' +
+        '<label class="btn sm ghost">' + ti('file-upload') + 'Add GPX<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="stgpx" data-id="' + esc(eid || '') + '" hidden></label></div></div>') +
+    '</div>';
 }
 /* a walked line on the OS map, fitted to the strip, summits as the map's coins */
 function trackStrip(trk, hs){
@@ -15872,23 +15972,17 @@ function trackStrip(trk, hs){
   const xs = trk.map(p => wx(p[1], z)), ys = trk.map(p => wy(p[0], z));
   const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
   const tx0 = Math.floor(cx / 256), ty0 = Math.floor(cy / 256);
-  const os = osUsable(), key = encodeURIComponent(osKey());
-  const otm = (x, y) => 'https://' + 'abc'[((x + y) % 3 + 3) % 3] + '.tile.opentopomap.org/' + z + '/' + x + '/' + y + '.png';
-  let tiles = '';
-  for (let dx = -3; dx <= 3; dx++) for (let dy = -1; dy <= 1; dy++){
-    const x = tx0 + dx, y = ty0 + dy;
-    const src = os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key : otm(x, y);
-    tiles += '<img class="mst" loading="lazy" decoding="async" alt="" src="' + src + '"' +
-      (os ? ' data-otm="' + otm(x, y) + '" onerror="if(this.dataset.otm){this.src=this.dataset.otm;this.removeAttribute(\'data-otm\')}"' : '') +
-      ' style="left:' + Math.round(x * 256 - cx) + 'px;top:' + Math.round(y * 256 - cy) + 'px">';
-  }
+  const os = osUsable();
+  const skey = stripKey(os, z, cx, cy), box = stripDims, fk = box ? stripFull(skey, box) : '', baked = fk && stripMem.get(fk);
+  const tiles = baked ? stripImg(baked, box) : stripNo.has(skey) || !('IntersectionObserver' in window) ? stripTiles(os, z, cx, cy) : '';
   const line = trk.map(p => (wx(p[1], z) - cx).toFixed(1) + ',' + (wy(p[0], z) - cy).toFixed(1)).join(' ');
   const svg = '<svg class="mstrk" width="1" height="1" aria-hidden="true"><polyline points="' + line + '" class="u"/><polyline points="' + line + '" class="o"/>' +
     '<circle class="st" cx="' + (xs[0] - cx).toFixed(1) + '" cy="' + (ys[0] - cy).toFixed(1) + '" r="4.5"/></svg>';
   const spots = fanOut(hs.filter(h => isFinite(h.a)).map((h, i) => ({h, i, x: wx(h.o, z) - cx, y: wy(h.a, z) - cy, r: 11})));
   const pins = spots.map(s2 => '<i class="mspin" style="left:' + Math.round(s2.x + (s2.ox || 0)) + 'px;top:' + Math.round(s2.y + (s2.oy || 0)) + 'px" title="' + esc(hillName(s2.h)) + '">' +
     '<span class="peak mscoin" style="width:22px;height:22px;background:#A8431A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></span></i>').join('');
-  return '<div class="pmedia mstrip trackstrip" aria-hidden="true"><div class="msc">' + tiles + svg + pins + '</div>' +
+  return '<div class="pmedia mstrip trackstrip" aria-hidden="true"><div class="msc"' +
+    (baked || stripNo.has(skey) ? '' : ' data-bake="' + esc(JSON.stringify({k:skey, z, cx, cy, os})) + '"') + '>' + tiles + svg + pins + '</div>' +
     '<span class="msattr">' + (os ? '© Crown copyright, OS' : '© OpenStreetMap, OpenTopoMap') + '</span></div>';
 }
 
@@ -15898,7 +15992,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v174';
+const APP_VERSION = 'v176';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -16162,7 +16256,8 @@ async function shareDiaryEntry(e){
   if (e.strava && Array.isArray(e.strava.hills)) for (const k of e.strava.hills) if (BY_KEY[k] && isBagged(k) && !dayHills.includes(k)) dayHills.push(k);
   const created = await createPost({
     kind:'diary', text:words, hills:dayHills, date:e.date || '', tags:[], shots:sent,
-    strava: e.strava && e.strava.id ? e.strava.id : ''
+    strava: e.strava && e.strava.id ? e.strava.id : '',
+    ...(e.strava && e.strava.gpx && !prof.hideRoute ? {trk:e.strava.gpx.trk, dist:e.strava.gpx.dist, asc:e.strava.gpx.asc, mins:e.strava.gpx.mins} : {})
   });
   if (!created){ shotQueue.length = 0; throw new Error('could not create the post'); }
   /* The post id only exists now, so the pictures are written once it does. */
