@@ -6311,7 +6311,7 @@ function shopBuyHTML(d){
 function shopScript(){
   if (window.Stripe) return Promise.resolve();
   return new Promise((res, rej) => {
-    const s = document.createElement('script'); s.src = 'https://js.stripe.com/v3/';
+    const s = document.createElement('script'); s.src = 'https://js.stripe.com/dahlia/stripe.js';
     s.onload = res; s.onerror = () => rej(new Error('Could not load Stripe'));
     document.head.appendChild(s);
   });
@@ -6341,7 +6341,11 @@ async function shopBuy(n){
     const stripe = window.Stripe(pk);
     if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
     shopSheet('<p class="shopsum">' + esc(d.name) + ' · ' + esc(size) + ' · ' + gbp(it.price) + '</p><div id="shopmount"></div>');
-    shopCheckout = await stripe.initEmbeddedCheckout({clientSecret: j.clientSecret, onComplete: () => shopDone(d, j.id)});
+    /* Stripe.js (dahlia) renamed initEmbeddedCheckout; keep the old name as a fallback */
+    const opts = {fetchClientSecret: () => Promise.resolve(j.clientSecret), onComplete: () => shopDone(d, j.id)};
+    shopCheckout = await (stripe.createEmbeddedCheckoutPage
+      ? stripe.createEmbeddedCheckoutPage(opts)
+      : stripe.initEmbeddedCheckout(opts));
     shopCheckout.mount('#shopmount');
   }catch(e){
     shopSheet('<p class="shopwait">' + esc(e.message || 'Checkout would not open.') + ' Nothing has been charged.</p>' +
@@ -16362,7 +16366,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v182';
+const APP_VERSION = 'v183';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
