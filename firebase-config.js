@@ -39,3 +39,10 @@ window.STRAVA_WORKER = "https://waymark-strava.joesullivan1998.workers.dev";
 
 window.SHOP_WORKER = "https://waymark-shop.joesullivan1998.workers.dev";
 window.STRIPE_PUBLISHABLE_KEY = "pk_live_51UIFS7CAFvuKjJFBbhNURqTFqFtX8UtBRKfz0vWgzV5oojzxhngUum1Uu7OXrnNmZNHWj5DVnNN4kzz2JCZap10700uFH5qmYF";
+
+```js
+window.PUSH_WORKER = 'https://waymark-push.joesullivan1998.workers.dev/health';
+```
+
+Upload `firebase-config.js` along with the new `index.html`, `sw.js` and
+`firestore.rules`.
