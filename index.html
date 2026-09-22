@@ -2167,6 +2167,124 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   transform:rotate(-1.2deg);
 }
 .nosale.onsale{color:#2E6B4F; border-color:#2E6B4F}
+.supsale{margin-top:18px}
+/* ---------- the shop: product first, like an outdoor brand's rail ----------
+   Mobile is one tee per row at the full column width, so the print can be read
+   without opening it; the grid only splits when there is room for the picture
+   to stay big. No borders, no shadows, no buttons on the card — the stone tile
+   is the only container and the picture is the link. */
+:root{--shoptile:#FFFFFF; --shoptile-ink:#14332D; --shoptile-label:#5B6461}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--shoptile:#1F3A34; --shoptile-ink:#F3EFE6; --shoptile-label:#A9B8B2} }
+:root[data-theme="dark"]{--shoptile:#1F3A34; --shoptile-ink:#F3EFE6; --shoptile-label:#A9B8B2}
+.shophero{padding-top:8px; max-width:640px}
+.shopeyebrow{
+  margin:0; font-family:var(--font-data); font-size:10.5px; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--accent-text);
+}
+.shopeyebrow span{color:var(--ink-3); margin:0 .2em}
+.shophero h2{
+  font-family:var(--font-display); font-weight:500; color:var(--ink);
+  font-size:clamp(30px, 8.4vw, 46px); line-height:1.02; letter-spacing:.005em;
+  margin:12px 0 0; text-wrap:balance;
+}
+.shoplede{margin:14px 0 0; font-size:15.5px; line-height:1.6; color:var(--ink-2); max-width:44ch}
+.shopfacts{
+  list-style:none; margin:22px 0 0; padding:14px 0 0; border-top:1px solid var(--line);
+  display:grid; grid-template-columns:repeat(3, auto); justify-content:start; gap:0 28px;
+}
+.shopfacts li{display:flex; flex-direction:column; gap:3px; font-size:12px; color:var(--ink-3)}
+.shopfacts b{font:600 17px var(--font-ui); color:var(--ink); font-variant-numeric:tabular-nums}
+
+.shopgrid{display:grid; grid-template-columns:1fr; gap:44px; margin-top:30px}
+@media (min-width:620px){ .shopgrid{grid-template-columns:repeat(2, 1fr); gap:48px 20px} }
+@media (min-width:1080px){ .shopgrid{grid-template-columns:repeat(3, 1fr)} }
+.shopcard{min-width:0}
+.shoptile{position:relative; background:var(--shoptile); border-radius:4px; overflow:hidden}
+.shoptrack{
+  display:flex; overflow-x:auto; scroll-snap-type:x mandatory; overscroll-behavior-x:contain;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.shoptrack::-webkit-scrollbar{display:none}
+.shopslide{flex:0 0 100%; scroll-snap-align:start; padding:0; border:0; background:none; cursor:pointer; display:block}
+.shopslide img{display:block; width:100%; height:auto; aspect-ratio:1000/1100; object-fit:cover}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+  .shopslide img{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .shoptile:hover .shopslide img{transform:scale(1.025)}
+}
+.shopside{
+  position:absolute; left:12px; top:12px; font-family:var(--font-data); font-size:9.5px;
+  font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--shoptile-label); pointer-events:none;
+}
+.shoppager{position:absolute; left:0; right:0; bottom:12px; display:flex; justify-content:center; gap:6px; pointer-events:none}
+.shoppager i{width:6px; height:6px; border-radius:50%; background:var(--shoptile-ink); opacity:.22; transition:opacity .2s, width .2s}
+.shoppager i.on{opacity:.8; width:16px; border-radius:3px}
+.shopmeta{display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin-top:14px}
+.shopmeta h3{margin:0; min-width:0}
+.shopmeta h3 button{
+  padding:0; border:0; background:none; cursor:pointer; text-align:left; color:var(--ink);
+  font-family:var(--font-display); font-weight:500; font-size:21px; line-height:1.15;
+}
+.shopamt{font:600 16px var(--font-ui); color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+.shopspec{display:flex; align-items:center; gap:8px; margin:6px 0 0; font-size:13.5px; color:var(--ink-2)}
+.swatch{width:14px; height:14px; border-radius:50%; background:var(--sw); box-shadow:0 0 0 1.5px var(--surface), 0 0 0 2.5px rgba(20,51,45,.35); flex:none}
+.shopsz{margin:6px 0 0; font-family:var(--font-data); font-size:11px; letter-spacing:.08em; color:var(--ink-3)}
+.shopsz span{margin:0 .45em; opacity:.6}
+.suphead.supnext{margin-top:64px; padding-top:30px; border-top:1px solid var(--line)}
+.suphead.supnext .shopeyebrow{color:var(--ink-3)}
+
+/* the tee, opened: one big picture then the facts; side by side on a wide screen */
+.shopdetail .pdgrid{display:grid; grid-template-columns:1fr; gap:22px; margin-top:6px}
+@media (min-width:900px){
+  .shopdetail .pdgrid{grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); gap:44px; align-items:start}
+  .shopdetail .pdinfo{position:sticky; top:84px}
+}
+.shopdetail .supsides{margin-top:0; gap:0}
+.shopdetail .supsides figure{padding:0; border:0; box-shadow:none; background:var(--shoptile); border-radius:4px; overflow:hidden}
+.shopdetail .supsides .zoomhit{min-height:0}
+.shopdetail .supsides img{width:100%; max-width:none; max-height:none; aspect-ratio:1000/1100; object-fit:cover}
+.shopdetail .supdots{align-items:center}
+.pdzoom{margin-left:auto; font-size:12px; color:var(--ink-3)}
+.shopdetail .pdinfo h2{font-size:clamp(28px, 7.4vw, 40px); line-height:1.05; margin:10px 0 0}
+.shopdetail .shopspec{margin-top:10px}
+.shopdetail .shopbuy{margin-top:20px}
+.pdmore{margin-top:14px; border-top:1px solid var(--line)}
+.pdmore details{border-bottom:1px solid var(--line)}
+.pdmore summary{
+  list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+  min-height:52px; font:600 15px var(--font-ui); color:var(--ink);
+}
+.pdmore summary::-webkit-details-marker{display:none}
+.pdmore summary::after{content:'+'; font:400 22px var(--font-ui); color:var(--ink-3); transition:transform .2s}
+.pdmore details[open] summary::after{transform:rotate(45deg)}
+.pdmore p{margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--ink-2); max-width:60ch}
+.pdspecs{margin:0 0 14px; padding:0; list-style:none; display:grid; gap:7px}
+.pdspecs li{position:relative; padding-left:16px; font-size:14px; line-height:1.45; color:var(--ink-2)}
+.pdspecs li::before{content:''; position:absolute; left:2px; top:.6em; width:5px; height:5px; border-radius:50%; background:var(--accent)}
+.pdfine{font-size:12.5px !important; color:var(--ink-3) !important}
+.szhead{display:flex; justify-content:space-between; align-items:baseline; margin:0 0 -4px; font:600 13px var(--font-ui); color:var(--ink)}
+.szhead .linkbtn{font-size:13px}
+.szunits{display:flex; flex-wrap:wrap; gap:0 18px; margin:0 0 6px}
+.szunits input{position:absolute; opacity:0; pointer-events:none}
+.szunits label{
+  cursor:pointer; padding:6px 0 8px; font:600 13px var(--font-ui); color:var(--ink-3);
+  border-bottom:2px solid transparent;
+}
+.szunits input:checked + label{color:var(--ink); border-bottom-color:var(--ink)}
+.szunits input:focus-visible + label{outline:2px solid var(--accent); outline-offset:2px}
+.sztable{width:100%; flex-basis:100%; border-collapse:collapse; margin:6px 0 10px; font-size:14px; font-variant-numeric:tabular-nums}
+.sztable th, .sztable td{padding:11px 6px; text-align:left; border-bottom:1px solid var(--line); color:var(--ink-2); font-weight:400}
+.sztable thead th{font-family:var(--font-data); font-size:10.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.sztable tbody th{font-weight:600; color:var(--ink)}
+.sztable tr:last-child th, .sztable tr:last-child td{border-bottom:0}
+.szcm{display:none}
+#szu-cm:checked ~ .szin{display:none}
+#szu-cm:checked ~ .szcm{display:table}
+
+
+.suphead.supnext{margin-top:40px; padding-top:26px; border-top:1px solid var(--line)}
+.supsale .supcard{display:flex; flex-direction:column}
+.shopcardgo{align-self:flex-start; min-height:40px; margin-top:auto; font-size:14px}
+.supsale .shirtline{margin-bottom:10px}
 .shoptag{font:700 13px var(--font-ui); color:var(--accent-text); margin-left:4px; white-space:nowrap}
 .shopbuy{display:flex; flex-direction:column; gap:12px; margin:18px 0 6px; padding:16px 0 4px; border-top:1px solid var(--line)}
 .shopprice{display:flex; align-items:baseline; gap:10px; margin:0}
@@ -6175,17 +6293,19 @@ async function shopLoad(){
   if (ui.patchView === 'supplies') render();
 }
 const shopItem = n => shopCat && shopCat.items && shopCat.items[String(n)] || null;
+const NUMWORD = n => ['No','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve'][n] || String(n);
 const gbp = p => '£' + (p / 100).toFixed(p % 100 ? 2 : 0);
 function shopBuyHTML(d){
   const it = shopItem(d.n); if (!it) return '';
   const size = ui.shopSize && it.sizes.includes(ui.shopSize) ? ui.shopSize : '';
   return '<div class="shopbuy">' +
     '<p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (shopCat.shipping ? '+ ' + gbp(shopCat.shipping) + ' UK delivery' : 'Free UK delivery') + '</span></p>' +
+    '<p class="szhead"><span>Size</span><button class="linkbtn" data-act="szchart">Size chart</button></p>' +
     '<div class="shopsizes" role="group" aria-label="Size">' + it.sizes.map(z =>
       '<button class="chip" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
     '<button class="btn shopgo" data-act="shopbuy" data-v="' + d.n + '"' + (size ? '' : ' disabled') + '>' +
-      (size ? 'Buy · ' + esc(size) : 'Pick a size') + '</button>' +
-    '<p class="shopnote">Printed to order and posted in the UK, usually within 4–10 working days. Secure payment by Stripe.</p>' +
+      (size ? 'Buy now · ' + esc(size) : 'Select a size') + '</button>' +
+    '<p class="shopnote">Secure checkout by Stripe. UK delivery in 4–10 working days.</p>' +
   '</div>';
 }
 function shopScript(){
@@ -6231,7 +6351,7 @@ async function shopBuy(n){
 function shopDone(d, id){
   if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
   shopSheet('<div class="shopthanks">' + ti('check') + '<h3>Order in. Thank you.</h3>' +
-    '<p>Your ' + esc(d.name) + ' tee is being printed for you. A receipt is on its way by email, and another when it is posted.</p>' +
+    '<p>Your ' + esc(d.name) + ' tee is on its way. A receipt is heading to your inbox now, and we will email again when it is posted.</p>' +
     '<button class="btn" data-act="shopclose">Back to Camp Supplies</button></div>');
 }
 function shopClose(){
@@ -6348,8 +6468,10 @@ function supVoteRow(d){
 }
 
 /* ---- which tees are on screen ---- */
+/* once the shop is open, the tees on sale leave the vote: the sheet asks about the rest */
+const supPool = () => SUPPLIES.filter(d => !shopItem(d.n));
 function supList(){
-  let list = SUPPLIES.filter(d =>
+  let list = supPool().filter(d =>
     (!ui.supSide  || supLead(d) === ui.supSide) &&
     (!ui.supTodo  || !supMine[d.n]));
   if (ui.supSort === 'liked')
@@ -6358,6 +6480,63 @@ function supList(){
   return list;
 }
 const supFiltered = () => !!(ui.supSide || ui.supTodo || ui.supSort === 'liked');
+
+/* ---------- the shop rail ----------
+   Tees that can be bought are shown the way an outdoor brand shows product: one
+   big picture per tee on a quiet stone tile, the print large enough to read,
+   swiped for the other side, and a few plain facts under it. No buttons on the
+   card: the picture is the way in. */
+const shopImg = (n, side) => SUP_BASE + 'tees/' + sup2(n) + '-' + side + '-shop.webp';
+function shopCard(d){
+  const it = shopItem(d.n), lead = supLead(d), other = supOther(lead);
+  const slide = (side, i) =>
+    '<button class="shopslide" data-act="supopen" data-v="' + d.n + '" tabindex="' + (i ? -1 : 0) + '"' +
+    ' aria-label="' + esc(d.name) + ', ' + side + ' of the tee. Open">' +
+    '<img loading="lazy" decoding="async" alt="" src="' + shopImg(d.n, side) + '"></button>';
+  return '<article class="shopcard">' +
+    '<div class="shoptile">' +
+      '<div class="shoptrack" data-n="' + d.n + '">' + slide(lead, 0) + slide(other, 1) + '</div>' +
+      '<span class="shoppager" aria-hidden="true"><i class="on"></i><i></i></span>' +
+      '<span class="shopside" aria-hidden="true">' + supCap(lead) + '</span>' +
+    '</div>' +
+    '<div class="shopmeta">' +
+      '<h3><button data-act="supopen" data-v="' + d.n + '">' + esc(d.name) + '</button></h3>' +
+      '<span class="shopamt">' + gbp(it.price) + '</span>' +
+    '</div>' +
+    '<p class="shopspec"><span class="swatch" style="--sw:' + (SHIRT_HEX[d.shirt] || '#EDE7D9') + '"></span>' +
+      SHIRTS[d.shirt] + ' &middot; Unisex heavyweight tee</p>' +
+    '<p class="shopsz">' + it.sizes.map(esc).join('<span>&middot;</span>') + '</p>' +
+  '</article>';
+}
+const SHIRT_HEX = {cream:'#EDE7D9', sand:'#EDE7D9', pine:'#4C6151'};
+function shopHero(sale){
+  const prices = [...new Set(sale.map(d => shopItem(d.n).price))];
+  const order = ['XS','S','M','L','XL','2XL','3XL','4XL'];
+  const sizes = order.filter(z => sale.some(d => shopItem(d.n).sizes.includes(z)));
+  const ship = shopCat && shopCat.shipping;
+  return '<header class="shophero">' +
+    '<p class="shopeyebrow">The shop <span>&middot;</span> ' + sale.length + (sale.length === 1 ? ' tee' : ' tees') + '</p>' +
+    '<h2>Made for the walk home.</h2>' +
+    '<p class="shoplede">Unisex heavyweight cotton, garment-dyed for a lived-in feel from day one. Printed in the UK.</p>' +
+    '<ul class="shopfacts">' +
+      '<li><b>' + (prices.length === 1 ? gbp(prices[0]) : 'From ' + gbp(Math.min(...prices))) + '</b>each</li>' +
+      '<li><b>' + (sizes.length ? sizes[0] + '&ndash;' + sizes[sizes.length - 1] : '') + '</b>sizes</li>' +
+      '<li><b>' + (ship ? gbp(ship) : 'Free') + '</b>UK delivery</li>' +
+    '</ul>' +
+  '</header>';
+}
+/* which side a tile is showing, and the side label with it, as it is swiped */
+document.addEventListener('scroll', e => {
+  const t = e.target;
+  if (!t || !t.classList || !t.classList.contains('shoptrack')) return;
+  const k = Math.round(t.scrollLeft / Math.max(1, t.clientWidth));
+  const tile = t.parentElement;
+  tile.querySelectorAll('.shoppager i').forEach((i, j) => i.classList.toggle('on', j === k));
+  const d = supById(+t.dataset.n); if (!d) return;
+  const lead = supLead(d);
+  tile.querySelector('.shopside').textContent = supCap(k ? supOther(lead) : lead);
+  t.querySelectorAll('.shopslide').forEach((b, j) => b.tabIndex = j === k ? 0 : -1);
+}, true);
 
 function supCard(d){
   const side = supFlipped[d.n] || supLead(d), other = supOther(side);
@@ -6373,7 +6552,9 @@ function supCard(d){
     '<p class="shirtline">' + SHIRTS[d.shirt] + ' shirt' +
       '<button class="supflip" data-act="supflip" data-v="' + d.n + '"' +
       ' aria-label="Show the ' + other + ' of ' + esc(d.name) + '">See ' + other + '</button></p>' +
-    supVoteRow(d) +
+    (shopItem(d.n)
+      ? '<button class="btn shopcardgo" data-act="supopen" data-v="' + d.n + '">Choose a size</button>'
+      : supVoteRow(d)) +
   '</article>';
 }
 
@@ -6407,23 +6588,31 @@ function renderSupplies(){
     if (d) return '<div class="supplies">' + supDetail(d) + '</div>';
     ui.supOpen = null;
   }
-  const rated = SUPPLIES.filter(d => supMine[d.n]).length;
-  const pct = Math.round(rated / SUPPLIES.length * 100);
-  let cast = 0; for (const d of SUPPLIES) cast += supUp(d.n) + supDown(d.n);
+  const pool = supPool(), sale = SUPPLIES.filter(d => shopItem(d.n));
+  const rated = pool.filter(d => supMine[d.n]).length;
+  const pct = pool.length ? Math.round(rated / pool.length * 100) : 0;
+  let cast = 0; for (const d of pool) cast += supUp(d.n) + supDown(d.n);
 
   let s = '<div class="supplies">';
-  s += '<header class="suphead">' +
-    '<span class="nosale">Not for sale yet</span>' +
-    '<h2>Which of these should we actually print?</h2>' +
-    '<p>Every one is drawn and ready for a printer. None of them have been made. ' +
-    'Say yes or no to as many as you like — the counts are live, and you can change ' +
-    'your mind.</p>' +
+  if (sale.length){
+    s += shopHero(sale) + '<div class="shopgrid">' + sale.map(shopCard).join('') + '</div>';
+  }
+  s += '<header class="suphead' + (sale.length ? ' supnext' : '') + '">' +
+    (sale.length
+      ? '<p class="shopeyebrow">On the drawing board</p>' +
+        '<h2>Which should we print next?</h2>' +
+        '<p>These are drawn and ready, but not printed yet. Vote for the ones you would wear &mdash; the most wanted go on sale next.</p>'
+      : '<span class="nosale">Not for sale yet</span>' +
+        '<h2>Which of these should we actually print?</h2>' +
+        '<p>Every one is drawn and ready for a printer. None of them have been made. ' +
+        'Say yes or no to as many as you like — the counts are live, and you can change ' +
+        'your mind.</p>') +
     '</header>';
 
   s += '<div class="supprog">' +
-    '<span class="track" role="img" aria-label="' + rated + ' of ' + SUPPLIES.length + ' rated">' +
+    '<span class="track" role="img" aria-label="' + rated + ' of ' + pool.length + ' rated">' +
       '<i style="width:' + Math.max(pct, rated ? 2 : 0) + '%"></i></span>' +
-    '<b>' + rated + ' / ' + SUPPLIES.length + ' rated</b></div>';
+    '<b>' + rated + ' / ' + pool.length + ' rated</b></div>';
 
   s += '<div class="supfilters">' +
     '<span class="flabel">Print</span>' +
@@ -6437,8 +6626,8 @@ function renderSupplies(){
 
   const list = supList();
   s += '<p class="supcount">' +
-    (list.length === SUPPLIES.length ? 'All ' + SUPPLIES.length + ' designs'
-                                     : list.length + ' of ' + SUPPLIES.length + ' designs') +
+    (list.length === pool.length ? 'All ' + pool.length + ' designs'
+                                 : list.length + ' of ' + pool.length + ' designs') +
     ' &middot; ' + cast + (cast === 1 ? ' vote so far' : ' votes so far') + '</p>';
 
   s += list.length
@@ -6460,6 +6649,32 @@ function renderSupplies(){
   return s + '</div>';
 }
 
+/* Comfort Colors 1717, measured flat: length, chest width, sleeve (Printful's chart) */
+const SIZE_CHART = {
+  S:   ['26⅝','18¼','16¼', '67.6','46.4','41.3'],
+  M:   ['28','20¼','17¾',  '71','51.4','45'],
+  L:   ['29⅜','22','19',    '74.6','56','48.3'],
+  XL:  ['30¾','24','20½',  '78','61','52'],
+  '2XL':['31⅝','26','21¾', '80.3','66','55.2'],
+  '3XL':['32½','27¾','23¼','82.6','70.5','59'],
+  '4XL':['33½','29¾','24⅝','85','75.6','62.6'],
+};
+function shopSizeChart(it){
+  const rows = it.sizes.filter(z => SIZE_CHART[z]);
+  if (!rows.length) return '';
+  const table = (unit, o) =>
+    '<table class="sztable sz' + unit + '"><thead><tr><th>Size</th><th>Length</th><th>Width</th><th>Sleeve</th></tr></thead><tbody>' +
+    rows.map(z => '<tr><th>' + z + '</th>' + SIZE_CHART[z].slice(o, o + 3).map(v => '<td>' + v + '</td>').join('') + '</tr>').join('') +
+    '</tbody></table>';
+  return '<details class="szchart"><summary>Size chart</summary>' +
+    '<div class="szunits" role="radiogroup" aria-label="Units">' +
+      '<input type="radio" name="szu" id="szu-in" checked><label for="szu-in">Inches</label>' +
+      '<input type="radio" name="szu" id="szu-cm"><label for="szu-cm">Centimetres</label>' +
+      table('in', 0) + table('cm', 3) +
+    '</div>' +
+    '<p class="pdfine">Measured flat. Width is across the chest, armpit to armpit. Measurements can vary by up to 2″ (5&nbsp;cm).</p>' +
+  '</details>';
+}
 function supDetail(d){
   const lead = supLead(d), other = supOther(lead);
   const big = side =>
@@ -6469,13 +6684,57 @@ function supDetail(d){
     '<img loading="lazy" decoding="async" alt="' + esc(d.name) + ', ' + side +
     ' of shirt" src="' + supImg(d.n, side, 'lg') + '"></button></figure>';
 
-  let s = '<div class="supdetail">';
+  const it = shopItem(d.n);
+  let s = '<div class="supdetail' + (it ? ' shopdetail' : '') + '">';
   s += '<div class="pdnav">' +
-    '<button class="backbtn" data-act="supclose">&larr; All designs</button>' +
+    '<button class="backbtn" data-act="supclose">&larr; ' + (it ? 'The shop' : 'All designs') + '</button>' +
     '<button class="linkbtn grow" data-act="supstep" data-v="-1">&lsaquo; Prev</button>' +
     '<button class="linkbtn" data-act="supstep" data-v="1">Next &rsaquo;</button>' +
     '</div>';
-  s += shopItem(d.n) ? '<span class="nosale onsale">On sale</span>' : '<span class="nosale">Not for sale yet</span>';
+  if (it){
+    const shot = side =>
+      '<figure><button class="zoomhit" data-act="supzoom" data-v="' + d.n + '" data-d="' + side + '"' +
+      ' aria-label="Zoom in on the ' + side + ' of ' + esc(d.name) + '">' +
+      '<img decoding="async" alt="' + esc(d.name) + ', ' + side + ' of the tee" src="' + shopImg(d.n, side) + '"></button></figure>';
+    s += '<div class="pdgrid"><div class="pdmedia">' +
+      '<div class="supsides" id="supsides">' + shot(lead) + shot(other) + '</div>' +
+      '<div class="supdots" id="supdots" role="group" aria-label="Which side of the tee">' +
+        [lead, other].map((side, i) =>
+          '<button type="button" class="chip" aria-current="' + (i === 0) + '">' + supCap(side) + '</button>'
+        ).join('') + '<span class="pdzoom">Tap the picture to zoom</span></div>' +
+      '</div><div class="pdinfo">' +
+      '<p class="shopeyebrow">WayMark &middot; Unisex tee</p>' +
+      '<h2>' + esc(d.name) + '</h2>' +
+      '<p class="shopspec"><span class="swatch" style="--sw:' + (SHIRT_HEX[d.shirt] || '#EDE7D9') + '"></span>' + SHIRTS[d.shirt] + '</p>' +
+      shopBuyHTML(d) +
+      '<div class="pdmore">' +
+        shopSizeChart(it) +
+        '<details><summary>The tee</summary>' +
+          '<p>Our heavyweight tee pairs a structured fit with garment-dyed softness that feels lived-in from day one. 100% cotton, tough enough for repeat wear and soft enough to wear anywhere. Unisex &mdash; take your usual size.</p>' +
+          '<ul class="pdspecs">' +
+            '<li>100% ring-spun cotton</li>' +
+            '<li>Fabric weight 6.1&nbsp;oz/yd² (206.8&nbsp;g/m²)</li>' +
+            '<li>Yarn diameter: 20 singles</li>' +
+            '<li>Garment-dyed, pre-shrunk fabric</li>' +
+            '<li>Relaxed fit</li>' +
+            '<li>7/8″ double-needle topstitched collar</li>' +
+            '<li>Twill-taped neck and shoulders for extra durability</li>' +
+            '<li>Double-needle armhole, sleeve and bottom hems</li>' +
+            '<li>Signature twill label</li>' +
+            '<li>Made in Honduras</li>' +
+          '</ul>' +
+          '<p class="pdfine">Each tee is garment-dyed and softened, so colour can vary slightly from one to the next.</p>' +
+        '</details>' +
+        '<details><summary>The print</summary><p>Printed in the UK, ' +
+          (d.n === 3 || d.n === 9 ? 'on the front only.' : 'front and back, exactly as shown.') + ' Wash inside out, cool, and it keeps its edges.</p></details>' +
+        '<details><summary>Delivery</summary><p>We post to UK addresses only, and your tee arrives within 4&ndash;10 working days. ' +
+          (shopCat && shopCat.shipping ? 'Delivery is ' + gbp(shopCat.shipping) + '.' : 'Delivery is free.') + '</p></details>' +
+      '</div>' +
+      '<p class="jnote"><button class="linkbtn" data-act="supshare" data-v="' + d.n + '">Share this tee</button></p>' +
+      '</div></div>';
+    return s + '</div>';
+  }
+  s += '<span class="nosale">Not for sale yet</span>';
   s += '<h2>' + esc(d.name) + '</h2>';
   s += '<p class="shirtline">' + SHIRTS[d.shirt] + ' shirt</p>';
   s += '<div class="supsides" id="supsides">' + big(lead) + big(other) + '</div>';
@@ -6483,7 +6742,6 @@ function supDetail(d){
     [lead, other].map((side, i) =>
       '<button type="button" class="chip" aria-current="' + (i === 0) + '">' + supCap(side) + '</button>'
     ).join('') + '</div>';
-  s += shopBuyHTML(d);
   s += supVoteRow(d);
   s += '<p class="jnote">Would you wear this one? Your answer is the only thing deciding ' +
        'what gets made. <button class="linkbtn" data-act="supshare" data-v="' + d.n + '">Share this design</button></p>';
@@ -6555,12 +6813,13 @@ function supZoomOff(){
 /* the counts and the progress on screen without rebuilding the whole sheet
    under the walker */
 function supPaint(){
-  const rated = SUPPLIES.filter(d => supMine[d.n]).length;
-  let cast = 0; for (const d of SUPPLIES) cast += supUp(d.n) + supDown(d.n);
+  const pool = supPool();
+  const rated = pool.filter(d => supMine[d.n]).length;
+  let cast = 0; for (const d of pool) cast += supUp(d.n) + supDown(d.n);
   const bar = document.querySelector('.supprog .track i');
-  if (bar) bar.style.width = Math.max(Math.round(rated / SUPPLIES.length * 100), rated ? 2 : 0) + '%';
+  if (bar) bar.style.width = Math.max(pool.length ? Math.round(rated / pool.length * 100) : 0, rated ? 2 : 0) + '%';
   const lab = document.querySelector('.supprog b');
-  if (lab) lab.textContent = rated + ' / ' + SUPPLIES.length + ' rated';
+  if (lab) lab.textContent = rated + ' / ' + pool.length + ' rated';
   const c = document.querySelector('.supcount');
   if (c) c.textContent = c.textContent.replace(/\d+ votes? so far/, cast + (cast === 1 ? ' vote so far' : ' votes so far'));
   for (const b of document.querySelectorAll('[data-act="supvote"]')){
@@ -12731,6 +12990,13 @@ document.addEventListener('click', async e => {
   else if (a === 'supclear'){ ui.supSide = ''; ui.supTodo = false; ui.supSort = ''; render(); }
   else if (a === 'supflip'){ supFlip(+el.dataset.v); }
   else if (a === 'supopen'){ supGo(+el.dataset.v, true); }
+  /* was wired to 'change' with the file inputs, so the Remove button never fired */
+  else if (a === 'stgpxoff'){
+    const e = diaryEntry(el.dataset.id); if (!e || !e.strava || !e.strava.gpx) return;
+    delete e.strava.gpx; setDiary(e.id, {strava:e.strava}); render();
+    toast('Route removed. Followers see the day without it.');
+  }
+  else if (a === 'szchart'){ const c = document.querySelector('.szchart'); if (c){ c.open = true; c.scrollIntoView({behavior:'smooth', block:'start'}); } }
   else if (a === 'supclose'){ supGo(null, true); }
   else if (a === 'supstep'){
     /* next and previous follow what is on screen, not the whole range: a walker
@@ -13061,10 +13327,6 @@ document.addEventListener('change', e => {
       render();
       toast('Route added. Share the day and followers will see it.');
     }).catch(() => toast('Could not read that file.'));
-  }
-  else if (a === 'stgpxoff'){
-    const e = diaryEntry(el.dataset.id); if (!e || !e.strava) return;
-    delete e.strava.gpx; setDiary(e.id, {strava:e.strava}); render();
   }
   else if (a === 'gpxin' && el.files && el.files.length){
     const f = el.files[0], id = el.dataset.id;
@@ -16100,7 +16362,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v180';
+const APP_VERSION = 'v182';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
