@@ -2229,6 +2229,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .swatch{width:14px; height:14px; border-radius:50%; background:var(--sw); box-shadow:0 0 0 1.5px var(--surface), 0 0 0 2.5px rgba(20,51,45,.35); flex:none}
 .shopsz{margin:6px 0 0; font-family:var(--font-data); font-size:11px; letter-spacing:.08em; color:var(--ink-3)}
 .shopsz span{margin:0 .45em; opacity:.6}
+.shopfoot{margin:34px 0 0; font-size:13px; color:var(--ink-3)}
+.shopfoot a{color:var(--accent-text)}
 .suphead.supnext{margin-top:64px; padding-top:30px; border-top:1px solid var(--line)}
 .suphead.supnext .shopeyebrow{color:var(--ink-3)}
 
@@ -6305,7 +6307,7 @@ function shopBuyHTML(d){
       '<button class="chip" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
     '<button class="btn shopgo" data-act="shopbuy" data-v="' + d.n + '"' + (size ? '' : ' disabled') + '>' +
       (size ? 'Buy now · ' + esc(size) : 'Select a size') + '</button>' +
-    '<p class="shopnote">Secure checkout by Stripe. UK delivery in 4–10 working days.</p>' +
+    '<p class="shopnote">Secure checkout by Stripe. UK delivery in 4–10 working days. Changed your mind? Return it within 14 days. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>' +
   '</div>';
 }
 function shopScript(){
@@ -6355,7 +6357,7 @@ async function shopBuy(n){
 function shopDone(d, id){
   if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
   shopSheet('<div class="shopthanks">' + ti('check') + '<h3>Order in. Thank you.</h3>' +
-    '<p>Your ' + esc(d.name) + ' tee is on its way. A receipt is heading to your inbox now, and we will email again when it is posted.</p>' +
+    '<p>Your ' + esc(d.name) + ' tee is on its way. A receipt is heading to your inbox, and it should be with you within 4&ndash;10 working days.</p>' +
     '<button class="btn" data-act="shopclose">Back to Camp Supplies</button></div>');
 }
 function shopClose(){
@@ -6599,7 +6601,8 @@ function renderSupplies(){
 
   let s = '<div class="supplies">';
   if (sale.length){
-    s += shopHero(sale) + '<div class="shopgrid">' + sale.map(shopCard).join('') + '</div>';
+    s += shopHero(sale) + '<div class="shopgrid">' + sale.map(shopCard).join('') + '</div>' +
+      '<p class="shopfoot">UK delivery only &middot; 14-day returns &middot; <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms, returns and privacy</a></p>';
   }
   s += '<header class="suphead' + (sale.length ? ' supnext' : '') + '">' +
     (sale.length
@@ -6733,6 +6736,7 @@ function supDetail(d){
           (d.n === 3 || d.n === 9 ? 'on the front only.' : 'front and back, exactly as shown.') + ' Wash inside out, cool, and it keeps its edges.</p></details>' +
         '<details><summary>Delivery</summary><p>We post to UK addresses only, and your tee arrives within 4&ndash;10 working days. ' +
           (shopCat && shopCat.shipping ? 'Delivery is ' + gbp(shopCat.shipping) + '.' : 'Delivery is free.') + '</p></details>' +
+        '<details><summary>Returns</summary><p>Changed your mind? Tell us within 14 days of it arriving and send it back unworn for a full refund. Anything faulty or wrong, we put right at our cost. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Read the shop terms</a>.</p></details>' +
       '</div>' +
       '<p class="jnote"><button class="linkbtn" data-act="supshare" data-v="' + d.n + '">Share this tee</button></p>' +
       '</div></div>';
@@ -16366,7 +16370,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v183';
+const APP_VERSION = 'v184';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
