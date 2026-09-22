@@ -4425,6 +4425,81 @@ span.pshow{cursor:default}
 .prof.pv3 > .pfigs.n3{--c:3}
 .prof.pv3 .pine:has(+ .pfigs.none){padding-bottom:18px}
 
+
+/* the field log stamp, drawn from the pocket print on the Field Log tee */
+.flstamp{position:absolute; right:-2px; top:8px; width:116px; transform:rotate(8deg); display:flex; flex-direction:column; align-items:center; pointer-events:none}
+.flstamp img{width:116px; height:auto; display:block}
+.flstamp .fl-d{display:none}
+.flstamp b{margin-top:1px; font:600 12px var(--font-data); letter-spacing:.32em; padding-left:.32em; color:var(--accent-text)}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .flstamp .fl-l{display:none} :root:not([data-theme="light"]) .flstamp .fl-d{display:block} }
+:root[data-theme="dark"] .flstamp .fl-l{display:none}
+:root[data-theme="dark"] .flstamp .fl-d{display:block}
+@media (max-width:380px){ .flstamp{width:96px} .flstamp img{width:96px} }
+/* over a photograph: inside the frame, in the ink the photo underneath
+   needs (measured by tuneStamp) */
+.cover-hero .flstamp{right:14px; top:14px; width:104px; filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+.cover-hero .flstamp img{width:104px}
+.cover-hero .flstamp .fl-l{display:none !important}
+.cover-hero .flstamp .fl-d{display:block !important}
+.cover-hero .flstamp b{color:#F3EFE6}
+.cover-hero .flstamp.on-light{filter:drop-shadow(0 0 5px rgba(255,253,248,.9)) drop-shadow(0 1px 1px rgba(255,253,248,.7))}
+.cover-hero .flstamp.on-light .fl-l{display:block !important}
+.cover-hero .flstamp.on-light .fl-d{display:none !important}
+.cover-hero .flstamp.on-light b{color:#14332D; text-shadow:0 0 4px rgba(255,253,248,.95)}
+.cover-hero .flstamp.on-dark{filter:drop-shadow(0 2px 6px rgba(0,0,0,.55)) drop-shadow(0 0 1px rgba(0,0,0,.6))}
+.leadwrap.hero .leadshot::before{z-index:1; background:linear-gradient(180deg, rgba(12,34,29,.38) 0%, rgba(12,34,29,.18) 30%, rgba(12,34,29,0) 50%, rgba(12,34,29,0) 70%, rgba(12,34,29,.5) 100%) !important}
+.leadwrap.hero .cover-hero{z-index:2}
+.leadwrap.hero.palesky .leadshot::before{background:linear-gradient(180deg, rgba(12,34,29,.82) 0%, rgba(12,34,29,.62) 36%, rgba(12,34,29,.15) 60%, rgba(12,34,29,.1) 72%, rgba(12,34,29,.65) 100%) !important}
+
+
+/* ---- v191: the shop, a basket, discount codes ---- */
+.bagbtn{position:relative}
+.bagbtn i{position:absolute; top:-5px; right:-6px; min-width:17px; height:17px; padding:0 4px; border-radius:99px; background:var(--accent); color:#F6EFE4;
+  font:700 10.5px/17px var(--font-ui); font-style:normal; text-align:center; display:none}
+.bagbtn.has i{display:block}
+.sshop{display:flex; align-items:center; gap:12px; margin:8px 12px 0; padding:10px 14px; border-radius:12px; border:1px solid rgba(243,239,230,.25); background:transparent; color:#F3EFE6; font:600 15px var(--font-ui); cursor:pointer}
+.sshop:hover{background:rgba(243,239,230,.08)}
+.sshop svg{width:20px; height:20px}
+.shopgo svg{width:18px; height:18px; margin-right:8px; vertical-align:-3px}
+.kithead{margin:34px 0 14px; font-family:var(--font-display); font-weight:400; font-size:26px; color:var(--ink)}
+.kittile{display:block; width:100%; padding:0; border:0; cursor:pointer; aspect-ratio:1/1; overflow:hidden}
+.kittile img{width:100%; height:100%; object-fit:cover; display:block}
+.kitshots{display:grid; gap:10px}
+.kitshots img{width:100%; border-radius:12px; display:block}
+.basketsheet .sheetbox{max-width:560px; padding:8px 16px 18px; max-height:86vh; overflow-y:auto}
+.bklist{list-style:none; margin:4px 0 0; padding:0}
+.bkline{display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--line-soft)}
+.bkline img, .bkimg{width:64px; height:64px; border-radius:10px; object-fit:cover; background:var(--surface-2); flex:none}
+.bkmid{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.bkmid b{font-size:15px; color:var(--ink)}
+.bkmid > span{font-size:13px; color:var(--ink-3)}
+.bkqty{display:inline-flex; align-items:center; gap:2px; margin-top:6px; border:1px solid var(--line); border-radius:99px; width:max-content}
+.bkqty button{width:36px; height:36px; border:0; background:none; color:var(--ink-2); display:grid; place-items:center; cursor:pointer; border-radius:99px}
+.bkqty button:disabled{opacity:.35}
+.bkqty svg{width:16px; height:16px}
+.bkqty output{min-width:22px; text-align:center; font:700 14px var(--font-ui); font-variant-numeric:tabular-nums}
+.bkprice{font:700 15px var(--font-ui); color:var(--ink); font-variant-numeric:tabular-nums}
+.bkcode{display:flex; gap:8px; margin:14px 0 0}
+.bkcode input{flex:1; min-width:0; min-height:44px; padding:0 14px; border-radius:12px; border:1px solid var(--line); background:var(--raise); color:var(--ink); font:600 15px var(--font-ui); text-transform:uppercase; letter-spacing:.06em}
+.bkcode input::placeholder{text-transform:none; letter-spacing:0; font-weight:400}
+.bkapplied{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:0; padding:10px 12px; width:100%; border-radius:12px; background:var(--done-soft); color:var(--ink); font-size:14px}
+.bkapplied svg{width:16px; height:16px; color:var(--done)}
+.bkapplied .linkbtn{margin-left:auto}
+.bkapplied i{font-style:normal; color:var(--ink-3)}
+.bkmsg{margin:8px 2px 0; font-size:13.5px; color:var(--warn)}
+.bktotals{margin:14px 0 0; display:flex; flex-direction:column; gap:6px}
+.bktotals div{display:flex; justify-content:space-between; font-size:14.5px; color:var(--ink-2)}
+.bktotals dt, .bktotals dd{margin:0}
+.bktotals dd{font-variant-numeric:tabular-nums}
+.bktotals .off dd{color:var(--done)}
+.bktotals .tot{padding-top:8px; border-top:1px solid var(--line); font-weight:700; font-size:16.5px; color:var(--ink)}
+.bkgo{width:100%; min-height:52px; margin-top:14px; justify-content:center; font-size:16px}
+.bkgo svg{width:18px; height:18px; margin-right:8px}
+.bkempty{display:flex; flex-direction:column; align-items:center; gap:6px; padding:26px 10px 10px; text-align:center}
+.bkempty svg{width:34px; height:34px; color:var(--ink-3)}
+.bkempty b{font-size:17px}
+.bkempty span{color:var(--ink-3); margin-bottom:10px}
+
 /* ---- someone else's profile ---- */
 .pfollows{display:flex; align-items:center; gap:16px; margin:10px 2px 4px; font-size:14px; color:var(--ink-2)}
 .pfollows b{color:var(--ink); font-variant-numeric:tabular-nums}
@@ -4778,6 +4853,333 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 @media (prefers-reduced-motion: reduce){
   .seg button, .lchip, .chip, .bnav .navbtn .ni, .top .iconbtn{transition:none}
 }
+
+/* ================= Basecamp and its shop (v192) =================
+   One switch splits the tab: Patches, what you have earned; Shop, what you can
+   wear. The shop is built like an outdoor brand's: two tees across on a phone,
+   collections as chips, a heart and a quick add on every picture, and buying
+   pinned to the bottom of the product page. Colours come from the theme
+   tokens, so light and dark are the same design. */
+:root{--bc-ok:#2E6B4F; --bc-ok-soft:#E4EFE8; --bc-tile:#FFFFFF}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--bc-ok:#6FC0AC; --bc-ok-soft:#12342C; --bc-tile:#FFFFFF} }
+:root[data-theme="dark"]{--bc-ok:#6FC0AC; --bc-ok-soft:#12342C; --bc-tile:#FFFFFF}
+
+.bcswitch{display:flex; gap:4px; padding:4px; margin:14px 0 0; border-radius:26px; background:var(--surface-2); border:1px solid var(--line-soft)}
+.bcswitch button{flex:1; display:flex; align-items:center; justify-content:center; gap:7px; min-height:42px; border:0; border-radius:22px; background:none; color:var(--ink); font:700 15px var(--font-ui); transition:background .18s, color .18s}
+.bcswitch button svg{width:18px; height:18px}
+.bcswitch button[aria-pressed="true"]{background:var(--pine, #14332D); color:#F3EFE6; box-shadow:0 1px 2px rgba(0,0,0,.15)}
+:root[data-theme="dark"] .bcswitch button[aria-pressed="true"]{background:#F3EFE6; color:#14332D}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .bcswitch button[aria-pressed="true"]{background:#F3EFE6; color:#14332D} }
+.bcsub3{display:flex; gap:22px; margin:6px 2px 0; border-bottom:1px solid var(--line)}
+.bcsub3 button{border:0; background:none; padding:10px 0; min-height:44px; font:500 15px var(--font-ui); color:var(--ink-3); box-shadow:inset 0 -2px 0 transparent}
+.bcsub3 button[aria-pressed="true"]{color:var(--ink); font-weight:700; box-shadow:inset 0 -2px 0 var(--accent)}
+
+.bcshop{padding-top:14px}
+.bceyebrow{display:block; margin:0; font:600 10.5px/1.3 var(--font-data); letter-spacing:.14em; text-transform:uppercase; color:var(--accent-text); font-style:normal}
+.bceyebrow.ok{color:var(--bc-ok)}
+
+/* the band: tees from hills you have stood on */
+.bclog{background:#14332D; color:#F3EFE6; border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:10px; margin-bottom:14px}
+.bclog .bceyebrow{color:#A3BEB8}
+.bclog h2{margin:0; font:400 22px/1.08 var(--font-display); letter-spacing:.01em; text-wrap:balance}
+.bclogrow{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px}
+@media (min-width:768px){ .bclogrow{grid-template-columns:repeat(auto-fill, minmax(220px, 260px))} }
+.bclogitem{display:flex; gap:10px; align-items:center; padding:6px; border:0; border-radius:10px; background:#1E453E; color:#F3EFE6; text-align:left; min-height:60px}
+.bclogitem .bctile{width:44px; height:48px; flex:none; border-radius:6px}
+.bclogitem b{display:block; font:700 13.5px/1.2 var(--font-ui)}
+.bclogitem i{display:block; font:normal 12px var(--font-ui); color:#A3BEB8; margin-top:2px}
+
+.bcchips{display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; margin:0 -14px 14px; padding:2px 14px}
+.bcchips::-webkit-scrollbar{display:none}
+.bcchips .chip{flex:none; min-height:38px; white-space:nowrap; gap:6px}
+.bcchips .chip svg{width:15px; height:15px}
+.bcchips .chip[aria-pressed="true"]{background:var(--ink) !important; color:var(--ground) !important; border-color:var(--ink) !important}
+.bcsz[aria-pressed="true"]{background:var(--ink) !important; color:var(--ground) !important}
+.bcsavedchip b{font-weight:700; font-variant-numeric:tabular-nums}
+
+/* the grid: two across on a phone, four on a desk */
+.bcgrid{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:22px 12px}
+@media (min-width:620px){ .bcgrid{grid-template-columns:repeat(3, minmax(0, 1fr)); gap:28px 18px} }
+@media (min-width:1024px){ .bcgrid{grid-template-columns:repeat(4, minmax(0, 1fr)); gap:32px 22px} }
+.bcskel{aspect-ratio:10/11; border-radius:8px; background:var(--surface-2); animation:bcpulse 1.2s ease-in-out infinite alternate}
+@keyframes bcpulse{to{opacity:.55}}
+@media (prefers-reduced-motion:reduce){ .bcskel{animation:none} }
+.bccard{min-width:0; display:flex; flex-direction:column; gap:6px}
+.bctile{position:relative; display:block; background:var(--bc-tile); border-radius:8px; overflow:hidden; box-shadow:inset 0 0 0 1px rgba(20,51,45,.07)}
+.bcimg{display:block; width:100%; padding:0; border:0; background:none; position:relative; aspect-ratio:10/11}
+.bcimg img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity .25s}
+.bcimg img.alt{opacity:0}
+@media (hover:hover){ .bccard:hover .bcimg img.alt{opacity:1} .bccard:hover .bcimg img:not(.alt){opacity:0} }
+.bcflag{position:absolute; left:8px; top:8px; background:#14332D; color:#F3EFE6; font:700 10.5px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px; border-radius:3px; pointer-events:none}
+.bctag{position:absolute; left:0; right:0; bottom:0; padding:5px 8px; background:rgba(20,51,45,.9); color:#F3EFE6; font:600 9.5px var(--font-data); letter-spacing:.08em; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.bcround{width:36px; height:36px; border-radius:50%; border:1px solid rgba(20,51,45,.14); background:rgba(255,253,248,.94); color:#14332D; display:grid; place-items:center; padding:0; transition:transform .12s}
+.bcround:active{transform:scale(.92)}
+.bcround svg{width:18px; height:18px}
+.bctile .bcheart{position:absolute; right:8px; top:8px}
+.bctile .bcplus{position:absolute; right:8px; bottom:8px}
+.bctile .bcplus.up{bottom:30px}
+.bcheart[aria-pressed="true"]{color:#A8431A}
+.bcmeta{display:flex; align-items:baseline; gap:8px}
+.bcmeta h3{margin:0; flex:1; min-width:0}
+.bcmeta h3 button{border:0; background:none; padding:0; text-align:left; font:600 14.5px/1.25 var(--font-ui); color:var(--ink)}
+.bcprice{font:700 14.5px var(--font-ui); color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+.bcsub{font-size:12.5px; color:var(--ink-3)}
+.bcsizes{display:flex; flex-wrap:wrap; gap:4px}
+.bcsizes i{font:600 10.5px/16px var(--font-ui); font-style:normal; color:var(--ink-2); border:1px solid var(--line); border-radius:4px; padding:0 5px}
+.bcdone{display:flex; align-items:center; gap:5px; margin:0; font:600 12.5px var(--font-ui); color:var(--bc-ok)}
+.bcdone svg{width:14px; height:14px}
+.bccard.small{width:140px; flex:none}
+.bccard.small .bcmeta h3 button, .bccard.small .bcprice{font-size:13px}
+
+/* drawing board banner */
+.bcboard{display:flex; align-items:center; gap:14px; width:100%; margin:30px 0 0; padding:14px; border:1px dashed var(--line); border-radius:14px; background:var(--surface); color:var(--ink); text-align:left}
+.bcboard > svg{width:20px; height:20px; flex:none; color:var(--ink-3)}
+.bcfan{display:flex; padding-left:6px; flex:none}
+.bcfan img{width:46px; height:46px; object-fit:cover; border-radius:8px; background:#fff; box-shadow:0 0 0 2px var(--surface); margin-left:-16px}
+.bcfan img:first-child{margin-left:0; transform:rotate(-6deg)} .bcfan img:nth-child(2){transform:rotate(3deg)} .bcfan img:nth-child(3){transform:rotate(8deg)}
+.bcboardtx{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.bcboardtx b{font:700 15.5px var(--font-ui)}
+.bcboardtx span{font-size:13px; color:var(--ink-3)}
+
+/* rows: recently viewed, pairs with, from the shop */
+.bcrow{margin-top:30px}
+.bcrowhead{display:flex; align-items:baseline; gap:10px; margin-bottom:10px}
+.bcrowhead h2{flex:1; margin:0; font:400 20px var(--font-display); letter-spacing:.01em; color:var(--ink)}
+.bcscroll{display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; margin:0 -14px; padding:0 14px 4px; scroll-snap-type:x proximity}
+.bcscroll::-webkit-scrollbar{display:none}
+.bcscroll > *{scroll-snap-align:start}
+.bcmini{flex:none; width:112px; display:flex; flex-direction:column; gap:4px; border:0; background:none; padding:0; text-align:left; color:var(--ink)}
+.bcmini .bctile{aspect-ratio:10/11}
+.bcmini img{width:100%; height:100%; object-fit:cover}
+.bcmini b{font:600 12.5px/1.25 var(--font-ui); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.bcmini i{font:normal 12px var(--font-ui); color:var(--ink-3)}
+.bcnudge{display:flex; align-items:center; gap:4px; margin:16px 0 0; padding:0; border:1px solid var(--line-soft); border-radius:12px; background:var(--surface)}
+.bcnudgego{flex:1; min-width:0; display:flex; align-items:center; gap:10px; min-height:48px; padding:6px 8px 6px 12px; border:0; background:none; color:var(--ink); text-align:left; font-size:13.5px}
+.bcnudgego > span:not(.bcfan){flex:1; min-width:0; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.bcnudgego b{color:var(--ink); font-weight:700; margin-right:4px}
+.bcnudgego > svg{width:16px; height:16px; flex:none; color:var(--ink-3)}
+.bcnudge.news .bcnudgego > svg:first-child{color:var(--bc-ok); width:18px; height:18px}
+.bcnudge.news{background:var(--bc-ok-soft)}
+.bcfan.sm{padding-left:4px}
+.bcfan.sm img{width:26px; height:28px; border-radius:5px; margin-left:-10px; background:#fff; object-fit:cover}
+.bcfan.sm img:first-child{margin-left:0}
+.bcnudgex{width:36px; height:36px; flex:none; border:0; background:none; color:var(--ink-3); display:grid; place-items:center; border-radius:50%}
+.bcnudgex svg{width:16px; height:16px}
+.bchome{margin-top:26px}
+.bchome .bcscroll{margin:0; padding:0 0 4px}
+.bcnews{display:flex; align-items:center; gap:12px; width:100%; margin:0 0 14px; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--bc-ok-soft); color:var(--ink); text-align:left}
+.bcnews svg{width:20px; height:20px; flex:none; color:var(--bc-ok)}
+.bcnews span{flex:1; font-size:14px}
+.bcnews.saved{background:var(--surface); margin-top:18px}
+.bcnews.saved svg:first-child{color:#A8431A}
+.bcfoot{margin:28px 0 0; font-size:13px; color:var(--ink-3)}
+.bcempty{display:flex; flex-direction:column; align-items:center; gap:8px; padding:48px 20px; text-align:center; color:var(--ink-2)}
+.bcempty > svg{width:36px; height:36px; color:var(--ink-3)}
+.bcempty b{font:700 18px var(--font-ui); color:var(--ink)}
+.bcempty .btn{margin-top:8px}
+
+/* ---- the product page ---- */
+.bcpdp{display:grid; grid-template-columns:minmax(0, 1fr); gap:14px; margin:0 -14px}
+.bcgallery{position:relative; background:var(--bc-tile)}
+.bcgallery .supsides{margin:0; gap:0}
+.bcgallery .supsides figure{padding:0; border:0; margin:0; box-shadow:none; background:var(--bc-tile); border-radius:0}
+.bcgallery .supsides .zoomhit{min-height:0; display:block; width:100%}
+.bcgallery .supsides img{display:block; width:100%; max-width:none; max-height:none; height:min(110vw, 52vh); object-fit:contain}
+@media (min-width:900px){ .bcgallery .supsides img{height:auto; aspect-ratio:1000/1100; object-fit:cover} }
+.bcgtop{position:absolute; left:12px; right:12px; top:12px; display:flex; gap:8px; pointer-events:none}
+.bcgtop > *{pointer-events:auto}
+.bcgtop span{flex:1; pointer-events:none}
+.bcgtop .bcround{width:44px; height:44px}
+.bcgallery .supdots{position:absolute; left:0; right:0; bottom:12px; display:flex; justify-content:center; gap:6px; margin:0}
+.bcgallery .supdots .chip{min-height:32px; padding:4px 12px; font-size:12.5px; background:rgba(255,253,248,.92); color:#14332D; border-color:rgba(20,51,45,.14)}
+.bcgallery .supdots .chip[aria-current="true"]{background:#14332D; color:#F3EFE6; border-color:#14332D}
+.bcinfo{padding:0 14px; min-width:0}
+.bctitle{display:flex; align-items:baseline; gap:12px; margin-top:6px}
+.bctitle h1{flex:1; margin:0; font:400 clamp(28px, 7.6vw, 40px)/1.02 var(--font-display); letter-spacing:.01em; color:var(--ink); text-wrap:balance}
+.bctitle b{font:700 21px var(--font-ui); font-variant-numeric:tabular-nums; color:var(--ink)}
+.bcline{display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin:8px 0 0; font-size:14px; color:var(--ink-2)}
+.bcinfo .bcdone{margin-top:8px; font-size:14px}
+.bcszhead{display:flex; align-items:baseline; gap:8px; margin-bottom:8px}
+.bcszhead b{font:700 14px var(--font-ui); color:var(--ink)}
+.bcszhead span{flex:1; font-size:13px; color:var(--ink-3)}
+.bcszhead .linkbtn{font-size:13.5px; font-weight:700}
+.bcszrow{display:grid; grid-template-columns:repeat(auto-fit, minmax(52px, 1fr)); gap:8px}
+.bcsz{min-height:48px; border-radius:10px; border:1px solid var(--line); background:var(--raise); color:var(--ink); font:700 15px var(--font-ui); transition:background .15s, color .15s, transform .1s}
+.bcsz:active{transform:scale(.96)}
+.bcsz[aria-pressed="true"]{background:var(--ink); color:var(--ground); border-color:var(--ink)}
+.bcadd{width:100%; min-height:52px; margin-top:10px; font-size:16px; gap:8px; justify-content:center}
+.bcadd svg{width:20px; height:20px}
+.bcbuy{background:var(--ground); padding:12px 14px calc(12px + env(safe-area-inset-bottom)); border-top:1px solid var(--line);
+  position:fixed; left:0; right:0; bottom:calc(62px + env(safe-area-inset-bottom)); z-index:840; box-shadow:0 -10px 24px -18px rgba(0,0,0,.35)}
+.bcpdp{padding-bottom:170px}
+@media (min-width:768px){
+  .bcbuy{position:static; padding:18px 0 0; margin-top:18px; box-shadow:none; background:none}
+  .bcpdp{padding-bottom:0}
+}
+.bcfacts{list-style:none; margin:18px 0 0; padding:0; display:grid; gap:8px}
+.bcfacts li{display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--ink-2)}
+.bcfacts li b{color:var(--ink)}
+.bcfacts svg{width:18px; height:18px; flex:none; margin-top:2px; color:var(--ink-3)}
+.bcspecs{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin:18px 0 0}
+.bcspecs div{padding:10px 12px; border-radius:10px; background:var(--raise); border:1px solid var(--line-soft)}
+.bcspecs dt{font:600 10px var(--font-data); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
+.bcspecs dd{margin:4px 0 0; font:700 15px var(--font-ui); color:var(--ink)}
+.bcinfo .pdmore{margin-top:18px}
+.bcinfo .szchart{margin:0 0 14px}
+@media (min-width:900px){
+  .bcpdp{grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); gap:44px; margin:0; align-items:start}
+  .bcgallery{border-radius:14px; overflow:hidden; position:sticky; top:16px}
+  .bcinfo{padding:10px 0 0}
+  .bcinfo .bcrow .bcscroll{margin:0; padding:0 0 4px}
+}
+:root[data-screen="a"][data-shop="1"] #main{max-width:1240px}
+
+/* ---- sheets: quick add, size and fit, added, tell me ---- */
+.bcsheet{z-index:2300}
+.bcsheet .sheetbox{max-width:560px; padding:6px 18px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; max-height:90vh; overflow-y:auto}
+.bcsheet .cmgrab{margin:6px auto 0}
+.bcsheet .bcx{position:absolute; right:10px; top:10px}
+.bcsheethead{display:flex; align-items:center; gap:12px; padding-right:44px; cursor:grab}
+.bcsheethead .bctile{width:56px; height:62px; flex:none}
+.bcsheethead img{width:100%; height:100%; object-fit:cover}
+.bcsheethead div{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.bcsheethead b{font:700 16px var(--font-ui); color:var(--ink)}
+.bcsheethead b.bcbig{font:400 22px/1.05 var(--font-display)}
+.bcsheethead span{font-size:13px; color:var(--ink-3)}
+.bcsheettitle{margin:4px 0 0 !important; font:400 24px var(--font-display) !important}
+.bcok{display:flex; align-items:center; gap:8px; margin:4px 0 0 !important; font:700 15px var(--font-ui); color:var(--bc-ok) !important}
+.bcok svg{width:20px; height:20px}
+.bcfree p{margin:0 0 6px !important; font-size:14px; color:var(--ink) !important}
+.bcfree.done{display:flex; align-items:center; gap:10px; padding:12px; border-radius:10px; background:var(--bc-ok-soft); color:var(--ink); font-size:14px}
+.bcfree.done svg{width:20px; height:20px; color:var(--bc-ok); flex:none}
+.bctrack{display:block; height:6px; border-radius:3px; background:var(--line-soft); overflow:hidden}
+.bctrack i{display:block; height:100%; border-radius:3px; background:var(--bc-ok); transition:width .3s}
+.bcupsell{display:flex; align-items:center; gap:12px; padding:10px; border-radius:12px; border:1px dashed var(--line)}
+.bcupsell .bctile{width:48px; height:52px; flex:none}
+.bcupsell img{width:100%; height:100%; object-fit:cover}
+.bcupsell div{flex:1; min-width:0; display:flex; flex-direction:column}
+.bcupsell b{font:700 14px var(--font-ui)} .bcupsell span{font-size:12.5px; color:var(--ink-3)}
+.bcupsell .chip svg{width:14px; height:14px}
+.bcbtns{display:flex; gap:10px}
+.bcbtns .btn{flex:1; min-height:50px; justify-content:center}
+.bcgo{min-height:50px; justify-content:center}
+.btn.pine{background:#14332D; color:#F3EFE6; box-shadow:0 2px 0 #081713; border-color:#14332D}
+.linkbtn.bccenter{align-self:center; min-height:40px; font-weight:700}
+.bcfitnote{display:flex; gap:8px; align-items:flex-start; margin:0 !important; padding:10px 12px; border-radius:10px; background:var(--bc-ok-soft); color:var(--ink) !important; font-size:14px}
+.bcfitnote svg{width:18px; height:18px; flex:none; color:var(--bc-ok)}
+.bcfit{width:100%; border-collapse:collapse; font-size:14px; font-variant-numeric:tabular-nums}
+.bcfit th, .bcfit td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--line-soft)}
+.bcfit thead th{font:600 11px var(--font-ui); color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em}
+.bcfit tr.on{background:var(--bc-ok-soft)}
+.bccheck{display:flex; align-items:center; gap:10px; min-height:48px; padding:0 12px; border-radius:10px; border:1px solid var(--line); background:var(--raise); font:600 15px var(--font-ui); color:var(--ink)}
+.bccheck input{width:20px; height:20px; accent-color:var(--bc-ok)}
+.bclede{margin:0 !important; font-size:15px !important; color:var(--ink-2)}
+
+/* ---- the backpack ---- */
+.bccount{font:600 15px var(--font-ui); color:var(--ink-3)}
+.bkpic{padding:0; border:0; background:none; flex:none}
+.bkline .bkpic img, .bkline .bkimg{width:72px; height:80px; border-radius:8px; object-fit:cover; background:var(--bc-tile)}
+.bkrow{display:flex; align-items:center; gap:10px; margin-top:6px; flex-wrap:wrap}
+.bkrow .bkqty{margin-top:0}
+.bklater{font-size:13px; color:var(--ink-3)}
+.basketsheet .bcfree{margin-top:14px}
+.bkcodeopen{display:flex; align-items:center; gap:8px; min-height:44px; padding:0; border:0; background:none; font:700 15px var(--font-ui); color:var(--ink)}
+.bkcodeopen svg{width:18px; height:18px}
+.bktotals .free{color:var(--bc-ok); font-weight:700}
+.bkgo{width:100%; min-height:52px; justify-content:center; gap:8px}
+.bkpay{text-align:center; margin-top:8px !important}
+.bkempty > svg{width:40px; height:40px}
+
+/* ---- order confirmed ---- */
+.bcorder{display:flex; flex-direction:column; align-items:flex-start; gap:12px; padding:6px 0}
+.bcorderok{width:56px; height:56px; border-radius:50%; background:var(--bc-ok); color:#fff; display:grid; place-items:center}
+.bcorderok svg{width:28px; height:28px}
+.bcorder h3{margin:0; font:400 28px/1.05 var(--font-display); color:var(--ink)}
+.bcorder p{margin:0; color:var(--ink-2); line-height:1.55}
+.bcsteps{list-style:none; margin:4px 0 0; padding:0; width:100%; border:1px solid var(--line); border-radius:12px; background:var(--raise)}
+.bcsteps li{display:flex; gap:12px; align-items:center; padding:12px}
+.bcsteps li + li{border-top:1px solid var(--line-soft)}
+.bcsteps li > span{width:26px; height:26px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; flex:none}
+.bcsteps li.on > span{background:var(--bc-ok); border-color:var(--bc-ok); color:#fff}
+.bcsteps li > span svg{width:14px; height:14px}
+.bcsteps b{display:block; font:700 15px var(--font-ui); color:var(--ink)}
+.bcsteps i{display:block; font:normal 13px var(--font-ui); color:var(--ink-3)}
+.bcorderrow{display:flex; align-items:center; gap:8px; width:100%}
+.bcorderrow .bctile{width:44px; height:48px; flex:none}
+.bcorderrow img{width:100%; height:100%; object-fit:cover}
+.bcorderrow > span:last-child{flex:1; font-size:13.5px; color:var(--ink-3)}
+.bcorder .btn{min-height:50px; align-self:stretch; justify-content:center}
+
+/* ---- the drawing board deck ---- */
+.bcdeck{position:fixed; inset:0; z-index:2200; display:none; background:var(--ground)}
+.bcdeck.open{display:block}
+.bcdeckin{max-width:480px; height:100%; margin:0 auto; display:flex; flex-direction:column; padding:10px 18px calc(20px + env(safe-area-inset-bottom)); box-sizing:border-box}
+.bcdeckhead{display:flex; align-items:center; gap:10px; min-height:52px}
+.bcdeckhead > div{flex:1; text-align:center; display:flex; flex-direction:column}
+.bcdeckhead > div .bceyebrow{color:var(--ink-3)}
+.bcdeckhead > div b{font:700 15px var(--font-ui)}
+.bcdeckhead > span{width:36px}
+.bcdeckin > .bctrack{margin:6px 0 14px}
+.bcstack{position:relative; flex:1; min-height:320px}
+.bcvote{position:absolute; inset:0 0 6px; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; background:var(--raise); border:1px solid var(--line); box-shadow:0 14px 34px -14px rgba(0,0,0,.35);
+  transition:transform .22s cubic-bezier(.32,.72,0,1), opacity .22s; touch-action:pan-y; user-select:none; cursor:grab}
+.bcvote[data-k="1"]{transform:translateY(10px) scale(.96)} .bcvote[data-k="2"]{transform:translateY(20px) scale(.92); opacity:.6}
+.bcvote .bctile{flex:1; border-radius:0; background:#fff; display:grid; place-items:center}
+.bcvote .bctile img{max-width:100%; max-height:100%; object-fit:contain; pointer-events:none}
+.bcvote > div{padding:14px 16px; display:flex; flex-direction:column; gap:2px}
+.bcvote > div b{font:400 24px/1.05 var(--font-display); color:var(--ink)}
+.bcvote > div span{font-size:13px; color:var(--ink-3)}
+.bcstamp{position:absolute; top:22px; font:400 24px var(--font-display); font-style:normal; padding:4px 10px; border:3px solid; border-radius:6px; background:rgba(255,253,248,.9); opacity:0; transition:opacity .15s; pointer-events:none}
+.bcstamp.yes{left:18px; color:#2E6B4F; transform:rotate(-12deg)}
+.bcstamp.no{right:18px; color:#A8431A; transform:rotate(12deg)}
+.bcvote.lean-yes .bcstamp.yes, .bcvote.goyes .bcstamp.yes{opacity:1}
+.bcvote.lean-no .bcstamp.no, .bcvote.gono .bcstamp.no{opacity:1}
+.bcvote.goyes{transform:translateX(120%) rotate(14deg) !important; opacity:0}
+.bcvote.gono{transform:translateX(-120%) rotate(-14deg) !important; opacity:0}
+.bcvote.goskip{transform:translateY(-30px) scale(.9) !important; opacity:0}
+.bcdeckbtns{display:flex; justify-content:center; align-items:center; gap:28px; margin-top:18px}
+.bcvbtn{width:64px; height:64px; border-radius:50%; border:1px solid var(--line); background:var(--raise); color:var(--ink); display:grid; place-items:center; transition:transform .12s}
+.bcvbtn:active{transform:scale(.92)}
+.bcvbtn svg{width:28px; height:28px}
+.bcvbtn.no{color:#A8431A}
+.bcvbtn.yes{background:#2E6B4F; border-color:#2E6B4F; color:#fff}
+.bcvbtn.skip{width:48px; height:48px; font:700 12px var(--font-ui); color:var(--ink-3)}
+.bchint{text-align:center; font-size:13px; color:var(--ink-3); margin:10px 0 0}
+.bcdeckin.done{gap:12px}
+.bcdeckin.done h2{margin:0; font:400 34px/1 var(--font-display); color:var(--ink)}
+.bcpicks{list-style:none; margin:4px 0 0; padding:0; border:1px solid var(--line); border-radius:12px; background:var(--raise); overflow:auto}
+.bcpicks li{display:flex; align-items:center; gap:12px; padding:10px 12px}
+.bcpicks li + li{border-top:1px solid var(--line-soft)}
+.bcpicks .bctile{width:52px; height:52px; flex:none; background:#fff}
+.bcpicks img{width:100%; height:100%; object-fit:contain}
+.bcpicks div{flex:1; min-width:0; display:flex; flex-direction:column}
+.bcpicks b{font:700 15px var(--font-ui)} .bcpicks div span{font-size:12.5px; color:var(--ink-3)}
+.bcbell{color:var(--bc-ok)} .bcbell svg{width:20px; height:20px}
+.bcpicks .chip svg{width:14px; height:14px}
+.bcdeckfoot{margin-top:auto; display:flex; flex-direction:column; gap:10px}
+.bcdeckfoot .btn{min-height:52px; justify-content:center}
+.bcdeckfoot .linkbtn{align-self:flex-start; font-weight:700}
+
+/* ---- patch earned: the tee, or the real patch that is coming ---- */
+.winshop{display:flex; align-items:center; gap:12px; width:100%; margin:16px 0 0; padding:10px 12px; border-radius:12px; border:1px solid #2C5C52; background:rgba(243,239,230,.06); color:#F3EFE6; text-align:left}
+.winshop .bctile{width:48px; height:52px; flex:none}
+.winshop img{width:100%; height:100%; object-fit:cover}
+.winshop > span:not(.bctile){flex:1; min-width:0}
+.winshop i{display:block; font:600 10px var(--font-data); letter-spacing:.14em; text-transform:uppercase; font-style:normal; color:#EE9A62}
+.winshop b{font:700 14.5px var(--font-ui)}
+.winshop > svg{width:18px; height:18px; flex:none; opacity:.7}
+.winshop.tease{border-style:dashed; font-size:13.5px; color:#CAD9D3}
+.winshop.tease b{color:#F3EFE6; font-size:13.5px}
+.winshop .chip{flex:none}
+.win .winshop .chip{background:#F3EFE6; color:#14332D; border-color:#F3EFE6}
+.winshop.light{border-color:var(--line); background:var(--raise); color:var(--ink)}
+.winshop.light.tease{background:none; color:var(--ink-2)} .winshop.light.tease b{color:var(--ink)}
+.winshop.light i{color:var(--accent-text)}
+.bcreal{margin:18px 0 6px; display:flex; flex-direction:column; gap:0}
+.bcreal .winshop{margin-top:10px}
+
+/* the desk sidebar lists Basecamp; the old separate Shop button goes */
+.sshop{display:none !important}
 </style>
 </head>
 <body>
@@ -4789,6 +5191,7 @@ ul.hills::before, ul.hills .hrow::before{display:none}
       <span class="sbt"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></span>
     </button>
     <nav class="snav" id="snav" role="tablist" aria-label="Sections"></nav>
+    <button class="sshop" data-act="shopgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.965 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z"/><path d="M9 11v-5a3 3 0 0 1 6 0v5"/></svg><span>Shop</span></button>
     <p class="sfoot">A walking log for the hills of Britain.</p>
   </aside>
 
@@ -4802,6 +5205,7 @@ ul.hills::before, ul.hills .hrow::before{display:none}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
           <i id="bellN"></i>
         </button>
+<button class="iconbtn bagbtn" data-act="bagopen" aria-label="Backpack" title="Backpack"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"/><path d="M9.5 5v-1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v1"/><path d="M6 10.5h12"/><path d="M9 14h6v4h-6z"/></svg><i></i></button>
         <button class="iconbtn cambtn" data-act="cam" aria-label="Camera" title="Camera"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg></button>
         <button class="iconbtn" id="themeBtn" aria-label="Light or dark" title="Light or dark" hidden></button>
         <button class="iconbtn" id="menuBtn" aria-label="Settings" title="Settings">
@@ -4905,7 +5309,7 @@ ul.hills::before, ul.hills .hrow::before{display:none}
     <div id="winBody"></div>
     <div class="btnrow">
       <button class="btn" id="winShare">Share</button>
-      <button class="btn ghost" id="winGo">See it in Patches</button>
+      <button class="btn ghost" id="winGo">See it in Basecamp</button>
       <button class="btn quiet" id="winClose">Keep walking</button>
     </div>
   </div>
@@ -4993,9 +5397,12 @@ const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
    hand, so every glyph in the app is from the same hand.
    https://tabler.io/icons */
 const TI = {"dots":"<path d=\"M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/>","circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","navigation":"<path d=\"M12 18.5l7.5 3.5l-7.5 -18l-7.5 18l7.5 -3.5\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
-Object.assign(TI, {"backpack": "<path d=\"M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3z\"/> <path d=\"M10 6v-1a2 2 0 1 1 4 0v1\"/> <path d=\"M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4\"/> <path d=\"M11 10h2\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
+Object.assign(TI, {"backpack": "<path d=\"M6 9a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z\"/><path d=\"M9.5 5v-1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v1\"/><path d=\"M6 10.5h12\"/><path d=\"M9 14h6v4h-6z\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
 Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path d=\"M11.5 4l-.5 2\"/> <path d=\"M18 5h2\"/> <path d=\"M19 4v2\"/> <path d=\"M15 9l-1 1\"/> <path d=\"M18 13l2 -.5\"/> <path d=\"M18 19h2\"/> <path d=\"M19 18v2\"/> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z\"/>", "dog": "<path d=\"M11 5h2\"/> <path d=\"M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8\"/> <path d=\"M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z\"/> <path d=\"M12 18v2\"/> <path d=\"M10 11v.01\"/> <path d=\"M14 11v.01\"/> <path d=\"M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z\"/> <path d=\"M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z\"/>", "sunrise": "<path d=\"M3 17h1m16 0h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7m-9.7 5.7a4 4 0 0 1 8 0\"/> <path d=\"M3 21l18 0\"/> <path d=\"M12 9v-6l3 3m-6 0l3 -3\"/>", "thumb-up": "<path d=\"M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3\"/>", "bookmark": "<path d=\"M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z\"/>", "bell": "<path d=\"M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/>", "bell-ringing": "<path d=\"M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/> <path d=\"M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727\"/> <path d=\"M3 6.727a11.05 11.05 0 0 1 2.792 -3.727\"/>", "lock": "<path d=\"M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z\"/> <path d=\"M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0\"/> <path d=\"M8 11v-4a4 4 0 1 1 8 0v4\"/>", "world": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M3.6 9h16.8\"/> <path d=\"M3.6 15h16.8\"/> <path d=\"M11.5 3a17 17 0 0 0 0 18\"/> <path d=\"M12.5 3a17 17 0 0 1 0 18\"/>", "users-group": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\"/> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\"/> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\"/>", "user-plus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M16 19h6\"/> <path d=\"M19 16v6\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/>", "user-check": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/> <path d=\"M15 19l2 2l4 -4\"/>", "user-minus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128\"/> <path d=\"M16 19h6\"/>", "eye": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\"/>", "arrows-shuffle": "<path d=\"M18 4l3 3l-3 3\"/> <path d=\"M18 20l3 -3l-3 -3\"/> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\"/> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\"/>", "target": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0\"/> <path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>", "target-arrow": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 7a5 5 0 1 0 5 5\"/> <path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/> <path d=\"M15 6v3h3l3 -3h-3v-3z\"/> <path d=\"M15 9l-3 3\"/>", "bulb": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\"/> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\"/> <path d=\"M9.7 17l4.6 0\"/>", "message-circle": "<path d=\"M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1\"/>", "eye-off": "<path d=\"M10.585 10.587a2 2 0 0 0 2.829 2.828\"/> <path d=\"M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87\"/> <path d=\"M3 3l18 18\"/>"});
 TI['trophy'] = '<path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>';
+TI['shopping-bag'] = '<path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.965 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z"/><path d="M9 11v-5a3 3 0 0 1 6 0v5"/>';
+TI['minus'] = '<path d="M5 12l14 0"/>';
+TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
 TI['arrows-sort'] = '<path d="M3 9l4 -4l4 4"/><path d="M7 5v14"/><path d="M21 15l-4 4l-4 -4"/><path d="M17 19v-14"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
 TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
@@ -6001,7 +6408,8 @@ function celebrate(list){
     '<p class="winnames">' + (many ? list.map(p => esc(p.label)).join('<br>') : esc(patchDateLine(list[0]))) + '</p>' +
     /* some patches need a sentence to mean anything: a number on its own does
        not tell a walker what they have just done */
-    (!many && list[0].blurb ? '<p class="winblurb">' + esc(list[0].blurb) + '</p>' : '');
+    (!many && list[0].blurb ? '<p class="winblurb">' + esc(list[0].blurb) + '</p>' : '') +
+    (!many ? winShopRow(list[0]) : '');
   document.getElementById('win').classList.add('open');
   const go = document.getElementById('winGo'); if (go) go.hidden = !state.enabled.length;
   const sh = document.getElementById('winShare');
@@ -6613,7 +7021,7 @@ const SUPPLIES = [
   {n:14, slug:'waymark-club',          name:'The WayMark Club',         shirt:'cream'},
   {n:16, slug:'one-more-peak',         name:'One More Peak',            shirt:'cream'},
   {n:17, slug:'waymarker',             name:'Waymarker',                shirt:'pine'},
-  {n:18, slug:'field-notes',           name:'Field Notes',              shirt:'cream'},
+  {n:18, slug:'field-log',             name:'Field Log',                shirt:'cream'},
   {n:19, slug:'214-completed',         name:'214 Completed',            shirt:'cream'},
   {n:20, slug:'scafell-pike',          name:'Scafell Pike',             shirt:'cream'},
   {n:27, slug:'the-real-summit',       name:'The Real Summit',          shirt:'cream'},
@@ -6641,11 +7049,163 @@ async function shopLoad(){
     shopCat = j && j.items ? j : {items:{}};
   }catch(e){ shopCat = {items:{}}; }
   shopLoading = false;
-  if (ui.patchView === 'supplies') render();
+  if (ui.patchView === 'supplies' || tab === 'd') render();
 }
 const shopItem = n => shopCat && shopCat.items && shopCat.items[String(n)] || null;
 const NUMWORD = n => ['No','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve'][n] || String(n);
 const gbp = p => '£' + (p / 100).toFixed(p % 100 ? 2 : 0);
+/* ---------- the basket ----------
+   Lines are {k, opt, qty}: k is the catalogue key (a tee's design number, or
+   whatever key a sticker, cap or bottle has), opt its size or option. It lives
+   on this device only; prices always come from the shop helper. */
+const BASKET_KEY = 'waymark.basket';
+let basket = (() => { try{ const b = JSON.parse(localStorage.getItem(BASKET_KEY) || '[]'); return Array.isArray(b) ? b : []; }catch(e){ return []; } })();
+let basketCode = null;   /* {code, label, percent, amount, min} once a code checks out */
+function saveBasket(){ try{ localStorage.setItem(BASKET_KEY, JSON.stringify(basket)); }catch(e){} paintBag(); }
+const basketCount = () => basket.reduce((a, l) => a + (l.qty || 1), 0);
+function basketAdd(k, opt, qty){
+  k = String(k);
+  const l = basket.find(x => x.k === k && x.opt === opt);
+  if (l) l.qty = Math.min(10, l.qty + (qty || 1)); else basket.push({k, opt, qty:qty || 1});
+  saveBasket();
+}
+/* what a catalogue entry is called and looks like, tee or not */
+function prodInfo(k){
+  const it = shopItem(k); if (!it) return null;
+  const d = /^\d+$/.test(String(k)) ? supById(+k) : null;
+  const kind = it.kind || 'tee';
+  return {k:String(k), it, d, kind, name: (d && d.name) || it.name || 'WayMark',
+    img: d ? shopImg(d.n, supLead(d)) : (it.img && it.img[0]) || '',
+    sub: d ? SHIRTS[d.shirt] + ' tee' : KIND_LABEL[kind] || ''};
+}
+const KIND_LABEL = {tee:'Tee', sticker:'Sticker', patch:'Patch', cap:'Cap', beanie:'Beanie', bottle:'Bottle', gaiter:'Neck gaiter', 'neck-gaiter':'Neck gaiter', hoodie:'Hoodie', mug:'Mug', poster:'Print'};
+function basketTotals(){
+  let sub = 0;
+  for (const l of basket){ const it = shopItem(l.k); if (it) sub += it.price * l.qty; }
+  let off = 0;
+  if (basketCode && sub >= (basketCode.min || 0)) off = basketCode.percent ? Math.round(sub * basketCode.percent / 100) : Math.min(sub, basketCode.amount || 0);
+  /* free delivery is judged on the goods, before any code, the same way the shop helper judges it */
+  const ship = basket.length ? bcShipFor(sub) : 0;
+  return {sub, off, ship, total: Math.max(0, sub - off) + ship};
+}
+function paintBag(){
+  const n = basketCount();
+  document.querySelectorAll('.bagbtn').forEach(b => {
+    const i = b.querySelector('i'); if (i) i.textContent = n ? String(n) : '';
+    b.classList.toggle('has', n > 0);
+    b.setAttribute('aria-label', n ? 'Backpack, ' + n + (n === 1 ? ' item' : ' items') : 'Backpack');
+    b.title = 'Backpack';
+  });
+}
+function openBasket(){
+  shopLoad();
+  bcSheetClose();
+  const tt = document.getElementById('toast'); if (tt) tt.classList.remove('show', 'act');
+  let el = document.getElementById('basketsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'basketsheet'; el.className = 'sheet bottom basketsheet';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Your backpack');
+    el.addEventListener('click', e => { if (e.target === el) closeBasket(); });
+    document.body.appendChild(el);
+  }
+  paintBasket(); el.classList.add('open');
+}
+function closeBasket(){ const el = document.getElementById('basketsheet'); if (el) el.classList.remove('open'); }
+function paintBasket(msg){
+  const el = document.getElementById('basketsheet'); if (!el) return;
+  basket = basket.filter(l => !shopCat || shopItem(l.k));
+  const t = basketTotals(), n = basketCount();
+  let s = '<div class="sheetbox"><div class="cmgrab"></div><div class="ntop"><h3>Your backpack' + (n ? ' <span class="bccount">&middot; ' + n + '</span>' : '') + '</h3>' +
+    '<button class="xbtn" data-act="bkclose" aria-label="Close">' + ti('x') + '</button></div>';
+  if (!basket.length){
+    const rv = bcRecent(), sv = bcSaved();
+    s += '<div class="bkempty">' + ti('backpack') + '<b>Nothing packed yet</b><span>Tees from ' + gbp(Math.min(...bcSale().map(d => shopItem(d.n).price).concat([3000]))) + ', printed to order in the UK.' +
+      (bcFreeOver() ? ' Free delivery over ' + gbp(bcFreeOver()) + '.' : '') + '</span>' +
+      '<button class="btn" data-act="bkshop">Browse the shop</button></div>';
+    if (rv.length) s += '<section class="bcrow"><div class="bcrowhead"><h2>You looked at</h2></div><div class="bcscroll">' + rv.slice(0, 6).map(bcMini).join('') + '</div></section>';
+    if (sv.length) s += '<button class="bcnews saved" data-act="bksaved">' + bcHeart(true) + '<span><b>Saved &middot; ' + sv.length + '</b></span>' + ti('chevron-right') + '</button>';
+    el.innerHTML = s + '</div>'; if (typeof wire === 'function') wire(); return;
+  }
+  s += '<ul class="bklist">' + basket.map((l, i) => {
+    const p = prodInfo(l.k); if (!p) return '';
+    const open = p.d ? 'data-act="supopen" data-v="' + p.d.n + '"' : 'data-act="kitopen" data-k="' + esc(l.k) + '"';
+    return '<li class="bkline"><button class="bkpic" ' + open + ' aria-label="Open ' + esc(p.name) + '">' + (p.img ? '<img src="' + esc(p.img) + '" alt="" loading="lazy">' : '<span class="bkimg"></span>') + '</button>' +
+      '<div class="bkmid"><b>' + esc(p.name) + '</b><span>' + esc([p.sub, l.opt && l.opt !== 'One size' ? 'Size ' + l.opt : ''].filter(Boolean).join(' · ')) + '</span>' +
+      '<div class="bkrow"><div class="bkqty" role="group" aria-label="Quantity"><button data-act="bkqty" data-i="' + i + '" data-v="-1" aria-label="' + (l.qty > 1 ? 'One fewer' : 'Take it out') + '">' + ti(l.qty > 1 ? 'minus' : 'trash') + '</button>' +
+      '<output>' + l.qty + '</output><button data-act="bkqty" data-i="' + i + '" data-v="1" aria-label="One more"' + (l.qty >= 10 ? ' disabled' : '') + '>' + ti('plus') + '</button></div>' +
+      '<button class="linkbtn bklater" data-act="bklater" data-i="' + i + '">Save for later</button></div></div>' +
+      '<span class="bkprice">' + gbp(p.it.price * l.qty) + '</span></li>';
+  }).join('') + '</ul>';
+  s += bcFreeBar(t.sub);
+  s += '<div class="bkcode">' + (basketCode
+      ? '<p class="bkapplied">' + ti('check') + '<b>' + esc(basketCode.code) + '</b> ' + esc(basketCode.label) +
+        (basketCode.min && t.sub < basketCode.min ? ' <i>(on orders over ' + gbp(basketCode.min) + ')</i>' : '') +
+        '<button class="linkbtn" data-act="bkcodeoff">Remove</button></p>'
+      : ui.bkCodeOpen || msg
+        ? '<label for="bkcode" class="vh">Discount code</label><input id="bkcode" placeholder="Discount code" autocomplete="off" autocapitalize="characters" maxlength="40"' + (ui.bkCodeOpen === 'focus' ? ' autofocus' : '') + '>' +
+          '<button class="btn quiet" data-act="bkcode">Apply</button>'
+        : '<button class="bkcodeopen" data-act="bkcodeopen">' + bcIcon('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>') + 'Add a discount code</button>') + '</div>' +
+    (msg ? '<p class="bkmsg" role="alert">' + esc(msg) + '</p>' : '');
+  s += '<dl class="bktotals"><div><dt>Subtotal</dt><dd>' + gbp(t.sub) + '</dd></div>' +
+    (t.off ? '<div class="off"><dt>Discount</dt><dd>&minus;' + gbp(t.off) + '</dd></div>' : '') +
+    '<div><dt>UK delivery</dt><dd' + (t.ship ? '' : ' class="free"') + '>' + (t.ship ? gbp(t.ship) : 'Free') + '</dd></div>' +
+    '<div class="tot"><dt>Total</dt><dd>' + gbp(t.total) + '</dd></div></dl>';
+  s += '<button class="btn bkgo" data-act="bkcheckout">' + ti('lock') + 'Checkout securely &middot; ' + gbp(t.total) + '</button>' +
+    '<p class="shopnote bkpay">Apple Pay, Google Pay or card &middot; by Stripe &middot; arrives ' + esc(bcArrive()) + ' &middot; 14-day returns. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>';
+  el.innerHTML = s + '</div>';
+  if (typeof wire === 'function') wire();
+  if (ui.bkCodeOpen === 'focus'){ ui.bkCodeOpen = true; const b = document.getElementById('bkcode'); if (b) b.focus(); }
+}
+async function applyCode(){
+  const box = document.getElementById('bkcode'); if (!box || !box.value.trim()) return;
+  const {w} = shopCfg();
+  try{
+    const r = await fetch(w + '/code?c=' + encodeURIComponent(box.value.trim().toUpperCase()));
+    const j = await r.json();
+    if (j.ok){ basketCode = j; paintBasket(); }
+    else paintBasket(j.message || 'That code isn’t valid.');
+  }catch(e){ paintBasket('Couldn’t check that code. Try again.'); }
+}
+async function checkoutBasket(){
+  if (!basket.length) return;
+  const {w, pk} = shopCfg();
+  closeBasket(); bcSheetClose();
+  shopSheet('<p class="shopwait">Opening secure checkout…</p>');
+  try{
+    await shopScript();
+    const r = await fetch(w + '/checkout', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({items: basket.map(l => ({k:l.k, opt:l.opt, qty:l.qty})), code: basketCode ? basketCode.code : ''})});
+    const j = await r.json();
+    if (!r.ok || !j.clientSecret) throw new Error(j.message || 'Checkout would not open');
+    const stripe = window.Stripe(pk);
+    if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
+    const t = basketTotals();
+    shopSheet('<p class="shopsum">' + basketCount() + (basketCount() === 1 ? ' item' : ' items') + ' · ' + gbp(t.total) + '</p><div id="shopmount"></div>');
+    const opts = {fetchClientSecret: () => Promise.resolve(j.clientSecret), onComplete: () => basketDone(j.id)};
+    shopCheckout = await (stripe.createEmbeddedCheckoutPage ? stripe.createEmbeddedCheckoutPage(opts) : stripe.initEmbeddedCheckout(opts));
+    shopCheckout.mount('#shopmount');
+  }catch(e){
+    shopSheet('<p class="shopwait">' + esc(e.message || 'Checkout would not open.') + ' Nothing has been charged.</p>' +
+      '<button class="btn" data-act="shopclose">Close</button>');
+  }
+}
+function basketDone(id){
+  if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
+  const lines = basket.slice(), t = basketTotals(), n = basketCount();
+  basket = []; basketCode = null; saveBasket();
+  const now = new Date(), hhmm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  const step = (on, title, sub) => '<li class="' + (on ? 'on' : '') + '"><span>' + (on ? ti('check') : '') + '</span><div><b>' + title + '</b><i>' + sub + '</i></div></li>';
+  shopSheet('<div class="bcorder">' +
+    '<span class="bcorderok">' + ti('check') + '</span>' +
+    '<p class="bceyebrow ok">Order in &middot; paid</p>' +
+    '<h3>Your kit’s on its way.</h3>' +
+    '<p>Printed to order in the UK. Your receipt is in your inbox, and we’ll email the tracking link the day it leaves.</p>' +
+    '<ol class="bcsteps">' + step(true, 'Paid', 'Today, ' + hhmm) + step(false, 'Printing', 'Usually 2–5 working days') + step(false, 'On its way', 'Arrives ' + esc(bcArrive())) + '</ol>' +
+    '<div class="bcorderrow">' + lines.slice(0, 4).map(l => { const p = prodInfo(l.k); return p && p.img ? '<span class="bctile"><img alt="" src="' + esc(p.img) + '"></span>' : ''; }).join('') +
+      '<span>' + n + (n === 1 ? ' item' : ' items') + ' &middot; ' + gbp(t.total) + '</span></div>' +
+    '<button class="btn pine" data-act="shopclose">Back to the hills</button></div>');
+  const hb = document.querySelector('#shopsheet .shophead b'); if (hb) hb.textContent = 'Order confirmed';
+}
 function shopBuyHTML(d){
   const it = shopItem(d.n); if (!it) return '';
   const size = ui.shopSize && it.sizes.includes(ui.shopSize) ? ui.shopSize : '';
@@ -6654,8 +7214,8 @@ function shopBuyHTML(d){
     '<p class="szhead"><span>Size</span><button class="linkbtn" data-act="szchart">Size chart</button></p>' +
     '<div class="shopsizes" role="group" aria-label="Size">' + it.sizes.map(z =>
       '<button class="chip" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
-    '<button class="btn shopgo" data-act="shopbuy" data-v="' + d.n + '"' + (size ? '' : ' disabled') + '>' +
-      (size ? 'Buy now · ' + esc(size) : 'Select a size') + '</button>' +
+    '<button class="btn shopgo" data-act="bkadd" data-k="' + d.n + '" data-o="' + esc(size) + '"' + (size ? '' : ' disabled') + '>' +
+      ti('shopping-bag') + (size ? 'Add to backpack · ' + esc(size) : 'Select a size') + '</button>' +
     '<p class="shopnote">Secure checkout by Stripe. UK delivery in 4–10 working days. Changed your mind? Return it within 14 days. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>' +
   '</div>';
 }
@@ -6715,7 +7275,9 @@ function shopClose(){
 }
 
 const supById   = n => SUPPLIES.find(d => d.n === n);
-const supBySlug = s => SUPPLIES.find(d => d.slug === String(s || '').toLowerCase());
+/* renamed tees keep answering to their old address */
+const SUP_ALIAS = {'field-notes':'field-log'};
+const supBySlug = s => { const k = String(s || '').toLowerCase(); return SUPPLIES.find(d => d.slug === (SUP_ALIAS[k] || k)); };
 const sup2 = n => (n < 10 ? '0' : '') + n;
 /* Where the app is served from, frozen before anything rewrites the address.
    Opening a design pushes /supplies/<slug>, and a relative src on that path
@@ -6768,6 +7330,8 @@ async function supLoadMine(){
     const d = snap.exists() ? (snap.data() || {}) : {};
     supMine = {};
     for (const k of Object.keys(d)) if (d[k] === 1 || d[k] === -1) supMine[+k] = d[k];
+    supTell = {}; if (d.tell && typeof d.tell === 'object') for (const k of Object.keys(d.tell)) if (d.tell[k]) supTell[+k] = d.tell[k];
+    supPatchTell = !!d.patchTell;
   }catch(e){}
 }
 
@@ -6864,13 +7428,39 @@ function shopCard(d){
   '</article>';
 }
 const SHIRT_HEX = {cream:'#EDE7D9', sand:'#EDE7D9', pine:'#4C6151'};
+/* Everything on sale that is not a tee: stickers, caps, beanies, bottles,
+   patches, gaiters. Each needs only a catalogue entry with a picture. */
+const kitItems = () => shopCat && shopCat.items ? Object.entries(shopCat.items).filter(([k, it]) => (it.kind || 'tee') !== 'tee' && it.img && it.img.length) : [];
+function kitCard([k, it]){
+  return '<article class="shopcard kitcard"><button class="shoptile kittile" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open">' +
+    '<img loading="lazy" decoding="async" alt="" src="' + esc(it.img[0]) + '"></button>' +
+    '<div class="shopmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3><span class="shopamt">' + gbp(it.price) + '</span></div>' +
+    '<p class="shopspec">' + esc(KIND_LABEL[it.kind] || it.kind) + (it.blurb ? ' &middot; ' + esc(it.blurb) : '') + '</p></article>';
+}
+function kitDetail(k){
+  const it = shopItem(k); if (!it) return '';
+  const opts = it.sizes || [], one = opts.length === 1;
+  const pick = one ? opts[0] : (ui.kitOpt && opts.includes(ui.kitOpt) ? ui.kitOpt : '');
+  return '<div class="supdetail shopdetail"><div class="pdnav"><button class="backbtn" data-act="kitclose">&larr; The shop</button></div>' +
+    '<div class="pdgrid"><div class="pdmedia"><div class="supsides kitshots">' + it.img.map(u => '<figure><img decoding="async" alt="' + esc(it.name) + '" src="' + esc(u) + '"></figure>').join('') + '</div></div>' +
+    '<div class="pdinfo"><p class="shopeyebrow">WayMark &middot; ' + esc(KIND_LABEL[it.kind] || it.kind) + '</p><h2>' + esc(it.name) + '</h2>' +
+    (it.blurb ? '<p class="shoplede">' + esc(it.blurb) + '</p>' : '') +
+    '<div class="shopbuy"><p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (shopCat.shipping ? '+ ' + gbp(shopCat.shipping) + ' UK delivery per order' : 'Free UK delivery') + '</span></p>' +
+    (one ? '' : '<p class="szhead"><span>' + esc(it.opt || 'Option') + '</span></p><div class="shopsizes" role="group" aria-label="' + esc(it.opt || 'Option') + '">' +
+      opts.map(z => '<button class="chip" data-act="kitopt" data-v="' + esc(z) + '" aria-pressed="' + (z === pick) + '">' + esc(z) + '</button>').join('') + '</div>') +
+    '<button class="btn shopgo" data-act="bkadd" data-k="' + esc(k) + '" data-o="' + esc(pick) + '"' + (pick ? '' : ' disabled') + '>' + ti('backpack') +
+      (pick ? 'Add to backpack' : 'Choose a ' + esc((it.opt || 'option').toLowerCase())) + '</button></div>' +
+    (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
+    '</div></div></div>';
+}
 function shopHero(sale){
   const prices = [...new Set(sale.map(d => shopItem(d.n).price))];
   const order = ['XS','S','M','L','XL','2XL','3XL','4XL'];
   const sizes = order.filter(z => sale.some(d => shopItem(d.n).sizes.includes(z)));
   const ship = shopCat && shopCat.shipping;
   return '<header class="shophero">' +
-    '<p class="shopeyebrow">The shop <span>&middot;</span> ' + sale.length + (sale.length === 1 ? ' tee' : ' tees') + '</p>' +
+    '<p class="shopeyebrow">The shop <span>&middot;</span> ' + sale.length + (sale.length === 1 ? ' tee' : ' tees') +
+      (kitItems().length ? ' &amp; kit' : '') + '</p>' +
     '<h2>Made for the walk home.</h2>' +
     '<p class="shoplede">Unisex heavyweight cotton, garment-dyed for a lived-in feel from day one. Printed in the UK.</p>' +
     '<ul class="shopfacts">' +
@@ -6938,6 +7528,10 @@ function supChip(act, val, label, on){
 }
 
 function renderSupplies(){
+  if (ui.kitOpen){
+    if (shopItem(ui.kitOpen)) return '<div class="supplies">' + kitDetail(ui.kitOpen) + '</div>';
+    if (shopCat) ui.kitOpen = null;
+  }
   if (ui.supOpen){
     const d = supById(ui.supOpen);
     if (d) return '<div class="supplies">' + supDetail(d) + '</div>';
@@ -6950,7 +7544,9 @@ function renderSupplies(){
 
   let s = '<div class="supplies">';
   if (sale.length){
+    const kit = kitItems();
     s += shopHero(sale) + '<div class="shopgrid">' + sale.map(shopCard).join('') + '</div>' +
+      (kit.length ? '<h2 class="kithead">Kit for the hill</h2><div class="shopgrid">' + kit.map(kitCard).join('') + '</div>' : '') +
       '<p class="shopfoot">UK delivery only &middot; 14-day returns &middot; <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms, returns and privacy</a></p>';
   }
   s += '<header class="suphead' + (sale.length ? ' supnext' : '') + '">' +
@@ -7208,6 +7804,8 @@ function supSyncUrl(){
    the sheet instead of off the site. */
 function supGo(n, push){
   supZoomOff();
+  if (n && n !== ui.supOpen) ui.shopSize = '';
+  if (n && shopItem(n)) bcSeen(n);
   ui.supOpen = n || null;
   if (supRoute && push){
     const d = n ? supById(n) : null;
@@ -7239,6 +7837,535 @@ window.addEventListener('popstate', () => {
   render(); window.scrollTo({top:0});
 });
 
+/* ================= Basecamp: the shop, v192 =================
+   The Patches tab became Basecamp: what you have earned on one side, what you
+   can wear on the other. Everything below paints the Shop side and the sheets
+   that hang off it (quick add, size and fit, added, the backpack, the drawing
+   board). Prices and what is on sale still come only from the shop helper. */
+
+/* collections are how a walker browses ten tees without scrolling ten screens */
+const SUP_COLL = [
+  {id:'peaks',  label:'Peak prints', ns:[1, 20, 9, 5, 4, 19]},
+  {id:'humour', label:'Hill humour', ns:[24, 26, 27, 10, 16, 8]},
+  {id:'mark',   label:'The mark',    ns:[3, 18, 22, 25, 13, 14, 17, 6, 23, 2]}
+];
+/* the newest drop wears a flag until the next one lands */
+const SUP_NEW = [18];
+/* tees that belong to one summit: the card carries its trail tag, and a walker
+   who has stood on it is told so */
+const TEE_HILL = {1:'NY215072', 20:'NY215072'};
+const teeHill = n => TEE_HILL[n] && BY_KEY[TEE_HILL[n]] || null;
+
+/* ---- small stores on this device: what you saved, what you looked at ---- */
+const BC_SAVED = 'waymark.saved', BC_RECENT = 'waymark.recent';
+const bcRead = k => { try{ const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v.map(String) : []; }catch(e){ return []; } };
+const bcWrite = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+const bcSaved = () => bcRead(BC_SAVED).filter(k => shopItem(k));
+const isSaved = k => bcRead(BC_SAVED).includes(String(k));
+function bcToggleSave(k){
+  k = String(k);
+  const s = bcRead(BC_SAVED), i = s.indexOf(k);
+  if (i >= 0) s.splice(i, 1); else s.unshift(k);
+  bcWrite(BC_SAVED, s.slice(0, 40));
+  document.querySelectorAll('[data-act="bcsave"][data-k="' + k + '"]').forEach(b => {
+    b.setAttribute('aria-pressed', String(i < 0));
+    b.innerHTML = bcHeart(i < 0);
+  });
+  const n = bcSaved().length;
+  document.querySelectorAll('.bcsavedchip b').forEach(b => b.textContent = n);
+  if (i < 0) toast('Saved. Find it under Saved in the shop.');
+}
+function bcSeen(k){
+  k = String(k);
+  const r = bcRead(BC_RECENT).filter(x => x !== k);
+  r.unshift(k); bcWrite(BC_RECENT, r.slice(0, 10));
+}
+const bcRecent = () => bcRead(BC_RECENT).filter(k => shopItem(k));
+const bcHeart = on => '<svg viewBox="0 0 24 24" fill="' + (on ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/></svg>';
+const bcIcon = (d, w) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 1.7) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+const BC_TRUCK = '<path d="M3 6h11v10H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>';
+const BC_RETURN = '<path d="M9 7l-4 4l4 4"/><path d="M5 11h9a5 5 0 0 1 0 10h-3"/>';
+const BC_RULER = '<path d="M4 16l12 -12l4 4l-12 12z"/><path d="M7 13l2 2"/><path d="M10 10l2 2"/><path d="M13 7l2 2"/>';
+
+/* ---- when it arrives: dates, not "working days" ---- */
+function bcWorkdays(n){
+  const x = new Date(); let k = 0;
+  while (k < n){ x.setDate(x.getDate() + 1); const w = x.getDay(); if (w && w < 6) k++; }
+  return x;
+}
+const BC_DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const BC_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const bcDate = x => BC_DAY[x.getDay()] + ' ' + x.getDate() + ' ' + BC_MON[x.getMonth()];
+const bcArrive = () => bcDate(bcWorkdays(4)) + ' – ' + bcDate(bcWorkdays(10));
+
+/* ---- delivery: flat, or free past a line the shop helper sets ---- */
+const bcFreeOver = () => (shopCat && +shopCat.freeOver) || 0;
+const bcShipFor = sub => { const s = (shopCat && shopCat.shipping) || 0, f = bcFreeOver(); return f && sub >= f ? 0 : s; };
+function bcFreeBar(sub){
+  const f = bcFreeOver(), s = (shopCat && shopCat.shipping) || 0;
+  if (!f || !s) return '';
+  if (sub >= f) return '<div class="bcfree done">' + bcIcon(BC_TRUCK) + '<span><b>Free UK delivery unlocked.</b> Arrives ' + esc(bcArrive()) + '</span></div>';
+  const pct = Math.max(4, Math.round(sub / f * 100));
+  return '<div class="bcfree"><p><b>' + gbp(f - sub) + '</b> from free UK delivery</p>' +
+    '<span class="bctrack" role="img" aria-label="' + pct + '% of the way to free delivery"><i style="width:' + pct + '%"></i></span></div>';
+}
+
+/* ---- the shared sheet: every one has the grey bar and drags down to close ---- */
+function bcSheet(inner, label, cls){
+  let el = document.getElementById('bcsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'bcsheet';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    el.addEventListener('click', e => { if (e.target === el) bcSheetClose(); });
+    document.body.appendChild(el);
+  }
+  el.className = 'sheet bottom bcsheet' + (cls ? ' ' + cls : '');
+  el.setAttribute('aria-label', label || 'Shop');
+  el.innerHTML = '<div class="sheetbox"><div class="cmgrab"></div>' +
+    '<button class="xbtn bcx" data-act="bcsheetclose" aria-label="Close">' + ti('x') + '</button>' + inner + '</div>';
+  el.classList.add('open');
+  if (typeof wire === 'function') wire();
+  return el;
+}
+function bcSheetClose(){ const el = document.getElementById('bcsheet'); if (el) el.classList.remove('open'); }
+
+/* ---- a product card: front/back and sizes, or a trail tag for summit gear ---- */
+function bcCard(d, opts){
+  opts = opts || {};
+  const it = shopItem(d.n); if (!it) return '';
+  const lead = supLead(d), h = teeHill(d.n), done = h && isBagged(h.k);
+  const flag = SUP_NEW.includes(d.n) ? '<span class="bcflag">New</span>' : '';
+  const tag = h ? '<span class="bctag">' + feet(h).toLocaleString() + ' FT &middot; ' + esc(String(regionOf(h, h.l[0]) || '').toUpperCase()) + '</span>' : '';
+  const foot = h
+    ? (done ? '<span class="bcdone">' + ti('check') + 'You’ve summited this</span>' : '<span class="bcsub">' + esc(hillName(h) || d.name) + ', ' + feet(h).toLocaleString() + ' ft</span>')
+    : '<span class="bcsizes">' + it.sizes.map(z => '<i>' + esc(z) + '</i>').join('') + '</span>';
+  return '<article class="bccard' + (opts.small ? ' small' : '') + '">' +
+    '<div class="bctile">' +
+      '<button class="bcimg" data-act="supopen" data-v="' + d.n + '" aria-label="' + esc(d.name) + ', ' + gbp(it.price) + '. Open">' +
+        '<img loading="lazy" decoding="async" alt="" src="' + shopImg(d.n, lead) + '">' +
+        '<img class="alt" loading="lazy" decoding="async" alt="" src="' + shopImg(d.n, supOther(lead)) + '"></button>' +
+      flag + tag +
+      (opts.small ? '' :
+        '<button class="bcround bcheart" data-act="bcsave" data-k="' + d.n + '" aria-pressed="' + isSaved(d.n) + '" aria-label="Save ' + esc(d.name) + '">' + bcHeart(isSaved(d.n)) + '</button>' +
+        '<button class="bcround bcplus' + (h ? ' up' : '') + '" data-act="bcquick" data-k="' + d.n + '" aria-label="Quick add ' + esc(d.name) + '">' + ti('plus') + '</button>') +
+    '</div>' +
+    '<div class="bcmeta"><h3><button data-act="supopen" data-v="' + d.n + '">' + esc(d.name) + '</button></h3><span class="bcprice">' + gbp(it.price) + '</span></div>' +
+    (opts.small ? '' : foot) +
+  '</article>';
+}
+/* kit that is not a tee, in the same grid */
+function bcKitCard([k, it]){
+  return '<article class="bccard"><div class="bctile">' +
+    '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open"><img loading="lazy" decoding="async" alt="" src="' + esc(it.img[0]) + '"></button>' +
+    '<button class="bcround bcheart" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) + '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button></div>' +
+    '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3><span class="bcprice">' + gbp(it.price) + '</span></div>' +
+    '<span class="bcsub">' + esc(KIND_LABEL[it.kind] || it.kind || '') + '</span></article>';
+}
+/* a small tile for rows: recently viewed, pairs with, saved */
+function bcMini(k){
+  const p = prodInfo(k); if (!p) return '';
+  const act = p.d ? 'data-act="supopen" data-v="' + p.d.n + '"' : 'data-act="kitopen" data-k="' + esc(k) + '"';
+  return '<button class="bcmini" ' + act + '><span class="bctile"><img loading="lazy" decoding="async" alt="" src="' + esc(p.img) + '"></span>' +
+    '<b>' + esc(p.name) + '</b><i>' + gbp(p.it.price) + '</i></button>';
+}
+
+/* ---- the Shop side of Basecamp ---- */
+const bcSale = () => SUPPLIES.filter(d => shopItem(d.n));
+function bcLogBand(sale){
+  const mine = sale.filter(d => { const h = teeHill(d.n); return h && isBagged(h.k); }).sort((a, b) => ([20, 1].indexOf(a.n) + 1 || 9) - ([20, 1].indexOf(b.n) + 1 || 9));
+  if (!mine.length) return '';
+  const hills = [...new Set(mine.map(d => TEE_HILL[d.n]))];
+  return '<section class="bclog"><p class="bceyebrow">Made from your log</p>' +
+    '<h2>You’ve stood on ' + (hills.length === 1 ? 'a hill' : NUMWORD(hills.length).toLowerCase() + ' hills') + ' we print.</h2>' +
+    '<div class="bclogrow">' + mine.slice(0, 4).map(d => {
+      const h = teeHill(d.n), r = h && lastAscent(h.k);
+      return '<button class="bclogitem" data-act="supopen" data-v="' + d.n + '"><span class="bctile"><img alt="" src="' + shopImg(d.n, supLead(d)) + '"></span>' +
+        '<span><b>' + esc(d.name) + '</b><i>' + (r ? 'Summited ' + esc(prettyDate(r)) : feet(h).toLocaleString() + ' ft') + '</i></span></button>';
+    }).join('') + '</div></section>';
+}
+function lastAscent(k){
+  const a = (typeof ascents === 'function' ? ascents(k) : []) || [];
+  const ds = a.map(x => x && (x.date || x)).filter(x => typeof x === 'string').sort();
+  return ds.length ? ds[ds.length - 1] : '';
+}
+function bcBoardBanner(){
+  const pool = supPool(); if (!pool.length) return '';
+  const left = pool.filter(d => !supMine[d.n]).length;
+  return '<button class="bcboard" data-act="bcdeck">' +
+    '<span class="bcfan">' + pool.slice(0, 3).map(d => '<img alt="" loading="lazy" src="' + supImg(d.n, supLead(d), 'sm') + '">').join('') + '</span>' +
+    '<span class="bcboardtx"><i class="bceyebrow">On the drawing board &middot; ' + pool.length + '</i>' +
+      '<b>Which should we print next?</b>' +
+      '<span>' + (left ? (left === pool.length ? 'Swipe to vote. Takes a minute.' : left + ' still to rate.') : 'All rated. Change your votes any time.') + '</span></span>' +
+    ti('chevron-right') + '</button>';
+}
+function bcChips(sale){
+  const kit = kitItems();
+  const cs = [{id:'', label:'All ' + (sale.length + kit.length)}];
+  for (const c of SUP_COLL) if (sale.some(d => c.ns.includes(d.n))) cs.push(c);
+  const kinds = [...new Set(kit.map(([, it]) => it.kind))];
+  for (const k of kinds) cs.push({id:'kind:' + k, label: (KIND_LABEL[k] || k) + 's'});
+  const sv = bcSaved().length;
+  return '<div class="bcchips" role="group" aria-label="Browse">' +
+    cs.map(c => '<button class="chip" data-act="bccoll" data-v="' + esc(c.id) + '" aria-pressed="' + ((ui.shopColl || '') === c.id && !ui.shopSaved) + '">' + esc(c.label) + '</button>').join('') +
+    '<button class="chip bcsavedchip" data-act="bcsaved" aria-pressed="' + !!ui.shopSaved + '">' + bcHeart(!!ui.shopSaved) + 'Saved <b>' + sv + '</b></button>' +
+  '</div>';
+}
+function renderShop(){
+  if (ui.kitOpen){
+    if (shopItem(ui.kitOpen)) return '<div class="supplies bcshop">' + kitDetail(ui.kitOpen) + '</div>';
+    if (shopCat) ui.kitOpen = null;
+  }
+  if (ui.supOpen){
+    const d = supById(ui.supOpen);
+    if (d) return '<div class="supplies bcshop">' + (shopItem(d.n) ? bcProduct(d) : supDetail(d)) + '</div>';
+    ui.supOpen = null;
+  }
+  const sale = bcSale();
+  let s = '<div class="supplies bcshop">';
+  if (!shopCat){
+    return s + '<div class="bcgrid">' + '<div class="bcskel"></div>'.repeat(4) + '</div></div>';
+  }
+  if (!sale.length && !kitItems().length){
+    /* nothing on sale: the drawing board is the whole shop */
+    return s + '<header class="suphead"><span class="nosale">Not for sale yet</span><h2>Which of these should we actually print?</h2>' +
+      '<p>Every one is drawn and ready for a printer. Vote on the ones you would wear.</p></header>' + bcBoardBanner() + '</div>';
+  }
+  if (!ui.shopSaved && !ui.shopColl) s += bcLogBand(sale);
+  s += bcChips(sale);
+  let list, kit = kitItems();
+  if (ui.shopSaved){
+    const sv = bcSaved();
+    list = sale.filter(d => sv.includes(String(d.n)));
+    kit = kit.filter(([k]) => sv.includes(String(k)));
+    if (!list.length && !kit.length)
+      return s + '<div class="bcempty">' + bcHeart(false) + '<b>Nothing saved yet</b><span>Tap the heart on anything you like the look of and it waits here.</span>' +
+        '<button class="btn" data-act="bccoll" data-v="">Browse the shop</button></div></div>';
+  } else if ((ui.shopColl || '').startsWith('kind:')){
+    const kind = ui.shopColl.slice(5);
+    list = []; kit = kit.filter(([, it]) => it.kind === kind);
+  } else if (ui.shopColl){
+    const c = SUP_COLL.find(x => x.id === ui.shopColl);
+    list = c ? sale.filter(d => c.ns.includes(d.n)) : sale; kit = [];
+  } else list = sale;
+  /* the newest first, then summit gear, then the rest as listed */
+  list = list.slice().sort((a, b) => SUP_NEW.includes(b.n) - SUP_NEW.includes(a.n));
+  s += '<div class="bcgrid">' + list.map(d => bcCard(d)).join('') + kit.map(bcKitCard).join('') + '</div>';
+  if (!ui.shopSaved){
+    s += bcBoardBanner();
+    const rv = bcRecent();
+    if (rv.length) s += '<section class="bcrow"><div class="bcrowhead"><h2>Recently viewed</h2><button class="linkbtn" data-act="bcrecentclear">Clear</button></div>' +
+      '<div class="bcscroll">' + rv.slice(0, 8).map(bcMini).join('') + '</div></section>';
+  }
+  s += '<p class="bcfoot">' + (bcFreeOver() ? 'Free UK delivery over ' + gbp(bcFreeOver()) + ' &middot; ' : 'UK delivery &middot; ') +
+    '14-day returns &middot; <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms, returns and privacy</a></p>';
+  if (!state.enabled.length)
+    s += '<div class="supfoot"><b>WayMark</b> is a walking log for the hills of Britain — mark a summit and it works out which lists it belongs to. ' +
+      '<button class="linkbtn" data-tab="d">Start your log</button></div>';
+  return s + '</div>';
+}
+
+/* ---- the product page: gallery first, buying pinned to the bottom ---- */
+function bcPairs(d){
+  const sale = bcSale().filter(x => x.n !== d.n);
+  const c = SUP_COLL.find(x => x.ns.includes(d.n));
+  const same = c ? sale.filter(x => c.ns.includes(x.n)) : [];
+  const rest = sale.filter(x => !same.includes(x));
+  return same.concat(rest).slice(0, 6);
+}
+function bcProduct(d){
+  const it = shopItem(d.n), lead = supLead(d), other = supOther(lead), h = teeHill(d.n);
+  const size = ui.shopSize && it.sizes.includes(ui.shopSize) ? ui.shopSize : '';
+  const shot = (side, i) => '<figure><button class="zoomhit" data-act="supzoom" data-v="' + d.n + '" data-d="' + side + '" aria-label="Zoom in on the ' + side + ' of ' + esc(d.name) + '">' +
+    '<img decoding="async"' + (i ? ' loading="lazy"' : '') + ' alt="' + esc(d.name) + ', ' + side + ' of the tee" src="' + shopImg(d.n, side) + '"></button></figure>';
+  let s = '<div class="bcpdp">';
+  s += '<div class="bcgallery"><div class="supsides" id="supsides">' + shot(lead, 0) + shot(other, 1) + '</div>' +
+    '<div class="bcgtop"><button class="bcround" data-act="supclose" aria-label="Back to the shop">' + ti('arrow-left') + '</button><span></span>' +
+      '<button class="bcround" data-act="bcsave" data-k="' + d.n + '" aria-pressed="' + isSaved(d.n) + '" aria-label="Save ' + esc(d.name) + '">' + bcHeart(isSaved(d.n)) + '</button>' +
+      '<button class="bcround" data-act="supshare" data-v="' + d.n + '" aria-label="Share">' + ti('share') + '</button></div>' +
+    '<div class="supdots" id="supdots" role="group" aria-label="Which side of the tee">' +
+      [lead, other].map((side, i) => '<button type="button" class="chip" aria-current="' + (i === 0) + '">' + supCap(side) + '</button>').join('') + '</div>' +
+    '</div>';
+  s += '<div class="bcinfo">';
+  s += '<p class="bceyebrow">' + (SUP_NEW.includes(d.n) ? 'New in &middot; ' : '') + 'Tee' + (h ? ' &middot; ' + feet(h).toLocaleString() + ' ft' : '') + '</p>' +
+    '<div class="bctitle"><h1>' + esc(d.name) + '</h1><b>' + gbp(it.price) + '</b></div>' +
+    '<p class="bcline"><span class="swatch" style="--sw:' + (SHIRT_HEX[d.shirt] || '#EDE7D9') + '"></span>' + SHIRTS[d.shirt] + ' &middot; heavyweight, garment-dyed &middot; ' +
+      (d.n === 3 || d.n === 9 ? 'printed on the front' : 'printed front and back') + '</p>' +
+    (h && isBagged(h.k) ? '<p class="bcdone">' + ti('check') + 'You’ve summited ' + esc(hillName(h)) + '</p>' : '');
+  s += '<div class="bcbuy" id="bcbuy">' +
+    '<div class="bcszhead"><b>Size</b><span>Relaxed fit &middot; take your usual</span><button class="linkbtn" data-act="bcfit" data-k="' + d.n + '">Size &amp; fit</button></div>' +
+    '<div class="bcszrow" role="group" aria-label="Size">' + it.sizes.map(z =>
+      '<button class="bcsz" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
+    '<button class="btn bcadd" data-act="' + (size ? 'bkadd' : 'bcfit') + '" data-k="' + d.n + '" data-o="' + esc(size) + '">' +
+      ti('backpack') + (size ? 'Add to backpack &middot; ' + gbp(it.price) : 'Choose a size') + '</button>' +
+  '</div>';
+  s += '<ul class="bcfacts"><li>' + bcIcon(BC_TRUCK) + '<span><b>Arrives ' + esc(bcArrive()) + '</b> &middot; ' +
+      (bcFreeOver() ? 'UK ' + gbp(shopCat.shipping || 0) + ', free over ' + gbp(bcFreeOver()) : (shopCat.shipping ? 'UK ' + gbp(shopCat.shipping) : 'free UK delivery')) + '</span></li>' +
+    '<li>' + bcIcon(BC_RETURN) + '<span>14-day returns</span></li>' +
+    '<li>' + ti('lock') + '<span>Apple Pay, Google Pay or card, by Stripe</span></li></ul>';
+  s += '<dl class="bcspecs"><div><dt>Weight</dt><dd>6.1 oz</dd></div><div><dt>Cotton</dt><dd>100%</dd></div><div><dt>Printed</dt><dd>UK, to order</dd></div></dl>';
+  s += '<div class="pdmore">' +
+    '<details><summary>Size &amp; fit</summary><p>Unisex and relaxed, with a boxy cut. Most walkers take their usual size; go down one for a neater fit.</p>' + shopSizeChart(it).replace('<details class="szchart"><summary>Size chart</summary>', '<div class="szchart">').replace(/<\/details>$/, '</div>') + '</details>' +
+    '<details><summary>The tee</summary>' +
+      '<p>A heavyweight tee with a structured fit and garment-dyed softness that feels lived-in from day one. Tough enough for repeat wear, soft enough to wear anywhere.</p>' +
+      '<ul class="pdspecs"><li>100% ring-spun cotton</li><li>Fabric weight 6.1&nbsp;oz/yd² (206.8&nbsp;g/m²)</li><li>Garment-dyed, pre-shrunk</li><li>Twill-taped neck and shoulders</li><li>Made in Honduras, printed in the UK</li></ul>' +
+      '<p class="pdfine">Each tee is garment-dyed and softened, so colour can vary slightly from one to the next.</p></details>' +
+    '<details><summary>Delivery &amp; returns</summary><p>Printed to order and posted to UK addresses only. Order today and it arrives ' + esc(bcArrive()) + '. ' +
+      'Changed your mind? Tell us within 14 days of it arriving and send it back unworn for a full refund. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p></details>' +
+    '<details><summary>Care</summary><p>Wash inside out, cool, and hang to dry. The print keeps its edges that way.</p></details>' +
+  '</div>';
+  const pairs = bcPairs(d);
+  if (pairs.length) s += '<section class="bcrow"><div class="bcrowhead"><h2>Pairs with</h2></div><div class="bcscroll">' + pairs.map(x => bcMini(x.n)).join('') + '</div></section>';
+  s += '</div></div>';
+  return s;
+}
+
+/* ---- quick add and size & fit ---- */
+function bcQuick(k){
+  const p = prodInfo(k); if (!p) return;
+  const opts = p.it.sizes || [];
+  if (opts.length === 1){ bcAdd(k, opts[0]); return; }
+  bcSheet('<div class="bcsheethead"><span class="bctile"><img alt="" src="' + esc(p.img) + '"></span><div><b>' + esc(p.name) + '</b><span>' + gbp(p.it.price) +
+      (p.d ? ' &middot; relaxed fit, take your usual' : '') + '</span></div></div>' +
+    '<div class="bcszhead"><b>Tap a size to add it</b>' + (p.d ? '<button class="linkbtn" data-act="bcfit" data-k="' + esc(k) + '">Size &amp; fit</button>' : '') + '</div>' +
+    '<div class="bcszrow" role="group" aria-label="Size">' + opts.map(z => '<button class="bcsz" data-act="bcaddsize" data-k="' + esc(k) + '" data-o="' + esc(z) + '">' + esc(z) + '</button>').join('') + '</div>' +
+    (p.d ? '<button class="linkbtn bccenter" data-act="supopen" data-v="' + p.d.n + '">See the full product</button>' : ''), 'Choose a size');
+}
+function bcFit(k){
+  const p = prodInfo(k); if (!p) return;
+  const rows = (p.it.sizes || []).filter(z => SIZE_CHART[z]);
+  const cur = ui.shopSize;
+  bcSheet('<h3 class="bcsheettitle">Size &amp; fit</h3>' +
+    '<div class="bcszrow" role="group" aria-label="Size">' + (p.it.sizes || []).map(z => '<button class="bcsz" data-act="bcfitpick" data-k="' + esc(k) + '" data-o="' + esc(z) + '" aria-pressed="' + (z === cur) + '">' + esc(z) + '</button>').join('') + '</div>' +
+    '<p class="bcfitnote">' + ti('info-circle') + '<span>Relaxed and boxy. Between sizes? Go down for a neater fit.</span></p>' +
+    '<table class="bcfit"><thead><tr><th>Size</th><th>Chest, flat</th><th>Length</th><th>Sleeve</th></tr></thead><tbody>' +
+      rows.map(z => '<tr' + (z === cur ? ' class="on"' : '') + '><th>' + z + '</th><td>' + SIZE_CHART[z][1] + '″</td><td>' + SIZE_CHART[z][0] + '″</td><td>' + SIZE_CHART[z][2] + '″</td></tr>').join('') +
+    '</tbody></table><p class="pdfine">Measured flat, armpit to armpit. Double the chest for all the way round. Can vary by up to 2″.</p>', 'Size and fit');
+}
+
+/* ---- adding: a sheet that says what went in and what next ---- */
+function bcAdd(k, opt){
+  basketAdd(k, opt, 1);
+  paintBag();
+  const p = prodInfo(k); if (!p) return;
+  const t = basketTotals();
+  const inPack = basket.map(l => l.k);
+  /* one suggestion: a summit you have stood on first, then the same collection */
+  const sale = bcSale().filter(d => !inPack.includes(String(d.n))).sort((a, b) => ([20, 1].indexOf(a.n) + 1 || 9) - ([20, 1].indexOf(b.n) + 1 || 9));
+  const pick = sale.find(d => { const h = teeHill(d.n); return h && isBagged(h.k); }) ||
+    (p.d ? bcPairs(p.d).find(d => !inPack.includes(String(d.n))) : null) || sale[0];
+  const why = pick && teeHill(pick.n) && isBagged(teeHill(pick.n).k) ? 'You’ve summited it' : 'Goes well with it';
+  bcSheet('<p class="bcok">' + ti('check') + 'In your backpack</p>' +
+    '<div class="bcsheethead"><span class="bctile"><img alt="" src="' + esc(p.img) + '"></span><div><b>' + esc(p.name) + '</b><span>' + esc([p.sub, opt !== 'One size' ? opt : ''].filter(Boolean).join(' · ')) + '</span></div><b class="bcprice">' + gbp(p.it.price) + '</b></div>' +
+    bcFreeBar(t.sub) +
+    (pick ? '<div class="bcupsell"><span class="bctile"><img alt="" src="' + shopImg(pick.n, supLead(pick)) + '"></span><div><b>' + esc(pick.name) + '</b><span>' + why + ' &middot; ' + gbp(shopItem(pick.n).price) + '</span></div>' +
+      '<button class="chip" data-act="bcquick" data-k="' + pick.n + '">' + ti('plus') + 'Add</button></div>' : '') +
+    '<div class="bcbtns"><button class="btn ghost" data-act="bcsheetclose">Keep shopping</button><button class="btn bcgo" data-act="bkcheckout">Checkout &middot; ' + gbp(t.total) + '</button></div>', 'Added to your backpack');
+}
+
+/* ---- the drawing board: a deck you swipe through ---- */
+let bcDeck = null;      /* {list:[n], i, yes:[n]} */
+let supTell = {};       /* {n: 'app' | 'email' | 'both'} */
+let bcTellDefault = ''; /* after one "tell me", the rest follow without asking */
+function openDeck(){
+  const pool = supPool(); if (!pool.length) return;
+  const todo = pool.filter(d => !supMine[d.n]).map(d => d.n);
+  bcDeck = {list: todo.length ? todo : pool.map(d => d.n), i:0, yes:[]};
+  let el = document.getElementById('bcdeck');
+  if (!el){
+    el = document.createElement('div'); el.id = 'bcdeck'; el.className = 'bcdeck';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'The drawing board');
+    document.body.appendChild(el);
+    bcDeckDrag(el);
+  }
+  el.classList.add('open'); document.body.style.overflow = 'hidden';
+  paintDeck();
+  supSignIn().then(() => supLoadMine()).then(() => { if (bcDeck) paintDeck(); });
+}
+function closeDeck(){
+  const el = document.getElementById('bcdeck'); if (el) el.classList.remove('open');
+  document.body.style.overflow = ''; bcDeck = null; bcSheetClose();
+  if (tab === 'a' && ui.patchView === 'supplies') render();
+}
+function paintDeck(){
+  const el = document.getElementById('bcdeck'); if (!el || !bcDeck) return;
+  const L = bcDeck.list, total = supPool().length;
+  const rated = supPool().filter(d => supMine[d.n]).length;
+  if (bcDeck.i >= L.length){
+    const yes = supPool().filter(d => supMine[d.n] === 1);
+    el.innerHTML = '<div class="bcdeckin done"><header class="bcdeckhead"><button class="bcround" data-act="bcdeckclose" aria-label="Close">' + ti('x') + '</button></header>' +
+      '<p class="bceyebrow ok">All ' + total + ' rated</p><h2>Your picks are in.</h2>' +
+      '<p class="bclede">The most wanted designs get printed next. ' + (yes.length ? 'You said yes to ' + (yes.length === 1 ? 'one' : yes.length) + '.' : 'Nothing caught your eye this time, and that counts too.') + '</p>' +
+      (yes.length ? '<ul class="bcpicks">' + yes.map(d => '<li><span class="bctile"><img alt="" src="' + supImg(d.n, supLead(d), 'sm') + '"></span><div><b>' + esc(d.name) + '</b><span>' +
+          (supTell[d.n] ? 'We’ll tell you when it’s printed' : 'Vote counted') + '</span></div>' +
+          (supTell[d.n] ? '<span class="bcbell on" aria-label="You will be told">' + ti('bell') + '</span>' : '<button class="chip" data-act="bctell" data-v="' + d.n + '">' + ti('bell') + 'Tell me</button>') + '</li>').join('') + '</ul>' : '') +
+      '<div class="bcdeckfoot"><button class="linkbtn" data-act="bcdeckagain">Change my votes</button><button class="btn" data-act="bcdeckclose">Back to the shop</button></div></div>';
+    if (typeof wire === 'function') wire();
+    return;
+  }
+  const card = (n, k) => {
+    const d = supById(n); if (!d) return '';
+    return '<article class="bcvote" data-k="' + k + '" data-n="' + n + '"><span class="bctile"><img alt="' + esc(d.name) + ', ' + supLead(d) + ' of the shirt" src="' + supImg(n, supLead(d), 'lg') + '"></span>' +
+      '<div><b>' + esc(d.name) + '</b><span>' + SHIRTS[d.shirt] + ' tee &middot; ' + (supLead(d) === 'front' ? 'front' : 'back') + ' print</span></div>' +
+      '<i class="bcstamp yes">I’d wear it</i><i class="bcstamp no">Not for me</i></article>';
+  };
+  const i = bcDeck.i;
+  el.innerHTML = '<div class="bcdeckin"><header class="bcdeckhead"><button class="bcround" data-act="bcdeckclose" aria-label="Close">' + ti('x') + '</button>' +
+      '<div><span class="bceyebrow">On the drawing board</span><b>' + (Math.min(rated + 1, total)) + ' of ' + total + '</b></div><span></span></header>' +
+    '<span class="bctrack"><i style="width:' + Math.round(rated / total * 100) + '%"></i></span>' +
+    '<div class="bcstack">' + [2, 1, 0].map(o => L[i + o] != null ? card(L[i + o], o) : '').join('') + '</div>' +
+    '<div class="bcdeckbtns"><button class="bcvbtn no" data-act="bcvote" data-d="-1" aria-label="Not for me">' + ti('x') + '</button>' +
+      '<button class="bcvbtn skip" data-act="bcvote" data-d="0">Skip</button>' +
+      '<button class="bcvbtn yes" data-act="bcvote" data-d="1" aria-label="I would wear it">' + ti('check') + '</button></div>' +
+    '<p class="bchint">Swipe right if you’d wear it, left if not</p></div>';
+  if (typeof wire === 'function') wire();
+}
+async function deckVote(v){
+  if (!bcDeck) return;
+  const n = bcDeck.list[bcDeck.i]; if (n == null) return;
+  const top = document.querySelector('.bcvote[data-k="0"]');
+  if (top){ top.classList.add(v > 0 ? 'goyes' : v < 0 ? 'gono' : 'goskip'); }
+  setTimeout(() => { if (!bcDeck) return; bcDeck.i++; paintDeck(); }, 220);
+  if (v && (supMine[n] || 0) !== v) await supVote(n, v);
+  if (v > 0){
+    if (bcTellDefault){ await supSetTell(n, bcTellDefault); }
+    else if (!supTell[n]) setTimeout(() => askTell(n), 260);
+  }
+}
+function askTell(n){
+  const d = supById(n); if (!d) return;
+  const email = fbUser && !fbUser.isAnonymous && fbUser.email;
+  bcSheet('<div class="bcsheethead"><span class="bctile"><img alt="" src="' + supImg(n, supLead(d), 'sm') + '"></span><div><span class="bceyebrow ok">Vote counted</span><b class="bcbig">' + esc(d.name) + '</b></div></div>' +
+    '<p class="bclede">Want a nudge the day it goes on sale? We’ll tell you once, then leave you be.</p>' +
+    '<label class="bccheck"><input type="checkbox" id="tell-app" checked> In the app</label>' +
+    (email ? '<label class="bccheck"><input type="checkbox" id="tell-email"> By email to ' + esc(email) + '</label>' : '') +
+    '<button class="btn bcgo pine" data-act="bctellgo" data-v="' + n + '">Tell me when it’s printed</button>' +
+    '<button class="linkbtn bccenter" data-act="bcsheetclose">Just the vote, thanks</button>', 'Tell me when it is printed');
+}
+async function supSetTell(n, how){
+  const uid = await supSignIn(); if (!uid) return;
+  if (how) supTell[n] = how; else delete supTell[n];
+  const email = fbUser && !fbUser.isAnonymous && fbUser.email;
+  try{
+    await FB.setDoc(SUP_MINE(uid), {tell:{[String(n)]: how || FB.deleteField()}, ...(how && how !== 'app' && email ? {tellEmail: email} : {}), at: Date.now()}, {merge:true});
+  }catch(e){ toast('That didn’t save. Check your connection and try again.'); }
+}
+/* the card follows the finger; past a third of the way it counts as a vote */
+function bcDeckDrag(el){
+  let x0 = null, y0 = 0, dx = 0, card = null, t0 = 0;
+  el.addEventListener('pointerdown', e => {
+    const c = e.target.closest('.bcvote[data-k="0"]'); if (!c) return;
+    card = c; x0 = e.clientX; y0 = e.clientY; dx = 0; t0 = Date.now(); card.style.transition = 'none';
+    try{ c.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  el.addEventListener('pointermove', e => {
+    if (x0 == null || !card) return;
+    dx = e.clientX - x0;
+    card.style.transform = 'translateX(' + dx + 'px) rotate(' + (dx / 18) + 'deg)';
+    card.classList.toggle('lean-yes', dx > 40); card.classList.toggle('lean-no', dx < -40);
+  });
+  const end = () => {
+    if (x0 == null || !card) return;
+    const c = card, v = Math.abs(dx) / Math.max(1, Date.now() - t0);
+    x0 = null; card = null; c.style.transition = '';
+    if (Math.abs(dx) > c.offsetWidth / 3 || (Math.abs(dx) > 50 && v > .6)) deckVote(dx > 0 ? 1 : -1);
+    else { c.style.transform = ''; c.classList.remove('lean-yes', 'lean-no'); }
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') deckVote(1);
+    else if (e.key === 'ArrowLeft') deckVote(-1);
+    else if (e.key === 'Escape') closeDeck();
+  });
+}
+
+/* ---- Home: a quiet row from the shop, and news of anything you asked about ---- */
+function homeShopRail(){
+  if (!shopCat) { shopLoad(); return ''; }
+  const sale = bcSale(); if (!sale.length) return '';
+  const told = bcRead('waymark.told');
+  const news = sale.find(d => supTell[d.n] && !told.includes(String(d.n)));
+  /* news of a tee you asked about always gets through; the plain nudge can be put away */
+  if (news) return '<div class="bcnudge news"><button class="bcnudgego" data-act="bcnews" data-v="' + news.n + '">' + ti('bell-ringing') +
+    '<span><b>' + esc(news.name) + ' is printed.</b> You asked us to tell you.</span>' + ti('chevron-right') + '</button></div>';
+  const first = sale.filter(d => { const h = teeHill(d.n); return h && isBagged(h.k); });
+  const pick = [...new Set(sale.filter(d => SUP_NEW.includes(d.n)).concat(first, sale))].slice(0, 3);
+  const from = Math.min(...sale.map(d => shopItem(d.n).price));
+  return '<div class="bcnudge"><button class="bcnudgego" data-act="shopgo">' +
+    '<span class="bcfan sm">' + pick.map(d => '<img alt="" src="' + shopImg(d.n, supLead(d)) + '">').join('') + '</span>' +
+    '<span><b>Visit Basecamp</b> Tees from ' + gbp(from) + '</span>' + ti('chevron-right') + '</button></div>';
+}
+
+/* ---- a patch earned: its tee, or the real patch that is coming ---- */
+const TEE_OFFERED = 'waymark.teeoffer';
+function teeForPatch(p){
+  if (!p || !p.keys) return null;
+  const pref = n => [20, 1].indexOf(n) + 1 || 9;
+  return bcSale().filter(d => TEE_HILL[d.n] && p.keys.includes(TEE_HILL[d.n])).sort((a, b) => pref(a.n) - pref(b.n))[0] || null;
+}
+function winShopRow(p){
+  const d = teeForPatch(p);
+  const offered = bcRead(TEE_OFFERED);
+  if (d && !offered.includes(String(d.n))){
+    offered.push(String(d.n)); bcWrite(TEE_OFFERED, offered);
+    return '<button class="winshop" data-act="bcwintee" data-v="' + d.n + '"><span class="bctile"><img alt="" src="' + shopImg(d.n, supLead(d)) + '"></span>' +
+      '<span><i>Wear the proof</i><b>The ' + esc(d.name) + ' tee &middot; ' + gbp(shopItem(d.n).price) + '</b></span>' + ti('chevron-right') + '</button>';
+  }
+  if (supPatchTell) return '';
+  return '<div class="winshop tease"><span><b>The real, embroidered patch is coming.</b> Only for people who’ve earned it.</span><button class="chip" data-act="bcpatchtell">Tell me</button></div>';
+}
+let supPatchTell = false;
+async function patchTellMe(){
+  supPatchTell = true;
+  document.querySelectorAll('[data-act="bcpatchtell"]').forEach(b => { b.textContent = 'We’ll tell you'; b.disabled = true; });
+  const uid = await supSignIn(); if (!uid) return;
+  const email = fbUser && !fbUser.isAnonymous && fbUser.email;
+  try{ await FB.setDoc(SUP_MINE(uid), {patchTell:true, ...(email ? {tellEmail: email} : {}), at: Date.now()}, {merge:true}); }catch(e){}
+}
+function patchMakeReal(p){
+  if (!p.got) return '';
+  const d = teeForPatch(p);
+  return '<section class="bcreal"><p class="bceyebrow">Make it real</p>' +
+    '<div class="winshop tease light"><span><b>The embroidered patch is coming.</b> Iron-on, and only for people who’ve earned it.</span>' +
+      (supPatchTell ? '<button class="chip" disabled>We’ll tell you</button>' : '<button class="chip" data-act="bcpatchtell">Tell me</button>') + '</div>' +
+    (d ? '<button class="winshop light" data-act="bcwintee" data-v="' + d.n + '"><span class="bctile"><img alt="" src="' + shopImg(d.n, supLead(d)) + '"></span>' +
+      '<span><i>Wear the proof</i><b>The ' + esc(d.name) + ' tee &middot; ' + gbp(shopItem(d.n).price) + '</b></span>' + ti('chevron-right') + '</button>' : '') +
+  '</section>';
+}
+
+/* ---- every sheet with the grey bar drags down to close ----
+   The bar (or the sheet's heading) follows the finger; let go past a third of
+   the sheet's height, or flick it, and the sheet closes the way its own close
+   button would, so whatever that sheet tidies up on closing still happens. */
+(function(){
+  let y0 = null, dy = 0, t0 = 0, box = null, sheet = null;
+  document.addEventListener('pointerdown', e => {
+    const g = e.target.closest('.sheet.bottom .cmgrab, .sheet.bottom .ntop, .sheet.bottom .bcsheethead');
+    if (!g || e.target.closest('button, input, a, textarea, select')) return;
+    sheet = g.closest('.sheet'); box = sheet && sheet.querySelector('.sheetbox'); if (!box) return;
+    y0 = e.clientY; dy = 0; t0 = Date.now(); box.style.transition = 'none';
+    try{ g.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  document.addEventListener('pointermove', e => {
+    if (y0 == null || !box) return;
+    dy = Math.max(0, e.clientY - y0); box.style.transform = 'translateY(' + dy + 'px)';
+  });
+  const end = () => {
+    if (y0 == null || !box) return;
+    const b = box, sh = sheet, v = dy / Math.max(1, Date.now() - t0);
+    y0 = null; box = null; sheet = null;
+    b.style.transition = 'transform .22s cubic-bezier(.32,.72,0,1)';
+    if (dy > b.offsetHeight / 3 || (dy > 40 && v > .6)){
+      b.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        const x = sh.querySelector('.xbtn, [data-act$="close"]');
+        if (x) x.click(); else sh.classList.remove('open');
+        b.style.transform = ''; b.style.transition = '';
+      }, 200);
+    } else b.style.transform = '';
+  };
+  document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
+})();
+
 function renderPatchesPage(){
   const ps = patches();
   if (ui.patch){
@@ -7249,13 +8376,16 @@ function renderPatchesPage(){
   const got = ps.filter(x => x.got).length;
   const counts = ps.filter(p => p.kind === 'count').sort((a, b) => a.sort - b.sort);
 
-  const VIEWS = {journey:'Journey', challenges:'Challenges', cork:'Board', supplies:'Supplies'};
-  let s = '<div class="seg hseg" role="group">' +
-    Object.keys(VIEWS).map(v => '<button data-act="patchview" data-v="' + v + '" aria-pressed="' + (ui.patchView === v) + '">' +
-      VIEWS[v] + '</button>').join('') + '</div>';
+  const shop = ui.patchView === 'supplies';
+  let s = '<div class="bcswitch" role="group" aria-label="Basecamp">' +
+    '<button data-act="patchview" data-v="' + esc(ui.patchSub || 'journey') + '" aria-pressed="' + !shop + '">' + ti('circle-dashed') + 'Patches</button>' +
+    '<button data-act="patchview" data-v="supplies" aria-pressed="' + shop + '">' + ti('backpack') + 'Shop</button></div>';
+  if (shop){ supWatch(); shopLoad(); return (ui.supOpen || ui.kitOpen ? '' : s) + renderShop(); }
+  const VIEWS = {journey:'Journey', challenges:'Challenges', cork:'Board'};
+  s += '<div class="bcsub3" role="group" aria-label="Patches">' +
+    Object.keys(VIEWS).map(v => '<button data-act="patchview" data-v="' + v + '" aria-pressed="' + (ui.patchView === v) + '">' + VIEWS[v] + '</button>').join('') + '</div>';
   if (ui.patchView === 'challenges') return s + renderChallenges(ps);
   if (ui.patchView === 'cork') return s + renderCorkboard(ps);
-  if (ui.patchView === 'supplies'){ supWatch(); shopLoad(); return s + renderSupplies(); }
 
   s += nextPatchHTML(ps, got);
   s += journeyTrail(ps);
@@ -7482,6 +8612,7 @@ function renderPatchDetail(p){
     (p.got ? '<div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-act="sharepatch" data-v="' + esc(p.id) + '">Share this patch</button></div>' : '') +
     '</div></section>';
 
+  s += patchMakeReal(p);
   /* A challenge is a thing you set out to do, so its page says what it is,
      draws the shape of it, and shows how far along you are. */
   if (p.route || p.kind === 'climb') s += '<section class="chdetail">' + challengeBody(p, pct) + '</section>';
@@ -7553,7 +8684,7 @@ function renderPatches(listId){
 TI['waymark-mountain'] = '<path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="M8.25 13.03 10.38 15.98 16.35 7.77 22.50 16.23"/>';   /* Joe's mark: two peaks, the tick in the col (WM - ICON.svg, Sep 2026) */
 const NI = {
   d: TI['home'], h: TI['waymark-mountain'], m: TI['map-2'], p: TI['map-2'],
-  j: TI['notebook'], a: TI['circle-dashed'], u: TI['shoe'], f: TI['users']
+  j: TI['notebook'], a: TI['tent'], u: TI['shoe'], f: TI['users']
 };
 const NAV = [
   {id:'d', label:'Home',      short:'Home',   count:'h'},
@@ -7563,7 +8694,7 @@ const NAV = [
      itself, so the bar keeps to five and Home sits dead centre. */
   {id:'p', label:'Map',       short:'Map',    count:'m', also:['m']},   // opens on Plan a walk; Hills is the other mode
   {id:'j', label:'Journal',   short:'Journal', count:'j'},
-  {id:'a', label:'Patches',   short:'Patches', count:'a'},
+  {id:'a', label:'Basecamp',  short:'Basecamp', count:'a'},
   /* Home and the hill list are one screen (what is next, then the list you
      are working through), which leaves the fifth slot for Hikers. */
   {id:'u', label:'Hikers',    short:'Hikers', count:'f'}
@@ -7720,6 +8851,7 @@ function render(){
   supSyncUrl();
   paintNav();
   document.documentElement.dataset.screen = tab;   /* not data-tab: clicks look for [data-tab] */
+  document.documentElement.dataset.shop = tab === 'a' && ui.patchView === 'supplies' ? '1' : '';
   if (viewRestored) setTimeout(saveView, 0);
 
   let banner = '';
@@ -7759,8 +8891,9 @@ function render(){
      tab === 'j' ? renderDiary() :
      tab === 'u' ? renderHikers() : renderHills());
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
-  paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell();
+  paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell(); paintBag();
   if (tab === 'u') hydratePostPhotos();
+  if (tab === 'd') setTimeout(tuneStamp, 0);
   if (ui.openComments && document.getElementById('cmsheet')) paintCommentSheet();
   if (tab === 'p') mountRouteMap();
   if (tab === 'm') mountMap();
@@ -8835,6 +9968,44 @@ function shortDay(iso){
 }
 /* The most recent photograph in the log, from a summit or a journal entry,
    so Home can open on a real hill rather than a label. */
+/* Read the patch of photograph the stamp sits on and pick the ink that shows. */
+function tuneStamp(){
+  const st = document.querySelector('.cover-hero .flstamp'); if (!st) return;
+  const img = st.closest('.leadwrap') ? st.closest('.leadwrap').querySelector('img') : document.querySelector('.leadwrap.hero img');
+  if (!img) return;
+  const go = () => {
+    try{
+      const nw = img.naturalWidth, nh = img.naturalHeight; if (!nw || !nh) return;
+      const ir = img.getBoundingClientRect(), sr = st.getBoundingClientRect();
+      /* object-fit: cover, with the photo's own vertical framing */
+      const sc = Math.max(ir.width / nw, ir.height / nh);
+      const pos = (getComputedStyle(img).objectPosition || '50% 50%').split(' ').map(v => parseFloat(v) / 100);
+      const ox = (ir.width - nw * sc) * (isNaN(pos[0]) ? .5 : pos[0]), oy = (ir.height - nh * sc) * (isNaN(pos[1]) ? .5 : pos[1]);
+      const sx = Math.max(0, (sr.left - ir.left - ox) / sc), sy = Math.max(0, (sr.top - ir.top - oy) / sc);
+      const sw = Math.min(nw - sx, sr.width / sc), sh = Math.min(nh - sy, sr.height / sc);
+      if (sw <= 0 || sh <= 0) return;
+      const c = document.createElement('canvas'); c.width = 24; c.height = 16;
+      const x = c.getContext('2d', {willReadFrequently:true}); x.drawImage(img, sx, sy, sw, sh, 0, 0, 24, 16);
+      const d = x.getImageData(0, 0, 24, 16).data; let L = 0, n = 0;
+      for (let i = 0; i < d.length; i += 4){ L += (.2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]) / 255; n++; }
+      L /= n;
+      /* measured after the shade the top of the photo carries (pale tops get more) */
+      const TOPA = .3;
+      L = L * (1 - TOPA) + .03 * TOPA;
+      st.classList.toggle('on-light', L > .6); st.classList.toggle('on-dark', L <= .6);
+      /* and the words over the top of the photo: a pale top gets a deeper shade */
+      const vis = Math.min(nh, ir.height / sc);
+      x.drawImage(img, 0, Math.max(0, -oy / sc), nw, vis * .45, 0, 0, 24, 16);
+      const t = x.getImageData(0, 0, 24, 16).data; let T = 0;
+      for (let i = 0; i < t.length; i += 4) T += (.2126 * t[i] + .7152 * t[i + 1] + .0722 * t[i + 2]) / 255;
+      T /= t.length / 4;
+      const wrap = img.closest('.leadwrap'); if (wrap) wrap.classList.toggle('palesky', T > .55);
+      if (T > .55){ L = L * .6 + .02; st.classList.toggle('on-light', L > .6); st.classList.toggle('on-dark', L <= .6); }
+
+    }catch(e){ st.classList.add('on-dark'); }
+  };
+  if (img.complete && img.naturalWidth) go(); else img.addEventListener('load', go, {once:true});
+}
 function latestPhoto(){
   let best = null;
   /* the most recent day with a photograph on it; within that day the one you
@@ -9031,7 +10202,7 @@ function renderDashboard(){
     '<h1>' + a.done.toLocaleString() + (a.done === 1 ? ' hill' : ' hills') + '<br>marked<em>.</em></h1>' +
     '<p class="coversub"><b>' + a.remaining.toLocaleString() + ' to go</b> across ' + enabled().length + (enabled().length === 1 ? ' list' : ' lists') +
       (days ? ', ' + days + (days === 1 ? ' day' : ' days') + ' out' : '') + '.</p>' +
-    '<span class="rstamp rs-orange" aria-hidden="true">Field log<b>' + yr + '</b></span>';
+    '<span class="flstamp" aria-hidden="true"><img class="fl-l" src="stamp-field-log-light.webp" alt="" width="116" height="90"><img class="fl-d" src="stamp-field-log-dark.webp" alt="" width="116" height="90"><b>' + yr + '</b></span>';
   /* with a photograph of the last walk, the cover prints over it */
   const shotNow = latestPhoto();
   if (!shotNow) s += '<header class="cover">' + coverInner + '</header>';
@@ -9083,7 +10254,8 @@ function renderDashboard(){
     s += '</div>';
   }
 
-  /* then the list you are working through: this is the hill list, on Home */
+  /* a quiet row from the shop, then the list you are working through */
+  s += homeShopRail();
   return s + '<div class="homelist">' + renderHills() + '</div>';
 }
 
@@ -13353,7 +14525,7 @@ document.addEventListener('click', async e => {
   else if (a === 'sheetgo'){ goSheet(el.dataset.v); }
   else if (a === 'opensettings'){ openSheet(); }
   else if (a === 'chalview'){ ui.chalView = el.dataset.v; render(); window.scrollTo({top:0}); }
-  else if (a === 'patchview'){ ui.patchView = el.dataset.v; render(); }
+  else if (a === 'patchview'){ ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
   else if (a === 'cert'){ certOpen(el.dataset.k); }
   else if (a === 'certclose'){ certClose(); }
   else if (a === 'certkind'){
@@ -13441,7 +14613,7 @@ document.addEventListener('click', async e => {
   else if (a === 'suptodo'){ ui.supTodo = !ui.supTodo; render(); }
   else if (a === 'supclear'){ ui.supSide = ''; ui.supTodo = false; ui.supSort = ''; render(); }
   else if (a === 'supflip'){ supFlip(+el.dataset.v); }
-  else if (a === 'supopen'){ supGo(+el.dataset.v, true); }
+  else if (a === 'supopen'){ bcSheetClose(); closeBasket(); ui.patch = null; if (tab !== 'a' || ui.patchView !== 'supplies'){ tab = 'a'; ui.patchView = 'supplies'; } supGo(+el.dataset.v, true); }
   /* was wired to 'change' with the file inputs, so the Remove button never fired */
   else if (a === 'stgpxoff'){
     const e = diaryEntry(el.dataset.id); if (!e || !e.strava || !e.strava.gpx) return;
@@ -13461,6 +14633,58 @@ document.addEventListener('click', async e => {
     if (d) await shareLink(supUrl(d), d.name + ' — WayMark', 'Would you wear this one?');
   }
   else if (a === 'shopsize'){ ui.shopSize = el.dataset.v; render(); }
+  else if (a === 'bkadd'){
+    if (!el.dataset.o){ bcFit(el.dataset.k); return; }
+    bcAdd(el.dataset.k, el.dataset.o);
+  }
+  else if (a === 'bagopen'){ openBasket(); }
+  else if (a === 'bchomehide'){ try{ localStorage.setItem('waymark.homeshop', 'hide'); }catch(e){} const n = el.closest('.bcnudge'); if (n) n.remove(); toast('Hidden. The shop is always in Basecamp.'); }
+  else if (a === 'bcsave'){ bcToggleSave(el.dataset.k); }
+  else if (a === 'bcquick'){ bcQuick(el.dataset.k); }
+  else if (a === 'bcaddsize'){ bcAdd(el.dataset.k, el.dataset.o); }
+  else if (a === 'bcfit'){ bcFit(el.dataset.k); }
+  else if (a === 'bcfitpick'){ ui.shopSize = el.dataset.o; bcSheetClose(); if (ui.supOpen === +el.dataset.k) render(); else bcAdd(el.dataset.k, el.dataset.o); }
+  else if (a === 'bcsheetclose'){ bcSheetClose(); }
+  else if (a === 'bccoll'){ ui.shopColl = el.dataset.v; ui.shopSaved = false; render(); }
+  else if (a === 'bcsaved'){ ui.shopSaved = !ui.shopSaved; ui.shopColl = ''; render(); }
+  else if (a === 'bksaved'){ closeBasket(); tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = true; ui.shopColl = ''; supGo(null, true); }
+  else if (a === 'bcrecentclear'){ bcWrite(BC_RECENT, []); render(); }
+  else if (a === 'bcdeck'){ openDeck(); }
+  else if (a === 'bcdeckclose'){ closeDeck(); }
+  else if (a === 'bcdeckagain'){ bcDeck = {list: supPool().map(d => d.n), i:0}; paintDeck(); }
+  else if (a === 'bcvote'){ await deckVote(+el.dataset.d); }
+  else if (a === 'bctell'){ askTell(+el.dataset.v); }
+  else if (a === 'bctellgo'){
+    const n = +el.dataset.v, ap = document.getElementById('tell-app'), em = document.getElementById('tell-email');
+    const how = (ap && ap.checked ? 1 : 0) + (em && em.checked ? 2 : 0);
+    const v = how === 3 ? 'both' : how === 2 ? 'email' : how === 1 ? 'app' : '';
+    bcSheetClose();
+    if (v){ bcTellDefault = v; await supSetTell(n, v); toast('We’ll tell you when it’s printed.'); }
+    if (bcDeck && bcDeck.i >= bcDeck.list.length) paintDeck();
+  }
+  else if (a === 'bcnews'){ const t = bcRead('waymark.told'); t.push(el.dataset.v); bcWrite('waymark.told', t); tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
+  else if (a === 'bcwintee'){ closeWin(); ui.patch = null; ui.patchFrom = null; tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
+  else if (a === 'bcpatchtell'){ await patchTellMe(); toast('We’ll tell you when the real patches are ready.'); }
+  else if (a === 'bklater'){
+    const l = basket[+el.dataset.i]; if (!l) return;
+    const sv = bcRead(BC_SAVED); if (!sv.includes(l.k)) sv.unshift(l.k); bcWrite(BC_SAVED, sv);
+    basket.splice(+el.dataset.i, 1); saveBasket(); paintBasket(); toast('Moved to Saved.');
+  }
+  else if (a === 'bkcodeopen'){ ui.bkCodeOpen = 'focus'; paintBasket(); }
+  else if (a === 'shopgo'){ tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; ui.shopColl = ''; supGo(null, true); window.scrollTo({top:0}); }
+  else if (a === 'bkclose'){ closeBasket(); }
+  else if (a === 'bkshop'){ closeBasket(); tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; supGo(null, true); window.scrollTo({top:0}); }
+  else if (a === 'bkqty'){
+    const l = basket[+el.dataset.i]; if (!l) return;
+    l.qty += +el.dataset.v; if (l.qty < 1) basket.splice(+el.dataset.i, 1); l.qty = Math.min(10, l.qty);
+    saveBasket(); paintBasket();
+  }
+  else if (a === 'bkcode'){ await applyCode(); }
+  else if (a === 'bkcodeoff'){ basketCode = null; ui.bkCodeOpen = false; paintBasket(); }
+  else if (a === 'bkcheckout'){ await checkoutBasket(); }
+  else if (a === 'kitopen'){ bcSheetClose(); closeBasket(); bcSeen(el.dataset.k); ui.kitOpen = el.dataset.k; ui.kitOpt = ''; ui.patch = null; tab = 'a'; ui.patchView = 'supplies'; render(); window.scrollTo({top:0}); }
+  else if (a === 'kitclose'){ ui.kitOpen = null; render(); }
+  else if (a === 'kitopt'){ ui.kitOpt = el.dataset.v; render(); }
   else if (a === 'shopbuy'){ await shopBuy(+el.dataset.v); }
   else if (a === 'shopclose'){ shopClose(); }
   else if (a === 'supvote'){ await supVote(+el.dataset.v, el.dataset.d === 'up' ? 1 : -1); }
@@ -15749,25 +16973,6 @@ function paintCommentSheet(){
     el = document.createElement('div'); el.id = 'cmsheet'; el.className = 'sheet bottom cmsheet';
     el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Comments');
     el.addEventListener('click', e => { if (e.target === el) closeCommentSheet(); });
-    /* pull the grey bar (or the heading) down to put the sheet away */
-    let y0 = null, dy = 0, box = null;
-    el.addEventListener('pointerdown', e => {
-      if (!e.target.closest('.cmgrab, .cmsheet .ntop') || e.target.closest('button')) return;
-      box = el.querySelector('.sheetbox'); y0 = e.clientY; dy = 0; box.style.transition = 'none';
-      try{ e.target.setPointerCapture(e.pointerId); }catch(err){}
-    });
-    el.addEventListener('pointermove', e => {
-      if (y0 == null || !box) return;
-      dy = Math.max(0, e.clientY - y0); box.style.transform = 'translateY(' + dy + 'px)';
-    });
-    const end = () => {
-      if (y0 == null || !box) return;
-      const b = box; y0 = null; b.style.transition = 'transform .22s cubic-bezier(.32,.72,0,1)';
-      if (dy > 90){ b.style.transform = 'translateY(100%)'; setTimeout(() => { closeCommentSheet(); b.style.transform = ''; b.style.transition = ''; }, 200); }
-      else b.style.transform = '';
-      box = null;
-    };
-    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
     document.body.appendChild(el);
   }
   const old = document.getElementById('cm-' + id), keep = old ? old.value : '', had = old && document.activeElement === old;
@@ -16699,6 +17904,7 @@ document.addEventListener('keydown', e => {
   if (ui.postMenu){ ui.postMenu = null; document.querySelectorAll('.pmenubox').forEach(m => m.remove()); }
   if (ui.openComments) closeCommentSheet();
 });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target && e.target.id === 'bkcode'){ e.preventDefault(); applyCode(); } });
 /* Enter sends a comment */
 document.addEventListener('keydown', e => {
   const box = e.target; if (e.key !== 'Enter' || !box || !box.dataset || !box.dataset.send) return;
@@ -17386,7 +18592,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v190';
+const APP_VERSION = 'v191';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
