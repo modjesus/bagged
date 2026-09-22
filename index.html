@@ -4280,10 +4280,12 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 /* ---- v189: profiles on a pine band ---- */
 .prof.pv3{margin-top:10px}
 .prof.pv3 .pine{position:relative; overflow:hidden; background:#14332D; border:1px solid color-mix(in srgb, #F3EFE6 7%, transparent); color:#F3EFE6; border-radius:18px; padding:0 14px 34px; isolation:isolate}
-.prof.pv3 .pbanner{position:absolute; left:0; right:0; top:0; height:220px; border-radius:0; z-index:-2; opacity:.62}
-.prof.pv3 .pbanner.adjusting{opacity:1; z-index:2; height:160px}
+.prof.pv3 .pbanner{position:absolute; left:0; right:0; top:0; height:min(380px, 100%); border-radius:0; z-index:-2; opacity:.7;
+  -webkit-mask-image:linear-gradient(#000 45%, transparent 100%); mask-image:linear-gradient(#000 45%, transparent 100%)}
+.prof.pv3 .pbanner.adjusting{opacity:1}
+.prof.pv3 .pine.bandrag .pinefade{opacity:.55}
 .prof.pv3 .pbanner .skylab{display:none}
-.prof.pv3 .pinefade{position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(rgba(20,51,45,.12), rgba(20,51,45,.55) 32%, #14332D 64%)}
+.prof.pv3 .pinefade{position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(rgba(20,51,45,.1) 0, rgba(20,51,45,.42) 150px, rgba(20,51,45,.82) 260px, #14332D 360px)}
 .prof.pv3 .pinetop{position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; min-height:52px; padding-top:8px}
 .prof.pv3 .pinetop .pedit, .prof.pv3 .pinetop .peditbar{position:static}
 .prof.pv3 .pinetop .pedit{background:rgba(255,253,248,.14); color:#F3EFE6; border:1px solid rgba(243,239,230,.5); backdrop-filter:blur(4px)}
@@ -5180,6 +5182,62 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 
 /* the desk sidebar lists Basecamp; the old separate Shop button goes */
 .sshop{display:none !important}
+
+/* ================= v193 fixes ================= */
+/* sheets scroll inside themselves, never the page behind */
+.sheet{overscroll-behavior:contain}
+html:has(.sheet.open), html:has(.bcdeck.open){overflow:hidden}
+.sheet.bottom .sheetbox{max-height:calc(100dvh - 24px); overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain}
+/* an icon inside a search field is always field-sized */
+.field > svg{width:18px; height:18px}
+/* the showcase picker: three patches a row, sized to their cell */
+.showgrid{grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px 8px}
+.showgrid .patch{width:auto; min-width:0; display:flex; flex-direction:column; align-items:center; gap:6px}
+.showgrid .patch .disc{width:min(84px, 100%); height:auto; aspect-ratio:1; margin:0}
+.showgrid .spl{font-size:12.5px; line-height:1.25; font-style:italic; color:var(--ink-2); text-align:center; overflow-wrap:anywhere}
+#showsheet .sheetbox{touch-action:pan-y}
+#showsheet .cmgrab, #walksheet .cmgrab{margin:0 auto 10px}
+/* editing the cover: the whole band is the handle, and the picture is a button */
+.prof.pv3 .pine.bandrag{touch-action:none; cursor:grab}
+.prof.pv3 .pbanner.adjusting .leadhint{left:auto; right:14px; top:62px; bottom:auto; max-width:40%}
+.pid .pavbtn{position:relative; padding:0; border:0; background:none; border-radius:99px; display:block}
+.pid .pavbtn .pavcam{position:absolute; right:-2px; bottom:-2px; width:32px; height:32px; border-radius:50%; background:#F3EFE6; color:#14332D; display:grid; place-items:center; box-shadow:0 0 0 3px #14332D}
+.pid .pavbtn .pavcam svg{width:17px; height:17px}
+/* up for a walk is a switch on your own profile */
+button.pinechip{border:0; cursor:pointer; font-family:var(--font-ui)}
+.pinechip.off{background:transparent; box-shadow:inset 0 0 0 1.5px rgba(243,239,230,.45); color:#CAD9D3}
+.pinechip svg{width:15px; height:15px}
+/* the last walk's caption sits above the shade, not under it */
+.leadwrap.hero .leadcap{z-index:2}
+.leadwrap.hero .leadadj, .leadwrap.hero .leadhint{z-index:3}
+/* a keyboard up means typing: the tab bar gets out of the way */
+:root.kbopen .bnav{display:none}
+:root.kbopen body{padding-bottom:0}
+/* no browser pull-to-refresh on top of our own */
+:root[data-screen="u"], :root[data-screen="u"] body{overscroll-behavior-y:contain}
+/* you & them opens */
+button.youthem{display:block; width:100%; text-align:left; font:inherit; color:inherit; cursor:pointer}
+.youthem .ytmore{display:flex; align-items:center; gap:4px; margin-top:10px; font:700 13px var(--font-ui); color:var(--accent-text)}
+.youthem .ytmore svg{width:15px; height:15px}
+.ytsheet .sheetbox{max-width:620px}
+.ytfigs{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px}
+.ytfigs div{padding:12px 10px; border-radius:12px; background:var(--raise); border:1px solid var(--line-soft); text-align:center}
+.ytfigs b{display:block; font:400 26px/1 var(--font-display); color:var(--ink)}
+.ytfigs span{display:block; margin-top:4px; font:600 10.5px var(--font-data); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.ytsec{margin:0 !important; font:600 10.5px var(--font-data) !important; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3) !important}
+.ytlist{list-style:none; margin:0; padding:0; border:1px solid var(--line-soft); border-radius:12px; background:var(--raise)}
+.ytlist li{display:flex; align-items:center; gap:10px; padding:10px 12px; font-size:14px}
+.ytlist li + li{border-top:1px solid var(--line-soft)}
+.ytlist li b{flex:1; min-width:0; font-weight:600; color:var(--ink)}
+.ytlist li i{font:normal 12.5px var(--font-data); color:var(--ink-3); white-space:nowrap}
+.ytlist .chip{flex:none; min-height:34px}
+.ytlist .chip svg{width:14px; height:14px}
+.ytrows .ytrow{margin:0 0 12px}
+.ytmutual{display:flex; flex-wrap:wrap; gap:6px}
+/* discover: a search that finds nobody says so */
+.dnone{display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:12px; padding:22px 16px; border:1px dashed var(--line); border-radius:12px; text-align:center; color:var(--ink-2); font-size:14px}
+.dnone svg{width:26px; height:26px; color:var(--ink-3)}
+.dnone b{color:var(--ink); font-size:15.5px}
 </style>
 </head>
 <body>
@@ -8559,7 +8617,11 @@ function renderCorkboard(ps){
   }
   /* a loose grid, then a shuffle and a nudge: enough order that nothing is
      buried, enough disorder that it reads as a wall rather than a table */
-  const DISC = W < 420 ? 118 : W < 700 ? 132 : 150, CELL = DISC + 14;
+  /* the board grows downwards forever, but on a phone a long two-wide column
+     stops reading as a wall, so past six the pins shrink and go three across */
+  let DISC = W < 420 ? 118 : W < 700 ? 132 : 150;
+  if (Math.ceil(got.length / Math.max(2, Math.floor(W / (DISC + 14)))) > 3) DISC = Math.max(84, Math.floor(W / Math.max(3, Math.floor(W / 100)) - 14));
+  const CELL = DISC + 14;
   /* wide screens would string a handful of patches out in one line, which
      reads as a strip, not a wall — so a board is at least two rows deep */
   const maxCols = Math.max(2, Math.floor(W / CELL));
@@ -10593,7 +10655,7 @@ function friendStrip(){
     avatarHTML(f.av, f.name, 'md', f.uid) + '<span>' + esc((niceName(f.name) || 'Walker').split(' ')[0]) + '</span><i>' + esc(what(f)) + '</i></button>').join('') +
     /* pinned to the right edge of the row, so however many people were out it
        never scrolls out of reach */
-    '<button class="fchip frefresh' + (socialRefreshing ? ' spinning' : '') + '" data-act="refreshfeed" aria-label="Refresh the feed"><span class="fplus">' + ti('refresh') + '</span><span>Refresh</span><i>&nbsp;</i></button></div>';
+    '<button class="fchip frefresh' + (socialRefreshing && !ptrBusy ? ' spinning' : '') + '" data-act="refreshfeed" aria-label="Refresh the feed"><span class="fplus">' + ti('refresh') + '</span><span>Refresh</span><i>&nbsp;</i></button></div>';
 }
 const SHARE_KINDS = [
   {id:'adventure', label:'An adventure',     icon:'waymark-mountain', note:'A walk, a summit or a whole day of them'},
@@ -14059,6 +14121,7 @@ document.addEventListener('click', async e => {
     navigator.clipboard.writeText(el.dataset.v).then(() => toast('Code copied.')).catch(() => toast(el.dataset.v));
   }
   else if (a === 'openfriend'){
+    bcSheetClose();
     if (ui.notesOpen){ ui.notesOpen = false; const ns = document.getElementById('notesheet'); if (ns) ns.classList.remove('open'); }
     if (fbUser && el.dataset.uid === fbUser.uid){ friendOpen = null; singlePost = null; tab = 'u'; ui.hikerTab = 'me'; render(); window.scrollTo({top:0}); return; }
     tab = 'u'; singlePost = null; ui.profTab = 'adv'; ui.theirList = null;
@@ -14109,8 +14172,11 @@ document.addEventListener('click', async e => {
     n.ans = yes ? 'yes' : 'no'; paintNotesSheet();
     toast(yes ? 'Told ' + firstName(n.name) + ' you’re in.' : 'Let ' + firstName(n.name) + ' know you can’t make it.');
   }
+  else if (a === 'ytopen'){ openYouThem(el.dataset.u); }
+  else if (a === 'ytwalk'){ bcSheetClose(); openWalkInvite(el.dataset.u, el.dataset.n || 'them'); if (ui.walkInv){ ui.walkInv.hill = el.dataset.k; paintWalkInvite(); } }
+  else if (a === 'toggleopen'){ prof.open = !prof.open; saveProf(); render(); toast(prof.open ? 'You’re up for a walk. You show under “Up for a walk” on Discover.' : 'Done. You’re no longer listed as up for a walk.'); }
   else if (a === 'partneron'){ prof.open = true; saveProf(); render(); toast('You’re in “Up for a walk”. Change it any time in your profile.'); }
-  else if (a === 'findclear'){ ui.found = null; const b = document.getElementById('findh'); if (b) b.value = ''; render(); }
+  else if (a === 'findclear'){ ui.found = null; ui.findQ = ''; const b = document.getElementById('findh'); if (b) b.value = ''; render(); }
   else if (a === 'invitewalk'){
     shareLink('https://waymark.it.com', 'Fancy a walk?', 'Fancy a day on the hills? I\u2019m logging mine on WayMark' + (fbHandle ? ' \u2014 follow me: ' + profileLink(fbHandle) : '') + '.');
   }
@@ -14324,7 +14390,7 @@ document.addEventListener('click', async e => {
       if (f) found.set(f.uid, {...f, why: f.handle ? '@' + f.handle : ''});
       for (const x of await searchDirectory(box.value)) if (!found.has(x.uid)) found.set(x.uid, x);
       for (const x of searchKnownPeople(box.value)) if (!found.has(x.uid)) found.set(x.uid, x);
-      ui.found = [...found.values()];
+      ui.found = [...found.values()]; ui.findQ = box.value.trim();
       if (m){
         m.textContent = ui.found.length ? ''
           : 'Nobody matches that yet. Try a hill, a place or a list, or send your link to the people you walk with.';
@@ -15246,33 +15312,37 @@ function armLeadDrag(){
 function armBannerDrag(){
   const wrap = document.querySelector('.pbanner.adjusting');
   const img = wrap && wrap.querySelector('img');
-  if (!img || img.dataset.armed) return;
-  img.dataset.armed = '1';
+  const band = wrap && wrap.closest('.pine');
+  if (!img || !band || band.dataset.armed) return;
+  band.dataset.armed = '1'; band.classList.add('bandrag');
   let startY = 0, startFy = 50, dragging = false;
   const fyNow = () => { const m = /50% ([\d.]+)%/.exec(img.style.objectPosition || ''); return m ? +m[1] : 50; };
-  img.style.touchAction = 'none';
-  img.onpointerdown = e => {
+  band.addEventListener('pointerdown', e => {
+    /* the buttons on the band keep their jobs: Save, Done, the picture, the patch */
+    if (e.target.closest('button, a, input, textarea, select')) return;
+    const r = wrap.getBoundingClientRect();
+    if (e.clientY > r.bottom + 40) return;
     dragging = true; startY = e.clientY; startFy = fyNow();
-    img.setPointerCapture(e.pointerId); wrap.classList.add('dragging'); e.preventDefault();
-  };
-  img.onpointermove = e => {
+    try{ band.setPointerCapture(e.pointerId); }catch(err){}
+    wrap.classList.add('dragging'); e.preventDefault();
+  });
+  band.addEventListener('pointermove', e => {
     if (!dragging) return;
     /* how far the picture can travel depends on how much of it is hidden */
     const box = img.getBoundingClientRect();
-    const shown = box.height, natural = shown * (img.naturalHeight / img.naturalWidth) * (box.width / shown);
-    const hidden = Math.max(1, natural - shown);
+    const natural = box.width * (img.naturalHeight / Math.max(1, img.naturalWidth));
+    const hidden = Math.max(1, natural - box.height);
     const fy = startFy - ((e.clientY - startY) / hidden) * 100;
     img.style.objectPosition = '50% ' + Math.max(0, Math.min(100, fy)) + '%';
-  };
-  img.onpointerup = img.onpointercancel = () => {
+  });
+  const end = () => {
     if (!dragging) return;
     dragging = false; wrap.classList.remove('dragging');
     const d = profDraft(); if (!d) return;
     d.bfy = Math.round(fyNow());
-    /* keep the slider in step without a full re-render, which would drop the
-       pointer capture mid-gesture */
     const sl = document.getElementById('bfy'); if (sl) sl.value = d.bfy;
   };
+  band.addEventListener('pointerup', end); band.addEventListener('pointercancel', end);
 }
 function saveCaption(){
   if (!viewing || viewing.friend || viewing.post) return false;
@@ -17451,7 +17521,7 @@ function paintWalkInvite(){
   const el = document.getElementById('walksheet'), w = ui.walkInv; if (!el || !w) return;
   const h = w.hill ? BY_KEY[w.hill] : null;
   const today = new Date().toISOString().slice(0, 10);
-  el.innerHTML = '<div class="sheetbox walkinv"><div class="ntop"><h3>Walk with ' + esc(firstName(w.name)) + '</h3>' +
+  el.innerHTML = '<div class="sheetbox walkinv"><div class="cmgrab"></div><div class="ntop"><h3>Walk with ' + esc(firstName(w.name)) + '</h3>' +
     '<button class="xbtn" data-act="wiclose" aria-label="Close">' + ti('x') + '</button></div>' +
     '<p class="wilede">Suggest a hill and a day. ' + esc(firstName(w.name)) + ' can say they’re in, or that they can’t make it.</p>' +
     '<div class="form" style="margin:0"><div><label for="wiq">Which hill</label>' + (h
@@ -17481,12 +17551,16 @@ function discoverPeople(){
 function renderDiscover(){
   if (!dirAt && !dirBusy && !dirWhy) loadDirectory();
   let s = '<div class="dsearch"><div class="field">' + ti('search') +
-    '<input id="findh" placeholder="Hikers, places or hills" maxlength="40" autocomplete="off" enterkeyhint="search">' +
+    '<input id="findh" placeholder="Hikers, places or hills" maxlength="40" autocomplete="off" enterkeyhint="search" value="' + esc(ui.findQ || '') + '">' +
     '<button class="btn sm" data-act="findfriend">Search</button></div>' +
     '<p class="dhint">Search a name, @handle, town, hill or list. Try “Bristol” or “Snowdon”.</p><p id="fmsg" class="fmsg"></p>';
   const foundList = ui.found ? (Array.isArray(ui.found) ? ui.found : [ui.found]) : [];
   if (foundList.length) s += '<div class="dresults">' + foundList.map(f => hikerRow({...f, why: f.why || ''}, followBtn(f.uid, true))).join('') + '</div>' +
     '<button class="linkbtn dclear" data-act="findclear">Clear search</button>';
+  else if (ui.found && ui.findQ) s += '<div class="dnone">' + ti('binoculars') + '<b>No hikers match “' + esc(ui.findQ) + '”</b>' +
+    '<span>Try a hill, a town or a list, or send your link to the people you walk with.</span>' +
+    '<div class="btnrow" style="justify-content:center;margin-top:6px"><button class="btn sm ghost" data-act="findclear">Clear search</button>' +
+    (fbHandle ? '<button class="btn sm" data-act="shareme">' + ti('share') + 'Send my link</button>' : '') + '</div></div>';
   s += '</div>';
 
   /* your own partner status, so the row below is something you can join */
@@ -17558,14 +17632,48 @@ function youAndThem(uid, pp, nm){
     .sort((a, b) => ((lc[b.id] || 0) + (me[b.id] || 0)) - ((lc[a.id] || 0) + (me[a.id] || 0))).slice(0, 2);
   const common = dir && !dir.none ? inCommon(dir) : 0;
   if (!lists.length && !common) return s;
-  s += '<div class="youthem"><div class="ythead"><span class="pmstack">' + avatarHTML(myAvatar(), myName(), 'tiny', fbUser.uid) + avatarHTML(pp.av, pp.name, 'tiny', uid) + '</span>' +
+  s += '<button class="youthem" data-act="ytopen" data-u="' + esc(uid) + '"><div class="ythead"><span class="pmstack">' + avatarHTML(myAvatar(), myName(), 'tiny', fbUser.uid) + avatarHTML(pp.av, pp.name, 'tiny', uid) + '</span>' +
     '<b>You &amp; ' + esc(nm) + '</b>' + (common ? '<span class="ytcommon">' + common + (common === 1 ? ' hill' : ' hills') + ' in common</span>' : '') + '</div>';
   for (const l of lists){
     const of = l.count || hillsIn(l.id).length || 1, a = lc[l.id] || 0, b = me[l.id] || 0;
     s += '<div class="ytrow"><div class="yttop"><span>' + esc(l.name) + '</span><span class="ytn"><b>' + esc(nm) + ' ' + a.toLocaleString() + '</b> &middot; You ' + b.toLocaleString() + '</span></div>' +
       '<i class="chbar"><s style="width:' + Math.max(1, Math.min(100, a / of * 100)) + '%"></s>' + '<u style="left:' + Math.min(100, b / of * 100) + '%"></u></i></div>';
   }
-  return s + '</div>';
+  return s + '<span class="ytmore">Compare everything' + ti('chevron-right') + '</span></button>';
+}
+function openYouThem(uid){
+  const pp = personCache[uid] || {}, nm = firstName(pp.name) || 'them';
+  const dir = dirCache[uid] && !dirCache[uid].none ? dirCache[uid] : {};
+  const hk = Array.isArray(dir.hk) ? dir.hk : [];
+  const mine = myHillSet(), theirs = new Set(hk);
+  const byHt = (x, y) => y.h - x.h;
+  const both = hk.filter(k => mine.has(k)).map(k => BY_KEY[k]).filter(Boolean).sort(byHt);
+  const onlyThem = hk.filter(k => !mine.has(k)).map(k => BY_KEY[k]).filter(Boolean).sort(byHt);
+  const onlyMe = [...mine].filter(k => !theirs.has(k)).map(k => BY_KEY[k]).filter(Boolean).sort(byHt);
+  const lc = dir.lc || pp.counts || {}, me = myListCounts();
+  const lists = LISTS.filter(l => (lc[l.id] || 0) + (me[l.id] || 0) > 0).sort((a, b) => ((lc[b.id] || 0) + (me[b.id] || 0)) - ((lc[a.id] || 0) + (me[a.id] || 0)));
+  const L = theirLists[uid + ':followers'], fol = new Set(followingUids());
+  const mutual = L && !L.busy ? L.list.filter(f => fol.has(f.uid)) : [];
+  const hill = h => '<b>' + esc(hillName(h)) + '</b><i>' + feet(h) + ' ft</i>';
+  let s = '<div class="bcsheethead"><span class="pmstack">' + avatarHTML(myAvatar(), myName(), 'tiny', fbUser.uid) + avatarHTML(pp.av, pp.name, 'tiny', uid) + '</span>' +
+    '<div><b class="bcbig">You &amp; ' + esc(nm) + '</b><span>' + (hk.length ? 'Everything your two logs share' : 'How your lists compare') + '</span></div></div>';
+  if (hk.length) s += '<div class="ytfigs"><div><b>' + both.length + '</b><span>Both</span></div><div><b>' + onlyThem.length + '</b><span>Only ' + esc(nm) + '</span></div><div><b>' + onlyMe.length + '</b><span>Only you</span></div></div>';
+  if (lists.length){
+    s += '<p class="ytsec">List by list</p><div class="ytrows">' + lists.map(l => {
+      const of = l.count || hillsIn(l.id).length || 1, a = lc[l.id] || 0, b = me[l.id] || 0;
+      return '<div class="ytrow"><div class="yttop"><span>' + esc(l.name) + '</span><span class="ytn"><b>' + esc(nm) + ' ' + a.toLocaleString() + '</b> &middot; You ' + b.toLocaleString() + ' <span style="opacity:.6">of ' + of.toLocaleString() + '</span></span></div>' +
+        '<i class="chbar"><s style="width:' + Math.max(1, Math.min(100, a / of * 100)) + '%"></s><u style="left:' + Math.min(100, b / of * 100) + '%"></u></i></div>';
+    }).join('') + '</div>';
+  }
+  if (onlyThem.length) s += '<p class="ytsec">' + esc(nm) + '’s been up, you haven’t</p><ul class="ytlist">' + onlyThem.slice(0, 6).map(h =>
+    '<li>' + hill(h) + '<button class="chip" data-act="ytwalk" data-u="' + esc(uid) + '" data-n="' + esc(pp.name || nm) + '" data-k="' + esc(h.k) + '">' + ti('walk') + 'Walk it</button></li>').join('') + '</ul>';
+  if (both.length) s += '<p class="ytsec">You’ve both stood on</p><ul class="ytlist">' + both.slice(0, 8).map(h => '<li>' + hill(h) + '</li>').join('') + '</ul>' +
+    (both.length > 8 ? '<p class="pdfine" style="margin:-6px 0 0">and ' + (both.length - 8) + ' more</p>' : '');
+  if (onlyMe.length) s += '<p class="ytsec">Yours, not ' + esc(nm) + '’s yet</p><ul class="ytlist">' + onlyMe.slice(0, 5).map(h => '<li>' + hill(h) + '</li>').join('') + '</ul>';
+  if (mutual.length) s += '<p class="ytsec">People you both follow</p><div class="ytmutual">' + mutual.slice(0, 12).map(f =>
+    '<button class="chip" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny', f.uid) + esc(firstName(f.name) || 'Walker') + '</button>').join('') + '</div>';
+  if (!hk.length && !lists.length) s += '<p class="bclede">Once ' + esc(nm) + ' has marked a few hills, you’ll see where your logs cross.</p>';
+  bcSheet(s, 'You and ' + nm, 'ytsheet');
 }
 function renderFriend(){
   const uidX = friendOpen.uid;
@@ -17608,8 +17716,8 @@ function renderFriend(){
       '<button role="menuitem" class="danger" data-act="blockuser" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || '') + '">' + ti('ban') + 'Block ' + esc(nm) + '</button></div>' : '') + '</div>';
   const counts = '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="followers"><b>' + (pc.followers == null ? '–' : pc.followers.toLocaleString()) + '</b> followers</button> &middot; ' +
     '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="following"><b>' + (pc.following == null ? '–' : pc.following.toLocaleString()) + '</b> following</button>' +
-    (followsMe(uidX) ? ' &middot; <span class="fyou">Follows you</span>' : '');
-  const chips = card.open ? '<span class="pinechip open">' + ti('walk') + 'Up for a walk</span>' + (partnerLine(card) ? '<span class="pinechip">' + esc(partnerLine(card)) + '</span>' : '') : '';
+    '';
+  const chips = (followsMe(uidX) ? '<span class="pinechip">' + ti('user-check') + 'Follows you</span>' : '') + (card.open ? '<span class="pinechip open">' + ti('walk') + 'Up for a walk</span>' + (partnerLine(card) ? '<span class="pinechip">' + esc(partnerLine(card)) + '</span>' : '') : '');
   const actions = followBtn(uidX) + (fbUser ? '<button class="btn' + (accepted ? '' : ' ghost') + '" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('walk') + 'Suggest a walk</button>' : '');
   html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : '', back: backBtn, menu, counts, chips, actions});
   html += youAndThem(uidX, pp, nm);
@@ -17860,6 +17968,7 @@ document.addEventListener('scroll', e => {
   const n = m.querySelector('.pcount'); if (n) n.textContent = (i + 1) + '/' + m.dataset.n;
   m.querySelectorAll('.pdots i').forEach((d, j) => d.classList.toggle('on', j === i));
 }, true);
+var ptrBusy = false;
 /* Pull down at the top of the Hikers feed to refresh it, the way every
    social app does. A small disc follows the finger and spins when let go. */
 (function(){
@@ -17885,12 +17994,19 @@ document.addEventListener('scroll', e => {
     if (!disc) return;
     const d = disc; disc = null;
     if (go){
-      d.classList.add('spin'); d.style.transform = 'translate(-50%,60px)';
+      d.classList.add('spin'); d.style.transform = 'translate(-50%,60px)'; ptrBusy = true;
       Promise.resolve(refreshSocial()).catch(() => {}).then(() => { if (typeof loadDirectory === 'function') loadDirectory(true); })
-        .finally(() => { d.style.opacity = 0; setTimeout(() => d.remove(), 250); });
+        .finally(() => { ptrBusy = false; d.style.opacity = 0; setTimeout(() => d.remove(), 250); });
     } else { d.style.opacity = 0; setTimeout(() => d.remove(), 200); }
   };
   document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
+})();
+/* A phone keyboard lifts anything fixed to the bottom with it, so the tab bar
+   bows out while a text field has focus and comes back when it lets go. */
+(function(){
+  const typing = t => t && (t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|file|color|date)$/i.test(t.type || '')) || t.isContentEditable);
+  document.addEventListener('focusin', e => { if (typing(e.target) && matchMedia('(max-width:767px)').matches) document.documentElement.classList.add('kbopen'); });
+  document.addEventListener('focusout', () => setTimeout(() => { if (!typing(document.activeElement)) document.documentElement.classList.remove('kbopen'); }, 60));
 })();
 /* An open ⋯ menu closes on a tap anywhere else, or on Escape. */
 document.addEventListener('click', e => {
@@ -19536,7 +19652,7 @@ function profileHeader(pp, opts){
   const adjust = mine && ui.profEdit && pp.banner;
   s += '<div class="pbanner' + (pp.banner ? ' has' : (hasSky ? ' sky' : '')) +
        (adjust ? ' adjusting' : '') + '">' +
-    (adjust ? '<span class="leadhint">Drag the photo up or down</span>' : '') +
+    (adjust ? '<span class="leadhint">Drag to move</span>' : '') +
     (pp.banner ? '<img src="' + esc(pp.banner) + '" alt="" style="object-position:50% ' + (+pp.bfy || 50) + '%" draggable="false">'
                : (hasSky ? skylineArt(sky) : RIDGE)) +
     (hasSky ? '<span class="skylab">' + (pp.hills || 0).toLocaleString() +
@@ -19582,7 +19698,9 @@ function profileHeader(pp, opts){
   if (pp.top) line += (bits.length ? '<em class="hsep">&middot;</em>' : '') +
     '<span class="lochigh">Highest <b>' + esc(pp.top) + '</b></span>';
   s += '<div class="phead2"><div class="pid">' +
-    (pic ? '<img class="pavatar" src="' + esc(pic) + '" alt="">' : '<div class="pavatar initial">' + initial + '</div>') +
+    (mine && ui.profEdit
+      ? '<button class="pavbtn" data-act="editavatar" aria-label="Change your picture">' + (pic ? '<img class="pavatar" src="' + esc(pic) + '" alt="">' : '<span class="pavatar initial">' + initial + '</span>') + '<span class="pavcam">' + ti('camera') + '</span></button>'
+      : (pic ? '<img class="pavatar" src="' + esc(pic) + '" alt="">' : '<div class="pavatar initial">' + initial + '</div>')) +
     '</div><div class="pname"><h2>' + esc(niceName(pp.name) || 'Walker') + '</h2>' +
     '<p class="ploc">' + line + '</p>';
   if (pp.quote) s += '<p class="ptag">' + esc(pp.quote) + '</p>';
@@ -19750,7 +19868,7 @@ function openShowPick(){
     document.body.appendChild(el);
   }
   const cur = prof.show || (got[0] && got[0].id) || '';
-  el.innerHTML = '<div class="sheetbox"><div class="ntop"><h3>Showcase patch</h3><button class="xbtn" data-act="showclose" aria-label="Close">' + ti('x') + '</button></div>' +
+  el.innerHTML = '<div class="sheetbox"><div class="cmgrab"></div><div class="ntop"><h3>Showcase patch</h3><button class="xbtn" data-act="showclose" aria-label="Close">' + ti('x') + '</button></div>' +
     '<p class="mapnote" style="margin:0 0 12px">The one that sits on the corner of your profile. Everyone who opens it sees this first.</p>' +
     (got.length ? '<div class="showgrid">' + got.map(p => '<button class="patch got' + (p.id === cur ? ' picked' : '') + '" data-act="setshow" data-v="' + esc(p.id) + '" aria-pressed="' + (p.id === cur) + '">' +
       patchDisc(p) + '<i class="spl">' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '').replace(/&middot;/g, '·')) + '</i></button>').join('') + '</div>'
@@ -19802,7 +19920,7 @@ function renderMyProfile(){
   let s = profileHeader(pp, {mine:true,
     counts:'<button class="plink" data-act="mypeople" data-v="followers"><b>' + followers.length.toLocaleString() + '</b> followers</button> &middot; ' +
            '<button class="plink" data-act="mypeople" data-v="following"><b>' + following().length.toLocaleString() + '</b> following</button>',
-    chips: prof.open ? '<span class="pinechip open">' + ti('walk') + 'Up for a walk</span>' : ''});
+    chips: '<button class="pinechip ' + (prof.open ? 'open' : 'off') + '" data-act="toggleopen" aria-pressed="' + !!prof.open + '">' + ti('walk') + (prof.open ? 'Up for a walk' : 'Not up for a walk') + '</button>'});
   if (ui.profEdit) s += profileEditor();
 
   s += gearHTML(pp, true);
