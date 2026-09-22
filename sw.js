@@ -1,7 +1,7 @@
 // WayMark — offline shell.
 // Bump the version below every time you change index.html, or phones will keep
 // showing the old build from their cache.
-const CACHE = 'waymark-v193';
+const CACHE = 'waymark-v195';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
@@ -99,3 +99,49 @@ async function trimRecent(c){
     for (let i = 0; i < over; i++) await c.delete(keys[i]);
   }catch(e){}
 }
+
+// ---- Push notifications ----------------------------------------------------
+// The push helper (push-worker.js) sends data-only pushes through Firebase
+// Cloud Messaging. Each one is drawn here: title, body, and where a tap goes.
+// Pushes about the same chat share a tag, so a busy walk group stacks as one.
+self.addEventListener('push', e => {
+  let d = {};
+  try{ const j = e.data ? e.data.json() : {}; d = j.data || j.notification || j; }catch(err){ d = {body: e.data ? e.data.text() : ''}; }
+  const title = d.title || 'WayMark';
+  const opts = {
+    body: d.body || '',
+    tag: d.tag || undefined,
+    renotify: !!d.tag,
+    icon: './icon-192.png',
+    badge: './icon-192.png',
+    data: {url: d.url || './'},
+    timestamp: Date.now()
+  };
+  e.waitUntil((async () => {
+    // someone already looking at this exact chat does not need a buzz on top
+    // (iPhones insist every push shows something, so there it always does)
+    const list = await clients.matchAll({type:'window', includeUncontrolled:true});
+    const focused = list.some(c => c.focused && c.visibilityState === 'visible');
+    if (focused && d.tag && !/iPhone|iPad|iPod/.test(self.navigator.userAgent)){
+      list.forEach(c => c.postMessage({pushed: d}));
+      return;
+    }
+    if (d.badge && self.navigator.setAppBadge) try{ await self.navigator.setAppBadge(+d.badge); }catch(err){}
+    await self.registration.showNotification(title, opts);
+  })());
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './';
+  const hash = url.indexOf('#') >= 0 ? url.slice(url.indexOf('#')) : '';
+  e.waitUntil((async () => {
+    const list = await clients.matchAll({type:'window', includeUncontrolled:true});
+    const win = list.find(c => c.url.indexOf(self.registration.scope) === 0) || list[0];
+    if (win){
+      try{ await win.focus(); }catch(err){}
+      if (hash) win.postMessage({open: hash});
+      return;
+    }
+    await clients.openWindow(new URL(url, self.registration.scope).href);
+  })());
+});

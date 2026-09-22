@@ -5183,10 +5183,25 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 /* the desk sidebar lists Basecamp; the old separate Shop button goes */
 .sshop{display:none !important}
 
+
+/* the profile editor: a sheet that leaves the cover above it live */
+.profsheet{background:transparent; pointer-events:none; z-index:900}
+.sheet.bottom.profsheet .sheetbox{pointer-events:auto; max-height:56dvh; margin-bottom:calc(62px + env(safe-area-inset-bottom)); box-shadow:0 -14px 34px -10px rgba(10,28,24,.45); padding-top:6px; transition:max-height .25s cubic-bezier(.32,.72,0,1)}
+.profsheethead{user-select:none; -webkit-user-select:none; touch-action:none; cursor:grab; position:sticky; top:-6px; z-index:2; background:var(--surface); margin:0 -16px; padding:6px 16px 8px}
+.profsheet .ntop{display:flex; align-items:center; gap:10px; margin:0}
+.profsheet .ntop h3{flex:1; margin:0}
+.profsheetbtns{display:flex; align-items:center; gap:8px}
+.profsheetbtns .xbtn{position:static; transform:none}
+.profsheetbtns .xbtn svg{transition:transform .2s}
+.profsheet.min .profsheetbtns .xbtn svg{transform:rotate(180deg)}
+.profsheet.min .profsheetbody{display:none}
+.profsheet .profform{margin-top:4px}
+body:has(.profsheet:not(.min)){padding-bottom:calc(56dvh + 20px)}
+@media (min-width:768px){ .sheet.bottom.profsheet .sheetbox{max-height:70vh; margin-bottom:0} .sheet.bottom.profsheet{align-items:flex-end; padding:0 16px} .profsheet .sheetbox{border-radius:18px 18px 0 0} }
 /* ================= v193 fixes ================= */
 /* sheets scroll inside themselves, never the page behind */
 .sheet{overscroll-behavior:contain}
-html:has(.sheet.open), html:has(.bcdeck.open){overflow:hidden}
+html:has(.sheet.open:not(.profsheet)), html:has(.bcdeck.open){overflow:hidden}
 .sheet.bottom .sheetbox{max-height:calc(100dvh - 24px); overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain}
 /* an icon inside a search field is always field-sized */
 .field > svg{width:18px; height:18px}
@@ -5238,6 +5253,455 @@ button.youthem{display:block; width:100%; text-align:left; font:inherit; color:i
 .dnone{display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:12px; padding:22px 16px; border:1px dashed var(--line); border-radius:12px; text-align:center; color:var(--ink-2); font-size:14px}
 .dnone svg{width:26px; height:26px; color:var(--ink-3)}
 .dnone b{color:var(--ink); font-size:15.5px}
+/* ================= Messages (v195) ================= */
+/* the two round buttons in the top bar, on every tab */
+.headsocial{display:contents}
+.headsocial[hidden]{display:none}
+.hsbtn{position:relative}
+.hsbtn svg{width:18px; height:18px}
+.hsb{position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:99px; background:var(--accent); color:var(--accent-ink);
+  font:700 11px/18px var(--font-ui); font-style:normal; text-align:center; box-shadow:0 0 0 2px var(--ground); pointer-events:none}
+
+/* ---- shared bits ---- */
+.mgav{position:relative; display:inline-flex; flex:none}
+.mgon{position:absolute; right:-1px; bottom:-1px; width:13px; height:13px; border-radius:99px; background:#3F9B6E; box-shadow:0 0 0 2.5px var(--ground)}
+.ibtn2{flex:none; width:44px; height:44px; border:0; background:none; color:var(--ink); border-radius:99px; display:grid; place-items:center; cursor:pointer; transition:background .2s var(--ease)}
+.ibtn2 svg{width:23px; height:23px}
+.ibtn2:active{background:var(--tint)}
+@media (hover:hover){ .ibtn2:hover{background:var(--tint)} }
+
+/* ================= the inbox layer ================= */
+html.msgopen, html.msgopen body{overflow:hidden}
+html.msgopen .bnav{display:none}
+.inboxview{position:fixed; left:0; right:0; top:0; height:100dvh; z-index:2070; background:var(--ground); display:none; flex-direction:column; overscroll-behavior:contain}
+.inboxview.open{display:flex}
+@media (min-width:768px){
+  .inboxview, .chatview{left:50%; width:min(720px, 100%); transform:translateX(-50%); box-shadow:0 0 0 100vmax rgba(10,14,11,.45)}
+}
+.ibhead{flex:none; display:flex; align-items:center; gap:2px; padding:calc(env(safe-area-inset-top) + 6px) 6px 4px}
+.ibhead h2{flex:1; margin:0 0 0 2px; font:700 26px/1 var(--font-ui); letter-spacing:-.02em; color:var(--ink)}
+.ibsearch{flex:none; display:flex; align-items:center; gap:8px; height:42px; margin:4px 16px 6px; padding:0 6px 0 13px; border-radius:12px; background:var(--tint); color:var(--ink-3)}
+.ibsearch > svg{width:19px; height:19px; flex:none}
+.ibsearch input{flex:1; min-width:0; height:100%; border:0; background:none; outline:none; color:var(--ink); font:16px var(--font-ui); padding:0}
+.ibsearch input::-webkit-search-cancel-button{display:none}
+.ibsearch:focus-within{box-shadow:inset 0 0 0 1.5px var(--moss)}
+.ibclear[hidden]{display:none}
+.ibclear{width:32px; height:32px; border:0; background:none; color:var(--ink-3); border-radius:99px; display:grid; place-items:center; cursor:pointer}
+.ibclear svg{width:17px; height:17px}
+.ibbody{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding-bottom:calc(24px + env(safe-area-inset-bottom)); -webkit-overflow-scrolling:touch}
+.ibquick{display:flex; gap:12px; padding:10px 16px 6px; overflow-x:auto; scrollbar-width:none}
+.ibquick::-webkit-scrollbar{display:none}
+.ibq{flex:none; width:62px; display:flex; flex-direction:column; align-items:center; gap:6px; border:0; background:none; padding:0; color:var(--ink-2); font:12.5px var(--font-ui); cursor:pointer}
+.ibq > span:last-child{max-width:62px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ibq .avatar.lg{width:58px !important; height:58px !important; border:0}
+.ibq .avatar.lg.initial{font-size:23px}
+.ibq .mgon{width:15px; height:15px}
+.ibqnew{width:58px; height:58px; border-radius:99px; display:grid; place-items:center; background:var(--tint); color:var(--ink)}
+.ibqnew svg{width:25px; height:25px}
+.ibq:active .avatar, .ibq:active .ibqnew{transform:scale(.95)}
+.ibsec{display:flex; align-items:baseline; justify-content:space-between; margin:0; padding:16px 16px 8px}
+.ibsec b{font:700 12px var(--font-ui); letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
+.ibsec span{font-size:13px; color:var(--ink-3)}
+.ibtix{display:flex; gap:10px; padding:0 16px 2px; overflow-x:auto; scrollbar-width:none; scroll-snap-type:x mandatory}
+.ibtix::-webkit-scrollbar{display:none}
+.ibtk{flex:none; width:246px; display:flex; border-radius:14px; border:1px solid var(--line); background:var(--raise); overflow:hidden; padding:0; text-align:left; color:inherit; font:inherit; cursor:pointer; scroll-snap-align:start}
+.ibtkd{width:58px; flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; background:var(--done); color:var(--surface); border-right:2px dashed var(--ground)}
+.ibtkd i{font:700 10.5px var(--font-data); font-style:normal; letter-spacing:.08em}
+.ibtkd b{font:400 26px/1 var(--font-display)}
+.ibtkb{flex:1; min-width:0; padding:9px 12px; display:flex; flex-direction:column; gap:2px}
+.ibtkb > b{font-size:15px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ibtkb > span{font-size:12.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ibtkin{display:flex !important; align-items:center; margin-top:3px}
+.ibtkin .avatar{width:22px !important; height:22px !important; border:2px solid var(--raise) !important; margin:0 0 0 -6px}
+.ibtkin .avatar:first-child{margin-left:0}
+.ibtkin i{font-style:normal; font-weight:700; color:var(--done); margin-left:6px; font-size:12.5px}
+.ibchips{display:flex; gap:8px; padding:14px 16px 6px; overflow-x:auto; scrollbar-width:none}
+.ibchips::-webkit-scrollbar{display:none}
+.ibchips .chip{flex:none; min-height:34px; display:inline-flex; align-items:center; gap:6px; font-weight:600; cursor:pointer}
+.ibchips .chip.on{background:var(--ink) !important; color:var(--ground) !important}
+.ibchips .chip em{font-style:normal; min-width:18px; height:18px; padding:0 5px; border-radius:99px; background:var(--accent); color:var(--accent-ink); font-size:11.5px; display:inline-grid; place-items:center}
+.ibnone{margin:26px 24px; text-align:center; color:var(--ink-3); font-size:14.5px}
+.ibfine{margin:14px 24px; text-align:center; color:var(--ink-3); font-size:13px}
+.ibfirst{display:flex; flex-direction:column; align-items:center; text-align:center; gap:8px; padding:30px 28px 18px}
+.ibfirstic{width:78px; height:78px; border-radius:24px; display:grid; place-items:center; background:var(--done-soft); color:var(--done); margin-bottom:4px}
+.ibfirstic svg{width:40px; height:40px; stroke-width:1.3}
+.ibfirst b{font:400 25px/1.1 var(--font-display); color:var(--ink)}
+.ibfirst > span{font-size:15px; color:var(--ink-2); max-width:30ch}
+.ibfirst .btn{margin-top:10px}
+.ibfirst .btn svg{width:18px; height:18px}
+
+/* the list, and what swiping a row shows */
+.mglist{list-style:none; margin:0; padding:0}
+.mgli{position:relative; overflow:hidden}
+.mgacts{position:absolute; inset:0; display:flex; justify-content:space-between}
+.mgaright{display:flex}
+.mga{width:72px; border:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; color:#fff; font:700 12px var(--font-ui); cursor:pointer}
+.mga svg{width:21px; height:21px}
+.mga.read{width:96px; background:var(--done)}
+.mga.mute{background:#5E6B67}
+.mga.pin{background:var(--moss)}
+.mga.del{background:var(--accent)}
+.mgli:not(.left):not(.open) .mga.read{visibility:hidden}
+.mgli.left .mgaright{visibility:hidden}
+.mgrow{position:relative; background:var(--ground); transition:transform .28s var(--ease); touch-action:pan-y}
+.mgmain{display:flex; align-items:center; gap:12px; width:100%; padding:10px 16px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
+.mgmain:active{background:var(--tint)}
+@media (hover:hover){ .mgmain:hover{background:var(--tint)} }
+.mgmain > .mgav .avatar, .mgmain > .mgstack{width:52px !important; height:52px !important}
+.mgmain > .mgav .avatar.initial{font-size:20px}
+.mgmain .chip{flex:none; min-height:34px; display:inline-flex; align-items:center; color:var(--ink)}
+.mgmid{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px}
+.mgtop{display:flex; align-items:center; gap:6px; min-width:0}
+.mgtop b{font:600 16px var(--font-ui); color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
+.mgtop i{margin-left:auto; flex:none; font:normal 12.5px var(--font-data); color:var(--ink-3)}
+.mglast{display:flex; align-items:center; gap:6px; min-width:0; font-size:14.5px; color:var(--ink-3)}
+.mgtxt{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mgtxt em{font-style:normal; color:var(--accent-text); font-weight:600}
+.mgtyping{color:var(--done); font-style:italic; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mgseen{display:inline-flex; color:var(--done); flex:none}
+.mgseen svg{width:16px; height:16px}
+.mgpin, .mgmute{display:inline-flex; color:var(--ink-3); flex:none}
+.mgpin svg, .mgmute svg{width:14px; height:14px}
+.mgmute{margin-left:auto}
+.mgrow.unread .mgtop b{font-weight:800}
+.mgrow.unread .mgtxt{color:var(--ink); font-weight:600}
+.mgrow.unread .mgtop i{color:var(--accent-text); font-weight:600}
+.mgcnt{margin-left:auto; flex:none; min-width:21px; height:21px; padding:0 6px; border-radius:99px; background:var(--accent); color:var(--accent-ink); font:700 12px/21px var(--font-ui); text-align:center}
+.mgcnt:empty{min-width:11px; width:11px; height:11px; padding:0}
+.mgcnt.quiet{background:var(--ink-3)}
+.mgmute + .mgcnt{margin-left:0}
+.mgwalk{flex:none; display:inline-flex; align-items:center; gap:3px; height:20px; padding:0 7px 0 5px; border-radius:6px; background:var(--done-soft); color:var(--done); font:700 11px var(--font-ui); letter-spacing:.03em}
+.mgwalk svg{width:13px; height:13px; stroke-width:2}
+.mgstack{position:relative; display:block; flex:none; width:52px; height:52px}
+.mgstack .avatar{position:absolute; width:36px !important; height:36px !important; border:2px solid var(--ground) !important; margin:0}
+.mgstack .avatar:first-child{top:0; left:0}
+.mgstack .avatar:nth-child(2){bottom:0; right:0}
+.mgstack .avatar.initial{font-size:14px}
+mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding:0 1px}
+.mgempty{display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; padding:44px 20px 36px; color:var(--ink-3)}
+.mgempty > svg{width:40px; height:40px; color:var(--sage); stroke-width:1.2; margin-bottom:6px}
+.mgempty b{font:700 18px var(--font-ui); color:var(--ink)}
+.mgempty span{max-width:32ch; font-size:14.5px; line-height:1.45}
+
+/* ---- the picker, send-to and small sheets ---- */
+.pklist{list-style:none; margin:0; padding:0; max-height:44vh; overflow-y:auto; overscroll-behavior:contain}
+.pkrow{display:flex; align-items:center; gap:12px; width:100%; padding:9px 4px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; border-radius:12px}
+.pkrow > span:nth-child(2){flex:1; min-width:0; display:flex; flex-direction:column}
+.pkrow b{font-weight:600; font-size:15px; color:var(--ink)}
+.pkrow i{font-style:normal; font-size:12.5px; color:var(--ink-3)}
+.pktick{flex:none; width:26px; height:26px; border-radius:99px; border:1.5px solid var(--line); display:grid; place-items:center; transition:background .15s, border-color .15s}
+.pktick svg{width:16px; height:16px; stroke-width:2.4}
+.pkrow[aria-pressed=true] .pktick{background:var(--moss); border-color:var(--moss); color:#F6EFE4}
+.pkchosen{display:flex; gap:6px; flex-wrap:wrap}
+.pkchip{display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 8px 0 3px; border-radius:99px; border:0; background:var(--done-soft); color:var(--done); font:600 13.5px var(--font-ui); cursor:pointer}
+.pkchip .avatar{width:26px !important; height:26px !important; margin:0}
+.pkchip svg{width:14px; height:14px}
+.lbl2{display:block; font:600 13px var(--font-ui); color:var(--ink-2); margin:0 0 6px}
+.lbl2 .opt, .walkinv .opt{font-weight:400; color:var(--ink-3)}
+.pickin{width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:var(--raise); color:var(--ink); font:16px var(--font-ui)}
+.pdrow{display:flex; gap:10px; align-items:flex-end}
+.pdrow > *{flex:1; min-width:0}
+.pdrow > .btn{flex:none}
+.hpres{display:flex; flex-direction:column; gap:2px; max-height:46vh; overflow-y:auto}
+.bcsheet .form.walkinv{border:0; padding:0; background:none}
+.stgrid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px 6px; max-height:40vh; overflow-y:auto}
+.stitem{position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; border:0; background:none; padding:0; color:var(--ink-2); font:12.5px/1.2 var(--font-ui); text-align:center; cursor:pointer}
+.stitem > span:last-child{max-width:100%; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+.stitem .avatar.lg{width:56px !important; height:56px !important; border:0}
+.stitem .mgstack{width:56px; height:56px}
+.stitem[aria-pressed=true] .avatar{box-shadow:0 0 0 3px var(--ground), 0 0 0 5px var(--done)}
+.sttick{position:absolute; top:36px; left:calc(50% + 12px); width:22px; height:22px; border-radius:99px; background:var(--done); color:#fff; display:grid; place-items:center; box-shadow:0 0 0 2px var(--surface)}
+.sttick svg{width:13px; height:13px; stroke-width:2.8}
+.pollkind{display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:3px; border-radius:12px; background:var(--tint)}
+.pollkind button{height:38px; border:0; border-radius:9px; background:none; color:var(--ink-2); font:600 14px var(--font-ui); display:inline-flex; align-items:center; justify-content:center; gap:6px; cursor:pointer}
+.pollkind button svg{width:17px; height:17px}
+.pollkind button[aria-pressed=true]{background:var(--raise); color:var(--ink); box-shadow:0 1px 3px rgba(20,51,45,.15)}
+.pollopts{display:flex; flex-direction:column; gap:8px}
+.pollopt{display:flex; gap:6px; align-items:center}
+.pollopt input{flex:1; min-width:0}
+.walkinv select{width:100%; min-height:44px; border:1px solid var(--line); border-radius:12px; background:var(--raise); color:var(--ink); font:16px var(--font-ui); padding:0 10px}
+.cvrowbtn{display:flex; align-items:center; gap:12px; width:100%; min-height:54px; padding:8px 12px; border:1px solid var(--line-soft); border-radius:14px; background:var(--raise); color:var(--ink); font:inherit; text-align:left; cursor:pointer}
+.cvrowbtn > svg{width:21px; height:21px; flex:none; color:var(--moss)}
+.cvrowbtn > svg:last-child{width:17px; height:17px; color:var(--ink-3)}
+.cvrowbtn span{flex:1; min-width:0; display:flex; flex-direction:column}
+.cvrowbtn b{font-size:15px; font-weight:600}
+.cvrowbtn i{font-style:normal; font-size:12.5px; color:var(--ink-3)}
+.cvradios{display:flex; flex-direction:column; border:1px solid var(--line-soft); border-radius:14px; background:var(--raise); overflow:hidden}
+.cvradio{display:flex; align-items:center; gap:12px; padding:12px 14px; border:0; background:none; color:var(--ink); text-align:left; font:inherit; cursor:pointer}
+.cvradio + .cvradio{border-top:1px solid var(--line-soft)}
+.cvradio span:first-child{flex:1; display:flex; flex-direction:column}
+.cvradio b{font-size:15px; font-weight:600}
+.cvradio i{font-style:normal; font-size:12.5px; color:var(--ink-3)}
+.cvrad{flex:none; width:22px; height:22px; border-radius:99px; border:1.5px solid var(--line)}
+.cvradio[aria-pressed=true] .cvrad{border:0; background:var(--done); box-shadow:inset 0 0 0 5px var(--raise), 0 0 0 1.5px var(--done)}
+.mutechips{display:flex; gap:8px; flex-wrap:wrap}
+.mutechips .chip{min-height:38px; cursor:pointer}
+.iossteps{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.iossteps li{display:flex; align-items:center; gap:12px; font-size:15px; color:var(--ink)}
+.iosn{flex:none; width:28px; height:28px; border-radius:99px; background:var(--ink); color:var(--surface); display:grid; place-items:center; font:700 13px var(--font-data)}
+.iosic{flex:none; width:40px; height:40px; border-radius:11px; background:var(--tint); display:grid; place-items:center; color:#2E6B8A}
+.iosic svg{width:22px; height:22px}
+
+/* ================= the chat screen =================
+   Light: the trail — cream, faint contours, pine for what you send.
+   Dark: summit night — deep pine, ember for what you send. */
+.chatview{--cv-mine:var(--moss); --cv-mine-ink:#F6EFE4; --cv-theirs:var(--raise); --cv-theirs-line:var(--line-soft); --cv-topo:rgba(101,132,126,.16); --cv-send:var(--accent);
+  position:fixed; left:0; right:0; top:0; height:100dvh; z-index:2080; background:var(--ground); display:none; flex-direction:column; overscroll-behavior:contain; isolation:isolate}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .chatview{--cv-mine:#C0521F; --cv-mine-ink:#FFF6EE; --cv-theirs:#1B4139; --cv-theirs-line:#1B4139; --cv-topo:rgba(127,203,182,.07); --cv-send:#E0743A}
+}
+:root[data-theme="dark"] .chatview{--cv-mine:#C0521F; --cv-mine-ink:#FFF6EE; --cv-theirs:#1B4139; --cv-theirs-line:#1B4139; --cv-topo:rgba(127,203,182,.07); --cv-send:#E0743A}
+.chatview.open{display:flex}
+.cvtopo{position:absolute; inset:0; width:100%; height:100%; z-index:-1; stroke:var(--cv-topo); stroke-width:1.2; pointer-events:none}
+.cvhead{flex:none; display:flex; align-items:center; gap:2px; padding:calc(env(safe-area-inset-top) + 6px) 4px 6px; background:color-mix(in srgb, var(--surface) 92%, transparent); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom:1px solid var(--line-soft)}
+.cvback, .cvinfo{flex:none; width:44px; height:44px; border:0; background:none; color:var(--ink); border-radius:99px; display:grid; place-items:center; cursor:pointer}
+.cvback svg, .cvinfo svg{width:22px; height:22px}
+.cvback:active, .cvinfo:active{background:var(--tint)}
+.cvinfo.on{color:var(--done)}
+.cvwho{flex:1; min-width:0; display:flex; align-items:center; gap:10px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; padding:2px 0}
+.cvwho > .mgav .avatar, .cvwho > .mgstack{width:40px !important; height:40px !important}
+.cvwho .mgstack .avatar{width:28px !important; height:28px !important}
+.cvwho > span:last-child{min-width:0; display:flex; flex-direction:column}
+.cvwho b{font:700 16.5px var(--font-ui); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cvwho i{font-style:normal; font-size:13px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cvtyp{color:var(--done)}
+.cvpin{flex:none; display:flex; align-items:center; gap:10px; padding:7px 10px 7px 14px; background:var(--done-soft); color:var(--done); font-size:13.5px; border-bottom:1px solid var(--line-soft)}
+.cvpin > svg{width:18px; height:18px; flex:none}
+.cvpin span{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cvpin b{color:var(--ink)}
+.cvpingo{flex:none; height:30px; padding:0 13px; border-radius:99px; border:0; background:var(--done); color:var(--surface); font:700 13px var(--font-ui); cursor:pointer}
+.cvlive{flex:none; background:var(--done-soft); border-bottom:1px solid var(--line-soft)}
+.cvlivebar, .cvliverow{display:flex; align-items:center; gap:10px; padding:9px 14px; font-size:14px; color:var(--done); text-decoration:none}
+.cvliverow + .cvliverow, .cvlivebar + .cvliverow{border-top:1px solid var(--line-soft)}
+.cvlivebar span:nth-child(2), .cvliverow span{flex:1; min-width:0}
+.cvliverow b{color:var(--ink)}
+.cvliverow > svg{width:18px; height:18px; flex:none}
+.cvliverow .avatar{width:26px !important; height:26px !important; margin:0; flex:none}
+.cvpulse{width:10px; height:10px; border-radius:99px; background:var(--done); flex:none; animation:cvpulse 1.6s ease-out infinite}
+@keyframes cvpulse{0%{box-shadow:0 0 0 0 rgba(47,101,88,.55)} 100%{box-shadow:0 0 0 10px rgba(47,101,88,0)}}
+@media (prefers-reduced-motion:reduce){ .cvpulse, .cvdots i{animation:none !important} }
+.cvreq{flex:none; padding:12px 14px; background:var(--accent-soft); border-bottom:1px solid var(--line-soft)}
+.cvreq p{margin:0 0 10px; font-size:14px; color:var(--ink)}
+.cvreq .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:0}
+.cvmsgs{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding:10px 10px 8px; display:flex; flex-direction:column; gap:2px; -webkit-overflow-scrolling:touch}
+.cvmsgs > :first-child{margin-top:auto}
+.cvloading{padding:10px}
+.cvday{align-self:center; margin:14px 0 8px; font:700 11.5px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.cvsys{align-self:center; display:inline-flex; align-items:center; gap:5px; margin:6px 0; padding:4px 12px; font-size:12.5px; color:var(--ink-2); background:var(--tint); border-radius:99px; max-width:90%; text-align:center}
+.cvsys svg{width:14px; height:14px; color:var(--done); stroke-width:2}
+.cvrow{position:relative; display:flex; align-items:flex-end; gap:6px; max-width:100%; will-change:transform}
+.cvrow.last{margin-bottom:6px}
+.cvrow.mine{justify-content:flex-end}
+.cvswipe{position:absolute; left:-40px; top:50%; margin-top:-17px; width:34px; height:34px; border-radius:99px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-text); opacity:var(--sw, 0); transition:transform .15s}
+.cvswipe svg{width:18px; height:18px}
+.cvrow.swiping .cvswipe{opacity:1; transform:scale(1.1)}
+.cvrow.flash .cvbub{animation:cvflash 1.3s ease}
+@keyframes cvflash{0%, 40%{box-shadow:0 0 0 3px var(--accent)} 100%{box-shadow:0 0 0 3px transparent}}
+.cvgap{flex:none; width:28px; display:flex}
+.cvgap .avatar{width:28px !important; height:28px !important; margin:0 0 22px}
+.cvrow:not(.last) .cvgap .avatar{margin-bottom:0}
+.cvcol{display:flex; flex-direction:column; align-items:flex-start; max-width:min(78%, 440px); min-width:0}
+.cvrow.mine .cvcol{align-items:flex-end}
+.cvname{font-size:12px; font-weight:700; color:var(--ink-3); margin:6px 0 2px 12px}
+.cvbub{position:relative; background:var(--cv-theirs); color:var(--ink); border:1px solid var(--cv-theirs-line); border-radius:20px; padding:8px 13px; font-size:15.5px; line-height:1.38; overflow-wrap:anywhere; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; cursor:default; touch-action:pan-y}
+.cvrow:not(.last) .cvbub{border-bottom-left-radius:6px}
+.cvrow:not(.first) .cvbub{border-top-left-radius:6px}
+.cvrow.mine .cvbub{background:var(--cv-mine); color:var(--cv-mine-ink); border-color:transparent; border-radius:20px}
+.cvrow.mine:not(.last) .cvbub{border-bottom-right-radius:6px}
+.cvrow.mine:not(.first) .cvbub{border-top-right-radius:6px}
+.cvbub.pending{opacity:.7}
+.cvrow.mine .cvbub a{color:var(--cv-mine-ink)}
+.cvbub a{color:var(--accent-text); text-decoration:underline}
+.cvtext{white-space:pre-wrap; display:block}
+.cvq{display:block; width:calc(100% + 8px); margin:-3px -4px 6px; padding:6px 10px; border:0; border-left:3px solid var(--accent-text); border-radius:10px; background:var(--tint); color:inherit; font:13.5px/1.3 var(--font-ui); text-align:left; cursor:pointer; max-height:3.9em; overflow:hidden}
+.cvq b{display:block; font-size:12.5px; color:var(--accent-text)}
+.cvrow.mine .cvq{background:rgba(255,255,255,.14); border-left-color:currentColor}
+.cvrow.mine .cvq b{color:inherit}
+.cvbub.ph{padding:3px; overflow:hidden; border-radius:18px}
+.cvbub.ph .cvtext{padding:6px 10px 5px}
+.cvphoto{display:block; width:250px; max-width:100%; padding:0; border:0; background:var(--surface-2); border-radius:15px; overflow:hidden; cursor:zoom-in}
+.cvphoto img{display:block; width:100%; max-height:340px; min-height:80px; object-fit:cover; aspect-ratio:4/3}
+.cvbub.card{padding:0; background:var(--raise) !important; color:var(--ink) !important; border:1px solid var(--line) !important; border-radius:18px !important; overflow:hidden; width:min(300px, 74vw); -webkit-user-select:auto; user-select:auto}
+.cvtime{font:normal 11px var(--font-data); color:var(--ink-3); margin:3px 8px 0}
+.cvreacts{margin:-8px 8px 0; position:relative; z-index:1; display:inline-flex; align-items:center; gap:2px; padding:2px 7px; border-radius:99px; border:1px solid var(--line-soft); background:var(--surface); font-size:14px; line-height:1.3; cursor:pointer; box-shadow:0 1px 3px rgba(20,51,45,.12)}
+.cvreacts i{font:normal 11.5px var(--font-data); color:var(--ink-3); margin-left:2px}
+.cvtypingrow{margin-bottom:6px}
+.cvdots{display:inline-flex; gap:4px; padding:13px 15px; border-radius:20px 20px 20px 6px; background:var(--cv-theirs); border:1px solid var(--cv-theirs-line)}
+.cvdots i{width:7px; height:7px; border-radius:99px; background:var(--ink-3); animation:cvdot 1.2s infinite ease-in-out}
+.cvdots i:nth-child(2){animation-delay:.15s} .cvdots i:nth-child(3){animation-delay:.3s}
+@keyframes cvdot{0%, 60%, 100%{opacity:.35; transform:none} 30%{opacity:1; transform:translateY(-3px)}}
+.cvhello{display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; padding:30px 20px; margin:auto 0}
+.cvhello > .mgav .avatar, .cvhello > .mgstack{width:76px !important; height:76px !important; margin-bottom:6px}
+.cvhello > .mgav .avatar.initial{font-size:30px}
+.cvhello .mgstack .avatar{width:52px !important; height:52px !important}
+.cvhello b{font:400 23px var(--font-display); color:var(--ink)}
+.cvhello > span{font-size:14px; color:var(--ink-3); max-width:30ch}
+.cvhellobtns{display:flex; gap:8px; margin-top:10px}
+.cvhellobtns .chip{display:inline-flex; align-items:center; gap:6px; min-height:40px; cursor:pointer}
+.cvhellobtns .chip svg{width:17px; height:17px}
+.cvask{margin:10px 2px 4px; padding:14px; border-radius:16px; background:var(--raise); border:1px solid var(--line); display:flex; gap:12px; align-items:flex-start; animation:cvpop .25s var(--ease)}
+.cvaskic{width:40px; height:40px; border-radius:12px; background:var(--done-soft); color:var(--done); display:grid; place-items:center; flex:none}
+.cvaskic svg{width:22px; height:22px}
+.cvaskb{flex:1; display:flex; flex-direction:column; gap:2px}
+.cvaskb b{font-size:15.5px; color:var(--ink)}
+.cvaskb > span{font-size:13.5px; color:var(--ink-3)}
+.cvaskbtns{display:flex; gap:8px; margin-top:10px}
+
+/* cards in a chat */
+.cvcard{display:flex; gap:12px; align-items:flex-start; width:100%; padding:12px 14px; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
+div.cvcard{cursor:default}
+.cvcard > span:last-child{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.cvcic{flex:none; width:38px; height:38px; border-radius:11px; display:grid; place-items:center; background:var(--done-soft); color:var(--done)}
+.cvcic svg{width:21px; height:21px}
+.cvcic.poll{background:var(--accent-soft); color:var(--accent-text)}
+.lbl{font:700 10.5px var(--font-data); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); font-style:normal}
+.cvcard b{font:600 16px/1.25 var(--font-ui); color:var(--ink)}
+.cvcard > span:last-child > span{font-size:13px; color:var(--ink-3)}
+.cvcard .chip{align-self:flex-start; margin-top:8px; display:inline-flex; align-items:center; gap:5px; min-height:34px; cursor:pointer}
+.cvcard .chip svg{width:14px; height:14px}
+.cvdone{display:inline-flex; align-items:center; gap:4px; margin-top:4px; font:normal 700 12.5px var(--font-ui); color:var(--done)}
+.cvdone svg{width:14px; height:14px; stroke-width:2.4}
+.cvpost{display:block; width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
+.cvpostimg{display:block; width:100%; height:160px; object-fit:cover; background:var(--surface-2)}
+.cvpostb{display:flex; flex-direction:column; gap:2px; padding:10px 13px 12px}
+.cvpostb b{font:400 20px/1.1 var(--font-display); color:var(--ink)}
+.cvpostb > span{font-size:13px; color:var(--ink-3)}
+/* the walk, as a ticket */
+.cvplan{display:flex; flex-direction:column}
+.cvplanhead{display:flex; gap:12px; padding:14px 14px 13px; background:var(--done); color:var(--surface)}
+.cvplanhead .cvcic{background:rgba(255,255,255,.14); color:inherit}
+.cvplanhead > div{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.cvplanhead .lbl{color:inherit; opacity:.85}
+.cvplanhead b{font:400 22px/1.08 var(--font-display)}
+.cvplanhead span{font-size:13px; opacity:.85}
+.cvplan.past .cvplanhead{background:var(--surface-2); color:var(--ink-2)}
+.cvperf{height:0; border-top:2px dashed var(--line); margin:0 12px}
+.cvplanfacts{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; padding:10px 14px}
+.cvplanfacts div{display:flex; flex-direction:column; gap:2px; min-width:0}
+.cvplanfacts i{font:700 10.5px var(--font-data); font-style:normal; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3)}
+.cvplanfacts b{font-size:14px; font-weight:600; color:var(--ink); display:flex; align-items:center; gap:4px; flex-wrap:wrap}
+.cvplanfacts .wxi svg{width:17px; height:17px}
+.cvplanfacts .dim{color:var(--ink-3); font-weight:400}
+.cvnote{margin:0; padding:0 14px 10px; font-size:14px; color:var(--ink-2); font-style:italic}
+.cvgoing{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 14px; border-top:1px solid var(--line-soft)}
+.cvin{display:inline-flex; align-items:center}
+.cvin .avatar{width:24px !important; height:24px !important; border:2px solid var(--raise) !important; margin:0 0 0 -6px}
+.cvin .avatar:first-child{margin-left:0}
+.cvin b{margin-left:8px; font-size:13.5px; color:var(--done)}
+.cvout{font-size:12.5px; color:var(--ink-3); text-align:right}
+.cvplanbtns{display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:2px 14px 12px}
+.cvplanbtns .btn{justify-content:center; min-height:42px}
+.cvplanbtns .btn svg{width:16px; height:16px; stroke-width:2.2}
+.cvplanbtns .btn.inon{background:var(--done); border-color:var(--done); color:var(--surface)}
+.cvplanbtns .btn.outon{background:var(--surface-2); color:var(--ink)}
+.cvplanlinks{display:flex; gap:16px; padding:9px 14px 12px; border-top:1px solid var(--line-soft)}
+.cvplanlinks .linkbtn{display:inline-flex; align-items:center; gap:4px; font-size:13.5px}
+.cvplanlinks svg{width:14px; height:14px}
+/* the poll */
+.cvpoll{display:flex; flex-direction:column}
+.cvpollhead{display:flex; gap:10px; align-items:center; padding:14px 14px 6px}
+.cvpollhead > div{display:flex; flex-direction:column; gap:1px; min-width:0}
+.cvpollhead b{font:400 20px/1.1 var(--font-display); color:var(--ink)}
+.cvopts{display:flex; flex-direction:column; gap:8px; padding:8px 14px}
+.cvopt{position:relative; display:flex; align-items:center; gap:10px; height:44px; padding:0 12px; border-radius:11px; border:1.5px solid var(--line); background:none; overflow:hidden; color:var(--ink); font:inherit; cursor:pointer; text-align:left}
+.cvopt.on{border-color:var(--done)}
+.cvopt:disabled{cursor:default}
+.cvoptbar{position:absolute; left:0; top:0; bottom:0; background:var(--tint); transition:width .4s var(--ease)}
+.cvopt.on .cvoptbar{background:var(--done-soft)}
+.cvoptc{position:relative; flex:none; width:20px; height:20px; border-radius:99px; border:1.5px solid var(--line); display:grid; place-items:center}
+.cvopt.on .cvoptc{background:var(--done); border-color:var(--done); color:#F6EFE4}
+.cvoptc svg{width:13px; height:13px; stroke-width:2.8}
+.cvopt b{position:relative; flex:1; font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cvoptwho{position:relative; display:flex}
+.cvoptwho .avatar{width:22px !important; height:22px !important; border:2px solid var(--raise) !important; margin:0 0 0 -6px}
+.cvoptwho .avatar:first-child{margin-left:0}
+.cvopt i{position:relative; font:600 13px var(--font-data); font-style:normal; color:var(--ink-3); min-width:12px; text-align:right}
+.cvpollfoot{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0; padding:4px 14px 12px; font-size:13px; color:var(--ink-3)}
+.cvpollfoot .linkbtn{font-size:13.5px; font-weight:700}
+.cvpollgo{padding:10px 14px 12px; border-top:1px solid var(--line-soft)}
+.cvpollgo .btn{width:100%; justify-content:center; min-height:42px}
+.cvpollgo .btn svg{width:16px; height:16px}
+
+/* the reaction bar over a held message */
+.cvreactbar{position:fixed; z-index:5; display:flex; align-items:center; gap:1px; padding:5px; border-radius:99px; background:var(--raise); border:1px solid var(--line-soft); box-shadow:0 8px 28px -8px rgba(20,51,45,.45); animation:cvpop .18s var(--ease)}
+.cvreactbar button{width:40px; height:40px; border:0; background:none; border-radius:99px; font-size:22px; line-height:1; cursor:pointer; display:grid; place-items:center; transition:transform .12s; color:var(--ink-2)}
+.cvreactbar button:active{transform:scale(1.25)}
+.cvreactbar button[aria-pressed=true]{background:var(--accent-soft)}
+.cvreactbar .cvbaric svg{width:20px; height:20px}
+.cvreactbar .cvbaric:first-of-type{border-left:1px solid var(--line-soft); border-radius:0 99px 99px 0}
+@keyframes cvpop{from{opacity:0; transform:scale(.85) translateY(6px)} to{opacity:1; transform:none}}
+
+/* replying, and the composer */
+.cvquote{flex:none; display:flex; align-items:center; gap:10px; padding:8px 6px 6px 14px; background:var(--surface); border-top:1px solid var(--line-soft)}
+.cvqic{color:var(--accent-text); display:inline-flex}
+.cvqic svg{width:18px; height:18px}
+.cvqb{flex:1; min-width:0; border-left:3px solid var(--accent-text); padding-left:8px}
+.cvqb b{display:block; font-size:13px; color:var(--accent-text)}
+.cvqb span{display:block; font-size:13.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cvqx{width:36px; height:36px; border:0; background:none; border-radius:99px; color:var(--ink-3); display:grid; place-items:center; cursor:pointer}
+.cvqx svg{width:18px; height:18px}
+.cvquote:not([hidden]) + .cvcompose{border-top:0}
+.cvcompose{flex:none; display:flex; align-items:flex-end; gap:6px; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); background:var(--surface); border-top:1px solid var(--line-soft)}
+html.kbopen .cvcompose{padding-bottom:8px}
+.cvfield{flex:1; min-width:0; display:flex; align-items:flex-end; border-radius:21px; border:1px solid var(--line); background:var(--raise)}
+.cvfield:focus-within{border-color:var(--moss)}
+.cvfield textarea{flex:1; min-width:0; resize:none; min-height:40px; max-height:140px; padding:9px 4px 9px 15px; border:0; border-radius:21px; background:none; color:var(--ink); font:16px/1.35 var(--font-ui); outline:none}
+.cvcam{flex:none; width:40px; height:40px; border:0; background:none; color:var(--ink-3); border-radius:99px; display:grid; place-items:center; cursor:pointer}
+.cvcam svg{width:21px; height:21px}
+.cvplus, .cvsend{flex:none; width:42px; height:42px; border-radius:99px; border:0; display:grid; place-items:center; cursor:pointer}
+.cvplus{background:var(--tint); color:var(--ink)}
+.cvsend{background:var(--cv-send); color:#FFF6EE}
+.cvplus svg, .cvsend svg{width:21px; height:21px}
+.cvplus:active, .cvsend:active{transform:scale(.93)}
+.cvcompose.locked{opacity:.45; pointer-events:none}
+/* the + sheet */
+.cvplusgrid{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px}
+.cvplusgrid button{display:flex; flex-direction:column; align-items:center; gap:8px; padding:15px 6px 13px; border:1px solid var(--line-soft); background:var(--raise); border-radius:16px; color:var(--ink); font:inherit; cursor:pointer; transition:background .15s}
+.cvplusgrid button:active{background:var(--tint)}
+.cvplusgrid button > span{width:44px; height:44px; border-radius:13px; background:var(--done-soft); color:var(--done); display:grid; place-items:center}
+.cvplusgrid button svg{width:24px; height:24px}
+.cvplusgrid b{font:600 13.5px var(--font-ui); text-align:center}
+.cvbig{display:block; width:100%; max-height:75vh; object-fit:contain; border-radius:12px}
+.cvinfosheet .btn{justify-content:center}
+.cvinfosheet .bcsheethead > .mgav .avatar, .cvinfosheet .bcsheethead > .mgstack{width:52px !important; height:52px !important}
+
+/* ================= the bell's settings ================= */
+.nshead{display:flex; align-items:center; gap:4px; margin:-4px 0 6px -8px}
+.nshead h3{margin:0; font:400 24px var(--font-display); color:var(--ink)}
+.nsdev{display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; background:var(--done-soft); color:var(--done)}
+.nsdev.off{background:var(--tint); color:var(--ink-2)}
+.nsdev > svg{width:24px; height:24px; flex:none}
+.nsdev > span{flex:1; min-width:0; display:flex; flex-direction:column}
+.nsdev b{font-size:15px; color:var(--ink)}
+.nsdev i{font-style:normal; font-size:12.5px; color:var(--ink-3)}
+.nssec{margin:18px 2px 8px; font:700 12px var(--font-ui); letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
+.nsgrp{border-radius:14px; background:var(--raise); border:1px solid var(--line-soft)}
+.nsrow{display:flex; align-items:center; gap:10px; padding:10px 12px 10px 14px; min-height:54px}
+.nsrow + .nsrow{border-top:1px solid var(--line-soft)}
+.nst{flex:1; min-width:0; display:flex; flex-direction:column}
+.nst b{font-size:15px; font-weight:600; color:var(--ink)}
+.nst i{font-style:normal; font-size:12.5px; color:var(--ink-3); line-height:1.3}
+.nsseg{flex:none; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); width:158px; height:34px; padding:2px; border-radius:10px; background:var(--tint)}
+.nsseg button{border:0; background:none; border-radius:8px; color:var(--ink-2); font:600 12px var(--font-ui); cursor:pointer; padding:0}
+.nsseg button.on{background:var(--raise); color:var(--ink); box-shadow:0 1px 3px rgba(20,51,45,.16)}
+.nsseg button.on.push{background:var(--done); color:var(--surface)}
+.nstog{flex:none; position:relative; width:50px; height:30px; border-radius:99px; border:0; background:var(--line); cursor:pointer; transition:background .2s}
+.nstog::after{content:''; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:99px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:left .2s var(--ease)}
+.nstog.on{background:var(--done)}
+.nstog.on::after{left:23px}
+.nstimes{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-3)}
+.nstimes input{height:36px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); font:15px var(--font-ui); padding:0 8px}
+.nsfine{margin:14px 4px 4px; font-size:13px; color:var(--ink-3); line-height:1.45}
+@media (max-width:360px){ .nsseg{width:144px} .nsseg button{font-size:11px} }
+.ntop .xbtn.ntgear{right:52px}
+.ytlist .mgav .avatar{width:30px !important; height:30px !important; margin:0}
+.ytlist .mgav .mgon{width:11px; height:11px}
+/* on profiles and posts */
+.msgbtn svg{width:17px; height:17px}
+.pinebtns:has(.walkic){grid-template-columns:1fr 1fr 48px}
+.pinebtns .walkic{padding:0}
+.pinebtns .walkic svg{margin:0; width:20px; height:20px}
+
 </style>
 </head>
 <body>
@@ -5263,6 +5727,7 @@ button.youthem{display:block; width:100%; text-align:left; font:inherit; color:i
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
           <i id="bellN"></i>
         </button>
+<span class="headsocial" id="headSocial" hidden></span>
 <button class="iconbtn bagbtn" data-act="bagopen" aria-label="Backpack" title="Backpack"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"/><path d="M9.5 5v-1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v1"/><path d="M6 10.5h12"/><path d="M9 14h6v4h-6z"/></svg><i></i></button>
         <button class="iconbtn cambtn" data-act="cam" aria-label="Camera" title="Camera"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg></button>
         <button class="iconbtn" id="themeBtn" aria-label="Light or dark" title="Light or dark" hidden></button>
@@ -8424,6 +8889,1374 @@ function patchMakeReal(p){
   document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
 })();
 
+/* ================= Messages (v195) =================
+   Chats live in /chats/{id}: one-to-one, groups, and walk groups made from a
+   planned walk. People who follow each other can talk; anyone else sends a
+   request that waits in the other person's Requests until they accept it.
+   Messages are /chats/{id}/msgs, photos /chats/{id}/shots, where someone is on
+   the day /chats/{id}/live/{uid}, and who is typing /chats/{id}/typing/{uid}.
+   Per person on the chat document: read, cnt (unread count), pins, mute,
+   ntf (all | walk | none), hide (deleted for me), unr (marked unread).
+   The inbox and the chat are full-screen layers over whatever tab you are on. */
+Object.assign(TI, {
+  'pin': '<path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4"/><path d="M9 15l-4.5 4.5"/><path d="M14.5 4l5.5 5.5"/>',
+  'bell-off': '<path d="M9.346 5.353c.21 -.129 .428 -.246 .654 -.353a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3m-1 3h-13a4 4 0 0 0 2 -3v-3a6.996 6.996 0 0 1 1.273 -3.707"/><path d="M9 17v1a3 3 0 0 0 5.913 .716"/><path d="M3 3l18 18"/>',
+  'reply': '<path d="M9 14l-4 -4l4 -4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/>',
+  'poll': '<path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/>',
+  'checks': '<path d="M7 12l5 5l10 -10"/><path d="M2 12l5 5m5 -5l5 -5"/>',
+  'mail': '<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"/><path d="M3 7l9 6l9 -6"/>',
+  'mail-opened': '<path d="M3 9l9 6l9 -6l-9 -6l-9 6"/><path d="M21 9v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10"/><path d="M3 19l6 -6"/><path d="M15 13l6 6"/>',
+  'share-ios': '<path d="M8 9h-1a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-8a2 2 0 0 0 -2 -2h-1"/><path d="M12 14v-11"/><path d="M9 6l3 -3l3 3"/>',
+  'square-plus': '<path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z"/><path d="M9 12h6"/><path d="M12 9v6"/>',
+  'device-mobile': '<path d="M6 5a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2v-14z"/><path d="M11 4h2"/><path d="M12 17v.01"/>',
+  'send': '<path d="M10 14l11 -11"/><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5"/>'
+});
+/* Firebase's public Web Push key (safe to publish). firebase-config.js can still override it. */
+if (!window.PUSH_VAPID) window.PUSH_VAPID = 'BAcFlvB8IkXws3dKHFLvIPwZh7E50qxtNDzNvnCnZgnr71Qho3oaaqFY_PTn7ZT6NKBP08VaMBkPoPZb3JAdITs';
+let chats = [], chatsUnsub = null, chatsFailed = false;
+let chatOpen = null;          /* {id, chat, msgs, unsub, liveUnsub, typUnsub, live, typing, reply} */
+let inboxOpen = false;
+const shotCache = new Map();
+const MSG_REACTS = ['👍', '⛰️', '🔥', '😂', '❤️', '😮'];
+const dmId = (a, b) => 'dm_' + [a, b].sort().join('_');
+const isMutual = uid => isFollowing(uid) && followsMe(uid);
+const chatRef = id => FB.doc(fbDb, 'chats', id);
+const meU = () => (fbUser && fbUser.uid) || '';
+const chatOther = c => (c.members || []).find(u => u !== meU()) || '';
+const chatName = c => c.title || (c.kind === 'dm' ? (c.names || {})[chatOther(c)] || 'Walker' : (c.members || []).filter(u => u !== meU()).map(u => firstName((c.names || {})[u])).join(', '));
+const chatIsRequest = c => c.status === 'request' && c.createdBy !== meU();
+const chatHidden = c => ((c.hide || {})[meU()] || 0) >= (c.t || 0);
+const chatMuted = c => ((c.mute || {})[meU()] || 0) > Date.now();
+const chatPinned = c => !!(c.pins || {})[meU()];
+const chatCount = c => Math.max(0, +((c.cnt || {})[meU()] || 0));
+const chatUnread = c => !!((c.unr || {})[meU()] || (c.last && c.last.from !== meU() && (c.last.t || 0) > ((c.read || {})[meU()] || 0)));
+const visibleChats = () => chats.filter(c => !chatHidden(c));
+const unreadChats = () => visibleChats().filter(c => !chatIsRequest(c) && !chatMuted(c) && chatUnread(c)).length;
+const chatRequests = () => visibleChats().filter(chatIsRequest);
+const msgBadge = () => { try{ return fbUser ? unreadChats() + chatRequests().length : 0; }catch(e){ return 0; } };
+
+function watchChats(){
+  if (!FB || !fbUser || chatsUnsub || chatsFailed) return;
+  try{
+    chatsUnsub = FB.onSnapshot(FB.query(FB.collection(fbDb, 'chats'), FB.where('members', 'array-contains', fbUser.uid), FB.limit(150)),
+      snap => {
+        const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
+        chats = out.filter(c => !(c.members || []).some(u => u !== fbUser.uid && isBlocked(u)))
+          .sort((a, b) => (b.t || 0) - (a.t || 0));
+        if (chatOpen){ const c = chats.find(x => x.id === chatOpen.id); if (c){ chatOpen.chat = c; paintChatHead(); paintPinbar(); } }
+        if (inboxOpen && !ui.inboxQ) paintMsgInbox();
+        paintHeadIcons();
+        try{ paintNav(); }catch(e){}
+        setAppBadge();
+      },
+      () => { chatsFailed = true; chatsUnsub = null; if (inboxOpen) paintMsgInbox(); });
+  }catch(e){ chatsFailed = true; }
+  startPresence();
+  loadNotifyPrefs();
+}
+function setAppBadge(){
+  try{
+    const n = msgBadge() + (typeof unreadNotes === 'function' ? unreadNotes() : 0);
+    if (navigator.setAppBadge){ if (n) navigator.setAppBadge(n).catch(() => {}); else navigator.clearAppBadge().catch(() => {}); }
+  }catch(e){}
+}
+/* the two round buttons in the top bar on every tab */
+function paintHeadIcons(){
+  const box = document.getElementById('headSocial'); if (!box) return;
+  const on = !!(fbConfigured() && fbUser);
+  box.hidden = !on; if (!on) return;
+  const m = msgBadge(), n = (typeof unreadNotes === 'function' ? unreadNotes() : 0) + (typeof friendReqs !== 'undefined' ? friendReqs.length : 0);
+  const b = (x) => x ? '<i class="hsb">' + (x > 9 ? '9+' : x) + '</i>' : '';
+  const html = '<button class="iconbtn hsbtn" data-act="msgopen" aria-label="Messages' + (m ? ', ' + m + ' new' : '') + '" title="Messages">' + ti('message-circle') + b(m) + '</button>' +
+    '<button class="iconbtn hsbtn" data-act="notesopen" aria-label="Notifications' + (n ? ', ' + n + ' new' : '') + '" title="Notifications">' + ti('bell') + b(n) + '</button>';
+  if (box.innerHTML !== html) box.innerHTML = html;
+}
+function whenShort(t){
+  if (!t) return '';
+  const d = new Date(t), now = new Date();
+  if (d.toDateString() === now.toDateString()) return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  const days = (now - d) / 86400000;
+  if (days < 6) return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+  return d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+}
+function chatAvatar(c, size){
+  const others = (c.members || []).filter(u => u !== meU());
+  if (c.kind === 'dm' || others.length === 1){
+    const u = others[0];
+    return '<span class="mgav">' + avatarHTML((c.avs || {})[u], (c.names || {})[u], size || 'md', u) + (isOnline(u) ? '<span class="mgon" aria-label="Active now"></span>' : '') + '</span>';
+  }
+  return '<span class="mgstack">' + others.slice(0, 2).map(u => avatarHTML((c.avs || {})[u], (c.names || {})[u], 'sm', u)).join('') + '</span>';
+}
+function lastLine(c){
+  const l = c.last; if (!l) return c.kind === 'walk' ? 'Walk planned' : 'Say hello';
+  const who = l.from === meU() ? 'You: ' : (c.kind !== 'dm' ? firstName((c.names || {})[l.from]) + ': ' : '');
+  const what = l.kind === 'photo' ? 'Sent a photo' : l.kind === 'plan' ? 'Planned a walk' : l.kind === 'hill' ? 'Shared a hill' : l.kind === 'route' ? 'Shared a route'
+    : l.kind === 'loc' ? 'Is sharing their location' : l.kind === 'poll' ? 'Poll: ' + (l.text || '') : l.kind === 'post' ? 'Shared a post' : (l.text || '');
+  return who + what;
+}
+function highlight(s, q){
+  const e = esc(s || ''); if (!q) return e;
+  const i = e.toLowerCase().indexOf(esc(q).toLowerCase()); if (i < 0) return e;
+  return e.slice(0, i) + '<mark>' + e.slice(i, i + esc(q).length) + '</mark>' + e.slice(i + esc(q).length);
+}
+
+/* ---- who is about: a light "active now" dot, never exact times to the minute ---- */
+const presence = {};
+let presenceT = null;
+function isOnline(uid){ const t = presence[uid]; return !!(t && Date.now() - t < 150000); }
+function seenLine(uid){
+  const t = presence[uid]; if (!t) return '';
+  const s = (Date.now() - t) / 1000;
+  if (s < 150) return 'Active now';
+  if (s < 3600) return 'Active ' + Math.round(s / 60) + ' min ago';
+  if (s < 86400) return 'Active ' + Math.round(s / 3600) + 'h ago';
+  return '';
+}
+function startPresence(){
+  if (presenceT || !FB || !fbUser) return;
+  const beat = () => {
+    if (document.visibilityState !== 'visible' || !fbUser) return;
+    if (notifyPrefs && notifyPrefs.active === false) return;
+    FB.setDoc(FB.doc(fbDb, 'presence', fbUser.uid), {t: Date.now()}).catch(() => {});
+  };
+  beat(); presenceT = setInterval(beat, 90000);
+  document.addEventListener('visibilitychange', beat);
+}
+async function loadPresence(uids){
+  const want = [...new Set(uids)].filter(u => u && u !== meU()).slice(0, 24);
+  await Promise.all(want.map(async u => {
+    try{ const d = await FB.getDoc(FB.doc(fbDb, 'presence', u)); if (d.exists()) presence[u] = (d.data() || {}).t || 0; }catch(e){}
+  }));
+}
+
+/* ================= the inbox ================= */
+function openInbox(){
+  if (!(fbConfigured() && fbUser)){ tab = 'u'; render(); return; }
+  closeChat(true);
+  let el = document.getElementById('inboxview');
+  if (!el){
+    el = document.createElement('div'); el.id = 'inboxview'; el.className = 'inboxview';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Messages');
+    document.body.appendChild(el);
+    inboxWire(el);
+  }
+  inboxOpen = true; ui.inboxQ = ''; ui.inboxF = ui.inboxF || 'all';
+  el.innerHTML = '<header class="ibhead"><button class="ibtn2" data-act="inboxclose" aria-label="Back">' + ti('arrow-left') + '</button><h2>Messages</h2>' +
+    '<button class="ibtn2" data-act="planwalk" aria-label="Plan a walk" title="Plan a walk">' + ti('walk') + '</button>' +
+    '<button class="ibtn2" data-act="msgnew" aria-label="New message" title="New message">' + ti('pencil-plus') + '</button></header>' +
+    '<div class="ibsearch">' + ti('search') + '<input id="ibq" type="search" placeholder="Search people and messages" autocomplete="off" enterkeyhint="search"><button class="ibclear" data-act="inboxqclear" aria-label="Clear search" hidden>' + ti('x') + '</button></div>' +
+    '<div class="ibbody" id="ibbody"></div>';
+  el.classList.add('open'); document.documentElement.classList.add('msgopen');
+  paintMsgInbox();
+  loadPresence(chats.slice(0, 20).map(chatOther).concat(msgPeople().slice(0, 8).map(p => p.uid))).then(() => { if (inboxOpen && !ui.inboxQ) paintMsgInbox(); });
+  try{ history.pushState({inbox:1}, ''); }catch(e){}
+}
+function closeInbox(){
+  if (!inboxOpen) return;
+  inboxOpen = false; ui.inboxQ = '';
+  const el = document.getElementById('inboxview'); if (el) el.classList.remove('open');
+  if (!chatOpen) document.documentElement.classList.remove('msgopen');
+}
+function nextWalks(){
+  const tdy = today(), out = [];
+  for (const c of visibleChats()){
+    const p = c.plan; if (!p || !p.date || p.date < tdy) continue;
+    const g = p.going || {};
+    if (g[meU()] === 'out') continue;
+    out.push({c, p, ins: Object.keys(g).filter(u => g[u] === 'in')});
+  }
+  return out.sort((a, b) => (a.p.date + (a.p.time || '')).localeCompare(b.p.date + (b.p.time || ''))).slice(0, 6);
+}
+function paintMsgInbox(){
+  const box = document.getElementById('ibbody'); if (!box) return;
+  const q = (ui.inboxQ || '').trim();
+  const clr = document.querySelector('#inboxview .ibclear'); if (clr) clr.hidden = !q;
+  if (q){ box.innerHTML = inboxSearch(q); return; }
+  if (chatsFailed){ box.innerHTML = '<div class="mgempty">' + ti('message-circle') + '<b>Messages need the latest rules</b><span>Publish the new firestore.rules in Firebase, then come back.</span></div>'; return; }
+  const all = visibleChats(), reqs = chatRequests();
+  let s = '';
+  /* nothing yet: a reason to start, and the people you can message */
+  if (!all.length){
+    s += '<div class="ibfirst"><span class="ibfirstic">' + ti('walk') + '</span><b>Plan the next one together</b>' +
+      '<span>Message friends, vote on a date and see who’s in, all in one place.</span>' +
+      '<button class="btn" data-act="planwalk">' + ti('walk') + 'Plan a walk with friends</button></div>';
+    const ppl = msgPeople().slice(0, 6);
+    if (ppl.length) s += '<p class="ibsec"><b>People you can message</b></p><ul class="mglist">' + ppl.map(p =>
+      '<li><div class="mgrow plain"><button class="mgmain" data-act="msgperson" data-uid="' + esc(p.uid) + '" data-n="' + esc(p.name) + '">' +
+      '<span class="mgav">' + avatarHTML(p.av, p.name, 'md', p.uid) + (isOnline(p.uid) ? '<span class="mgon"></span>' : '') + '</span>' +
+      '<span class="mgmid"><span class="mgtop"><b>' + esc(niceName(p.name)) + '</b></span><span class="mglast">' + (p.why === 'mutual' ? 'You follow each other' : p.why === 'follower' ? 'Follows you' : 'You follow them') + '</span></span>' +
+      '<span class="chip">Say hi</span></button></div></li>').join('') + '</ul><p class="ibfine">People who don’t follow you back get your first message as a request.</p>';
+    box.innerHTML = s; return;
+  }
+  /* quick start: the people you talk to most, plus a new group */
+  const quick = [], seen = new Set();
+  for (const c of all){ if (c.kind !== 'dm' || chatIsRequest(c)) continue; const u = chatOther(c); if (u && !seen.has(u)){ seen.add(u); quick.push({uid:u, name:(c.names || {})[u], av:(c.avs || {})[u]}); } }
+  for (const p of msgPeople()){ if (quick.length >= 10) break; if (p.why === 'mutual' && !seen.has(p.uid)){ seen.add(p.uid); quick.push(p); } }
+  s += '<div class="ibquick" role="list"><button class="ibq" role="listitem" data-act="msggroup"><span class="ibqnew">' + ti('users-group') + '</span><span>Group</span></button>' +
+    quick.slice(0, 10).map(p => '<button class="ibq" role="listitem" data-act="msgperson" data-uid="' + esc(p.uid) + '" data-n="' + esc(p.name || '') + '">' +
+      '<span class="mgav">' + avatarHTML(p.av, p.name, 'lg', p.uid) + (isOnline(p.uid) ? '<span class="mgon"></span>' : '') + '</span><span>' + esc(firstName(p.name)) + '</span></button>').join('') + '</div>';
+  const walks = nextWalks();
+  if (walks.length) s += '<p class="ibsec"><b>Your next walks</b></p><div class="ibtix">' + walks.map(({c, p, ins}) => {
+      const d = new Date(p.date + 'T12:00'), h = BY_KEY[p.hill];
+      return '<button class="ibtk" data-act="chatopen" data-v="' + esc(c.id) + '"><span class="ibtkd"><i>' + ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()] + '</i><b>' + d.getDate() + '</b><i>' +
+        ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEPT','OCT','NOV','DEC'][d.getMonth()] + '</i></span><span class="ibtkb"><b>' + esc(p.hn || (h ? hillName(h) : 'A walk')) + '</b><span>' +
+        esc([p.time, p.meet].filter(Boolean).join(' · ') || chatName(c)) + '</span><span class="ibtkin">' + ins.slice(0, 4).map(u => avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u)).join('') +
+        '<i>' + ins.length + ' in</i></span></span></button>';
+    }).join('') + '</div>';
+  const f = ui.inboxF || 'all';
+  const un = all.filter(c => !chatIsRequest(c) && chatUnread(c)).length;
+  const chip = (v, l, n) => '<button class="chip' + (f === v ? ' on' : '') + '" data-act="inboxf" data-v="' + v + '" aria-pressed="' + (f === v) + '">' + l + (n ? ' <em>' + n + '</em>' : '') + '</button>';
+  s += '<div class="ibchips">' + chip('all', 'All') + chip('unread', 'Unread', un) + chip('walks', 'Walks') + chip('groups', 'Groups') + (reqs.length || f === 'requests' ? chip('requests', 'Requests', reqs.length) : '') + '</div>';
+  let list = f === 'requests' ? reqs : all.filter(c => !chatIsRequest(c));
+  if (f === 'unread') list = list.filter(chatUnread);
+  if (f === 'walks') list = list.filter(c => c.kind === 'walk' || (c.plan && c.plan.date));
+  if (f === 'groups') list = list.filter(c => c.kind !== 'dm');
+  list = list.slice().sort((a, b) => (chatPinned(b) - chatPinned(a)) || ((b.t || 0) - (a.t || 0)));
+  if (!list.length) s += '<p class="ibnone">' + (f === 'unread' ? 'You’re all caught up.' : f === 'requests' ? 'No requests.' : f === 'walks' ? 'No walk chats yet. Plan one with the walker button up top.' : 'No group chats yet.') + '</p>';
+  else s += '<ul class="mglist">' + list.map(inboxRow).join('') + '</ul>';
+  if (f === 'requests' && list.length) s += '<p class="ibfine">They won’t know you’ve seen a request until you accept it.</p>';
+  box.innerHTML = s;
+}
+function inboxRow(c){
+  const un = chatUnread(c), n = chatCount(c), muted = chatMuted(c), pinned = chatPinned(c);
+  const walk = c.plan && c.plan.date && c.plan.date >= today() ? '<span class="mgwalk">' + ti('walk') + esc(walkWhen(c.plan.date).split(' ')[0].replace(',', '').toUpperCase()) + '</span>' : '';
+  const typ = typingIn(c);
+  const req = c.status === 'request' && c.createdBy === meU() ? '<em>Request sent</em> · ' : '';
+  const seen = c.last && c.last.from === meU() && c.kind === 'dm' && ((c.read || {})[chatOther(c)] || 0) >= (c.last.t || 0) ? '<span class="mgseen" aria-label="Seen">' + ti('checks') + '</span>' : '';
+  const line = typ ? '<span class="mgtyping">' + esc(typ) + '</span>' : seen + '<span class="mgtxt">' + req + esc(lastLine(c)) + '</span>';
+  return '<li class="mgli" data-c="' + esc(c.id) + '"><div class="mgacts" aria-hidden="true">' +
+      '<button class="mga read" data-act="chatmark" data-v="' + esc(c.id) + '" tabindex="-1">' + ti(un ? 'mail-opened' : 'mail') + '<span>' + (un ? 'Read' : 'Unread') + '</span></button>' +
+      '<span class="mgaright"><button class="mga mute" data-act="chatmutequick" data-v="' + esc(c.id) + '" tabindex="-1">' + ti('bell-off') + '<span>' + (muted ? 'Unmute' : 'Mute') + '</span></button>' +
+      '<button class="mga pin" data-act="chatpin" data-v="' + esc(c.id) + '" tabindex="-1">' + ti('pin') + '<span>' + (pinned ? 'Unpin' : 'Pin') + '</span></button>' +
+      '<button class="mga del" data-act="chathide" data-v="' + esc(c.id) + '" tabindex="-1">' + ti('trash') + '<span>Delete</span></button></span></div>' +
+    '<div class="mgrow' + (un ? ' unread' : '') + '"><button class="mgmain" data-act="chatopen" data-v="' + esc(c.id) + '">' + chatAvatar(c) +
+    '<span class="mgmid"><span class="mgtop"><b>' + esc(chatName(c)) + '</b>' + walk + (pinned ? '<span class="mgpin" aria-label="Pinned">' + ti('pin') + '</span>' : '') + '<i>' + whenShort(c.t) + '</i></span>' +
+    '<span class="mglast">' + line + (muted ? '<span class="mgmute" aria-label="Muted">' + ti('bell-off') + '</span>' : '') +
+    (un ? '<span class="mgcnt' + (muted ? ' quiet' : '') + '">' + (n ? (n > 99 ? '99+' : n) : '') + '</span>' : '') + '</span></span></button></div></li>';
+}
+/* search: people, chats, and the words in recent messages */
+const msgCache = new Map();   /* chat id -> [msgs] (recent) */
+let searchLoaded = false;
+async function loadSearchText(){
+  if (searchLoaded) return; searchLoaded = true;
+  await Promise.all(visibleChats().slice(0, 14).map(async c => {
+    if (msgCache.has(c.id)) return;
+    try{
+      const snap = await FB.getDocs(FB.query(FB.collection(fbDb, 'chats', c.id, 'msgs'), FB.orderBy('t', 'desc'), FB.limit(80)));
+      const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})})); msgCache.set(c.id, out);
+    }catch(e){}
+  }));
+  if (inboxOpen && ui.inboxQ) paintMsgInbox();
+}
+function inboxSearch(q){
+  const ql = q.toLowerCase();
+  const ppl = msgPeople().filter(p => (p.name || '').toLowerCase().includes(ql)).slice(0, 6);
+  const cs = visibleChats().filter(c => c.kind !== 'dm' && chatName(c).toLowerCase().includes(ql)).slice(0, 6);
+  const hits = [];
+  for (const [cid, ms] of msgCache){
+    const c = chats.find(x => x.id === cid); if (!c || chatHidden(c)) continue;
+    for (const m of ms) if (m.text && m.kind === 'text' && m.text.toLowerCase().includes(ql)) hits.push({c, m});
+  }
+  hits.sort((a, b) => b.m.t - a.m.t);
+  let s = '';
+  if (ppl.length) s += '<p class="ibsec"><b>People</b></p><ul class="mglist">' + ppl.map(p => '<li><div class="mgrow plain"><button class="mgmain" data-act="msgperson" data-uid="' + esc(p.uid) + '" data-n="' + esc(p.name) + '">' +
+    '<span class="mgav">' + avatarHTML(p.av, p.name, 'md', p.uid) + (isOnline(p.uid) ? '<span class="mgon"></span>' : '') + '</span><span class="mgmid"><span class="mgtop"><b>' + highlight(niceName(p.name), q) + '</b></span>' +
+    '<span class="mglast">' + (p.why === 'mutual' ? 'You follow each other' : 'Sends as a request') + '</span></span><span class="chip">Message</span></button></div></li>').join('') + '</ul>';
+  if (cs.length) s += '<p class="ibsec"><b>Chats</b></p><ul class="mglist">' + cs.map(c => '<li><div class="mgrow plain"><button class="mgmain" data-act="chatopen" data-v="' + esc(c.id) + '">' + chatAvatar(c) +
+    '<span class="mgmid"><span class="mgtop"><b>' + highlight(chatName(c), q) + '</b></span><span class="mglast">' + (c.members || []).length + ' people</span></span></button></div></li>').join('') + '</ul>';
+  if (hits.length) s += '<p class="ibsec"><b>Messages</b>' + (hits.length > 12 ? '<span>' + (hits.length - 12) + ' more</span>' : '') + '</p><ul class="mglist">' + hits.slice(0, 12).map(({c, m}) =>
+    '<li><div class="mgrow plain"><button class="mgmain" data-act="chatopen" data-v="' + esc(c.id) + '">' + chatAvatar(c) + '<span class="mgmid"><span class="mgtop"><b>' + esc(chatName(c)) + '</b><i>' + whenShort(m.t) + '</i></span>' +
+    '<span class="mglast"><span class="mgtxt">' + (m.from === meU() ? 'You: ' : c.kind !== 'dm' ? esc(firstName((c.names || {})[m.from])) + ': ' : '') + highlight(m.text.length > 90 ? m.text.slice(0, 88) + '…' : m.text, q) + '</span></span></span></button></div></li>').join('') + '</ul>';
+  if (!s) s = '<div class="mgempty">' + ti('search') + '<b>Nothing for “' + esc(q) + '”</b><span>' + (searchLoaded ? 'Try a first name, a hill or a place.' : 'Looking through your recent chats…') + '</span></div>';
+  return s;
+}
+/* the inbox's own gestures: typing to search, and swiping a chat sideways */
+function inboxWire(el){
+  el.addEventListener('input', e => {
+    if (e.target.id !== 'ibq') return;
+    ui.inboxQ = e.target.value; paintMsgInbox(); if (ui.inboxQ) loadSearchText();
+  });
+  el.addEventListener('keydown', e => { if (e.key === 'Escape'){ if (ui.inboxQ){ const i = document.getElementById('ibq'); i.value = ''; ui.inboxQ = ''; paintMsgInbox(); } else history.back(); } });
+  let li = null, row = null, sx = 0, sy = 0, dx = 0, mode = '', base = 0;
+  const OPEN = -216;
+  const closeOpen = except => el.querySelectorAll('.mgli.open').forEach(x => { if (x !== except){ x.classList.remove('open'); const r = x.querySelector('.mgrow'); r.style.transform = ''; } });
+  el.addEventListener('pointerdown', e => {
+    const l = e.target.closest('.mgli'); if (!l || e.target.closest('.mga')) return;
+    li = l; row = l.querySelector('.mgrow'); sx = e.clientX; sy = e.clientY; dx = 0; mode = ''; base = l.classList.contains('open') ? OPEN : 0;
+  });
+  el.addEventListener('pointermove', e => {
+    if (!li) return;
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if (!mode){ if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.3) mode = 'x'; else if (Math.abs(my) > 10){ li = null; return; } else return; closeOpen(li); row.style.transition = 'none'; }
+    dx = Math.max(-260, Math.min(120, base + mx));
+    row.style.transform = 'translateX(' + dx + 'px)';
+    li.classList.toggle('left', dx > 0);
+  });
+  const end = () => {
+    if (!li) return;
+    const l = li, r = row; li = null; r.style.transition = '';
+    if (mode !== 'x'){ if (l.classList.contains('open')){ l.classList.remove('open'); r.style.transform = ''; l.dataset.swallow = '1'; } return; }
+    l.dataset.swallow = '1';
+    if (dx > 76){ r.style.transform = ''; const b = l.querySelector('.mga.read'); if (b) b.click(); return; }
+    if (dx < -70){ l.classList.add('open'); r.style.transform = 'translateX(' + OPEN + 'px)'; }
+    else { l.classList.remove('open'); r.style.transform = ''; }
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('click', e => {
+    const l = e.target.closest('.mgli');
+    if (l && l.dataset.swallow && !e.target.closest('.mga')){ e.stopPropagation(); e.preventDefault(); delete l.dataset.swallow; return; }
+    if (l) delete l.dataset.swallow;
+  }, true);
+}
+/* The Hikers screen used to hold the inbox; it lives above every tab now. */
+function renderInbox(){ setTimeout(openInbox, 0); return ''; }
+
+/* ================= starting a chat ================= */
+function msgPeople(){
+  const m = new Map();
+  const add = (f, why) => { if (f && f.uid && f.uid !== meU() && !isBlocked(f.uid) && !m.has(f.uid)) m.set(f.uid, {uid:f.uid, name:f.name || (personCache[f.uid] || {}).name || 'Walker', av:f.av || (personCache[f.uid] || {}).av || '', why}); };
+  for (const f of allFriends()) if (isMutual(f.uid)) add(f, 'mutual');
+  for (const f of followers) if (isMutual(f.uid)) add(f, 'mutual');
+  for (const f of allFriends()) add(f, 'following');
+  for (const f of followers) add(f, 'follower');
+  return [...m.values()];
+}
+function openPicker(mode, extra){
+  ui.mpick = {mode, sel:[], q:'', title:'', extra: extra || null};
+  paintPicker();
+}
+function paintPicker(){
+  const p = ui.mpick; if (!p) return;
+  const q = (p.q || '').toLowerCase();
+  const inChat = p.mode === 'add' && chatOpen ? new Set(chatOpen.chat.members || []) : new Set();
+  const ppl = msgPeople().filter(x => !inChat.has(x.uid) && (!q || x.name.toLowerCase().includes(q)));
+  const sel = new Set(p.sel);
+  const walk = p.mode === 'walk', group = p.mode === 'group';
+  const title = walk ? 'Plan a walk with…' : p.mode === 'add' ? 'Add people' : group ? 'New group' : 'New message';
+  let s = '<h3 class="bcsheettitle">' + title + '</h3>' +
+    (p.sel.length ? '<div class="pkchosen">' + p.sel.map(u => { const x = ppl.find(y => y.uid === u) || msgPeople().find(y => y.uid === u) || {name:''}; return '<button class="pkchip" data-act="picktoggle" data-u="' + esc(u) + '">' + avatarHTML(x.av, x.name, 'tiny', u) + esc(firstName(x.name)) + ti('x') + '</button>'; }).join('') + '</div>' : '') +
+    '<div class="field">' + ti('search') + '<input id="pickq" placeholder="Search people you follow" value="' + esc(p.q) + '" autocomplete="off"></div>';
+  if ((p.sel.length > 1 || group || walk && p.sel.length) && p.mode !== 'add') s += '<div><label for="picktitle" class="lbl2">' + (walk ? 'Walk name' : 'Group name') + ' <span class="opt">optional</span></label><input id="picktitle" class="pickin" maxlength="40" placeholder="' + (walk ? 'Saturday on the Langdales' : 'Sunday walkers') + '" value="' + esc(p.title) + '"></div>';
+  s += '<ul class="pklist">' + (ppl.length ? ppl.map(x => '<li><button class="pkrow" data-act="picktoggle" data-u="' + esc(x.uid) + '" aria-pressed="' + sel.has(x.uid) + '">' +
+      '<span class="mgav">' + avatarHTML(x.av, x.name, 'sm', x.uid) + (isOnline(x.uid) ? '<span class="mgon"></span>' : '') + '</span><span><b>' + esc(niceName(x.name)) + '</b><i>' + (x.why === 'mutual' ? 'You follow each other' : 'Sends as a request') + '</i></span>' +
+      '<span class="pktick">' + (sel.has(x.uid) ? ti('check') : '') + '</span></button></li>').join('')
+      : '<li class="pdfine" style="padding:12px 4px">' + (q ? 'Nobody by that name.' : 'Nobody here yet. Follow some hikers and they show up.') + '</li>') + '</ul>';
+  const n = p.sel.length;
+  s += '<button class="btn bcgo" data-act="pickgo"' + (n ? '' : ' disabled') + '>' + (walk ? (n ? 'Next: the walk' : 'Choose who’s going') : p.mode === 'add' ? (n ? 'Add ' + n + ' to the chat' : 'Choose people') : n > 1 || group ? (n ? 'Start group chat · ' + n : 'Choose people') : n ? 'Start chat' : 'Choose someone') + '</button>';
+  const el = bcSheet(s, title, 'pksheet');
+  const qi = el.querySelector('#pickq');
+  if (qi){ qi.oninput = e => { p.q = e.target.value; const pos = e.target.selectionStart; paintPicker(); const n2 = document.getElementById('pickq'); if (n2){ n2.focus(); n2.setSelectionRange(pos, pos); } }; }
+  const ti2 = el.querySelector('#picktitle'); if (ti2) ti2.oninput = e => { p.title = e.target.value; };
+}
+async function pickGo(){
+  const p = ui.mpick; if (!p || !p.sel.length) return;
+  bcSheetClose(); ui.mpick = null;
+  if (p.mode === 'walk'){ planComposer(null, {with:p.sel, title:p.title}); return; }
+  const id = p.sel.length === 1 && p.mode !== 'group' ? await ensureDm(p.sel[0]) : await makeGroup(p.sel, p.title, 'group');
+  if (id) openChat(id);
+}
+function personName(uid){ const x = personCache[uid] || allFriends().find(f => f.uid === uid) || followers.find(f => f.uid === uid) || {}; return {name: x.name || 'Walker', av: x.av || ''}; }
+async function ensureDm(uid, name, av){
+  if (!FB || !fbUser) return null;
+  const id = dmId(fbUser.uid, uid);
+  const have = chats.find(c => c.id === id);
+  if (have){ if (chatHidden(have)) FB.setDoc(chatRef(id), {hide:{[fbUser.uid]: 0}}, {merge:true}).catch(() => {}); return id; }
+  const pn = personName(uid);
+  try{
+    const snap = await FB.getDoc(chatRef(id));
+    if (snap.exists()) return id;
+    await FB.setDoc(chatRef(id), {kind:'dm', members:[fbUser.uid, uid], createdBy:fbUser.uid, status: isMutual(uid) ? 'ok' : 'request',
+      names:{[fbUser.uid]: myName(), [uid]: name || pn.name}, avs:{[fbUser.uid]: myAvatar() || '', [uid]: av || pn.av}, t:Date.now(), read:{[fbUser.uid]: Date.now()}});
+    return id;
+  }catch(e){ toast(fbWhy(e)); return null; }
+}
+async function makeGroup(uids, title, kind, plan){
+  const members = [fbUser.uid, ...uids.filter(u => u !== fbUser.uid)].slice(0, 30);
+  const names = {}, avs = {};
+  for (const u of members){ const pn = u === fbUser.uid ? {name: myName(), av: myAvatar()} : personName(u); names[u] = pn.name; avs[u] = pn.av || ''; }
+  const ref = FB.doc(FB.collection(fbDb, 'chats'));
+  try{
+    await FB.setDoc(ref, {kind: kind || 'group', members, createdBy: fbUser.uid, status:'ok', title: (title || '').trim().slice(0, 40), names, avs, t:Date.now(), read:{[fbUser.uid]: Date.now()}, ...(plan ? {plan} : {})});
+    return ref.id;
+  }catch(e){ toast(fbWhy(e)); return null; }
+}
+
+/* ================= a chat, full screen ================= */
+async function openChat(id, focusMsg){
+  closeChat(true);
+  let c = chats.find(x => x.id === id);
+  if (!c){ try{ const s2 = await FB.getDoc(chatRef(id)); if (s2.exists()) c = {id, ...s2.data()}; }catch(e){} }
+  if (!c){ toast('That chat isn’t there any more.'); return; }
+  chatOpen = {id, chat:c, msgs:[], live:{}, typing:{}, unsub:null, liveUnsub:null, typUnsub:null, presUnsub:null, busy:true, reply:null, focus: focusMsg || ''};
+  let el = document.getElementById('chatview');
+  if (!el){
+    el = document.createElement('div'); el.id = 'chatview'; el.className = 'chatview';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    document.body.appendChild(el);
+    chatWire(el);
+  }
+  el.setAttribute('aria-label', 'Chat with ' + chatName(c));
+  el.innerHTML = '<svg class="cvtopo" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true"><path d="M-20 120 C60 90 120 150 200 120 S340 60 420 100"/><path d="M-20 160 C70 130 130 190 210 160 S350 100 420 140"/><path d="M-20 420 C40 380 110 460 190 430 S330 360 420 400"/><path d="M-20 460 C50 420 120 500 200 470 S340 400 420 440"/><path d="M-20 500 C60 470 130 540 210 510 S345 440 420 480"/><path d="M60 700 C110 650 200 660 240 700 S330 780 280 810 S100 800 60 700Z"/><path d="M95 705 C130 675 195 680 220 705 S275 760 245 780 S120 770 95 705Z"/></svg>' +
+    '<header class="cvhead"></header><div class="cvpin" hidden></div><div class="cvlive" hidden></div><div class="cvreq" hidden></div><div class="cvmsgs" id="cvmsgs"><div class="cvloading">' + skeletonRows(2) + '</div></div>' +
+    '<div class="cvquote" hidden></div>' +
+    '<form class="cvcompose" id="cvcompose"><button type="button" class="cvplus" data-act="chatplus" aria-label="Add a walk, poll, photo, hill or location">' + ti('plus') + '</button>' +
+    '<div class="cvfield"><textarea id="cvtext" rows="1" placeholder="Message" maxlength="1000" enterkeyhint="send" aria-label="Message"></textarea>' +
+    '<button type="button" class="cvcam" data-act="chatpickphoto" aria-label="Send a photo">' + ti('camera') + '</button></div>' +
+    '<button type="submit" class="cvsend" aria-label="Send">' + ti('send') + '</button><input type="file" id="cvphoto" accept="image/*" hidden></form>';
+  el.classList.add('open'); document.documentElement.classList.add('msgopen');
+  paintChatHead(); paintPinbar();
+  fitChat();
+  chatOpen.unsub = FB.onSnapshot(FB.query(FB.collection(fbDb, 'chats', id, 'msgs'), FB.orderBy('t', 'desc'), FB.limit(150)), snap => {
+    const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
+    if (!chatOpen || chatOpen.id !== id) return;
+    msgCache.set(id, out.slice());
+    chatOpen.msgs = out.reverse(); chatOpen.busy = false;
+    paintMsgs(); markRead();
+  }, e => { const m = document.getElementById('cvmsgs'); if (m) m.innerHTML = '<p class="pdfine" style="padding:20px">' + esc(fbWhy(e)) + '</p>'; });
+  chatOpen.liveUnsub = FB.onSnapshot(FB.collection(fbDb, 'chats', id, 'live'), snap => {
+    if (!chatOpen || chatOpen.id !== id) return;
+    const live = {}; snap.forEach(d => { const v = d.data() || {}; if ((v.until || 0) > Date.now()) live[d.id] = v; });
+    chatOpen.live = live; paintLive(); paintChatHead();
+  }, () => {});
+  chatOpen.typUnsub = FB.onSnapshot(FB.collection(fbDb, 'chats', id, 'typing'), snap => {
+    if (!chatOpen || chatOpen.id !== id) return;
+    const t = {}; snap.forEach(d => { if (d.id !== meU()) t[d.id] = (d.data() || {}).t || 0; });
+    chatOpen.typing = t; typingStore[id] = t; paintTyping(); paintChatHead();
+  }, () => {});
+  if (c.kind === 'dm'){
+    const o = chatOther(c);
+    chatOpen.presUnsub = FB.onSnapshot(FB.doc(fbDb, 'presence', o), d => { if (d.exists()){ presence[o] = (d.data() || {}).t || 0; paintChatHead(); } }, () => {});
+  }
+  try{ history.pushState({chat:id}, ''); }catch(e){}
+}
+function closeChat(silent){
+  if (!chatOpen) return;
+  try{ ['unsub', 'liveUnsub', 'typUnsub', 'presUnsub'].forEach(k => chatOpen[k] && chatOpen[k]()); }catch(e){}
+  typingSet(false);
+  chatOpen = null;
+  const el = document.getElementById('chatview'); if (el) el.classList.remove('open');
+  if (!inboxOpen) document.documentElement.classList.remove('msgopen');
+  hideReactBar();
+  if (!silent && inboxOpen) paintMsgInbox();
+}
+window.addEventListener('popstate', () => {
+  if (chatOpen){ closeChat(); return; }
+  if (inboxOpen){ closeInbox(); }
+});
+function markRead(){
+  if (!chatOpen) return;
+  const c = chatOpen.chat, t = (c.last && c.last.t) || c.t || Date.now();
+  const me = meU();
+  if (((c.read || {})[me] || 0) >= t && !chatCount(c) && !(c.unr || {})[me]) return;
+  c.read = {...(c.read || {}), [me]: Date.now()}; c.cnt = {...(c.cnt || {}), [me]: 0}; c.unr = {...(c.unr || {}), [me]: false};
+  FB.setDoc(chatRef(chatOpen.id), {read:{[me]: Date.now()}, cnt:{[me]: 0}, unr:{[me]: false}}, {merge:true}).catch(() => {});
+  paintHeadIcons(); setAppBadge();
+}
+const typingStore = {};
+function typingIn(c){
+  const t = typingStore[c.id] || {}, now = Date.now();
+  const who = Object.keys(t).filter(u => now - t[u] < 7000 && u !== meU());
+  if (!who.length) return '';
+  return c.kind === 'dm' ? 'Typing…' : firstName((c.names || {})[who[0]]) + (who.length > 1 ? ' and ' + (who.length - 1) + ' more are' : ' is') + ' typing…';
+}
+function paintChatHead(){
+  const el = document.getElementById('chatview'); if (!el || !chatOpen) return;
+  const c = chatOpen.chat, other = chatOther(c);
+  const typ = typingIn(c);
+  const sub = typ ? '<span class="cvtyp">' + esc(typ) + '</span>'
+    : c.kind === 'dm' ? esc(c.status === 'request' ? (c.createdBy === meU() ? 'Request sent · they see it when they accept' : 'Wants to message you') : (seenLine(other) || (isMutual(other) ? 'You follow each other' : '')))
+    : esc((c.members || []).filter(u => u !== meU()).map(u => firstName((c.names || {})[u])).slice(0, 4).join(', ') + ((c.members || []).length > 5 ? ' +' + ((c.members || []).length - 5) : '') + ' and you');
+  const liveN = Object.keys(chatOpen.live || {}).filter(u => u !== meU()).length + (liveShare && liveShare.cid === chatOpen.id ? 1 : 0);
+  el.querySelector('.cvhead').innerHTML = '<button class="cvback" data-act="chatclose" aria-label="Back">' + ti('arrow-left') + '</button>' +
+    '<button class="cvwho" data-act="' + (c.kind === 'dm' ? 'chatperson' : 'chatinfo') + '">' + chatAvatar(c, 'sm') + '<span><b>' + esc(chatName(c)) + '</b><i>' + sub + '</i></span></button>' +
+    '<button class="cvinfo' + (liveN ? ' on' : '') + '" data-act="chatlive" aria-label="' + (liveN ? liveN + ' sharing location' : 'Share my location') + '" title="Live location">' + ti('current-location') + '</button>' +
+    '<button class="cvinfo" data-act="chatinfo" aria-label="Chat details">' + ti('dots') + '</button>';
+  const rq = el.querySelector('.cvreq');
+  if (chatIsRequest(c)){
+    rq.hidden = false;
+    rq.innerHTML = '<p><b>' + esc(chatName(c)) + '</b> would like to message you. They won’t know you’ve seen it unless you accept.</p>' +
+      '<div class="btnrow"><button class="btn sm" data-act="chataccept">Accept</button><button class="btn sm ghost" data-act="chatdecline">Delete</button><button class="btn sm quiet" data-act="blockuser" data-uid="' + esc(other) + '" data-n="' + esc(chatName(c)) + '">Block</button></div>';
+  } else rq.hidden = true;
+  const comp = el.querySelector('.cvcompose');
+  if (comp) comp.classList.toggle('locked', chatIsRequest(c));
+}
+function paintPinbar(){
+  const el = document.querySelector('#chatview .cvpin'); if (!el || !chatOpen) return;
+  const p = chatOpen.chat.plan;
+  if (!p || !p.date || p.date < today()){ el.hidden = true; return; }
+  const h = BY_KEY[p.hill], g = p.going || {}, ins = Object.keys(g).filter(u => g[u] === 'in').length;
+  el.hidden = false;
+  el.innerHTML = ti('walk') + '<span><b>' + esc(walkWhen(p.date).split(' ')[0].replace(',', '') + (p.time ? ' ' + p.time : ' ' + walkWhen(p.date).split(' ').slice(1).join(' '))) + '</b> · ' + esc(p.hn || (h ? hillName(h) : 'The walk')) + ' · ' + ins + ' in</span>' +
+    '<button class="cvpingo" data-act="chatgoplan">View</button>';
+}
+function paintTyping(){
+  const box = document.getElementById('cvmsgs'); if (!box || !chatOpen) return;
+  let t = box.querySelector('.cvtypingrow');
+  const c = chatOpen.chat, now = Date.now(), who = Object.keys(chatOpen.typing || {}).filter(u => now - chatOpen.typing[u] < 7000);
+  if (!who.length){ if (t) t.remove(); return; }
+  const atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+  const html = '<span class="cvgap">' + avatarHTML((c.avs || {})[who[0]], (c.names || {})[who[0]], 'tiny', who[0]) + '</span><span class="cvdots" aria-label="' + esc(firstName((c.names || {})[who[0]])) + ' is typing"><i></i><i></i><i></i></span>';
+  if (!t){ t = document.createElement('div'); t.className = 'cvrow cvtypingrow'; box.appendChild(t); }
+  t.innerHTML = html;
+  if (atEnd) box.scrollTop = box.scrollHeight;
+  clearTimeout(paintTyping.t); paintTyping.t = setTimeout(() => { paintTyping(); paintChatHead(); }, 3000);
+}
+/* my own typing: at most one write every four seconds, and cleared on send */
+let typingLast = 0;
+function typingSet(on){
+  if (!chatOpen || !FB || !fbUser) return;
+  if (notifyPrefs && notifyPrefs.active === false) return;
+  const now = Date.now();
+  if (on && now - typingLast < 4000) return;
+  if (!on && !typingLast) return;
+  typingLast = on ? now : 0;
+  FB.setDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'typing', fbUser.uid), {t: on ? now : 0}).catch(() => {});
+}
+function msgBubble(m, prev, next){
+  const mine = m.from === meU(), c = chatOpen.chat;
+  const brk = (a, b) => !a || !b || a.from !== b.from || Math.abs(b.t - a.t) > 600000 || a.kind === 'sys' || b.kind === 'sys' || a.kind === 'loc' || b.kind === 'loc';
+  const first = brk(prev, m), last = brk(m, next);
+  const day = !prev || new Date(prev.t).toDateString() !== new Date(m.t).toDateString();
+  let s = day ? '<p class="cvday">' + esc(dayLabel(m.t)) + '</p>' : '';
+  if (m.kind === 'sys' || m.kind === 'loc') return s + '<p class="cvsys">' + ti(m.kind === 'loc' ? 'current-location' : (m.text || '').includes(' is in') ? 'check' : 'walk') + esc(m.text || '') + '</p>';
+  let body = '';
+  const q = m.re && m.re.id ? '<button class="cvq" data-act="chatjump" data-m="' + esc(m.re.id) + '"><b>' + esc(m.re.from === meU() ? 'You' : firstName(m.re.name || (c.names || {})[m.re.from])) + '</b>' + esc((m.re.text || '').slice(0, 90)) + '</button>' : '';
+  if (m.kind === 'photo') body = '<button class="cvphoto" data-act="chatphotoview" data-v="' + esc(m.shot) + '"><img data-shot="' + esc(m.shot) + '" alt="Photo from ' + esc(firstName((c.names || {})[m.from])) + '"' + (m.w && m.h ? ' style="aspect-ratio:' + m.w + '/' + m.h + '"' : '') + '></button>' + (m.text ? '<span class="cvtext">' + esc(m.text) + '</span>' : '');
+  else if (m.kind === 'hill') body = hillCard(m.k);
+  else if (m.kind === 'route') body = routeCard(m);
+  else if (m.kind === 'plan') body = planCard(m);
+  else if (m.kind === 'poll') body = pollCard(m);
+  else if (m.kind === 'post') body = postCard(m);
+  else body = q + '<span class="cvtext">' + linkify(esc(m.text || '')) + '</span>';
+  const reacts = Object.entries(m.react || {});
+  const rsum = reacts.length ? '<button class="cvreacts" data-act="chatreactwho" data-m="' + esc(m.id) + '">' + [...new Set(reacts.map(r => r[1]))].slice(0, 3).join('') + (reacts.length > 1 ? '<i>' + reacts.length + '</i>' : '') + '</button>' : '';
+  const card = ['plan', 'hill', 'route', 'poll', 'post'].includes(m.kind);
+  const isLastMine = mine && m === chatOpen.msgs.filter(x => x.from === meU()).slice(-1)[0];
+  return s + '<div class="cvrow' + (mine ? ' mine' : '') + (last ? ' last' : '') + (first ? ' first' : '') + (m.id === chatOpen.flash ? ' flash' : '') + '" data-mid="' + esc(m.id) + '">' +
+    '<span class="cvswipe" aria-hidden="true">' + ti('reply') + '</span>' +
+    (!mine && c.kind !== 'dm' ? (last ? '<span class="cvgap">' + avatarHTML((c.avs || {})[m.from], (c.names || {})[m.from], 'tiny', m.from) + '</span>' : '<span class="cvgap"></span>') : '') +
+    '<div class="cvcol">' + (!mine && c.kind !== 'dm' && first ? '<span class="cvname">' + esc(firstName((c.names || {})[m.from])) + '</span>' : '') +
+    '<div class="cvbub' + (card ? ' card' : '') + (m.kind === 'photo' ? ' ph' : '') + (m.pending ? ' pending' : '') + '" data-m="' + esc(m.id) + '">' + body + '</div>' + rsum +
+    (last ? '<span class="cvtime">' + whenShort(m.t) + (isLastMine ? seenText(m) : '') + '</span>' : '') + '</div></div>';
+}
+function dayLabel(t){
+  const d = new Date(t), n = new Date();
+  if (d.toDateString() === n.toDateString()) return 'Today';
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return 'Yesterday';
+  return d.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'});
+}
+function seenText(m){
+  if (m.pending) return ' · Sending';
+  const c = chatOpen.chat, r = c.read || {};
+  const by = (c.members || []).filter(u => u !== meU() && (r[u] || 0) >= m.t);
+  if (!by.length) return ' · Sent';
+  if (c.kind === 'dm') return ' · Seen';
+  return ' · Seen by ' + (by.length === (c.members || []).length - 1 ? 'everyone' : by.slice(0, 3).map(u => firstName((c.names || {})[u])).join(', '));
+}
+const linkify = s => s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+function paintMsgs(){
+  const box = document.getElementById('cvmsgs'); if (!box || !chatOpen) return;
+  const atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 90;
+  const ms = chatOpen.msgs;
+  box.innerHTML = ms.length ? ms.map((m, i) => msgBubble(m, ms[i - 1], ms[i + 1])).join('') :
+    '<div class="cvhello">' + chatAvatar(chatOpen.chat, 'lg') + '<b>' + esc(chatName(chatOpen.chat)) + '</b><span>' + (chatOpen.chat.kind === 'dm' ? 'Say hello, or plan a walk together.' : 'Everyone here can see what you send.') + '</span>' +
+      '<span class="cvhellobtns"><button class="chip" data-act="chatplanwalk">' + ti('walk') + 'Plan a walk</button><button class="chip" data-act="chatpoll">' + ti('poll') + 'Start a poll</button></span></div>';
+  hydrateShots(box);
+  if (box.querySelector('img[data-post]')) hydratePostPhotos();
+  paintTyping();
+  if (chatOpen.focus){ const t = box.querySelector('[data-mid="' + CSS.escape(chatOpen.focus) + '"]'); chatOpen.focus = ''; if (t){ t.scrollIntoView({block:'center'}); box.dataset.seen = '1'; return; } }
+  if (atEnd || !box.dataset.seen){ box.scrollTop = box.scrollHeight; box.dataset.seen = '1'; }
+}
+async function hydrateShots(box){
+  for (const img of box.querySelectorAll('img[data-shot]:not([data-post])')){
+    const sid = img.dataset.shot;
+    if (shotCache.has(sid)){ img.src = shotCache.get(sid); continue; }
+    try{
+      const d = await FB.getDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'shots', sid));
+      const v = d.exists() ? d.data().data : '';
+      if (v){ shotCache.set(sid, v); img.src = v; }
+    }catch(e){}
+  }
+}
+/* ---- the cards that ride in a chat ---- */
+function hillCard(k){
+  const h = BY_KEY[k]; if (!h) return '<span class="cvtext">A hill that isn’t on WayMark any more.</span>';
+  return '<button class="cvcard" data-act="chathill" data-k="' + esc(k) + '"><span class="cvcic">' + ti('mountain') + '</span><span><i class="lbl">Hill</i><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; ' + esc(regionOf(h, h.l[0])) + '</span>' +
+    (isBagged(k) ? '<em class="cvdone">' + ti('check') + 'You’ve been up it</em>' : '') + '</span></button>';
+}
+function routeCard(m){
+  const r = m.route || {}; const hs = (r.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  return '<div class="cvcard"><span class="cvcic">' + ti('route') + '</span><span><i class="lbl">Route</i><b>' + esc(r.name || 'A route') + '</b><span>' +
+    (hs.length ? hs.length + (hs.length === 1 ? ' hill' : ' hills') + ' &middot; ' + esc(hs.slice(0, 3).map(h => hillName(h)).join(', ')) : 'No hills on it') +
+    (r.trk ? ' &middot; ' + prettyDist(trackLength(unpackTrk(r.trk))) : '') + '</span>' +
+    '<button class="chip" data-act="chatrouteadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button></span></div>';
+}
+function postCard(m){
+  const p = m.post || {};
+  const img = p.shot ? '<img class="cvpostimg" data-post="' + esc(p.id) + '" data-shot="' + esc(p.shot) + '" alt="' + esc('Photo from ' + (p.name || 'a walker')) + '">' : '';
+  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  const h = hs[0];
+  return '<button class="cvpost" data-act="chatpost" data-v="' + esc(p.id) + '">' + img + '<span class="cvpostb"><i class="lbl">' + (hs.length ? 'Summit' : 'Post') + ' · ' + esc(niceName(p.name) || 'Walker') + '</i>' +
+    '<b>' + esc(h ? hillName(h) + (hs.length > 1 ? ' + ' + (hs.length - 1) + ' more' : '') : (p.snip || 'A day on the hills')) + '</b>' +
+    '<span>' + (h ? htFlat(h) + ' &middot; ' + esc(regionOf(h, h.l[0])) : esc((p.text || '').slice(0, 80))) + '</span></span></button>';
+}
+/* weather on the day, at the top, in one short line */
+function planWx(h, date){
+  if (!h || !isFinite(h.a) || !date) return '';
+  const at = {la:h.a, lo:h.o};
+  const wx = wxCached(at);
+  if (!wx){
+    const k = wxKey(at);
+    if (!wxPainting[k]){ wxPainting[k] = true; fetchWeather(at).then(() => { delete wxPainting[k]; if (chatOpen) paintMsgs(); }).catch(() => { delete wxPainting[k]; }); }
+    return '<span class="dim">Checking…</span>';
+  }
+  const day = (wx.days || []).find(d => d.date === date);
+  if (!day) return '<span class="dim">Forecast nearer the day</span>';
+  const lev = wxLevelFor(h.h), up = lev && day.up ? day.up[lev.hPa] : null;
+  const wind = up != null ? Math.round(up) : (day.wind != null ? Math.round(day.wind) : null);
+  return '<span class="wxi">' + wxSvg(wxLook(day.code).i) + '</span>' + Math.round(day.hi) + '&deg;' + (wind != null ? ' · ' + wind + ' mph' : '') + (day.rain != null && day.rain >= 40 ? ' · ' + day.rain + '% rain' : '');
+}
+function planCard(m){
+  const p = m.plan || {}, h = BY_KEY[p.hill], c = chatOpen.chat, going = m.going || {};
+  const ins = Object.keys(going).filter(u => going[u] === 'in'), outs = Object.keys(going).filter(u => going[u] === 'out');
+  const mine = going[meU()] || '';
+  const avs = u => avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u);
+  const past = p.date && p.date < today();
+  const d = p.date ? new Date(p.date + 'T12:00') : null;
+  const eyebrow = 'Walk' + (d ? ' · ' + d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) : '') + (p.time ? ' · ' + p.time : '');
+  const cantNames = outs.map(u => firstName((c.names || {})[u])).slice(0, 2).join(', ');
+  return '<div class="cvplan' + (past ? ' past' : '') + '" id="plan-' + esc(m.id) + '">' +
+    '<div class="cvplanhead"><span class="cvcic">' + ti('walk') + '</span><div><i class="lbl">' + esc(eyebrow) + '</i>' +
+      '<b>' + esc(p.name || p.hn || (h ? hillName(h) : 'A walk')) + '</b>' + (h ? '<span>' + feet(h).toLocaleString() + ' ft &middot; ' + esc(regionOf(h, h.l[0])) + '</span>' : '') + '</div></div>' +
+    '<div class="cvperf" aria-hidden="true"></div>' +
+    '<div class="cvplanfacts">' +
+      '<div><i>Meet</i><b>' + esc(p.meet || 'Not set yet') + '</b></div>' +
+      '<div><i>On top</i><b>' + (h && !past ? planWx(h, p.date) : '&ndash;') + '</b></div></div>' +
+    (p.note ? '<p class="cvnote">' + esc(p.note) + '</p>' : '') +
+    '<div class="cvgoing">' + (ins.length ? '<span class="cvin">' + ins.slice(0, 6).map(avs).join('') + '<b>' + ins.length + ' in</b></span>' : '<span class="pdfine">Nobody’s said yet</span>') +
+      (outs.length ? '<span class="cvout">' + esc(cantNames) + (outs.length > 2 ? ' +' + (outs.length - 2) : '') + ' can’t</span>' : '') + '</div>' +
+    (past ? '' : '<div class="cvplanbtns"><button class="btn sm' + (mine === 'in' ? ' inon' : ' ghost') + '" data-act="planrsvp" data-m="' + esc(m.id) + '" data-v="in" aria-pressed="' + (mine === 'in') + '">' + ti('check') + (mine === 'in' ? 'You’re in' : 'I’m in') + '</button>' +
+      '<button class="btn sm ghost' + (mine === 'out' ? ' outon' : '') + '" data-act="planrsvp" data-m="' + esc(m.id) + '" data-v="out" aria-pressed="' + (mine === 'out') + '">Can’t make it</button></div>') +
+    (h ? '<div class="cvplanlinks"><button class="linkbtn" data-act="planadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button><button class="linkbtn" data-act="chathill" data-k="' + esc(p.hill) + '">About the hill</button></div>' : '') +
+  '</div>';
+}
+function pollCard(m){
+  const p = m.poll || {}, votes = m.votes || {}, c = chatOpen.chat;
+  const total = Object.keys(votes).length, mine = votes[meU()];
+  const closed = p.closes && p.closes < Date.now();
+  const members = (c.members || []).length;
+  const opts = (p.opts || []).map(o => {
+    const who = Object.keys(votes).filter(u => votes[u] === o.id);
+    const pct = total ? Math.round(who.length / total * 100) : 0;
+    const lab = p.dates && /^\d{4}-\d{2}-\d{2}$/.test(o.l) ? walkWhen(o.l) : o.l;
+    return '<button class="cvopt' + (mine === o.id ? ' on' : '') + '" data-act="pollvote" data-m="' + esc(m.id) + '" data-v="' + esc(o.id) + '"' + (closed ? ' disabled' : '') + ' aria-pressed="' + (mine === o.id) + '">' +
+      '<span class="cvoptbar" style="width:' + pct + '%"></span><span class="cvoptc">' + (mine === o.id ? ti('check') : '') + '</span><b>' + esc(lab) + '</b>' +
+      '<span class="cvoptwho">' + who.slice(0, 3).map(u => avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u)).join('') + '</span><i>' + who.length + '</i></button>';
+  }).join('');
+  const lead = (p.opts || []).map(o => ({o, n: Object.values(votes).filter(v => v === o.id).length})).sort((a, b) => b.n - a.n)[0];
+  const author = m.from === meU();
+  const waiting = (c.members || []).filter(u => !votes[u]).map(u => u === meU() ? 'you' : firstName((c.names || {})[u]));
+  return '<div class="cvpoll"><div class="cvpollhead"><span class="cvcic poll">' + ti('poll') + '</span><div><i class="lbl">Poll' + (p.closes ? (closed ? ' · closed' : ' · closes ' + esc(whenShort(p.closes))) : '') + '</i><b>' + esc(p.q || 'Poll') + '</b></div></div>' +
+    '<div class="cvopts">' + opts + '</div>' +
+    '<p class="cvpollfoot"><span>' + total + ' of ' + members + ' voted' + (waiting.length && waiting.length <= 3 && total ? ' · waiting on ' + esc(waiting.join(', ')) : '') + '</span>' +
+    (author && !closed && (p.opts || []).length < 8 ? '<button class="linkbtn" data-act="polladd" data-m="' + esc(m.id) + '">+ Add ' + (p.dates ? 'a date' : 'an option') + '</button>' : '') + '</p>' +
+    (author && p.dates && lead && lead.n ? '<div class="cvpollgo"><button class="btn sm" data-act="pollplan" data-m="' + esc(m.id) + '" data-v="' + esc(lead.o.l) + '">' + ti('walk') + 'Plan the walk for ' + esc(walkWhen(lead.o.l)) + '</button></div>' : '') +
+  '</div>';
+}
+function paintLive(){
+  const el = document.querySelector('#chatview .cvlive'); if (!el || !chatOpen) return;
+  const c = chatOpen.chat, live = chatOpen.live || {}, me = liveShare && liveShare.cid === chatOpen.id;
+  const others = Object.keys(live).filter(u => u !== meU());
+  if (!others.length && !me){ el.hidden = true; return; }
+  el.hidden = false;
+  const myPos = liveShare && liveShare.pos;
+  el.innerHTML = (me ? '<div class="cvlivebar"><span class="cvpulse"></span><span>You’re sharing your location until ' + whenShort(liveShare.until) + '</span><button class="linkbtn" data-act="livestop">Stop</button></div>' : '') +
+    others.map(u => {
+      const v = live[u], ago = Math.max(0, Math.round((Date.now() - (v.t || 0)) / 60000));
+      const dist = myPos ? distM(myPos.lat, myPos.lon, v.lat, v.lon) : null;
+      return '<a class="cvliverow" href="https://www.google.com/maps/search/?api=1&query=' + v.lat + ',' + v.lon + '" target="_blank" rel="noopener">' + avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u) +
+        '<span><b>' + esc(firstName((c.names || {})[u])) + '</b> ' + (dist != null ? (dist < 1609 ? Math.round(dist * 3.281).toLocaleString() + ' ft away' : (dist / 1609).toFixed(1) + ' miles away') : 'is sharing') +
+        ' &middot; ' + (ago ? ago + ' min ago' : 'just now') + '</span>' + ti('chevron-right') + '</a>';
+    }).join('');
+}
+function distM(a, b, c, d){
+  const R = 6371000, r = x => x * Math.PI / 180;
+  const x = Math.sin(r(c - a) / 2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(r(d - b) / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+/* ================= sending ================= */
+async function sendMsg(data, lastText){
+  if (!chatOpen) return null;
+  const c = chatOpen.chat;
+  if (chatIsRequest(c)) return null;
+  const id = chatOpen.id, t = Date.now();
+  const ref = FB.doc(FB.collection(fbDb, 'chats', id, 'msgs'));
+  const m = {from: fbUser.uid, t, kind:'text', ...data};
+  if (chatOpen.reply && (m.kind === 'text' || m.kind === 'photo')){ m.re = chatOpen.reply; setReply(null); }
+  chatOpen.msgs.push({id: ref.id, ...m, pending:true}); paintMsgs();
+  const box = document.getElementById('cvmsgs'); if (box) box.scrollTop = box.scrollHeight;
+  typingSet(false);
+  try{
+    await FB.setDoc(ref, m);
+    const cnt = {}; for (const u of c.members || []) if (u !== fbUser.uid) cnt[u] = FB.increment(1);
+    const hide = {}; for (const u of c.members || []) if (((c.hide || {})[u] || 0)) hide[u] = 0;
+    await FB.setDoc(chatRef(id), {t, last:{from: fbUser.uid, t, kind: m.kind, text: String(lastText != null ? lastText : m.text || '').slice(0, 120)},
+      read:{[fbUser.uid]: t}, cnt, ...(Object.keys(hide).length ? {hide} : {}), names:{[fbUser.uid]: myName()}, avs:{[fbUser.uid]: myAvatar() || ''}}, {merge:true});
+    const pm = chatOpen && chatOpen.msgs.find(x => x.id === ref.id); if (pm){ delete pm.pending; }
+    pushPing({kind:'msg', cid:id, mid:ref.id});
+    if (m.kind === 'text' || m.kind === 'photo') maybeAskPush();
+    return ref.id;
+  }catch(e){ toast('That didn’t send. ' + fbWhy(e)); if (chatOpen){ chatOpen.msgs = chatOpen.msgs.filter(x => x.id !== ref.id); paintMsgs(); } return null; }
+}
+async function sendPhoto(file){
+  if (!chatOpen || !file) return;
+  try{
+    const data = await makeBanner(file);
+    const img = new Image(); await new Promise(r => { img.onload = r; img.onerror = r; img.src = data; });
+    const sref = FB.doc(FB.collection(fbDb, 'chats', chatOpen.id, 'shots'));
+    await FB.setDoc(sref, {owner: fbUser.uid, data, t: Date.now()});
+    shotCache.set(sref.id, data);
+    await sendMsg({kind:'photo', shot: sref.id, w: img.naturalWidth || 4, h: img.naturalHeight || 3}, 'Sent a photo');
+  }catch(e){ toast('That photo didn’t send. ' + (e.message || '')); }
+}
+function setReply(m){
+  if (!chatOpen) return;
+  const el = document.querySelector('#chatview .cvquote'); if (!el) return;
+  if (!m){ chatOpen.reply = null; el.hidden = true; el.innerHTML = ''; return; }
+  const c = chatOpen.chat;
+  const text = m.kind === 'photo' ? 'Photo' : m.kind === 'plan' ? 'Walk plan' : m.kind === 'poll' ? 'Poll: ' + ((m.poll || {}).q || '') : m.kind === 'hill' ? 'A hill' : (m.text || '');
+  chatOpen.reply = {id: m.id, from: m.from, name: (c.names || {})[m.from] || '', text: String(text).slice(0, 140)};
+  el.hidden = false;
+  el.innerHTML = '<span class="cvqic">' + ti('reply') + '</span><span class="cvqb"><b>Replying to ' + esc(m.from === meU() ? 'yourself' : firstName((c.names || {})[m.from])) + '</b><span>' + esc(chatOpen.reply.text) + '</span></span>' +
+    '<button class="cvqx" data-act="chatreplyx" aria-label="Cancel reply">' + ti('x') + '</button>';
+  const t = document.getElementById('cvtext'); if (t) t.focus();
+}
+
+/* ================= the + menu, and what it adds ================= */
+function chatPlus(){
+  const sharing = liveShare && liveShare.cid === (chatOpen && chatOpen.id);
+  bcSheet('<h3 class="bcsheettitle">Add to the chat</h3><div class="cvplusgrid">' +
+    '<button data-act="chatplanwalk"><span>' + ti('walk') + '</span><b>Plan a walk</b></button>' +
+    '<button data-act="chatpoll"><span>' + ti('poll') + '</span><b>Poll</b></button>' +
+    '<button data-act="chatpickphoto"><span>' + ti('photo') + '</span><b>Photo</b></button>' +
+    '<button data-act="chatsharehill"><span>' + ti('mountain') + '</span><b>A hill</b></button>' +
+    '<button data-act="chatshareroute"><span>' + ti('route') + '</span><b>A route</b></button>' +
+    '<button data-act="chatlive"><span>' + ti('current-location') + '</span><b>' + (sharing ? 'Stop sharing' : 'Live location') + '</b></button></div>', 'Add to the chat', 'cvplussheet');
+}
+function hillPicker(){
+  ui.hillQ = ui.hillQ || '';
+  const row = h => '<button class="mrow" data-act="chatsendhill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + '</span></span></button>';
+  const el = bcSheet('<h3 class="bcsheettitle">Share a hill</h3><div class="field">' + ti('search') + '<input id="hpq" placeholder="Search any hill" autocomplete="off" value="' + esc(ui.hillQ) + '"></div>' +
+    '<div class="hpres">' + (ui.hillQ ? markSearch(ui.hillQ).slice(0, 8).map(row).join('') || '<p class="pdfine">No hill by that name.</p>'
+      : recentlyMarked(5).map(h => '<button class="mrow" data-act="chatsendhill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; you marked it</span></span></button>').join('')) + '</div>', 'Share a hill');
+  const q = el.querySelector('#hpq'); if (q){ q.focus(); q.oninput = e => { ui.hillQ = e.target.value; const r = el.querySelector('.hpres'); if (r) r.innerHTML = markSearch(ui.hillQ).slice(0, 8).map(row).join(''); }; }
+}
+function routePicker(){
+  const ps = livePlans();
+  bcSheet('<h3 class="bcsheettitle">Share a route</h3>' + (ps.length ? '<div class="hpres">' + ps.slice(0, 12).map(p => '<button class="mrow" data-act="chatsendroute" data-v="' + esc(p.id) + '"><span class="mmain"><b>' + esc(p.name || 'Untitled route') + '</b><span>' +
+      (p.hills || []).length + ' hills' + (p.date ? ' &middot; ' + esc(prettyDate(p.date)) : '') + '</span></span></button>').join('') + '</div>'
+    : '<p class="bclede">You haven’t planned a route yet. Plan one on the Map and it can be shared here.</p>'), 'Share a route');
+}
+/* the plan: which hill, when, where to meet */
+function planComposer(cid, opts){
+  ui.planDraft = {cid, with: (opts && opts.with) || null, title: (opts && opts.title) || '', hill: (opts && opts.hill) || '', q:'', date: (opts && opts.date) || '', time:'', meet:'', note:''};
+  paintPlanComposer();
+}
+function paintPlanComposer(){
+  const d = ui.planDraft; if (!d) return;
+  const h = d.hill ? BY_KEY[d.hill] : null, tdy = new Date().toISOString().slice(0, 10);
+  const el = bcSheet('<h3 class="bcsheettitle">Plan a walk</h3><div class="form walkinv" style="margin:0">' +
+    '<div><label for="pdq">Which hill</label>' + (h
+      ? '<div class="mrow on"><button class="mmain" data-act="pdhillclear"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; change</span></button></div>'
+      : '<div class="field">' + ti('search') + '<input id="pdq" placeholder="Search any hill…" autocomplete="off" value="' + esc(d.q) + '"></div><div id="pdres">' + walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"') + '</div>') + '</div>' +
+    '<div class="pdrow"><div><label for="pddate">When</label><input type="date" id="pddate" min="' + tdy + '" value="' + esc(d.date) + '"></div>' +
+    '<div><label for="pdtime">Time <span class="opt">optional</span></label><input type="time" id="pdtime" value="' + esc(d.time) + '"></div></div>' +
+    '<div><label for="pdmeet">Where to meet <span class="opt">optional</span></label><input id="pdmeet" maxlength="80" placeholder="Seathwaite car park" value="' + esc(d.meet) + '"></div>' +
+    '<div><label for="pdnote">A note <span class="opt">optional</span></label><input id="pdnote" maxlength="200" placeholder="Bring a flask, it’ll be windy on top" value="' + esc(d.note) + '"></div>' +
+    '<button class="btn bcgo" data-act="plansend"' + (h && d.date ? '' : ' disabled') + '>' + ti('send') + (d.with && d.with.length > 1 ? 'Start the walk chat' : 'Send the plan') + '</button></div>', 'Plan a walk');
+  const bind = (id, k) => { const i = el.querySelector('#' + id); if (i) i.oninput = e => { d[k] = e.target.value; const b = el.querySelector('[data-act=plansend]'); if (b) b.disabled = !(d.hill && d.date); }; };
+  bind('pddate', 'date'); bind('pdtime', 'time'); bind('pdmeet', 'meet'); bind('pdnote', 'note');
+  const q = el.querySelector('#pdq');
+  if (q) q.oninput = e => { d.q = e.target.value; const r = el.querySelector('#pdres'); if (r) r.innerHTML = walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"'); };
+}
+async function sendPlan(){
+  const d = ui.planDraft; if (!d || !d.hill || !d.date) return;
+  bcSheetClose(); ui.planDraft = null;
+  const h = BY_KEY[d.hill];
+  const plan = {hill: d.hill, hn: h ? hillName(h) : '', la: h ? +(+h.a).toFixed(4) : null, lo: h ? +(+h.o).toFixed(4) : null,
+    date: d.date, time: d.time || '', meet: d.meet.trim().slice(0, 80), note: d.note.trim().slice(0, 200)};
+  let cid = d.cid;
+  if (!cid && d.with){
+    if (d.with.length === 1) cid = await ensureDm(d.with[0]);
+    else cid = await makeGroup(d.with, d.title || (h ? hillName(h) + ', ' + walkWhen(d.date) : 'Our walk'), 'walk', {...plan, going:{[fbUser.uid]:'in'}});
+    if (!cid) return;
+    await openChat(cid);
+  }
+  if (!chatOpen) return;
+  const mid = await sendMsg({kind:'plan', plan, going:{[fbUser.uid]:'in'}}, 'Planned ' + (h ? hillName(h) : 'a walk') + ', ' + walkWhen(plan.date));
+  if (mid){ const full = {...plan, mid, going:{[fbUser.uid]:'in'}}; chatOpen.chat.plan = full; paintPinbar(); FB.setDoc(chatRef(chatOpen.id), {plan: full}, {merge:true}).catch(() => {}); }
+}
+/* a poll: anything, or a set of dates */
+function pollComposer(){
+  ui.pollDraft = ui.pollDraft || {q:'', dates:true, opts:['', ''], closes:''};
+  paintPollComposer();
+}
+function paintPollComposer(){
+  const d = ui.pollDraft; if (!d) return;
+  const tdy = new Date().toISOString().slice(0, 10);
+  const el = bcSheet('<h3 class="bcsheettitle">Start a poll</h3><div class="form walkinv" style="margin:0">' +
+    '<div class="pollkind" role="group" aria-label="What are people choosing"><button data-act="pollkind" data-v="dates" aria-pressed="' + d.dates + '">' + ti('walk') + 'Dates</button><button data-act="pollkind" data-v="any" aria-pressed="' + !d.dates + '">' + ti('poll') + 'Anything</button></div>' +
+    '<div><label for="pollq">Question</label><input id="pollq" maxlength="80" placeholder="' + (d.dates ? 'Which Saturday?' : 'Which hill?') + '" value="' + esc(d.q) + '"></div>' +
+    '<div class="pollopts">' + d.opts.map((o, i) => '<div class="pollopt"><input ' + (d.dates ? 'type="date" min="' + tdy + '"' : 'maxlength="40" placeholder="Option ' + (i + 1) + '"') + ' data-i="' + i + '" value="' + esc(o) + '" aria-label="Option ' + (i + 1) + '">' +
+      (d.opts.length > 2 ? '<button class="xbtn" data-act="polldel" data-v="' + i + '" aria-label="Remove option ' + (i + 1) + '">' + ti('x') + '</button>' : '') + '</div>').join('') + '</div>' +
+    (d.opts.length < 8 ? '<button class="linkbtn" data-act="pollmore">+ Add ' + (d.dates ? 'a date' : 'an option') + '</button>' : '') +
+    '<div><label for="pollclose">Closes <span class="opt">optional</span></label><select id="pollclose"><option value="">When I say so</option><option value="1"' + (d.closes === '1' ? ' selected' : '') + '>In 24 hours</option><option value="3"' + (d.closes === '3' ? ' selected' : '') + '>In 3 days</option><option value="7"' + (d.closes === '7' ? ' selected' : '') + '>In a week</option></select></div>' +
+    '<button class="btn bcgo" data-act="pollsend">' + ti('send') + 'Send the poll</button></div>', 'Start a poll');
+  el.querySelector('#pollq').oninput = e => { d.q = e.target.value; };
+  el.querySelector('#pollclose').onchange = e => { d.closes = e.target.value; };
+  el.querySelectorAll('.pollopt input').forEach(i => { i.oninput = e => { d.opts[+e.target.dataset.i] = e.target.value; }; });
+}
+async function sendPoll(){
+  const d = ui.pollDraft; if (!d) return;
+  const opts = d.opts.map(s => String(s || '').trim()).filter(Boolean);
+  if (opts.length < 2){ toast('Give it at least two options.'); return; }
+  const q = (d.q || '').trim() || (d.dates ? 'Which day works?' : 'What do you reckon?');
+  bcSheetClose(); ui.pollDraft = null;
+  const poll = {q: q.slice(0, 80), dates: !!d.dates, opts: [...new Set(opts)].slice(0, 8).map((l, i) => ({id: 'o' + i, l: l.slice(0, 40)})), closes: d.closes ? Date.now() + (+d.closes) * 86400000 : 0};
+  await sendMsg({kind:'poll', poll, votes:{}}, q);
+}
+
+/* ================= send a post or summit to friends ================= */
+function sendToSheet(pid){
+  const p = findPost(pid); if (!p) return;
+  ui.sendTo = {pid, sel:[], q:'', text:''};
+  paintSendTo();
+}
+function paintSendTo(){
+  const d = ui.sendTo; if (!d) return;
+  const q = d.q.toLowerCase();
+  const targets = [];
+  for (const c of visibleChats()){ if (chatIsRequest(c)) continue; targets.push({key:'c:' + c.id, name: chatName(c), av: chatAvatar(c, 'lg')}); }
+  const haveDm = new Set(visibleChats().filter(c => c.kind === 'dm').map(chatOther));
+  for (const p of msgPeople()) if (!haveDm.has(p.uid)) targets.push({key:'u:' + p.uid, name: p.name, av: '<span class="mgav">' + avatarHTML(p.av, p.name, 'lg', p.uid) + '</span>'});
+  const list = targets.filter(t => !q || t.name.toLowerCase().includes(q)).slice(0, 24);
+  const sel = new Set(d.sel);
+  const el = bcSheet('<h3 class="bcsheettitle">Send to…</h3><div class="field">' + ti('search') + '<input id="stq" placeholder="Search people and chats" value="' + esc(d.q) + '" autocomplete="off"></div>' +
+    '<div class="stgrid">' + (list.map(t => '<button class="stitem" data-act="sttoggle" data-v="' + esc(t.key) + '" aria-pressed="' + sel.has(t.key) + '">' + t.av + (sel.has(t.key) ? '<span class="sttick">' + ti('check') + '</span>' : '') +
+      '<span>' + esc(t.name) + '</span></button>').join('') || '<p class="pdfine">Nobody to send to yet. Follow some hikers first.</p>') + '</div>' +
+    '<input id="sttext" class="pickin" maxlength="300" placeholder="Add a message…" value="' + esc(d.text) + '">' +
+    '<button class="btn bcgo" data-act="stsend"' + (d.sel.length ? '' : ' disabled') + '>' + ti('send') + (d.sel.length > 1 ? 'Send separately · ' + d.sel.length : 'Send') + '</button>', 'Send to', 'stsheet');
+  const qi = el.querySelector('#stq'); qi.oninput = e => { d.q = e.target.value; const pos = e.target.selectionStart; paintSendTo(); const n = document.getElementById('stq'); if (n){ n.focus(); n.setSelectionRange(pos, pos); } };
+  el.querySelector('#sttext').oninput = e => { d.text = e.target.value; };
+}
+async function sendToGo(){
+  const d = ui.sendTo; if (!d || !d.sel.length) return;
+  const p = findPost(d.pid); if (!p) return;
+  bcSheetClose(); ui.sendTo = null;
+  const post = {id: p.id, uid: p.uid, name: p.name || '', hills: (p.hills || []).slice(0, 6), shot: (p.shots || [])[0] || '', snip: postSnip(p), text: String(p.text || '').slice(0, 120)};
+  let n = 0;
+  for (const key of d.sel){
+    const cid = key.startsWith('c:') ? key.slice(2) : await ensureDm(key.slice(2));
+    if (!cid) continue;
+    const c = chats.find(x => x.id === cid) || {id: cid, members:[fbUser.uid], kind:'dm'};
+    /* send without opening each chat: a stand-in "open" for sendMsg */
+    const keep = chatOpen;
+    chatOpen = {id: cid, chat: c, msgs: [], reply: null};
+    await sendMsg({kind:'post', post}, 'Shared ' + postSnip(p));
+    if (d.text.trim()) await sendMsg({kind:'text', text: d.text.trim().slice(0, 1000)});
+    chatOpen = keep; n++;
+  }
+  if (chatOpen) paintMsgs();
+  toast(n ? 'Sent to ' + n + (n === 1 ? ' chat.' : ' chats.') : 'That didn’t send.');
+}
+
+/* ================= your location, for a few hours ================= */
+let liveShare = null;   /* {cid, until, watch, pos, lastWrite} */
+function liveMenu(){
+  bcSheet('<h3 class="bcsheettitle">Share my location</h3><p class="bclede">Everyone in this chat sees where you are until it stops. Handy for finding each other on the day.</p>' +
+    '<div class="cvplusgrid three">' + [1, 4, 8].map(hh => '<button data-act="livestart" data-v="' + hh + '"><b>' + hh + (hh === 1 ? ' hour' : ' hours') + '</b></button>').join('') + '</div>', 'Share my location');
+}
+function liveStart(hours){
+  if (!chatOpen || !navigator.geolocation){ toast('This device can’t share its location.'); return; }
+  liveStop(true);
+  const cid = chatOpen.id, until = Date.now() + hours * 3600000;
+  liveShare = {cid, until, watch:null, pos:null, lastWrite:0};
+  liveShare.watch = navigator.geolocation.watchPosition(p => {
+    if (!liveShare) return;
+    if (Date.now() > liveShare.until){ liveStop(); return; }
+    liveShare.pos = {lat: p.coords.latitude, lon: p.coords.longitude};
+    if (Date.now() - liveShare.lastWrite > 30000){
+      liveShare.lastWrite = Date.now();
+      FB.setDoc(FB.doc(fbDb, 'chats', cid, 'live', fbUser.uid), {lat: +p.coords.latitude.toFixed(5), lon: +p.coords.longitude.toFixed(5), acc: Math.round(p.coords.accuracy || 0), t: Date.now(), until}).catch(() => {});
+    }
+    paintLive();
+  }, () => { toast('Location is switched off for WayMark. Turn it on in your phone’s settings.'); liveStop(true); }, {enableHighAccuracy:true, maximumAge:20000});
+  sendMsg({kind:'loc', text: firstName(myName()) + ' is sharing their location until ' + whenShort(until)}, 'Is sharing their location');
+  paintLive(); paintChatHead();
+}
+function liveStop(quiet){
+  if (!liveShare) return;
+  try{ navigator.geolocation.clearWatch(liveShare.watch); }catch(e){}
+  const cid = liveShare.cid; liveShare = null;
+  FB.deleteDoc(FB.doc(fbDb, 'chats', cid, 'live', fbUser.uid)).catch(() => {});
+  if (!quiet) toast('Stopped sharing your location.');
+  paintLive(); paintChatHead();
+}
+
+/* ================= reactions: hold a message ================= */
+let reactTarget = null;
+function showReactBar(bub){
+  hideReactBar();
+  const mid = bub.dataset.m, m = chatOpen && chatOpen.msgs.find(x => x.id === mid); if (!m) return;
+  reactTarget = mid;
+  const bar = document.createElement('div'); bar.className = 'cvreactbar'; bar.id = 'cvreactbar';
+  const mine = (m.react || {})[meU()];
+  bar.innerHTML = MSG_REACTS.map(e => '<button data-act="chatreact" data-v="' + e + '" aria-pressed="' + (mine === e) + '">' + e + '</button>').join('') +
+    '<button class="cvbaric" data-act="chatreplyto" aria-label="Reply">' + ti('reply') + '</button>' +
+    (m.from === meU() && (m.kind === 'text' || m.kind === 'photo') ? '<button class="cvbaric cvdel" data-act="chatunsend" aria-label="Unsend">' + ti('trash') + '</button>' : '');
+  document.getElementById('chatview').appendChild(bar);
+  const r = bub.getBoundingClientRect(), bw = Math.min(bar.offsetWidth || 340, innerWidth - 16);
+  bar.style.top = Math.max(70, r.top - 58) + 'px';
+  bar.style.left = Math.max(8, Math.min(innerWidth - bw - 8, (bub.closest('.mine') ? r.right - bw : r.left))) + 'px';
+}
+function hideReactBar(){ const b = document.getElementById('cvreactbar'); if (b) b.remove(); reactTarget = null; }
+async function setReact(e){
+  if (!chatOpen || !reactTarget) return;
+  const m = chatOpen.msgs.find(x => x.id === reactTarget); hideReactBar(); if (!m) return;
+  const cur = (m.react || {})[meU()], v = cur === e ? FB.deleteField() : e;
+  m.react = {...(m.react || {})}; if (cur === e) delete m.react[meU()]; else m.react[meU()] = e;
+  paintMsgs();
+  try{ await FB.setDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'msgs', m.id), {react:{[meU()]: v}}, {merge:true}); }catch(err){ toast(fbWhy(err)); }
+}
+
+/* ================= the chat screen's gestures and keys ================= */
+function chatWire(el){
+  el.addEventListener('submit', e => {
+    e.preventDefault();
+    const box = document.getElementById('cvtext'); const t = box.value.trim(); if (!t) return;
+    box.value = ''; autoGrow(box); sendMsg({kind:'text', text: t.slice(0, 1000)});
+    box.focus();
+  });
+  el.addEventListener('keydown', e => {
+    if (e.target.id === 'cvtext' && e.key === 'Enter' && !e.shiftKey && matchMedia('(hover:hover)').matches){ e.preventDefault(); el.querySelector('#cvcompose').requestSubmit(); }
+    if (e.key === 'Escape'){ if (document.getElementById('cvreactbar')) hideReactBar(); else if (chatOpen && chatOpen.reply) setReply(null); else history.back(); }
+  });
+  el.addEventListener('input', e => { if (e.target.id === 'cvtext'){ autoGrow(e.target); typingSet(!!e.target.value.trim()); } });
+  el.addEventListener('change', e => { if (e.target.id === 'cvphoto' && e.target.files[0]){ sendPhoto(e.target.files[0]); e.target.value = ''; } });
+  /* hold a bubble for reactions; drag it right to reply */
+  let hold = null, sx = 0, sy = 0, row = null, mode = '', dx = 0;
+  el.addEventListener('pointerdown', e => {
+    const b = e.target.closest('.cvbub');
+    if (!b){ if (!e.target.closest('.cvreactbar')) hideReactBar(); return; }
+    sx = e.clientX; sy = e.clientY; mode = ''; dx = 0; row = b.closest('.cvrow'); clearTimeout(hold);
+    hold = setTimeout(() => { if (mode) return; if (navigator.vibrate) try{ navigator.vibrate(10); }catch(err){} showReactBar(b); hold = null; }, 450);
+  });
+  el.addEventListener('pointermove', e => {
+    if (!row) return;
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if (!mode){
+      if (Math.abs(mx) > 10 && mx > 0 && Math.abs(mx) > Math.abs(my) * 1.4){ mode = 'x'; clearTimeout(hold); hold = null; }
+      else if (Math.abs(my) > 8 || Math.abs(mx) > 8){ clearTimeout(hold); hold = null; row = null; return; }
+      else return;
+    }
+    dx = Math.max(0, Math.min(90, mx));
+    row.style.transform = 'translateX(' + dx + 'px)';
+    row.style.setProperty('--sw', Math.min(1, dx / 56).toFixed(2));
+    row.classList.toggle('swiping', dx > 56);
+  });
+  const end = () => {
+    clearTimeout(hold); hold = null;
+    if (!row) return;
+    const r = row; row = null;
+    if (mode === 'x'){
+      r.style.transition = 'transform .2s cubic-bezier(.32,.72,0,1)'; r.style.transform = '';
+      setTimeout(() => { r.style.transition = ''; r.classList.remove('swiping'); r.style.removeProperty('--sw'); }, 220);
+      if (dx > 56 && chatOpen){ const m = chatOpen.msgs.find(x => x.id === r.dataset.mid); if (m){ if (navigator.vibrate) try{ navigator.vibrate(8); }catch(err){} setReply(m); } }
+    }
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('contextmenu', e => { const b = e.target.closest('.cvbub'); if (b){ e.preventDefault(); showReactBar(b); } });
+  el.addEventListener('dblclick', e => { const b = e.target.closest('.cvbub'); if (b){ reactTarget = b.dataset.m; setReact('👍'); } });
+}
+function autoGrow(t){ t.style.height = 'auto'; t.style.height = Math.min(140, t.scrollHeight) + 'px'; }
+/* the keyboard shrinks the visual viewport; the chat follows it */
+function fitChat(){
+  const vv = window.visualViewport;
+  ['chatview', 'inboxview'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    el.style.height = (vv ? vv.height : innerHeight) + 'px';
+    el.style.top = (vv ? vv.offsetTop : 0) + 'px';
+  });
+}
+if (window.visualViewport){ visualViewport.addEventListener('resize', () => { if (chatOpen || inboxOpen){ fitChat(); const b = document.getElementById('cvmsgs'); if (b && chatOpen) b.scrollTop = b.scrollHeight; } }); visualViewport.addEventListener('scroll', () => { if (chatOpen || inboxOpen) fitChat(); }); }
+
+/* ================= details: members, name, notifications, leave ================= */
+function chatInfo(){
+  if (!chatOpen) return;
+  const c = chatOpen.chat, owner = c.createdBy === meU(), me = meU();
+  const ntf = (c.ntf || {})[me] || 'all', muted = chatMuted(c);
+  let s = '<div class="bcsheethead">' + chatAvatar(c) + '<div><b class="bcbig">' + esc(chatName(c)) + '</b><span>' + (c.kind === 'dm' ? 'Private chat' : (c.members || []).length + ' people') + '</span></div></div>';
+  s += '<button class="cvrowbtn" data-act="chatntf">' + ti(muted || ntf === 'none' ? 'bell-off' : 'bell') + '<span><b>Notifications</b><i>' + (muted ? 'Muted ' + muteLabel((c.mute || {})[me]) : ntf === 'walk' ? 'Walk updates and mentions only' : ntf === 'none' ? 'Off for this chat' : 'Every message') + '</i></span>' + ti('chevron-right') + '</button>';
+  s += '<button class="cvrowbtn" data-act="chatpin" data-v="' + esc(c.id) + '">' + ti('pin') + '<span><b>' + (chatPinned(c) ? 'Unpin from the top' : 'Pin to the top') + '</b></span></button>';
+  if (c.kind !== 'dm'){
+    if (owner) s += '<div><label for="cvtitle" class="lbl2">Name</label><div class="pdrow"><input id="cvtitle" class="pickin" maxlength="40" value="' + esc(c.title || '') + '" placeholder="Name this chat"><button class="btn sm" data-act="chatrename">Save</button></div></div>';
+    s += '<ul class="ytlist">' + (c.members || []).map(u => '<li><span class="mgav">' + avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u) + (isOnline(u) ? '<span class="mgon"></span>' : '') + '</span><b>' + esc(u === me ? 'You' : niceName((c.names || {})[u])) + '</b>' +
+      (u === c.createdBy ? '<i>Started it</i>' : '') + (owner && u !== me ? '<button class="chip" data-act="chatkick" data-u="' + esc(u) + '">Remove</button>' : '') + '</li>').join('') + '</ul>';
+    if (owner && (c.members || []).length < 30) s += '<button class="btn ghost" data-act="chatadd">' + ti('user-plus') + 'Add people</button>';
+    s += '<button class="btn quiet" data-act="chatleave">Leave this chat</button>';
+  } else {
+    const o = chatOther(c);
+    s += '<button class="btn ghost" data-act="chatperson">' + ti('user-circle') + 'View profile</button>' +
+      '<button class="btn quiet" data-act="reportuser" data-uid="' + esc(o) + '" data-n="' + esc(chatName(c)) + '">' + ti('flag') + 'Report</button>' +
+      '<button class="btn quiet" data-act="blockuser" data-uid="' + esc(o) + '" data-n="' + esc(chatName(c)) + '">Block</button>';
+  }
+  bcSheet(s, 'Chat details', 'cvinfosheet');
+}
+function muteLabel(until){
+  if (!until) return '';
+  if (until > Date.now() + 3e11) return 'always';
+  return 'until ' + (new Date(until).toDateString() === new Date().toDateString() ? whenShort(until) : new Date(until).toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) + ' ' + whenShort(until));
+}
+function chatNtfSheet(){
+  if (!chatOpen) return;
+  const c = chatOpen.chat, me = meU(), ntf = (c.ntf || {})[me] || 'all', mu = (c.mute || {})[me] || 0;
+  const opt = (v, t, s) => '<button class="cvradio" data-act="chatntfset" data-v="' + v + '" aria-pressed="' + (ntf === v) + '"><span><b>' + t + '</b>' + (s ? '<i>' + s + '</i>' : '') + '</span><span class="cvrad"></span></button>';
+  const p = c.plan && c.plan.date && c.plan.date >= today() ? c.plan : null;
+  const chip = (v, l) => '<button class="chip" data-act="chatmute" data-v="' + v + '">' + l + '</button>';
+  bcSheet('<h3 class="bcsheettitle">Notifications for this chat</h3>' +
+    '<div class="cvradios">' + opt('all', 'Every message') + opt('walk', 'Walk updates and mentions only', 'Plans, polls, @' + esc(firstName(myName())) + ' and the day itself') + opt('none', 'Nothing', 'Still shows in the app, just no push') + '</div>' +
+    '<div><p class="lbl2">' + (mu > Date.now() ? 'Muted ' + esc(muteLabel(mu)) : 'Mute for') + '</p><div class="mutechips">' +
+    (mu > Date.now() ? chip('0', 'Unmute') : chip('1', '1 hour') + chip('8', '8 hours') + (p ? chip('walk', 'Until after the walk') : '') + chip('always', 'Always')) + '</div></div>', 'Chat notifications', 'cvntfsheet');
+}
+async function chatSet(id, data, local){
+  const c = chats.find(x => x.id === id) || (chatOpen && chatOpen.id === id ? chatOpen.chat : null);
+  if (c && local) local(c);
+  if (inboxOpen) paintMsgInbox();
+  paintHeadIcons();
+  try{ await FB.setDoc(chatRef(id), data, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+}
+
+async function chatAct(a, el){
+  const c = chatOpen && chatOpen.chat, me = meU();
+  if (a === 'msgopen'){ openInbox(); }
+  else if (a === 'inboxclose'){ if (history.state && history.state.inbox) history.back(); else closeInbox(); }
+  else if (a === 'inboxf'){ ui.inboxF = el.dataset.v; paintMsgInbox(); }
+  else if (a === 'inboxqclear'){ ui.inboxQ = ''; const i = document.getElementById('ibq'); if (i){ i.value = ''; i.focus(); } paintMsgInbox(); }
+  else if (a === 'chatopen'){ await openChat(el.dataset.v); }
+  else if (a === 'chatclose'){ if (history.state && history.state.chat) history.back(); else closeChat(); }
+  else if (a === 'msgnew'){ openPicker('msg'); }
+  else if (a === 'msggroup'){ openPicker('group'); }
+  else if (a === 'msgview'){ openInbox(); }
+  else if (a === 'chatmark'){ const id = el.dataset.v, x = chats.find(y => y.id === id); if (!x) return true; const un = chatUnread(x);
+    await chatSet(id, un ? {read:{[me]: Date.now()}, cnt:{[me]: 0}, unr:{[me]: false}} : {unr:{[me]: true}}, y => { y.unr = {...(y.unr || {}), [me]: !un}; if (un){ y.read = {...(y.read || {}), [me]: Date.now()}; y.cnt = {...(y.cnt || {}), [me]: 0}; } }); setAppBadge(); }
+  else if (a === 'chatpin'){ const id = el.dataset.v, x = chats.find(y => y.id === id); if (!x) return true; const on = !chatPinned(x);
+    await chatSet(id, {pins:{[me]: on ? Date.now() : 0}}, y => { y.pins = {...(y.pins || {}), [me]: on ? Date.now() : 0}; }); if (chatOpen && document.querySelector('#bcsheet.open.cvinfosheet')) chatInfo(); toast(on ? 'Pinned to the top.' : 'Unpinned.'); }
+  else if (a === 'chatmutequick'){ const id = el.dataset.v, x = chats.find(y => y.id === id); if (!x) return true; const on = !chatMuted(x), until = on ? 9e15 : 0;
+    await chatSet(id, {mute:{[me]: until}}, y => { y.mute = {...(y.mute || {}), [me]: until}; }); toast(on ? 'Muted. It stays in your inbox without a buzz.' : 'Unmuted.'); }
+  else if (a === 'chathide'){ const id = el.dataset.v, x = chats.find(y => y.id === id); if (!x) return true;
+    const ok = await confirmAsk({title:'Delete this chat?', body:'It goes from your inbox. If someone sends a new message, it comes back.', yes:'Delete', no:'Keep'}); if (!ok){ paintMsgInbox(); return true; }
+    if (chatIsRequest(x)){ try{ await FB.deleteDoc(chatRef(id)); }catch(e){ toast(fbWhy(e)); } }
+    else await chatSet(id, {hide:{[me]: Date.now()}, cnt:{[me]: 0}}, y => { y.hide = {...(y.hide || {}), [me]: Date.now()}; }); }
+  else if (a === 'picktoggle'){ const p = ui.mpick; if (!p) return true; const u = el.dataset.u, i = p.sel.indexOf(u); if (i >= 0) p.sel.splice(i, 1); else p.sel.push(u); paintPicker(); }
+  else if (a === 'pickgo'){ if (ui.mpick && ui.mpick.mode === 'add'){ const add = ui.mpick.sel.slice(); bcSheetClose(); ui.mpick = null; await chatAddPeople(add); } else await pickGo(); }
+  else if (a === 'chatplus'){ chatPlus(); }
+  else if (a === 'chatpickphoto'){ bcSheetClose(); const f = document.getElementById('cvphoto'); if (f) f.click(); }
+  else if (a === 'chatsharehill'){ ui.hillQ = ''; hillPicker(); }
+  else if (a === 'chatsendhill'){ bcSheetClose(); const h = BY_KEY[el.dataset.k]; await sendMsg({kind:'hill', k: el.dataset.k}, 'Shared ' + (h ? hillName(h) : 'a hill')); }
+  else if (a === 'chatshareroute'){ routePicker(); }
+  else if (a === 'chatsendroute'){
+    bcSheetClose(); const p = livePlans().find(x => x.id === el.dataset.v); if (!p) return true;
+    await sendMsg({kind:'route', route:{name: p.name || '', hills: (p.hills || []).slice(0, 40), date: p.date || '', trk: p.trk && p.trk.length < 60000 ? p.trk : null}}, 'Shared ' + (p.name || 'a route'));
+  }
+  else if (a === 'chatrouteadd'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || !m.route) return true;
+    const r = m.route; state.plans.push({id:'p' + uid(), name: r.name || 'Shared route', date: r.date || '', notes:'From a chat with ' + chatName(c), hills: r.hills || [], trk: r.trk || null, wp:null, snap:true, deleted:false, t: now()});
+    touched(); toast('Added to your plans on the Map.');
+  }
+  else if (a === 'chatplanwalk'){ bcSheetClose(); planComposer(chatOpen ? chatOpen.id : null); }
+  else if (a === 'chatpoll'){ bcSheetClose(); ui.pollDraft = null; pollComposer(); }
+  else if (a === 'pollkind'){ const d = ui.pollDraft; if (d){ const dates = el.dataset.v === 'dates'; if (dates !== d.dates){ d.dates = dates; d.opts = ['', '']; } paintPollComposer(); } }
+  else if (a === 'pollmore'){ const d = ui.pollDraft; if (d && d.opts.length < 8){ d.opts.push(''); paintPollComposer(); const ins = document.querySelectorAll('.pollopt input'); if (ins.length) ins[ins.length - 1].focus(); } }
+  else if (a === 'polldel'){ const d = ui.pollDraft; if (d){ d.opts.splice(+el.dataset.v, 1); paintPollComposer(); } }
+  else if (a === 'pollsend'){ await sendPoll(); }
+  else if (a === 'pollvote'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m) return true;
+    const cur = (m.votes || {})[me], v = cur === el.dataset.v ? FB.deleteField() : el.dataset.v;
+    m.votes = {...(m.votes || {})}; if (typeof v === 'string') m.votes[me] = v; else delete m.votes[me];
+    paintMsgs();
+    try{ await FB.setDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'msgs', m.id), {votes:{[me]: v}}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+  }
+  else if (a === 'polladd'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || m.from !== me) return true;
+    const p = m.poll || {};
+    const tdy = new Date().toISOString().slice(0, 10);
+    const sh = bcSheet('<h3 class="bcsheettitle">Add ' + (p.dates ? 'a date' : 'an option') + '</h3><input id="polladdin" class="pickin" ' + (p.dates ? 'type="date" min="' + tdy + '"' : 'maxlength="40" placeholder="Another option"') + ' aria-label="New option">' +
+      '<button class="btn bcgo" data-act="polladdgo" data-m="' + esc(m.id) + '">Add it</button>', 'Add an option');
+    const i = sh.querySelector('#polladdin'); if (i) i.focus();
+  }
+  else if (a === 'polladdgo'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); const v = ((document.getElementById('polladdin') || {}).value || '').trim(); bcSheetClose(); if (!m || !v) return true;
+    const opts = [...((m.poll || {}).opts || []), {id:'o' + Date.now().toString(36), l: v.slice(0, 40)}].slice(0, 8);
+    m.poll = {...m.poll, opts}; paintMsgs();
+    try{ await FB.setDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'msgs', m.id), {poll:{opts}}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+  }
+  else if (a === 'pollplan'){ planComposer(chatOpen.id, {date: el.dataset.v}); }
+  else if (a === 'pdhill'){ if (ui.planDraft){ ui.planDraft.hill = el.dataset.k; paintPlanComposer(); } }
+  else if (a === 'pdhillclear'){ if (ui.planDraft){ ui.planDraft.hill = ''; paintPlanComposer(); } }
+  else if (a === 'plansend'){ await sendPlan(); }
+  else if (a === 'planrsvp'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m) return true;
+    const v = (m.going || {})[me] === el.dataset.v ? FB.deleteField() : el.dataset.v;
+    m.going = {...(m.going || {})}; if (typeof v === 'string') m.going[me] = v; else delete m.going[me];
+    paintMsgs();
+    try{ await FB.setDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'msgs', m.id), {going:{[me]: v}}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+    /* the walk at the top of the chat, and the inbox tickets, follow this plan */
+    if (!c.plan || c.plan.mid === m.id || (m.plan && c.plan.date === m.plan.date && c.plan.hill === m.plan.hill)){
+      c.plan = {...(c.plan || m.plan), mid: m.id, going: {...m.going}}; paintPinbar();
+      FB.setDoc(chatRef(chatOpen.id), {plan:{mid: m.id, going:{[me]: v}}}, {merge:true}).catch(() => {});
+    }
+    if (typeof v === 'string') await sendMsg({kind:'sys', text: firstName(myName()) + (v === 'in' ? ' is in' : ' can’t make it')}, v === 'in' ? 'I’m in' : 'Can’t make it');
+  }
+  else if (a === 'planadd'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || !m.plan) return true;
+    const p = m.plan, h = BY_KEY[p.hill];
+    state.plans.push({id:'p' + uid(), name: (h ? hillName(h) : 'Walk') + ' with ' + chatName(c), date: p.date || '', notes: [p.time && 'Meet ' + p.time, p.meet, p.note].filter(Boolean).join(' · '), hills: p.hill ? [p.hill] : [], trk:null, wp:null, snap:true, deleted:false, t: now()});
+    if (p.hill && stateOf(p.hill) === 'none'){ const r0 = rec(p.hill); state.bagged[p.hill] = {...r0, st:'planned', done:false, t: now()}; }
+    touched(); toast('Added to your plans on the Map.');
+  }
+  else if (a === 'chatgoplan'){
+    const mid = c && c.plan && c.plan.mid, box = document.getElementById('cvmsgs');
+    const t = mid && box ? box.querySelector('[data-mid="' + CSS.escape(mid) + '"]') : null;
+    if (t){ t.scrollIntoView({block:'center', behavior:'smooth'}); t.classList.add('flash'); setTimeout(() => t.classList.remove('flash'), 1400); }
+    else if (c && c.plan && c.plan.hill) openInfo(c.plan.hill);
+  }
+  else if (a === 'chatjump'){
+    const box = document.getElementById('cvmsgs'), t = box && box.querySelector('[data-mid="' + CSS.escape(el.dataset.m) + '"]');
+    if (t){ t.scrollIntoView({block:'center', behavior:'smooth'}); t.classList.add('flash'); setTimeout(() => t.classList.remove('flash'), 1400); } else toast('That message is too far back.');
+  }
+  else if (a === 'chatreplyto'){ const m = chatOpen.msgs.find(x => x.id === reactTarget); hideReactBar(); if (m) setReply(m); }
+  else if (a === 'chatreplyx'){ setReply(null); }
+  else if (a === 'chathill'){ openInfo(el.dataset.k); }
+  else if (a === 'chatpost'){ const id = el.dataset.v; closeChat(true); closeInbox(); try{ history.go(-2); }catch(e){} setTimeout(() => { tab = 'u'; openPostById(id, false); }, 60); }
+  else if (a === 'chatlive'){ if (!chatOpen) return true; if (liveShare && liveShare.cid === chatOpen.id){ bcSheetClose(); liveStop(); } else liveMenu(); }
+  else if (a === 'livestart'){ bcSheetClose(); liveStart(+el.dataset.v); }
+  else if (a === 'livestop'){ liveStop(); }
+  else if (a === 'chatreact'){ await setReact(el.dataset.v); }
+  else if (a === 'chatunsend'){
+    const mid = reactTarget; hideReactBar(); if (!mid) return true;
+    chatOpen.msgs = chatOpen.msgs.filter(x => x.id !== mid); paintMsgs();
+    try{ await FB.deleteDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'msgs', mid)); }catch(e){ toast(fbWhy(e)); }
+  }
+  else if (a === 'chatreactwho'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m) return true;
+    bcSheet('<h3 class="bcsheettitle">Reactions</h3><ul class="ytlist">' + Object.entries(m.react || {}).map(([u, e]) => '<li>' + avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u) + '<b>' + esc(u === me ? 'You' : niceName((c.names || {})[u])) + '</b><span style="font-size:20px">' + e + '</span></li>').join('') + '</ul>', 'Reactions');
+  }
+  else if (a === 'chatphotoview'){ const src = shotCache.get(el.dataset.v); if (src) bcSheet('<img class="cvbig" src="' + src + '" alt="">', 'Photo', 'cvphotosheet'); }
+  else if (a === 'chatinfo'){ chatInfo(); }
+  else if (a === 'chatntf'){ chatNtfSheet(); }
+  else if (a === 'chatntfset'){ const v = el.dataset.v; await chatSet(chatOpen.id, {ntf:{[me]: v}}, y => { y.ntf = {...(y.ntf || {}), [me]: v}; }); chatNtfSheet(); }
+  else if (a === 'chatmute'){
+    const v = el.dataset.v, p = c.plan;
+    const until = v === '0' ? 0 : v === 'always' ? 9e15 : v === 'walk' && p ? +new Date(p.date + 'T23:59') : Date.now() + (+v) * 3600000;
+    await chatSet(chatOpen.id, {mute:{[me]: until}}, y => { y.mute = {...(y.mute || {}), [me]: until}; });
+    bcSheetClose(); toast(until ? 'Muted ' + muteLabel(until) + '.' : 'Unmuted.');
+  }
+  else if (a === 'chatperson'){ const o = chatOther(c); bcSheetClose(); closeChat(true); closeInbox(); try{ history.go(-2); }catch(e){} setTimeout(() => { friendOpen = {code:'', uid:o}; tab = 'u'; render(); window.scrollTo({top:0}); }, 60); }
+  else if (a === 'chataccept'){ c.status = 'ok'; paintChatHead(); try{ await FB.setDoc(chatRef(chatOpen.id), {status:'ok'}, {merge:true}); }catch(e){ toast(fbWhy(e)); } }
+  else if (a === 'chatdecline'){ const id = chatOpen.id; history.back(); try{ await FB.deleteDoc(chatRef(id)); toast('Request deleted.'); }catch(e){ toast(fbWhy(e)); } }
+  else if (a === 'chatrename'){ const v = (document.getElementById('cvtitle') || {}).value || ''; bcSheetClose(); c.title = v.trim().slice(0, 40); paintChatHead(); FB.setDoc(chatRef(chatOpen.id), {title: c.title}, {merge:true}).catch(e => toast(fbWhy(e))); }
+  else if (a === 'chatkick'){ const u = el.dataset.u; bcSheetClose(); const ms = (c.members || []).filter(x => x !== u); c.members = ms; FB.setDoc(chatRef(chatOpen.id), {members: ms}, {merge:true}).then(() => sendMsg({kind:'sys', text: niceName((c.names || {})[u]) + ' was removed'}, 'Removed someone')).catch(e => toast(fbWhy(e))); }
+  else if (a === 'chatadd'){ bcSheetClose(); openPicker('add'); }
+  else if (a === 'chatleave'){
+    const id = chatOpen.id, ms = (c.members || []).filter(u => u !== me);
+    bcSheetClose();
+    const ok = await confirmAsk({title:'Leave this chat?', body:'You won’t see new messages. Someone can add you back.', yes:'Leave', no:'Stay'}); if (!ok) return true;
+    await sendMsg({kind:'sys', text: firstName(myName()) + ' left'}, 'Left the chat');
+    history.back(); try{ await FB.setDoc(chatRef(id), {members: ms}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+  }
+  else if (a === 'msgperson'){ const u = el.dataset.uid; if (!u || !fbUser) return true; bcSheetClose(); if (!inboxOpen) openInbox(); const id = await ensureDm(u, el.dataset.n || ''); if (id) openChat(id); }
+  else if (a === 'walkwith'){ const u = el.dataset.uid; if (!u || !fbUser) return true; bcSheetClose(); planComposer(null, {with:[u], hill: el.dataset.k || ''}); }
+  else if (a === 'planwalk'){ openPicker('walk'); }
+  else if (a === 'sendpost'){ sendToSheet(el.dataset.id); }
+  else if (a === 'sttoggle'){ const d = ui.sendTo; if (!d) return true; const k = el.dataset.v, i = d.sel.indexOf(k); if (i >= 0) d.sel.splice(i, 1); else d.sel.push(k); paintSendTo(); }
+  else if (a === 'stsend'){ await sendToGo(); }
+  else if (pushAct(a, el)){}
+  else return false;
+  return true;
+}
+async function chatAddPeople(uids){
+  if (!chatOpen || !uids.length) return;
+  const c = chatOpen.chat, names = {}, avs = {};
+  for (const u of uids){ const pn = personName(u); names[u] = pn.name; avs[u] = pn.av || ''; }
+  const ms = [...new Set([...(c.members || []), ...uids])].slice(0, 30);
+  try{
+    await FB.setDoc(chatRef(chatOpen.id), {members: ms, names, avs}, {merge:true});
+    c.members = ms;
+    await sendMsg({kind:'sys', text: firstName(myName()) + ' added ' + uids.map(u => firstName(names[u])).join(', ')}, 'Added people');
+  }catch(e){ toast(fbWhy(e)); }
+}
+
+/* ================= push notifications =================
+   Pushes are sent by a small Cloudflare worker (push-worker.js). After a
+   message, a like, a comment or a new post is saved, the app asks the worker
+   to push it; the worker checks it really happened, then pushes to each
+   person whose settings say "Push" for that kind of thing. What each person
+   wants is kept in users/{uid}/notify/prefs, their phones in users/{uid}/push. */
+const NOTIFY_KINDS = [
+  {sec:'Messages', rows:[['dm', 'Direct messages', ''], ['group', 'Group chats', 'Or set it per chat'], ['mention', 'Mentions of you', 'In a group or a comment'], ['request', 'Message requests', 'People you don’t follow back']]},
+  {sec:'Walk plans', rows:[['walk', 'New walks and changes', 'Plans, polls and live location'], ['rsvp', 'Who’s in or out', ''], ['remind', 'Night-before reminder', '6pm, with the forecast']]},
+  {sec:'Social', rows:[['like', 'Likes', ''], ['comment', 'Comments and replies', ''], ['follow', 'New followers', 'And follow requests']]},
+  {sec:'Friends’ hills', rows:[['summit', 'A friend bags a hill', 'Someone you follow posts a summit']]}
+];
+const NOTIFY_DEFAULT = {dm:'push', group:'push', mention:'push', request:'app', walk:'push', rsvp:'app', remind:'push', like:'app', comment:'push', follow:'app', summit:'app'};
+let notifyPrefs = null, notifyPrefsLoading = false;
+const notifyDoc = () => FB.doc(fbDb, 'users', fbUser.uid, 'notify', 'prefs');
+async function loadNotifyPrefs(){
+  if (notifyPrefs || notifyPrefsLoading || !FB || !fbUser) return;
+  notifyPrefsLoading = true;
+  try{ const d = await FB.getDoc(notifyDoc()); notifyPrefs = d.exists() ? d.data() : null; }catch(e){}
+  if (!notifyPrefs) notifyPrefs = {kinds:{...NOTIFY_DEFAULT}, quiet:true, qFrom:'22:00', qTo:'07:00', preview:true, active:true};
+  notifyPrefs.kinds = {...NOTIFY_DEFAULT, ...(notifyPrefs.kinds || {})};
+  notifyPrefsLoading = false;
+}
+function saveNotifyPrefs(){
+  if (!notifyPrefs || !FB || !fbUser) return;
+  let tz = 'Europe/London'; try{ tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; }catch(e){}
+  notifyPrefs.tz = tz; notifyPrefs.t = Date.now();
+  FB.setDoc(notifyDoc(), notifyPrefs).catch(e => toast(fbWhy(e)));
+}
+/* the bell's notes, filtered by what you asked to see in the app */
+const NOTE_KIND = {like:'like', comment:'comment', reply:'comment', mention:'mention', follow:'follow', request:'follow', accepted:'follow', walk:'walk', walkyes:'rsvp', walkno:'rsvp'};
+function noteShown(n){ const k = NOTE_KIND[n.type]; return !(k && notifyPrefs && notifyPrefs.kinds && notifyPrefs.kinds[k] === 'off'); }
+
+const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => { try{ return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }catch(e){ return false; } };
+function pushSupport(){
+  if (!('serviceWorker' in navigator)) return 'no';
+  if (isIOS() && !isStandalone()) return 'homescreen';
+  if (!('PushManager' in window) || !('Notification' in window)) return 'no';
+  return 'yes';
+}
+const PUSH_DEV = 'waymark.pushdev', PUSH_ASKED = 'waymark.pushasked';
+function pushDeviceId(){ let id = ''; try{ id = localStorage.getItem(PUSH_DEV) || ''; if (!id){ id = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); localStorage.setItem(PUSH_DEV, id); } }catch(e){ id = 'd0'; } return id; }
+function pushOnHere(){ try{ return 'Notification' in window && Notification.permission === 'granted' && localStorage.getItem('waymark.pushon') === '1'; }catch(e){ return false; } }
+function pushReady(){ return !!(window.PUSH_WORKER && window.PUSH_VAPID); }
+async function enablePush(){
+  const sup = pushSupport();
+  if (sup === 'homescreen'){ iosPushSheet(); return false; }
+  if (sup === 'no'){ toast('This browser can’t show notifications.'); return false; }
+  if (!pushReady()){ toast('Push isn’t set up on WayMark yet. It’s coming very soon.'); return false; }
+  let perm = Notification.permission;
+  if (perm === 'default') perm = await Notification.requestPermission();
+  if (perm !== 'granted'){ toast(perm === 'denied' ? 'Notifications are blocked for WayMark. Allow them in your phone’s settings, then try again.' : 'No notifications for now.'); return false; }
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    const M = await import('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-messaging.js');
+    const token = await M.getToken(M.getMessaging(fbApp), {vapidKey: window.PUSH_VAPID, serviceWorkerRegistration: reg});
+    if (!token) throw new Error('No push token came back.');
+    await FB.setDoc(FB.doc(fbDb, 'users', fbUser.uid, 'push', pushDeviceId()), {token, t: Date.now(), dev: isIOS() ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'Android' : 'Computer'});
+    try{ localStorage.setItem('waymark.pushon', '1'); }catch(e){}
+    await loadNotifyPrefs(); saveNotifyPrefs();
+    toast('Notifications are on for this ' + (isIOS() ? 'iPhone' : 'device') + '.');
+    return true;
+  }catch(e){ toast('Couldn’t turn notifications on. ' + (e.message || '')); return false; }
+}
+async function disablePush(){
+  try{ localStorage.setItem('waymark.pushon', '0'); }catch(e){}
+  try{ await FB.deleteDoc(FB.doc(fbDb, 'users', fbUser.uid, 'push', pushDeviceId())); }catch(e){}
+  try{ const M = await import('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-messaging.js'); await M.deleteToken(M.getMessaging(fbApp)); }catch(e){}
+  toast('Notifications are off on this device. You’ll still see everything in the app.');
+}
+/* ask once, right after your first message: the moment people say yes */
+function maybeAskPush(){
+  try{ if (localStorage.getItem(PUSH_ASKED)) return; }catch(e){ return; }
+  if (pushOnHere() || !pushReady()) return;
+  const sup = pushSupport(); if (sup === 'no') return;
+  if (sup === 'yes' && Notification.permission === 'denied') return;
+  try{ localStorage.setItem(PUSH_ASKED, String(Date.now())); }catch(e){}
+  const box = document.getElementById('cvmsgs'); if (!box || !chatOpen) return;
+  const other = chatOpen.chat.kind === 'dm' ? firstName(chatName(chatOpen.chat)) + '’s' : 'the';
+  const card = document.createElement('div'); card.className = 'cvask';
+  card.innerHTML = '<span class="cvaskic">' + ti('bell-ringing') + '</span><span class="cvaskb"><b>Don’t miss ' + esc(other) + ' reply</b><span>Get a notification on this ' + (isIOS() ? 'iPhone' : 'device') + ' when someone messages you. You choose exactly what comes through.</span>' +
+    '<span class="cvaskbtns"><button class="btn sm" data-act="pushon">Turn on</button><button class="btn sm quiet" data-act="pushlater">Not now</button></span></span>';
+  box.appendChild(card); box.scrollTop = box.scrollHeight;
+}
+function iosPushSheet(){
+  const step = (n, icon, t) => '<li><span class="iosn">' + n + '</span><span class="iosic">' + ti(icon) + '</span><span>' + t + '</span></li>';
+  bcSheet('<h3 class="bcsheettitle">One step first on iPhone</h3><p class="bclede">iPhones only send notifications to apps on the Home Screen. It takes ten seconds, and WayMark opens full screen afterwards.</p>' +
+    '<ol class="iossteps">' + step(1, 'share-ios', 'Tap <b>Share</b> in Safari’s toolbar') + step(2, 'square-plus', 'Choose <b>Add to Home Screen</b>, then <b>Add</b>') +
+    step(3, 'device-mobile', 'Open WayMark from your <b>Home Screen</b> and turn notifications on') + '</ol>' +
+    '<button class="btn bcgo" data-act="bcsheetclose">Got it</button>', 'Add WayMark to your Home Screen');
+}
+/* the worker: fire and forget, after the thing itself is saved */
+async function pushPing(body){
+  if (!window.PUSH_WORKER || !fbAuth || !fbAuth.currentUser) return;
+  try{
+    const tok = await fbAuth.currentUser.getIdToken();
+    fetch(String(window.PUSH_WORKER).replace(/\/+$/, '') + '/ping', {method:'POST', keepalive:true, headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + tok}, body: JSON.stringify(body)}).catch(() => {});
+  }catch(e){}
+}
+/* the bell's settings: what pushes, what stays in the app, what is off */
+async function openNotifySettings(){
+  await loadNotifyPrefs();
+  paintNotifySettings();
+}
+function paintNotifySettings(){
+  const P = notifyPrefs; if (!P) return;
+  const sup = pushSupport(), on = pushOnHere();
+  const dev = isIOS() ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'phone' : 'device';
+  const card = sup === 'homescreen'
+    ? '<div class="nsdev off">' + ti('device-mobile') + '<span><b>Push needs one step on iPhone</b><i>Add WayMark to your Home Screen first.</i></span><button class="btn sm" data-act="pushios">Show me</button></div>'
+    : sup === 'no' ? '<div class="nsdev off">' + ti('device-mobile') + '<span><b>No push on this browser</b><i>Everything still shows in the bell.</i></span></div>'
+    : '<div class="nsdev' + (on ? '' : ' off') + '">' + ti('device-mobile') + '<span><b>' + (on ? 'Push is on for this ' + dev : 'Push is off for this ' + dev) + '</b><i>' + (on ? (P.quiet ? 'Quiet ' + esc(P.qFrom) + '–' + esc(P.qTo) + ' · held pushes wait in the bell' : 'Any time') : 'Turn it on to get messages the moment they land.') + '</i></span>' +
+      '<button class="nstog' + (on ? ' on' : '') + '" data-act="' + (on ? 'pushoff' : 'pushon') + '" role="switch" aria-checked="' + on + '" aria-label="Push on this ' + dev + '"></button></div>';
+  const seg = (k, v) => '<span class="nsseg" role="radiogroup" aria-label="' + esc(k) + '">' + [['push', 'Push'], ['app', 'In app'], ['off', 'Off']].map(([x, l]) =>
+    '<button role="radio" aria-checked="' + (v === x) + '" class="' + (v === x ? 'on' + (x === 'push' ? ' push' : '') : '') + '" data-act="nsset" data-k="' + esc(k) + '" data-v="' + x + '">' + l + '</button>').join('') + '</span>';
+  const tog = (act, onv, label) => '<button class="nstog' + (onv ? ' on' : '') + '" data-act="' + act + '" role="switch" aria-checked="' + !!onv + '" aria-label="' + esc(label) + '"></button>';
+  let s = '<div class="nshead"><button class="ibtn2" data-act="nsback" aria-label="Back to notifications">' + ti('arrow-left') + '</button><h3>Notification settings</h3></div>' + card;
+  for (const g of NOTIFY_KINDS){
+    s += '<p class="nssec">' + esc(g.sec) + '</p><div class="nsgrp">' + g.rows.map(([k, t, sub]) => '<div class="nsrow"><span class="nst"><b>' + esc(t) + '</b>' + (sub ? '<i>' + esc(sub) + '</i>' : '') + '</span>' + seg(k, P.kinds[k] || 'app') + '</div>').join('') + '</div>';
+  }
+  s += '<p class="nssec">When and how</p><div class="nsgrp">' +
+    '<div class="nsrow"><span class="nst"><b>Quiet hours</b><i>Pushes wait in the bell overnight</i></span>' + tog('nsquiet', P.quiet, 'Quiet hours') + '</div>' +
+    (P.quiet ? '<div class="nsrow"><span class="nst"><b>Between</b></span><span class="nstimes"><input type="time" id="nsqf" value="' + esc(P.qFrom) + '" aria-label="Quiet from"><span>and</span><input type="time" id="nsqt" value="' + esc(P.qTo) + '" aria-label="Quiet until"></span></div>' : '') +
+    '<div class="nsrow"><span class="nst"><b>Show message text</b><i>On the lock screen. Off shows “New message from Tom”.</i></span>' + tog('nspreview', P.preview !== false, 'Show message text') + '</div></div>' +
+    '<p class="nssec">Privacy</p><div class="nsgrp">' +
+    '<div class="nsrow"><span class="nst"><b>Show when I’m active</b><i>The green dot and “typing…”. Off hides yours, and you won’t see anyone else’s.</i></span>' + tog('nsactive', P.active !== false, 'Show when I’m active') + '</div></div>' +
+    '<p class="nsfine">“In app” means it shows in the bell and the Messages badge but never buzzes your phone. “Off” hides it from the bell too.</p>';
+  const el = document.getElementById('notesheet'); if (!el) return;
+  ui.notesOpen = 'settings';
+  el.querySelector('.sheetbox').innerHTML = s;
+  const f = el.querySelector('#nsqf'), t = el.querySelector('#nsqt');
+  if (f) f.onchange = e => { P.qFrom = e.target.value || '22:00'; saveNotifyPrefs(); };
+  if (t) t.onchange = e => { P.qTo = e.target.value || '07:00'; saveNotifyPrefs(); };
+}
+function pushAct(a, el){
+  if (a === 'pushon'){ const card = el.closest('.cvask'); enablePush().then(ok => { if (card) card.remove(); if (ui.notesOpen === 'settings') paintNotifySettings(); }); }
+  else if (a === 'pushoff'){ disablePush().then(() => { if (ui.notesOpen === 'settings') paintNotifySettings(); }); }
+  else if (a === 'pushlater'){ const card = el.closest('.cvask'); if (card) card.remove(); }
+  else if (a === 'pushios'){ iosPushSheet(); }
+  else if (a === 'nsopen'){ openNotifySettings(); }
+  else if (a === 'nsback'){ ui.notesOpen = true; paintNotesSheet(); }
+  else if (a === 'nsset'){ notifyPrefs.kinds[el.dataset.k] = el.dataset.v; saveNotifyPrefs(); paintNotifySettings(); if (typeof paintNotesSheet === 'function'){} }
+  else if (a === 'nsquiet'){ notifyPrefs.quiet = !notifyPrefs.quiet; saveNotifyPrefs(); paintNotifySettings(); }
+  else if (a === 'nspreview'){ notifyPrefs.preview = notifyPrefs.preview === false; saveNotifyPrefs(); paintNotifySettings(); }
+  else if (a === 'nsactive'){ notifyPrefs.active = notifyPrefs.active === false; saveNotifyPrefs(); paintNotifySettings(); if (notifyPrefs.active === false) FB.deleteDoc(FB.doc(fbDb, 'presence', fbUser.uid)).catch(() => {}); }
+  else return false;
+  return true;
+}
+/* a push tapped: #chat=<id> or #notes, from a cold start or a running app */
+function openFromPush(h){
+  const m = (h || '').match(/^#chat=([A-Za-z0-9_-]{4,80})(?:&m=([A-Za-z0-9_-]{4,40}))?$/);
+  if (m){ const go = () => { if (!fbUser){ setTimeout(go, 500); return; } openInbox(); openChat(m[1], m[2] || ''); }; go(); return true; }
+  if (h === '#notes'){ const go = () => { if (!fbUser){ setTimeout(go, 500); return; } openNotes(); }; go(); return true; }
+  return false;
+}
+if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const d = e.data || {}; if (d.open) openFromPush(d.open); });
+(function(){ const h = location.hash || ''; if (/^#(chat=|notes$)/.test(h)){ history.replaceState(null, '', location.pathname + location.search); setTimeout(() => openFromPush(h), 800); } })();
+
 function renderPatchesPage(){
   const ps = patches();
   if (ui.patch){
@@ -8779,6 +10612,7 @@ function navCounts(){
   return {h: dn + '/' + tot, m: tot + ' hills', p: planCount ? planCount + ' planned' : 'none yet',
           a: gotp + '/' + ps.length, j: diaryCount(), f: friendsTabLabel()};
 }
+function hkNew(){ let m = 0; try{ m = fbUser ? unreadChats() + chatRequests().length : 0; }catch(e){} return friendReqs.length + unreadNotes() + m; }
 function navButton(n, c, mobile){
   const label = mobile ? (n.short || n.label) : n.label;
   /* Home sits in the middle of the phone bar, ringed, so the thumb always knows
@@ -8790,7 +10624,7 @@ function navButton(n, c, mobile){
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] + '</svg>' +
     '<span class="nl">' + esc(label) + '</span>' +
     (n.count && c[n.count] ? '<span class="nc">' + esc(c[n.count]) + '</span>' : '') +
-    (n.id === 'u' && (friendReqs.length + unreadNotes()) ? '<span class="nb" aria-label="' + (friendReqs.length + unreadNotes()) + ' new">' + Math.min(99, friendReqs.length + unreadNotes()) + '</span>' : '') +
+    (n.id === 'u' && hkNew() ? '<span class="nb" aria-label="' + hkNew() + ' new">' + Math.min(99, hkNew()) + '</span>' : '') +
     '</button>';
 }
 /* Track the tagline out until it spans the same width as the wordmark, so the
@@ -8845,6 +10679,7 @@ window.addEventListener('resize', () => { tagFit.clear(); fitTaglines(); });
    repaints. Keep the last markup and only touch the DOM when it differs. */
 let navHtml = {s:null, b:null};
 function paintNav(){
+  try{ paintHeadIcons(); }catch(e){}
   const c = navCounts();
   const usable = NAV.filter(n => !n.needsFb || fbConfigured());
   const s = document.getElementById('snav');
@@ -8904,6 +10739,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 function render(){
   if (!viewRestored) restoreView();
   if (FB && fbUser && !notesUnsub && !notesFailed) watchNotes();
+  if (FB && fbUser && !chatsUnsub && !chatsFailed) watchChats();
   try{ setTimeout(paintSync, 0); }catch(e){}
   /* 'f' was the old Friends tab; anything still pointing there lands on Hikers.
      'h' was the separate hill list; it lives on Home now. */
@@ -8945,6 +10781,7 @@ function render(){
     return;
   }
 
+  const psb = document.getElementById('profsheetbox'), psTop = psb ? psb.scrollTop : 0;
   document.getElementById('main').innerHTML = banner +
     (tab === 'd' ? renderDashboard() :
      tab === 'p' ? renderPlans() :
@@ -8953,6 +10790,7 @@ function render(){
      tab === 'j' ? renderDiary() :
      tab === 'u' ? renderHikers() : renderHills());
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
+  { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell(); paintBag();
   if (tab === 'u') hydratePostPhotos();
   if (tab === 'd') setTimeout(tuneStamp, 0);
@@ -13904,6 +15742,7 @@ document.addEventListener('click', async e => {
     return;
   }
   const a = el.dataset.act;
+  if (/^(chat|msg|pick|plan|pd|live|walkwith|inbox|poll|push|ns[a-z]|sendpost|sttoggle|stsend)/.test(a) && fbUser && FB){ try{ if (await chatAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
 
   if (a === 'tick'){
     const k = el.dataset.k, turningOff = isBagged(k);
@@ -14154,7 +15993,7 @@ document.addEventListener('click', async e => {
     const who = p.uid === (fbUser && fbUser.uid) ? 'My' : firstName(p.name) + '\u2019s';
     shareLink(wmBase() + '#post=' + p.id, who + ' day on the hills', postSnip(p) + ' \u2014 on WayMark');
   }
-  else if (a === 'invitewalk' && el.dataset.uid && fbUser){ openWalkInvite(el.dataset.uid, el.dataset.n || 'them'); }
+  else if (a === 'invitewalk' && el.dataset.uid && fbUser){ planComposer(null, {with:[el.dataset.uid]}); }
   else if (a === 'wihill'){ if (ui.walkInv){ ui.walkInv.hill = el.dataset.k; paintWalkInvite(); } }
   else if (a === 'wihillclear'){ if (ui.walkInv){ ui.walkInv.hill = ''; paintWalkInvite(); const q = document.getElementById('wiq'); if (q) q.focus(); } }
   else if (a === 'wiclose'){ closeWalkInvite(); }
@@ -14173,8 +16012,8 @@ document.addEventListener('click', async e => {
     toast(yes ? 'Told ' + firstName(n.name) + ' you’re in.' : 'Let ' + firstName(n.name) + ' know you can’t make it.');
   }
   else if (a === 'ytopen'){ openYouThem(el.dataset.u); }
-  else if (a === 'ytwalk'){ bcSheetClose(); openWalkInvite(el.dataset.u, el.dataset.n || 'them'); if (ui.walkInv){ ui.walkInv.hill = el.dataset.k; paintWalkInvite(); } }
-  else if (a === 'toggleopen'){ prof.open = !prof.open; saveProf(); render(); toast(prof.open ? 'You’re up for a walk. You show under “Up for a walk” on Discover.' : 'Done. You’re no longer listed as up for a walk.'); }
+  else if (a === 'ytwalk'){ bcSheetClose(); planComposer(null, {with:[el.dataset.u], hill: el.dataset.k || ''}); }
+  else if (a === 'toggleopen'){ prof.open = !prof.open; if (ui.pDraftProf) ui.pDraftProf.open = prof.open; saveProf(); render(); toast(prof.open ? 'You’re up for a walk. You show under “Up for a walk” on Discover.' : 'Done. You’re no longer listed as up for a walk.'); }
   else if (a === 'partneron'){ prof.open = true; saveProf(); render(); toast('You’re in “Up for a walk”. Change it any time in your profile.'); }
   else if (a === 'findclear'){ ui.found = null; ui.findQ = ''; const b = document.getElementById('findh'); if (b) b.value = ''; render(); }
   else if (a === 'invitewalk'){
@@ -14614,14 +16453,15 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'showclose'){ const sh = document.getElementById('showsheet'); if (sh) sh.classList.remove('open'); }
   else if (a === 'pickshow'){
-    ui.profEdit = true; render();
+    ui.profEdit = true; ui.profMin = false; render();
     setTimeout(() => {
       const el = document.querySelector('.showpick') || document.querySelector('.profform');
-      if (el) window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 90, behavior:'smooth'});
+      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
       if (el) el.classList.add('flashpick');
     }, 80);
   }
-  else if (a === 'profedit'){ ui.profEdit = !ui.profEdit; if (!ui.profEdit) ui.pDraftProf = null; render(); }
+  else if (a === 'profedit'){ ui.profEdit = !ui.profEdit; ui.profMin = false; if (!ui.profEdit) ui.pDraftProf = null; render(); window.scrollTo({top:0}); }
+  else if (a === 'profmin'){ ui.profMin = !ui.profMin; const sh = document.querySelector('.profsheet'); if (sh){ sh.classList.toggle('min', ui.profMin); const b = sh.querySelector('[data-act=profmin]'); if (b) b.setAttribute('aria-label', ui.profMin ? 'Open the editor' : 'Tuck the editor away'); } }
   /* Closing with work in hand asks rather than throwing it away. */
   else if (a === 'profdone'){
     if (profDirty()){
@@ -16615,10 +18455,10 @@ const noteRef = (u, id) => FB.doc(fbDb, 'people', u, 'notes', id);
 var notes = [], notesUnsub = null, notesFailed = false;
 const NOTES_SEEN = 'waymark.notesseen';
 const notesSeenAt = () => { try{ return +localStorage.getItem(NOTES_SEEN) || 0; }catch(e){ return 0; } };
-const unreadNotes = () => notes.filter(n => (n.t || 0) > notesSeenAt() && n.from !== (fbUser && fbUser.uid)).length;
+const unreadNotes = () => notes.filter(n => noteShown(n) && (n.t || 0) > notesSeenAt() && n.from !== (fbUser && fbUser.uid)).length;
 function notify(to, id, data){
   if (!FB || !fbUser || !to || to === fbUser.uid) return;
-  FB.setDoc(noteRef(to, id), {...data, from:fbUser.uid, name:myName(), av:myAvatar() || '', handle:fbHandle || '', t:Date.now()}).catch(() => {});
+  FB.setDoc(noteRef(to, id), {...data, from:fbUser.uid, name:myName(), av:myAvatar() || '', handle:fbHandle || '', t:Date.now()}).then(() => pushPing({kind:'note', to, id})).catch(() => {});
 }
 function unnotify(to, id){ if (FB && fbUser) FB.deleteDoc(noteRef(to, id)).catch(() => {}); }
 function watchNotes(){
@@ -16665,13 +18505,13 @@ function notesHTML(){
   /* likes on the same post collapse into one line */
   const rows = [], likeRow = {};
   for (const n of notes){
-    if (isBlocked(n.from)) continue;
+    if (isBlocked(n.from) || !noteShown(n)) continue;
     if (n.type === 'like' && n.post){
       if (likeRow[n.post]){ likeRow[n.post].count++; likeRow[n.post].fresh = likeRow[n.post].fresh || n.t > seen; continue; }
       const r = {n, count:1, fresh:n.t > seen}; likeRow[n.post] = r; rows.push(r);
     } else rows.push({n, count:1, fresh:n.t > seen});
   }
-  let s = '<div class="ntop"><h3>Notifications</h3><button class="xbtn" data-act="notesclose" aria-label="Close">' + ti('x') + '</button></div>';
+  let s = '<div class="ntop"><h3>Notifications</h3><button class="xbtn ntgear" data-act="nsopen" aria-label="Notification settings">' + ti('settings') + '</button><button class="xbtn" data-act="notesclose" aria-label="Close">' + ti('x') + '</button></div>';
   if (notesFailed) return s + '<p class="empty">Notifications need the latest WayMark rules in Firebase. Once they are published, this fills itself.</p>';
   if (friendReqs.length){
     s += '<p class="eyebrow">Asking to follow you</p>';
@@ -16723,7 +18563,7 @@ function openNotes(){
   setTimeout(() => { try{ localStorage.setItem(NOTES_SEEN, String(Date.now())); }catch(e){} render(); }, 1200);
 }
 function closeNotes(){ ui.notesOpen = false; const el = document.getElementById('notesheet'); if (el) el.classList.remove('open'); render(); }
-function paintNotesSheet(){ const el = document.getElementById('notesheet'); if (el && ui.notesOpen) el.querySelector('.sheetbox').innerHTML = notesHTML(); }
+function paintNotesSheet(){ const el = document.getElementById('notesheet'); if (el && ui.notesOpen === true) el.querySelector('.sheetbox').innerHTML = notesHTML(); }
 
 /* ---------- the post ---------- */
 function postVerb(p, hs){
@@ -17145,6 +18985,7 @@ function postHTML(p){
   s += '<div class="pbar">' +
     '<button class="pact like' + (on ? ' on' : '') + '" data-act="react" data-id="' + esc(p.id) + '" data-like="' + esc(p.id) + '" aria-pressed="' + on + '" aria-label="' + (on ? 'Unlike' : 'Like') + '">' + ti('heart') + '<b>' + (n || '') + '</b></button>' +
     '<button class="pact" data-act="opencomments" data-id="' + esc(p.id) + '" aria-label="Comments" aria-expanded="' + open + '">' + ti('message-circle') + '<b>' + (cs.length || '') + '</b></button>' +
+    (fbUser ? '<button class="pact" data-act="sendpost" data-id="' + esc(p.id) + '" aria-label="Send to friends">' + ti('send') + '</button>' : '') +
     '<button class="pact" data-act="sharepost" data-id="' + esc(p.id) + '" aria-label="Share">' + ti('arrow-up-right') + '</button>' +
     '</div>';
   s += '<p class="plikes" data-likedby="' + esc(p.id) + '"' + (n ? '' : ' hidden') + '>' + likedByHTML(p.id) + '</p>';
@@ -17161,8 +19002,6 @@ function hikersHead(){
   /* no page title: the search bar leads the row, the way a social app does */
   return '<h2 class="vh">Hikers</h2><div class="hkhead"><button class="hksearch" data-act="hikerfind">' + ti('search') + '<span>People, places, hills</span></button>' +
     '<button class="hkic' + (t === 'boards' ? ' on' : '') + '" data-act="hikertab" data-v="boards" aria-label="Leaderboards"' + (t === 'boards' ? ' aria-current="page"' : '') + '>' + ti('trophy') + '</button>' +
-    '<button class="hkic" data-act="notesopen" aria-label="Notifications' + (un ? ', ' + un + ' new' : '') + '">' + ti('bell') +
-      (un ? '<span class="nb">' + (un > 9 ? '9+' : un) + '</span>' : '') + '</button>' +
     '<button class="hkme" data-act="hikertab" data-v="me" aria-label="Your profile">' + avatarHTML(myAvatar(), myName(), 'sm', fbUser.uid) + '</button></div>';
 }
 const GOOGLE_G = '<svg class="gg" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
@@ -17718,7 +19557,8 @@ function renderFriend(){
     '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="following"><b>' + (pc.following == null ? '–' : pc.following.toLocaleString()) + '</b> following</button>' +
     '';
   const chips = (followsMe(uidX) ? '<span class="pinechip">' + ti('user-check') + 'Follows you</span>' : '') + (card.open ? '<span class="pinechip open">' + ti('walk') + 'Up for a walk</span>' + (partnerLine(card) ? '<span class="pinechip">' + esc(partnerLine(card)) + '</span>' : '') : '');
-  const actions = followBtn(uidX) + (fbUser ? '<button class="btn' + (accepted ? '' : ' ghost') + '" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('walk') + 'Suggest a walk</button>' : '');
+  const actions = followBtn(uidX) + (fbUser ? '<button class="btn ghost msgbtn" data-act="msgperson" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('message-circle') + 'Message</button>' +
+    '<button class="btn ghost msgbtn walkic" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '" aria-label="Plan a walk with ' + esc(nm) + '" title="Plan a walk">' + ti('walk') + '</button>' : '');
   html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : '', back: backBtn, menu, counts, chips, actions});
   html += youAndThem(uidX, pp, nm);
   if (!allowed){
@@ -18942,6 +20782,7 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
     strava: strava ? String(strava) : ''
   };
   await FB.setDoc(postRef(id), post);
+  if (vis !== 'me' && post.hills.length) pushPing({kind:'post', pid:id});
   /* A fuller post of the same day replaces the plain one the summits made on
      their own, so the day appears once. */
   if ((post.kind === 'diary' || post.kind === 'summit') && post.hills.length){
@@ -19921,7 +21762,13 @@ function renderMyProfile(){
     counts:'<button class="plink" data-act="mypeople" data-v="followers"><b>' + followers.length.toLocaleString() + '</b> followers</button> &middot; ' +
            '<button class="plink" data-act="mypeople" data-v="following"><b>' + following().length.toLocaleString() + '</b> following</button>',
     chips: '<button class="pinechip ' + (prof.open ? 'open' : 'off') + '" data-act="toggleopen" aria-pressed="' + !!prof.open + '">' + ti('walk') + (prof.open ? 'Up for a walk' : 'Not up for a walk') + '</button>'});
-  if (ui.profEdit) s += profileEditor();
+  /* The editor is a sheet over the lower half of the screen, so the cover,
+     the picture and the patch above stay in view and can still be dragged or
+     tapped while the settings are right under the thumb. */
+  if (ui.profEdit) s += '<div class="sheet bottom open profsheet' + (ui.profMin ? ' min' : '') + '" role="dialog" aria-label="Edit profile"><div class="sheetbox" id="profsheetbox">' +
+    '<div class="profsheethead"><div class="cmgrab"></div><div class="ntop"><h3>Edit profile</h3><span class="profsheetbtns"><button class="btn sm solid" data-act="profsave">Save</button>' +
+    '<button class="xbtn" data-act="profmin" aria-label="' + (ui.profMin ? 'Open the editor' : 'Tuck the editor away') + '">' + ti('chevron-down') + '</button></span></div></div>' +
+    '<div class="profsheetbody">' + profileEditor() + '</div></div></div>';
 
   s += gearHTML(pp, true);
   const mine = feed.filter(p => p.uid === fbUser.uid).slice(0, 20);
