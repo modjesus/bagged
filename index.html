@@ -5041,6 +5041,23 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 .bcsheet .sheetbox{max-width:560px; padding:6px 18px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; max-height:90vh; overflow-y:auto}
 .bcsheet .cmgrab{margin:6px auto 0}
 .bcsheet .bcx{position:absolute; right:10px; top:10px}
+.bcsheet .bcback{position:absolute; left:10px; top:10px}
+.bcsheet.hasback .bcsheettitle{padding:0 34px}
+.cvplusgrid.two{grid-template-columns:repeat(2, minmax(0, 1fr))}
+.cvplusbtn{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  min-height:84px; padding:10px; border:1px solid var(--line); border-radius:14px; background:var(--raise);
+  color:var(--ink); font:inherit; cursor:pointer; text-align:center}
+.cvplusbtn b{font-size:13px}
+/* iOS zooms into any field under 16px and never zooms back out, which took the
+   sheet with it. Every field a thumb can reach is 16px. */
+.form input, .form select, .form textarea, .field input, .pickin, .bcsheet input, .bcsheet select, .bcsheet textarea{font-size:16px}
+/* a date and a time next to each other: both shrink, neither overlaps */
+.pdrow{flex-wrap:wrap}
+.pdrow > *{flex:1 1 44%; min-width:0}
+.pdrow input, .pdrow select{width:100%; min-width:0; box-sizing:border-box}
+.pdrow label{display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+/* an image that is rebuilt on a repaint should not blink white first */
+img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
 .bcsheethead{display:flex; align-items:center; gap:12px; padding-right:44px; cursor:grab}
 .bcsheethead .bctile{width:56px; height:62px; flex:none}
 .bcsheethead img{width:100%; height:100%; object-fit:cover}
@@ -5942,7 +5959,9 @@ const BOOK_VAR = {
 };
 
 const HILLS = DATA.hills;
-const LISTS = DATA.lists;
+/* Route tops is a small odds-and-ends list, so it sits at the end of every
+   list of lists rather than leading them. */
+const LISTS = DATA.lists.slice().sort((a, b) => (a.id === 'route-top') - (b.id === 'route-top'));
 const LIST_BY = Object.fromEntries(LISTS.map(l => [l.id, l]));
 
 /* What to call a list when it is a tag on a single hill. The row used to strip
@@ -7934,7 +7953,7 @@ function shopCard(d){
   const slide = (side, i) =>
     '<button class="shopslide" data-act="supopen" data-v="' + d.n + '" tabindex="' + (i ? -1 : 0) + '"' +
     ' aria-label="' + esc(d.name) + ', ' + side + ' of the tee. Open">' +
-    '<img loading="lazy" decoding="async" alt="" src="' + shopImg(d.n, side) + '"></button>';
+    '<img loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, side) + '"></button>';
   return '<article class="shopcard">' +
     '<div class="shoptile">' +
       '<div class="shoptrack" data-n="' + d.n + '">' + slide(lead, 0) + slide(other, 1) + '</div>' +
@@ -7956,7 +7975,7 @@ const SHIRT_HEX = {cream:'#EDE7D9', sand:'#EDE7D9', pine:'#4C6151'};
 const kitItems = () => shopCat && shopCat.items ? Object.entries(shopCat.items).filter(([k, it]) => (it.kind || 'tee') !== 'tee' && it.img && it.img.length) : [];
 function kitCard([k, it]){
   return '<article class="shopcard kitcard"><button class="shoptile kittile" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open">' +
-    '<img loading="lazy" decoding="async" alt="" src="' + esc(it.img[0]) + '"></button>' +
+    '<img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '"></button>' +
     '<div class="shopmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3><span class="shopamt">' + gbp(it.price) + '</span></div>' +
     '<p class="shopspec">' + esc(KIND_LABEL[it.kind] || it.kind) + (it.blurb ? ' &middot; ' + esc(it.blurb) : '') + '</p></article>';
 }
@@ -8012,7 +8031,7 @@ function supCard(d){
     '<div class="supplate">' +
       '<span class="supside">' + supCap(side) + '</span>' +
       '<button class="supopen" data-act="supopen" data-v="' + d.n + '" aria-label="Open ' + esc(d.name) + '">' +
-        '<span class="well"><img loading="lazy" decoding="async" alt="' + esc(d.name) + ', ' +
+        '<span class="well"><img loading="lazy" decoding="sync" alt="' + esc(d.name) + ', ' +
         side + ' of shirt" src="' + supImg(d.n, side, 'sm') + '"></span>' +
       '</button>' +
     '</div>' +
@@ -8156,7 +8175,7 @@ function supDetail(d){
     '<figure><figcaption>' + supCap(side) + ' &middot; tap to zoom</figcaption>' +
     '<button class="zoomhit" data-act="supzoom" data-v="' + d.n + '" data-d="' + side + '"' +
     ' aria-label="Zoom in on the ' + side + ' of ' + esc(d.name) + '">' +
-    '<img loading="lazy" decoding="async" alt="' + esc(d.name) + ', ' + side +
+    '<img loading="lazy" decoding="sync" alt="' + esc(d.name) + ', ' + side +
     ' of shirt" src="' + supImg(d.n, side, 'lg') + '"></button></figure>';
 
   const it = shopItem(d.n);
@@ -8434,7 +8453,7 @@ function bcFreeBar(sub){
 }
 
 /* ---- the shared sheet: every one has the grey bar and drags down to close ---- */
-function bcSheet(inner, label, cls){
+function bcSheet(inner, label, cls, back){
   let el = document.getElementById('bcsheet');
   if (!el){
     el = document.createElement('div'); el.id = 'bcsheet';
@@ -8442,9 +8461,10 @@ function bcSheet(inner, label, cls){
     el.addEventListener('click', e => { if (e.target === el) bcSheetClose(); });
     document.body.appendChild(el);
   }
-  el.className = 'sheet bottom bcsheet' + (cls ? ' ' + cls : '');
+  el.className = 'sheet bottom bcsheet' + (cls ? ' ' + cls : '') + (back ? ' hasback' : '');
   el.setAttribute('aria-label', label || 'Shop');
   el.innerHTML = '<div class="sheetbox"><div class="cmgrab"></div>' +
+    (back ? '<button class="xbtn bcback" data-act="' + esc(back) + '" aria-label="Back">' + ti('arrow-left') + '</button>' : '') +
     '<button class="xbtn bcx" data-act="bcsheetclose" aria-label="Close">' + ti('x') + '</button>' + inner + '</div>';
   el.classList.add('open');
   if (typeof wire === 'function') wire();
@@ -8465,8 +8485,8 @@ function bcCard(d, opts){
   return '<article class="bccard' + (opts.small ? ' small' : '') + '">' +
     '<div class="bctile">' +
       '<button class="bcimg" data-act="supopen" data-v="' + d.n + '" aria-label="' + esc(d.name) + ', ' + gbp(it.price) + '. Open">' +
-        '<img loading="lazy" decoding="async" alt="" src="' + shopImg(d.n, lead) + '">' +
-        '<img class="alt" loading="lazy" decoding="async" alt="" src="' + shopImg(d.n, supOther(lead)) + '"></button>' +
+        '<img loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, lead) + '">' +
+        '<img class="alt" loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, supOther(lead)) + '"></button>' +
       flag + tag +
       (opts.small ? '' :
         '<button class="bcround bcheart" data-act="bcsave" data-k="' + d.n + '" aria-pressed="' + isSaved(d.n) + '" aria-label="Save ' + esc(d.name) + '">' + bcHeart(isSaved(d.n)) + '</button>' +
@@ -8479,7 +8499,7 @@ function bcCard(d, opts){
 /* kit that is not a tee, in the same grid */
 function bcKitCard([k, it]){
   return '<article class="bccard"><div class="bctile">' +
-    '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open"><img loading="lazy" decoding="async" alt="" src="' + esc(it.img[0]) + '"></button>' +
+    '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open"><img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '"></button>' +
     '<button class="bcround bcheart" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) + '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button></div>' +
     '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3><span class="bcprice">' + gbp(it.price) + '</span></div>' +
     '<span class="bcsub">' + esc(KIND_LABEL[it.kind] || it.kind || '') + '</span></article>';
@@ -8488,7 +8508,7 @@ function bcKitCard([k, it]){
 function bcMini(k){
   const p = prodInfo(k); if (!p) return '';
   const act = p.d ? 'data-act="supopen" data-v="' + p.d.n + '"' : 'data-act="kitopen" data-k="' + esc(k) + '"';
-  return '<button class="bcmini" ' + act + '><span class="bctile"><img loading="lazy" decoding="async" alt="" src="' + esc(p.img) + '"></span>' +
+  return '<button class="bcmini" ' + act + '><span class="bctile"><img loading="lazy" decoding="sync" alt="" src="' + esc(p.img) + '"></span>' +
     '<b>' + esc(p.name) + '</b><i>' + gbp(p.it.price) + '</i></button>';
 }
 
@@ -8860,23 +8880,38 @@ function patchMakeReal(p){
    the sheet's height, or flick it, and the sheet closes the way its own close
    button would, so whatever that sheet tidies up on closing still happens. */
 (function(){
-  let y0 = null, dy = 0, t0 = 0, box = null, sheet = null;
+  let y0 = null, dy = 0, t0 = 0, box = null, sheet = null, tuck = false;
   document.addEventListener('pointerdown', e => {
-    const g = e.target.closest('.sheet.bottom .cmgrab, .sheet.bottom .ntop, .sheet.bottom .bcsheethead');
+    const g = e.target.closest('.sheet.bottom .cmgrab, .sheet.bottom .ntop, .sheet.bottom .bcsheethead, .sheet.bottom .profsheethead');
     if (!g || e.target.closest('button, input, a, textarea, select')) return;
     sheet = g.closest('.sheet'); box = sheet && sheet.querySelector('.sheetbox'); if (!box) return;
+    /* The edit-profile sheet tucks away rather than closing, so it has to be
+       draggable both ways: down to tuck, up to bring it back. */
+    tuck = sheet.classList.contains('profsheet');
     y0 = e.clientY; dy = 0; t0 = Date.now(); box.style.transition = 'none';
     try{ g.setPointerCapture(e.pointerId); }catch(err){}
   });
   document.addEventListener('pointermove', e => {
     if (y0 == null || !box) return;
-    dy = Math.max(0, e.clientY - y0); box.style.transform = 'translateY(' + dy + 'px)';
+    dy = e.clientY - y0;
+    /* upward has somewhere to go on a tucking sheet; on the others it just
+       resists, so the sheet still follows your thumb instead of sticking */
+    if (dy < 0) dy = tuck ? Math.max(dy, -140) : dy / 4;
+    box.style.transform = 'translateY(' + dy + 'px)';
   });
   const end = () => {
     if (y0 == null || !box) return;
-    const b = box, sh = sheet, v = dy / Math.max(1, Date.now() - t0);
-    y0 = null; box = null; sheet = null;
+    const b = box, sh = sheet, tk = tuck, v = dy / Math.max(1, Date.now() - t0);
+    y0 = null; box = null; sheet = null; tuck = false;
     b.style.transition = 'transform .22s cubic-bezier(.32,.72,0,1)';
+    if (tk){
+      b.style.transform = '';
+      const want = dy > 40 ? true : dy < -40 ? false : null;
+      if (want !== null && want !== !!ui.profMin){
+        const btn = sh.querySelector('[data-act=profmin]'); if (btn) btn.click();
+      }
+      return;
+    }
     if (dy > b.offsetHeight / 3 || (dy > 40 && v > .6)){
       b.style.transform = 'translateY(100%)';
       setTimeout(() => {
@@ -9225,6 +9260,16 @@ function openPicker(mode, extra){
   ui.mpick = {mode, sel:[], q:'', title:'', extra: extra || null};
   paintPicker();
 }
+function pickListHTML(p){
+  const q = (p.q || '').toLowerCase();
+  const inChat = p.mode === 'add' && chatOpen ? new Set(chatOpen.chat.members || []) : new Set();
+  const ppl = msgPeople().filter(x => !inChat.has(x.uid) && (!q || x.name.toLowerCase().includes(q)));
+  const sel = new Set(p.sel);
+  return ppl.length ? ppl.map(x => '<li><button class="pkrow" data-act="picktoggle" data-u="' + esc(x.uid) + '" aria-pressed="' + sel.has(x.uid) + '">' +
+      '<span class="mgav">' + avatarHTML(x.av, x.name, 'sm', x.uid) + (isOnline(x.uid) ? '<span class="mgon"></span>' : '') + '</span><span><b>' + esc(niceName(x.name)) + '</b><i>' + (x.why === 'mutual' ? 'You follow each other' : 'Sends as a request') + '</i></span>' +
+      '<span class="pktick">' + (sel.has(x.uid) ? ti('check') : '') + '</span></button></li>').join('')
+    : '<li class="pdfine" style="padding:12px 4px">' + (q ? 'Nobody by that name.' : 'Nobody here yet. Follow some hikers and they show up.') + '</li>';
+}
 function paintPicker(){
   const p = ui.mpick; if (!p) return;
   const q = (p.q || '').toLowerCase();
@@ -9237,15 +9282,19 @@ function paintPicker(){
     (p.sel.length ? '<div class="pkchosen">' + p.sel.map(u => { const x = ppl.find(y => y.uid === u) || msgPeople().find(y => y.uid === u) || {name:''}; return '<button class="pkchip" data-act="picktoggle" data-u="' + esc(u) + '">' + avatarHTML(x.av, x.name, 'tiny', u) + esc(firstName(x.name)) + ti('x') + '</button>'; }).join('') + '</div>' : '') +
     '<div class="field">' + ti('search') + '<input id="pickq" placeholder="Search people you follow" value="' + esc(p.q) + '" autocomplete="off"></div>';
   if ((p.sel.length > 1 || group || walk && p.sel.length) && p.mode !== 'add') s += '<div><label for="picktitle" class="lbl2">' + (walk ? 'Walk name' : 'Group name') + ' <span class="opt">optional</span></label><input id="picktitle" class="pickin" maxlength="40" placeholder="' + (walk ? 'Saturday on the Langdales' : 'Sunday walkers') + '" value="' + esc(p.title) + '"></div>';
-  s += '<ul class="pklist">' + (ppl.length ? ppl.map(x => '<li><button class="pkrow" data-act="picktoggle" data-u="' + esc(x.uid) + '" aria-pressed="' + sel.has(x.uid) + '">' +
-      '<span class="mgav">' + avatarHTML(x.av, x.name, 'sm', x.uid) + (isOnline(x.uid) ? '<span class="mgon"></span>' : '') + '</span><span><b>' + esc(niceName(x.name)) + '</b><i>' + (x.why === 'mutual' ? 'You follow each other' : 'Sends as a request') + '</i></span>' +
-      '<span class="pktick">' + (sel.has(x.uid) ? ti('check') : '') + '</span></button></li>').join('')
-      : '<li class="pdfine" style="padding:12px 4px">' + (q ? 'Nobody by that name.' : 'Nobody here yet. Follow some hikers and they show up.') + '</li>') + '</ul>';
+  s += '<ul class="pklist">' + pickListHTML(p) + '</ul>';
   const n = p.sel.length;
   s += '<button class="btn bcgo" data-act="pickgo"' + (n ? '' : ' disabled') + '>' + (walk ? (n ? 'Next: the walk' : 'Choose who’s going') : p.mode === 'add' ? (n ? 'Add ' + n + ' to the chat' : 'Choose people') : n > 1 || group ? (n ? 'Start group chat · ' + n : 'Choose people') : n ? 'Start chat' : 'Choose someone') + '</button>';
   const el = bcSheet(s, title, 'pksheet');
   const qi = el.querySelector('#pickq');
-  if (qi){ qi.oninput = e => { p.q = e.target.value; const pos = e.target.selectionStart; paintPicker(); const n2 = document.getElementById('pickq'); if (n2){ n2.focus(); n2.setSelectionRange(pos, pos); } }; }
+  /* Rebuilding the whole sheet on every keystroke threw the keyboard away and
+     bounced the sheet. Only the list and the button change as you type. */
+  if (qi){ qi.oninput = e => {
+    p.q = e.target.value;
+    const lst = el.querySelector('.pklist'); if (lst) lst.innerHTML = pickListHTML(p);
+    const go = el.querySelector('[data-act=pickgo]'); if (go) go.disabled = !p.sel.length;
+    if (typeof wire === 'function') wire();
+  }; }
   const ti2 = el.querySelector('#picktitle'); if (ti2) ti2.oninput = e => { p.title = e.target.value; };
 }
 async function pickGo(){
@@ -9538,7 +9587,8 @@ function planCard(m){
       (outs.length ? '<span class="cvout">' + esc(cantNames) + (outs.length > 2 ? ' +' + (outs.length - 2) : '') + ' can’t</span>' : '') + '</div>' +
     (past ? '' : '<div class="cvplanbtns"><button class="btn sm' + (mine === 'in' ? ' inon' : ' ghost') + '" data-act="planrsvp" data-m="' + esc(m.id) + '" data-v="in" aria-pressed="' + (mine === 'in') + '">' + ti('check') + (mine === 'in' ? 'You’re in' : 'I’m in') + '</button>' +
       '<button class="btn sm ghost' + (mine === 'out' ? ' outon' : '') + '" data-act="planrsvp" data-m="' + esc(m.id) + '" data-v="out" aria-pressed="' + (mine === 'out') + '">Can’t make it</button></div>') +
-    (h ? '<div class="cvplanlinks"><button class="linkbtn" data-act="planadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button><button class="linkbtn" data-act="chathill" data-k="' + esc(p.hill) + '">About the hill</button></div>' : '') +
+    (h ? '<div class="cvplanlinks"><button class="linkbtn" data-act="planadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button><button class="linkbtn" data-act="chathill" data-k="' + esc(p.hill) + '">About the hill</button></div>'
+       : (past ? '' : '<div class="cvplanlinks"><button class="linkbtn" data-act="planpickhill" data-m="' + esc(m.id) + '">' + ti('mountain') + 'Pick the hill</button></div>')) +
   '</div>';
 }
 function pollCard(m){
@@ -9650,52 +9700,58 @@ function hillPicker(){
   const row = h => '<button class="mrow" data-act="chatsendhill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + '</span></span></button>';
   const el = bcSheet('<h3 class="bcsheettitle">Share a hill</h3><div class="field">' + ti('search') + '<input id="hpq" placeholder="Search any hill" autocomplete="off" value="' + esc(ui.hillQ) + '"></div>' +
     '<div class="hpres">' + (ui.hillQ ? markSearch(ui.hillQ).slice(0, 8).map(row).join('') || '<p class="pdfine">No hill by that name.</p>'
-      : recentlyMarked(5).map(h => '<button class="mrow" data-act="chatsendhill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; you marked it</span></span></button>').join('')) + '</div>', 'Share a hill');
+      : recentlyMarked(5).map(r => r.h).filter(Boolean).map(h => '<button class="mrow" data-act="chatsendhill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; you marked it</span></span></button>').join('')) + '</div>', 'Share a hill', '', 'chatplus');
   const q = el.querySelector('#hpq'); if (q){ q.focus(); q.oninput = e => { ui.hillQ = e.target.value; const r = el.querySelector('.hpres'); if (r) r.innerHTML = markSearch(ui.hillQ).slice(0, 8).map(row).join(''); }; }
 }
 function routePicker(){
   const ps = livePlans();
   bcSheet('<h3 class="bcsheettitle">Share a route</h3>' + (ps.length ? '<div class="hpres">' + ps.slice(0, 12).map(p => '<button class="mrow" data-act="chatsendroute" data-v="' + esc(p.id) + '"><span class="mmain"><b>' + esc(p.name || 'Untitled route') + '</b><span>' +
       (p.hills || []).length + ' hills' + (p.date ? ' &middot; ' + esc(prettyDate(p.date)) : '') + '</span></span></button>').join('') + '</div>'
-    : '<p class="bclede">You haven’t planned a route yet. Plan one on the Map and it can be shared here.</p>'), 'Share a route');
+    : '<p class="bclede">You haven’t planned a route yet.</p><div class="cvplusgrid two">' +
+      '<label class="cvplusbtn"><span>' + ti('file-upload') + '</span><b>Upload a GPX</b><input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label>' +
+      '<button data-act="chatrouteplot"><span>' + ti('map-2') + '</span><b>Plot one on the map</b></button></div>'),
+    'Share a route', '', 'chatplus');
 }
 /* the plan: which hill, when, where to meet */
 function planComposer(cid, opts){
-  ui.planDraft = {cid, with: (opts && opts.with) || null, title: (opts && opts.title) || '', hill: (opts && opts.hill) || '', q:'', date: (opts && opts.date) || '', time:'', meet:'', note:''};
+  ui.planDraft = {cid, with: (opts && opts.with) || null, title: (opts && opts.title) || '', hill: (opts && opts.hill) || '', q:'', date: (opts && opts.date) || '', time: (opts && opts.time) || '', meet: (opts && opts.meet) || '', note:''};
   paintPlanComposer();
 }
 function paintPlanComposer(){
   const d = ui.planDraft; if (!d) return;
   const h = d.hill ? BY_KEY[d.hill] : null, tdy = new Date().toISOString().slice(0, 10);
   const el = bcSheet('<h3 class="bcsheettitle">Plan a walk</h3><div class="form walkinv" style="margin:0">' +
-    '<div><label for="pdq">Which hill</label>' + (h
+    '<div><label for="pdq">Which hill <span class="opt">optional</span></label>' + (h
       ? '<div class="mrow on"><button class="mmain" data-act="pdhillclear"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; change</span></button></div>'
       : '<div class="field">' + ti('search') + '<input id="pdq" placeholder="Search any hill…" autocomplete="off" value="' + esc(d.q) + '"></div><div id="pdres">' + walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"') + '</div>') + '</div>' +
     '<div class="pdrow"><div><label for="pddate">When</label><input type="date" id="pddate" min="' + tdy + '" value="' + esc(d.date) + '"></div>' +
     '<div><label for="pdtime">Time <span class="opt">optional</span></label><input type="time" id="pdtime" value="' + esc(d.time) + '"></div></div>' +
     '<div><label for="pdmeet">Where to meet <span class="opt">optional</span></label><input id="pdmeet" maxlength="80" placeholder="Seathwaite car park" value="' + esc(d.meet) + '"></div>' +
     '<div><label for="pdnote">A note <span class="opt">optional</span></label><input id="pdnote" maxlength="200" placeholder="Bring a flask, it’ll be windy on top" value="' + esc(d.note) + '"></div>' +
-    '<button class="btn bcgo" data-act="plansend"' + (h && d.date ? '' : ' disabled') + '>' + ti('send') + (d.with && d.with.length > 1 ? 'Start the walk chat' : 'Send the plan') + '</button></div>', 'Plan a walk');
-  const bind = (id, k) => { const i = el.querySelector('#' + id); if (i) i.oninput = e => { d[k] = e.target.value; const b = el.querySelector('[data-act=plansend]'); if (b) b.disabled = !(d.hill && d.date); }; };
+    '<p class="pdfine">No hill yet? Set the date and sort the hill later — everyone can still see the plan.</p>' +
+    '<button class="btn bcgo" data-act="plansend"' + (d.date ? '' : ' disabled') + '>' + ti('send') + (d.with && d.with.length > 1 ? 'Start the walk chat' : 'Send the plan') + '</button></div>', 'Plan a walk', '', d.cid ? 'chatplus' : '');
+  const bind = (id, k) => { const i = el.querySelector('#' + id); if (i) i.oninput = e => { d[k] = e.target.value; const b = el.querySelector('[data-act=plansend]'); if (b) b.disabled = !d.date; }; };
   bind('pddate', 'date'); bind('pdtime', 'time'); bind('pdmeet', 'meet'); bind('pdnote', 'note');
   const q = el.querySelector('#pdq');
   if (q) q.oninput = e => { d.q = e.target.value; const r = el.querySelector('#pdres'); if (r) r.innerHTML = walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"'); };
 }
 async function sendPlan(){
-  const d = ui.planDraft; if (!d || !d.hill || !d.date) return;
+  const d = ui.planDraft; if (!d || !d.date) return;
   bcSheetClose(); ui.planDraft = null;
-  const h = BY_KEY[d.hill];
-  const plan = {hill: d.hill, hn: h ? hillName(h) : '', la: h ? +(+h.a).toFixed(4) : null, lo: h ? +(+h.o).toFixed(4) : null,
+  const h = d.hill ? BY_KEY[d.hill] : null;
+  const plan = {hill: d.hill || '', hn: h ? hillName(h) : '', la: h ? +(+h.a).toFixed(4) : null, lo: h ? +(+h.o).toFixed(4) : null,
     date: d.date, time: d.time || '', meet: d.meet.trim().slice(0, 80), note: d.note.trim().slice(0, 200)};
   let cid = d.cid;
   if (!cid && d.with){
     if (d.with.length === 1) cid = await ensureDm(d.with[0]);
-    else cid = await makeGroup(d.with, d.title || (h ? hillName(h) + ', ' + walkWhen(d.date) : 'Our walk'), 'walk', {...plan, going:{[fbUser.uid]:'in'}});
+    else cid = await makeGroup(d.with, d.title || (h ? hillName(h) + ', ' + walkWhen(d.date) : 'A walk, ' + walkWhen(d.date)), 'walk', {...plan, going:{[fbUser.uid]:'in'}});
     if (!cid) return;
     await openChat(cid);
   }
   if (!chatOpen) return;
   const mid = await sendMsg({kind:'plan', plan, going:{[fbUser.uid]:'in'}}, 'Planned ' + (h ? hillName(h) : 'a walk') + ', ' + walkWhen(plan.date));
+  /* no hill yet: nudge the chat to settle one */
+  if (!h) await sendMsg({kind:'text', text:'Where shall we go? Tap + to add a hill or start a poll.'});
   if (mid){ const full = {...plan, mid, going:{[fbUser.uid]:'in'}}; chatOpen.chat.plan = full; paintPinbar(); FB.setDoc(chatRef(chatOpen.id), {plan: full}, {merge:true}).catch(() => {}); }
 }
 /* a poll: anything, or a set of dates */
@@ -9713,7 +9769,7 @@ function paintPollComposer(){
       (d.opts.length > 2 ? '<button class="xbtn" data-act="polldel" data-v="' + i + '" aria-label="Remove option ' + (i + 1) + '">' + ti('x') + '</button>' : '') + '</div>').join('') + '</div>' +
     (d.opts.length < 8 ? '<button class="linkbtn" data-act="pollmore">+ Add ' + (d.dates ? 'a date' : 'an option') + '</button>' : '') +
     '<div><label for="pollclose">Closes <span class="opt">optional</span></label><select id="pollclose"><option value="">When I say so</option><option value="1"' + (d.closes === '1' ? ' selected' : '') + '>In 24 hours</option><option value="3"' + (d.closes === '3' ? ' selected' : '') + '>In 3 days</option><option value="7"' + (d.closes === '7' ? ' selected' : '') + '>In a week</option></select></div>' +
-    '<button class="btn bcgo" data-act="pollsend">' + ti('send') + 'Send the poll</button></div>', 'Start a poll');
+    '<button class="btn bcgo" data-act="pollsend">' + ti('send') + 'Send the poll</button></div>', 'Start a poll', '', 'chatplus');
   el.querySelector('#pollq').oninput = e => { d.q = e.target.value; };
   el.querySelector('#pollclose').onchange = e => { d.closes = e.target.value; };
   el.querySelectorAll('.pollopt input').forEach(i => { i.oninput = e => { d.opts[+e.target.dataset.i] = e.target.value; }; });
@@ -9734,21 +9790,31 @@ function sendToSheet(pid){
   ui.sendTo = {pid, sel:[], q:'', text:''};
   paintSendTo();
 }
-function paintSendTo(){
-  const d = ui.sendTo; if (!d) return;
-  const q = d.q.toLowerCase();
+function sendToTargets(){
   const targets = [];
   for (const c of visibleChats()){ if (chatIsRequest(c)) continue; targets.push({key:'c:' + c.id, name: chatName(c), av: chatAvatar(c, 'lg')}); }
   const haveDm = new Set(visibleChats().filter(c => c.kind === 'dm').map(chatOther));
   for (const p of msgPeople()) if (!haveDm.has(p.uid)) targets.push({key:'u:' + p.uid, name: p.name, av: '<span class="mgav">' + avatarHTML(p.av, p.name, 'lg', p.uid) + '</span>'});
-  const list = targets.filter(t => !q || t.name.toLowerCase().includes(q)).slice(0, 24);
-  const sel = new Set(d.sel);
+  return targets;
+}
+function sendToGridHTML(d){
+  const q = (d.q || '').toLowerCase(), sel = new Set(d.sel);
+  const list = sendToTargets().filter(t => !q || t.name.toLowerCase().includes(q)).slice(0, 24);
+  return list.map(t => '<button class="stitem" data-act="sttoggle" data-v="' + esc(t.key) + '" aria-pressed="' + sel.has(t.key) + '">' + t.av + (sel.has(t.key) ? '<span class="sttick">' + ti('check') + '</span>' : '') +
+      '<span>' + esc(t.name) + '</span></button>').join('') || '<p class="pdfine">Nobody to send to yet. Follow some hikers first.</p>';
+}
+function paintSendTo(){
+  const d = ui.sendTo; if (!d) return;
   const el = bcSheet('<h3 class="bcsheettitle">Send to…</h3><div class="field">' + ti('search') + '<input id="stq" placeholder="Search people and chats" value="' + esc(d.q) + '" autocomplete="off"></div>' +
-    '<div class="stgrid">' + (list.map(t => '<button class="stitem" data-act="sttoggle" data-v="' + esc(t.key) + '" aria-pressed="' + sel.has(t.key) + '">' + t.av + (sel.has(t.key) ? '<span class="sttick">' + ti('check') + '</span>' : '') +
-      '<span>' + esc(t.name) + '</span></button>').join('') || '<p class="pdfine">Nobody to send to yet. Follow some hikers first.</p>') + '</div>' +
+    '<div class="stgrid">' + sendToGridHTML(d) + '</div>' +
     '<input id="sttext" class="pickin" maxlength="300" placeholder="Add a message…" value="' + esc(d.text) + '">' +
     '<button class="btn bcgo" data-act="stsend"' + (d.sel.length ? '' : ' disabled') + '>' + ti('send') + (d.sel.length > 1 ? 'Send separately · ' + d.sel.length : 'Send') + '</button>', 'Send to', 'stsheet');
-  const qi = el.querySelector('#stq'); qi.oninput = e => { d.q = e.target.value; const pos = e.target.selectionStart; paintSendTo(); const n = document.getElementById('stq'); if (n){ n.focus(); n.setSelectionRange(pos, pos); } };
+  /* same as the people picker: repaint the grid, never the sheet */
+  const qi = el.querySelector('#stq'); qi.oninput = e => {
+    d.q = e.target.value;
+    const g = el.querySelector('.stgrid'); if (g) g.innerHTML = sendToGridHTML(d);
+    if (typeof wire === 'function') wire();
+  };
   el.querySelector('#sttext').oninput = e => { d.text = e.target.value; };
 }
 async function sendToGo(){
@@ -9905,6 +9971,8 @@ function chatInfo(){
     s += '<ul class="ytlist">' + (c.members || []).map(u => '<li><span class="mgav">' + avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u) + (isOnline(u) ? '<span class="mgon"></span>' : '') + '</span><b>' + esc(u === me ? 'You' : niceName((c.names || {})[u])) + '</b>' +
       (u === c.createdBy ? '<i>Started it</i>' : '') + (owner && u !== me ? '<button class="chip" data-act="chatkick" data-u="' + esc(u) + '">Remove</button>' : '') + '</li>').join('') + '</ul>';
     if (owner && (c.members || []).length < 30) s += '<button class="btn ghost" data-act="chatadd">' + ti('user-plus') + 'Add people</button>';
+    if (owner && (c.members || []).length < 30) s += '<button class="btn ghost" data-act="chatinvite">' + ti('share') + 'Invite with a link</button>' +
+      '<p class="pdfine">Sends a link that signs them into WayMark and drops them straight into this chat.' + (c.open ? ' Link joining is on.' : '') + '</p>';
     s += '<button class="btn quiet" data-act="chatleave">Leave this chat</button>';
   } else {
     const o = chatOther(c);
@@ -9966,6 +10034,27 @@ async function chatAct(a, el){
   else if (a === 'chatsharehill'){ ui.hillQ = ''; hillPicker(); }
   else if (a === 'chatsendhill'){ bcSheetClose(); const h = BY_KEY[el.dataset.k]; await sendMsg({kind:'hill', k: el.dataset.k}, 'Shared ' + (h ? hillName(h) : 'a hill')); }
   else if (a === 'chatshareroute'){ routePicker(); }
+  else if (a === 'chatinvite'){
+    const c = chatOpen && chatOpen.chat; if (!c || c.kind === 'dm') return true;
+    if (!c.open){
+      try{ await FB.setDoc(chatRef(c.id), {open:true}, {merge:true}); c.open = true; }
+      catch(e){ toast(fbWhy(e)); return true; }
+    }
+    bcSheetClose();
+    await shareLink(wmBase() + '#join=' + c.id, 'Join ' + chatName(c) + ' on WayMark',
+      'Come and walk with us. This link signs you into WayMark and opens the chat.');
+  }
+  else if (a === 'chatrouteplot'){
+    bcSheetClose(); closeChat(); closeInbox();
+    tab = 'p'; ui.planForm = true;
+    ui.draft = {name:'', date:'', notes:'', hills:[], trk:null, wp:null, snap:true};
+    render(); window.scrollTo({top:0});
+    toast('Plot the route, save it, then share it from the chat.');
+  }
+  else if (a === 'planpickhill'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m) return true;
+    planComposer(chatOpen.id, {date: (m.plan || {}).date || '', meet: (m.plan || {}).meet || ''});
+  }
   else if (a === 'chatsendroute'){
     bcSheetClose(); const p = livePlans().find(x => x.id === el.dataset.v); if (!p) return true;
     await sendMsg({kind:'route', route:{name: p.name || '', hills: (p.hills || []).slice(0, 40), date: p.date || '', trk: p.trk && p.trk.length < 60000 ? p.trk : null}}, 'Shared ' + (p.name || 'a route'));
@@ -12429,7 +12518,9 @@ function avatarHTML(av, name, cls, uid){
       if (live){ if (live.av) src = live.av; if (live.name) nm = live.name; }
     }
   }
-  return src ? '<img class="avatar ' + cls + '" src="' + esc(picURL(src)) + '" alt="" decoding="async">'
+  /* decoding="async" left a blank frame every time the page repainted, and the
+     page repaints a lot — avatars are small, so they decode with the frame. */
+  return src ? '<img class="avatar ' + cls + '" src="' + esc(picURL(src)) + '" alt="" decoding="sync">'
              : '<div class="avatar ' + cls + ' initial" style="background:' + AV_TONES[avTone(uid || nm)] + '">' + esc((nm || 'W').trim().charAt(0).toUpperCase()) + '</div>';
 }
 /* A write-up runs to whatever length the walker felt like. Past a few lines it
@@ -18658,7 +18749,7 @@ function stripTiles(os, z, cx, cy){
   for (let dx = -2; dx <= 2; dx++) for (let dy = -1; dy <= 1; dy++){
     const x = tx0 + dx, y = ty0 + dy;
     const src = os ? 'https://api.os.uk/maps/raster/v1/zxy/Outdoor_3857/' + z + '/' + x + '/' + y + '.png?key=' + key : otm(x, y);
-    t += '<img class="mst" loading="lazy" decoding="async" alt="" src="' + src + '"' +
+    t += '<img class="mst" loading="lazy" decoding="sync" alt="" src="' + src + '"' +
       (os ? ' data-otm="' + otm(x, y) + '" onerror="if(this.dataset.otm){this.src=this.dataset.otm;this.removeAttribute(\'data-otm\')}"' : '') +
       ' style="left:' + Math.round(x * 256 - cx) + 'px;top:' + Math.round(y * 256 - cy) + 'px">';
   }
@@ -19000,7 +19091,9 @@ function hikersHead(){
   const un = unreadNotes() + friendReqs.length;
   const t = hikerTab();
   /* no page title: the search bar leads the row, the way a social app does */
-  return '<h2 class="vh">Hikers</h2><div class="hkhead"><button class="hksearch" data-act="hikerfind">' + ti('search') + '<span>People, places, hills</span></button>' +
+  /* Discover has a real search field of its own, so the header's stand-in
+     search disappears there rather than showing two bars at once. */
+  return '<h2 class="vh">Hikers</h2><div class="hkhead">' + (hikerTab() === 'discover' ? '' : '<button class="hksearch" data-act="hikerfind">' + ti('search') + '<span>People, places, hills</span></button>') +
     '<button class="hkic' + (t === 'boards' ? ' on' : '') + '" data-act="hikertab" data-v="boards" aria-label="Leaderboards"' + (t === 'boards' ? ' aria-current="page"' : '') + '>' + ti('trophy') + '</button>' +
     '<button class="hkme" data-act="hikertab" data-v="me" aria-label="Your profile">' + avatarHTML(myAvatar(), myName(), 'sm', fbUser.uid) + '</button></div>';
 }
@@ -19392,14 +19485,13 @@ function renderDiscover(){
   let s = '<div class="dsearch"><div class="field">' + ti('search') +
     '<input id="findh" placeholder="Hikers, places or hills" maxlength="40" autocomplete="off" enterkeyhint="search" value="' + esc(ui.findQ || '') + '">' +
     '<button class="btn sm" data-act="findfriend">Search</button></div>' +
-    '<p class="dhint">Search a name, @handle, town, hill or list. Try “Bristol” or “Snowdon”.</p><p id="fmsg" class="fmsg"></p>';
+    '<p class="dhint">A name or @handle finds that person. A town, hill or list finds hikers who put it on their profile — so “Bristol” finds walkers based near Bristol.</p><p id="fmsg" class="fmsg"></p>';
   const foundList = ui.found ? (Array.isArray(ui.found) ? ui.found : [ui.found]) : [];
   if (foundList.length) s += '<div class="dresults">' + foundList.map(f => hikerRow({...f, why: f.why || ''}, followBtn(f.uid, true))).join('') + '</div>' +
     '<button class="linkbtn dclear" data-act="findclear">Clear search</button>';
   else if (ui.found && ui.findQ) s += '<div class="dnone">' + ti('binoculars') + '<b>No hikers match “' + esc(ui.findQ) + '”</b>' +
     '<span>Try a hill, a town or a list, or send your link to the people you walk with.</span>' +
-    '<div class="btnrow" style="justify-content:center;margin-top:6px"><button class="btn sm ghost" data-act="findclear">Clear search</button>' +
-    (fbHandle ? '<button class="btn sm" data-act="shareme">' + ti('share') + 'Send my link</button>' : '') + '</div></div>';
+    '<div class="btnrow" style="justify-content:center;margin-top:6px"><button class="btn sm ghost" data-act="findclear">Clear search</button></div></div>';
   s += '</div>';
 
   /* your own partner status, so the row below is something you can join */
@@ -20035,10 +20127,12 @@ function takeInviteFromHash(){
   const who = h.match(/^#@([A-Za-z0-9_]{2,20})$/);
   const brd = h.match(/^#board=([A-Za-z0-9]{4,12})$/i);
   const pst = h.match(/^#post=([A-Za-z0-9_-]{6,40})$/);
-  if (!who && !brd && !pst) return null;
+  const cht = h.match(/^#join=([A-Za-z0-9_-]{6,60})$/);
+  if (!who && !brd && !pst && !cht) return null;
   history.replaceState(null, '', location.pathname + location.search);
   const v = who ? {kind:'profile', handle:who[1], t:Date.now()}
           : pst ? {kind:'post', id:pst[1], t:Date.now()}
+          : cht ? {kind:'chat', id:cht[1], t:Date.now()}
                 : {kind:'board', code:brd[1].toUpperCase(), t:Date.now()};
   try{ localStorage.setItem(INVITE_KEY, JSON.stringify(v)); }catch(e){}
   return v;
@@ -20049,6 +20143,23 @@ async function openInvite(){
   const v = readInvite();
   if (!v || !fbUser) return;
   if (v.kind === 'post'){ clearInvite(); tab = 'u'; openPostById(v.id, false); return; }
+  if (v.kind === 'chat'){
+    if (chats.some(c => c.id === v.id)){ clearInvite(); await openChat(v.id); return; }
+    let c = null;
+    try{ const snap = await FB.getDoc(chatRef(v.id)); c = snap.exists() ? snap.data() : null; }
+    catch(e){ toast(fbWhy(e)); return; }
+    if (!c){ clearInvite(); toast('That chat has gone.'); return; }
+    if (!c.open){ clearInvite(); toast('That chat is no longer taking people by link.'); return; }
+    const nm = c.title || 'a walking chat';
+    const ok = await confirmAsk({title:'Join ' + nm + '?', body:(c.members || []).length + ' people are in it. They will see your name.', yes:'Join', no:'Not now'});
+    if (!ok){ clearInvite(); return; }
+    try{
+      await FB.setDoc(chatRef(v.id), {members:[...(c.members || []), fbUser.uid],
+        names:{...(c.names || {}), [fbUser.uid]: myName()}, avs:{...(c.avs || {}), [fbUser.uid]: myAvatar() || ''}}, {merge:true});
+      clearInvite(); await openChat(v.id); toast('You are in. Say hello.');
+    }catch(e){ toast(fbWhy(e)); }
+    return;
+  }
   if (v.kind === 'board'){
     /* already on it: nothing to ask, just show them the board */
     if (myGroups().some(g => g.code === v.code)){
@@ -20548,7 +20659,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v191';
+const APP_VERSION = 'v196';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
