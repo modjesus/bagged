@@ -36,3 +36,6 @@ window.OS_MAPS_KEY = "7dr6PaxTGBDvEAweDivDRhkL1s7XFPJw";
 
 window.STRAVA_CLIENT_ID = "280997";
 window.STRAVA_WORKER = "https://waymark-strava.joesullivan1998.workers.dev";
+
+   window.SHOP_WORKER = "https://waymark-shop.joesullivan1998.workers.dev";
+   window.STRIPE_PUBLISHABLE_KEY = "pk_test_51UIFSJFuI8qQmVmvX5wkyQxgTagMInKwRU7eSBt81rqkhqnTGgCKc3j18BOPiOrMnOLXVn7ONsllcaKg1hNLmYzz00InfS1uaC";
