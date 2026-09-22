@@ -75,8 +75,8 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
     --ground:#0C221D; --surface:#14332D; --surface-2:#1E453E; --raise:#173A33;
     --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#A2BDB6;
     --line:#2A5A51; --line-soft:#204A42;
-    --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#A8431A;
-    --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#23524A;
+    --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#EE9A62;
+    --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#173A33;
     --plan:#A9A3E0; --plan-soft:#2B2A44;
     --prog:#7FB6D6; --prog-soft:#1E3644;
     --warn:#E58B4E;
@@ -90,8 +90,8 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
   --ground:#0C221D; --surface:#14332D; --surface-2:#1E453E; --raise:#173A33;
   --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#A2BDB6;
   --line:#2A5A51; --line-soft:#204A42;
-  --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#A8431A;
-  --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#23524A;
+  --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#EE9A62;
+  --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#173A33;
   --plan:#A9A3E0; --plan-soft:#2B2A44;
   --prog:#7FB6D6; --prog-soft:#1E3644;
   --warn:#E58B4E;
@@ -365,6 +365,7 @@ body::before{
 .hbrand{background:none; border:none; padding:0; cursor:pointer; color:inherit}
 /* the tagline is tracked out by script to sit exactly under the wordmark */
 .tagline{display:block}
+.pclink, .pcorder{min-height:36px; display:inline-flex; align-items:center}
 .tagline{
   font-family:var(--font-ui); font-style:normal;
   font-size:clamp(8px, 2.5vw, 10.5px); letter-spacing:.1em; text-transform:uppercase;
@@ -2790,7 +2791,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
    pinned up in a hut. Tokens are re-scoped so every child reads on it. ---- */
 .wx, .wxmini{
   --ink:#F3EFE6; --ink-2:#CAD9D3; --ink-3:#A7BDB6; --surface:#1B4139; --surface-2:#173A33;
-  --raise:#204A42; --line:#2C5C52; --line-soft:#26524A; --accent-text:#A8431A; --sage:#8FB0A6; --warn:#F0A36A;
+  --raise:#204A42; --line:#2C5C52; --line-soft:#26524A; --accent-text:#EE9A62; --sage:#8FB0A6; --warn:#F0A36A;
   background:#14332D; border-color:#2C5C52; color:var(--ink); box-shadow:var(--shadow);
 }
 .wx .wxgrid > div.warn{background:color-mix(in srgb, #A8431A 22%, var(--surface))}
@@ -2800,7 +2801,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .wxi{color:#A8431A}
 /* ---- the reveal: a dark ground, the patch large and alone ---- */
 .win .sheetbox{
-  --ink:#F3EFE6; --ink-2:#CAD9D3; --ink-3:#A7BDB6; --surface:#1B4139; --line:#2C5C52; --accent-text:#A8431A;
+  --ink:#F3EFE6; --ink-2:#CAD9D3; --ink-3:#A7BDB6; --surface:#1B4139; --line:#2C5C52; --accent-text:#EE9A62;
   background:#14332D; color:var(--ink); border-color:#2C5C52;
 }
 .win .sheetbox h2{color:#F3EFE6; margin-top:28px}
@@ -2855,7 +2856,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
    every child reads on it without touching the components. */
 .side, .bnav{
   --ink:#F3EFE6; --ink-2:#CAD9D3; --ink-3:#9DB4AD; --surface:#1B4139; --surface-2:#1F4940;
-  --line:#2C5C52; --line-soft:#26524A; --accent-text:#A8431A; --shadow:none;
+  --line:#2C5C52; --line-soft:#26524A; --accent-text:#EE9A62; --shadow:none;
   background:#14332D; border-color:#2C5C52; color:var(--ink);
 }
 .side{border-right-color:#0F2924}
@@ -4164,8 +4165,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .fhead .refreshbtn{width:36px; height:36px}
 .fstrip{position:relative}
 .fchip.frefresh{position:sticky; right:0; margin-left:auto; padding-left:10px; width:70px; flex:none;
-  background:var(--ground); align-self:stretch}
-.fchip.frefresh::before{content:""; position:absolute; top:0; bottom:0; left:-18px; width:18px; background:linear-gradient(to right, transparent, var(--ground)); pointer-events:none}
+  background:radial-gradient(closest-side, var(--ground) 72%, transparent)}
 .fchip.frefresh .fplus{border:1.5px solid var(--line); color:var(--ink-2); background:var(--raise)}
 .fchip.frefresh span:not(.fplus){color:var(--ink-2)}
 .fchip.frefresh.spinning .fplus svg{animation:ptrspin .8s linear infinite}
@@ -4187,6 +4187,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .crewtxt span{font-size:13px; color:#CAD9D3}
 .crew > svg{position:relative; width:20px; height:20px; flex:none}
 .crew:active{transform:scale(.99)}
+.crew{box-shadow:inset 0 0 0 1px color-mix(in srgb, #F3EFE6 9%, transparent)}
 .post.pv2{background:var(--raise); border:1px solid var(--line-soft); border-radius:18px; padding:14px 14px 6px; margin:0 0 12px;
   box-shadow:0 10px 26px -22px rgba(20,51,45,.7)}
 .feedmain > .post.pv2:last-of-type{border-bottom:1px solid var(--line-soft)}
@@ -4275,6 +4276,155 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .sugrow{margin:0 0 10px; padding:12px 0 12px 12px; border-radius:16px}
 .pv2 .pmedia.mstrip{margin:10px -12px 0; border-radius:0; border-left:0; border-right:0}
 
+
+/* ---- v189: profiles on a pine band ---- */
+.prof.pv3{margin-top:10px}
+.prof.pv3 .pine{position:relative; overflow:hidden; background:#14332D; border:1px solid color-mix(in srgb, #F3EFE6 7%, transparent); color:#F3EFE6; border-radius:18px; padding:0 14px 34px; isolation:isolate}
+.prof.pv3 .pbanner{position:absolute; left:0; right:0; top:0; height:220px; border-radius:0; z-index:-2; opacity:.62}
+.prof.pv3 .pbanner.adjusting{opacity:1; z-index:2; height:160px}
+.prof.pv3 .pbanner .skylab{display:none}
+.prof.pv3 .pinefade{position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(rgba(20,51,45,.12), rgba(20,51,45,.55) 32%, #14332D 64%)}
+.prof.pv3 .pinetop{position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; min-height:52px; padding-top:8px}
+.prof.pv3 .pinetop .pedit, .prof.pv3 .pinetop .peditbar{position:static}
+.prof.pv3 .pinetop .pedit{background:rgba(255,253,248,.14); color:#F3EFE6; border:1px solid rgba(243,239,230,.5); backdrop-filter:blur(4px)}
+.pineback{width:40px; height:40px; border-radius:50%; border:0; background:rgba(255,253,248,.16); color:#F3EFE6; display:grid; place-items:center; cursor:pointer; backdrop-filter:blur(4px)}
+.pineback svg{width:20px; height:20px}
+.prof.pv3 .profmenu .pmenubox{right:0; left:auto; color:var(--ink)}
+.pshow{position:absolute; left:12px; top:10px; z-index:3; width:84px; height:84px; padding:0; border:0; background:none; transform:rotate(-10deg); cursor:pointer;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.45)) drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.pshow.low{top:58px}
+span.pshow{cursor:default}
+.pshow .disc{width:84px; height:84px; display:grid; place-items:center}
+.pshow .disc img{width:100%; height:100%; object-fit:contain}
+.pshowpen{position:absolute; right:-2px; bottom:4px; width:24px; height:24px; border-radius:50%; background:#FFFDF8; color:#14332D; display:grid; place-items:center; transform:rotate(10deg); box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pshowpen svg{width:13px; height:13px}
+.pshow.empty{width:56px; height:56px; border-radius:50%; border:1.5px dashed rgba(243,239,230,.6); color:#F3EFE6; display:grid; place-items:center; transform:none; filter:none}
+.pshow.empty svg{width:22px; height:22px}
+.prof.pv3 > .pine > .phead2{position:relative; display:block; text-align:center; padding-top:0}
+.prof.pv3 .phead2 > .pid{display:flex; justify-content:center; margin:0}
+.prof.pv3 .pavatar{width:92px; height:92px; border:0; box-shadow:0 0 0 4px #14332D, 0 0 0 6px #E58B4E; margin:0}
+.prof.pv3 .phead2 > .pname{padding:12px 0 0; text-align:center}
+.prof.pv3 .phead2 > .pname h2{color:#F3EFE6; font-size:28px}
+.prof.pv3 .ploc{justify-content:center; color:#CAD9D3; flex-wrap:wrap}
+.prof.pv3 .ploc svg{color:#E58B4E}
+.prof.pv3 .ploc b, .prof.pv3 .lochigh b{color:#F3EFE6}
+.prof.pv3 .lochigh{white-space:nowrap}
+.prof.pv3 .ptop2{display:none}
+.prof.pv3 .ptag{color:#CAD9D3; text-align:center; margin-left:auto; margin-right:auto}
+.ptagadd{display:block; border:0; background:none; cursor:pointer; padding:4px 8px; color:rgba(202,217,211,.75) !important; text-decoration:underline dotted; text-underline-offset:3px}
+.pcounts{position:relative; margin:8px 0 0; text-align:center; font-size:13.5px; color:#CAD9D3}
+.pcounts .plink{color:#CAD9D3; font-size:13.5px; padding:10px 4px; margin:-10px 0}
+.pcounts b{color:#F3EFE6}
+.pcounts .fyou{color:#E58B4E; font-weight:700}
+.pchips{position:relative; display:flex; justify-content:center; flex-wrap:wrap; gap:6px; margin-top:10px}
+.pinechip{display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:99px; font-size:12.5px; font-weight:600; line-height:1.2; white-space:nowrap; background:rgba(255,253,248,.12); color:#F3EFE6}
+.pinechip.open{background:#E58B4E; color:#14332D}
+.pinechip svg{width:14px; height:14px}
+.prof.pv3 .ploc, .prof.pv3 .ploc span, .prof.pv3 .ploc em{color:#CAD9D3 !important; opacity:1}
+.pinebtns .btn{white-space:nowrap; font-size:14.5px; padding:0 10px}
+.pinebtns{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
+.pinebtns .btn{justify-content:center; min-height:44px; width:100%}
+.pinebtns .btn.ghost, .pinebtns .btn.quiet, .pinebtns .btn.following{background:transparent; color:#F3EFE6; border:1.5px solid #F3EFE6; box-shadow:none}
+.pinebtns .btn svg{width:16px; height:16px; margin-right:6px}
+.prof.pv3 > .pfigs{position:relative; z-index:2; margin:-24px 12px 0; background:var(--raise); border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 26px -18px rgba(12,34,29,.8)}
+.prof.pv3 > .pfigs > div{justify-content:center}
+.prof.pv3 > .pfigs b{font-family:var(--font-display); font-weight:400; color:var(--accent-text); font-size:23px; height:26px; line-height:26px; white-space:nowrap}
+.prof.pv3 > .pfigs b small{font-size:15px}
+.prof.pv3 > .pfigs b em{font-size:12px}
+.prof.pv3 > .pfigs i{color:var(--ink)}
+.pmutual{display:flex; align-items:center; gap:8px; width:100%; margin:12px 0 0; padding:0 2px; border:0; background:none; text-align:left; cursor:pointer; font:13.5px var(--font-ui); color:var(--ink-2)}
+.pmutual b{color:var(--ink)}
+.pmstack{display:inline-flex; flex:none}
+.pmstack .avatar{width:24px; height:24px; box-shadow:0 0 0 2px var(--ground)}
+.pmstack .avatar + .avatar{margin-left:-7px}
+.youthem{margin:12px 0 4px; padding:12px 14px; border-radius:14px; background:var(--raise); border:1px solid var(--line)}
+.ythead{display:flex; align-items:center; gap:8px}
+.ythead b{flex:1; font-size:14.5px}
+.ytcommon{font:600 10.5px var(--font-data); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.ytrow{margin-top:10px}
+.yttop{display:flex; justify-content:space-between; gap:8px; font-size:13px}
+.ytn{font:12px var(--font-data); color:var(--ink-2)}
+.ytn b{color:var(--accent-text)}
+.youthem .chbar{margin-top:6px}
+.ppassport{display:flex; flex-wrap:wrap; gap:12px}
+.ppassport .patch{width:74px}
+.showgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); gap:12px}
+.showgrid .patch{background:none; border:0; padding:6px; border-radius:14px; cursor:pointer}
+.showgrid .patch.picked{background:var(--accent-soft); box-shadow:inset 0 0 0 2px var(--accent)}
+/* notifications by day */
+.ngroup{margin:14px 6px 4px; font:600 10.5px var(--font-data); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.ngroup:first-of-type{margin-top:6px}
+/* share your day */
+.daysheet .sheetbox{max-width:560px; padding:8px 16px 18px}
+.sdcard{padding:12px 14px; border-radius:14px; background:var(--raise); border:1px solid var(--line); margin-bottom:12px}
+.sdcard .pregion{margin:0 0 2px}
+.sdlab{display:block; margin:12px 0 6px; font:600 11px var(--font-data); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
+.sdlab .opt{text-transform:none; letter-spacing:0; font-weight:400}
+.daysheet textarea{width:100%; box-sizing:border-box; border-radius:12px; border:1px solid var(--line); background:var(--raise); color:var(--ink); padding:10px 12px; font:15px var(--font-ui); resize:vertical}
+.sdphotos{display:inline-flex; align-items:center; gap:8px; margin-top:10px; min-height:40px; padding:0 14px; border-radius:99px; border:1px solid var(--line); background:var(--raise); color:var(--ink); font:600 13.5px var(--font-ui); cursor:pointer}
+.sdphotos.on{background:var(--done-soft); border-color:var(--done-line)}
+.sdphotos svg{width:16px; height:16px}
+.sdbtns{display:grid; grid-template-columns:1fr 2fr; gap:10px; margin-top:16px}
+.sdbtns .btn{justify-content:center; min-height:46px}
+/* desktop: three columns */
+.feedleft{display:none}
+@media (min-width:1360px){
+  .feedgrid.g3{grid-template-columns:220px minmax(0, 600px) 280px !important; gap:28px !important; justify-content:center}
+  .feedgrid.g3 .rjourney{display:none}
+  .feedgrid.g3 > .feedleft{display:flex; flex-direction:column; gap:12px; position:sticky; top:84px; align-self:start}
+}
+.lme .lmehead{display:flex; align-items:center; gap:10px; width:100%; border:0; background:none; padding:0; text-align:left; cursor:pointer; color:var(--ink)}
+.lme .lmehead span{min-width:0}
+.lme .lmehead b{display:block; font-size:15px}
+.lme .lmehead i{display:block; font-style:normal; font-size:12.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lmefig{display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-top:12px}
+.lmefig span{display:flex; flex-direction:column; font:600 9.5px var(--font-data); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.lmefig b{font:700 18px var(--font-ui); letter-spacing:0; color:var(--ink); text-transform:none}
+.lnav{display:flex; flex-direction:column; gap:2px}
+.lnav button{display:flex; align-items:center; gap:10px; min-height:42px; padding:0 12px; border:0; border-radius:10px; background:none; color:var(--ink); font:500 15px var(--font-ui); cursor:pointer; text-align:left}
+.lnav button:hover{background:var(--tint)}
+.lnav button.on{background:var(--surface-2); font-weight:700}
+.lnav svg{width:18px; height:18px}
+
+
+/* ---- v189d: calmer labels, tactile controls ---- */
+.ngroup{font:700 13px var(--font-ui); letter-spacing:0; text-transform:none; color:var(--ink-2)}
+.sdlab{font:600 13px var(--font-ui); letter-spacing:0; text-transform:none; color:var(--ink-2)}
+.ytcommon{font:600 12px var(--font-ui); letter-spacing:0; text-transform:none}
+.fchip .avatar, .fchip .fplus{transition:transform .18s cubic-bezier(.32,.72,0,1)}
+.fchip:hover .avatar, .fchip:hover .fplus{transform:translateY(-2px)}
+.fchip:active .avatar, .fchip:active .fplus{transform:scale(.94)}
+.pact{transition:color .15s, transform .12s}
+.pact:active{transform:scale(.92)}
+.dperson{transition:transform .18s cubic-bezier(.32,.72,0,1), box-shadow .18s}
+@media (hover:hover){ .dperson:hover{transform:translateY(-2px); box-shadow:0 10px 22px -16px rgba(20,51,45,.6)} }
+.chipbtn:active, .pinebtns .btn:active, .hksearch:active{transform:scale(.98)}
+.post.pv2 .ptitle{text-wrap:balance}
+.nobody span, .pcempty{text-wrap:pretty}
+.invitecard span{white-space:normal; overflow:visible; text-overflow:clip; word-break:break-word}
+@media (prefers-reduced-motion:reduce){ .fchip .avatar, .fchip .fplus, .dperson, .pact{transition:none} }
+
+
+/* ---- v190: photos first ---- */
+.sdshots{display:flex; gap:8px; flex-wrap:wrap}
+.sdshot{width:72px; height:72px; border-radius:10px; overflow:hidden; background:var(--surface-2); flex:none}
+.sdshot img{width:100%; height:100%; object-fit:cover; display:block}
+.sdadd{width:72px; height:72px; border-radius:10px; border:1.5px dashed var(--accent-text); color:var(--accent-text); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; font:600 11.5px var(--font-ui); flex:none; text-align:center}
+.sdadd svg{width:22px; height:22px}
+.sdadd:active{transform:scale(.96)}
+.sdtoggle{margin-top:6px; font-size:13px}
+.sdnudge{margin:6px 0 0; font-size:12.5px; color:var(--ink-3)}
+.paddph{display:flex; align-items:center; justify-content:center; gap:8px; margin:10px 0 2px; min-height:44px; border-radius:12px; border:1.5px dashed var(--line);
+  color:var(--ink-2); font:600 14px var(--font-ui); cursor:pointer; transition:border-color .15s, color .15s}
+.paddph:hover{border-color:var(--accent-text); color:var(--accent-text)}
+.paddph svg{width:18px; height:18px}
+.prof.pv3 > .pfigs.none{display:none}
+.prof.pv3 > .pfigs.n1, .prof.pv3 > .pfigs.n2, .prof.pv3 > .pfigs.n3{display:grid; grid-template-columns:repeat(var(--c), minmax(0,1fr))}
+.prof.pv3 > .pfigs.n1{--c:1; max-width:160px; margin-left:auto; margin-right:auto}
+.prof.pv3 > .pfigs.n2{--c:2}
+.prof.pv3 > .pfigs.n3{--c:3}
+.prof.pv3 .pine:has(+ .pfigs.none){padding-bottom:18px}
+
 /* ---- someone else's profile ---- */
 .pfollows{display:flex; align-items:center; gap:16px; margin:10px 2px 4px; font-size:14px; color:var(--ink-2)}
 .pfollows b{color:var(--ink); font-variant-numeric:tabular-nums}
@@ -4282,6 +4432,9 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .fyou{margin-left:auto; font:700 11px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2);
   background:var(--surface-2); padding:4px 9px; border-radius:6px}
 .ptabs{margin-top:14px}
+.prof.pv3 ~ .ptabs{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:6px}
+.prof.pv3 ~ .ptabs button{min-width:0; padding:0 6px; justify-content:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.prof.pv3 ~ .ptabs button i{display:none}
 .pgrid{display:grid; grid-template-columns:repeat(3, 1fr); gap:3px; margin-top:8px; border-radius:10px; overflow:hidden}
 .pgrid .shot{aspect-ratio:1; width:auto; height:auto; padding:0; border:0; border-radius:0; background:var(--surface-2)}
 .pgrid img{width:100%; height:100%; object-fit:cover; display:block}
@@ -4507,11 +4660,11 @@ ul.hills::before, ul.hills .hrow::before{display:none}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]) .mstrip.multi .mswash{background:linear-gradient(90deg, rgba(12,34,29,0) 34%, rgba(12,34,29,.8) 56%, rgba(12,34,29,.95) 100%)}
   :root:not([data-theme="light"]) .mslist li, :root:not([data-theme="light"]) .mslist li span, :root:not([data-theme="light"]) .mslist li.more{color:#F1E6D6}
-  :root:not([data-theme="light"]) .mseye{color:#E0703D}
+  :root:not([data-theme="light"]) .mseye{color:#EE9A62}
 }
 :root[data-theme="dark"] .mstrip.multi .mswash{background:linear-gradient(90deg, rgba(12,34,29,0) 34%, rgba(12,34,29,.8) 56%, rgba(12,34,29,.95) 100%)}
 :root[data-theme="dark"] .mslist li, :root[data-theme="dark"] .mslist li span, :root[data-theme="dark"] .mslist li.more{color:#F1E6D6}
-:root[data-theme="dark"] .mseye{color:#E0703D}
+:root[data-theme="dark"] .mseye{color:#EE9A62}
 
 /* GPS verified: seal on the stamp's corner, second ring on the coin, a tick in the list */
 /* sits just outside the stamp's ring at about eight o'clock, so it never covers a word */
@@ -9191,6 +9344,10 @@ function picURL(src){
   picMem.set(src, u);
   return u;
 }
+/* Five muted trail colours so a feed of initials is not five identical green
+   discs; the same person always gets the same one. */
+const AV_TONES = ['#2C5F55', '#7A4A2E', '#4E5A7A', '#5E6B3A', '#7A3D4C'];
+function avTone(k){ let h = 0; for (const c of String(k || 'W')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % AV_TONES.length; }
 function avatarHTML(av, name, cls, uid){
   let src = av, nm = name;
   if (uid){
@@ -9201,7 +9358,7 @@ function avatarHTML(av, name, cls, uid){
     }
   }
   return src ? '<img class="avatar ' + cls + '" src="' + esc(picURL(src)) + '" alt="" decoding="async">'
-             : '<div class="avatar ' + cls + ' initial">' + esc((nm || 'W').trim().charAt(0).toUpperCase()) + '</div>';
+             : '<div class="avatar ' + cls + ' initial" style="background:' + AV_TONES[avTone(uid || nm)] + '">' + esc((nm || 'W').trim().charAt(0).toUpperCase()) + '</div>';
 }
 /* A write-up runs to whatever length the walker felt like. Past a few lines it
    is folded, so one chatty post cannot fill the whole screen in a feed. */
@@ -9309,10 +9466,24 @@ function recResults(q){
 }
 /* The right-hand column on a wide screen: your own journey beside everybody
    else's, so the feed never reads as other people's lives only. */
+/* Wide screens: you, and the ways round Hikers, down the left. */
+function feedLeft(){
+  const f = profileFigures();
+  return '<div class="railcard lme"><button class="lmehead" data-act="hikertab" data-v="me">' + avatarHTML(myAvatar(), myName(), 'md', fbUser.uid) +
+    '<span><b>' + esc(myName()) + '</b><i>' + (fbHandle ? '@' + esc(fbHandle) : '') + (prof.home || homeGround() ? (fbHandle ? ' · ' : '') + esc(prof.home || homeGround()) : '') + '</i></span></button>' +
+    '<div class="lmefig"><span><b>' + f.marked.toLocaleString() + '</b>Summits</span><span><b>' + followers.length + '</b>Followers</span><span><b>' + patches().filter(x => x.got).length + '</b>Patches</span></div></div>' +
+    '<nav class="lnav" aria-label="Hikers">' +
+      '<button class="on" data-act="hikertab" data-v="feed">' + ti('users') + 'Following</button>' +
+      '<button data-act="hikerfind">' + ti('search') + 'Discover</button>' +
+      '<button data-act="hikerfind">' + ti('walk') + 'Up for a walk</button>' +
+      '<button data-act="hikertab" data-v="boards">' + ti('trophy') + 'Boards</button>' +
+      '<button data-act="notesopen">' + ti('bell') + 'Notifications</button>' +
+    '</nav>';
+}
 function feedRail(){
   const a = allStats();
   const next = [1, 10, 25, 50, 100, 250, 500].find(x => x > a.done);
-  let s = '<div class="railcard"><p class="sumlabel">Your journey</p>' +
+  let s = '<div class="railcard rjourney"><p class="sumlabel">Your journey</p>' +
     '<div class="railstats"><div><b>' + a.done + '</b><i>summits</i></div><div><b>' + patches().filter(p => p.got).length + '</b><i>patches</i></div><div><b>' + followers.length + '</b><i>followers</i></div></div>' +
     (next ? '<p class="railnext">' + ti('trending-up') + '<b>' + (next - a.done) + ' to go</b> to ' + next + (next === 1 ? ' summit' : ' summits') + '</p>' : '') +
     '<button class="linkbtn" data-act="hikertab" data-v="me">Your profile &rsaquo;</button></div>';
@@ -12725,7 +12896,9 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'closefriend'){ friendOpen = null; ui.theirList = null; render(); }
   else if (a === 'proftab'){ ui.profTab = el.dataset.v; render(); hydratePostPhotos(); hydrateFriendPhotos(); }
-  else if (a === 'theirlist'){ ui.theirList = {uid:el.dataset.u, which:el.dataset.v}; render(); window.scrollTo({top:0}); }
+  else if (a === 'theirlist'){ ui.theirList = {uid:el.dataset.u, which:el.dataset.v}; render();
+    /* the list opens under the header: take the reader to it */
+    requestAnimationFrame(() => { const t = document.querySelector('.theirtabs'); if (t) window.scrollTo({top:t.getBoundingClientRect().top + window.scrollY - 70, behavior:'smooth'}); }); }
   else if (a === 'theirclose'){ ui.theirList = null; render(); }
   else if (a === 'singleclose'){ singlePost = null; render(); }
   else if (a === 'notesopen'){ openNotes(); }
@@ -13190,6 +13363,18 @@ document.addEventListener('click', async e => {
   else if (a === 'certprint'){ certFit(); setTimeout(() => window.print(), 60); }
   else if (a === 'yearcard'){ try{ await yearCard(); }catch(e){ toast('Could not make the card.'); } }
   else if (a === 'invitecard'){ try{ await inviteCard(); }catch(e){ toast('Could not make the card.'); } }
+  else if (a === 'mypeople'){ ui.peopleView = el.dataset.v; ui.hikerTab = 'friends'; render(); window.scrollTo({top:0}); }
+  else if (a === 'showpick'){ openShowPick(); }
+  else if (a === 'sdclose'){ closeShareDay(); }
+  else if (a === 'sdsend'){ sendShareDay(); }
+  else if (a === 'sdphotos'){ if (ui.shareDay){ const b = document.getElementById('sdtext'); if (b) ui.shareDay.text = b.value; ui.shareDay.withPhotos = !ui.shareDay.withPhotos; paintShareDay(); } }
+  else if (a === 'sdvis'){ if (ui.shareDay){ const b = document.getElementById('sdtext'); if (b) ui.shareDay.text = b.value; ui.shareDay.vis = el.dataset.v; paintShareDay(); } }
+  else if (a === 'setshow'){
+    prof.show = el.dataset.v || ''; saveProf(); touched(); scheduleSync(400);
+    const sh = document.getElementById('showsheet'); if (sh) sh.classList.remove('open');
+    render(); toast(prof.show ? 'Showcase patch set.' : 'Showcase patch removed.');
+  }
+  else if (a === 'showclose'){ const sh = document.getElementById('showsheet'); if (sh) sh.classList.remove('open'); }
   else if (a === 'pickshow'){
     ui.profEdit = true; render();
     setTimeout(() => {
@@ -13239,7 +13424,7 @@ document.addEventListener('click', async e => {
     prof.quote = String(d.quote || '').trim().slice(0, 140);
     prof.home = String(d.home || '').trim().slice(0, 40);
     prof.porder = (Array.isArray(d.porder) ? d.porder : []).slice(0, 40);
-    prof.show = '';                       // the single showcase is gone; the order replaces it
+    /* prof.show is the showcase patch on the cover; it is set from the patch itself */
     prof.gear = d.gear.filter(g => g.n && g.n.trim()).map(g => ({c: GEAR_BY[g.c] ? g.c : 'other', n: g.n.trim().slice(0, 60), note: String(g.note || '').trim().slice(0, 60)})).slice(0, 12);
     prof.banner = d.banner || ''; prof.bfy = Math.max(0, Math.min(100, +d.bfy || 50));
     prof.vis = PVIS.some(v => v.id === d.vis) ? d.vis : 'public';
@@ -13521,6 +13706,8 @@ document.addEventListener('change', e => {
     if (dd && Number(dd) > daysIn(y, mo)) dd = String(daysIn(y, mo)).padStart(2,'0');
     applyDate(el, composeDate(y, mo, dd));
   }
+  else if (a === 'sdfiles'){ shareDayAddFiles(el.files).finally(() => { el.value = ''; }); }
+  else if (a === 'postaddphotos'){ addShotsToPost(el.dataset.id, el.files).finally(() => { el.value = ''; }); }
   else if (a === 'pfield' && ui.draft){ ui.draft[el.dataset.f] = el.value; }
   else if (a === 'dfield' && ui.dDraft){ ui.dDraft[el.dataset.f] = el.value; }
   else if (a === 'postfield' && ui.pDraft){ ui.pDraft[el.dataset.f] = el.value; }
@@ -15111,7 +15298,7 @@ async function addComment(id, text, re){
   commentsBy[id] = [...(commentsBy[id] || []), c];
   ui.replyTo = null;
   render(); hydratePostPhotos();
-  try{ await FB.setDoc(commentRef(id, cid), c); }catch(e){ toast('That comment did not send. Try again.'); return; }
+  try{ await FB.setDoc(commentRef(id, cid), c); }catch(e){ toast('That comment didn’t send. Try again.'); return; }
   const p = findPost(id), told = new Set([fbUser.uid]);
   if (p && !told.has(p.uid)){ told.add(p.uid); notify(p.uid, 'c_' + cid, {type:'comment', post:id, text:t.slice(0, 120), snip:postSnip(p)}); }
   if (re && re.uid && !told.has(re.uid)){ told.add(re.uid); notify(re.uid, 'r_' + cid, {type:'reply', post:id, text:t.slice(0, 120)}); }
@@ -15126,7 +15313,7 @@ async function deleteComment(postId, cid){
   const c = (commentsBy[postId] || []).find(x => x.id === cid); if (!c) return;
   commentsBy[postId] = (commentsBy[postId] || []).filter(x => x.id !== cid);
   render();
-  try{ await FB.deleteDoc(commentRef(postId, cid)); }catch(e){ toast('Could not remove that comment.'); }
+  try{ await FB.deleteDoc(commentRef(postId, cid)); }catch(e){ toast('Couldn’t remove that comment. Try again.'); }
 }
 
 /* ---------- notifications ---------- */
@@ -15201,9 +15388,16 @@ function notesHTML(){
         '<button class="btn sm quiet" data-act="nofriend" data-u="' + esc(r.uid) + '">Decline</button></span></div>';
   }
   if (!rows.length && !friendReqs.length){
-    return s + '<div class="nempty">' + ti('heart') + '<b>Nothing yet</b><span>When someone likes your walks, comments, or follows you, you’ll see it here.</span></div>';
+    return s + '<div class="nempty">' + ti('heart') + '<b>All quiet</b><span>Likes, comments, new followers and walk invites land here.</span></div>';
   }
+  /* an invite still waiting for an answer comes first, then the rest by day */
+  rows.sort((a, b) => ((b.n.type === 'walk' && !b.n.ans) - (a.n.type === 'walk' && !a.n.ans)) || ((b.n.t || 0) - (a.n.t || 0)));
+  const day0 = new Date(); day0.setHours(0, 0, 0, 0);
+  const groupOf = r => r.n.type === 'walk' && !r.n.ans ? 'Walk invites' : (r.n.t || 0) >= +day0 ? 'Today' : (r.n.t || 0) >= +day0 - 6 * 86400000 ? 'This week' : 'Earlier';
+  let lastGroup = '';
   for (const {n, count, fresh} of rows){
+    const g = groupOf({n});
+    if (g !== lastGroup){ s += '<p class="ngroup">' + g + '</p>'; lastGroup = g; }
     const target = n.post ? 'data-act="noteopen" data-post="' + esc(n.post) + '" data-c="' + (n.type === 'like' ? '' : '1') + '"'
                           : 'data-act="openfriend" data-uid="' + esc(n.from) + '"';
     s += '<div class="nrow' + (fresh ? ' fresh' : '') + (n.type === 'walk' ? ' walkrow' : '') + '">' +
@@ -15669,6 +15863,8 @@ function postHTML(p){
   }
   s += '</div>';
 
+  if (mine && !(p.shots || []).length && (p.kind === 'summit' || p.kind === 'diary'))
+    s += '<label class="paddph">' + ti('camera') + '<span>Add photos from this day</span><input type="file" accept="image/*" multiple data-act="postaddphotos" data-id="' + esc(p.id) + '" hidden></label>';
   const n = likeCount(p.id), on = iLike(p.id);
   if (p.strava && !adventure) s += '<p class="pstrava"><a href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a></p>';
   s += '<div class="pbar">' +
@@ -15717,7 +15913,7 @@ function renderHikers(){
   if (t === 'feed');
   else if (t !== 'friends') s += '<button class="hkback" data-act="hikertab" data-v="feed">' + ti('arrow-left') + 'Hikers</button>';
   s += '<div style="margin-top:6px">';
-  if (t === 'feed') s += '<div class="feedgrid"><div class="feedmain">' + renderFeed() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
+  if (t === 'feed') s += '<div class="feedgrid g3"><aside class="feedleft">' + feedLeft() + '</aside><div class="feedmain">' + renderFeed() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
   else if (t === 'discover') s += '<div class="feedgrid"><div class="feedmain">' + renderDiscover() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
   else if (t === 'friends') s += '<div class="btnrow" style="margin-top:6px"><button class="btn quiet" data-act="hikertab" data-v="me">&larr; Your profile</button></div>' + renderFriends();
   else if (t === 'me') s += renderMyProfile();
@@ -16135,6 +16331,37 @@ async function loadCounts(uid){
     if (friendOpen && friendOpen.uid === uid) render();
   }catch(e){}
 }
+/* Why this person matters to you: who you both know, the hills you share, and
+   where each of you is on the lists you both walk. */
+function youAndThem(uid, pp, nm){
+  if (!fbUser || uid === fbUser.uid) return '';
+  let s = '';
+  const L = theirLists[uid + ':followers'];
+  if (!L && typeof loadTheirList === 'function') loadTheirList(uid, 'followers');
+  const mine = new Set(followingUids());
+  const mutual = L && !L.busy ? L.list.filter(f => mine.has(f.uid)) : [];
+  if (mutual.length){
+    const names = mutual.slice(0, 2).map(f => '<b>' + esc(firstName(f.name) || 'Walker') + '</b>');
+    s += '<button class="pmutual" data-act="theirlist" data-u="' + esc(uid) + '" data-v="followers"><span class="pmstack">' +
+      mutual.slice(0, 3).map(f => avatarHTML(f.av, f.name, 'tiny', f.uid)).join('') + '</span><span>Followed by ' + names.join(', ') +
+      (mutual.length > 2 ? ' and ' + (mutual.length - 2) + ' other' + (mutual.length === 3 ? '' : 's') + ' you know' : '') + '</span></button>';
+  }
+  const dir = dirCache[uid];
+  const lc = (dir && !dir.none && dir.lc) || pp.counts || {};
+  const me = myListCounts();
+  const lists = LISTS.filter(l => (lc[l.id] || 0) > 0 && state.enabled.includes(l.id))
+    .sort((a, b) => ((lc[b.id] || 0) + (me[b.id] || 0)) - ((lc[a.id] || 0) + (me[a.id] || 0))).slice(0, 2);
+  const common = dir && !dir.none ? inCommon(dir) : 0;
+  if (!lists.length && !common) return s;
+  s += '<div class="youthem"><div class="ythead"><span class="pmstack">' + avatarHTML(myAvatar(), myName(), 'tiny', fbUser.uid) + avatarHTML(pp.av, pp.name, 'tiny', uid) + '</span>' +
+    '<b>You &amp; ' + esc(nm) + '</b>' + (common ? '<span class="ytcommon">' + common + (common === 1 ? ' hill' : ' hills') + ' in common</span>' : '') + '</div>';
+  for (const l of lists){
+    const of = l.count || hillsIn(l.id).length || 1, a = lc[l.id] || 0, b = me[l.id] || 0;
+    s += '<div class="ytrow"><div class="yttop"><span>' + esc(l.name) + '</span><span class="ytn"><b>' + esc(nm) + ' ' + a.toLocaleString() + '</b> &middot; You ' + b.toLocaleString() + '</span></div>' +
+      '<i class="chbar"><s style="width:' + Math.max(1, Math.min(100, a / of * 100)) + '%"></s>' + '<u style="left:' + Math.min(100, b / of * 100) + '%"></u></i></div>';
+  }
+  return s + '</div>';
+}
 function renderFriend(){
   const uidX = friendOpen.uid;
   const code = friendBoard(uidX, friendOpen.code);
@@ -16163,27 +16390,24 @@ function renderFriend(){
   const cardVis = card.vis || 'public';
   const allowed = cardVis === 'public' || accepted;
 
-  let html = '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>';
+  const backBtn = '<button class="pineback" data-act="closefriend" aria-label="Back">' + ti('arrow-left') + '</button>';
+  let html = '';
   if (isBlocked(uidX)){
-    return html + '<div class="nobody"><b>You’ve blocked ' + esc(nm) + '</b><span>You don’t see each other’s posts, and they can’t follow you, comment or like. They haven’t been told.</span>' +
+    return '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="closefriend">&larr; Back</button></div>' + '<div class="nobody"><b>You’ve blocked ' + esc(nm) + '</b><span>You don’t see each other’s posts, and they can’t follow you, comment or like. They haven’t been told.</span>' +
       '<div class="btnrow" style="justify-content:center"><button class="btn ghost" data-act="unblock" data-uid="' + esc(uidX) + '">Unblock ' + esc(nm) + '</button></div></div>';
   }
-  html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : ''});
-  if (card.open){
-    html += '<div class="popen">' + ti('walk') + '<div><b>' + esc(nm) + ' is up for walking with others</b>' +
-      (partnerLine(card) ? '<span>' + esc(partnerLine(card)) + '</span>' : '') + '</div>' +
-      (fbUser ? '<button class="btn sm" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('send') + 'Suggest a walk</button>' : '') + '</div>';
-  }
   const pc = personCounts[uidX] || {};
-  html += '<div class="pfollows">' +
-    '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="followers"><b>' + (pc.followers == null ? '–' : pc.followers.toLocaleString()) + '</b> followers</button>' +
-    '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="following"><b>' + (pc.following == null ? '–' : pc.following.toLocaleString()) + '</b> following</button>' +
-    (followsMe(uidX) ? '<span class="fyou">Follows you</span>' : '') +
-    '<div class="pmenuwrap profmenu"><button class="iconbtn pmenu" data-act="profmenu" aria-label="More options for ' + esc(nm) + '" aria-expanded="' + !!ui.profMenu + '">' + ti('dots') + '</button>' +
+  const menu = '<div class="pmenuwrap profmenu"><button class="pineback" data-act="profmenu" aria-label="More options for ' + esc(nm) + '" aria-expanded="' + !!ui.profMenu + '">' + ti('dots') + '</button>' +
     (ui.profMenu ? '<div class="pmenubox" role="menu">' +
       '<button role="menuitem" data-act="reportuser" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || '') + '">' + ti('flag') + 'Report ' + esc(nm) + '</button>' +
-      '<button role="menuitem" class="danger" data-act="blockuser" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || '') + '">' + ti('ban') + 'Block ' + esc(nm) + '</button></div>' : '') +
-    '</div></div>';
+      '<button role="menuitem" class="danger" data-act="blockuser" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || '') + '">' + ti('ban') + 'Block ' + esc(nm) + '</button></div>' : '') + '</div>';
+  const counts = '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="followers"><b>' + (pc.followers == null ? '–' : pc.followers.toLocaleString()) + '</b> followers</button> &middot; ' +
+    '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="following"><b>' + (pc.following == null ? '–' : pc.following.toLocaleString()) + '</b> following</button>' +
+    (followsMe(uidX) ? ' &middot; <span class="fyou">Follows you</span>' : '');
+  const chips = card.open ? '<span class="pinechip open">' + ti('walk') + 'Up for a walk</span>' + (partnerLine(card) ? '<span class="pinechip">' + esc(partnerLine(card)) + '</span>' : '') : '';
+  const actions = followBtn(uidX) + (fbUser ? '<button class="btn' + (accepted ? '' : ' ghost') + '" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('walk') + 'Suggest a walk</button>' : '');
+  html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : '', back: backBtn, menu, counts, chips, actions});
+  html += youAndThem(uidX, pp, nm);
   if (!allowed){
     return html + '<div class="nobody"><b>' + (cardVis === 'private' ? esc(nm) + ' keeps their profile private' : esc(nm) + ' shares with followers') + '</b>' +
       '<span>' + (hasRequested(uidX) ? 'Your request is with them. When they approve it, their days out appear here and in your feed.'
@@ -16203,7 +16427,7 @@ function renderFriend(){
   const dir = dirCache[uidX] || (loadDirEntry(uidX), null);
   const lcounts = (dir && !dir.none && dir.lc) || r.counts || {};
   const nLists = Object.keys(lcounts).filter(k => lcounts[k] && LIST_BY[k]).length;
-  html += '<div class="subfilter ptabs" role="tablist">' + [['adv', 'Adventures', pposts.filter(p => p.kind !== 'patch').length], ['photos', 'Photos', shots.length], ['summits', 'Summits', hillSet.size], ['lists', 'Challenges', nLists], ['patches', 'Patches', patchPosts.length]].map(([v, l, n]) =>
+  html += '<div class="subfilter ptabs" role="tablist">' + [['adv', 'Walks', pposts.filter(p => p.kind !== 'patch').length], ['photos', 'Photos', shots.length], ['summits', 'Summits', hillSet.size], ['lists', 'Passport', nLists + patchPosts.length]].map(([v, l, n]) =>
     '<button role="tab" data-act="proftab" data-v="' + v + '" aria-selected="' + (pt === v) + '" aria-pressed="' + (pt === v) + '">' + l + (n ? ' <i>' + n + '</i>' : '') + '</button>').join('') + '</div>';
 
   if (busy){ html += skeletonPosts(1); return html; }
@@ -16219,11 +16443,16 @@ function renderFriend(){
     if (shots.length) html += '<div class="pgrid">' + shots.map(x => '<button class="shot" data-act="viewpostphoto" data-id="' + esc(x.post) + '" data-p="' + esc(x.pid) + '">' +
       '<img data-post="' + esc(x.post) + '" data-shot="' + esc(x.pid) + '" alt=""></button>').join('') + '</div>';
     html += fshots;
-    if (!shots.length && !fshots) html += '<div class="nobody"><b>No photos yet</b><span>Photos ' + esc(nm) + ' shares with their days out collect here.</span></div>';
-  } else if (pt === 'lists'){
+    if (!shots.length && !fshots) html += '<div class="nobody"><b>No photos from ' + esc(nm) + ' yet</b><span>When they share a day out with photos, they’ll collect here.</span></div>';
+  } else if (pt === 'lists' || pt === 'patches'){
+    /* the passport: lists side by side with yours, then their patches */
+    const theirPatches = [...new Set(patchPosts.map(p => p.patch))].map(id => patches().find(x => x.id === id)).filter(Boolean);
+    if (theirPatches.length) html += '<p class="eyebrow" style="margin-top:14px">Patches</p><div class="ppassport">' + theirPatches.map(d =>
+      '<span class="patch got" title="' + esc(String(d.label).replace(/&middot;/g, '·')) + '">' + patchDisc(d) + '<i class="spl">' + esc(String(d.label).replace(/\s+(fully\s+)?marked$/i, '').replace(/&middot;/g, '·')) + '</i></span>').join('') + '</div>' +
+      '<p class="eyebrow" style="margin-top:16px">Lists</p>';
     const rows = LISTS.filter(l => lcounts[l.id]).map(l => ({l, n:lcounts[l.id], of:l.count || hillsIn(l.id).length}))
       .sort((a, b) => (b.n / (b.of || 1)) - (a.n / (a.of || 1)));
-    if (!rows.length) html += '<div class="nobody"><b>No challenges to show yet</b><span>When ' + esc(nm) + ' marks hills on a list, their progress shows here.</span></div>';
+    if (!rows.length) html += '<div class="nobody"><b>' + esc(nm) + '’s passport is empty</b><span>Lists they’re working through and patches they earn will show here.</span></div>';
     else {
       const mine = myListCounts();
       html += '<div class="chlist">' + rows.map(({l, n, of}) => {
@@ -16269,7 +16498,7 @@ async function loadTheirList(uid, which){
 function theirListHTML(uid){
   const which = ui.theirList.which, k = uid + ':' + which, L = theirLists[k];
   if (!L) loadTheirList(uid, which);
-  let s = '<div class="subfilter" role="tablist"><button data-act="theirclose">&larr; Profile</button>' +
+  let s = '<div class="subfilter theirtabs" role="tablist"><button data-act="theirclose">&larr; Profile</button>' +
     ['followers', 'following'].map(w => '<button data-act="theirlist" data-u="' + esc(uid) + '" data-v="' + w + '" aria-pressed="' + (which === w) + '">' + (w === 'followers' ? 'Followers' : 'Following') + '</button>').join('') + '</div>';
   if (!L || L.busy) return s + skeletonRows(4);
   if (!L.list.length) return s + '<div class="nobody"><b>' + (which === 'followers' ? 'No followers yet' : 'Not following anyone yet') + '</b></div>';
@@ -16304,10 +16533,112 @@ async function postSummits(keys, date){
   const busy = d + ids.slice().sort().join();
   if ((postSummits._recent || []).includes(busy)) return;
   postSummits._recent = [...(postSummits._recent || []), busy].slice(-20);
+  /* Offer it rather than post it: one tap shares, and the journal's photos and
+     words for that day can come with it. */
+  openShareDay(hs, d);
+  return;
   try{
     const p = await createPost({kind:'summit', text:'', hills:hs.map(h => h.k), date: date || today(), tags:[]});
     if (p) toastAct((p.vis === 'public' ? 'Shared with everyone' : 'Shared with your followers') + ': ' + postSnip(p), 'Undo', () => deletePost(p.id));
   }catch(e){}
+}
+function openShareDay(hs, d){
+  const day = diaryDays().find(x => x.date === d) || {photos:[], entries:[]};
+  const entry = (day.entries || []).find(e => e.title || e.text) || null;
+  const photos = (day.photos || []).concat(...(day.entries || []).map(e => e.photos || [])).filter((p, i, a) => p && a.findIndex(q => q.id === p.id) === i).slice(0, 6);
+  ui.shareDay = {hills:hs.map(h => h.k), date:d, text:entry ? [entry.title, entry.text].filter(Boolean).join('\n\n').slice(0, 600) : '', photos, withPhotos:photos.length > 0, vis:prof.pvis || 'public'};
+  paintShareDay();
+}
+function paintShareDay(){
+  const sd = ui.shareDay; if (!sd) return;
+  let el = document.getElementById('daysheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'daysheet'; el.className = 'sheet bottom daysheet';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Share your day');
+    el.addEventListener('click', e => { if (e.target === el) closeShareDay(); });
+    document.body.appendChild(el);
+  }
+  const hs = uniqHills(sd.hills).map(k => BY_KEY[k]).filter(Boolean);
+  const names = hs.slice().sort((a, b) => b.h - a.h).map(h => hillName(h));
+  const top = hs.reduce((a, b) => b.h > a.h ? b : a, hs[0]);
+  const where = [...new Set(hs.map(h => regionOf(h, h.l.find(x => state.enabled.includes(x)) || h.l[0]).replace('The ', '')))].slice(0, 2).join(' & ');
+  el.innerHTML = '<div class="sheetbox"><div class="cmgrab"></div><div class="ntop"><h3>Share your day</h3><button class="xbtn" data-act="sdclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    '<div class="sdcard"><p class="pregion">' + esc(where) + ' &middot; ' + esc(shortDay(sd.date)) + '</p>' +
+    '<h4 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <i>+' + (names.length - 3) + ' more</i>' : '') + '</h4>' +
+    statRow({}, hs) + '</div>' +
+    '<label for="sdtext" class="sdlab">Say something <span class="opt">optional</span></label>' +
+    '<textarea id="sdtext" data-act="sdtext" rows="2" maxlength="600" placeholder="How was it up there?">' + esc(sd.text) + '</textarea>' +
+    '<p class="sdlab">Photos</p><div class="sdshots">' +
+      (sd.withPhotos ? sd.photos.map(ph => '<span class="sdshot"><img data-pid="' + esc(ph.id) + '" alt=""></span>').join('') : '') +
+      (sd.photos.length < 6 ? '<label class="sdadd">' + ti('camera') + '<span>' + (sd.photos.length ? 'Add more' : 'Add photos') + '</span>' +
+        '<input type="file" accept="image/*" multiple data-act="sdfiles" hidden></label>' : '') + '</div>' +
+    (sd.photos.length ? '<button class="linkbtn sdtoggle" data-act="sdphotos">' + (sd.withPhotos ? 'Share without photos' : 'Include ' + sd.photos.length + (sd.photos.length === 1 ? ' photo' : ' photos')) + '</button>'
+      : '<p class="sdnudge">Days with a photo get far more likes and comments.</p>') +
+    '<p class="sdlab">Who sees it</p><div class="picked visrow">' + VIS.map(v => '<button class="pill' + (sd.vis === v.id ? ' on' : '') + '" data-act="sdvis" data-v="' + v.id + '" aria-pressed="' + (sd.vis === v.id) + '">' + ti(v.icon) + esc(v.label) + '</button>').join('') + '</div>' +
+    '<div class="sdbtns"><button class="btn quiet" data-act="sdclose">Not now</button><button class="btn" data-act="sdsend">' + ti('send') + (sd.vis === 'me' ? 'Save' : 'Share') + '</button></div></div>';
+  el.classList.add('open');
+  if (typeof wire === 'function') wire();
+  hydrateLocalThumbs(el);
+}
+/* photos still on this phone, shown straight from storage */
+async function hydrateLocalThumbs(root){
+  for (const im of root.querySelectorAll('img[data-pid]')){
+    if (im.src) continue;
+    try{ const b = await getBlob(im.dataset.pid); if (b instanceof Blob) im.src = URL.createObjectURL(b); }catch(e){}
+  }
+}
+/* photos picked in the share sheet go into your log for that hill, so they
+   are in your journal as well as on the post */
+async function shareDayAddFiles(files){
+  const sd = ui.shareDay; if (!sd || !files || !files.length) return;
+  const box = document.getElementById('sdtext'); if (box) sd.text = box.value;
+  const key = sd.hills[0];
+  const before = new Set(((state.bagged[key] || {}).photos || []).map(p => p.id));
+  await addPhotos(key, files);
+  const fresh = ((state.bagged[key] || {}).photos || []).filter(p => !before.has(p.id));
+  sd.photos = sd.photos.concat(fresh.map(p => ({id:p.id, cap:''}))).slice(0, 6);
+  sd.withPhotos = true;
+  paintShareDay();
+}
+/* a day already on the feed without a picture: add some to it */
+async function addShotsToPost(postId, files){
+  const p = feed.find(x => x.id === postId); if (!p || !fbUser || p.uid !== fbUser.uid) return;
+  const key = (p.hills || []).find(k => BY_KEY[k]);
+  const have = (p.shots || []).slice();
+  const room = 6 - have.length; if (room <= 0){ toast('A post holds six photos.'); return; }
+  const list = [...files].slice(0, room);
+  toast('Adding ' + list.length + (list.length === 1 ? ' photo…' : ' photos…'));
+  let added = 0;
+  for (const f of list){
+    try{
+      const blob = await shrink(f);
+      const pid = uid();
+      await putBlob(pid, blob);
+      if (key){ const r = rec(key); state.bagged[key] = {...r, photos:[...r.photos, {id:pid, up:0}], t:now()}; }
+      const b64 = await blobToB64(blob);
+      if (b64.length > 950000) continue;
+      await FB.setDoc(shotRef(postId, pid), {d:b64, owner:fbUser.uid, cap:'', t:Date.now()});
+      have.push(pid); added++;
+    }catch(e){}
+  }
+  if (!added){ toast('Those photos didn’t upload. Try again.'); return; }
+  touched();
+  try{ await FB.updateDoc(postRef(postId), {shots:have}); }catch(e){ try{ await FB.setDoc(postRef(postId), {...p, shots:have}); }catch(e2){} }
+  p.shots = have; render(); hydratePostPhotos();
+  toast(added === 1 ? 'Photo added.' : added + ' photos added.');
+}
+function closeShareDay(){ ui.shareDay = null; const el = document.getElementById('daysheet'); if (el) el.classList.remove('open'); }
+async function sendShareDay(){
+  const sd = ui.shareDay; if (!sd) return;
+  const box = document.getElementById('sdtext'); if (box) sd.text = box.value;
+  closeShareDay();
+  try{
+    let p;
+    if (sd.withPhotos && sd.photos.length) p = await shareDiaryEntry({id:'', date:sd.date, title:'', text:sd.text, photos:sd.photos.map(x => ({id:x.id, cap:x.cap || ''})), dayOnly:true, vis:sd.vis});
+    else p = await createPost({kind:'summit', text:sd.text, hills:sd.hills, date:sd.date, tags:[], vis:sd.vis});
+    if (p) toastAct((p.vis === 'public' ? 'Shared with everyone' : p.vis === 'me' ? 'Saved to your log' : 'Shared with your followers') + ': ' + postSnip(p), 'Undo', () => deletePost(p.id));
+    if (tab === 'u') render();
+  }catch(e){ toast('Could not share that just now. Try again from your journal.'); }
 }
 function toastAct(msg, label, fn){
   const t = document.getElementById('toast');
@@ -17055,7 +17386,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v188f';
+const APP_VERSION = 'v190';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -17325,7 +17656,7 @@ async function shareDiaryEntry(e){
   /* a Strava day also carries the tops its track went over, even ones first marked on another day */
   if (e.strava && Array.isArray(e.strava.hills)) for (const k of e.strava.hills) if (BY_KEY[k] && isBagged(k) && !dayHills.includes(k)) dayHills.push(k);
   const created = await createPost({
-    kind:'diary', text:words, hills:dayHills, date:e.date || '', tags:[], shots:sent,
+    kind:'diary', text:words, hills:dayHills, date:e.date || '', tags:[], shots:sent, vis:e.vis,
     strava: e.strava && e.strava.id ? e.strava.id : '',
     ...(e.strava && e.strava.gpx && !prof.hideRoute ? {trk:e.strava.gpx.trk, dist:e.strava.gpx.dist, asc:e.strava.gpx.asc, mins:e.strava.gpx.mins} : {})
   });
@@ -17990,7 +18321,7 @@ function profileHeader(pp, opts){
   const mine = !!(opts && opts.mine);
   const pic = pp.avHi || pp.av || '';
   const initial = esc((pp.name || 'W').trim().charAt(0).toUpperCase());
-  let s = '<section class="prof">';
+  let s = '<section class="prof pv3"><div class="pine">';
 
   /* 1 — the banner, in order of what is actually theirs: a photograph they
      chose, then the line their own log draws, then the drawn ridge. */
@@ -18004,15 +18335,27 @@ function profileHeader(pp, opts){
                : (hasSky ? skylineArt(sky) : RIDGE)) +
     (hasSky ? '<span class="skylab">' + (pp.hills || 0).toLocaleString() +
        (pp.hills === 1 ? ' summit' : ' summits') + ', drawn to scale</span>' : '') +
+    '</div><div class="pinefade"></div>';
+  /* the row along the top: back on someone else's, edit on yours */
+  s += '<div class="pinetop">' + (opts && opts.back ? opts.back : '<span></span>') +
     (mine ? (ui.profEdit
             /* Done used to close the editor and bin the draft without a word,
                and it is the button nearest the thumb. Save sits beside it. */
             ? '<span class="peditbar">' +
               '<button class="btn sm solid" data-act="profsave">Save</button>' +
               '<button class="btn sm quiet" data-act="profdone">Done</button></span>'
-            : '<button class="btn sm pedit solid" data-act="profedit">Edit profile</button>')
-          : '<span class="pedit pfollow">' + followBtn(pp.uid, true) + '</span>') +
-    '</div>';
+            : '<button class="btn sm pedit" data-act="profedit">Edit profile</button>')
+          : (opts && opts.menu ? opts.menu : '')) + '</div>';
+  /* the showcase patch, stitched to the corner of the cover */
+  const spId = mine ? (prof.show || orderedPatches(patches().filter(x => x.got))[0]?.id || '') : (pp.show || (Array.isArray(pp.porder) ? pp.porder[0] : '') || '');
+  const spDef = spId ? patches().find(x => x.id === spId) : null;
+  if (spDef && (!mine || spDef.got)){
+    s += mine
+      ? '<button class="pshow" data-act="showpick" aria-label="Change your showcase patch: ' + esc(String(spDef.label).replace(/&middot;/g, '·')) + '">' + patchDisc(spDef) + '<b class="pshowpen">' + ti('pencil') + '</b></button>'
+      : '<span class="pshow' + (opts && opts.back ? ' low' : '') + '" title="' + esc(String(spDef.label).replace(/&middot;/g, '·')) + '">' + patchDisc(spDef) + '</span>';
+  } else if (mine && patches().some(x => x.got)){
+    s += '<button class="pshow empty" data-act="showpick" aria-label="Choose a showcase patch">' + ti('plus') + '</button>';
+  }
 
   /* 2 — who this is: the picture on the banner's corner, the name beside the
      margin, the place under it and their own line under that. Tight: this is
@@ -18037,24 +18380,28 @@ function profileHeader(pp, opts){
     '</div><div class="pname"><h2>' + esc(niceName(pp.name) || 'Walker') + '</h2>' +
     '<p class="ploc">' + line + '</p>';
   if (pp.quote) s += '<p class="ptag">' + esc(pp.quote) + '</p>';
-  else if (mine && !ui.profEdit) s += '<p class="ptag empty">Add a line of your own: a motto, a favourite hill, why you walk.</p>';
+  else if (mine && !ui.profEdit) s += '<button class="ptag ptagadd" data-act="profedit">+ Add a line about why you walk</button>';
   s += '</div>';
   /* the highest thing they have stood on belongs up here with the name, not
      buried under the figures: it is the line walkers actually trade. Its own
      element, so a wide screen can set it at the end of that line. */
   if (pp.top) s += '<p class="ptop2">Highest <b>' + esc(pp.top) + '</b></p>';
   s += '</div>';
+  if (opts && opts.counts) s += '<p class="pcounts">' + opts.counts + '</p>';
+  if (opts && opts.chips) s += '<div class="pchips">' + opts.chips + '</div>';
 
-  /* 3 — the figures, in one ruled box */
+  /* the two things you would do here */
+  if (mine && !ui.profEdit) s += '<div class="pinebtns">' +
+    '<button class="btn ghost" data-act="invitecard">' + ti('share') + 'Invite card</button>' +
+    '<button class="btn yearbtn" data-act="yearcard">' + ti('sparkles') + 'Share my year</button></div>';
+  else if (!mine && opts && opts.actions) s += '<div class="pinebtns">' + opts.actions + '</div>';
+  s += '</div>';
+
+  /* 3 — the figures, in one ruled box, half over the pine */
   s += mine ? myStats() : friendStats(pp);
 
   /* 4 — the goods */
-  if (mine){
-    s += photoCard() + patchCard();
-    if (!ui.profEdit) s += '<div class="pactions">' +
-      '<button class="btn sm ghost" data-act="invitecard">' + ti('share') + 'Invite card</button>' +
-      '<button class="btn sm yearbtn" data-act="yearcard">' + ti('sparkles') + 'Share my year</button></div>';
-  }
+  if (mine) s += photoCard() + patchCard();
   return s + '</section>';
 }
 
@@ -18078,32 +18425,38 @@ function homeGround(){
 function figCell(v, label, cls){
   return '<div' + (cls ? ' class="' + cls + '"' : '') + '><b>' + v + '</b><i>' + label + '</i></div>';
 }
+/* 104,442 reads at the same size as 48: the thousands carry the weight and the
+   rest steps down, so the cell never has to shrink */
+const bigNum = n => { const t = Math.round(n || 0).toLocaleString(), i = t.indexOf(','); return i < 0 ? t : t.slice(0, i) + '<small>' + t.slice(i) + '</small>'; };
 function myStats(){
-  const f = profileFigures();
-  return '<div class="pfigs four">' +
-    figCell(f.marked.toLocaleString(), 'Marked', '') +
-    figCell(f.pct + '%', 'Complete', 'pct') +
-    figCell(f.year.toLocaleString(), 'This year', '') +
-    figCell(f.feet.toLocaleString() + '<em> ft</em>', 'Total feet', '') +
-    '</div>';
+  const f = profileFigures(), pc = patches().filter(x => x.got).length;
+  const cells = [];
+  if (f.marked) cells.push(figCell(bigNum(f.marked), 'Marked', ''));
+  if (f.year) cells.push(figCell(bigNum(f.year), 'This year', ''));
+  if (pc) cells.push(figCell(bigNum(pc), 'Patches', ''));
+  if (f.feet) cells.push(figCell(bigNum(f.feet) + '<em> ft</em>', 'Total feet', ''));
+  if (!cells.length) return '<div class="pfigs none"></div>';
+  return '<div class="pfigs four n' + cells.length + '">' + cells.join('') + '</div>';
 }
 function friendStats(pp){
   /* Two figures stretched across a desktop looked like a page that had failed
      to load. Take everything the card and their shared log can answer, and if
      it is still only two or three, keep the box to a readable width instead of
      letting each cell run half the window wide. */
-  const cells = [figCell((pp.hills || 0).toLocaleString(), 'Marked', '')];
+  /* a box only once there is something to put in it */
+  const cells = [];
+  if (pp.hills) cells.push(figCell(bigNum(pp.hills), 'Marked', ''));
   const log = Array.isArray(pp.log) ? pp.log.filter(e => BY_KEY[e.k]) : [];
-  if (pp.pct != null) cells.push(figCell(pp.pct + '%', 'Complete', ''));
   const yr = String(new Date().getFullYear());
   const thisYear = log.filter(e => String(e.d || '').startsWith(yr)).length;
-  if (log.length) cells.push(figCell(thisYear.toLocaleString(), 'This year', ''));
-  cells.push(figCell((pp.pc || 0).toLocaleString(), 'Patches', ''));
+  if (thisYear) cells.push(figCell(bigNum(thisYear), 'This year', ''));
+  if (pp.pc) cells.push(figCell(bigNum(pp.pc), 'Patches', ''));
   let ft = pp.ftUp;
   if (!ft && log.length) ft = Math.round(log.reduce((a, e) => a + (BY_KEY[e.k].h || 0), 0) * 3.28084);
-  if (ft) cells.push(figCell(ft.toLocaleString() + '<em> ft</em>', 'Total feet', ''));
+  if (ft) cells.push(figCell(bigNum(ft) + '<em> ft</em>', 'Total feet', ''));
+  if (!cells.length) return '<div class="pfigs none"></div>';
   const n = Math.min(cells.length, 5);
-  return '<div class="pfigs' + (n >= 4 ? ' four' : ' few') + '">' + cells.slice(0, 5).join('') + '</div>';
+  return '<div class="pfigs n' + cells.length + '' + (n >= 4 ? ' four' : ' few') + '">' + cells.slice(0, 5).join('') + '</div>';
 }
 
 /* ---- the lists they walk, as rows rather than a right-aligned column ----
@@ -18180,6 +18533,24 @@ function orderedPatches(got, ord){
   const o = (ord || patchOrder()).filter(id => got.some(p => p.id === id));
   return o.map(id => got.find(p => p.id === id)).concat(got.filter(p => !o.includes(p.id)));
 }
+/* Pick the one patch that sits on the corner of your cover. */
+function openShowPick(){
+  const got = orderedPatches(patches().filter(x => x.got));
+  let el = document.getElementById('showsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'showsheet'; el.className = 'sheet bottom';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Showcase patch');
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    document.body.appendChild(el);
+  }
+  const cur = prof.show || (got[0] && got[0].id) || '';
+  el.innerHTML = '<div class="sheetbox"><div class="ntop"><h3>Showcase patch</h3><button class="xbtn" data-act="showclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    '<p class="mapnote" style="margin:0 0 12px">The one that sits on the corner of your profile. Everyone who opens it sees this first.</p>' +
+    (got.length ? '<div class="showgrid">' + got.map(p => '<button class="patch got' + (p.id === cur ? ' picked' : '') + '" data-act="setshow" data-v="' + esc(p.id) + '" aria-pressed="' + (p.id === cur) + '">' +
+      patchDisc(p) + '<i class="spl">' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '').replace(/&middot;/g, '·')) + '</i></button>').join('') + '</div>'
+      : '<p class="empty">Earn a patch and it can go here.</p>') + '</div>';
+  el.classList.add('open'); if (typeof wire === 'function') wire();
+}
 function patchCard(){
   const all = patches(), got = all.filter(p => p.got);
   if (!got.length){
@@ -18222,7 +18593,10 @@ function gearHTML(pp, mine){
 function renderMyProfile(){
   const pp = {...myPerson(), ...profPublic()};
   if (ui.profEdit && ui.pDraftProf){ const d = ui.pDraftProf; Object.assign(pp, {banner:d.banner, bfy:d.bfy, quote:d.quote, porder:d.porder, gear:d.gear, name:d.name || pp.name}); }
-  let s = profileHeader(pp, {mine:true});
+  let s = profileHeader(pp, {mine:true,
+    counts:'<button class="plink" data-act="mypeople" data-v="followers"><b>' + followers.length.toLocaleString() + '</b> followers</button> &middot; ' +
+           '<button class="plink" data-act="mypeople" data-v="following"><b>' + following().length.toLocaleString() + '</b> following</button>',
+    chips: prof.open ? '<span class="pinechip open">' + ti('walk') + 'Up for a walk</span>' : ''});
   if (ui.profEdit) s += profileEditor();
 
   s += gearHTML(pp, true);
