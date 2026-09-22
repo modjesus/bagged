@@ -51,7 +51,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
   --ink:#14332D; --ink-2:#3E625A; --ink-3:#42615B;   /* 5.0:1 on surface-2, 5.6:1 on the ground — AA for small text everywhere */
   --line:#CFC9B8; --line-soft:#DDD7C7;
   --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#F3E0D4; --accent-text:#A8431A;   /* text on cream: 5:1 */
-  --done:#1E453E; --done-soft:#DFE9E6; --done-line:#A2BCB6;
+  --done:#1E453E; --done-soft:#DFE9E6; --done-line:#A2BCB6; --crew:#14332D;
   --plan:#5F5B8C; --plan-soft:#E7E5F2;
   --prog:#2E6B8A; --prog-soft:#DFEBF2;
   --warn:#B0561F;
@@ -76,7 +76,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
     --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#A2BDB6;
     --line:#2A5A51; --line-soft:#204A42;
     --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#A8431A;
-    --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558;
+    --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#23524A;
     --plan:#A9A3E0; --plan-soft:#2B2A44;
     --prog:#7FB6D6; --prog-soft:#1E3644;
     --warn:#E58B4E;
@@ -91,7 +91,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
   --ink:#F3EFE6; --ink-2:#A3BEB8; --ink-3:#A2BDB6;
   --line:#2A5A51; --line-soft:#204A42;
   --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#A8431A;
-  --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558;
+  --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#23524A;
   --plan:#A9A3E0; --plan-soft:#2B2A44;
   --prog:#7FB6D6; --prog-soft:#1E3644;
   --warn:#E58B4E;
@@ -4079,6 +4079,120 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .dperson b{font-family:var(--font-ui); font-weight:700; font-size:14px; color:var(--ink); margin-top:4px}
 .dperson i{font-style:normal; font-size:12px; color:var(--ink-3); max-width:112px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .dperson .btn{width:100%; justify-content:center; white-space:nowrap; padding-left:8px; padding-right:8px}
+/* ---- Discover v185: rows that say why, and the walking-partner layer ---- */
+.dsearch .dhint{margin:6px 2px 0; font-size:12.5px; color:var(--ink-3)}
+.dresults{margin-top:10px; display:flex; flex-direction:column; gap:2px}
+.dclear{margin:6px 0 0; font-size:13px}
+.dsec{display:block; margin-top:18px}
+.dsec .dhead{align-items:flex-end}
+.dhead > div h3{display:flex; align-items:center; gap:8px}
+.dhead h3 svg{width:18px; height:18px; color:var(--accent-text); flex:none}
+.dhead > div p{margin:2px 0 0 26px; font-size:13px; color:var(--ink-3)}
+.dperson{position:relative; width:132px; max-width:132px}
+.dperson > .pwhobtn{width:100%; min-width:0}
+.dperson .openmark{position:absolute; top:62px; left:50%; margin-left:14px; width:24px; height:24px; border-radius:50%;
+  background:var(--accent); color:#fff; display:grid; place-items:center; box-shadow:0 0 0 2px var(--surface)}
+.dperson .openmark svg{width:14px; height:14px}
+.partnercta{align-items:center}
+.partnercta .pcic{flex:0 0 38px; width:38px; height:38px; border-radius:50%; display:grid; place-items:center;
+  background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent-text)}
+.partnercta .pcic svg{width:20px; height:20px}
+.popen{display:flex; align-items:center; gap:12px; margin:12px 0 4px; padding:12px 14px; border-radius:var(--r);
+  background:color-mix(in srgb, var(--accent) 9%, var(--surface)); border:1px solid color-mix(in srgb, var(--accent) 28%, transparent)}
+.popen > svg{width:22px; height:22px; flex:none; color:var(--accent-text)}
+.popen div{flex:1; min-width:0}
+.popen b{display:block; font-size:14.5px; color:var(--ink)}
+.popen span{display:block; font-size:12.5px; color:var(--ink-2); margin-top:2px}
+.popen .btn{flex:0 0 auto}
+@media (max-width:520px){ .popen{flex-wrap:wrap} .popen .btn{width:100%; justify-content:center} }
+.chlist{display:flex; flex-direction:column; gap:14px; margin:14px 0 8px}
+.chrow .chtop{display:flex; justify-content:space-between; gap:10px; align-items:baseline}
+.chrow .chtop b{font-family:var(--font-display); font-weight:500; font-size:16px; color:var(--ink)}
+.chrow .chtop span{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.chbar{position:relative; display:block; height:8px; margin-top:7px; border-radius:99px; background:color-mix(in srgb, var(--ink) 12%, transparent)}
+.chbar s{display:block; height:100%; border-radius:99px; background:var(--accent)}
+.chbar u{position:absolute; top:-3px; width:2px; height:14px; margin-left:-1px; background:var(--ink); border-radius:1px}
+.chrow p{margin:5px 0 0; font-size:12.5px; color:var(--ink-3)}
+.railpost{display:block; width:100%; text-align:left; background:none; border:0; padding:7px 0; border-top:1px solid var(--line); cursor:pointer; color:var(--ink)}
+.railpost:first-of-type{border-top:0}
+.railpost b{display:block; font-size:13.5px}
+.railpost i{display:block; font-style:normal; font-size:12px; color:var(--ink-3)}
+.nans{font-size:12.5px; color:var(--ink-3); white-space:nowrap}
+.partnercta span{white-space:normal; font-family:var(--font-ui); font-size:12.5px; line-height:1.4}
+.walkinv .mrow.on{background:color-mix(in srgb, var(--done) 10%, var(--surface)); border:1px solid color-mix(in srgb, var(--done) 40%, var(--line)); border-radius:12px; padding:10px 12px}
+.walkinv .mrow.on .mmain b{color:var(--ink)}
+.walkinv .mrow.on .mmain span{color:var(--ink-2)}
+.walkinv .form{border:0; padding:0; background:none}
+.walkinv label{display:block; margin-bottom:6px}
+.nrow.walkrow{flex-wrap:wrap; align-items:flex-start}
+.nrow.walkrow .nbtns, .nrow.walkrow .nans{flex-basis:100%; padding-left:44px}
+
+.walkinv .wilede{margin:0 0 12px; font-size:14px; color:var(--ink-2)}
+.walkinv .opt{font-weight:400; color:var(--ink-3); font-size:12px; margin-left:4px}
+.walkinv .mrow{margin-top:6px}
+.walkinv input[type=date]{width:100%}
+.pfpartner{border:1px solid var(--line); border-radius:var(--r); padding:12px 14px; margin:0; display:flex; flex-direction:column; gap:12px}
+.pfpartner legend{padding:0 6px; font-weight:600; font-size:13px; color:var(--ink-2)}
+
+
+
+/* ---- Hikers v186: one stream ---- */
+.hkic.on{background:var(--ink); color:var(--surface); border-color:var(--ink)}
+.hksrow{display:flex; align-items:center; gap:8px; margin:12px 0 4px}
+.hksearch{display:flex; flex:1; min-width:0; align-items:center; gap:10px; min-height:46px; margin:0; padding:0 16px; border-radius:99px;
+  border:1px solid var(--line); background:var(--raise); color:var(--ink-3); font:15px var(--font-ui); cursor:text; text-align:left; transition:border-color .2s}
+.hksearch:hover{border-color:var(--ink-3)}
+.hksearch svg{width:18px; height:18px; flex:none}
+.hkback{display:inline-flex; align-items:center; gap:4px; margin:10px 0 0 -6px; min-height:40px; padding:0 10px 0 4px; border:0; background:none; color:var(--ink-2); font:600 14.5px var(--font-ui); cursor:pointer; border-radius:99px}
+.hkback:hover{color:var(--ink); background:var(--tint)}
+.hkback svg{width:18px; height:18px}
+.fstrip{gap:14px; padding:10px 2px 12px}
+.fchip{width:66px}
+.fchip .avatar{width:58px; height:58px; border:2px solid var(--line); padding:2px}
+.fchip.fresh .avatar{border-color:var(--accent)}
+.fchip span{font-weight:600; font-size:12px; color:var(--ink)}
+.fchip i{font-style:normal; font-size:10.5px; color:var(--ink-3); max-width:66px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:-3px}
+.fchip .fplus{width:58px; height:58px; border-radius:50%; border:1.5px dashed var(--accent-text); display:grid; place-items:center; color:var(--accent-text); max-width:none}
+.fchip .fplus svg{width:22px; height:22px}
+.crew{position:relative; display:flex; align-items:center; gap:12px; width:100%; margin:4px 0 14px; padding:14px 16px; border:0; border-radius:18px; overflow:hidden; cursor:pointer; text-align:left;
+  background:var(--crew); color:#F3EFE6; font:inherit}
+.crew::before{content:""; position:absolute; inset:0; background:var(--sheet, none) center/420px; opacity:.28; pointer-events:none}
+.crewtxt{position:relative; flex:1; min-width:0; display:flex; flex-direction:column; gap:3px}
+.crewtxt i{font:600 10.5px var(--font-data); font-style:normal; letter-spacing:.14em; text-transform:uppercase; color:#E58B4E}
+.crewtxt b{font-size:17px; font-weight:700; font-variant-numeric:tabular-nums}
+.crewtxt span{font-size:13px; color:#CAD9D3}
+.crew > svg{position:relative; width:20px; height:20px; flex:none}
+.crew:active{transform:scale(.99)}
+.post.pv2{background:var(--raise); border:1px solid var(--line-soft); border-radius:18px; padding:14px 14px 6px; margin:0 0 12px;
+  box-shadow:0 10px 26px -22px rgba(20,51,45,.7)}
+.feedmain > .post.pv2:last-of-type{border-bottom:1px solid var(--line-soft)}
+.pv2 .pmedia:not(.mstrip):not(.art){margin:12px -14px 0; border-radius:0}
+.pv2 .plead .pregion{margin-top:12px}
+.pstats{display:grid; grid-template-columns:repeat(var(--n), minmax(0, 1fr)); gap:10px; margin:10px 0 0}
+.pstats div{display:flex; flex-direction:column; gap:3px; min-width:0}
+.pstats span{font:600 10px var(--font-data); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
+.pstats b{font-size:21px; font-weight:700; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+.pstats small{font-size:12px; font-weight:600; color:var(--ink-2); margin-left:2px}
+.pv2 .pbar{margin-top:4px}
+.sugrow{margin:0 0 12px; padding:14px 0 14px 14px; border-radius:18px; background:var(--raise); border:1px solid var(--line-soft)}
+.sugtop{display:flex; align-items:baseline; padding-right:14px; margin-bottom:10px}
+.sugtop h3{flex:1; margin:0; font:700 16px var(--font-ui); color:var(--ink)}
+.sugtop .linkbtn{font-weight:600}
+.cmsheet .sheetbox{max-width:560px; padding:8px 16px 16px; max-height:78vh; overflow-y:auto}
+.cmgrab{width:40px; height:5px; border-radius:3px; background:var(--line); margin:0 auto 8px}
+.cmchips{display:flex; gap:8px; overflow-x:auto; padding:4px 0 10px; scrollbar-width:none; border-bottom:1px solid var(--line-soft)}
+.chipbtn{flex:none; min-height:36px; padding:0 14px; border-radius:99px; border:1px solid var(--line); background:var(--raise); color:var(--ink); font:600 13.5px var(--font-ui); cursor:pointer}
+.chipbtn:hover{border-color:var(--ink-3)}
+.cmsheet .pthread{border-top:0; margin-top:4px}
+.cmsheet .pcompose{position:sticky; bottom:-16px; background:var(--surface); padding:10px 0 4px; margin-top:6px; border-top:1px solid var(--line-soft)}
+.hkwelcome:has(> span:only-child){border:0; padding:0 0 6px; margin-top:6px}
+.hkhero{position:relative; margin:4px 0 18px; border-radius:18px; overflow:hidden; aspect-ratio:4/3; max-height:52vh; background:var(--surface-2)}
+.hkhero img{width:100%; height:100%; object-fit:cover; object-position:50% 62%; display:block}
+.hkhero figcaption{position:absolute; left:12px; bottom:12px; display:inline-flex; align-items:center; gap:5px; padding:5px 10px 5px 8px; border-radius:99px;
+  background:rgba(12,34,29,.62); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:#F3EFE6; font:600 11.5px var(--font-ui)}
+.hkhero figcaption svg{width:13px; height:13px}
+.pillbtn{border-radius:99px !important; white-space:nowrap; gap:6px}
+.pillbtn svg{width:15px; height:15px}
 
 /* ---- someone else's profile ---- */
 .pfollows{display:flex; align-items:center; gap:16px; margin:10px 2px 4px; font-size:14px; color:var(--ink-2)}
@@ -5215,7 +5329,7 @@ function saveProf(){
 /* what of the profile goes on the public card */
 function profPublic(){
   return {quote: String(prof.quote || '').slice(0, 140), gear: (prof.gear || []).slice(0, 12),
-          show: prof.show || '', porder: patchOrder().slice(0, 40), banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', home: prof.home || '', profT: prof.t || 0,
+          show: prof.show || '', porder: patchOrder().slice(0, 40), banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', home: prof.home || '', profT: prof.t || 0, open: !!prof.open, style: (prof.style || []).slice(0, 3), levels: (prof.levels || []).slice(0, 5),
           vis: PVIS.some(v => v.id === prof.vis) ? prof.vis : 'public'};
 }
 /* on sign-in: whichever copy is newer wins, so a new phone picks up the banner */
@@ -7412,6 +7526,7 @@ function render(){
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
   paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell();
   if (tab === 'u') hydratePostPhotos();
+  if (ui.openComments && document.getElementById('cmsheet')) paintCommentSheet();
   if (tab === 'p') mountRouteMap();
   if (tab === 'm') mountMap();
   /* anything earned but never celebrated gets its moment on Home */
@@ -9058,9 +9173,13 @@ function friendStrip(){
   }
   const out = [...latest.values()].sort((a, b) => b.t - a.t).slice(0, 12);
   if (!out.length) return '';
-  return '<div class="fstrip" aria-label="Out this week">' + out.map(f =>
+  const what = f => { const p = feed.find(x => x.uid === f.uid && x.t === f.t) || {}; const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+    return hs.length === 1 ? hillName(hs[0]) : hs.length > 1 ? hs.length + ' summits' : p.kind === 'patch' ? 'New patch' : p.shots && p.shots.length ? 'Photos' : 'Posted'; };
+  return '<div class="fstrip" aria-label="Out this week">' +
+    '<button class="fchip you" data-act="newpost"><span class="fplus">' + ti('plus') + '</span><span>Your day</span></button>' +
+    out.map(f =>
     '<button class="fchip' + (f.fresh ? ' fresh' : '') + '" data-act="openfriend" data-uid="' + esc(f.uid) + '">' +
-    avatarHTML(f.av, f.name, 'md', f.uid) + '<span>' + esc((niceName(f.name) || 'Walker').split(' ')[0]) + '</span></button>').join('') + '</div>';
+    avatarHTML(f.av, f.name, 'md', f.uid) + '<span>' + esc((niceName(f.name) || 'Walker').split(' ')[0]) + '</span><i>' + esc(what(f)) + '</i></button>').join('') + '</div>';
 }
 const SHARE_KINDS = [
   {id:'adventure', label:'An adventure',     icon:'waymark-mountain', note:'A walk, a summit or a whole day of them'},
@@ -9116,6 +9235,20 @@ function feedRail(){
   if (goals.length){
     s += '<div class="railcard"><p class="sumlabel">Working towards</p>' + goals.map(g => { const pct = g.target ? Math.min(100, Math.round(g.have / g.target * 100)) : 0;
       return '<div class="railgoal"><span>' + esc(g.label) + '<i>' + g.have + ' / ' + g.target + '</i></span><i class="rbar"><s style="width:' + pct + '%"></s></i></div>'; }).join('') + '</div>';
+  }
+  const open = hikerTab() === 'discover' ? [] : dirPool().filter(d => d.open && !isFollowing(d.uid)).sort((a, b) => nearScore(b) - nearScore(a)).slice(0, 3);
+  if (open.length){
+    s += '<div class="railcard"><p class="sumlabel">Up for a walk</p>' + open.map(f =>
+      '<div class="railhiker"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'tiny', f.uid) + '</button>' +
+      '<span><b>' + esc(niceName(f.name) || 'Walker') + '</b><i>' + esc(f.home || partnerLine(f) || 'Open to walking') + '</i></span>' + followBtn(f.uid, true) + '</div>').join('') +
+      '<button class="linkbtn" data-act="hikertab" data-v="discover">See everyone &rsaquo;</button></div>';
+  }
+  const week = Date.now() - 7 * 86400000;
+  const pop = discover.filter(p => (p.t || 0) > week && !isBlocked(p.uid)).map(p => ({p, n:Object.keys(reactedBy[p.id] || {}).length + (commentsBy[p.id] || []).length}))
+    .filter(x => x.n > 0).sort((a, b) => b.n - a.n).slice(0, 3);
+  if (pop.length){
+    s += '<div class="railcard"><p class="sumlabel">Popular this week</p>' + pop.map(({p, n}) =>
+      '<button class="railpost" data-act="noteopen" data-post="' + esc(p.id) + '"><b>' + esc(postSnip(p)) + '</b><i>' + esc(firstName(p.name)) + ' &middot; ' + n + (n === 1 ? ' reaction' : ' reactions') + '</i></button>').join('') + '</div>';
   }
   const sug = suggestedHikers().slice(0, 4);
   if (sug.length){
@@ -12525,14 +12658,34 @@ document.addEventListener('click', async e => {
   else if (a === 'sharepost'){
     const p = findPost(el.dataset.id); if (!p) return;
     const who = p.uid === (fbUser && fbUser.uid) ? 'My' : firstName(p.name) + '\u2019s';
-    shareLink(p.handle || (personCache[p.uid] || {}).handle ? profileLink(p.handle || personCache[p.uid].handle) : 'https://waymark.it.com', who + ' day on the hills', postSnip(p) + ' \u2014 on WayMark');
+    shareLink(wmBase() + '#post=' + p.id, who + ' day on the hills', postSnip(p) + ' \u2014 on WayMark');
   }
+  else if (a === 'invitewalk' && el.dataset.uid && fbUser){ openWalkInvite(el.dataset.uid, el.dataset.n || 'them'); }
+  else if (a === 'wihill'){ if (ui.walkInv){ ui.walkInv.hill = el.dataset.k; paintWalkInvite(); } }
+  else if (a === 'wihillclear'){ if (ui.walkInv){ ui.walkInv.hill = ''; paintWalkInvite(); const q = document.getElementById('wiq'); if (q) q.focus(); } }
+  else if (a === 'wiclose'){ closeWalkInvite(); }
+  else if (a === 'wisend'){
+    const w = ui.walkInv; if (!w || !w.hill || !w.date) return;
+    notify(w.uid, 'w_' + Date.now().toString(36), {type:'walk', hill:w.hill, date:w.date, text:String(w.text || '').trim().slice(0, 140)});
+    toast('Invite sent to ' + firstName(w.name) + '.');
+    closeWalkInvite();
+  }
+  else if (a === 'walkreply'){
+    const n = notes.find(x => x.id === el.dataset.id); if (!n) return;
+    const yes = el.dataset.v === 'yes';
+    notify(n.from, 'wr_' + n.id, {type: yes ? 'walkyes' : 'walkno', hill:n.hill, date:n.date});
+    try{ await FB.updateDoc(noteRef(fbUser.uid, n.id), {ans: yes ? 'yes' : 'no'}); }catch(e){}
+    n.ans = yes ? 'yes' : 'no'; paintNotesSheet();
+    toast(yes ? 'Told ' + firstName(n.name) + ' you’re in.' : 'Let ' + firstName(n.name) + ' know you can’t make it.');
+  }
+  else if (a === 'partneron'){ prof.open = true; saveProf(); render(); toast('You’re in “Up for a walk”. Change it any time in your profile.'); }
+  else if (a === 'findclear'){ ui.found = null; const b = document.getElementById('findh'); if (b) b.value = ''; render(); }
   else if (a === 'invitewalk'){
     shareLink('https://waymark.it.com', 'Fancy a walk?', 'Fancy a day on the hills? I\u2019m logging mine on WayMark' + (fbHandle ? ' \u2014 follow me: ' + profileLink(fbHandle) : '') + '.');
   }
   /* ---- friends and the feed ---- */
   else if (a === 'hikertab'){ ui.hikerTab = el.dataset.v; ui.openComments = null; singlePost = null; friendOpen = null; tab = 'u'; render(); window.scrollTo({top:0}); if (el.dataset.v === 'discover' && !discover.length) loadDiscover(); }
-  else if (a === 'refreshfeed'){ refreshSocial(); }
+  else if (a === 'refreshfeed'){ refreshSocial(); if (hikerTab() === 'discover') loadDirectory(true); }
   else if (a === 'newpost'){
     ui.postForm = 'menu'; ui.pDraft = null;
     openShareSheet();
@@ -12690,10 +12843,15 @@ document.addEventListener('click', async e => {
     const open = w.classList.toggle('clamped');
     el.textContent = open ? 'Read more' : 'Show less';
   }
+  else if (a === 'cmclose'){ closeCommentSheet(); }
+  else if (a === 'cmchip'){
+    const box = ui.openComments && document.getElementById('cm-' + ui.openComments); if (!box) return;
+    box.value = (box.value.trim() ? box.value.trim() + ' ' : '') + el.dataset.t; box.focus();
+  }
   else if (a === 'opencomments'){
     const id = el.dataset.id;
-    ui.openComments = ui.openComments === id ? null : id;
-    render();
+    ui.openComments = id;
+    paintCommentSheet();
     /* Fetch after opening, and do not repaint over the box if the walker has
        already started typing into it — the reply was being wiped the moment
        the thread finished loading. */
@@ -12730,12 +12888,16 @@ document.addEventListener('click', async e => {
       /* People are only ever fetched by uid — the rules never list them, which
          is what keeps everyone's card private. So a name is matched against the
          people this account can already see: boards, follows, public posts. */
-      const byName = f ? [] : searchKnownPeople(box.value);
-      ui.found = f ? [f] : byName;
+      if (!dirAt) await loadDirectory();
+      const found = new Map();
+      if (f) found.set(f.uid, {...f, why: f.handle ? '@' + f.handle : ''});
+      for (const x of await searchDirectory(box.value)) if (!found.has(x.uid)) found.set(x.uid, x);
+      for (const x of searchKnownPeople(box.value)) if (!found.has(x.uid)) found.set(x.uid, x);
+      ui.found = [...found.values()];
       if (m){
-        m.textContent = (f || byName.length) ? ''
-          : 'Nobody by that name here. If they are on WayMark, ask them for their handle \u2014 or send them your link and let them follow you.';
-        m.style.color = (f || byName.length) ? '' : 'var(--ink-3)';
+        m.textContent = ui.found.length ? ''
+          : 'Nobody matches that yet. Try a hill, a place or a list, or send your link to the people you walk with.';
+        m.style.color = ui.found.length ? '' : 'var(--ink-3)';
       }
       render();
     }catch(e){ if (m){ m.textContent = fbWhy(e); m.style.color = 'var(--warn)'; } }
@@ -12962,6 +13124,14 @@ document.addEventListener('click', async e => {
   else if (a === 'profcancel'){ ui.profEdit = false; ui.pDraftProf = null; render(); }
   else if (a === 'pfvis'){ const d = profDraft(); if (d){ d.vis = el.dataset.v; render(); } }
   else if (a === 'pfpvis'){ const d = profDraft(); if (d){ d.pvis = el.dataset.v; render(); } }
+  else if (a === 'pfdisc'){ const d = profDraft(); if (d){ d.disc = d.disc === false; render(); } }
+  else if (a === 'pfopen'){ const d = profDraft(); if (d){ d.open = !d.open; render(); } }
+  else if (a === 'pfstyle' || a === 'pflevel'){
+    const d = profDraft(); if (!d) return;
+    const k = a === 'pfstyle' ? 'style' : 'levels', v = el.dataset.v;
+    d[k] = d[k].includes(v) ? d[k].filter(x => x !== v) : [...d[k], v];
+    render();
+  }
   else if (a === 'pfhideroute'){ const d = profDraft(); if (d){ d.hideRoute = !d.hideRoute; render(); } }
   else if (a === 'bannerclear'){ const d = profDraft(); if (d){ d.banner = ''; render(); } }
   else if (a === 'pfshow'){
@@ -12989,6 +13159,9 @@ document.addEventListener('click', async e => {
     prof.vis = PVIS.some(v => v.id === d.vis) ? d.vis : 'public';
     prof.pvis = VIS.some(v => v.id === d.pvis) ? d.pvis : 'public';
     prof.hideRoute = !!d.hideRoute;
+    prof.open = !!d.open; prof.disc = d.disc !== false;
+    prof.style = (d.style || []).filter(x => WALK_STYLES.some(w => w.id === x));
+    prof.levels = (d.levels || []).filter(x => WALK_LEVELS.some(w => w.id === x));
     saveProf(); touched(); scheduleSync(400);
     ui.profEdit = false; ui.pDraftProf = null; render(); toast('Profile saved.');
   }
@@ -14913,10 +15086,13 @@ function noteLine(n, count){
     case 'follow':   return who + ' started following you';
     case 'request':  return who + ' asked to follow you';
     case 'accepted': return who + ' accepted your follow request';
+    case 'walk':     return who + ' invited you up <i>' + esc(hillName(BY_KEY[n.hill] || {n:'a hill'})) + '</i> on ' + esc(walkWhen(n.date)) + said;
+    case 'walkyes':  return who + ' is in for <i>' + esc(hillName(BY_KEY[n.hill] || {n:'the walk'})) + '</i> on ' + esc(walkWhen(n.date));
+    case 'walkno':   return who + ' can’t make <i>' + esc(hillName(BY_KEY[n.hill] || {n:'the walk'})) + '</i> on ' + esc(walkWhen(n.date));
     default:         return who + ' did something on WayMark';
   }
 }
-const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check'};
+const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check', walk:'walk', walkyes:'user-check', walkno:'x'};
 function notesHTML(){
   const seen = notesSeenAt();
   /* likes on the same post collapse into one line */
@@ -14944,12 +15120,16 @@ function notesHTML(){
   for (const {n, count, fresh} of rows){
     const target = n.post ? 'data-act="noteopen" data-post="' + esc(n.post) + '" data-c="' + (n.type === 'like' ? '' : '1') + '"'
                           : 'data-act="openfriend" data-uid="' + esc(n.from) + '"';
-    s += '<div class="nrow' + (fresh ? ' fresh' : '') + '">' +
+    s += '<div class="nrow' + (fresh ? ' fresh' : '') + (n.type === 'walk' ? ' walkrow' : '') + '">' +
       '<button class="pwhobtn" data-act="openfriend" data-uid="' + esc(n.from) + '">' + avatarHTML(n.av, n.name, 'sm', n.from) +
       '<span class="nicon k-' + esc(n.type) + '">' + ti(NOTE_ICON[n.type] || 'bell') + '</span></button>' +
       '<button class="nbody" ' + target + '><p>' + noteLine(n, count) + '<i>' + esc(whenAgo(n.t)) + '</i></p></button>' +
       (n.type === 'follow' && !isFollowing(n.from) && !hasRequested(n.from)
-        ? '<span class="nbtns"><button class="btn sm" data-act="follow" data-u="' + esc(n.from) + '">Follow back</button></span>' : '') +
+        ? '<span class="nbtns"><button class="btn sm pillbtn" data-act="follow" data-u="' + esc(n.from) + '">' + ti('user-plus') + 'Follow back</button></span>' : '') +
+      (n.type === 'walk' ? (n.ans
+        ? '<span class="nans">' + (n.ans === 'yes' ? 'You’re in' : 'Can’t make it') + '</span>'
+        : '<span class="nbtns"><button class="btn sm" data-act="walkreply" data-id="' + esc(n.id) + '" data-v="yes">I’m in</button>' +
+          '<button class="btn sm quiet" data-act="walkreply" data-id="' + esc(n.id) + '" data-v="no">Can’t make it</button></span>') : '') +
       '</div>';
   }
   return s;
@@ -15212,6 +15392,30 @@ function summitStampSVG(h, n, iso){
     '<circle class="dot" cx="-96" r="2.6"/><circle class="dot" cx="96" r="2.6"/>' +
     '</svg>';
 }
+/* The numbers a hiker reads first, big: distance, climb, time and summits.
+   Whatever the day recorded; the high point stands in for missing ones. */
+function statRow(p, hs){
+  const m = unitsPref() === 'm', cells = [];
+  if (p.dist) cells.push([m ? (p.dist / 1000).toFixed(1) : (p.dist / 1609.344).toFixed(1), m ? 'km' : 'mi', 'Distance']);
+  if (p.asc) cells.push([m ? Math.round(p.asc).toLocaleString() : Math.round(p.asc * 3.28084).toLocaleString(), m ? 'm' : 'ft', 'Ascent']);
+  if (p.mins) cells.push([hm(p.mins), '', 'Time']);
+  if (hs.length === 1 && !cells.length){
+    const h = hs[0];
+    cells.push([feet(h).toLocaleString(), 'ft', 'Height'], [h.h.toLocaleString(), 'm', 'Metres']);
+    if (m) cells.reverse();
+  } else if (hs.length){
+    const lists = hs.map(h => h.l.find(x => state.enabled.includes(x)) || h.l[0]);
+    const same = lists.every(l => l === lists[0]) && LIST_BY[lists[0]];
+    cells.push([String(hs.length), '', hs.length === 1 ? 'Summit' : same && LIST_BY[lists[0]].name.length < 12 ? LIST_BY[lists[0]].name : 'Summits']);
+    if (cells.length < 3){
+      const top = hs.reduce((a, b) => b.h > a.h ? b : a, hs[0]);
+      cells.push([m ? top.h.toLocaleString() : feet(top).toLocaleString(), m ? 'm' : 'ft', 'High point']);
+    }
+  }
+  if (!cells.length) return '';
+  return '<div class="pstats" style="--n:' + cells.length + '">' + cells.map(([v, u, l]) =>
+    '<div><span>' + esc(l) + '</span><b>' + esc(v) + (u ? '<small>' + u + '</small>' : '') + '</b></div>').join('') + '</div>';
+}
 function dataLine(p, hs){
   const bits = [];
   if (hs.length){
@@ -15254,6 +15458,31 @@ function threadHTML(p, open){
     '<button class="pact send" data-act="sendcomment" data-id="' + esc(p.id) + '" aria-label="Send">' + ti('send') + '</button></div></div>';
   return s;
 }
+/* Comments slide up over the feed, so the post stays where it was. */
+const CM_CHIPS = ['Nice one', 'Epic views', 'Jealous', 'Well done'];
+function paintCommentSheet(){
+  const id = ui.openComments;
+  let el = document.getElementById('cmsheet');
+  const p = id && (feed.find(x => x.id === id) || (singlePost && singlePost.id === id ? singlePost : null) || (typeof friendPosts !== 'undefined' && Array.isArray(friendPosts) ? friendPosts.find(x => x.id === id) : null));
+  if (!p){ if (el) el.classList.remove('open'); return; }
+  if (!el){
+    el = document.createElement('div'); el.id = 'cmsheet'; el.className = 'sheet bottom cmsheet';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Comments');
+    el.addEventListener('click', e => { if (e.target === el) closeCommentSheet(); });
+    document.body.appendChild(el);
+  }
+  const old = document.getElementById('cm-' + id), keep = old ? old.value : '', had = old && document.activeElement === old;
+  const n = (commentsBy[id] || []).length;
+  el.innerHTML = '<div class="sheetbox"><div class="cmgrab"></div><div class="ntop"><h3>' + (n ? n + (n === 1 ? ' comment' : ' comments') : 'Comments') + '</h3>' +
+    '<button class="xbtn" data-act="cmclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    (fbUser && p.uid !== fbUser.uid ? '<div class="cmchips">' + CM_CHIPS.map(c => '<button class="chipbtn" data-act="cmchip" data-t="' + esc(c) + '">' + esc(c) + '</button>').join('') + '</div>' : '') +
+    threadHTML(p, true) + '</div>';
+  el.classList.add('open');
+  const box = document.getElementById('cm-' + id);
+  if (box){ if (keep) box.value = keep; if (had) box.focus(); }
+  if (typeof wire === 'function') wire();
+}
+function closeCommentSheet(){ ui.openComments = null; ui.replyTo = null; const el = document.getElementById('cmsheet'); if (el) el.classList.remove('open'); }
 function postHTML(p){
   const mine = fbUser && p.uid === fbUser.uid;
   const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
@@ -15283,16 +15512,19 @@ function postHTML(p){
       '</div>' : '')) + '</header>';
 
   const ptrk = p.kind === 'route' ? postTrk(p) : [];
-  if (p.kind === 'route' && ptrk.length > 1) s += '<div class="pmedia art route">' + routeSketch(ptrk, p.hills) + '</div>';
-  else s += mediaHTML(p, hs, adventure);
+  const media = p.kind === 'route' && ptrk.length > 1 ? '<div class="pmedia art route">' + routeSketch(ptrk, p.hills) + '</div>' : mediaHTML(p, hs, adventure);
+  if (adventure){
+    /* a day out leads with where and how far, then the picture */
+    const where = [...new Set(hs.map(h => { const lid = h.l.find(x => state.enabled.includes(x)) || h.l[0]; return regionOf(h, lid).replace('The ', ''); }))].slice(0, 2).join(' & ');
+    const names = hs.slice().sort((a, b) => b.h - a.h).map(h => hillName(h));
+    s += '<div class="pbodyv2 plead"><p class="pregion">' + esc(where || [...new Set(hs.map(h => h.c))].join(' & ')) + (p.date ? ' · ' + esc(shortDay(p.date)) : '') + '</p>' +
+      '<h3 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <i>+' + (names.length - 3) + ' more</i>' : '') + '</h3>' +
+      statRow(p, hs) + '</div>';
+  }
+  s += media;
 
   s += '<div class="pbodyv2">';
   if (adventure){
-    const where = [...new Set(hs.map(h => { const lid = h.l.find(x => state.enabled.includes(x)) || h.l[0]; return regionOf(h, lid).replace('The ', ''); }))].slice(0, 2).join(' & ');
-    s += '<p class="pregion">' + esc(where || [...new Set(hs.map(h => h.c))].join(' & ')) + (p.date ? ' · ' + esc(shortDay(p.date)) : '') + '</p>';
-    const names = hs.slice().sort((a, b) => b.h - a.h).map(h => hillName(h));
-    s += '<h3 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <i>+' + (names.length - 3) + ' more</i>' : '') + '</h3>';
-    s += dataLine(p, hs);
     if (p.strava) s += '<p class="pstrava"><a href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a></p>';
     if ((p.trkS || (p.trk && p.trk.length)) && postTrk(p).length > 1)
       s += '<div class="proute"><button class="btn sm ghost" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' +
@@ -15340,7 +15572,7 @@ function postHTML(p){
     '<button class="pact" data-act="sharepost" data-id="' + esc(p.id) + '" aria-label="Share">' + ti('arrow-up-right') + '</button>' +
     '</div>';
   s += '<p class="plikes" data-likedby="' + esc(p.id) + '"' + (n ? '' : ' hidden') + '>' + likedByHTML(p.id) + '</p>';
-  s += threadHTML(p, open);
+  s += threadHTML(p, false);
   return s + '</article>';
 }
 
@@ -15349,8 +15581,9 @@ const HIKER_TABS = ['feed', 'discover', 'boards', 'me', 'friends'];
 function hikerTab(){ return HIKER_TABS.includes(ui.hikerTab) ? ui.hikerTab : 'feed'; }
 function hikersHead(){
   const un = unreadNotes() + friendReqs.length;
+  const t = hikerTab();
   return '<div class="hkhead"><h2 class="pagehead">Hikers</h2>' +
-    '<button class="hkic" data-act="hikerfind" aria-label="Find hikers">' + ti('search') + '</button>' +
+    '<button class="hkic' + (t === 'boards' ? ' on' : '') + '" data-act="hikertab" data-v="boards" aria-label="Leaderboards"' + (t === 'boards' ? ' aria-current="page"' : '') + '>' + ti('medal') + '</button>' +
     '<button class="hkic" data-act="notesopen" aria-label="Notifications' + (un ? ', ' + un + ' new' : '') + '">' + ti('bell') +
       (un ? '<span class="nb">' + (un > 9 ? '9+' : un) + '</span>' : '') + '</button>' +
     '<button class="hkme" data-act="hikertab" data-v="me" aria-label="Your profile">' + avatarHTML(myAvatar(), myName(), 'sm', fbUser.uid) + '</button></div>';
@@ -15358,9 +15591,10 @@ function hikersHead(){
 function renderHikers(){
   if (friendOpen) return renderBoard();
   if (!(fbConfigured() && fbUser)){
-    return '<h2 class="pagehead">Hikers</h2>' +
-      '<div class="hkwelcome"><b>Your hiking community lives here</b>' +
-      '<span>Sign in to follow friends, see their days out as they happen, and cheer each other on up the lists.</span></div>' +
+    return '<figure class="hkhero"><img src="hikers-welcome.jpg" alt="A sheep on a golden hillside below a steep escarpment at sunrise" width="1200" height="900">' +
+      '<figcaption>' + ti('map-pin') + 'Picws Du, Black Mountain</figcaption></figure>' +
+      '<h2 class="pagehead">Hikers</h2>' +
+      '<div class="hkwelcome"><span>Follow friends, cheer their summit days and race each other up the lists.</span></div>' +
       '<div class="accountBox"></div><p class="pathnote cloudNote"></p><div style="margin-top:20px">' + renderBoard() + '</div>';
   }
   let s = hikersHead();
@@ -15369,8 +15603,10 @@ function renderHikers(){
       '<div class="feedsolo">' + postHTML(singlePost) + '</div>';
   }
   const t = hikerTab();
-  s += '<div class="seg hseg" role="tablist">' + [['feed', 'Feed'], ['discover', 'Discover'], ['boards', 'Boards']].map(([v, l]) =>
-    '<button role="tab" data-act="hikertab" data-v="' + v + '" aria-selected="' + (t === v) + '" aria-pressed="' + (t === v) + '">' + l + '</button>').join('') + '</div>';
+  /* One stream. Search opens Discover; the trophy opens the boards. Anything
+     that is not the feed gets a way back to it. */
+  if (t === 'feed') s += '<div class="hksrow"><button class="hksearch" data-act="hikerfind">' + ti('search') + '<span>People, places, hills</span></button>' + refreshBtn() + '</div>';
+  else if (t !== 'friends') s += '<button class="hkback" data-act="hikertab" data-v="feed">' + ti('arrow-left') + 'Hikers</button>';
   s += '<div style="margin-top:6px">';
   if (t === 'feed') s += '<div class="feedgrid"><div class="feedmain">' + renderFeed() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
   else if (t === 'discover') s += '<div class="feedgrid"><div class="feedmain">' + renderDiscover() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
@@ -15383,15 +15619,54 @@ function refreshBtn(){
   return '<button class="refreshbtn rf2' + (socialRefreshing ? ' spinning' : '') + '" data-act="refreshfeed" aria-label="' + (socialRefreshing ? 'Refreshing' : 'Refresh') + '" title="Refresh"' + (socialRefreshing ? ' aria-busy="true"' : '') + '>' +
     '<svg' + (socialRefreshing ? ' style="animation-delay:' + spinDelay() + '"' : '') + ' viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v3.3h-3.3"/></svg></button>';
 }
+/* The week for you and the people you follow, in one line, with where you
+   stand. Tapping it opens the boards. */
+function crewRecap(){
+  const since = Date.now() - 7 * 86400000, me = fbUser.uid, fol = new Set(followingUids());
+  const wk = feed.filter(p => (p.t || 0) >= since && (p.uid === me || fol.has(p.uid)));
+  if (!wk.length) return '';
+  let summits = 0, dist = 0, asc = 0; const per = new Map();
+  for (const p of wk){
+    const n = (p.hills || []).filter(k => BY_KEY[k]).length;
+    summits += n; dist += p.dist || 0; asc += p.asc || 0;
+    const e = per.get(p.uid) || {uid:p.uid, name:p.uid === me ? 'You' : firstName(p.name), n:0}; e.n += n; per.set(p.uid, e);
+  }
+  if (!summits && !dist) return '';
+  const bits = [summits + (summits === 1 ? ' summit' : ' summits')];
+  if (dist) bits.push(unitsPref() === 'm' ? Math.round(dist / 1000) + ' km' : Math.round(dist / 1609.344) + ' mi');
+  if (asc) bits.push(unitsPref() === 'm' ? Math.round(asc).toLocaleString() + ' m' : Math.round(asc * 3.28084).toLocaleString() + ' ft');
+  const rank = [...per.values()].sort((a, b) => b.n - a.n), top = rank[0], mine = per.get(me);
+  let line = '';
+  if (top && top.n){
+    if (top.uid === me) line = rank.length > 1 ? 'You\u2019re out in front this week.' : 'All yours so far this week.';
+    else {
+      line = esc(top.name) + '\u2019s out in front.';
+      const next = [...rank].reverse().find(x => x.uid !== me && x.n > ((mine && mine.n) || 0));
+      if (next) line += ' You\u2019re ' + (next.n - ((mine && mine.n) || 0)) + ' behind ' + esc(next.name) + '.';
+    }
+  }
+  return '<button class="crew" data-act="hikertab" data-v="boards"><span class="crewtxt"><i>Your crew this week</i><b>' + esc(bits.join(' \u00b7 ')) + '</b>' +
+    (line ? '<span>' + line + '</span>' : '') + '</span>' + ti('chevron-right') + '</button>';
+}
+/* A row of people worth following, dropped into the stream. */
+function suggestRow(){
+  if (!dirAt && !dirBusy && !dirWhy) loadDirectory();
+  const row = discoverRows().find(r => r.people.length);
+  if (!row) return '';
+  return '<section class="sugrow"><div class="sugtop"><h3>' + esc(row.title) + '</h3><button class="linkbtn" data-act="hikerfind">See all</button></div>' +
+    '<div class="dpeople">' + row.people.slice(0, 8).map(personCardHTML).join('') + '</div></section>';
+}
 function renderFeed(){
   let s = '';
   const fr = allFriends();
   /* the composer: your face and a prompt, not a big button */
-  if (!ui.postForm){
+  const strip = friendStrip();
+  if (!ui.postForm && !strip){
     s += '<div class="pcomposer"><button class="pwhobtn" data-act="hikertab" data-v="me">' + avatarHTML(myAvatar(), myName(), 'md', fbUser.uid) + '</button>' +
       '<button class="pprompt" data-act="newpost">Share a day on the hills…</button>' + refreshBtn() + '</div>';
-  } else if (ui.postForm !== 'menu') s += '<div class="btnrow sharerow"><button class="btn quiet" data-act="closepost">Cancel</button></div>';
-  s += friendStrip();
+  } else if (ui.postForm && ui.postForm !== 'menu') s += '<div class="btnrow sharerow"><button class="btn quiet" data-act="closepost">Cancel</button></div>';
+  s += strip;
+  if (!ui.postForm) s += crewRecap();
   if (ui.postForm && ui.postForm !== 'menu') s += composeFormHTML(fr);
 
   if (socialFailed && !feed.length){
@@ -15402,7 +15677,7 @@ function renderFeed(){
   } else if (!following().length){
     s += '<div class="nobody"><b>Your hiking feed starts here</b>' +
       '<span>Follow hikers to see their days out, summits and patches the moment they share them.</span>' +
-      '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="hikertab" data-v="discover">Find hikers</button></div></div>';
+      '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="hikertab" data-v="discover">Find hikers</button></div></div>' + suggestRow();
   } else if (!feed.some(p => p.uid !== fbUser.uid)){
     const names = following().slice(0, 3).map(f => firstName(f.name));
     s += (feed.length ? feed.map(postHTML).join('') : '') +
@@ -15412,7 +15687,8 @@ function renderFeed(){
       '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="hikertab" data-v="discover">Find more hikers</button>' +
       '<button class="btn ghost" data-act="newpost">Share yours</button></div></div>';
   } else {
-    for (const p of feed) s += postHTML(p);
+    feed.forEach((p, i) => { s += postHTML(p); if (i === 1) s += suggestRow(); });
+    if (feed.length < 2) s += suggestRow();
     s += '<p class="feedend">' + ti('waymark-mountain') + 'You’re up to date</p>';
   }
   return s;
@@ -15470,6 +15746,188 @@ function composeFormHTML(fr){
   s += '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="sendpost">Share it</button></div></div>';
   return s;
 }
+/* ---------- the directory: hikers who can be found ----------
+   People cards are fetched by uid and never listed, which keeps everyone's card
+   private. Finding strangers needs something that CAN be listed, so a public
+   profile that has not opted out keeps a small entry here: name, picture,
+   handle, where they walk from, the lists they are on and the hills they have
+   marked, plus whether they are open to walking with others. Nothing from the
+   journal, no dates, no photos. Private or followers-only profiles, or anyone
+   who switches "Appear in Discover" off, have no entry at all. */
+const dirRef = u => FB.doc(fbDb, 'directory', u);
+const dirCol = () => FB.collection(fbDb, 'directory');
+const WALK_STYLES = [{id:'solo', label:'On my own'}, {id:'friends', label:'With friends'}, {id:'group', label:'In a group'}];
+const WALK_LEVELS = [{id:'easy', label:'Easy rambles'}, {id:'moderate', label:'Moderate hills'}, {id:'big', label:'Big mountain days'},
+                     {id:'scramble', label:'Scrambles'}, {id:'long', label:'Long-distance'}];
+const labelOf = (arr, id) => (arr.find(x => x.id === id) || {}).label || '';
+function myListCounts(){
+  const o = {};
+  for (const h of HILLS) if (isBagged(h.k)) for (const l of h.l) o[l] = (o[l] || 0) + 1;
+  return o;
+}
+const inDirectory = () => (prof.vis || 'public') === 'public' && prof.disc !== false;
+let dirSig = '';
+async function pushDirectory(){
+  if (!FB || !fbUser || !personReady()) return;
+  try{
+    if (!inDirectory()){ if (dirSig !== 'off'){ dirSig = 'off'; await FB.deleteDoc(dirRef(fbUser.uid)); } return; }
+    if (!prof.since){ prof.since = Date.now(); try{ localStorage.setItem(PROF_KEY, JSON.stringify(prof)); }catch(e){} }
+    const me = myPerson();
+    const hk = HILLS.filter(h => isBagged(h.k)).map(h => h.k).slice(0, 1500);
+    const doc = {name: me.name, av: me.av, handle: me.handle || '', hills: me.hills, pc: me.pc,
+      home: String(me.home || '').slice(0, 40), top: me.top || '',
+      open: !!prof.open, style: (prof.style || []).slice(0, 3), levels: (prof.levels || []).slice(0, 5),
+      lc: myListCounts(), hk, since: prof.since};
+    const sig = JSON.stringify(doc);
+    if (sig === dirSig) return;
+    await FB.setDoc(dirRef(fbUser.uid), {...doc, t: Date.now()});
+    dirSig = sig;
+  }catch(e){}
+}
+var directory = [], dirBusy = false, dirWhy = '', dirAt = 0;
+async function loadDirectory(force){
+  if (!FB || !fbUser || dirBusy) return;
+  if (!force && dirAt && Date.now() - dirAt < 5 * 60000) return;
+  dirBusy = true;
+  try{
+    const snap = await FB.getDocs(FB.query(dirCol(), FB.orderBy('t', 'desc'), FB.limit(300)));
+    const out = []; snap.forEach(d => out.push({uid:d.id, ...(d.data() || {})}));
+    directory = out; dirWhy = ''; dirAt = Date.now();
+  }catch(e){
+    dirWhy = /permission|insufficient/i.test(String(e && e.message)) ? 'rules' : fbWhy(e);
+  }
+  dirBusy = false; render();
+}
+const dirCache = {};
+async function loadDirEntry(uid){
+  if (!FB || !fbUser || dirCache[uid]) return dirCache[uid];
+  dirCache[uid] = {_busy:true};
+  const hit = directory.find(d => d.uid === uid);
+  if (hit){ dirCache[uid] = hit; return hit; }
+  try{ const s = await FB.getDoc(dirRef(uid)); dirCache[uid] = s.exists() ? {uid, ...(s.data() || {})} : {uid, none:true}; }
+  catch(e){ dirCache[uid] = {uid, none:true}; }
+  if (friendOpen && friendOpen.uid === uid) render();
+  return dirCache[uid];
+}
+function dirPool(){
+  const skip = new Set([fbUser.uid, ...blocked]);
+  return directory.filter(d => !skip.has(d.uid) && d.name);
+}
+/* "where you walk from", as words that can be matched against someone else's */
+const areaWords = s => String(s || '').toLowerCase().split(/[^a-z]+/).filter(w => w.length > 2 && !['the', 'and', 'fells', 'hills', 'national', 'park'].includes(w));
+function nearScore(d){
+  const mine = areaWords((prof.home || '') + ' ' + (homeGround() || ''));
+  if (!mine.length) return 0;
+  const theirs = new Set(areaWords(d.home));
+  return mine.filter(w => theirs.has(w)).length;
+}
+let mineSetAt = 0, mineSet = new Set();
+function myHillSet(){
+  if (Date.now() - mineSetAt > 30000){ mineSet = new Set(HILLS.filter(h => isBagged(h.k)).map(h => h.k)); mineSetAt = Date.now(); }
+  return mineSet;
+}
+const inCommon = d => { const m = myHillSet(); return (d.hk || []).reduce((n, k) => n + (m.has(k) ? 1 : 0), 0); };
+function partnerLine(d){
+  const bits = [];
+  if ((d.style || []).length) bits.push(d.style.map(x => labelOf(WALK_STYLES, x)).filter(Boolean).join(', '));
+  if ((d.levels || []).length) bits.push(d.levels.map(x => labelOf(WALK_LEVELS, x)).filter(Boolean).join(', '));
+  return bits.join(' · ');
+}
+/* the rows on Discover: each answers "why would I follow this person?" */
+function discoverRows(){
+  const pool = dirPool().filter(d => !isFollowing(d.uid));
+  const used = new Set();
+  const take = (list, n) => { const out = []; for (const d of list){ if (used.has(d.uid)) continue; used.add(d.uid); out.push(d); if (out.length >= n) break; } return out; };
+  const rows = [];
+  const open = pool.filter(d => d.open).sort((a, b) => nearScore(b) - nearScore(a) || inCommon(b) - inCommon(a));
+  if (open.length) rows.push({id:'partners', icon:'users-group', title:'Up for a walk', sub:'Hikers happy to head out with others',
+    people: take(open, 12).map(d => ({...d, why: d.home ? d.home : (partnerLine(d) || 'Open to walking')}))});
+  const near = pool.filter(d => nearScore(d) > 0).sort((a, b) => nearScore(b) - nearScore(a) || (b.hills || 0) - (a.hills || 0));
+  if (near.length) rows.push({id:'near', icon:'map-pin', title:'Walking near you', sub:'Based around ' + (prof.home || homeGround()),
+    people: take(near, 12).map(d => ({...d, why: d.home}))});
+  const same = pool.map(d => ({d, n:inCommon(d)})).filter(x => x.n >= 2).sort((a, b) => b.n - a.n);
+  if (same.length) rows.push({id:'same', icon:'mountain', title:'On the same hills', sub:'People who have stood where you have',
+    people: take(same.map(x => x.d), 12).map(d => ({...d, why: inCommon(d) + ' hills in common'}))});
+  const fresh = pool.filter(d => d.since && Date.now() - d.since < 30 * 86400000).sort((a, b) => b.since - a.since);
+  if (fresh.length) rows.push({id:'new', icon:'user-plus', title:'New to WayMark', sub:'Say hello',
+    people: take(fresh, 12).map(d => ({...d, why: 'Joined ' + whenAgo(d.since)}))});
+  const busy = pool.slice().sort((a, b) => (b.hills || 0) - (a.hills || 0));
+  if (busy.length) rows.push({id:'most', icon:'award', title:'Most summits', sub:'The people with the longest lists',
+    people: take(busy, 10).map(d => ({...d, why: (d.hills || 0).toLocaleString() + ' summits'}))});
+  /* a hiker only shows once, so later rows can end up empty: drop those */
+  return rows.filter(r => r.people.length);
+}
+function personCardHTML(f){
+  return '<div class="dperson' + (f.open ? ' isopen' : '') + '"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' +
+    avatarHTML(f.av, f.name, 'lg', f.uid) + (f.open ? '<span class="openmark" title="Up for a walk">' + ti('walk') + '</span>' : '') +
+    '<b>' + esc(firstName(f.name)) + '</b><i>' + esc(f.why || ((f.hills || 0) + ' summits')) + '</i></button>' + followBtn(f.uid, true) + '</div>';
+}
+/* Search across the directory: names, handles, where people walk, a hill they
+   have climbed, or a list they are working through. */
+async function searchDirectory(q){
+  const raw = String(q || '').trim(); if (raw.length < 2) return [];
+  const n = norm(raw.replace(/^@/, ''));
+  const out = new Map();
+  const add = (d, why) => { if (d.uid === fbUser.uid || isBlocked(d.uid) || out.has(d.uid)) return; out.set(d.uid, {...d, why}); };
+  for (const d of directory){
+    if (norm(d.handle).startsWith(n) || norm(d.name).includes(n)) add(d, d.handle ? '@' + d.handle : ((d.hills || 0) + ' summits'));
+  }
+  for (const d of directory) if (areaWords(d.home).some(w => w.startsWith(raw.toLowerCase()))) add(d, 'Walks from ' + d.home);
+  const list = LISTS.find(l => norm(l.name).includes(n) || norm(listTag(l.id)).startsWith(n));
+  if (list) directory.filter(d => (d.lc || {})[list.id]).sort((a, b) => b.lc[list.id] - a.lc[list.id])
+    .forEach(d => add(d, d.lc[list.id] + ' ' + listTag(list.id) + (d.lc[list.id] === 1 ? '' : 's')));
+  const hill = markSearch(raw)[0];
+  if (hill && norm(hill.n).startsWith(n.slice(0, 4))){
+    for (const d of directory) if ((d.hk || []).includes(hill.k)) add(d, 'Climbed ' + hillName(hill));
+    try{
+      const snap = await FB.getDocs(FB.query(dirCol(), FB.where('hk', 'array-contains', hill.k), FB.limit(30)));
+      snap.forEach(x => add({uid:x.id, ...(x.data() || {})}, 'Climbed ' + hillName(hill)));
+    }catch(e){}
+  }
+  return [...out.values()].slice(0, 30);
+}
+
+/* ---------- invite someone for a walk: a real invitation, not a link ---------- */
+function openWalkInvite(uid, name){
+  ui.walkInv = {uid, name, date:'', hill:'', q:'', text:''};
+  let el = document.getElementById('walksheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'walksheet'; el.className = 'sheet bottom notesheet';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Invite for a walk');
+    el.addEventListener('click', e => { if (e.target === el) closeWalkInvite(); });
+    el.addEventListener('input', e => {
+      const w = ui.walkInv; if (!w) return;
+      if (e.target.id === 'wiq'){ w.q = e.target.value; const r = document.getElementById('wires'); if (r) r.innerHTML = walkHillResults(w.q); }
+      if (e.target.id === 'widate') w.date = e.target.value;
+      if (e.target.id === 'witext') w.text = e.target.value;
+    });
+    document.body.appendChild(el);
+  }
+  paintWalkInvite();
+  el.classList.add('open');
+}
+function walkHillResults(q){
+  return markSearch(q).slice(0, 5).map(h => '<button class="mrow" data-act="wihill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) +
+    '</b><span>' + htFlat(h) + '</span></span></button>').join('');
+}
+function paintWalkInvite(){
+  const el = document.getElementById('walksheet'), w = ui.walkInv; if (!el || !w) return;
+  const h = w.hill ? BY_KEY[w.hill] : null;
+  const today = new Date().toISOString().slice(0, 10);
+  el.innerHTML = '<div class="sheetbox walkinv"><div class="ntop"><h3>Walk with ' + esc(firstName(w.name)) + '</h3>' +
+    '<button class="xbtn" data-act="wiclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    '<p class="wilede">Suggest a hill and a day. ' + esc(firstName(w.name)) + ' can say they’re in, or that they can’t make it.</p>' +
+    '<div class="form" style="margin:0"><div><label for="wiq">Which hill</label>' + (h
+      ? '<div class="mrow on"><button class="mmain" data-act="wihillclear"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; change</span></button></div>'
+      : '<div class="field">' + ti('search') + '<input id="wiq" placeholder="Search any hill…" autocomplete="off" value="' + esc(w.q) + '"></div><div id="wires">' + walkHillResults(w.q) + '</div>') + '</div>' +
+    '<div><label for="widate">When</label><input type="date" id="widate" min="' + today + '" value="' + esc(w.date) + '"></div>' +
+    '<div><label for="witext">A note <span class="opt">optional</span></label><input id="witext" maxlength="140" placeholder="Meet at the car park at 9?" value="' + esc(w.text) + '"></div>' +
+    '<div class="btnrow" style="margin:0"><button class="btn" data-act="wisend"' + (h && w.date ? '' : ' disabled') + '>' + ti('send') + 'Send invite</button>' +
+    '<button class="btn quiet" data-act="wiclose">Cancel</button></div></div></div>';
+}
+function closeWalkInvite(){ ui.walkInv = null; const el = document.getElementById('walksheet'); if (el) el.classList.remove('open'); }
+const walkWhen = d => { try{ return new Date(d + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}); }catch(e){ return d; } };
+
 /* Discover: people first, then what everybody is out doing. */
 function discoverPeople(){
   const seen = new Set([fbUser.uid, ...followingUids(), ...blocked]);
@@ -15484,21 +15942,35 @@ function discoverPeople(){
   return out.slice(0, 16);
 }
 function renderDiscover(){
+  if (!dirAt && !dirBusy && !dirWhy) loadDirectory();
   let s = '<div class="dsearch"><div class="field">' + ti('search') +
-    '<input id="findh" placeholder="Name or @handle" maxlength="30" autocomplete="off" enterkeyhint="search">' +
-    '<button class="btn sm" data-act="findfriend">Search</button></div><p id="fmsg" class="fmsg"></p>';
+    '<input id="findh" placeholder="Hikers, places or hills" maxlength="40" autocomplete="off" enterkeyhint="search">' +
+    '<button class="btn sm" data-act="findfriend">Search</button></div>' +
+    '<p class="dhint">Search a name, @handle, town, hill or list. Try “Bristol” or “Snowdon”.</p><p id="fmsg" class="fmsg"></p>';
   const foundList = ui.found ? (Array.isArray(ui.found) ? ui.found : [ui.found]) : [];
-  for (const f of foundList){
-    s += '<div class="frow"><div class="fwho2"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'sm', f.uid) + '</button>' +
-      '<div><b>' + esc(niceName(f.name) || 'Walker') + '</b><span>' + (f.handle ? '@' + esc(f.handle) + ' &middot; ' : '') + (f.hills || 0) + ' summits' + (f.vis === 'private' ? ' (private)' : '') + '</span></div></div>' +
-      followBtn(f.uid, true) + '</div>';
-  }
+  if (foundList.length) s += '<div class="dresults">' + foundList.map(f => hikerRow({...f, why: f.why || ''}, followBtn(f.uid, true))).join('') + '</div>' +
+    '<button class="linkbtn dclear" data-act="findclear">Clear search</button>';
   s += '</div>';
+
+  /* your own partner status, so the row below is something you can join */
+  if (!prof.open && inDirectory()){
+    s += '<div class="invitecard partnercta"><span class="pcic">' + ti('walk') + '</span><div><b>Looking for people to walk with?</b>' +
+      '<span>Say you’re up for company and you’ll show under “Up for a walk”.</span></div>' +
+      '<button class="btn sm" data-act="partneron">I’m up for it</button></div>';
+  }
+  if (dirWhy === 'rules'){
+    s += '<p class="empty">Finding new hikers needs the latest WayMark rules published in Firebase (the new “directory” section).</p>';
+  } else if (!directory.length && dirBusy){
+    s += '<div class="dhead"><h3>Finding hikers…</h3></div>' + skeletonRows(2);
+  }
+  for (const r of discoverRows()){
+    s += '<section class="dsec"><div class="dhead"><div><h3>' + ti(r.icon) + esc(r.title) + '</h3><p>' + esc(r.sub) + '</p></div></div>' +
+      '<div class="dpeople">' + r.people.map(personCardHTML).join('') + '</div></section>';
+  }
   const ppl = discoverPeople();
   if (ppl.length){
-    s += '<div class="dhead"><h3>Hikers to follow</h3></div><div class="dpeople">' + ppl.map(f =>
-      '<div class="dperson"><button class="pwhobtn" data-act="openfriend" data-uid="' + esc(f.uid) + '">' + avatarHTML(f.av, f.name, 'lg', f.uid) +
-      '<b>' + esc(firstName(f.name)) + '</b><i>' + esc(f.why || (f.hills ? f.hills + ' summits' : 'On WayMark')) + '</i></button>' + followBtn(f.uid, true) + '</div>').join('') + '</div>';
+    s += '<section class="dsec"><div class="dhead"><div><h3>' + ti('user-check') + 'People you might know</h3><p>From your followers and leaderboards</p></div></div>' +
+      '<div class="dpeople">' + ppl.map(personCardHTML).join('') + '</div></section>';
   }
   if (fbHandle){
     s += '<div class="invitecard"><div><b>Bring your walking friends</b><span>Send your link and they can follow you in one tap: ' + esc(profileLink(fbHandle).replace(/^https?:\/\//, '')) + '</span></div>' +
@@ -15506,7 +15978,7 @@ function renderDiscover(){
   } else {
     s += '<div class="invitecard"><div><b>Claim your @handle</b><span>It’s how friends find you.</span></div><button class="btn sm" data-act="peoplego" data-v="discover">Claim one</button></div>';
   }
-  s += '<div class="dhead"><h3>Out on the hills</h3>' + refreshBtn() + '</div>';
+  s += '<div class="dhead"><div><h3>' + ti('binoculars') + 'Out on the hills</h3><p>The latest days shared with everyone</p></div>' + refreshBtn() + '</div>';
   if (discoverWhy) s += '<p class="empty">' + esc(discoverWhy).replace(/(https?:\S+)/, '<a href="$1" target="_blank" rel="noopener">open Firebase</a>') + '</p>';
   else if (!discover.length) s += discoverBusy ? skeletonPosts(2) : '<div class="nobody"><b>Nobody’s shared publicly yet</b><span>Share a day out with Everyone and yours will be the first here.</span></div>';
   else for (const p of discover) if (!isBlocked(p.uid)) s += postHTML(p);
@@ -15561,6 +16033,11 @@ function renderFriend(){
       '<div class="btnrow" style="justify-content:center"><button class="btn ghost" data-act="unblock" data-uid="' + esc(uidX) + '">Unblock ' + esc(nm) + '</button></div></div>';
   }
   html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : ''});
+  if (card.open){
+    html += '<div class="popen">' + ti('walk') + '<div><b>' + esc(nm) + ' is up for walking with others</b>' +
+      (partnerLine(card) ? '<span>' + esc(partnerLine(card)) + '</span>' : '') + '</div>' +
+      (fbUser ? '<button class="btn sm" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('send') + 'Suggest a walk</button>' : '') + '</div>';
+  }
   const pc = personCounts[uidX] || {};
   html += '<div class="pfollows">' +
     '<button class="plink" data-act="theirlist" data-u="' + esc(uidX) + '" data-v="followers"><b>' + (pc.followers == null ? '–' : pc.followers.toLocaleString()) + '</b> followers</button>' +
@@ -15587,7 +16064,10 @@ function renderFriend(){
   for (const e of log) if (!hillSet.has(e.k)) hillSet.set(e.k, e.d || '');
   const patchPosts = pposts.filter(p => p.kind === 'patch' && p.patch);
   const pt = ui.profTab || 'adv';
-  html += '<div class="subfilter ptabs" role="tablist">' + [['adv', 'Adventures', pposts.filter(p => p.kind !== 'patch').length], ['photos', 'Photos', shots.length], ['summits', 'Summits', hillSet.size], ['patches', 'Patches', patchPosts.length]].map(([v, l, n]) =>
+  const dir = dirCache[uidX] || (loadDirEntry(uidX), null);
+  const lcounts = (dir && !dir.none && dir.lc) || r.counts || {};
+  const nLists = Object.keys(lcounts).filter(k => lcounts[k] && LIST_BY[k]).length;
+  html += '<div class="subfilter ptabs" role="tablist">' + [['adv', 'Adventures', pposts.filter(p => p.kind !== 'patch').length], ['photos', 'Photos', shots.length], ['summits', 'Summits', hillSet.size], ['lists', 'Challenges', nLists], ['patches', 'Patches', patchPosts.length]].map(([v, l, n]) =>
     '<button role="tab" data-act="proftab" data-v="' + v + '" aria-selected="' + (pt === v) + '" aria-pressed="' + (pt === v) + '">' + l + (n ? ' <i>' + n + '</i>' : '') + '</button>').join('') + '</div>';
 
   if (busy){ html += skeletonPosts(1); return html; }
@@ -15597,15 +16077,28 @@ function renderFriend(){
     else html += '<div class="nobody"><b>' + (pp.hills ? esc(nm) + ' has marked ' + pp.hills.toLocaleString() + (pp.hills === 1 ? ' summit' : ' summits') : esc(nm) + ' hasn’t shared an adventure yet') + '</b>' +
       '<span>' + (pp.hills ? 'They haven’t shared a day out yet. When they do, it lands here and in your feed.' : 'Once ' + esc(nm) + ' starts sharing days out, they’ll appear here.') + '</span>' +
       '<div class="btnrow" style="justify-content:center">' + (accepted ? '' : followBtn(uidX)) +
-      '<button class="btn ghost" data-act="invitewalk" data-n="' + esc(nm) + '">' + ti('send') + 'Invite ' + esc(nm) + ' for a walk</button></div></div>';
+      '<button class="btn ghost" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('send') + 'Invite ' + esc(nm) + ' for a walk</button></div></div>';
   } else if (pt === 'photos'){
     const fshots = friendShots(log, friendOpen.code);
     if (shots.length) html += '<div class="pgrid">' + shots.map(x => '<button class="shot" data-act="viewpostphoto" data-id="' + esc(x.post) + '" data-p="' + esc(x.pid) + '">' +
       '<img data-post="' + esc(x.post) + '" data-shot="' + esc(x.pid) + '" alt=""></button>').join('') + '</div>';
     html += fshots;
     if (!shots.length && !fshots) html += '<div class="nobody"><b>No photos yet</b><span>Photos ' + esc(nm) + ' shares with their days out collect here.</span></div>';
+  } else if (pt === 'lists'){
+    const rows = LISTS.filter(l => lcounts[l.id]).map(l => ({l, n:lcounts[l.id], of:l.count || hillsIn(l.id).length}))
+      .sort((a, b) => (b.n / (b.of || 1)) - (a.n / (a.of || 1)));
+    if (!rows.length) html += '<div class="nobody"><b>No challenges to show yet</b><span>When ' + esc(nm) + ' marks hills on a list, their progress shows here.</span></div>';
+    else {
+      const mine = myListCounts();
+      html += '<div class="chlist">' + rows.map(({l, n, of}) => {
+        const pct = of ? Math.min(100, Math.round(n / of * 100)) : 0;
+        const me = mine[l.id] || 0;
+        return '<div class="chrow"><div class="chtop"><b>' + esc(l.name) + '</b><span>' + n.toLocaleString() + ' / ' + of.toLocaleString() + '</span></div>' +
+          '<i class="chbar"><s style="width:' + Math.max(2, pct) + '%"></s>' + (me ? '<u style="left:' + Math.min(100, Math.round(me / of * 100)) + '%" title="You: ' + me + '"></u>' : '') + '</i>' +
+          '<p>' + (n >= of ? 'Completed' : pct + '% done') + (me ? ' · you’re on ' + me.toLocaleString() : '') + '</p></div>';
+      }).join('') + '</div><p class="mapnote">The notch on each bar is where you are.</p>';
+    }
   } else if (pt === 'summits'){
-    html += friendLists(r.counts);
     if (hillSet.size){
       html += '<ul class="hills">' + [...hillSet.entries()].map(([k, d]) => [BY_KEY[k], d]).sort((a, b) => (b[1] || '').localeCompare(a[1] || '') || b[0].h - a[0].h).map(([hh, d]) =>
         '<li class="hill on"><div class="hrow"><button class="tick st-done" disabled>' + ST_ICON.done + '</button>' +
@@ -15766,6 +16259,7 @@ async function pushPerson(){
      looked"; writing that flattened real accounts to zero. */
   if (!personReady()) return;
   try{ await FB.setDoc(personRef(fbUser.uid), {...myPerson(), ...profPublic()}); }catch(e){}
+  pushDirectory();
 }
 /* A first sync has finished, or this device has a log of its own to publish. */
 function personReady(){
@@ -15859,9 +16353,11 @@ function takeInviteFromHash(){
   if (!h) return null;
   const who = h.match(/^#@([A-Za-z0-9_]{2,20})$/);
   const brd = h.match(/^#board=([A-Za-z0-9]{4,12})$/i);
-  if (!who && !brd) return null;
+  const pst = h.match(/^#post=([A-Za-z0-9_-]{6,40})$/);
+  if (!who && !brd && !pst) return null;
   history.replaceState(null, '', location.pathname + location.search);
   const v = who ? {kind:'profile', handle:who[1], t:Date.now()}
+          : pst ? {kind:'post', id:pst[1], t:Date.now()}
                 : {kind:'board', code:brd[1].toUpperCase(), t:Date.now()};
   try{ localStorage.setItem(INVITE_KEY, JSON.stringify(v)); }catch(e){}
   return v;
@@ -15871,6 +16367,7 @@ function takeInviteFromHash(){
 async function openInvite(){
   const v = readInvite();
   if (!v || !fbUser) return;
+  if (v.kind === 'post'){ clearInvite(); tab = 'u'; openPostById(v.id, false); return; }
   if (v.kind === 'board'){
     /* already on it: nothing to ask, just show them the board */
     if (myGroups().some(g => g.code === v.code)){
@@ -16370,7 +16867,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v184';
+const APP_VERSION = 'v186';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -17557,7 +18054,8 @@ function renderMyProfile(){
 function profileEditor(){
   const d = ui.pDraftProf || (ui.pDraftProf = {name: fbName || fbUser.name || '', quote: prof.quote || '', porder: patchOrder().slice(), home: prof.home || '',
     gear: (prof.gear || []).map(g => ({...g})), banner: prof.banner || '', bfy: +prof.bfy || 50,
-    vis: prof.vis || 'public', pvis: prof.pvis || 'public', hideRoute: !!prof.hideRoute});
+    vis: prof.vis || 'public', pvis: prof.pvis || 'public', hideRoute: !!prof.hideRoute,
+    open: !!prof.open, style: (prof.style || []).slice(), levels: (prof.levels || []).slice(), disc: prof.disc !== false});
   const earned = patches().filter(p => p.got);
   let s = '<div class="form profform">';
   s += '<div><label>Banner</label><div class="bpick">' +
@@ -17579,6 +18077,16 @@ function profileEditor(){
   s += '<div><label>New adventures go to</label><div class="picked visrow">' + VIS.map(v =>
     '<button class="pill' + ((d.pvis || 'public') === v.id ? ' on' : '') + '" data-act="pfpvis" data-v="' + v.id + '" aria-pressed="' + ((d.pvis || 'public') === v.id) + '">' + ti(v.icon) + esc(v.label) + '</button>').join('') + '</div>' +
     '<p class="mapnote" style="margin:6px 0 0">The default when you mark a summit or share. You can change it on each post.</p></div>';
+  s += '<div class="togglerow" style="margin:0"><div class="tinfo"><b>Appear in Discover and search</b><span>Lets other hikers find you by name, where you walk and the hills you’ve climbed. Only for public profiles.</span></div>' +
+    '<button class="sw" data-act="pfdisc" aria-pressed="' + (d.disc !== false && (d.vis || 'public') === 'public') + '"' + ((d.vis || 'public') === 'public' ? '' : ' disabled') + ' aria-label="Appear in Discover and search"></button></div>';
+  s += '<fieldset class="pfpartner"><legend>Walking with others</legend>' +
+    '<div class="togglerow" style="margin:0"><div class="tinfo"><b>I’m up for walking with others</b><span>Shows on your profile and puts you in “Up for a walk” on Discover.</span></div>' +
+    '<button class="sw" data-act="pfopen" aria-pressed="' + !!d.open + '" aria-label="Up for walking with others"></button></div>' +
+    (d.open ? '<div><label>Usually walk</label><div class="picked">' + WALK_STYLES.map(x =>
+        '<button class="pill' + (d.style.includes(x.id) ? ' on' : '') + '" data-act="pfstyle" data-v="' + x.id + '" aria-pressed="' + d.style.includes(x.id) + '">' + esc(x.label) + '</button>').join('') + '</div></div>' +
+      '<div><label>Days you enjoy</label><div class="picked">' + WALK_LEVELS.map(x =>
+        '<button class="pill' + (d.levels.includes(x.id) ? ' on' : '') + '" data-act="pflevel" data-v="' + x.id + '" aria-pressed="' + d.levels.includes(x.id) + '">' + esc(x.label) + '</button>').join('') + '</div></div>' : '') +
+    '</fieldset>';
   s += '<div class="togglerow" style="margin:0"><div class="tinfo"><b>Keep route shapes private</b><span>Shared routes show distance and summits but never the line of the walk.</span></div>' +
     '<button class="sw" data-act="pfhideroute" aria-pressed="' + !!d.hideRoute + '" aria-label="Keep route shapes private"></button></div>';
   const ord = Array.isArray(d.porder) ? d.porder : (d.porder = patchOrder().slice());
@@ -17616,7 +18124,8 @@ function profDirty(){
          !same(d.quote, prof.quote) || !same(d.home, prof.home) ||
          !same(d.banner, prof.banner) || (+d.bfy || 50) !== (+prof.bfy || 50) ||
          !same(d.vis, prof.vis || 'public') || !same(d.pvis, prof.pvis || 'public') ||
-         !!d.hideRoute !== !!prof.hideRoute ||
+         !!d.hideRoute !== !!prof.hideRoute || !!d.open !== !!prof.open || (d.disc !== false) !== (prof.disc !== false) ||
+         !same(d.style, prof.style || []) || !same(d.levels, prof.levels || []) ||
          !same(d.porder, patchOrder()) || !same(d.gear, prof.gear);
 }
 
