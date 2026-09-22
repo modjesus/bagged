@@ -15590,7 +15590,7 @@ function paintCommentSheet(){
 function closeCommentSheet(){ ui.openComments = null; ui.replyTo = null; const el = document.getElementById('cmsheet'); if (el) el.classList.remove('open'); }
 function postHTML(p){
   const mine = fbUser && p.uid === fbUser.uid;
-  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  const hs = uniqHills(p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   const cs = commentsBy[p.id] || [];
   const tagged = (p.tags || []).map(u => (allFriends().find(f => f.uid === u) || {}).name).filter(Boolean);
   const adventure = (p.kind === 'summit' || p.kind === 'diary') && hs.length > 0;
@@ -15732,11 +15732,11 @@ function refreshBtn(){
    stand. Tapping it opens the boards. */
 function crewRecap(){
   const since = Date.now() - 7 * 86400000, me = fbUser.uid, fol = new Set(followingUids());
-  const wk = feed.filter(p => (p.t || 0) >= since && (p.uid === me || fol.has(p.uid)));
+  const wk = dedupeFeed(feed.filter(p => (p.t || 0) >= since && (p.uid === me || fol.has(p.uid))));
   if (!wk.length) return '';
   let summits = 0, dist = 0, asc = 0; const per = new Map();
   for (const p of wk){
-    const n = (p.hills || []).filter(k => BY_KEY[k]).length;
+    const n = uniqHills(p.hills || []).filter(k => BY_KEY[k]).length;
     summits += n; dist += p.dist || 0; asc += p.asc || 0;
     const e = per.get(p.uid) || {uid:p.uid, name:p.uid === me ? 'You' : firstName(p.name), n:0}; e.n += n; per.set(p.uid, e);
   }
@@ -15768,11 +15768,23 @@ function suggestRow(){
 /* The same walker, the same day, the same hills: show it once, keeping the
    fullest version (photos, words, a track) — this also tidies up any doubles
    posted before this fix. */
+/* The same summit can sit in two lists under two grid references (Black Crag
+   is a Nuttall at NY165116 and a Birkett at NY166116). Name plus height is the
+   hill itself, whichever list it came from. */
+function hillIdent(k){
+  const h = BY_KEY[k]; if (!h) return k;
+  return String(h.n || '').toLowerCase().replace(/\s*\(.*?\)\s*/g, '').trim() + '|' + Math.round(h.h || 0);
+}
+function uniqHills(keys){
+  const seen = new Set(), out = [];
+  for (const k of keys || []){ const id = hillIdent(k); if (seen.has(id)) continue; seen.add(id); out.push(k); }
+  return out;
+}
 function dedupeFeed(list){
   const best = new Map(), score = p => (p.shots || []).length * 4 + (p.text ? 2 : 0) + (p.dist ? 2 : 0) + (p.trkS ? 1 : 0) + (p.kind === 'diary' ? 1 : 0);
   for (const p of list){
     if (!(p.hills || []).length || !p.date || (p.kind !== 'summit' && p.kind !== 'diary')){ best.set(p.id, p); continue; }
-    const k = p.uid + '|' + p.date + '|' + [...p.hills].sort().join(',');
+    const k = p.uid + '|' + p.date + '|' + [...new Set(p.hills.map(hillIdent))].sort().join(',');
     const had = best.get(k);
     if (!had || score(p) > score(had) || (score(p) === score(had) && (p.t || 0) < (had.t || 0))) best.set(k, p);
   }
@@ -15803,7 +15815,7 @@ function renderFeed(){
       '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="hikertab" data-v="discover">Find hikers</button></div></div>' + suggestRow();
   } else if (!feed.some(p => p.uid !== fbUser.uid)){
     const names = following().slice(0, 3).map(f => firstName(f.name));
-    s += (feed.length ? feed.map(postHTML).join('') : '') +
+    s += (feed.length ? dedupeFeed(feed).map(postHTML).join('') : '') +
       '<div class="nobody"><b>Quiet on the hills</b>' +
       '<span>' + esc(names.join(', ')) + (following().length > 3 ? ' and others' : '') + (following().length === 1 ? ' hasn’t' : ' haven’t') +
       ' shared a day out yet. Their walks land here as soon as they do.</span>' +
@@ -16105,7 +16117,7 @@ function renderDiscover(){
   s += '<div class="dhead"><div><h3>' + ti('binoculars') + 'Out on the hills</h3><p>The latest days shared with everyone</p></div>' + refreshBtn() + '</div>';
   if (discoverWhy) s += '<p class="empty">' + esc(discoverWhy).replace(/(https?:\S+)/, '<a href="$1" target="_blank" rel="noopener">open Firebase</a>') + '</p>';
   else if (!discover.length) s += discoverBusy ? skeletonPosts(2) : '<div class="nobody"><b>Nobody’s shared publicly yet</b><span>Share a day out with Everyone and yours will be the first here.</span></div>';
-  else for (const p of discover) if (!isBlocked(p.uid)) s += postHTML(p);
+  else for (const p of dedupeFeed(discover)) if (!isBlocked(p.uid)) s += postHTML(p);
   return s;
 }
 
@@ -16197,7 +16209,7 @@ function renderFriend(){
   if (busy){ html += skeletonPosts(1); return html; }
   if (pt === 'adv'){
     const advs = pposts.filter(p => p.kind !== 'patch');
-    if (advs.length) html += advs.map(postHTML).join('');
+    if (advs.length) html += dedupeFeed(advs).map(postHTML).join('');
     else html += '<div class="nobody"><b>' + (pp.hills ? esc(nm) + ' has marked ' + pp.hills.toLocaleString() + (pp.hills === 1 ? ' summit' : ' summits') : esc(nm) + ' hasn’t shared an adventure yet') + '</b>' +
       '<span>' + (pp.hills ? 'They haven’t shared a day out yet. When they do, it lands here and in your feed.' : 'Once ' + esc(nm) + ' starts sharing days out, they’ll appear here.') + '</span>' +
       '<div class="btnrow" style="justify-content:center">' + (accepted ? '' : followBtn(uidX)) +
@@ -16282,15 +16294,16 @@ async function openPostViewer(postId, pid){
 async function postSummits(keys, date){
   if (!FB || !fbUser || !autoPostOn()) return;
   if (!followerUids().length && (prof.pvis || 'public') !== 'public') return;
-  const hs = keys.map(k => BY_KEY[k]).filter(Boolean);
+  const hs = uniqHills(keys).map(k => BY_KEY[k]).filter(Boolean);
   if (!hs.length) return;
   /* already on the feed for that day (shared from the journal, Strava or another
      device): do not say it twice */
   const d = date || today();
-  if (feed.some(p => p.uid === fbUser.uid && (p.date || '') === d && hs.every(h => (p.hills || []).includes(h.k)))) return;
-  if (postSummits._busy === d + hs.map(h => h.k).join()) return;
-  postSummits._busy = d + hs.map(h => h.k).join();
-  setTimeout(() => { postSummits._busy = null; }, 8000);
+  const ids = hs.map(h => hillIdent(h.k));
+  if (feed.some(p => p.uid === fbUser.uid && (p.date || '') === d && ids.every(id => (p.hills || []).some(k => hillIdent(k) === id)))) return;
+  const busy = d + ids.slice().sort().join();
+  if ((postSummits._recent || []).includes(busy)) return;
+  postSummits._recent = [...(postSummits._recent || []), busy].slice(-20);
   try{
     const p = await createPost({kind:'summit', text:'', hills:hs.map(h => h.k), date: date || today(), tags:[]});
     if (p) toastAct((p.vis === 'public' ? 'Shared with everyone' : 'Shared with your followers') + ': ' + postSnip(p), 'Undo', () => deletePost(p.id));
@@ -17042,7 +17055,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v188e';
+const APP_VERSION = 'v188f';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -17280,7 +17293,7 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
      their own, so the day appears once. */
   if ((post.kind === 'diary' || post.kind === 'summit') && post.hills.length){
     const plain = feed.filter(q => q.uid === fbUser.uid && q.id !== id && q.kind === 'summit' && !q.text && !(q.shots || []).length &&
-      (q.date || '') === post.date && (q.hills || []).every(k => post.hills.includes(k)));
+      (q.date || '') === post.date && (q.hills || []).every(k => post.hills.some(j => hillIdent(j) === hillIdent(k))));
     for (const q of plain){ feed = feed.filter(x => x.id !== q.id); deletePost(q.id).catch(() => {}); }
   }
   feed = [post, ...feed];
