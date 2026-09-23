@@ -1,7 +1,10 @@
 // WayMark — offline shell.
 // Bump the version below every time you change index.html, or phones will keep
 // showing the old build from their cache.
-const CACHE = 'waymark-v196';
+/* Bump this EVERY release. The service worker serves index.html from this
+   cache, so leaving the name unchanged ships a new index.html that nobody who
+   has visited before ever sees — v197 sat on the server behind a v196 cache. */
+const CACHE = 'waymark-v197';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
