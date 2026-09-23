@@ -1050,10 +1050,7 @@ dl.lfacts{margin:0}
 .grouphead{position:sticky; top:var(--topH,104px); z-index:5; padding:16px 2px 6px; background:linear-gradient(var(--ground) 70%, transparent)}
 .gt{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
 .grouphead h2{ margin:0; display:flex; align-items:center; gap:8px }
-.grouphead span{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
-.gbar{display:block; height:4px; border-radius:99px; background:var(--surface-2); margin-top:6px; overflow:hidden}
-.gbar > i{display:block; height:100%; background:var(--done); border-radius:99px; transition:width .3s ease}
-.swatch{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block}
+.grouphead span{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}.swatch{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block}
 
 ul.hills{ list-style:none; margin:0; padding:0 0 2px }
 li.hill{ background:none }
@@ -1157,6 +1154,26 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .accountBox label{font-family:var(--font-ui); font-size:10px; letter-spacing:.08em;
   text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
 .dategroup{display:flex; gap:6px; align-items:stretch}
+.dategroup .dinput{flex:1; min-width:0; border:1px solid var(--line); border-radius:10px;
+  padding:11px 12px; background:var(--raise, #fff); color:var(--ink); font-family:var(--font-data); font-size:14px}
+.dategroup.yonly .dsel{flex:1; min-width:0}
+.dyswap{padding:8px 2px 0; font-size:13px}
+/* the three states are one choice, so they are drawn as one control */
+.states.states-3{display:flex; gap:2px; padding:3px; background:var(--surface-2);
+  border:1px solid var(--line-soft); border-radius:12px}
+.states.states-3 .stbtn{flex:1; min-width:0; border:0; background:none; border-radius:9px;
+  padding:11px 6px; min-height:44px; justify-content:center; box-shadow:none}
+.states.states-3 .stbtn.on{background:var(--pine); color:#F3EFE6; box-shadow:0 1px 2px rgba(0,0,0,.14)}
+.states.states-3 .stbtn.on i{color:inherit}
+:root[data-theme="dark"] .states.states-3 .stbtn.on{background:#F3EFE6; color:#14332D}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .states.states-3 .stbtn.on{background:#F3EFE6; color:#14332D} }
+/* GPS sits under the states as a link, not the loudest slab on the card */
+.vlink{display:inline-flex; align-items:center; gap:7px; margin-top:10px; min-height:44px}
+.vlink svg{width:16px; height:16px}
+.detail .phonly{margin-top:10px}
+.detail .listsonly{margin-top:4px}
+.detail .wherebit{margin-top:2px}
+.tomaplink{min-height:44px}
 .dsel{background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 6px 9px 9px; font-size:15px; outline:none; min-width:0}
 .dsel:focus{border-color:var(--accent)}
 .dsel.dd{flex:0 1 78px} .dsel.dm{flex:1 1 96px} .dsel.dy{flex:0 1 92px}
@@ -1627,6 +1644,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .ywmstats b{font-family:var(--font-display); font-size:18px; line-height:1}
 .ywmstats i{color:var(--ink-3); font-style:normal}
 .ywmnone{font-family:var(--font-ui); font-size:13.5px; line-height:1.5; color:var(--ink-3); margin:8px 0 0}
+.ywmshots{margin-top:12px}
+.ywmshots .shot{width:64px; height:64px}
 .ywmrow{margin-top:14px}
 /* ---- a locked patch, as an invitation ---- */
 .pdwant{margin:18px 0 6px; padding:16px 16px 14px; border-radius:14px;
@@ -1656,7 +1675,8 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 /* ---- the collection, on the profile ---- */
 .bstrip{margin:18px 0 4px}
 .bstriprow{display:flex; flex-wrap:wrap; align-items:center; gap:7px; width:100%; margin-top:8px;
-  padding:4px 0; background:none; border:0; cursor:pointer}
+  padding:4px 0; background:none; border:0}
+button.bstriprow{cursor:pointer}
 .patch.bsdisc{width:auto; flex:none; opacity:1; filter:none}
 .patch.bsdisc .disc{width:40px; height:40px; margin:0; border-width:2px}
 .patch.bsdisc .disc svg{width:16px; height:16px}
@@ -3056,13 +3076,10 @@ ul.hills{background:color-mix(in srgb, var(--surface) 88%, transparent); border:
 .skyline .sk-fill{fill:var(--ink); opacity:.07}
 .skyline .sk-line{fill:none; stroke:var(--ink-2); stroke-width:1.2; vector-effect:non-scaling-stroke}
 .skyline .sk-done circle{fill:var(--accent)}
-.gbar{display:none}
 
 /* the notebook page: ruled rows, a margin rule, a pen tick */
 .regionlist ul.hills{position:relative}
-ul.hills{position:relative}
-ul.hills::before{content:""; position:absolute; top:0; bottom:0; left:48px; border-left:1.5px solid color-mix(in srgb, var(--accent) 30%, transparent); pointer-events:none}
-.hrow{border-bottom:1px solid var(--line-soft); padding:10px 2px 9px 2px}
+ul.hills{position:relative}.hrow{border-bottom:1px solid var(--line-soft); padding:10px 2px 9px 2px}
 .tick{border:1.8px solid var(--ink-2); border-radius:3px 5px 4px 6px; background:transparent; transform:rotate(-2deg)}
 li.hill.on .tick{background:transparent; border-color:var(--ink-2); color:var(--accent-text)}
 li.hill.on .tick svg{width:20px; height:20px; transform:translate(1px,-2px) rotate(-6deg)}
@@ -3103,12 +3120,6 @@ li.hill.on .tick svg{width:20px; height:20px; transform:translate(1px,-2px) rota
   position:relative; border:none; border-radius:2px; background:var(--raise); padding:5px 9px 4px;
   box-shadow:0 0 0 1.5px var(--accent-text) inset, 0 2px 4px -2px rgba(20,51,45,.4);
   transform:rotate(-2deg);
-}
-.ddate b::before{
-  content:""; position:absolute; inset:-5px; z-index:-1; border-radius:2px; background:var(--raise);
-  -webkit-mask:radial-gradient(circle at 5px 5px, transparent 2.6px, #000 2.8px) -5px -5px / 10px 10px;
-  mask:radial-gradient(circle at 5px 5px, transparent 2.6px, #000 2.8px) -5px -5px / 10px 10px;
-  box-shadow:0 2px 6px -3px rgba(20,51,45,.5);
 }
 
 /* stitched progress with the figure on a tab */
@@ -3330,6 +3341,12 @@ body::before{background-image:var(--sheet); background-size:1200px 1200px; backg
 .cover h1{font-size:clamp(44px, 12.5vw, 84px)}
 .cover-welcome h1{font-size:clamp(34px, 9.6vw, 68px); max-width:11ch}
 .pagehead{font-size:clamp(32px, 9vw, 52px)}
+/* the shared page header: an eyebrow, then a figure from your own log */
+.wmhead{display:block; margin:14px 0 12px}
+.wmhead .coverline{margin:0 0 8px}
+.wmhead .pagehead{margin:0}
+.wmhead .pagehead em{font-style:normal; color:var(--ink-3); font-size:.52em; letter-spacing:.01em}
+.pheadsub{margin:8px 0 0; font-family:var(--font-ui); font-size:14px; color:var(--ink-2)}
 .cover{padding:10px 0 26px}
 .cover-welcome{padding-top:18px}
 .coverline{font-size:12px; letter-spacing:.24em}
@@ -3353,7 +3370,6 @@ body::before{background-image:var(--sheet); background-size:1200px 1200px; backg
 
 
 
-.ddate b::before{display:none}
 
 /* the welcome page keeps its stamps inside the column */
 .cover-welcome{position:relative}
@@ -3412,10 +3428,7 @@ p.sumlabel{clip-path:none; padding:7px 16px 6px}
 
 /* the notebook page: hill rows sit on a solid sheet of paper, not on the map */
 ul.hills, .regionlist{background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:0 12px; margin:6px 0 14px; overflow:hidden}
-ul.hills::before{content:none}
-ul.hills .hrow{position:relative}
-ul.hills .hrow::before{content:""; position:absolute; top:-1px; bottom:-1px; left:34px; border-left:1.5px solid color-mix(in srgb, var(--accent) 30%, transparent); pointer-events:none}
-/* no wash on marked rows: the tick, the stamp and the date say it. The open
+ul.hills .hrow{position:relative}/* no wash on marked rows: the tick, the stamp and the date say it. The open
    panel is a drawer on slightly darker paper, ruled top and bottom. */
 li.hill.on, li.hill.s-planned, li.hill.s-progress{background:none}
 .detail{background:var(--surface-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:0 -12px; padding:12px 12px 14px}
@@ -4572,9 +4585,6 @@ span.pshow{cursor:default}
 .bagbtn i{position:absolute; top:-5px; right:-6px; min-width:17px; height:17px; padding:0 4px; border-radius:99px; background:var(--accent); color:#F6EFE4;
   font:700 10.5px/17px var(--font-ui); font-style:normal; text-align:center; display:none}
 .bagbtn.has i{display:block}
-.sshop{display:flex; align-items:center; gap:12px; margin:8px 12px 0; padding:10px 14px; border-radius:12px; border:1px solid rgba(243,239,230,.25); background:transparent; color:#F3EFE6; font:600 15px var(--font-ui); cursor:pointer}
-.sshop:hover{background:rgba(243,239,230,.08)}
-.sshop svg{width:20px; height:20px}
 .shopgo svg{width:18px; height:18px; margin-right:8px; vertical-align:-3px}
 .kithead{margin:34px 0 14px; font-family:var(--font-display); font-weight:400; font-size:26px; color:var(--ink)}
 .kittile{display:block; width:100%; padding:0; border:0; cursor:pointer; aspect-ratio:1/1; overflow:hidden}
@@ -4732,9 +4742,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 /* ---- calmer eyebrows ---- */
 .coverline, .npeyebrow, .dcount, .sect{letter-spacing:.12em}
 
-/* ---- hill rows: name, the lists it is also on, height. No ruled margin, no dot leader ---- */
-ul.hills::before, ul.hills .hrow::before{display:none}
-.hrow i.lead{display:none}
+/* ---- hill rows: name, the lists it is also on, height. No ruled margin, no dot leader ---- */.hrow i.lead{display:none}
 .hrow .hmain{flex:1 1 auto; min-width:0}
 .hrow .tags{display:block; margin-top:2px}
 .hrow .tags .tag{border:0; background:none; padding:0; font-family:var(--font-ui); font-size:12px; color:var(--ink-3); letter-spacing:0; text-transform:none; box-shadow:none}
@@ -5426,7 +5434,6 @@ img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
 .bcreal .winshop{margin-top:10px}
 
 /* the desk sidebar lists Basecamp; the old separate Shop button goes */
-.sshop{display:none !important}
 
 
 /* the profile editor: a sheet that leaves the cover above it live */
@@ -5958,7 +5965,6 @@ html.kbopen .cvcompose{padding-bottom:8px}
       <span class="sbt"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></span>
     </button>
     <nav class="snav" id="snav" role="tablist" aria-label="Sections"></nav>
-    <button class="sshop" data-act="shopgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.965 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z"/><path d="M9 11v-5a3 3 0 0 1 6 0v5"/></svg><span>Shop</span></button>
     <p class="sfoot">A walking log for the hills of Britain.</p>
   </aside>
 
@@ -6797,7 +6803,8 @@ function saveProf(){
 /* what of the profile goes on the public card */
 function profPublic(){
   return {quote: String(prof.quote || '').slice(0, 140), gear: (prof.gear || []).slice(0, 12),
-          show: prof.show || '', porder: patchOrder().slice(0, 40), banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', home: prof.home || '', profT: prof.t || 0, open: !!prof.open, style: (prof.style || []).slice(0, 3), levels: (prof.levels || []).slice(0, 5),
+          show: prof.show || '', porder: patchOrder().slice(0, 40),
+          pats: earnedIds(), banner: prof.banner || '', bfy: +prof.bfy || 50, avHi: prof.avHi || '', home: prof.home || '', profT: prof.t || 0, open: !!prof.open, style: (prof.style || []).slice(0, 3), levels: (prof.levels || []).slice(0, 5),
           vis: PVIS.some(v => v.id === prof.vis) ? prof.vis : 'public'};
 }
 /* on sign-in: whichever copy is newer wins, so a new phone picks up the banner */
@@ -7359,22 +7366,32 @@ function statsFor(id){
 }
 
 /* ---------- date fields ---------- */
+/* One field, not three dropdowns — the device's own date picker, which also
+   spares everybody a 79-option year list. The one thing three dropdowns could
+   do that a date input cannot is record a year on its own, and people do only
+   remember the year for an old walk, so that stays: the state is read straight
+   off the stored value, so there is nothing extra to keep in sync. */
 function dateFields(value, attrs){
   const p = dateParts(value);
   const yNow = new Date().getFullYear();
-  const dim = daysIn(p.y, p.mo);
-  let s = '<div class="dategroup">';
-  s += '<select class="dsel dd" data-act="dpart" data-part="d" ' + attrs + ' aria-label="Day"><option value="">Day</option>';
-  for (let i = 1; i <= dim; i++){ const v = String(i).padStart(2,'0'); s += '<option value="'+v+'"'+(p.d===v?' selected':'')+'>'+i+'</option>'; }
-  s += '</select>';
-  s += '<select class="dsel dm" data-act="dpart" data-part="m" ' + attrs + ' aria-label="Month"><option value="">Month</option>';
-  for (let i = 1; i <= 12; i++){ const v = String(i).padStart(2,'0'); s += '<option value="'+v+'"'+(p.mo===v?' selected':'')+'>'+MON_LONG[i-1]+'</option>'; }
-  s += '</select>';
-  s += '<select class="dsel dy" data-act="dpart" data-part="y" ' + attrs + ' aria-label="Year"><option value="">Year</option>';
-  for (let y = yNow + 1; y >= 1950; y--) s += '<option value="'+y+'"'+(p.y===String(y)?' selected':'')+'>'+y+'</option>';
-  s += '</select>';
+  const yearOnly = !!p.y && !(p.mo && p.d);
+  let s = '<div class="dategroup' + (yearOnly ? ' yonly' : '') + '">';
+  if (yearOnly){
+    s += '<select class="dsel dy" data-act="dyear" ' + attrs + ' aria-label="Year climbed">';
+    for (let y = yNow + 1; y >= 1950; y--)
+      s += '<option value="' + y + '"' + (p.y === String(y) ? ' selected' : '') + '>' + y + '</option>';
+    s += '</select>';
+  } else {
+    s += '<input type="date" class="dinput" data-act="dinput" ' + attrs +
+      ' min="1950-01-01" max="' + (yNow + 1) + '-12-31" aria-label="Date climbed" value="' +
+      esc(p.y && p.mo && p.d ? value : '') + '">';
+  }
   s += '<button class="btn quiet dtoday" data-act="dtoday" ' + attrs + '>Today</button>';
-  return s + '</div>';
+  s += '</div>';
+  s += '<button class="linkbtn dyswap" data-act="' + (yearOnly ? 'dfull' : 'dyonly') + '" ' +
+    attrs + ' data-y="' + esc(p.y || String(yNow)) + '">' +
+    (yearOnly ? 'Pick the exact date' : 'Only remember the year?') + '</button>';
+  return s;
 }
 
 /* A Lakeland skyline rather than a zigzag: three ridges receding into haze,
@@ -11335,11 +11352,17 @@ function yourWayMark(p){
     (way.length > 6 ? ' &rarr; &hellip;' : '') + '</p>';
   else if (e.h && !title) s += '<p class="ywmway">' + esc(hillName(e.h)) + '</p>';
   if (bits.length) s += '<p class="ywmstats">' + bits.map(b => '<b>' + esc(b) + '</b>').join('<i>&middot;</i>') + '</p>';
+  const pics = (typeof dayPhotos === 'function' ? dayPhotos(e.date) : []).slice(0, 8);
+  if (pics.length) s += '<div class="shots ywmshots">' + pics.map(ph =>
+    '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewday" data-d="' + esc(e.date) +
+    '" data-p="' + esc(ph.id) + '"' + (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
+    '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
+    (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') + '</div>';
   if (!title && !bits.length && !way.length)
     s += '<p class="ywmnone">No journal entry for that day. Write one and it shows up here.</p>';
   s += '<div class="btnrow ywmrow">' +
     '<button class="btn ghost" data-act="patchview" data-v="journey">View journey</button>' +
-    (ent ? '<button class="btn ghost" data-tab="j">Open the journal</button>' : '') +
+    (ent ? '<button class="btn ghost" data-act="gojournal" data-d="' + esc(e.date) + '">Open the journal</button>' : '') +
     '</div></section>';
   return s;
 }
@@ -11688,6 +11711,22 @@ function render(){
   if (tab === 'd') setTimeout(settleWins, 400);
 }
 
+function pageHead(eyebrow, figure, sub){
+  return '<header class="wmhead">' +
+    '<p class="coverline"><i></i>' + esc(eyebrow) + '</p>' +
+    '<h2 class="pagehead">' + figure + '</h2>' +
+    (sub ? '<p class="pheadsub">' + esc(sub) + '</p>' : '') + '</header>';
+}
+/* The list you are looking at, not the whole log — the figure should answer the
+   question in front of you, and it moves when you switch list chips. */
+function hillsHead(){
+  const l = LIST_BY[ui.list];
+  if (!l) return pageHead('The hills', 'Pick a list', '');
+  const st = statsFor(l.id);
+  return pageHead('The hills',
+    st.done.toLocaleString() + ' <em>of ' + st.total.toLocaleString() + '</em><br>' + esc(l.name),
+    st.total - st.done > 0 ? (st.total - st.done).toLocaleString() + ' still to go' : 'Every one of them walked');
+}
 function listBar(){
   let s = '<div class="listbar">';
   for (const l of enabled()){
@@ -11791,7 +11830,7 @@ function hillResults(id, s){
       (isW && BOOK_VAR[b.g] ? '<i class="swatch" style="background:var(' + BOOK_VAR[b.g] + ')"></i>' : '') +
       esc(b.g) + '</h2><span>' + d + '/' + inG.length + ' · ' + gp + '%</span></div>';
     html += skyline(inG);
-    html += '<i class="gbar"><i style="width:' + gp + '%"></i></i></div><ul class="hills">';
+    html += '</div><ul class="hills">';
     for (const h of inG) html += hillRow(h, id);
     html += '</ul>';
   }
@@ -11844,8 +11883,7 @@ function hillRow(h, listId){
     s += '<div class="detail">';
     s += '<div><label>' + (ascCount(h.k) > 1 ? 'Latest ascent' : 'Date climbed') + '</label>' +
          dateFields(r.date, 'data-k="' + esc(h.k) + '"');
-    if (!r.date) s += '<p class="dhint">Only remember the year? Set the year and leave the rest: it ticks the hill either way.</p>';
-    else if (!dateParts(r.date).d) s += '<p class="dhint">Logged as ' + esc(prettyDate(r.date)) + ': day is optional.</p>';
+    if (r.date && !dateParts(r.date).d) s += '<p class="dhint">Logged as ' + esc(prettyDate(r.date)) + ': day is optional.</p>';
     s += '</div>';
     /* "Not visited" is gone from this row. Nobody opens a hill in order to say
        they have not been up it, and the three that are left are toggles: the
@@ -11859,6 +11897,14 @@ function hillRow(h, listId){
            '<i>' + ST_ICON[sd.id] + '</i>' + esc(sd.label) + '</button>';
     }
     s += '</div>';
+    const vf = verifiedAt(h.k);
+    if (vf){
+      s += '<p class="verified"><span class="vtick">' + ICON_CHECK + '</span>Verified at the summit &middot; ' +
+           prettyDate(new Date(vf.t).toISOString().slice(0,10)) + '</p>';
+    } else if (isFinite(h.a)){
+      s += '<button class="linkbtn vlink" data-act="verify" data-k="' + esc(h.k) + '"' + (locating ? ' disabled' : '') + '>' +
+           ti('current-location') + (locating ? 'Finding you…' : 'Verify with GPS') + '</button>';
+    }
     /* Every time you have been up. A walker opens a hill they have done twelve
        times to remember it, not to prune it — so the panel leads with the count
        and when, shows the last few, and keeps the rest and the Remove links
@@ -11902,17 +11948,9 @@ function hillRow(h, listId){
              '<button class="btn ghost sm" data-act="ascadd" data-k="' + esc(h.k) + '">Log another ascent</button></div>';
       }
     }
-    const vf = verifiedAt(h.k);
-    if (vf){
-      s += '<p class="verified"><span class="vtick">' + ICON_CHECK + '</span>Verified at the summit &middot; ' +
-           prettyDate(new Date(vf.t).toISOString().slice(0,10)) + '</p>';
-    } else if (isFinite(h.a)){
-      s += '<button class="btn ghost vbtn" data-act="verify" data-k="' + esc(h.k) + '"' + (locating ? ' disabled' : '') + '>' +
-           (locating ? 'Finding you…' : 'I am here: verify with GPS') + '</button>';
-    }
     s += '</div>';
-    s += '<div><label for="nt-' + esc(h.k) + '">Notes</label><textarea id="nt-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes||'') + '</textarea></div>';
-    s += '<div><label>Photos</label><div class="photorow"><div class="shots">';
+    s += '<div><label for="nt-' + esc(h.k) + '">Notes &amp; photos</label><textarea id="nt-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes||'') + '</textarea></div>';
+    s += '<div class="phonly"><div class="photorow"><div class="shots">';
     for (const p of r.photos)
       s += '<button class="shot' + (p.up ? '' : ' up0') + (p.cap ? ' hascap' : '') +
         '" data-act="viewphoto" data-k="' + esc(h.k) + '" data-p="' + esc(p.id) + '"' +
@@ -11927,14 +11965,14 @@ function hillRow(h, listId){
       (verifiedAt(h.k) ? '<span class="vline">GPS verified</span>' : '') + '</span>';
     s += '</div></div>';
     if (isFinite(h.a))
-      s += '<div><label>Where it is</label>' +
-           '<button class="btn ghost sm tomapbtn" data-act="tomap" data-k="' + esc(h.k) + '">Show it on the map</button></div>';
+      s += '<div class="wherebit"><button class="linkbtn tomaplink" data-act="tomap" data-k="' + esc(h.k) + '">' +
+           'Show it on the map ›</button></div>';
     /* One A4 sheet of what the log knows about this hill, for a wall or a
        folder. The print dialog saves it as a PDF on every platform. */
     if (on)
       s += '<div><label>For the wall</label>' +
            '<button class="btn ghost sm" data-act="cert" data-k="' + esc(h.k) + '">' + ti('download') + 'Printable record</button></div>';
-    s += '<div><label>On these lists</label><div class="tags">' + h.l.map(x => '<span class="tag">' + esc(LIST_BY[x].name) + '</span>').join('') + '</div></div>';
+    s += '<div class="listsonly"><div class="tags">' + h.l.map(x => '<span class="tag">' + esc(LIST_BY[x].name) + '</span>').join('') + '</div></div>';
     s += '</div>';
   }
   return s + '</li>';
@@ -13042,27 +13080,34 @@ function renderDashboard(){
 
   /* What is next: the route you have planned, with the forecast for its top on
      its day. Nothing planned means exactly that, and a way to plan something. */
+  /* The hero IS Home's header, so it is always here. A planned route is a card
+     that belongs beside or under it, not a thing that replaces it — the two
+     answer different questions and were competing for one slot, which meant
+     planning a walk cost you the best screen on the site.
+
+     On a wide screen `.lead.hasshot` is a two-column grid, photo left and rail
+     right, and on a phone `.homerail` is `display:contents` so the rail's cards
+     simply fall under the photo. Putting Up next first inside the rail gives
+     the right order on both without a second layout. */
   const nr = nextRoute();
   const np = nearestPatch();
   const shot = latestPhoto();
-  if (nr){
-    s += '<div class="loop">';
-    const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean).sort((x, y) => y.h - x.h);
-    const dn = hs.filter(x => isBagged(x.k)).length;
-    s += '<button class="dcard upnext" data-tab="p">' +
-      '<p class="sumlabel">Up next</p>' +
-      '<div class="dch"><b>' + esc(nr.name || 'Untitled route') + '</b>' +
-        (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '<span class="tag">no date yet</span>') + '</div>' +
-      '<p class="dcs">' + (hs.length ? hs.length + ' hill' + (hs.length === 1 ? '' : 's') + ', ' + dn + ' walked' : 'No summits on it yet') +
-        ((nr.trk && nr.trk.length > 1) ? ', ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
-      (hs.length ? summitLine(hs[0], nr.date || '') : '') + '</button>';
-    if (np) s += nearestPatchCard(np);
-    s += '</div>';
-  } else {
-    /* Nothing planned is not news. Open on the thing that is already good:
-       your latest photograph of a hill, with the patch you are closest to. */
-    s += '<div class="lead' + (shot ? ' hasshot' : '') + '">';
-    if (shot){
+
+  const upnextCard = () => {
+  const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean).sort((x, y) => y.h - x.h);
+  const dn = hs.filter(x => isBagged(x.k)).length;
+  return '<button class="dcard upnext" data-tab="p">' +
+    '<p class="sumlabel">Up next</p>' +
+    '<div class="dch"><b>' + esc(nr.name || 'Untitled route') + '</b>' +
+      (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '<span class="tag">no date yet</span>') + '</div>' +
+    '<p class="dcs">' + (hs.length ? hs.length + ' hill' + (hs.length === 1 ? '' : 's') + ', ' + dn + ' walked' : 'No summits on it yet') +
+      ((nr.trk && nr.trk.length > 1) ? ', ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
+    (hs.length ? summitLine(hs[0], nr.date || '') : '') + '</button>';
+  };
+
+  s += '<div class="lead' + (shot ? ' hasshot' : '') + '">';
+  if (shot){
+
       const adj = ui.leadAdjust === shot.id;
       s += '<div class="leadwrap hero' + (adj ? ' adjusting' : '') + '">' +
         '<button class="leadshot" data-act="' + (adj ? 'noop' : 'viewday') + '" data-d="' + esc(shot.date) + '" data-p="' + esc(shot.id) + '" aria-label="Open the day">' +
@@ -13080,12 +13125,12 @@ function renderDashboard(){
           '<button class="shot' + (ph.id === shot.id ? ' picked' : '') + '" data-act="leadpick" data-p="' + esc(ph.id) + '" data-d="' + esc(shot.date) + '" aria-pressed="' + (ph.id === shot.id) + '">' +
           '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt=""></button>').join('') + '</div></div>';
       }
-    }
-    if (shot) s += '<aside class="homerail">';
-    if (np) s += nearestPatchCard(np, ' big');
-    if (shot) s += homeRailExtras(np) + '</aside>';
-    s += '</div>';
   }
+  if (shot) s += '<aside class="homerail">';
+  if (nr) s += upnextCard();
+  if (np) s += nearestPatchCard(np, ' big');
+  if (shot) s += homeRailExtras(np) + '</aside>';
+  s += '</div>';
 
   /* a quiet row from the shop, then the list you are working through */
   s += homeShopRail();
@@ -13207,7 +13252,10 @@ function tagPanelHTML(){
 
 function renderDiary(){
   const days = diaryDays();
-  let html = '<h2 class="pagehead">Your journal</h2>';
+  const dayN = diaryDays().length;
+  let html = pageHead('Your journal',
+    dayN ? dayN.toLocaleString() + ' <em>' + (dayN === 1 ? 'day' : 'days') + ' out</em>' : 'Nothing written yet',
+    '');
   /* the full explanation is for somebody who has never seen this page; once
      there are entries on it, it is four lines in the way */
   html += days.length
@@ -13646,7 +13694,7 @@ function renderMapTab(){
   /* With nothing switched on there is no map to draw and no list to name, so
      send the walker to the same picker the other screens show. */
   if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
-  let html = mapModeBar() + listBar();
+  let html = hillsHead() + mapModeBar() + listBar();
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
   html += '<button data-act="mapscope" data-v="all" aria-pressed="' + (ui.mapScope==='all') + '">All hills</button>';
   html += '<button data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope==='enabled') + '">My lists</button>';
@@ -16200,7 +16248,9 @@ function paintMapWeather(){
    Explore/Plot switch at the foot. Under the map: a plotting card while you
    draw, otherwise the day, its forecast and your routes. */
 function renderPlans(){
-  let html = listBar();
+  /* tab 'm' folds into 'p' at the top of render(), so this one screen is both
+     Hills and Plan a walk — and it is the one that needs the header. */
+  let html = hillsHead() + listBar();
   /* the day first: a walk is planned around the weather, so the chips and the
      forecast sit above the map where they are seen without a scroll */
   /* The picker and the forecast used to push the map a third of the way down
@@ -16783,6 +16833,13 @@ document.addEventListener('click', async e => {
     setTimeout(go, 240);
   }
   else if (a === 'jall'){ ui.jAll = true; render(); }
+  else if (a === 'gojournal'){
+    /* the journal is newest first, so a day from months ago is a long way down
+       the page — showJournalDay scrolls to it and flashes it, the same as it
+       does after writing an entry */
+    ui.patch = null; ui.patchFrom = null; tab = 'j';
+    render(); showJournalDay(el.dataset.d || '');
+  }
   else if (a === 'gopatches'){ ui.patch = null; ui.patchFrom = null; ui.patchView = 'cork';
     ui.patchSub = 'cork'; ui.pGroup = ''; tab = 'a'; render(); window.scrollTo({top:0}); }
   else if (a === 'breakdown'){ ui.breakdown = !ui.breakdown; render(); }
@@ -16816,6 +16873,8 @@ document.addEventListener('click', async e => {
   else if (a === 'viewpostphoto') openPostViewer(el.dataset.id, el.dataset.p);
   else if (a === 'viewfriendphoto') openFriendViewer(el.dataset.code, el.dataset.k, el.dataset.p);
   else if (a === 'dtoday') applyDate(el, today());
+  else if (a === 'dyonly') applyDate(el, el.dataset.y || String(new Date().getFullYear()));
+  else if (a === 'dfull') applyDate(el, '');
   else if (a === 'hidebanner'){
     if (el.dataset.v === 'err') ui.errHidden = syncErr; else ui.bannerHidden = true;
     render();
@@ -17830,13 +17889,7 @@ document.addEventListener('click', async e => {
 document.addEventListener('change', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
-  if (a === 'dpart'){
-    const grp = el.closest('.dategroup');
-    const val = part => { const s = grp.querySelector('select[data-part="'+part+'"]'); return s ? s.value : ''; };
-    let y = val('y'), mo = val('m'), dd = val('d');
-    if (dd && Number(dd) > daysIn(y, mo)) dd = String(daysIn(y, mo)).padStart(2,'0');
-    applyDate(el, composeDate(y, mo, dd));
-  }
+  if (a === 'dinput' || a === 'dyear') applyDate(el, el.value || '');
   else if (a === 'sdfiles'){ shareDayAddFiles(el.files).finally(() => { el.value = ''; }); }
   else if (a === 'postaddphotos'){ addShotsToPost(el.dataset.id, el.files).finally(() => { el.value = ''; }); }
   else if (a === 'pfield' && ui.draft){ ui.draft[el.dataset.f] = el.value; }
@@ -20583,6 +20636,7 @@ function renderFriend(){
   const actions = followBtn(uidX) + (fbUser ? '<button class="btn ghost msgbtn" data-act="msgperson" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '">' + ti('message-circle') + 'Message</button>' +
     '<button class="btn ghost msgbtn walkic" data-act="invitewalk" data-uid="' + esc(uidX) + '" data-n="' + esc(pp.name || nm) + '" aria-label="Plan a walk with ' + esc(nm) + '" title="Plan a walk">' + ti('walk') + '</button>' : '');
   html += profileHeader(pp, {sub: cardVis === 'private' ? 'Private profile' : '', back: backBtn, menu, counts, chips, actions});
+  html += theirBadgeStrip(pp, nm);
   html += youAndThem(uidX, pp, nm);
   if (!allowed){
     return html + '<div class="nobody"><b>' + (cardVis === 'private' ? esc(nm) + ' keeps their profile private' : esc(nm) + ' shares with followers') + '</b>' +
@@ -22769,6 +22823,33 @@ function photoCard(){
 function patchOrder(){
   if (Array.isArray(prof.porder)) return prof.porder;
   return prof.show ? [prof.show] : [];
+}
+/* What goes on somebody else's profile: the patches you have earned, in the
+   order you arranged them, capped so a long board does not bloat the doc. */
+function earnedIds(){
+  try{ return orderedPatches(patches().filter(p => p.got)).slice(0, 24).map(p => p.id); }
+  catch(e){ return []; }
+}
+/* Their strip, drawn from those ids. A patch definition only exists here if the
+   list it belongs to is switched on for ME, so anything unresolvable is counted
+   rather than dropped silently. */
+function theirBadgeStrip(pp, nm){
+  const ids = Array.isArray(pp && pp.pats) ? pp.pats : [];
+  if (!ids.length) return '';
+  const byId = {};
+  for (const p of patches()) byId[p.id] = p;
+  const known = ids.map(id => byId[id]).filter(Boolean);
+  const show = known.slice(0, 7);
+  const more = ids.length - show.length;
+  if (!show.length) return '<section class="bstrip"><p class="eyebrow">' + esc(nm) + '\u2019s WayMark</p>' +
+    '<div class="bsfoot"><b>' + ids.length + (ids.length === 1 ? ' patch' : ' patches') + '</b></div></section>';
+  return '<section class="bstrip">' +
+    '<p class="eyebrow">' + esc(nm) + '\u2019s WayMark</p>' +
+    '<div class="bstriprow">' +
+      show.map(x => '<span class="patch got bsdisc">' + patchDisc(x, ' tiny') + '</span>').join('') +
+      (more > 0 ? '<span class="bsmore">+' + more + '</span>' : '') +
+    '</div>' +
+    '<div class="bsfoot"><b>' + ids.length + (ids.length === 1 ? ' patch' : ' patches') + '</b></div></section>';
 }
 /* Whatever has been placed, in the order it was placed, then everything else
    as the board already had it. Placing three patches is a complete answer. */
