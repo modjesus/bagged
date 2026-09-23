@@ -2747,6 +2747,81 @@ button.bstriprow{cursor:pointer}
 
 .sheet{position:fixed; inset:0; z-index:2100; display:none; background:rgba(10,14,11,.55); padding:16px; overflow-y:auto}
 .sheet.open{display:block}
+
+/* ---------- Settings: menu + panes (v197) ---------- */
+/* The HTML `hidden` attribute only carries `display:none` from the UA
+   stylesheet, so ANY display declaration in this file beats it. .setmenu is a
+   grid, .setback a grid, .setfoot a flex row — all three stayed on screen with
+   hidden="" set, and the menu sat above every pane. Say it explicitly. */
+.setmenu[hidden], .setback[hidden], .setfoot[hidden], .setpane[hidden]{display:none !important}
+
+.setbar{display:flex; align-items:center; gap:10px; margin:0 0 14px}
+.setbar h2{margin:0}
+.setback{width:32px; height:32px; flex:0 0 32px; border-radius:50%;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  display:grid; place-items:center; padding:0}
+.setback svg{width:15px; height:15px; display:block}
+.setmenu{display:grid; gap:0; background:var(--raise);
+  border:1px solid var(--line-soft); border-radius:12px; overflow:hidden}
+.setrow{display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  min-height:54px; padding:13px; background:none; border:0;
+  border-bottom:1px solid var(--line-soft); font:inherit; color:inherit}
+.setrow:last-child{border-bottom:0}
+.setrow:active{background:var(--surface-2)}
+.seti{width:26px; height:26px; flex:0 0 26px; display:grid; place-items:center; color:var(--moss)}
+.seti svg{display:block}
+.setrow b{font-size:15.5px; font-weight:600}
+.setval{margin-left:auto; font-size:14px; color:var(--ink-2); white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; max-width:46%}
+.setchev{flex:0 0 auto; color:var(--sage); display:grid; place-items:center}
+.setchev svg{display:block}
+.setnote{font-size:14px; line-height:1.5; color:var(--ink-2); margin:0 0 12px}
+.setver{font-family:var(--font-data); font-size:13px; color:var(--sage); margin:14px 0 0}
+.setfoot{margin-top:16px}
+.lsearch{margin:0 0 14px}
+.lsearch input{width:100%; font:inherit; font-size:15px; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line); border-radius:22px;
+  padding:9px 14px; -webkit-appearance:none}
+.lsearch input::placeholder{color:var(--sage)}
+.lsec{font-size:12.5px; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--sage); font-weight:700; margin:0 0 6px; padding-left:2px}
+.lgrp{background:var(--raise); border:1px solid var(--line-soft); border-radius:12px;
+  overflow:hidden; margin:0 0 18px}
+.lgrp .togglerow{border-bottom:1px solid var(--line-soft); padding:11px 13px; margin:0}
+.lgrp .togglerow:last-child{border-bottom:0}
+/* the count used to read "Scotland, over 3000 ft, 282 hills", which wrapped to
+   a second line against the toggle and made every row 130px tall */
+.lgrp .tinfo span{font-size:13px; line-height:1.35}
+
+/* ---------- day card: where it left you on your lists (v197) ---------- */
+.dprog{display:flex; flex-direction:column; gap:7px; margin:10px 0 2px}
+.dpchip{display:grid; grid-template-columns:minmax(0,1fr); gap:5px; width:100%;
+  text-align:left; font:inherit; color:inherit; padding:9px 11px;
+  background:var(--surface); border:1px solid var(--line-soft); border-radius:10px}
+.dpchip:active{background:var(--surface-2)}
+.dpt{display:flex; align-items:baseline; gap:7px}
+.dpt b{font-size:14px; font-weight:600}
+.dpt em{font-style:normal; font-family:var(--font-data); font-size:12.5px;
+  font-weight:600; color:var(--accent); background:var(--accent-soft);
+  border-radius:20px; padding:1px 6px}
+.dpbar{display:block; height:5px; border-radius:4px; background:var(--surface-2);
+  border:1px solid var(--line-soft); overflow:hidden}
+/* the same fill as every other progress bar in the app (.bar > i) */
+.dpbar i{display:block; height:100%; border-radius:4px;
+  background:linear-gradient(90deg, var(--done), var(--accent))}
+.dpn{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2);
+  font-variant-numeric:tabular-nums; display:flex; gap:8px}
+.dpn small{font-size:12.5px; color:var(--sage)}
+
+/* the route carried into a walk invite */
+.pdroute{display:flex; gap:10px; align-items:flex-start; margin:0 0 14px;
+  padding:11px 12px; background:var(--surface-2); border:1px solid var(--line-soft);
+  border-radius:10px}
+.pdroute > svg{width:19px; height:19px; flex:0 0 19px; color:var(--moss); margin-top:1px}
+.pdroute span{display:block; min-width:0; font-size:13.5px; color:var(--ink-2)}
+.pdroute b{display:block; font-size:14.5px; color:var(--ink); font-weight:600}
+.pdroute i{display:block; font-style:normal; font-size:12.5px; color:var(--sage); margin-top:2px}
+
 .sheetbox{max-width:560px; margin:30px auto; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:var(--shadow); position:relative}
 
 /* every overlay and popout closes from the same place — top right */
@@ -6033,30 +6108,50 @@ html.kbopen .cvcompose{padding-bottom:8px}
 <div class="sheet" id="sheet">
   <div class="sheetbox">
     <button class="xbtn" id="sheetX" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
-    <h2>Settings</h2>
-    <h3>Appearance</h3>
-    <div id="themeBox"></div>
-    <h3>Hill lists</h3>
-    <p>Switch on the lists you're working through. Switching one off just hides it: nothing you've ticked is lost.</p>
-    <div id="listToggles"></div>
-    <h3>Account</h3>
-    <p class="cloudNote"></p>
-    <div class="accountBox"></div>
-    <div id="shareBox"></div>
-    <div id="connBox"></div>
-    <h3>Help make WayMark better</h3>
-    <div id="helpBox"></div>
-    <div id="inboxBox"></div>
-    <h3>Backup</h3>
-    <p>Your marks, dates, notes and routes as text you can keep somewhere safe. Photos are kept with the app and are not included.</p>
-    <textarea id="backupText" spellcheck="false"></textarea>
-    <div class="btnrow">
-      <button class="btn" id="copyBtn">Copy backup</button>
-      <button class="btn ghost" id="restoreBtn">Restore from pasted text</button>
-      <button class="btn quiet" id="closeSheet">Close</button>
+    <div class="setbar">
+      <button class="setback" data-act="setback" aria-label="Back to settings" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:scaleX(-1)"><path d="M9 6l6 6l-6 6"/></svg></button>
+      <h2 id="setTitle">Settings</h2>
     </div>
-    <h3>About</h3>
-    <p>WayMark is a free, personal project run by Joe Sullivan in the UK. No adverts, no analytics, no tracking. <a href="legal.html" target="_blank" rel="noopener">Privacy, terms, cookies and credits</a>.</p>
+
+    <div class="setmenu" id="setMenu"></div>
+
+    <div class="setpane" id="pn-look" hidden>
+      <div id="themeBox"></div>
+    </div>
+
+    <div class="setpane" id="pn-lists" hidden>
+      <p class="setnote">Switch one off and it is only hidden: nothing you have ticked is lost.</p>
+      <div id="listToggles"></div>
+    </div>
+
+    <div class="setpane" id="pn-acct" hidden>
+      <p class="cloudNote"></p>
+      <div class="accountBox"></div>
+      <div id="shareBox"></div>
+      <div id="connBox"></div>
+    </div>
+
+    <div class="setpane" id="pn-back" hidden>
+      <p class="setnote">Your marks, dates, notes and routes as text you can keep somewhere safe. Photos are kept with the app and are not included.</p>
+      <div class="btnrow">
+        <button class="btn" id="copyBtn">Copy backup</button>
+        <button class="btn ghost" data-act="bkpaste">Restore from text</button>
+      </div>
+      <div id="bkwrap" hidden>
+        <p class="setnote">Paste a backup in, then press Restore. It is merged with what is already here, so nothing is lost.</p>
+        <textarea id="backupText" spellcheck="false"></textarea>
+        <div class="btnrow"><button class="btn ghost" id="restoreBtn">Restore</button></div>
+      </div>
+    </div>
+
+    <div class="setpane" id="pn-about" hidden>
+      <div id="helpBox"></div>
+      <div id="inboxBox"></div>
+      <p class="setnote">WayMark is a free, personal project run by Joe Sullivan in the UK. No adverts, no analytics, no tracking. <a href="legal.html" target="_blank" rel="noopener">Privacy, terms, cookies and credits</a>.</p>
+      <p class="setver" id="setVer"></p>
+    </div>
+
+    <div class="btnrow setfoot"><button class="btn quiet" id="closeSheet">Close</button></div>
   </div>
 </div>
 
@@ -10316,7 +10411,16 @@ function planComposer(cid, opts){
 function paintPlanComposer(){
   const d = ui.planDraft; if (!d) return;
   const h = d.hill ? BY_KEY[d.hill] : null, tdy = new Date().toISOString().slice(0, 10);
-  const el = bcSheet('<h3 class="bcsheettitle">Plan a Walk</h3><div class="form walkinv" style="margin:0">' +
+  /* The route is attached and gets posted under the plan, but nothing on the
+     sheet said so — you sent an invite not knowing the line went with it. */
+  const rp = d.route ? livePlans().find(x => x.id === d.route) : null;
+  const rline = rp
+    ? '<p class="pdroute">' + ti('route', ICON_BOX) + '<span><b>' + esc(rp.name || 'Your route') + '</b>' +
+        esc((rp.hills || []).length + ' hill' + ((rp.hills || []).length === 1 ? '' : 's') +
+          (rp.trk && rp.trk.length > 1 ? ' \u00b7 ' + prettyDist(trackLength(rp.trk)).replace(/ \(.*\)$/, '') : '')) +
+        '<i>Posted with the plan, so they see the line before they answer.</i></span></p>'
+    : '';
+  const el = bcSheet('<h3 class="bcsheettitle">Plan a Walk</h3><div class="form walkinv" style="margin:0">' + rline +
     '<div><label for="pdq">Which hill <span class="opt">optional</span></label>' + (h
       ? '<div class="mrow on"><button class="mmain" data-act="pdhillclear"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; change</span></button></div>'
       : '<div class="field">' + ti('search') + '<input id="pdq" placeholder="Search any hill…" autocomplete="off" value="' + esc(d.q) + '"></div><div id="pdres">' + walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"') + '</div>') + '</div>' +
@@ -13329,6 +13433,7 @@ function renderDiary(){
           '<li><button class="linkbtn" data-act="golist" data-v="' + esc(h.l.find(x => state.enabled.includes(x)) || h.l[0]) +
           '">' + esc(hillName(h)) + '</button><i>' + feet(h).toLocaleString() + ' ft</i></li>').join('') +
         '</ul></div>';
+      html += dayProgHTML(d);
     }
 
     for (const n of d.notes)
@@ -16435,17 +16540,20 @@ function planCardHTML(p){
       : '<h3>' + esc(p.name || 'Untitled route') + '</h3>') +
     '<button class="linkbtn" data-act="planrename" data-id="' + esc(p.id) + '">' +
       (renaming ? 'Done' : 'Rename') + '</button>' +
-    ((p.trk && p.trk.length > 1 && fbUser) ? '<button class="linkbtn" data-act="shareroute" data-id="' + esc(p.id) + '">Share</button>' : '') +
     '<button class="linkbtn" data-act="delplan" data-id="' + esc(p.id) + '">Delete</button></div>';
   if (coarsePointer() && p.trk && p.trk.length > 1)
     html += '<div class="followrow"><button class="btn sm" data-act="guide" data-id="' + esc(p.id) + '">' + ti('current-location') + 'Follow on the hill</button>' +
             '<span>Your position on the OS map against this route.</span></div>';
-  /* Two different things, so two buttons rather than one word that means both:
-     SEND drops the route into a chat as something to look at; INVITE opens the
-     walk plan with the route already on it, so it comes back with a date and a
-     yes or no. Both need an account, so neither shows without one. */
+  /* Three different destinations, so three buttons rather than one word that
+     means all of them: POST puts it on Activity for everybody who follows you;
+     SEND drops it into a chat as something to look at; INVITE opens the walk
+     plan with the route already on it, so it comes back with a date and a yes
+     or no. Post used to be a "Share" link up in the header beside Rename and
+     Delete, which is the wrong company for the only one of the three that is
+     public. All need an account, so none shows without one. */
   if (fbUser)
     html += '<div class="rtshare">' +
+      '<button class="btn quiet sm" data-act="shareroute" data-id="' + esc(p.id) + '">' + ti('share') + 'Post to Activity</button>' +
       '<button class="btn quiet sm" data-act="rtsend" data-id="' + esc(p.id) + '">' + ti('send') + 'Send to a chat</button>' +
       '<button class="btn sm" data-act="rtinvite" data-id="' + esc(p.id) + '">' + ti('walk') + 'Invite to walk it</button></div>';
   html += '<div class="planmeta">';
@@ -16901,7 +17009,7 @@ document.addEventListener('click', async e => {
     else window.scrollTo({top:0});
   }
   else if (a === 'pick-list'){ ui.list = el.dataset.v; ui.listOpen = false; ui.region=''; ui.q=''; ui.status='all'; render(); if (mapReady && ui.mapScope==='one') drawMarkers(true); }
-  else if (a === 'open-lists'){ openSheet(); setTimeout(() => { const t = document.getElementById('listToggles'); if (t) t.scrollIntoView({block:'center'}); }, 60); }
+  else if (a === 'open-lists'){ openSheet(); showSetPane('lists'); }
   else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; render(); if (mapReady) drawMarkers(true); }
   else if (a === 'togglelist'){ toggleList(el.dataset.v); }
   else if (a === 'viewphoto') openViewer(el.dataset.k, el.dataset.p);
@@ -17150,6 +17258,12 @@ document.addEventListener('click', async e => {
   else if (a === 'shareroute'){
     const pl = livePlans().find(x => x.id === el.dataset.id); if (!pl) return;
     if (!FB || !fbUser){ toast('Sign in on Hikers to share a route.'); return; }
+    /* A route with no drawn line is still a route: the hills, the date and the
+       name are the content, the same as a summit post. This used to be hidden
+       until there was a track to draw. */
+    if (!(pl.hills || []).length && !(pl.trk || []).length){
+      toast('Add some hills or draw the line first.'); return;
+    }
     try{
       const trk = prof.hideRoute ? [] : (pl.trk || []);
       await createPost({kind:'route', text:(pl.name || 'A route') + (pl.notes ? '\n\n' + pl.notes : ''), hills:(pl.hills || []).slice(0, 12), date:pl.date || today(), tags:[], trk,
@@ -17517,6 +17631,16 @@ document.addEventListener('click', async e => {
   else if (a === 'sheetdel'){ deleteSheet(el.dataset.v); }
   else if (a === 'sheetgo'){ goSheet(el.dataset.v); }
   else if (a === 'opensettings'){ openSheet(); }
+  else if (a === 'setpane'){
+    if (el.dataset.v === 'notify'){ closeSheetNow(); openNotes(); openNotifySettings(); }
+    else showSetPane(el.dataset.v);
+  }
+  else if (a === 'setback'){ showSetPane(''); }
+  else if (a === 'bkpaste'){
+    const w = document.getElementById('bkwrap');
+    if (w){ w.hidden = false; const t = document.getElementById('backupText');
+      if (t){ t.value = ''; t.focus(); } }
+  }
   else if (a === 'chalview'){ ui.pGroup = el.dataset.v === 'overview' ? '' : el.dataset.v; ui.pCat = ''; render(); window.scrollTo({top:0}); }
   else if (a === 'patchview'){ ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
   else if (a === 'cert'){ certOpen(el.dataset.k); }
@@ -18441,24 +18565,120 @@ const infoBtn = id => '<button class="ibtn" data-act="listinfo" data-v="' + esc(
   '" aria-label="About ' + esc(LIST_BY[id].name) + '" title="About ' + esc(LIST_BY[id].name) + '">' + ICON_INFO + '</button>';
 
 /* ---------- list toggles ---------- */
+/* The lists you are actually working through come first, then the rest under a
+   heading that says how many there are. Seventeen rows in one undivided column
+   made you read all of them to find the one you had switched on. */
+function listRowHTML(l){
+  const on = state.enabled.includes(l.id);
+  const st = statsFor(l.id);
+  return '<div class="togglerow"><div class="tinfo"><b>' + esc(l.name) + '</b>' +
+    '<span>' + esc(l.where) + ' \u00b7 ' + l.count + (st.done ? ' \u00b7 ' + st.done + ' marked' : '') + '</span></div>' +
+    infoBtn(l.id) +
+    '<button class="sw" data-act="togglelist" data-v="' + l.id + '" aria-pressed="' + on + '" aria-label="' + esc(l.name) + '"></button></div>';
+}
 function renderListToggles(){
   const box = document.getElementById('listToggles'); if (!box) return;
-  box.innerHTML = LISTS.map(l => {
-    const on = state.enabled.includes(l.id);
-    const s = statsFor(l.id);
-    return '<div class="togglerow"><div class="tinfo"><b>' + esc(l.name) + '</b>' +
-      '<span>' + esc(l.where) + ', ' + l.count + ' hills' + (s.done ? ' · ' + s.done + ' marked' : '') + '</span></div>' +
-      infoBtn(l.id) +
-      '<button class="sw" data-act="togglelist" data-v="' + l.id + '" aria-pressed="' + on + '" aria-label="' + esc(l.name) + '"></button></div>';
-  }).join('');
+  const q = (ui.listQ || '').trim().toLowerCase();
+  const hit = l => !q || (l.name + ' ' + l.where).toLowerCase().includes(q);
+  const on  = LISTS.filter(l => state.enabled.includes(l.id) && hit(l));
+  const off = LISTS.filter(l => !state.enabled.includes(l.id) && hit(l));
+  let s = '<div class="lsearch"><input id="lsq" type="search" placeholder="Find a list" ' +
+    'aria-label="Find a list" value="' + esc(ui.listQ || '') + '" autocomplete="off"></div>';
+  if (!on.length && !off.length){
+    s += '<p class="setnote">No list matches \u201c' + esc(ui.listQ || '') + '\u201d.</p>';
+  } else {
+    if (on.length)  s += '<p class="lsec">On</p><div class="lgrp">' + on.map(listRowHTML).join('') + '</div>';
+    if (off.length) s += '<p class="lsec">' + (on.length ? 'Not on \u2014 ' + off.length + ' more' : 'All lists') +
+      '</p><div class="lgrp">' + off.map(listRowHTML).join('') + '</div>';
+  }
+  box.innerHTML = s;
+  const inp = box.querySelector('#lsq');
+  if (inp) inp.oninput = e => {
+    ui.listQ = e.target.value;
+    const at = e.target.selectionStart;
+    renderListToggles();
+    const again = document.getElementById('lsq');
+    if (again){ again.focus(); try{ again.setSelectionRange(at, at); }catch(err){} }
+  };
 }
 
 /* ---------- sheet ---------- */
+/* Settings used to be one flat scroll 2,697px tall, and the 17 hill lists were
+   1,267px of it — they sat between you and Backup, Account and About. It is now
+   a six-row menu that fits one screen, each row carrying its current value, and
+   a pane behind each row. Every pane is in the DOM all the time and only
+   hidden, because the old ids (backupText, copyBtn, restoreBtn, closeSheet,
+   listToggles, accountBox…) have handlers bound to them at load. Repainting the
+   sheetbox would quietly unbind the lot. */
 const sheet = document.getElementById('sheet');
+const SET_PANES = [
+  {id:'look',   pane:'pn-look',  title:'Appearance', icon:'sun',
+   val: () => { const t = themePref();
+     return (t === 'auto' ? 'Match device' : t === 'dark' ? 'Dark' : 'Light') +
+            ' \u00b7 ' + (unitsPref() === 'ft' ? 'Feet' : 'Metres'); }},
+  {id:'lists',  pane:'pn-lists', title:'Hill lists', icon:'mountain',
+   val: () => { const n = (state.enabled || []).length;
+     return n ? n + (n === 1 ? ' list on' : ' lists on') : 'None on yet'; }},
+  {id:'acct',   pane:'pn-acct',  title:'Account', icon:'user',
+   val: () => !fbConfigured() ? 'Not switched on'
+        : fbUser ? (fbName || fbUser.name || 'Signed in') : 'Not signed in'},
+  {id:'notify', pane:'', title:'Notifications', icon:'bell',
+   val: () => { try{ return pushOnHere() ? 'On this phone' : 'In the app only'; }
+                catch(e){ return 'In the app only'; } }},
+  {id:'back',   pane:'pn-back',  title:'Backup', icon:'download',
+   val: () => 'Copy or restore'},
+  {id:'about',  pane:'pn-about', title:'About WayMark', icon:'info',
+   val: () => APP_VERSION}
+];
+const SET_ICON = {
+  sun:'sun', mountain:'mountain', user:'user-circle', bell:'bell',
+  download:'download', info:'info-circle'
+};
+function renderSetMenu(){
+  const box = document.getElementById('setMenu'); if (!box) return;
+  box.innerHTML = SET_PANES.map(r => {
+    let v = ''; try{ v = r.val() || ''; }catch(e){ v = ''; }
+    return '<button class="setrow" data-act="setpane" data-v="' + r.id + '">' +
+      '<span class="seti">' + ti(SET_ICON[r.icon] || 'settings', 'width="19" height="19"') + '</span>' +
+      '<b>' + esc(r.title) + '</b>' +
+      '<span class="setval">' + esc(v) + '</span>' +
+      '<span class="setchev">' + ti('chevron-right', 'width="15" height="15"') + '</span></button>';
+  }).join('');
+}
+function showSetPane(id){
+  const row = SET_PANES.find(r => r.id === id);
+  document.querySelectorAll('#sheet .setpane').forEach(e => { e.hidden = true; });
+  const menu = document.getElementById('setMenu');
+  const back = document.querySelector('#sheet .setback');
+  const ttl  = document.getElementById('setTitle');
+  const foot = document.querySelector('#sheet .setfoot');
+  if (!row){
+    if (menu) menu.hidden = false;
+    if (back) back.hidden = true;
+    if (ttl) ttl.textContent = 'Settings';
+    if (foot) foot.hidden = false;
+    ui.setPane = '';
+    renderSetMenu();
+  } else {
+    if (menu) menu.hidden = true;
+    if (back) back.hidden = false;
+    if (ttl) ttl.textContent = row.title;
+    if (foot) foot.hidden = true;
+    const el = document.getElementById(row.pane);
+    if (el) el.hidden = false;
+    ui.setPane = id;
+  }
+  const bx = document.querySelector('#sheet .sheetbox');
+  if (bx) bx.scrollTop = 0;
+}
 function openSheet(){
   document.getElementById('backupText').value = JSON.stringify(state);
   paintCloudNote();
   renderThemeBox(); renderListToggles(); renderAccountBox(); renderHelpBox(); renderConnBox();
+  const v = document.getElementById('setVer');
+  if (v) v.textContent = 'WayMark ' + APP_VERSION;
+  const bw = document.getElementById('bkwrap'); if (bw) bw.hidden = true;
+  showSetPane('');
   sheet.classList.add('open');
 }
 document.getElementById('menuBtn').onclick = openSheet;
@@ -21644,6 +21864,43 @@ function paintStrava(){
   el.innerHTML = h + '</div>';
 }
 /* the Strava part of a journal day: the route on the OS map, the stats, a link back */
+/* ---------- where a day left you on your lists ---------- */
+/* Counting only summits that carry a date: an undated one has no place in
+   time, so it cannot be "by this day". */
+function dayProgress(dy){
+  if (!dy.hills.length) return [];
+  const on = state.enabled || [];
+  const ids = [];
+  for (const h of dy.hills)
+    for (const l of (h.l || []))
+      if (on.includes(l) && ids.indexOf(l) < 0) ids.push(l);
+  return ids.map(id => {
+    const items = hillsIn(id);
+    let by = 0, that = 0;
+    for (const h of items){
+      const r = state.bagged[h.k];
+      if (!r || !r.date || !isBagged(h.k)) continue;
+      if (r.date <= dy.date) by++;
+      if (r.date === dy.date) that++;
+    }
+    const L = LIST_BY[id];
+    return {id, name: L ? L.name : id, by, that, total: items.length};
+  }).filter(x => x.that && x.total)
+    .sort((a, b) => b.that - a.that || a.name.localeCompare(b.name));
+}
+function dayProgHTML(dy){
+  const ps = dayProgress(dy);
+  if (!ps.length) return '';
+  return '<div class="dprog">' + ps.map(x => {
+    const pc = Math.round(x.by / x.total * 100);
+    return '<button class="dpchip" data-act="golist" data-v="' + esc(x.id) + '">' +
+      '<span class="dpt"><b>' + esc(x.name) + '</b><em>+' + x.that + '</em></span>' +
+      '<span class="dpbar"><i style="width:' + Math.max(1.5, pc) + '%"></i></span>' +
+      '<span class="dpn">' + x.by.toLocaleString() + ' of ' + x.total.toLocaleString() +
+        '<small>' + pc + '%</small></span></button>';
+  }).join('') + '</div>';
+}
+
 function stravaDayHTML(s, eid){
   const hs = (s.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   return '<div class="dstrava">' + trackStrip(s.trk || [], hs) +
@@ -21691,7 +21948,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v196';
+const APP_VERSION = 'v197';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
