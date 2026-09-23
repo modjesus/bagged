@@ -1155,7 +1155,26 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
 .dategroup{display:flex; gap:6px; align-items:stretch}
 .dategroup .dinput{flex:1; min-width:0; border:1px solid var(--line); border-radius:10px;
-  padding:11px 12px; background:var(--raise, #fff); color:var(--ink); font-family:var(--font-data); font-size:14px}
+  padding:11px 12px; background:var(--raise, #fff); color:var(--ink); font-family:var(--font-data); font-size:14px;
+  -webkit-text-fill-color:var(--ink)}
+/* An <input type="date"> draws its digits in ::-webkit-datetime-edit-* fields,
+   which do NOT inherit `color` on iOS — they come out in the system tint, so
+   every unmarked fell showed a blue dd/mm/yyyy. Say it on the fields. */
+.dategroup .dinput::-webkit-datetime-edit,
+.dategroup .dinput::-webkit-datetime-edit-text,
+.dategroup .dinput::-webkit-datetime-edit-day-field,
+.dategroup .dinput::-webkit-datetime-edit-month-field,
+.dategroup .dinput::-webkit-datetime-edit-year-field{
+  color:var(--ink); -webkit-text-fill-color:var(--ink); opacity:1}
+/* empty reads as a placeholder, not as a date you have set */
+.dategroup .dinput.empty::-webkit-datetime-edit,
+.dategroup .dinput.empty::-webkit-datetime-edit-text,
+.dategroup .dinput.empty::-webkit-datetime-edit-day-field,
+.dategroup .dinput.empty::-webkit-datetime-edit-month-field,
+.dategroup .dinput.empty::-webkit-datetime-edit-year-field{
+  color:var(--sage); -webkit-text-fill-color:var(--sage)}
+/* the little calendar button is tinted too */
+.dategroup .dinput::-webkit-calendar-picker-indicator{opacity:.55}
 .dategroup.yonly .dsel{flex:1; min-width:0}
 .dyswap{padding:8px 2px 0; font-size:13px}
 /* the three states are one choice, so they are drawn as one control */
@@ -1683,6 +1702,8 @@ button.bstriprow{cursor:pointer}
 .bsmore{font-family:var(--font-data); font-size:12px; color:var(--ink-3); padding-left:2px}
 .bsfoot{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:6px}
 .bsfoot b{font-family:var(--font-display); font-size:15px}
+.bsfoot .linkbtn{display:inline-flex; align-items:center; gap:6px}
+.bsorder svg{width:15px; height:15px}
 .catseg{flex-wrap:wrap; margin-top:10px}
 .reachstrip{padding-bottom:6px; align-items:flex-start}
 .patch.reachitem{width:104px; opacity:.82; filter:grayscale(.3)}
@@ -1712,26 +1733,26 @@ button.bstriprow{cursor:pointer}
 .patch.got .disc::after{border-color:rgba(246,239,228,.42)}
 .patch .pimg{
   position:absolute; inset:0; width:100%; height:100%; max-width:none;
-  object-fit:contain; object-position:center; z-index:2; background:var(--patch-bg);
+  object-fit:contain; object-position:center; z-index:2; background:transparent;
 }
+/* the mount colour arrives with the artwork, not before it */
+.patch .disc.hasimg .pimg{background:var(--patch-bg)}
 .patch.got .disc{
   border-color:var(--accent); color:#F6EFE4; background:var(--pine);
   box-shadow:inset 0 0 0 2px rgba(180,73,26,.55), 0 3px 11px -3px rgba(0,0,0,.5);
 }
-/* real artwork covers the drawn fallback; it sits on the mount colour so any
-   white edge in the PNG blends into the disc instead of showing as a ring */
-.patch .disc:has(.pimg),
-.patch.got .disc:has(.pimg),
+/* Real artwork covers the drawn fallback; it sits on the mount colour so any
+   white edge in the PNG blends into the disc instead of showing as a ring.
+   This keys off .hasimg, which is added when the image LOADS. It used to also
+   key off :has(.pimg), which matches the moment the <img> element exists — so
+   a patch with no artwork yet painted the orange mount, then 404ed, then fell
+   back to pine. Orange, then green, on every single render. */
 .patch .disc.hasimg,
 .patch.got .disc.hasimg{border-color:transparent; background:var(--patch-bg)}
 /* the dashed stitch ring belongs to the drawn fallback only. Real artwork has its
    own merrowed edge, so the ring must not be laid over the top of it. */
-.patch .disc:has(.pimg)::after,
-.patch.got .disc:has(.pimg)::after,
 .patch .disc.hasimg::after,
 .patch.got .disc.hasimg::after,
-.milestone .disc:has(.pimg)::after,
-.milestone.got .disc:has(.pimg)::after,
 .milestone .disc.hasimg::after,
 .milestone.got .disc.hasimg::after{display:none}
 .patch .disc svg{width:44px; height:44px}
@@ -6320,8 +6341,18 @@ TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-1
 TI['arrows-sort'] = '<path d="M3 9l4 -4l4 4"/><path d="M7 5v14"/><path d="M21 15l-4 4l-4 -4"/><path d="M17 19v-14"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
 TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
+/* Every icon now carries width/height ATTRIBUTES, not just a viewBox.
+   A nested <svg viewBox="0 0 24 24"> with neither falls back to 100% of its
+   parent in Chrome and Safari, which is how the live patch icons came out
+   4.17x too big, how the route icon filled a whole sheet, and how the Order
+   button grew an arrow the size of a thumb. These are presentation
+   attributes, so ANY CSS rule still overrides them — every existing
+   `.something svg{width:15px}` keeps working exactly as before. Pass `attrs`
+   to set a different size; it replaces the default. */
 function ti(name, attrs){
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (attrs ? ' ' + attrs : '') + '>' + (TI[name] || '') + '</svg>';
+  return '<svg viewBox="0 0 24 24" ' + (attrs || 'width="24" height="24"') +
+    ' fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    (TI[name] || '') + '</svg>';
 }
 
 const ICON_PENCIL = ti('pencil');
@@ -6456,7 +6487,7 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
           mapScope:'one', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
-          hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'cork', pGroup:'', corkSeed:0, supSide:'', supTodo:false, ascAll:null, ascEdit:null, editDate:null,
+          hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'collection', pGroup:'', corkSeed:0, supSide:'', supTodo:false, ascAll:null, ascEdit:null, editDate:null,
           postMenu:null, joinCode:'', peopleView:null, openPost:null, dayOpen:false,
           supSort:'sheet', supOpen:null,
           /* first run: which lists are ticked so far, and which step we are on */
@@ -7506,9 +7537,10 @@ function dateFields(value, attrs){
       s += '<option value="' + y + '"' + (p.y === String(y) ? ' selected' : '') + '>' + y + '</option>';
     s += '</select>';
   } else {
-    s += '<input type="date" class="dinput" data-act="dinput" ' + attrs +
+    const full = !!(p.y && p.mo && p.d);
+    s += '<input type="date" class="dinput' + (full ? '' : ' empty') + '" data-act="dinput" ' + attrs +
       ' min="1950-01-01" max="' + (yNow + 1) + '-12-31" aria-label="Date climbed" value="' +
-      esc(p.y && p.mo && p.d ? value : '') + '">';
+      esc(full ? value : '') + '">';
   }
   s += '<button class="btn quiet dtoday" data-act="dtoday" ' + attrs + '>Today</button>';
   s += '</div>';
@@ -7933,13 +7965,31 @@ function patchBadge(p){
       T(l1, ny, fs, .95, .6) + (l2 ? T(l2, ny + fs + 1.5, fs, .95, .6) : '') + '</g>' +
     '</svg>';
 }
+/* Most of the 32 patches are not drawn yet, so their PNG 404s. Without this
+   the app asked for every missing file again on every single render — and the
+   service worker is network-first, so every one of those went out to the
+   network. Remembered per session AND across sessions, so a patch with no
+   artwork costs one request ever, not one per render. */
+const NO_ART = new Set();
+try{ (JSON.parse(localStorage.getItem('waymark.noart') || '[]') || []).forEach(id => NO_ART.add(id)); }catch(e){}
+function patchArtGone(img, id){
+  img.remove();
+  if (id && !NO_ART.has(id)){
+    NO_ART.add(id);
+    try{ localStorage.setItem('waymark.noart', JSON.stringify([...NO_ART].slice(-400))); }catch(e){}
+  }
+}
+/* If artwork is added later, a hard reload clears the note. */
+function patchArtReset(){ NO_ART.clear(); try{ localStorage.removeItem('waymark.noart'); }catch(e){} render(); }
 function patchDisc(p, cls){
   /* The shape is on the frame, not the picture, so a patch drawn as a plain
      square PNG is clipped to its shape here and nothing has to be redrawn to
      move between groups. */
   return '<span class="disc sh-' + (p.shape || 'circ') + (cls || '') + '">' +
-    '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
-    'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" onerror="this.remove()">' +
+    (NO_ART.has(p.id) ? '' :
+      '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
+      'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" ' +
+      'onerror="patchArtGone(this, &quot;' + esc(p.id) + '&quot;)">') +
     patchBadge(p) + '</span>';
 }
 function trailStep(){ return (typeof innerWidth !== 'undefined' && innerWidth >= 768) ? 232 : 176; }
@@ -11084,8 +11134,14 @@ function pushAct(a, el){
   else if (a === 'pushoff'){ disablePush().then(() => { if (ui.notesOpen === 'settings') paintNotifySettings(); }); }
   else if (a === 'pushlater'){ const card = el.closest('.cvask'); if (card) card.remove(); }
   else if (a === 'pushios'){ iosPushSheet(); }
-  else if (a === 'nsopen'){ openNotifySettings(); }
-  else if (a === 'nsback'){ ui.notesOpen = true; paintNotesSheet(); }
+  else if (a === 'nsopen'){ ui.nsFrom = 'bell'; openNotifySettings(); }
+  /* Back belongs where you came from. Opened from the bell's gear it goes back
+     to the bell; opened from the Settings menu it used to dump you in the
+     notifications list, which is a place you were never in. */
+  else if (a === 'nsback'){
+    if (ui.nsFrom === 'settings'){ ui.nsFrom = null; closeNotes(); openSheet(); }
+    else { ui.notesOpen = true; paintNotesSheet(); }
+  }
   else if (a === 'nsset'){ notifyPrefs.kinds[el.dataset.k] = el.dataset.v; saveNotifyPrefs(); paintNotifySettings(); if (typeof paintNotesSheet === 'function'){} }
   else if (a === 'nsquiet'){ notifyPrefs.quiet = !notifyPrefs.quiet; saveNotifyPrefs(); paintNotifySettings(); }
   else if (a === 'nspreview'){ notifyPrefs.preview = notifyPrefs.preview === false; saveNotifyPrefs(); paintNotifySettings(); }
@@ -16994,8 +17050,8 @@ document.addEventListener('click', async e => {
     ui.patch = null; ui.patchFrom = null; tab = 'j';
     render(); showJournalDay(el.dataset.d || '');
   }
-  else if (a === 'gopatches'){ ui.patch = null; ui.patchFrom = null; ui.patchView = 'cork';
-    ui.patchSub = 'cork'; ui.pGroup = ''; tab = 'a'; render(); window.scrollTo({top:0}); }
+  else if (a === 'gopatches'){ ui.patch = null; ui.patchFrom = null; ui.patchView = 'collection';
+    ui.patchSub = 'collection'; ui.pGroup = ''; tab = 'a'; render(); window.scrollTo({top:0}); }
   else if (a === 'mlistfold'){ ui.listOpen = !ui.listOpen; if (ui.listOpen) ui.dayOpen = false; render(); }
   else if (a === 'breakdown'){ ui.breakdown = !ui.breakdown; render(); }
   else if (a === 'status'){ ui.status = el.dataset.v; render(); }
@@ -17632,7 +17688,7 @@ document.addEventListener('click', async e => {
   else if (a === 'sheetgo'){ goSheet(el.dataset.v); }
   else if (a === 'opensettings'){ openSheet(); }
   else if (a === 'setpane'){
-    if (el.dataset.v === 'notify'){ closeSheetNow(); openNotes(); openNotifySettings(); }
+    if (el.dataset.v === 'notify'){ ui.nsFrom = 'settings'; closeSheetNow(); openNotes(); openNotifySettings(); }
     else showSetPane(el.dataset.v);
   }
   else if (a === 'setback'){ showSetPane(''); }
@@ -18791,7 +18847,9 @@ document.getElementById('win').onclick = e => { if (e.target.id === 'win') close
    further in from either, and this popup should not decide which you wanted. */
 document.getElementById('winGo').onclick = () => {
   closeWin();
-  ui.patch = null; ui.patchFrom = null; ui.patchView = 'cork'; ui.patchSub = 'cork';
+  /* Collection is the landing view, not the board: the board is earned-only,
+     so a new walker opened Basecamp onto an empty wall. */
+  ui.patch = null; ui.patchFrom = null; ui.patchView = 'collection'; ui.patchSub = 'collection';
   ui.pGroup = ''; tab = 'a';
   render(); window.scrollTo({top:0});
 };
@@ -19904,7 +19962,7 @@ function openNotes(){
   /* opening them is reading them */
   setTimeout(() => { try{ localStorage.setItem(NOTES_SEEN, String(Date.now())); }catch(e){} render(); }, 1200);
 }
-function closeNotes(){ ui.notesOpen = false; const el = document.getElementById('notesheet'); if (el) el.classList.remove('open'); render(); }
+function closeNotes(){ ui.notesOpen = false; ui.nsFrom = null; const el = document.getElementById('notesheet'); if (el) el.classList.remove('open'); render(); }
 function paintNotesSheet(){ const el = document.getElementById('notesheet'); if (el && ui.notesOpen === true) el.querySelector('.sheetbox').innerHTML = notesHTML(); }
 
 /* ---------- the post ---------- */
@@ -22900,21 +22958,36 @@ function recentShots(n){
 /* The collection at a glance, on the profile: the thing somebody would
    actually show another person. Newest first, because the last one earned is
    the one worth pointing at. */
+/* Your own profile used to carry TWO patch showcases: a "Patches" card in the
+   header with the scrolling, labelled row, and a "Your WayMark" strip further
+   down with seven tiny discs and a +N. One subject, one section — this keeps
+   the scrolling row, which shows every patch with its name, and keeps the
+   "Your WayMark" heading. patchCard() is gone. */
 function myBadgeStrip(){
-  const got = patches().filter(p => p.got)
-    .map(p => ({p, e: earnedOn(p)}))
-    .sort((a, b) => String(b.e && b.e.date || '').localeCompare(String(a.e && a.e.date || '')))
-    .map(x => x.p);
-  if (!got.length) return '';
-  const show = got.slice(0, 7);
-  return '<section class="bstrip">' +
-    '<p class="eyebrow">Your WayMark</p>' +
-    '<button class="bstriprow" data-act="gopatches" aria-label="View your patches">' +
-      show.map(x => '<span class="patch got bsdisc">' + patchDisc(x, ' tiny') + '</span>').join('') +
-      (got.length > show.length ? '<span class="bsmore">+' + (got.length - show.length) + '</span>' : '') +
-    '</button>' +
-    '<div class="bsfoot"><b>' + got.length + (got.length === 1 ? ' patch' : ' patches') + '</b>' +
-    '<button class="linkbtn" data-act="gopatches">View patches &rsaquo;</button></div></section>';
+  const all = patches(), got = all.filter(p => p.got);
+  let s = '<section class="bstrip"><p class="eyebrow">Your WayMark</p>';
+  if (!got.length){
+    const np = nextPatch(all);
+    return s + '<p class="pcempty">' + ti('award') +
+      (np ? 'None yet. The first is <b>' + esc(String(np.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b>.'
+          : 'Mark a hill and the first one is yours.') + '</p></section>';
+  }
+  /* while the editor is open the row follows the draft, so tapping a patch
+     below visibly moves it up here */
+  const draft = ui.profEdit && ui.pDraftProf && Array.isArray(ui.pDraftProf.porder) ? ui.pDraftProf.porder : null;
+  const ordered = orderedPatches(got, draft);
+  s += '<div class="prow">' + ordered.map(p =>
+      '<button class="pchip" data-act="openpatch" data-v="' + esc(p.id) + '"' +
+      ' title="' + esc(String(p.label).replace(/&middot;/g, '\u00b7')) + '">' +
+      '<span class="patch got">' + patchDisc({id:p.id, label:p.label, icon:p.icon}) + '</span>' +
+      '<i>' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</i></button>').join('') +
+    '</div>';
+  s += '<div class="bsfoot"><b>' + got.length + ' of ' + all.length + '</b>' +
+    (ui.profEdit || got.length < 2 ? '' :
+      '<button class="linkbtn bsorder" data-act="pickshow" title="Choose the order your patches sit in">' +
+      ti('arrows-sort', 'width="15" height="15"') + 'Order</button>') +
+    '<button class="linkbtn" data-act="gopatches">View patches &rsaquo;</button></div>';
+  return s + '</section>';
 }
 function profileHeader(pp, opts){
   const mine = !!(opts && opts.mine);
@@ -23002,7 +23075,7 @@ function profileHeader(pp, opts){
   s += mine ? myStats() : friendStats(pp);
 
   /* 4 — the goods */
-  if (mine) s += photoCard() + patchCard();
+  if (mine) s += photoCard();   /* patchCard() is now myBadgeStrip(), further down */
   return s + '</section>';
 }
 
@@ -23179,34 +23252,6 @@ function openShowPick(){
       : '<p class="empty">Earn a patch and it can go here.</p>') + '</div>';
   el.classList.add('open'); if (typeof wire === 'function') wire();
 }
-function patchCard(){
-  const all = patches(), got = all.filter(p => p.got);
-  if (!got.length){
-    const np = nextPatch(all);
-    return pcard('award', 'Patches', '0 of ' + all.length, ['See the board', 'a'],
-      '<p class="pcempty">' + ti('award') +
-      (np ? 'None yet. The first is <b>' + esc(String(np.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b>.'
-          : 'Mark a hill and the first one is yours.') + '</p>');
-  }
-  /* while the editor is open the row follows the draft, so tapping a patch
-     below visibly moves it up here */
-  const draft = ui.profEdit && ui.pDraftProf && Array.isArray(ui.pDraftProf.porder) ? ui.pDraftProf.porder : null;
-  const ordered = orderedPatches(got, draft);
-  /* the handle sits in the head, where it is read without scrolling the row */
-  const meta = got.length + ' of ' + all.length +
-    (ui.profEdit || got.length < 2 ? '' :
-      '<button class="pcorder" data-act="pickshow" title="Choose the order your patches sit in">' +
-      ti('arrows-sort') + 'Order</button>');
-  return pcard('award', 'Patches', meta, ['See the board', 'a'],
-    '<div class="prow">' + ordered.map(p =>
-      '<button class="pchip" data-act="openpatch" data-v="' + esc(p.id) + '"' +
-      ' title="' + esc(String(p.label).replace(/&middot;/g, '·')) + '">' +
-      '<span class="patch got">' + patchDisc({id:p.id, label:p.label, icon:p.icon}) + '</span>' +
-      '<i>' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</i></button>').join('') +
-    '</div>');
-}
-
-
 function gearHTML(pp, mine){
   const list = (pp.gear || []).filter(g => g && g.n);
   if (!list.length) return mine && !ui.profEdit ? '<p class="eyebrow">Your kit</p><p class="pquote empty">Nothing listed yet: <button class="linkbtn" style="padding:0" data-act="profedit">add the kit you walk in</button>. People love to compare boots.</p>' : '';
