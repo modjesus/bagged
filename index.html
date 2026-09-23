@@ -3384,7 +3384,14 @@ p.sumlabel{clip-path:none; padding:7px 16px 6px}
 .railcard p.sumlabel, .weekcard p.sumlabel{-webkit-mask:none; mask:none}
 
 /* the cover printed over the last walk */
-.leadwrap.hero{position:relative}
+.leadwrap.hero{position:relative; display:grid}
+/* The cover text and the photo caption were two absolutely positioned blocks
+   in the same box, one anchored to the top and one to the bottom, so on a
+   window where the sub-line wraps to two lines it ran straight through
+   "LAST WALK". They now share one grid cell: the cover is in flow, so the card
+   grows to fit the words, and the cover reserves the caption band below it. */
+.leadwrap.hero > .leadshot{grid-area:1/1; height:100%}
+.leadwrap.hero > .cover-hero{grid-area:1/1; position:relative; padding-bottom:92px; align-self:start}
 .leadwrap.hero .leadshot{aspect-ratio:4/5; min-height:440px; max-height:80vh}
 @media (min-width:700px){ .leadwrap.hero .leadshot{aspect-ratio:2.2/1; min-height:360px; max-height:480px} }
 .leadwrap.hero .leadshot::before{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,51,45,.82) 0%, rgba(20,51,45,.55) 34%, rgba(20,51,45,0) 62%, rgba(20,51,45,.55) 100%); pointer-events:none}
