@@ -1234,6 +1234,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
   pointer-events:none;
 }
 .shot.hascap{border-color:var(--sage)}
+/* the picker's badge counts now, it does not just tick */
+.pshot .ptick{font:700 15px/1 var(--font-data); font-variant-numeric:tabular-nums}
+.shotmore{display:grid; place-items:center; width:76px; height:76px; flex:none;
+  border:1px dashed var(--line); border-radius:10px; color:var(--ink-3);
+  font:600 14px var(--font-data)}
 .addshot{width:76px; height:76px; border:1px dashed var(--line); border-radius:10px; display:grid; place-items:center; color:var(--ink-3); font-size:11px; cursor:pointer; text-align:center; flex:none;
   margin:0 !important; letter-spacing:0 !important; text-transform:none !important; font-family:inherit !important}
 .viewer{position:fixed; inset:0; z-index:2000; background:rgba(8,11,9,.96); display:none; flex-direction:column}
@@ -2857,7 +2862,13 @@ button.bstriprow{cursor:pointer}
 .sheetbox > h2{padding-right:38px}
 .formx{position:absolute; top:8px; right:8px; width:30px; height:30px}
 /* a plain question, used before anything destructive */
-.sheet.ask{z-index:2300; background:rgba(10,14,11,.62); display:none}
+/* A question outranks every sheet. .bcsheet is also 2300, so with equal
+   z-index the later element in the DOM won — and #bcsheet is created on first
+   use, which is usually after #ask. The result: import a GPX from a chat's
+   "Share a route" sheet and the "Save this map for offline?" question opened
+   UNDERNEATH it, greyed out by that sheet's own backdrop, with no way to
+   answer it and no way to know it was there. */
+.sheet.ask{z-index:2400; background:rgba(10,14,11,.62); display:none}
 .sheet.ask.open{display:block}
 .askbox{max-width:400px; margin:22vh auto 0}
 .askbox h2{padding-right:38px}
@@ -3615,7 +3626,11 @@ li.hill.bk .hrow{padding-left:2px}
    walker is facing. */
 /* each map has its own furniture at the edges: the plan map's toolbar owns
    the bottom, the guide's card does, so the rose is placed around them */
-#routemap .rosectl{margin-bottom:66px}
+/* The rose sits in the bottom-left of the plan map, and the furniture there
+   has grown: the Explore/Plot/Import bar at the bottom, and now the list and
+   day pills above it. 66px cleared the mode bar alone and let the pills sit
+   across the rose's crown. This clears both. */
+#routemap .rosectl{margin-bottom:112px}
 .maplibregl-ctrl-top-left .rosectl{margin:74px 0 0 12px}
 .rosectl{
   position:relative; width:46px; height:46px; margin:0 0 12px 12px;
@@ -4231,7 +4246,16 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .pv2 .pwho .pverb{color:var(--ink-2)}
 .pv2 .pwho > span{display:block; margin-top:2px; font-size:12.5px; color:var(--ink-3)}
 .pmedia{position:relative; margin:12px 0 0; border-radius:10px; overflow:hidden; background:var(--surface-2)}
-.pcar{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; width:100%; aspect-ratio:4/5; max-height:min(78vh, 640px); scrollbar-width:none}
+/* Square, not 4:5. A portrait carousel is 488px tall on a 390px phone, and
+   with a route strip under it one post filled the whole screen.
+   touch-action:pan-x is the important part: without it the browser lets this
+   element decide what a diagonal drag means, so trying to scroll the feed with
+   a finger on a photo fought the carousel and the page juddered up and down.
+   Saying pan-x hands every vertical gesture straight to the page and keeps
+   only horizontal ones here — which also makes swiping across behave. */
+.pcar{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; width:100%;
+  aspect-ratio:1/1; max-height:min(72vh, 560px); scrollbar-width:none;
+  touch-action:pan-x pinch-zoom; overscroll-behavior-x:contain}
 .pcar::-webkit-scrollbar{display:none}
 .pcar .shot{flex:0 0 100%; width:100%; height:100%; scroll-snap-align:start; padding:0; margin:0; border:0; border-radius:0; background:var(--surface-2)}
 .pcar img{width:100%; height:100%; object-fit:cover; display:block}
@@ -5293,6 +5317,57 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcsheet .bcx{position:absolute; right:10px; top:10px}
 .bcsheet .bcback{position:absolute; left:10px; top:10px}
 .bcsheet.hasback .bcsheettitle{padding:0 34px}
+.pkchosen[hidden], .pknamewrap[hidden]{display:none !important}
+
+/* the hills a patch is waiting on, when you have been sent to the map to see them */
+.peakwrap.hipeak{filter:drop-shadow(0 0 0 var(--accent))}
+.peakwrap.hipeak::after{content:""; position:absolute; inset:-7px; border-radius:99px;
+  border:2.5px solid var(--accent); pointer-events:none; animation:hipeak 1.8s ease-out 3}
+@keyframes hipeak{0%{transform:scale(.82); opacity:1} 70%{transform:scale(1.12); opacity:.35} 100%{transform:scale(1); opacity:.9}}
+@media (prefers-reduced-motion:reduce){ .peakwrap.hipeak::after{animation:none} }
+
+/* the run of summits behind an accumulative patch */
+.ywmlede{font-size:14.5px; color:var(--ink-2); margin:6px 0 10px; line-height:1.5}
+.ywmrun{list-style:none; margin:0; padding:0; background:var(--surface);
+  border:1px solid var(--line-soft); border-radius:10px; overflow:hidden}
+.ywmrun li{display:flex; align-items:baseline; gap:10px; padding:9px 12px;
+  border-bottom:1px solid var(--line-soft)}
+.ywmrun li:last-child{border-bottom:0}
+.ywmrun .linkbtn{flex:1 1 auto; min-width:0; text-align:left; padding:0;
+  font-size:14.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ywmrun i{flex:0 0 auto; font-style:normal; font-size:12.5px; color:var(--sage);
+  font-family:var(--font-data)}
+.ywmrun b{flex:0 0 auto; font-family:var(--font-data); font-size:13px;
+  font-variant-numeric:tabular-nums; color:var(--ink-2); min-width:72px; text-align:right}
+.ywmmore{margin-top:10px}
+.ywmfoot{font-size:12.5px; color:var(--sage); margin:8px 0 0}
+
+/* a day read or written from inside a patch */
+.pdsheet .sheetbox{max-width:520px}
+.pdsum{font-family:var(--font-data); font-size:12.5px; color:var(--sage); margin:0}
+.pdsT{font-family:var(--font-display); font-size:18px; margin:0}
+.pdsX{font-size:15px; line-height:1.55; color:var(--ink-2); margin:0; white-space:pre-wrap}
+.pdform{margin:0}
+.pdsshots{margin:0}
+
+/* chipping in, from Settings -> About */
+.supportbox{display:flex; gap:12px; align-items:flex-start; margin:14px 0 0;
+  padding:14px; background:var(--surface-2); border:1px solid var(--line-soft); border-radius:12px}
+.supicon{flex:0 0 22px; color:var(--moss); margin-top:2px}
+.supicon svg{display:block}
+.supportbox b{display:block; font-size:15.5px; font-weight:600; margin-bottom:3px}
+.supportbox > div > span{display:block; font-size:13.5px; line-height:1.5; color:var(--ink-2)}
+.supportbox .btn{margin-top:11px}
+
+/* the donation tile: its own thing in the grid, not a tee with a missing photo */
+.bccard.bcdon .bctile{background:var(--pine)}
+.bcdonmark{position:absolute; inset:0; display:grid; place-items:center; color:var(--accent)}
+.bccard.bcdon .bcflag{background:var(--accent)}
+/* "Any amount" is far wider than "£30", so it needs to give ground to the name
+   rather than sit on top of it */
+.bccard.bcdon .bcprice{color:var(--accent-text); font-weight:700; font-size:12.5px;
+  white-space:nowrap; flex:0 0 auto}
+.bccard.bcdon .bcmeta{align-items:flex-start}
 .cvplusgrid.two{grid-template-columns:repeat(2, minmax(0, 1fr))}
 .cvplusbtn{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
   min-height:84px; padding:10px; border:1px solid var(--line); border-radius:14px; background:var(--raise);
@@ -5652,9 +5727,6 @@ html.msgopen, html.msgopen body{overflow:hidden}
 html.msgopen .bnav{display:none}
 .inboxview{position:fixed; left:0; right:0; top:0; height:100dvh; z-index:2070; background:var(--ground); display:none; flex-direction:column; overscroll-behavior:contain}
 .inboxview.open{display:flex}
-@media (min-width:768px){
-  .inboxview, .chatview{left:50%; width:min(720px, 100%); transform:translateX(-50%); box-shadow:0 0 0 100vmax rgba(10,14,11,.45)}
-}
 .ibhead{flex:none; display:flex; align-items:center; gap:2px; padding:calc(env(safe-area-inset-top) + 6px) 6px 4px}
 .ibhead h2{flex:1; margin:0 0 0 2px; font:700 26px/1 var(--font-ui); letter-spacing:-.02em; color:var(--ink)}
 .ibsearch{flex:none; display:flex; align-items:center; gap:8px; height:42px; margin:4px 16px 6px; padding:0 6px 0 13px; border-radius:12px; background:var(--tint); color:var(--ink-3)}
@@ -5829,6 +5901,18 @@ mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding
 }
 :root[data-theme="dark"] .chatview{--cv-mine:#C0521F; --cv-mine-ink:#FFF6EE; --cv-theirs:#1B4139; --cv-theirs-line:#1B4139; --cv-topo:rgba(127,203,182,.07); --cv-send:#E0743A}
 .chatview.open{display:flex}
+
+/* On desktop both of these are a centred column over a dimmed page.
+   This block USED to sit up beside the .inboxview base rule — about 170 lines
+   BEFORE .chatview declared its own `left:0; right:0`. Same specificity, so
+   source order won: .chatview got left:0 back while keeping width:720px and
+   translateX(-50%) from here, which shoved it 360px off the left edge with
+   half the conversation past the side of the screen. `right:auto` is spelled
+   out so the box can never be over-constrained again. */
+@media (min-width:768px){
+  .inboxview, .chatview{left:50%; right:auto; width:min(720px, 100%);
+    transform:translateX(-50%); box-shadow:0 0 0 100vmax rgba(10,14,11,.45)}
+}
 .cvtopo{position:absolute; inset:0; width:100%; height:100%; z-index:-1; stroke:var(--cv-topo); stroke-width:1.2; pointer-events:none}
 .cvhead{flex:none; display:flex; align-items:center; gap:2px; padding:calc(env(safe-area-inset-top) + 6px) 4px 6px; background:color-mix(in srgb, var(--surface) 92%, transparent); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom:1px solid var(--line-soft)}
 .cvback, .cvinfo{flex:none; width:44px; height:44px; border:0; background:none; color:var(--ink); border-radius:99px; display:grid; place-items:center; cursor:pointer}
@@ -6169,6 +6253,14 @@ html.kbopen .cvcompose{padding-bottom:8px}
       <div id="helpBox"></div>
       <div id="inboxBox"></div>
       <p class="setnote">WayMark is a free, personal project run by Joe Sullivan in the UK. No adverts, no analytics, no tracking. <a href="legal.html" target="_blank" rel="noopener">Privacy, terms, cookies and credits</a>.</p>
+      <div class="supportbox">
+        <span class="supicon"></span>
+        <div>
+          <b>Chip in?</b>
+          <span>WayMark costs money to run &mdash; maps, servers, the lot. There is nothing to unlock and nothing behind a wall; this just keeps it going.</span>
+          <button class="btn sm" data-act="godonate">Support WayMark</button>
+        </div>
+      </div>
       <p class="setver" id="setVer"></p>
     </div>
 
@@ -6596,32 +6688,37 @@ function askOpen(){ return askEl().classList.contains('open'); }
    somebody is guessing: the best picture of the day is rarely the first one
    taken. So when there are more than fit, the walker chooses, with the first
    six already ticked so the quick path is still one tap. */
-let pickDone = null, pickSel = null, pickList = [], pickMax = 6;
+let pickDone = null, pickSel = [], pickList = [], pickMax = 6;
 const pickEl = () => document.getElementById('pick');
+/* Nothing is chosen to begin with, and the order you tap IS the order they go
+   up in, numbered as you go. It used to pre-select the first six by date and
+   give you no way to say which came first. */
 function pickShots(shots, max){
   pickList = shots; pickMax = max;
-  pickSel = new Set(shots.slice(0, max).map(x => x.id));
+  pickSel = [];
   paintPick();
   pickEl().classList.add('open');
   setTimeout(() => { const b = document.getElementById('pickYes'); if (b) b.focus(); }, 30);
   return new Promise(res => { pickDone = res; });
 }
 function paintPick(){
-  const nsel = pickSel.size, full = nsel >= pickMax;
-  document.getElementById('pickBody').textContent =
-    'A post carries ' + pickMax + '. You have ' + pickList.length +
-    ' from this day — tap to choose which ones go up.';
+  const nsel = pickSel.length, full = nsel >= pickMax;
+  document.getElementById('pickBody').textContent = nsel
+    ? 'Tap them in the order you want them seen. ' + nsel + ' of ' + pickMax + ' chosen.'
+    : 'A post carries ' + pickMax + '. You have ' + pickList.length +
+      ' from this day \u2014 tap them in the order you want them seen.';
   document.getElementById('pickGrid').innerHTML = pickList.map(ph => {
-    const on = pickSel.has(ph.id);
+    const at = pickSel.indexOf(ph.id), on = at >= 0;
     return '<button type="button" class="pshot' + (on ? ' on' : '') + '" data-pick="' + esc(ph.id) + '"' +
       ' aria-pressed="' + on + '"' + (!on && full ? ' data-full="1"' : '') +
-      ' aria-label="Photo' + (ph.cap ? ': ' + esc(ph.cap) : '') + '">' +
+      ' aria-label="Photo' + (ph.cap ? ': ' + esc(ph.cap) : '') +
+        (on ? '. Number ' + (at + 1) + ' of ' + nsel + '. Tap to take it out' : '') + '">' +
       '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
-      '<span class="ptick">' + (on ? ICON_CHECK : '') + '</span></button>';
+      '<span class="ptick">' + (on ? (at + 1) : '') + '</span></button>';
   }).join('');
   const y = document.getElementById('pickYes');
   y.disabled = !nsel;
-  y.textContent = nsel ? 'Use ' + (nsel === 1 ? 'this one' : 'these ' + nsel) : 'Pick at least one';
+  y.textContent = nsel ? 'Use ' + (nsel === 1 ? 'this one' : 'these ' + nsel + ', in this order') : 'Pick at least one';
   hydratePhotos();
 }
 function answerPick(v){
@@ -8685,13 +8782,12 @@ function donateDetail(k, it){
     '<div class="pdinfo"><p class="shopeyebrow">WayMark</p><h2>' + esc(it.name) + '</h2>' +
     (it.blurb ? '<p class="shoplede">' + esc(it.blurb) + '</p>' : '') +
     '<div class="shopbuy"><p class="szhead"><span>Amount</span></p>' +
-    '<div class="shopsizes" role="group" aria-label="Suggested amounts">' + [3, 5, 10, 20].map(chip).join('') + '</div>' +
+    '<div class="shopsizes" role="group" aria-label="Suggested amounts">' + [1, 3, 5, 10].map(chip).join('') + '</div>' +
     '<div class="donfield"><span>\u00a3</span><label for="donamt" class="vh">Amount in pounds</label>' +
     /* the placeholder used to be the minimum, set at 20px, which read as a
        filled-in value sitting above a button saying "enter an amount" */
     '<input id="donamt" type="number" inputmode="decimal" step="0.50" min="' + (min / 100) +
       '" placeholder="0.00" value="' + esc(amt) + '" data-act="doninput"></div>' +
-    '<p class="pdfine">Nothing is posted, so there is no delivery to pay.</p>' +
     '<button class="btn shopgo" data-act="donadd" data-k="' + esc(k) + '"' + (ok ? '' : ' disabled') + '>' + ti('backpack') +
       (ok ? 'Add \u00a3' + (pence / 100).toFixed(2) + ' to the backpack' : 'Enter \u00a3' + (min / 100).toFixed(2) + ' or more') + '</button></div>' +
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
@@ -9219,10 +9315,21 @@ function bcCard(d, opts){
 }
 /* kit that is not a tee, in the same grid */
 function bcKitCard([k, it]){
-  return '<article class="bccard"><div class="bctile">' +
-    '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open"><img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '"></button>' +
+  /* A donation has no price and may have no picture. This card asked for both
+     without checking: gbp(undefined) printed "£NaN" and the <img> was given
+     src="undefined". It also gets the summit gear's treatment — a flag and a
+     bottom tag — so it reads as its own thing rather than a tee with no photo. */
+  const don = !!it.custom;
+  const pic = (it.img && it.img.length)
+    ? '<img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '">'
+    : (don ? '<span class="bcdonmark">' + ti('mountain', 'width="56" height="56"') + '</span>' : '');
+  return '<article class="bccard' + (don ? ' bcdon' : '') + '"><div class="bctile">' +
+    '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open">' + pic + '</button>' +
+    (don ? '<span class="bcflag">Support</span>' +
+           '<span class="bctag">FROM ' + esc(gbp(+it.min || 100)) + '</span>' : '') +
     '<button class="bcround bcheart" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) + '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button></div>' +
-    '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3><span class="bcprice">' + gbp(it.price) + '</span></div>' +
+    '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3>' +
+      '<span class="bcprice">' + (don ? 'Any amount' : gbp(it.price)) + '</span></div>' +
     '<span class="bcsub">' + esc(KIND_LABEL[it.kind] || it.kind || '') + '</span></article>';
 }
 /* a small tile for rows: recently viewed, pairs with, saved */
@@ -10004,32 +10111,62 @@ function pickListHTML(p){
       '<span class="pktick">' + (sel.has(x.uid) ? ti('check') : '') + '</span></button></li>').join('')
     : '<li class="pdfine" style="padding:12px 4px">' + (q ? 'Nobody by that name.' : 'Nobody here yet. Follow some hikers and they show up.') + '</li>';
 }
+/* Chosen chips, the group-name field and the go button are ALWAYS in the
+   markup, hidden when they do not apply. That way picking somebody updates
+   them in place instead of rebuilding the sheet — which used to destroy the
+   search input, throw away the keyboard, lose the caret and reset the sheet's
+   scroll to the top, all on one tap. */
+function pickChosenHTML(p){
+  if (!p.sel.length) return '';
+  const all = msgPeople();
+  return p.sel.map(u => {
+    const x = all.find(y => y.uid === u) || {name:''};
+    return '<button class="pkchip" data-act="picktoggle" data-u="' + esc(u) + '">' +
+      avatarHTML(x.av, x.name, 'tiny', u) + esc(firstName(x.name)) + ti('x', 'width="14" height="14"') + '</button>';
+  }).join('');
+}
+function pickGoLabel(p){
+  const n = p.sel.length, walk = p.mode === 'walk', group = p.mode === 'group';
+  return walk ? (n ? 'Next: the walk' : 'Choose who’s going')
+    : p.mode === 'add' ? (n ? 'Add ' + n + ' to the chat' : 'Choose people')
+    : (n > 1 || group) ? (n ? 'Start group chat · ' + n : 'Choose people')
+    : n ? 'Start chat' : 'Choose someone';
+}
+/* everything that changes as you type or pick, and nothing that does not */
+function pickRefresh(){
+  const p = ui.mpick; if (!p) return;
+  const el = document.getElementById('bcsheet'); if (!el) return;
+  const ch = el.querySelector('.pkchosen');
+  if (ch){ ch.innerHTML = pickChosenHTML(p); ch.hidden = !p.sel.length; }
+  const lst = el.querySelector('.pklist'); if (lst) lst.innerHTML = pickListHTML(p);
+  const nm = el.querySelector('.pknamewrap');
+  if (nm) nm.hidden = !((p.sel.length > 1 || p.mode === 'group' || (p.mode === 'walk' && p.sel.length)) && p.mode !== 'add');
+  const go = el.querySelector('[data-act=pickgo]');
+  if (go){ go.disabled = !p.sel.length; go.textContent = pickGoLabel(p); }
+  if (typeof wire === 'function') wire();
+}
 function paintPicker(){
   const p = ui.mpick; if (!p) return;
-  const q = (p.q || '').toLowerCase();
-  const inChat = p.mode === 'add' && chatOpen ? new Set(chatOpen.chat.members || []) : new Set();
-  const ppl = msgPeople().filter(x => !inChat.has(x.uid) && (!q || x.name.toLowerCase().includes(q)));
-  const sel = new Set(p.sel);
   const walk = p.mode === 'walk', group = p.mode === 'group';
   const title = walk ? 'Plan a walk with…' : p.mode === 'add' ? 'Add people' : group ? 'New group' : 'New message';
+  const showName = (p.sel.length > 1 || group || (walk && p.sel.length)) && p.mode !== 'add';
   let s = '<h3 class="bcsheettitle">' + title + '</h3>' +
-    (p.sel.length ? '<div class="pkchosen">' + p.sel.map(u => { const x = ppl.find(y => y.uid === u) || msgPeople().find(y => y.uid === u) || {name:''}; return '<button class="pkchip" data-act="picktoggle" data-u="' + esc(u) + '">' + avatarHTML(x.av, x.name, 'tiny', u) + esc(firstName(x.name)) + ti('x') + '</button>'; }).join('') + '</div>' : '') +
-    '<div class="field">' + ti('search') + '<input id="pickq" placeholder="Search people you follow" value="' + esc(p.q) + '" autocomplete="off"></div>';
-  if ((p.sel.length > 1 || group || walk && p.sel.length) && p.mode !== 'add') s += '<div><label for="picktitle" class="lbl2">' + (walk ? 'Walk name' : 'Group name') + ' <span class="opt">optional</span></label><input id="picktitle" class="pickin" maxlength="40" placeholder="' + (walk ? 'Saturday on the Langdales' : 'Sunday walkers') + '" value="' + esc(p.title) + '"></div>';
-  s += '<ul class="pklist">' + pickListHTML(p) + '</ul>';
-  const n = p.sel.length;
-  s += '<button class="btn bcgo" data-act="pickgo"' + (n ? '' : ' disabled') + '>' + (walk ? (n ? 'Next: the walk' : 'Choose who’s going') : p.mode === 'add' ? (n ? 'Add ' + n + ' to the chat' : 'Choose people') : n > 1 || group ? (n ? 'Start group chat · ' + n : 'Choose people') : n ? 'Start chat' : 'Choose someone') + '</button>';
+    '<div class="pkchosen"' + (p.sel.length ? '' : ' hidden') + '>' + pickChosenHTML(p) + '</div>' +
+    '<div class="field">' + ti('search', 'width="18" height="18"') +
+      '<input id="pickq" placeholder="Search people you follow" value="' + esc(p.q) + '" autocomplete="off"></div>' +
+    '<div class="pknamewrap"' + (showName ? '' : ' hidden') + '>' +
+      '<label for="picktitle" class="lbl2">' + (walk ? 'Walk name' : 'Group name') +
+      ' <span class="opt">optional</span></label>' +
+      '<input id="picktitle" class="pickin" maxlength="40" placeholder="' +
+      (walk ? 'Saturday on the Langdales' : 'Sunday walkers') + '" value="' + esc(p.title) + '"></div>' +
+    '<ul class="pklist">' + pickListHTML(p) + '</ul>' +
+    '<button class="btn bcgo" data-act="pickgo"' + (p.sel.length ? '' : ' disabled') + '>' +
+      esc(pickGoLabel(p)) + '</button>';
   const el = bcSheet(s, title, 'pksheet');
   const qi = el.querySelector('#pickq');
-  /* Rebuilding the whole sheet on every keystroke threw the keyboard away and
-     bounced the sheet. Only the list and the button change as you type. */
-  if (qi){ qi.oninput = e => {
-    p.q = e.target.value;
-    const lst = el.querySelector('.pklist'); if (lst) lst.innerHTML = pickListHTML(p);
-    const go = el.querySelector('[data-act=pickgo]'); if (go) go.disabled = !p.sel.length;
-    if (typeof wire === 'function') wire();
-  }; }
-  const ti2 = el.querySelector('#picktitle'); if (ti2) ti2.oninput = e => { p.title = e.target.value; };
+  if (qi) qi.oninput = e => { p.q = e.target.value; pickRefresh(); };
+  const ti2 = el.querySelector('#picktitle');
+  if (ti2) ti2.oninput = e => { p.title = e.target.value; };
 }
 async function pickGo(){
   const p = ui.mpick; if (!p || !p.sel.length) return;
@@ -10834,7 +10971,7 @@ async function chatAct(a, el){
     const ok = await confirmAsk({title:'Delete this chat?', body:'It goes from your inbox. If someone sends a new message, it comes back.', yes:'Delete', no:'Keep'}); if (!ok){ paintMsgInbox(); return true; }
     if (chatIsRequest(x)){ try{ await FB.deleteDoc(chatRef(id)); }catch(e){ toast(fbWhy(e)); } }
     else await chatSet(id, {hide:{[me]: Date.now()}, cnt:{[me]: 0}}, y => { y.hide = {...(y.hide || {}), [me]: Date.now()}; }); }
-  else if (a === 'picktoggle'){ const p = ui.mpick; if (!p) return true; const u = el.dataset.u, i = p.sel.indexOf(u); if (i >= 0) p.sel.splice(i, 1); else p.sel.push(u); paintPicker(); }
+  else if (a === 'picktoggle'){ const p = ui.mpick; if (!p) return true; const u = el.dataset.u, i = p.sel.indexOf(u); if (i >= 0) p.sel.splice(i, 1); else p.sel.push(u); pickRefresh(); }
   else if (a === 'pickgo'){ if (ui.mpick && ui.mpick.mode === 'add'){ const add = ui.mpick.sel.slice(); bcSheetClose(); ui.mpick = null; await chatAddPeople(add); } else await pickGo(); }
   else if (a === 'chatplus'){ chatPlus(); }
   else if (a === 'chatpickphoto'){ bcSheetClose(); const f = document.getElementById('cvphoto'); if (f) f.click(); }
@@ -11518,7 +11655,40 @@ function hhmm(mins){
   const h = Math.floor(mins / 60), m = Math.round(mins % 60);
   return h ? h + 'h ' + (m < 10 ? '0' : '') + m + 'm' : m + 'm';
 }
+/* An accumulative patch is not about one day. "Three Everests" and "10 peaks
+   marked" used to show the journal entry for whichever hill happened to cross
+   the line — so the Three Everests patch read as though it were about Scafell
+   Pike, and 10 peaks read as though it were about Bowfell. What it is actually
+   about is the run of summits that built it, which patchPeaks() already
+   returns; it was simply never shown. */
+function patchRunHTML(p){
+  const run = patchPeaks(p);
+  if (!run.length) return '';
+  const climb = p.kind === 'climb';
+  let tot = 0;
+  const rows = run.map(x => { tot += isFinite(x.h.h) ? x.h.h : 0; return {x, tot}; }).reverse();
+  const CAP = 12;
+  const show = ui.runAll ? rows : rows.slice(0, CAP);
+  const last = run[run.length - 1];
+  const lid = h => esc(h.l.find(x => state.enabled.includes(x)) || h.l[0] || '');
+  let s = '<section class="ywm"><p class="eyebrow">Your WayMark</p>' +
+    '<p class="ywmlede">' + (p.got
+      ? 'The ' + run.length.toLocaleString() + (run.length === 1 ? ' summit' : ' summits') + ' that got you here' +
+        (last && last.r.date ? ', finishing on ' + esc(prettyDate(last.r.date)) : '') + '.'
+      : run.length.toLocaleString() + (run.length === 1 ? ' summit' : ' summits') + ' so far.') + '</p>';
+  s += '<ol class="ywmrun">' + show.map(r =>
+      '<li><button class="linkbtn" data-act="golist" data-v="' + lid(r.x.h) + '">' +
+        esc(hillName(r.x.h)) + '</button>' +
+      '<i>' + (r.x.r.date ? esc(prettyDate(r.x.r.date).replace(/ (\d{4})$/, '')) : 'no date') + '</i>' +
+      '<b>' + (climb ? gHeight(r.tot) : feet(r.x.h).toLocaleString() + ' ft') + '</b></li>').join('') + '</ol>';
+  if (rows.length > CAP)
+    s += '<button class="linkbtn ywmmore" data-act="runall">' +
+      (ui.runAll ? 'Show fewer' : 'Show all ' + rows.length.toLocaleString()) + '</button>';
+  if (climb) s += '<p class="ywmfoot">Running total, newest first.</p>';
+  return s + '</section>';
+}
 function yourWayMark(p){
+  if (p.kind === 'count' || p.kind === 'climb') return patchRunHTML(p);
   const e = earnedOn(p);
   if (!e || !e.date) return '';
   const key = e.h && e.h.k;
@@ -11551,10 +11721,78 @@ function yourWayMark(p){
     s += '<p class="ywmnone">No journal entry for that day. Write one and it shows up here.</p>';
   s += '<div class="btnrow ywmrow">' +
     '<button class="btn ghost" data-act="patchview" data-v="journey">View journey</button>' +
-    (ent ? '<button class="btn ghost" data-act="gojournal" data-d="' + esc(e.date) + '">Open the journal</button>' : '') +
+    '<button class="btn ghost" data-act="pdday" data-d="' + esc(e.date) + '">' +
+      (ent ? 'Read that day' : 'Write that day up') + '</button>' +
     '</div></section>';
   return s;
 }
+/* ---- a day, opened from a patch, without leaving the patches ----
+   "Open the journal" used to switch tabs and drop you at the bottom of the
+   journal with no way back except navigating through the menus, which is a
+   long way to go to read four lines. The entry opens here instead, over the
+   patch, and closes back onto it. A day with nothing written gets the form in
+   the same sheet, so writing one up is also not a trip out. */
+function patchDaySheet(date, write){
+  if (!date) return;
+  ui.pdSheet = {date, write:!!write};
+  paintPatchDay();
+}
+function paintPatchDay(){
+  const d = ui.pdSheet; if (!d) return;
+  const ent = liveDiary().filter(x => x.date === d.date)
+    .sort((a, b) => ((b.strava ? 1 : 0) - (a.strava ? 1 : 0)))[0];
+  const day = diaryDays().find(x => x.date === d.date);
+  const writing = d.write || !ent;
+  let s = '<h3 class="bcsheettitle">' + esc(prettyDate(d.date)) + '</h3>';
+
+  if (day && day.hills.length)
+    s += '<p class="pdsum">' + day.hills.slice().sort((a, b) => b.h - a.h)
+      .map(h => esc(hillName(h))).join(' &middot; ') + '</p>';
+
+  if (writing){
+    const dr = ui.pdDraft || (ui.pdDraft = {title: ent ? ent.title || '' : '', text: ent ? ent.text || '' : ''});
+    s += '<div class="form pdform">' +
+      '<div><label for="pdsT">Title</label><input id="pdsT" maxlength="80" ' +
+        'placeholder="e.g. Clag all the way up" value="' + esc(dr.title) + '"></div>' +
+      '<div><label for="pdsX">What happened</label><textarea id="pdsX" rows="5" ' +
+        'placeholder="Conditions, who you were with, why it was worth it…">' + esc(dr.text) + '</textarea></div>' +
+      '<div class="btnrow" style="margin:0"><button class="btn" data-act="pdsave">' +
+        (ent ? 'Save' : 'Add the entry') + '</button>' +
+      (ent ? '<button class="btn quiet" data-act="pdread">Cancel</button>' : '') + '</div></div>';
+  } else {
+    if (ent.title) s += '<p class="pdsT">' + esc(ent.title) + '</p>';
+    if (ent.text)  s += '<p class="pdsX">' + esc(ent.text) + '</p>';
+    const pics = (typeof dayPhotos === 'function' ? dayPhotos(d.date) : []).slice(0, 8);
+    if (pics.length) s += '<div class="shots pdsshots">' + pics.map(ph =>
+      '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewday" data-d="' + esc(d.date) +
+      '" data-p="' + esc(ph.id) + '">' +
+      '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
+      (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') + '</div>';
+    s += '<div class="btnrow"><button class="btn quiet" data-act="pdedit">Edit</button>' +
+      '<button class="btn ghost" data-act="gojournal" data-d="' + esc(d.date) + '">Open in the journal</button></div>';
+  }
+  const el = bcSheet(s, 'That day', 'pdsheet');
+  const bind = (id, k) => { const i = el.querySelector('#' + id);
+    if (i) i.oninput = e => { (ui.pdDraft = ui.pdDraft || {title:'', text:''})[k] = e.target.value; }; };
+  bind('pdsT', 'title'); bind('pdsX', 'text');
+  if (typeof hydratePhotos === 'function') hydratePhotos();
+}
+function patchDaySave(){
+  const d = ui.pdSheet, dr = ui.pdDraft || {title:'', text:''};
+  if (!d) return;
+  if (!dr.title.trim() && !dr.text.trim()){ toast('Write something first.'); return; }
+  const ent = liveDiary().filter(x => x.date === d.date)[0];
+  if (ent) setDiary(ent.id, {title: dr.title.trim(), text: dr.text.trim()});
+  else state.diary = [...(state.diary || []),
+    {id:'d' + uid(), date:d.date, title:dr.title.trim(), text:dr.text.trim(),
+     photos:[], shared:0, deleted:false, t:now()}];
+  touched();
+  ui.pdDraft = null; ui.pdSheet.write = false;
+  render();                       // the patch behind the sheet picks the entry up
+  paintPatchDay();
+  toast('Entry saved.');
+}
+
 /* ---- a locked patch should read as an invitation, not an absence ---- */
 function patchWant(p){
   const keys = (p.keys || []).filter(k => BY_KEY[k] && !isBagged(k));
@@ -13098,15 +13336,27 @@ function setLeadPhoto(id, dateISO){
   touched();
 }
 /* The patch you are closest to: most of the way there, fewest left. */
+/* Only patches that ACCUMULATE. A summit patch is one tick — you are either
+   standing on it or you are not — so "90% of the way to Scafell Pike" is a
+   number that means nothing, and a three-hill set jumps to 67% off a single
+   walk and beats 200 Wainwrights. Milestones and challenges are the ones where
+   "nearest" is a real answer, so those are the ones it looks at. */
+const NEAR_MIN = 5;
 function nearestPatch(){
-  return patches().filter(p => !p.got && p.target > 0)
-    .sort((a, b) => (b.have / b.target) - (a.have / a.target) || (a.target - a.have) - (b.target - b.have))[0] || null;
+  const pool = patches().filter(p => !p.got && p.target >= NEAR_MIN && p.kind !== 'peak');
+  return pool.sort((a, b) => (b.have / b.target) - (a.have / a.target) ||
+    (a.target - a.have) - (b.target - b.have))[0] || null;
+}
+/* "Nearest milestone" / "Nearest challenge" — the word the patch itself uses */
+function nearLabel(p){
+  const g = p && PATCH_GROUP[p.kind];
+  return g === 'milestone' ? 'Nearest milestone' : g === 'challenge' ? 'Nearest challenge' : 'Nearest patch';
 }
 
 /* Desktop only: the column beside the Home photo. The nearest patch, the two
    close behind it, and the year in four figures, so the space earns its keep. */
 function homeRailExtras(np){
-  const next = patches().filter(p => !p.got && p.target > 0 && (!np || p.id !== np.id))
+  const next = patches().filter(p => !p.got && p.target >= NEAR_MIN && p.kind !== 'peak' && (!np || p.id !== np.id))
     .sort((a, b) => (b.have / b.target) - (a.have / a.target)).slice(0, 2);
   let s = '';
   if (next.length){
@@ -13137,7 +13387,7 @@ function nearestPatchCard(np, cls){
   return '<button class="dcard nextpatch np2' + (cls || '') + '" data-tab="a">' +
     '<div class="npbody"><span class="patch">' + patchDisc(np, ' small') + '</span>' +
     /* the same past tense as the Patches page had: this one is not earned yet */
-    '<div><p class="sumlabel">Nearest patch</p><b class="npname">' + esc(String(np.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b>' +
+    '<div><p class="sumlabel">' + esc(nearLabel(np)) + '</p><b class="npname">' + esc(String(np.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b>' +
     '<span class="dcs" title="' + esc(prog) + '">' + togo + '</span>' +
     '<i class="rbar" data-pct="' + Math.round(np.have / np.target * 100) + '%">' +
       '<s style="width:' + Math.round(np.have / np.target * 100) + '%" data-pct="' + Math.round(np.have / np.target * 100) + '%"></s></i>' +
@@ -13502,15 +13752,10 @@ function renderDiary(){
         (e.strava ? stravaDayHTML(e.strava, e.id) : '') +
         (e.text ? '<p>' + esc(e.text) + '</p>' : '');
 
-      if (eps.length){
-        html += '<div class="shots dshots">' + eps.map(ph =>
-          '<button class="shot' + (ph.cap ? ' hascap' : '') + (ph.k ? ' tagged' : '') + '" ' +
-          'data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(ph.id) + '"' +
-          (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
-          '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
-          (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') +
-          '</button>').join('') + '</div>';
-      }
+      /* The entry's own photos used to print here and the day's summit photos
+         again lower down, so a day with both showed two strips of the same
+         walk. dayPhotos() already merges and de-dupes the two; one strip for
+         the whole day is drawn below. */
 
       html += '<div class="drow">' +
         '<button class="linkbtn" data-act="editdiary" data-id="' + esc(e.id) + '">Edit</button>' +
@@ -13536,12 +13781,15 @@ function renderDiary(){
         '</div>';
     }
 
-    if (d.photos.length){
-      html += '<div class="shots">' + d.photos.slice(0, 12).map(ph =>
-        '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewday" data-d="' + esc(d.date) +
+    /* every photo from that day, whichever it was attached to */
+    const allPics = (typeof dayPhotos === 'function' ? dayPhotos(d.date) : d.photos);
+    if (allPics.length){
+      html += '<div class="shots">' + allPics.slice(0, 12).map(ph =>
+        '<button class="shot' + (ph.cap ? ' hascap' : '') + (ph.k ? ' tagged' : '') + '" data-act="viewday" data-d="' + esc(d.date) +
         '" data-p="' + esc(ph.id) + '"' + (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
         '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
-        (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') + '</div>';
+        (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') +
+        (allPics.length > 12 ? '<span class="shotmore">+' + (allPics.length - 12) + '</span>' : '') + '</div>';
     }
     html += '</article>';
   }
@@ -14268,7 +14516,10 @@ function hillMarker(m, arr, h, cs, onClick, tip){
   const mk = domMarker(m, arr, html, 'peakwrap', big, big, h.a, h.o);
   const el = mk.getElement();
   el.title = tip || hillName(h);
-  el.style.zIndex = done ? 3 : 2;
+  /* sent here from a patch: ring the ones it is waiting on */
+  const hi = ui.mapHi && ui.mapHi.indexOf(h.k) >= 0;
+  if (hi){ el.classList.add('hipeak'); el.style.zIndex = 5; }
+  else el.style.zIndex = done ? 3 : 2;
   el.addEventListener('click', e => { e.stopPropagation(); onClick(mk, h, e); });
   return mk;
 }
@@ -14754,6 +15005,7 @@ function poiFacts(p){
 /* ---- drawing them, and what happens when you tap one ---- */
 /* ---- drawing them, and what happens when you tap one ---- */
 let poiMarks = [], poiOpen = null;
+const poiPins = new Map();       // id -> marker, so a redraw keeps what is already there
 
 function poiPinHTML(p){
   const k = POI_KINDS[p.kind];
@@ -14762,22 +15014,37 @@ function poiPinHTML(p){
       'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + k.icon + '</svg></span>';
 }
 
+/* Pins are kept between redraws. This used to throw away every marker and
+   build all 200 again on each call — and it is called on every map move — so
+   a pan meant 200 element removals and 200 creations, each one parsing its own
+   SVG. That is what made the places feel like they were loading long after the
+   count said they were there. Now only what has left the view is removed and
+   only what is new is built. */
 function drawPois(){
   if (!rmap) return;
-  clearMarks(poiMarks);
-  if (!poiShow || rmap.getZoom() < 12) return;
+  if (!poiShow || rmap.getZoom() < 12){ clearMarks(poiMarks); poiPins.clear(); return; }
   const b = viewBox(rmap, .1);
+  const want = new Set();
   let n = 0;
   for (const p of poiSeen.values()){
     if (!b.has(p.la, p.lo)) continue;
     if (++n > 200) break;                     // a readable map beats a complete one
-    const mk = domMarker(rmap, poiMarks, poiPinHTML(p), 'poiwrap', 26, 26, p.la, p.lo, {anchor:'bottom'});
+    want.add(p.id);
+    if (poiPins.has(p.id)) continue;          // already on the map, leave it alone
+    const mk = domMarker(rmap, null, poiPinHTML(p), 'poiwrap', 26, 26, p.la, p.lo, {anchor:'bottom'});
     const el = mk.getElement();
     el.title = poiName(p); el.style.zIndex = 4;
     /* The pin never adds a point. Tapping the map does that when you are
        plotting, and a mis-tap on a pin would leave a stray waypoint behind. */
     el.addEventListener('click', e => { e.stopPropagation(); openPoi(p.id); });
+    poiPins.set(p.id, mk);
   }
+  for (const [id, mk] of poiPins){
+    if (!want.has(id)){ mk.remove(); poiPins.delete(id); }
+  }
+  /* poiMarks is what the map teardown clears, so keep it in step */
+  poiMarks.length = 0;
+  for (const mk of poiPins.values()) poiMarks.push(mk);
 }
 
 /* Ask Overpass for whatever the view needs, then redraw. Anything already held
@@ -15237,7 +15504,7 @@ function nearestHill(la, lo){
 
 function killRouteMap(){
   if (hereMap === rmap) stopHereWatch();
-  if (rmap){ closePopups(rmap); clearMarks(rmMarks); clearMarks(poiMarks); rmap.remove(); rmap = null; }
+  if (rmap){ closePopups(rmap); clearMarks(rmMarks); clearMarks(poiMarks); poiPins.clear(); rmap.remove(); rmap = null; }
   clearTimeout(poiTimer);
   closePoi();
 }
@@ -16939,6 +17206,7 @@ document.addEventListener('click', async e => {
     /* Leave nothing half-open behind you: a composer, a search result or a
        comment thread from another screen has no business reappearing. */
     ui.openComments=null; ui.groupForm=''; ui.found=null; ui.mq='';
+    ui.mapHi = null;
     render(); window.scrollTo({top:0}); return;
   }
   let el = e.target.closest('[data-act]');
@@ -17033,6 +17301,13 @@ document.addEventListener('click', async e => {
     const hs = String(el.dataset.v || '').split(',').map(k => BY_KEY[k]).filter(Boolean);
     if (!hs.length) return true;
     ui.patch = null; ui.patchFrom = null; tab = 'm';
+    /* The map only draws the lists you follow, so "see the 2 left" on a Welsh
+       patch flew you to Wales and showed nothing while the Lake District sat
+       behind you. Widen the scope to every hill WayMark holds, and ring the
+       ones the patch is actually waiting on so they are not just two more
+       markers in a field of them. */
+    ui.mapScope = 'all';
+    ui.mapHi = hs.map(h => h.k);
     if (hs.length === 1) ui.open = hs[0].k;
     render(); window.scrollTo({top:0});
     /* the map builds itself on the tab it belongs to, so wait for it */
@@ -17041,6 +17316,22 @@ document.addEventListener('click', async e => {
       if (!mapReady || !map){ setTimeout(go, 150); return; }
       fitTo(map, hs.map(h => [h.a, h.o]), hs.length > 1 ? 40 : 24, hs.length > 1 ? 11 : 13); };
     setTimeout(go, 240);
+  }
+  else if (a === 'runall'){ ui.runAll = !ui.runAll; render(); }
+  else if (a === 'pdday'){ ui.pdDraft = null; patchDaySheet(el.dataset.d, false); }
+  else if (a === 'pdedit'){ ui.pdDraft = null; if (ui.pdSheet){ ui.pdSheet.write = true; paintPatchDay(); } }
+  else if (a === 'pdread'){ ui.pdDraft = null; if (ui.pdSheet){ ui.pdSheet.write = false; paintPatchDay(); } }
+  else if (a === 'pdsave'){ patchDaySave(); }
+  /* The key is whatever the catalogue calls it, so it is looked up rather than
+     hardcoded: any entry with custom:true is the donation. */
+  else if (a === 'godonate'){
+    const ent = shopCat && shopCat.items
+      ? Object.entries(shopCat.items).find(([, it]) => it && it.custom) : null;
+    closeSheetNow();
+    tab = 'a'; ui.patchView = 'supplies'; ui.patchSub = 'supplies'; ui.supOpen = null;
+    if (ent) ui.kitOpen = ent[0];
+    else { ui.kitOpen = null; shopLoad(); toast('Opening the shop\u2026'); }
+    render(); window.scrollTo({top:0});
   }
   else if (a === 'jall'){ ui.jAll = true; render(); }
   else if (a === 'gojournal'){
@@ -17698,7 +17989,7 @@ document.addEventListener('click', async e => {
       if (t){ t.value = ''; t.focus(); } }
   }
   else if (a === 'chalview'){ ui.pGroup = el.dataset.v === 'overview' ? '' : el.dataset.v; ui.pCat = ''; render(); window.scrollTo({top:0}); }
-  else if (a === 'patchview'){ ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
+  else if (a === 'patchview'){ ui.patch = null; ui.patchFrom = null; ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
   else if (a === 'cert'){ certOpen(el.dataset.k); }
   else if (a === 'certclose'){ certClose(); }
   else if (a === 'certkind'){
@@ -18153,6 +18444,9 @@ document.addEventListener('change', e => {
     /* Import with nothing selected: make the route from the file itself, so a
        walker can start from a GPX rather than having to build a shell first. */
     const f = el.files[0]; el.value = '';
+    /* the sheet that offered the file has done its job; leaving it open put it
+       over the top of everything that follows */
+    bcSheetClose();
     f.text().then(txt => {
       let g;
       try{ g = parseGPX(txt); }catch(err){ toast(err.message); return; }
@@ -18733,6 +19027,9 @@ function openSheet(){
   renderThemeBox(); renderListToggles(); renderAccountBox(); renderHelpBox(); renderConnBox();
   const v = document.getElementById('setVer');
   if (v) v.textContent = 'WayMark ' + APP_VERSION;
+  const si = document.querySelector('#sheet .supicon');
+  if (si && !si.firstChild) si.innerHTML = ti('mountain', 'width="22" height="22"');
+  shopLoad();                    // so the donation is there the moment it is asked for
   const bw = document.getElementById('bkwrap'); if (bw) bw.hidden = true;
   showSetPane('');
   sheet.classList.add('open');
@@ -18859,17 +19156,19 @@ document.getElementById('winJour').onclick = () => {
   render(); window.scrollTo({top:0});
 };
 
-document.getElementById('pickYes').onclick = () => answerPick(pickList.filter(x => pickSel.has(x.id)));
+/* in the order they were tapped, not the order they were taken */
+document.getElementById('pickYes').onclick = () => answerPick(pickSel.map(id => pickList.find(x => x.id === id)).filter(Boolean));
 document.getElementById('pickNo').onclick  = () => answerPick(null);
 document.getElementById('pickX').onclick   = () => answerPick(null);
 pickEl().onclick = e => { if (e.target === pickEl()) answerPick(null); };
 document.getElementById('pickGrid').onclick = e => {
   const b = e.target.closest('[data-pick]'); if (!b) return;
   const id = b.dataset.pick;
-  if (pickSel.has(id)) pickSel.delete(id);
-  else if (pickSel.size >= pickMax){
-    toast(pickMax + ' is all a post can carry \u2014 unpick one first.'); return;
-  } else pickSel.add(id);
+  const at = pickSel.indexOf(id);
+  if (at >= 0) pickSel.splice(at, 1);          // and everything after it renumbers
+  else if (pickSel.length >= pickMax){
+    toast(pickMax + ' is all a post can carry — take one out first.'); return;
+  } else pickSel.push(id);
   paintPick();
 };
 document.getElementById('askYes').onclick = () => answerAsk(true);
@@ -18949,6 +19248,8 @@ function syncTopH(){
   if (h) document.documentElement.style.setProperty('--topH', h.offsetHeight + 'px');
 }
 window.addEventListener('resize', syncTopH);
+/* plugging in a mouse, or resizing onto a desktop layout, changes the answer */
+try{ matchMedia('(pointer:coarse)').addEventListener('change', () => paintSync()); }catch(e){}
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncTopH);
 syncTopH();
 window.addEventListener('online', () => { if (cloudOn() && syncState !== 'synced') syncNow(); });
@@ -19417,10 +19718,15 @@ const SYNC_I = {
   cloud: '<path d="M6.7 18C4.1 18 2 16 2 13.5S4.1 9 6.7 9c.4-1.8 1.8-3.2 3.7-3.8c1.9-.6 4-.2 5.4 1c1.5 1.2 2.2 3 1.8 4.8h1c1.9 0 3.5 1.6 3.5 3.5S20.4 18 18.5 18H6.7"/>',
   done:  '<path d="M6.7 18C4.1 18 2 16 2 13.5S4.1 9 6.7 9c.4-1.8 1.8-3.2 3.7-3.8c1.9-.6 4-.2 5.4 1c1.5 1.2 2.2 3 1.8 4.8h1c1.9 0 3.5 1.6 3.5 3.5S20.4 18 18.5 18H6.7"/><path d="M9.5 13.2l1.9 1.9l3.6-3.6"/>',
   phone: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17h2"/>',
+  /* the same button on a laptop used to draw a phone and say "this phone" */
+  desktop: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6"/><path d="M12 16v4"/>',
   spin:  '<path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/>'
 };
 const syncIcon = k => '<svg class="si si-' + k + '" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SYNC_I[k] + '</svg>';
 let syncTapBusy = false, syncTapDone = 0;
+/* A coarse pointer is a phone or a tablet; anything else is a computer. */
+const onDesk = () => { try{ return !matchMedia('(pointer:coarse)').matches; }catch(e){ return false; } };
+const deskWord = () => onDesk() ? 'computer' : /iP(hone|od)|Android.*Mobile/.test(navigator.userAgent) ? 'phone' : 'device';
 function paintSync(){
   const b = document.getElementById('syncBtn');
   if (!b) return;
@@ -19430,8 +19736,10 @@ function paintSync(){
   let icon = 'cloud', dot = '', label;
   if (syncTapBusy || syncState === 'saving'){ icon = 'spin'; label = 'Saving your log…'; }
   else if (Date.now() - syncTapDone < 1800){ icon = 'done'; label = 'Everything is saved'; }
-  else if (!fbConfigured()){ icon = 'phone'; label = 'Your log is kept on this phone. Tap to save now'; }
-  else if (!fbUser){ dot = 'warn'; label = 'Saved on this phone only. Sign in under Settings to back it up'; }
+  /* Say the device you are actually on. A laptop was shown a phone icon and
+     told its log was "kept on this phone". */
+  else if (!fbConfigured()){ icon = onDesk() ? 'desktop' : 'phone'; label = 'Your log is kept on this ' + deskWord() + '. Tap to save now'; }
+  else if (!fbUser){ dot = 'warn'; label = 'Saved on this ' + deskWord() + ' only. Sign in under Settings to back it up'; }
   else if (syncState === 'error'){ dot = 'warn'; label = 'Could not sync. Tap to try again'; }
   else if (syncState === 'pending'){ dot = 'warn'; label = 'Changes waiting. Tap to sync now'; }
   else { dot = 'ok'; label = 'Synced' + when + '. Tap to sync now'; }
