@@ -439,7 +439,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   .side .navbtn .ni{width:21px; height:21px}
   .snav{display:flex; flex-direction:column; gap:4px}
   .hideDesk{display:none !important}
-  .top{background:none; backdrop-filter:none; border-bottom:1px solid var(--line-soft)}
+  /* .top's desktop look now lives beside its base rule, further down */
   .brandrow{justify-content:flex-end}
   /* The header row spans the whole column rather than sitting in the centred
      text measure, so the cog rests on the same 22px gutter as everything else
@@ -1843,8 +1843,6 @@ button.bstriprow{cursor:pointer}
 /* on the narrowest phones the small print needs a size down to hold one line */
 @media (max-width:374px){
   .ploc{font-size:11.5px; gap:4px}
-  .ploc .lochigh b{font-size:13.5px}
-  .ptag{font-size:11.5px}
 }
 .ploc svg{width:14px; height:14px; color:var(--accent); flex:none}
 .ploc em{font-style:normal; opacity:.55}
@@ -1858,6 +1856,13 @@ button.bstriprow{cursor:pointer}
 .ploc .lochigh b{
   font-family:var(--font-display); font-weight:400; font-size:15px;
   color:var(--ink); margin-left:3px;
+}
+/* MOVED down from the @media block ~20 lines above, which sat BEFORE .ptag and
+   .ploc .lochigh b declared their own font-size. Same specificity, so source
+   order won and the narrow-phone sizes never applied. */
+@media (max-width:374px){
+  .ploc .lochigh b{font-size:13.5px}
+  .ptag{font-size:11.5px}
 }
 .ptop2{display:none; margin:0; font-family:var(--font-ui); font-size:12.5px; color:var(--ink-3)}
 .ptop2 b{
@@ -3378,7 +3383,7 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
   .lead.hasshot .nextpatch.big{flex-direction:row; align-items:center; gap:18px; padding:12px 18px}
   .lead.hasshot .nextpatch.big .sumlabel{flex:none; width:110px; margin:0}
   .lead.hasshot .nextpatch.big .npbody{flex:1}
-  .lead.hasshot .nextpatch.big .patch .disc.small{width:72px; height:72px}
+  /* the .disc.small size now lives beside its base rule, further down */
   .lead.hasshot .nextpatch.big .npname{font-size:20px}
 }
 .leadshot{position:relative; display:block; width:100%; aspect-ratio:3/2; border:0; padding:0; border-radius:var(--r); overflow:hidden; background:var(--surface-2); cursor:pointer; box-shadow:var(--shadow)}
@@ -3413,6 +3418,12 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
   color:var(--accent-text); font-variant-numeric:tabular-nums; white-space:nowrap;
 }
 .lead.hasshot .nextpatch.big .patch .disc.small, .loop .nextpatch.big .patch .disc.small{width:96px; height:96px}
+/* MOVED down from the (min-width:720px) block above, which sat BEFORE the rule
+   on the line above and so never got its 72px. The hero card lays out as a row
+   at this width, where a 96px disc pushes the name off the end. */
+@media (min-width:720px){
+  .lead.hasshot .nextpatch.big .patch .disc.small{width:72px; height:72px}
+}
 .nextpatch.big .npname{font-size:22px}
 .lead .sumlabel, .loop .sumlabel{text-align:left}
 .hrow[data-row]{cursor:pointer}
@@ -3738,7 +3749,6 @@ body.guiding{overflow:hidden}
    takes the room the list and the day used to occupy above it */
 @media (max-width:719px){
   .mapstage{margin-left:-14px; margin-right:-14px; margin-top:6px}
-  .mapstage #routemap{border-radius:0; height:min(76vh, 760px)}
 }
 /* the two pills: a second row under the search, clear of the zoom column */
 /* above the mode bar, not under the search: at the top they had to dodge the
@@ -3762,6 +3772,10 @@ body.guiding{overflow:hidden}
 .mmenu .daystrip{margin:0}
 .mmenu .wxtop{margin-top:8px}
 .mapstage #routemap{height:min(64vh, 680px); border-radius:12px}
+/* MOVED here from ~20 lines above: edge to edge on a phone means square
+   corners and the taller map, and up there the plain rule on the line before
+   this one was winning both on source order. */
+@media (max-width:719px){ .mapstage #routemap{border-radius:0; height:min(76vh, 760px)} }
 @media (min-width:1024px){ .mapstage #routemap{height:min(68vh, 760px)} }
 .misle{position:absolute; z-index:5; background:rgba(251,250,246,.8); -webkit-backdrop-filter:blur(16px) saturate(1.25); backdrop-filter:blur(16px) saturate(1.25);
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 14px 30px -18px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7); border-radius:99px; color:var(--ink)}
@@ -4848,6 +4862,14 @@ span.pshow{cursor:default}
 /* ---- top bar ---- */
 #themeBtn{display:none !important}
 .top{background:color-mix(in srgb, var(--ground) 84%, transparent); -webkit-backdrop-filter:blur(14px) saturate(1.3); backdrop-filter:blur(14px) saturate(1.3)}
+/* MOVED down from the (min-width:768px) block ~4,400 lines above. THREE plain
+   .top rules sit between there and here, the last one on the line above this,
+   and each of them put the phone's frosted blur back on the desktop header.
+   Last man standing has to be this one. */
+@media (min-width:768px){
+  .top{background:none; backdrop-filter:none; -webkit-backdrop-filter:none;
+    border-bottom:1px solid var(--line-soft)}
+}
 .top .iconbtn, .top .sync{border:0; background:transparent; width:40px; height:40px; border-radius:50%; box-shadow:none; transition:background .2s var(--ease), transform .2s var(--ease)}
 .top .iconbtn:hover, .top .sync:hover{background:var(--tint)}
 .top .iconbtn:active, .top .sync:active{transform:scale(.94)}
@@ -5359,10 +5381,13 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .supportbox > div > span{display:block; font-size:13.5px; line-height:1.5; color:var(--ink-2)}
 .supportbox .btn{margin-top:11px}
 
-/* the donation tile: its own thing in the grid, not a tee with a missing photo */
-.bccard.bcdon .bctile{background:var(--pine)}
+/* the donation tile: its own thing in the grid, not a tee with a missing photo.
+   The FROM £1 bar along the bottom sat straight over the wordmark in the
+   artwork, so it is gone; a thick pine edge does the standing-out instead, and
+   the flag is pine because rust-on-rust artwork made it disappear. */
+.bccard.bcdon .bctile{background:var(--pine); box-shadow:inset 0 0 0 5px var(--pine); border-radius:10px}
 .bcdonmark{position:absolute; inset:0; display:grid; place-items:center; color:var(--accent)}
-.bccard.bcdon .bcflag{background:var(--accent)}
+.bccard.bcdon .bcflag{background:var(--pine); color:#F3EFE6; box-shadow:0 1px 4px rgba(11,21,18,.4)}
 /* "Any amount" is far wider than "£30", so it needs to give ground to the name
    rather than sit on top of it */
 .bccard.bcdon .bcprice{color:var(--accent-text); font-weight:700; font-size:12.5px;
@@ -8346,9 +8371,41 @@ async function shopLoad(){
   shopLoading = false;
   if (ui.patchView === 'supplies' || tab === 'd' || onboarding()) render();
 }
-const shopItem = n => shopCat && shopCat.items && shopCat.items[String(n)] || null;
+/* SHOP_CATALOG is a hand-edited JSON blob in Cloudflare, and older versions of
+   the worker published fewer fields than this one does. A single product
+   without `img` crashed the entire shop at `it.img.map(...)` — not the product,
+   the whole page. Rather than guard the dozen places that read these, fill the
+   shape once here, at the only accessor. `price` is deliberately left alone: a
+   missing price should read as "—" (gbp handles that), not as £0. */
+function shopItem(n){
+  const it = shopCat && shopCat.items && shopCat.items[String(n)];
+  if (!it) return null;
+  if (!it.__wm){
+    it.sizes   = Array.isArray(it.sizes)   ? it.sizes   : [];
+    it.img     = Array.isArray(it.img)     ? it.img     : [];
+    it.details = Array.isArray(it.details) ? it.details : [];
+    it.name    = it.name || 'Untitled';
+    it.kind    = it.kind || 'tee';
+    it.blurb   = it.blurb || '';
+    it.custom  = !!it.custom;
+    it.min     = it.custom ? (+it.min || 100) : 0;
+    try{ Object.defineProperty(it, '__wm', {value:true, enumerable:false}); }catch(e){ it.__wm = true; }
+  }
+  return it;
+}
 const NUMWORD = n => ['No','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve'][n] || String(n);
-const gbp = p => '£' + (p / 100).toFixed(p % 100 ? 2 : 0);
+/* Every one of these takes a number that some record somewhere may not have.
+   gbp(undefined) printed "£NaN" on the donation card and sat there until it was
+   spotted; stravaStats on a half-written Strava record printed "NaN mi · NaN
+   min · NaN ft" in the journal. A missing figure should read as missing, not as
+   a broken one, so the formatters themselves refuse to print NaN. */
+/* +null is 0 and +'' is 0, so a missing figure would print as "£0" or "0 ft" —
+   a wrong number reads worse than an obviously absent one. */
+const numOr = (v, d) => {
+  if (v === null || v === undefined || v === '') return d;
+  const n = +v; return isFinite(n) ? n : d;
+};
+const gbp = p => { const n = numOr(p, NaN); return isFinite(n) ? '£' + (n / 100).toFixed(n % 100 ? 2 : 0) : '—'; };
 /* ---------- the basket ----------
    Lines are {k, opt, qty}: k is the catalogue key (a tee's design number, or
    whatever key a sticker, cap or bottle has), opt its size or option. It lives
@@ -8778,7 +8835,12 @@ function donateDetail(k, it){
   const chip = v => '<button class="chip" data-act="donpick" data-v="' + v + '" aria-pressed="' +
     (Math.round(parseFloat(amt || '0') * 100) === v * 100) + '">\u00a3' + v + '</button>';
   return '<div class="supdetail shopdetail"><div class="pdnav"><button class="backbtn" data-act="kitclose">&larr; The shop</button></div>' +
-    '<div class="pdgrid"><div class="pdmedia"><div class="donmark">' + ti('mountain') + '</div></div>' +
+    '<div class="pdgrid"><div class="pdmedia">' +
+      ((it.img && it.img.length)
+        ? '<div class="supsides kitshots">' + it.img.map(u =>
+            '<figure><img decoding="async" alt="' + esc(it.name) + '" src="' + esc(u) + '"></figure>').join('') + '</div>'
+        : '<div class="donmark">' + ti('mountain', 'width="74" height="74"') + '</div>') +
+      '</div>' +
     '<div class="pdinfo"><p class="shopeyebrow">WayMark</p><h2>' + esc(it.name) + '</h2>' +
     (it.blurb ? '<p class="shoplede">' + esc(it.blurb) + '</p>' : '') +
     '<div class="shopbuy"><p class="szhead"><span>Amount</span></p>' +
@@ -9325,8 +9387,7 @@ function bcKitCard([k, it]){
     : (don ? '<span class="bcdonmark">' + ti('mountain', 'width="56" height="56"') + '</span>' : '');
   return '<article class="bccard' + (don ? ' bcdon' : '') + '"><div class="bctile">' +
     '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open">' + pic + '</button>' +
-    (don ? '<span class="bcflag">Support</span>' +
-           '<span class="bctag">FROM ' + esc(gbp(+it.min || 100)) + '</span>' : '') +
+    (don ? '<span class="bcflag">Support</span>' : '') +
     '<button class="bcround bcheart" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) + '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button></div>' +
     '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3>' +
       '<span class="bcprice">' + (don ? 'Any amount' : gbp(it.price)) + '</span></div>' +
@@ -9429,7 +9490,11 @@ function renderShop(){
   } else list = sale;
   /* the newest first, then summit gear, then the rest as listed */
   list = list.slice().sort((a, b) => SUP_NEW.includes(b.n) - SUP_NEW.includes(a.n));
-  s += '<div class="bcgrid">' + list.map(d => bcCard(d)).join('') + kit.map(bcKitCard).join('') + '</div>';
+  /* the donation goes first: it is the one thing in here that is not a thing */
+  const don = kit.filter(([, it]) => it && it.custom);
+  const rest = kit.filter(([, it]) => !(it && it.custom));
+  s += '<div class="bcgrid">' + don.map(bcKitCard).join('') +
+       list.map(d => bcCard(d)).join('') + rest.map(bcKitCard).join('') + '</div>';
   if (!ui.shopSaved){
     s += bcBoardBanner();
     const rv = bcRecent();
@@ -11141,9 +11206,12 @@ const NOTIFY_KINDS = [
   {sec:'Messages', rows:[['dm', 'Direct messages', ''], ['group', 'Group chats', 'Or set it per chat'], ['mention', 'Mentions of you', 'In a group or a comment'], ['request', 'Message requests', 'People you don’t follow back']]},
   {sec:'Walk plans', rows:[['walk', 'New walks and changes', 'Plans, polls and live location'], ['rsvp', 'Who’s in or out', ''], ['remind', 'Night-before reminder', '6pm, with the forecast']]},
   {sec:'Social', rows:[['like', 'Likes', ''], ['comment', 'Comments and replies', ''], ['follow', 'New followers', 'And follow requests']]},
-  {sec:'Friends’ hills', rows:[['summit', 'A friend bags a hill', 'Someone you follow posts a summit']]}
+  {sec:'Friends’ hills', rows:[
+    ['summit', 'Someone you follow posts', 'A walk, a summit or a photo'],
+    ['chal',   'They finish a challenge you are on', 'Only patches you have earned too'],
+    ['board',  'Somebody joins your leaderboard', '']]}
 ];
-const NOTIFY_DEFAULT = {dm:'push', group:'push', mention:'push', request:'app', walk:'push', rsvp:'app', remind:'push', like:'app', comment:'push', follow:'app', summit:'app'};
+const NOTIFY_DEFAULT = {dm:'push', group:'push', mention:'push', request:'app', walk:'push', rsvp:'app', remind:'push', like:'app', comment:'push', follow:'app', summit:'app', chal:'app', board:'app'};
 let notifyPrefs = null, notifyPrefsLoading = false;
 const notifyDoc = () => FB.doc(fbDb, 'users', fbUser.uid, 'notify', 'prefs');
 async function loadNotifyPrefs(){
@@ -11161,7 +11229,7 @@ function saveNotifyPrefs(){
   FB.setDoc(notifyDoc(), notifyPrefs).catch(e => toast(fbWhy(e)));
 }
 /* the bell's notes, filtered by what you asked to see in the app */
-const NOTE_KIND = {like:'like', comment:'comment', reply:'comment', mention:'mention', follow:'follow', request:'follow', accepted:'follow', walk:'walk', walkyes:'rsvp', walkno:'rsvp'};
+const NOTE_KIND = {like:'like', comment:'comment', reply:'comment', mention:'mention', follow:'follow', request:'follow', accepted:'follow', walk:'walk', walkyes:'rsvp', walkno:'rsvp', posted:'summit', samechal:'chal', joined:'board'};
 function noteShown(n){ const k = NOTE_KIND[n.type]; return !(k && notifyPrefs && notifyPrefs.kinds && notifyPrefs.kinds[k] === 'off'); }
 
 const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -12979,11 +13047,15 @@ function trackAscent(pts){
   return Math.round(up);
 }
 function hm(mins){
-  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  const v = numOr(mins, NaN);
+  if (!isFinite(v)) return '—';
+  const h = Math.floor(v / 60), m = Math.round(v % 60);
   return h ? h + ' h ' + String(m).padStart(2, '0') : m + ' min';
 }
 function prettyDist(m){
-  const km = m / 1000, mi = km * 0.621371;
+  const v = numOr(m, NaN);
+  if (!isFinite(v)) return '—';
+  const km = v / 1000, mi = km * 0.621371;
   return mi.toFixed(1) + ' mi (' + km.toFixed(1) + ' km)';
 }
 function xesc(s){
@@ -15797,7 +15869,11 @@ function gDist(m){
   const mi = m / 1609.344;
   return mi < 0.19 ? Math.round(m * 3.28084 / 50) * 50 + ' ft' : mi.toFixed(1) + ' mi';
 }
-function gHeight(m){ return unitsPref() === 'm' ? m.toLocaleString() + ' m' : Math.round(m * 3.28084).toLocaleString() + ' ft'; }
+function gHeight(m){
+  const v = numOr(m, NaN);
+  if (!isFinite(v)) return '—';
+  return unitsPref() === 'm' ? Math.round(v).toLocaleString() + ' m' : Math.round(v * 3.28084).toLocaleString() + ' ft';
+}
 
 /* ---- the sheet ---- */
 function guideHTML(){
@@ -18174,6 +18250,13 @@ document.addEventListener('click', async e => {
   else if (a === 'pgroup'){ ui.pGroup = el.dataset.v; ui.pCat = ''; render(); window.scrollTo({top:0}); }
   else if (a === 'pcat'){ ui.pCat = el.dataset.v; render(); }
   else if (a === 'corkshuffle'){ ui.corkSeed = (Math.random() * 1e9) | 0; render(); }
+  /* a "joined your leaderboard" note lands on that board */
+  else if (a === 'goboard'){
+    const code = el.dataset.v; if (!code) return;
+    closeNotes(); tab = 'u'; ui.hikerTab = 'boards'; render();
+    try{ loadGroup(code); }catch(e){}
+    window.scrollTo({top:0});
+  }
   else if (a === 'openpatch'){
     ui.patchFrom = tab;                       // so Back knows where to return to
     ui.patch = el.dataset.v; tab = 'a';
@@ -20169,6 +20252,28 @@ function notify(to, id, data){
   FB.setDoc(noteRef(to, id), {...data, from:fbUser.uid, name:myName(), av:myAvatar() || '', handle:fbHandle || '', t:Date.now()}).then(() => pushPing({kind:'note', to, id})).catch(() => {});
 }
 function unnotify(to, id){ if (FB && fbUser) FB.deleteDoc(noteRef(to, id)).catch(() => {}); }
+
+/* ---------- telling your followers ----------
+   One note document per recipient, written by this client. The rules already
+   allow it — people/{uid}/notes takes a create from anyone signed in, in their
+   own name — so none of this needs a rules change.
+   It is capped: a post should not cost a hundred writes, and a bell with a
+   hundred entries is no use to anybody. Mutuals come first, because a note
+   from somebody you follow back is the one worth having. */
+const FANOUT_CAP = 40;
+function fanoutTargets(){
+  if (!FB || !fbUser) return [];
+  const mutual = new Set((typeof allFriends === 'function' ? allFriends() : []).map(f => f.uid));
+  const all = followerUids().filter(u => u && u !== fbUser.uid);
+  return all.sort((a, b) => (mutual.has(b) ? 1 : 0) - (mutual.has(a) ? 1 : 0)).slice(0, FANOUT_CAP);
+}
+function fanout(ids, key, data){
+  for (const to of ids){
+    /* the id carries the subject, so two posts do not overwrite each other and
+       the same post twice does not make two notes */
+    notify(to, key + '_' + fbUser.uid, data);
+  }
+}
 function watchNotes(){
   if (!FB || !fbUser || notesUnsub || notesFailed) return;
   try{
@@ -20198,6 +20303,9 @@ function noteLine(n, count){
     case 'comment':  return who + ' commented' + said;
     case 'reply':    return who + ' replied to you' + said;
     case 'mention':  return who + ' mentioned you' + said;
+    case 'posted':   return who + ' posted' + (n.snip ? ' about <i>' + esc(n.snip) + '</i>' : '');
+    case 'samechal': return who + ' finished <i>' + esc(n.snip || 'a challenge') + '</i> too';
+    case 'joined':   return who + ' joined <i>' + esc(n.snip || 'your leaderboard') + '</i>';
     case 'follow':   return who + ' started following you';
     case 'request':  return who + ' asked to follow you';
     case 'accepted': return who + ' accepted your follow request';
@@ -20207,7 +20315,7 @@ function noteLine(n, count){
     default:         return who + ' did something on WayMark';
   }
 }
-const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check', walk:'walk', walkyes:'user-check', walkno:'x'};
+const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check', walk:'walk', walkyes:'user-check', walkno:'x', posted:'mountain', samechal:'award', joined:'users'};
 function notesHTML(){
   const seen = notesSeenAt();
   /* likes on the same post collapse into one line */
@@ -20240,8 +20348,12 @@ function notesHTML(){
   for (const {n, count, fresh} of rows){
     const g = groupOf({n});
     if (g !== lastGroup){ s += '<p class="ngroup">' + g + '</p>'; lastGroup = g; }
+    /* land on the thing the note is about: the post, the patch, the board —
+       falling back to the person only when there is nothing else to open */
     const target = n.post ? 'data-act="noteopen" data-post="' + esc(n.post) + '" data-c="' + (n.type === 'like' ? '' : '1') + '"'
-                          : 'data-act="openfriend" data-uid="' + esc(n.from) + '"';
+                  : n.type === 'samechal' && n.patch ? 'data-act="openpatch" data-v="' + esc(n.patch) + '"'
+                  : n.type === 'joined' && n.code ? 'data-act="goboard" data-v="' + esc(n.code) + '"'
+                  : 'data-act="openfriend" data-uid="' + esc(n.from) + '"';
     s += '<div class="nrow' + (fresh ? ' fresh' : '') + (n.type === 'walk' ? ' walkrow' : '') + '">' +
       '<button class="pwhobtn" data-act="openfriend" data-uid="' + esc(n.from) + '">' + avatarHTML(n.av, n.name, 'sm', n.from) +
       '<span class="nicon k-' + esc(n.type) + '">' + ti(NOTE_ICON[n.type] || 'bell') + '</span></button>' +
@@ -22188,9 +22300,12 @@ async function stravaCommit(){
   paintStrava(); render();
 }
 function stravaStats(s){
-  const km = unitsPref() === 'm' ? (s.dist / 1000).toFixed(1) + ' km' : (s.dist / 1609.344).toFixed(1) + ' mi';
-  const up = unitsPref() === 'm' ? s.asc.toLocaleString() + ' m' : Math.round(s.asc * 3.28084).toLocaleString() + ' ft';
-  return [['Distance', km], ['Moving time', hm(s.mins)], ['Climbed', up]];
+  const d = numOr(s && s.dist, NaN), a = numOr(s && s.asc, NaN);
+  const km = !isFinite(d) ? '—'
+    : unitsPref() === 'm' ? (d / 1000).toFixed(1) + ' km' : (d / 1609.344).toFixed(1) + ' mi';
+  const up = !isFinite(a) ? '—'
+    : unitsPref() === 'm' ? Math.round(a).toLocaleString() + ' m' : Math.round(a * 3.28084).toLocaleString() + ' ft';
+  return [['Distance', km], ['Moving time', hm(s && s.mins)], ['Climbed', up]];
 }
 function paintStrava(){
   let el = document.getElementById('stravaSheet');
@@ -22557,7 +22672,39 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
     for (const q of plain){ feed = feed.filter(x => x.id !== q.id); deletePost(q.id).catch(() => {}); }
   }
   feed = [post, ...feed];
+  /* Followers hear about it. A post only you can see is not news, and a bare
+     summit post the app made on its own is not either — those already arrive
+     as the patch and the walk. */
+  if (vis !== 'me' && (post.text || (post.shots || []).length || (post.hills || []).length || post.patch)){
+    try{
+      const all = fanoutTargets();
+      /* One note each, not two. Somebody who has earned this patch themselves
+         gets the better line ("finished it too"); everybody else gets the
+         plain one. They used to get both, for the same event. */
+      const same = post.patch ? sameChallengeFolk(post.patch, all) : [];
+      if (same.length) fanout(same, 'sc_' + post.patch,
+        {type:'samechal', patch:post.patch, snip: patchTitle(post.patch)});
+      const rest = all.filter(u => same.indexOf(u) < 0);
+      if (rest.length) fanout(rest, 'pp_' + id, {type:'posted', post:id, snip: postSnip(post)});
+    }catch(e){}
+  }
   return post;
+}
+
+/* ---------- finished the same challenge ----------
+   Only people who have earned that patch themselves, which the client can tell
+   because a profile carries its earned patch ids (`pats`). Somebody who has
+   never been near it does not want to hear that you finished it. */
+function patchTitle(patchId){
+  const def = (typeof patches === 'function' ? patches() : []).find(x => x.id === patchId);
+  return def ? String(def.label).replace(/\s+(fully\s+)?marked$/i, '') : 'a challenge';
+}
+function sameChallengeFolk(patchId, pool){
+  if (!patchId) return [];
+  return (pool || fanoutTargets()).filter(u => {
+    const pc = personCache[u];
+    return pc && Array.isArray(pc.pats) && pc.pats.indexOf(patchId) >= 0;
+  });
 }
 
 const shotRef = (postId, pid) => FB.doc(fbDb, 'posts', postId, 'shots', pid);
@@ -22961,6 +23108,15 @@ async function joinGroup(code){
   state.groups = [...myGroups(), {code, name: d.name || 'Leaderboard', detail:false, t:now()}];
   await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code));
   touched();
+  /* Tell the people already on it. The member list is readable to members, so
+     this runs after the join, and it is capped like every other fan-out. */
+  try{
+    const ms = await FB.getDocs(FB.collection(fbDb, 'groups', code, 'members'));
+    const ids = [];
+    ms.forEach(m => { if (m.id && m.id !== fbUser.uid) ids.push(m.id); });
+    if (ids.length) fanout(ids.slice(0, FANOUT_CAP), 'jb_' + code,
+      {type:'joined', code, snip: d.name || 'your leaderboard'});
+  }catch(e){}
   return {ok:true, name: d.name};
 }
 /* Put the sharing decision in front of the walker at the moment they join,
