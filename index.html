@@ -3620,23 +3620,52 @@ body.guiding{overflow:hidden}
 :root[data-theme="dark"] .gbtn em{background:rgba(20,51,45,.12)}
 
 /* ---- the Map: islands on the map ---- */
-.mapstage{position:relative; margin-top:10px}
+.mapstage{position:relative; margin-top:10px; --grip:0px}
+/* the drag strip only exists under a finger, and nothing may sit on top of it */
+@media (hover:none) and (pointer:coarse){ .mapstage{--grip:30px} }
+/* the map is what the tab is for, so on a phone it runs to both edges and
+   takes the room the list and the day used to occupy above it */
+@media (max-width:719px){
+  .mapstage{margin-left:-14px; margin-right:-14px; margin-top:6px}
+  .mapstage #routemap{border-radius:0; height:min(76vh, 760px)}
+}
+/* the two pills: a second row under the search, clear of the zoom column */
+/* above the mode bar, not under the search: at the top they had to dodge the
+   zoom column and the day pill lost its last three letters to it */
+.mpills{position:absolute; z-index:5; left:12px; right:calc(12px + var(--grip, 0px)); bottom:62px;
+  display:flex; gap:6px; overflow-x:auto; scrollbar-width:none}
+.mpills::-webkit-scrollbar{display:none}
+.mpill{display:inline-flex; align-items:center; gap:7px; flex:none; height:38px; padding:0 15px;
+  border:0; border-radius:99px; color:var(--ink); cursor:pointer; white-space:nowrap;
+  font:600 13.5px/1 var(--font-ui);
+  background:rgba(251,250,246,.8); -webkit-backdrop-filter:blur(16px) saturate(1.25);
+  backdrop-filter:blur(16px) saturate(1.25);
+  box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 14px 30px -18px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7)}
+.mpill:active{transform:scale(.96)}
+.mpill svg{width:15px; height:15px; color:var(--ink-3)}
+.mpill b{font:400 12px/1 var(--font-data); color:var(--ink-3)}
+.mpill.on{background:var(--ink); color:#F3EFE6}
+.mpill.on svg, .mpill.on b{color:inherit; opacity:.75}
+.mmenu.mleft{left:12px; right:auto; top:auto; bottom:110px; width:min(340px, calc(100% - 24px - var(--grip, 0px)))}
+.mmenu .listbar{padding:2px 0 6px; flex-wrap:wrap; overflow:visible}
+.mmenu .daystrip{margin:0}
+.mmenu .wxtop{margin-top:8px}
 .mapstage #routemap{height:min(64vh, 680px); border-radius:12px}
 @media (min-width:1024px){ .mapstage #routemap{height:min(68vh, 760px)} }
 .misle{position:absolute; z-index:5; background:rgba(251,250,246,.8); -webkit-backdrop-filter:blur(16px) saturate(1.25); backdrop-filter:blur(16px) saturate(1.25);
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 14px 30px -18px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7); border-radius:99px; color:var(--ink)}
-.msearch{left:12px; right:64px; max-width:520px; top:12px; height:44px; display:flex; align-items:center; gap:9px; padding:0 8px 0 14px}
+.msearch{left:12px; right:calc(64px + var(--grip, 0px)); max-width:520px; top:12px; height:44px; display:flex; align-items:center; gap:9px; padding:0 8px 0 14px}
 .msearch svg{width:16px; height:16px; color:var(--ink-3); flex:none}
 .msearch input{flex:1; min-width:0; height:100%; border:0; background:transparent; font:inherit; font-size:15px; color:var(--ink); outline:none; -webkit-appearance:none}
 .msearch input::placeholder{color:var(--ink-3)}
 .msearch:focus-within{box-shadow:0 0 0 1.5px var(--accent), 0 14px 30px -18px rgba(20,51,45,.45)}
-.mlayers{right:12px; top:12px; width:44px; height:44px; border:0; display:grid; place-items:center; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
+.mlayers{right:calc(12px + var(--grip, 0px)); top:12px; width:44px; height:44px; border:0; display:grid; place-items:center; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mlayers svg{width:20px; height:20px; stroke-width:1.5}
 .mlayers.on{background:var(--ink); color:#F3EFE6}
 .mlayers:active{transform:scale(.94)}
 .mresults{position:absolute; z-index:7; left:12px; right:64px; max-width:520px; top:62px}
 .mresults .rqres{margin:0; border:0; border-radius:18px; background:rgba(251,250,246,.96); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 24px 40px -18px rgba(20,51,45,.5); max-height:46vh; overflow:auto}
-.mctl{right:12px; top:68px; padding:5px; display:flex; flex-direction:column; gap:2px}
+.mctl{right:calc(12px + var(--grip, 0px)); top:68px; padding:5px; display:flex; flex-direction:column; gap:2px}
 .mctl button{width:40px; height:40px; border:0; border-radius:99px; background:transparent; color:var(--ink); display:grid; place-items:center; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mctl button svg{width:19px; height:19px; stroke-width:1.5}
 .mctl button:active{transform:scale(.92)}
@@ -3645,7 +3674,7 @@ body.guiding{overflow:hidden}
 .mctl .mguide{background:var(--accent); color:#FFF3E9}
 .mctl .mguide svg{width:20px; height:20px; stroke-width:2.4; fill:#FFF3E9}
 .mctl .mguide:hover{background:#8E3813}
-.mmode{left:12px; right:12px; bottom:12px; padding:4px; display:flex; gap:2px;
+.mmode{left:12px; right:calc(12px + var(--grip, 0px)); bottom:12px; padding:4px; display:flex; gap:2px;
   max-width:calc(100% - 24px); overflow-x:auto; scrollbar-width:none; justify-content:flex-start}
 .mmode::-webkit-scrollbar{display:none}
 @media (min-width:520px){ .mmode{right:auto; width:auto} }
@@ -3654,7 +3683,7 @@ body.guiding{overflow:hidden}
 .mm-import{height:38px; padding:0 14px 0 11px; border-radius:99px; display:inline-flex; align-items:center; gap:6px; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap}
 .mm-import svg{width:16px; height:16px; stroke-width:1.5}
 .mm-import:hover{background:rgba(20,51,45,.07)}
-.mmenu{position:absolute; z-index:8; right:12px; top:64px; width:min(280px, calc(100% - 24px)); max-height:calc(100% - 80px); overflow:auto; padding:8px; border-radius:20px; background:rgba(251,250,246,.96); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
+.mmenu{position:absolute; z-index:8; right:calc(12px + var(--grip, 0px)); top:64px; width:min(280px, calc(100% - 24px)); max-height:calc(100% - 80px); overflow:auto; padding:8px; border-radius:20px; background:rgba(251,250,246,.96); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 28px 48px -20px rgba(20,51,45,.55); font-size:14px; color:var(--ink)}
 .mh{font:600 10px/1 var(--font-ui); letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3); padding:10px 10px 6px}
 .mrow{display:flex; justify-content:space-between; align-items:center; gap:10px; width:100%; padding:9px 10px; border:0; border-radius:12px; background:transparent; color:inherit; font:inherit; font-weight:600; text-align:left; cursor:pointer; transition:background .35s cubic-bezier(.32,.72,0,1)}
@@ -3763,7 +3792,7 @@ body.guiding{overflow:hidden}
 .jnode.chapter span{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); background:var(--ground); padding:2px 6px; border-radius:6px}
 .jnote{font-size:13px; color:var(--ink-3); margin:6px 0 0; text-align:center}
 .disc.hasimg > svg{display:none}
-.mplot{left:12px; right:12px; bottom:12px; padding:5px; display:flex; align-items:center; gap:4px}
+.mplot{left:12px; right:calc(12px + var(--grip, 0px)); bottom:12px; padding:5px; display:flex; align-items:center; gap:4px}
 .mplot button{height:40px; padding:0 14px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mplot button:disabled{opacity:.4; cursor:default}
 .mplot button:not(:disabled):hover{background:rgba(20,51,45,.07)}
@@ -11723,9 +11752,9 @@ function hillsHead(){
   const l = LIST_BY[ui.list];
   if (!l) return pageHead('The hills', 'Pick a list', '');
   const st = statsFor(l.id);
+  /* one line: the map is the page, and every row above it costs the map */
   return pageHead('The hills',
-    st.done.toLocaleString() + ' <em>of ' + st.total.toLocaleString() + '</em><br>' + esc(l.name),
-    st.total - st.done > 0 ? (st.total - st.done).toLocaleString() + ' still to go' : 'Every one of them walked');
+    st.done.toLocaleString() + ' <em>of ' + st.total.toLocaleString() + ' ' + esc(l.name) + '</em>', '');
 }
 function listBar(){
   let s = '<div class="listbar">';
@@ -16250,18 +16279,12 @@ function paintMapWeather(){
 function renderPlans(){
   /* tab 'm' folds into 'p' at the top of render(), so this one screen is both
      Hills and Plan a walk — and it is the one that needs the header. */
-  let html = hillsHead() + listBar();
+  let html = hillsHead();
   /* the day first: a walk is planned around the weather, so the chips and the
      forecast sit above the map where they are seen without a scroll */
   /* The picker and the forecast used to push the map a third of the way down
      the screen before anyone had seen it. Folded by default; the day you are
      looking at stays on the button. */
-  const dayLbl = !ui.rday ? 'Pick a day' : ui.rday === today() ? 'Today' : prettyDate(ui.rday).replace(/ \d{4}$/, '');
-  html += '<div class="daytop">' +
-    '<button class="dayfold' + (ui.dayOpen ? ' on' : '') + '" data-act="dayfold" aria-expanded="' + !!ui.dayOpen + '">' +
-      ti('cloud') + '<b>' + esc(dayLbl) + '</b><i>' + (ui.dayOpen ? 'Hide forecast' : 'Forecast') + '</i>' + ti('chevron-down') + '</button>' +
-    (ui.dayOpen ? dayChipsHTML() : '') + '</div>';
-  if (ui.rday && ui.dayOpen) html += '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>';
   html += mapStageHTML();
   html += '<p class="poistate" id="poistate">' + poiStateText() + '</p>';
 
@@ -16277,7 +16300,7 @@ function renderPlans(){
       (editor && (editor.wp.length || editor.id) ? '<button class="btn quiet" data-act="rmdiscard">Discard</button>' : '') +
       '</div></section>';
   } else if (!ui.rday){
-    html += '<p class="wxcaution">Pick a day above for the forecast on the tops. Forecasts move: check again the night before.</p>';
+    html += '<p class="wxcaution">Tap <b>Pick a day</b> on the map for the forecast on the tops. Forecasts move: check again the night before.</p>';
   }
 
   /* routes you already have */
@@ -16294,12 +16317,35 @@ function renderPlans(){
   for (const p of sorted) html += planCardHTML(p);
   return html;
 }
+/* The list you are working through and the day you are planning for used to
+   sit above the map, which on a phone pushed it past half the screen before
+   anybody had seen it. They are pills on the map now, each opening the control
+   it stands for — the same markup as before, in a menu rather than a stack. */
+function mapPillsHTML(){
+  const l = LIST_BY[ui.list];
+  const st = l ? statsFor(l.id) : null;
+  const dayLbl = !ui.rday ? 'Pick a day' : ui.rday === today() ? 'Today' : prettyDate(ui.rday).replace(/ \d{4}$/, '');
+  let s = '<div class="mpills">';
+  if (l) s += '<button class="mpill' + (ui.listOpen ? ' on' : '') + '" data-act="mlistfold"' +
+    ' aria-expanded="' + !!ui.listOpen + '">' + esc(l.name) +
+    (st ? '<b>' + st.done + '/' + st.total + '</b>' : '') + '</button>';
+  s += '<button class="mpill' + (ui.dayOpen ? ' on' : '') + '" data-act="dayfold"' +
+    ' aria-expanded="' + !!ui.dayOpen + '">' + ti('cloud') + esc(dayLbl) + '</button>';
+  s += '</div>';
+  s += '<div class="mmenu mleft mlistmenu"' + (ui.listOpen ? '' : ' hidden') + '>' +
+    '<p class="mh">Which list</p>' + listBar() + '</div>';
+  s += '<div class="mmenu mleft mdaymenu"' + (ui.dayOpen ? '' : ' hidden') + '>' +
+    '<p class="mh">Which day</p>' + dayChipsHTML() +
+    (ui.rday ? '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>' : '') + '</div>';
+  return s;
+}
 function mapStageHTML(){
   let s = '<div class="mapwrap mapstage">' +
     '<div id="routemap"></div>' +
     '<div class="misle msearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>' +
       '<input type="search" id="rq" placeholder="Find a hill or a place" value="' + esc(ui.rq || '') + '" autocomplete="off" aria-label="Find a hill or a place"></div>' +
     '<button class="misle mlayers' + (ui.layersOpen ? ' on' : '') + '" data-act="layers" aria-expanded="' + !!ui.layersOpen + '" aria-label="Map layers and settings">' + ti('stack-2') + '</button>' +
+    mapPillsHTML() +
     '<div id="rqres" class="mresults">' + searchResultsHTML() + '</div>' +
     '<div id="layers" class="mmenu"' + (ui.layersOpen ? '' : ' hidden') + '>' + layersHTML() + '</div>' +
     '<div class="misle mctl"><button data-act="mzoom" data-v="1" aria-label="Zoom in">' + ti('plus') + '</button>' +
@@ -16842,6 +16888,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'gopatches'){ ui.patch = null; ui.patchFrom = null; ui.patchView = 'cork';
     ui.patchSub = 'cork'; ui.pGroup = ''; tab = 'a'; render(); window.scrollTo({top:0}); }
+  else if (a === 'mlistfold'){ ui.listOpen = !ui.listOpen; if (ui.listOpen) ui.dayOpen = false; render(); }
   else if (a === 'breakdown'){ ui.breakdown = !ui.breakdown; render(); }
   else if (a === 'status'){ ui.status = el.dataset.v; render(); }
   else if (a === 'sort'){ ui.sort = el.dataset.v; render(); }
@@ -16853,7 +16900,7 @@ document.addEventListener('click', async e => {
     if (at) window.scrollTo({top: at.getBoundingClientRect().top + window.scrollY - 64, behavior:'auto'});
     else window.scrollTo({top:0});
   }
-  else if (a === 'pick-list'){ ui.list = el.dataset.v; ui.region=''; ui.q=''; ui.status='all'; render(); if (mapReady && ui.mapScope==='one') drawMarkers(true); }
+  else if (a === 'pick-list'){ ui.list = el.dataset.v; ui.listOpen = false; ui.region=''; ui.q=''; ui.status='all'; render(); if (mapReady && ui.mapScope==='one') drawMarkers(true); }
   else if (a === 'open-lists'){ openSheet(); setTimeout(() => { const t = document.getElementById('listToggles'); if (t) t.scrollIntoView({block:'center'}); }, 60); }
   else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; render(); if (mapReady) drawMarkers(true); }
   else if (a === 'togglelist'){ toggleList(el.dataset.v); }
@@ -17175,7 +17222,7 @@ document.addEventListener('click', async e => {
       if (n) window.scrollTo({top: n.getBoundingClientRect().top + window.scrollY - 70, behavior:'smooth'});
     }, 60);
   }
-  else if (a === 'dayfold'){ ui.dayOpen = !ui.dayOpen; render(); }
+  else if (a === 'dayfold'){ ui.dayOpen = !ui.dayOpen; if (ui.dayOpen) ui.listOpen = false; render(); }
   else if (a === 'postmenu'){ ui.postMenu = ui.postMenu === el.dataset.id ? null : el.dataset.id; render(); }
   else if (a === 'profmenu'){ ui.profMenu = !ui.profMenu; render(); }
   else if (a === 'fbopen'){ openFeedback(el.dataset.v); }
