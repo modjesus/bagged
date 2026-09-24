@@ -11872,16 +11872,43 @@ function renderCorkboard(ps){
   const maxCols = Math.max(2, Math.floor(W / CELL));
   const rows = Math.max(got.length >= 3 ? 2 : 1, Math.ceil(got.length / maxCols));
   const cols = got.length < 3 ? got.length : Math.max(2, Math.min(maxCols, Math.ceil(got.length / rows)));
-  const cw = W / cols, ch = DISC + 40;
-  const H = rows * ch + 44;
+  const ch = DISC + 40;
   const rnd = seededRand(ui.corkSeed || got.length * 7919 + 17);
-  const cells = []; for (let i = 0; i < cols * rows; i++) cells.push(i);
-  for (let i = cells.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+  /* The cells used to be shuffled across the WHOLE cols x rows grid and the
+     first got.length taken, so the empty cells landed wherever the shuffle put
+     them — often several in the bottom row, leaving a band of bare cork under
+     the wall. And H reserved every row's height whether anything was in it or
+     not, so the gap was real space, not just a look.
+
+     Now the cells fill in reading order, so only the LAST row is ever short,
+     and the board is exactly as tall as the rows that hold something. Which
+     patch lands in which cell is still shuffled, and the jitter and rotation
+     are untouched — the wall still reads as a wall, it just has no hole in it. */
+  const n = got.length;
+  const lastRow = Math.floor((n - 1) / cols);
+  const inLast = n - lastRow * cols;
+  const H = (lastRow + 1) * ch + 44;
+  const slots = []; for (let i = 0; i < n; i++) slots.push(i);
+  for (let i = slots.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [slots[i], slots[j]] = [slots[j], slots[i]]; }
   s += '<div class="corkboard" style="height:' + H + 'px; --disc:' + DISC + 'px">';
   got.forEach((p, i) => {
-    const c = cells[i], col = c % cols, row = Math.floor(c / cols);
+    const c = slots[i], row = Math.floor(c / cols), col = c - row * cols;
+    /* A short last row is CENTRED at the grid's own spacing — not stretched
+       across the full width. Stretching was the first thing tried and it is
+       worse: two patches on a 1240px board end up at the quarter points with a
+       hole between them, which is the same complaint one row lower. Centring
+       keeps the rhythm of the rows above and just removes the ragged left
+       edge. */
+    /* Capped at a little over one cell. Without this a board holding two or
+       three patches sets cols to 2 and pushes them out to the quarter points
+       of a 1,240px wall — a hole by another name. A full row is already
+       narrower than the cap (cols comes from floor(W / CELL)), so wide boards
+       are untouched and only sparse ones pull in. */
+    const cw = Math.min(W / cols, CELL * 1.35);
+    const onRow = row === lastRow ? inLast : cols;
+    const off = (W - onRow * cw) / 2;
     const jx = (rnd() - .5) * Math.min(40, Math.max(0, cw - DISC - 8)), jy = (rnd() - .5) * 26;
-    const x = Math.min(W - DISC / 2 - 16, Math.max(DISC / 2 + 16, col * cw + cw / 2 + jx));
+    const x = Math.min(W - DISC / 2 - 16, Math.max(DISC / 2 + 16, off + col * cw + cw / 2 + jx));
     const y = 24 + row * ch + ch / 2 + jy;
     const rot = ((rnd() - .5) * 28).toFixed(1);
     s += '<button class="pinned patch got" data-act="openpatch" data-v="' + esc(p.id) + '" title="' + esc(String(p.label).replace(/&middot;/g, '·')) + '"' +
