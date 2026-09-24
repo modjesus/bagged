@@ -8307,10 +8307,32 @@ function trailBlock(list){
          ' style="left:' + x + '%; top:' + y + 'px">' +
          '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
          '<span class="mstext"><b>' + esc(p.label) + '</b>' +
-           '<i>' + (p.got ? 'Earned' : (p.prog || p.note || ((p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%'))) + '</i></span>' +
+           '<i>' + esc(patchState(p, pct)) + '</i></span>' +
          '</button>';
   });
   return s + '</div>';
+}
+/* What a patch you have not started should say.
+   "0 of 10 summits · 0%" appeared in four places and told you nothing in any of
+   them — while displacing the one line that DOES say something, `need`, which
+   every patch already carries ("Mark 10 peaks", "Stand on 29,031.7 ft of
+   summits, added together"). Zero progress is not progress: say what it asks.
+   Past zero, the count and the percentage are worth having, so they come back.
+   The bar stays at 0 either way, so a challenge still looks like something you
+   chip away at rather than something with no scale. */
+function patchState(p, pct){
+  if (p.got) return 'Earned';
+  if (!(p.have > 0)){
+    /* A one-summit patch's `need` is "Mark <the name already in the title>",
+       which is an echo, not information — its `note` carries the country and
+       the height. A multi-step patch is the other way round: `need` says what
+       the thing actually asks. Pick accordingly. */
+    const say = p.target > 1 ? (p.need || p.note) : (p.note || p.need);
+    return String(say || '').replace(/&middot;/g, '\u00b7');
+  }
+  if (p.prog) return String(p.prog).replace(/&middot;/g, '\u00b7') + (p.target > 1 ? ' \u00b7 ' + pct + '%' : '');
+  if (p.target > 1) return (p.have || 0) + ' of ' + p.target + ' \u00b7 ' + pct + '%';
+  return String(p.need || '');
 }
 function patchRow(list){
   let s = '<div class="patchrow topo">';
@@ -8319,7 +8341,7 @@ function patchRow(list){
     s += '<button class="milestone flow' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '">' +
          '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
          '<span class="mstext"><b>' + esc(p.label) + '</b>' +
-           '<i>' + (p.got ? 'Earned' : (p.prog || p.note || ((p.have || 0) + ' of ' + p.target + ' &middot; ' + pct + '%'))) + '</i></span>' +
+           '<i>' + esc(patchState(p, pct)) + '</i></span>' +
          '</button>';
   }
   return s + '</div>';
@@ -11630,9 +11652,7 @@ function challengeRow(p){
          percentage and the bar are for the ones you chip away at. And the
          separator only earns its place when there is something before it —
          "All Three Peaks" has no progress line, so it read as "· 33%". */
-      : [esc(String(p.prog || (p.target > 1 ? (p.have || 0) + ' of ' + p.target : '') ||
-             p.note || '').replace(/&middot;/g, '\u00b7')),
-         p.target > 1 ? pct + '%' : ''].filter(Boolean).join(' \u00b7 ')) + '</i>' +
+      : esc(patchState(p, pct))) + '</i>' +
     (p.got || p.target <= 1 ? '' : '<span class="chbar"><s style="width:' + pct + '%"></s></span>') + '</span>' +
     (p.grade ? '<span class="chgrade">' + ti('alert-triangle') + '</span>' : '') +
     '<span class="chgo">' + ti('chevron-right') + '</span></button>';
@@ -11675,7 +11695,10 @@ function challengeBody(p, pct){
 
   s += '<p class="chstate' + (p.got ? ' on' : '') + '">' +
     (p.got ? ti('check') + '<span>Unlocked</span>'
-           : ti('lock') + '<span>' + esc(p.need || '') + ' \u00b7 ' + pct + '% there</span>') + '</p>';
+           /* "Mark 10 peaks · 0% there" — the second half only earns its place
+              once there is some there to be */
+           : ti('lock') + '<span>' + esc(p.need || '') +
+             (p.have > 0 ? ' \u00b7 ' + pct + '% there' : '') + '</span>') + '</p>';
   return s;
 }
 /* a bare height in the walker's own units, for "how much further" */
@@ -12094,8 +12117,10 @@ function renderPatchDetail(p){
       /* the body below spells out what it asks and how far along you are */
       ? (p.got ? 'Unlocked' : 'Locked') + (p.note ? ' &middot; ' + esc(p.note.replace(/&middot;/g, '\u00b7')) : '')
       : esc(p.got ? 'Earned' : p.need)) +
+      /* `need` is already printed just above on this page, so repeating it at
+         zero would say the same thing twice — here the zero line simply goes. */
       ((p.route || p.kind === 'climb') ? ''
-        : p.target <= 1 ? ''
+        : p.target <= 1 || !(p.have > 0) ? ''
         : p.prog ? (p.got ? '' : ' &middot; ' + esc(p.prog) + ' (' + pct + '%)')
         : ' &middot; ' + (p.have || 0) + ' of ' + p.target + ' (' + pct + '%)') +
       ((p.route || p.kind === 'climb') ? '' : (p.note ? ' &middot; ' + p.note : '')) + '</p>' +
