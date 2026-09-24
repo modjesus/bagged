@@ -4270,13 +4270,20 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
    a finger on a photo fought the carousel and the page juddered up and down.
    Saying pan-x hands every vertical gesture straight to the page and keeps
    only horizontal ones here — which also makes swiping across behave. */
-/* overflow-y MUST be stated. CSS computes a `visible` on one axis to `auto`
-   when the other axis is not visible, so overflow-x:auto alone made this a
-   vertical scroll container too: a wheel or a drag over a photo was eaten by
-   an element with nothing to scroll instead of reaching the page. */
+/* touch-action is NOT a routing instruction. `pan-x` does not "hand vertical
+   gestures to the page" — it declares that horizontal panning is the ONLY
+   gesture the browser may perform for a touch starting here, so a vertical
+   drag was not passed on, it was discarded. That is why a finger could not
+   scroll the feed past a photo while a mouse wheel could: the wheel is not
+   governed by touch-action at all.
+   Left at the default, the browser's own gesture detection does the right
+   thing — horizontal to the carousel, vertical chained to the page — and
+   overflow-y:hidden makes sure this element has no vertical scroll to claim.
+   (overflow-y must be stated: CSS computes a `visible` on one axis to `auto`
+   when the other is not visible.) */
 .pcar{display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; width:100%;
   aspect-ratio:1/1; max-height:min(72vh, 560px); scrollbar-width:none;
-  touch-action:pan-x pinch-zoom; overscroll-behavior-x:contain}
+  touch-action:auto; overscroll-behavior-x:contain}
 .pcar::-webkit-scrollbar{display:none}
 .pcar .shot{flex:0 0 100%; width:100%; height:100%; scroll-snap-align:start; padding:0; margin:0; border:0; border-radius:0; background:var(--surface-2)}
 .pcar img{width:100%; height:100%; object-fit:cover; display:block}
@@ -4876,6 +4883,16 @@ span.pshow{cursor:default}
 @media (min-width:768px){
   .top{background:none; backdrop-filter:none; -webkit-backdrop-filter:none;
     border-bottom:1px solid var(--line-soft)}
+  /* …but .top is position:sticky, so the moment anything scrolls under it you
+     were reading the icons against whatever passed behind — on a profile, the
+     cover photo, with the Edit profile button showing straight through the bar.
+     Transparent at rest, solid once the page has moved. This must stay the
+     LAST .top background rule in the file; see the note above. */
+  html.scrolled .top{
+    background:color-mix(in srgb, var(--ground) 94%, transparent);
+    -webkit-backdrop-filter:blur(14px) saturate(1.3);
+    backdrop-filter:blur(14px) saturate(1.3);
+  }
 }
 .top .iconbtn, .top .sync{border:0; background:transparent; width:40px; height:40px; border-radius:50%; box-shadow:none; transition:background .2s var(--ease), transform .2s var(--ease)}
 .top .iconbtn:hover, .top .sync:hover{background:var(--tint)}
@@ -5894,6 +5911,22 @@ mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding
    The row is align-items:flex-end, so a label that wraps keeps the inputs
    bottom-aligned anyway. */
 .pdrow label{display:block; white-space:normal}
+/* Safari still overlapped these. Measured off a screenshot at 2x: a 607px
+   content box, and each of the two boxes rendering 312px — so they cannot both
+   fit, and the second ran off the sheet. box-sizing is border-box globally
+   (line 107) and the flex basis is 44% with min-width:0, so none of the usual
+   culprits explain it, and WebKit cannot be installed here to find out which
+   does. So the mechanism goes instead of the symptom: grid `1fr` tracks are
+   computed from the container width minus the gaps and cannot sum to more than
+   the container in any engine, minmax(0-ish, 1fr) stops content pushing a track
+   wider, and the cell clips as a last resort. auto-fit drops to a single column
+   when two will not honestly fit, which is the right answer on a small phone
+   anyway. Only the When/Time row: .pdrow also carries an input-plus-button row. */
+.pdrow.two{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap:10px; align-items:end}
+.pdrow.two > *{min-width:0; max-width:100%; overflow:hidden}
+.pdrow.two input, .pdrow.two select{display:block; box-sizing:border-box;
+  width:100%; max-width:100%; min-width:0}
 .hpres{display:flex; flex-direction:column; gap:2px; max-height:46vh; overflow-y:auto}
 .bcsheet .form.walkinv{border:0; padding:0; background:none}
 .stgrid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px 6px; max-height:40vh; overflow-y:auto}
@@ -10719,7 +10752,7 @@ function paintPlanComposer(){
     '<div><label for="pdq">Which hill <span class="opt">optional</span></label>' + (h
       ? '<div class="mrow on"><button class="mmain" data-act="pdhillclear"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; change</span></button></div>'
       : '<div class="field">' + ti('search') + '<input id="pdq" placeholder="Search any hill…" autocomplete="off" value="' + esc(d.q) + '"></div><div id="pdres">' + walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"') + '</div>') + '</div>' +
-    '<div class="pdrow"><div><label for="pddate">When</label><input type="date" id="pddate" min="' + tdy + '" value="' + esc(d.date) + '"></div>' +
+    '<div class="pdrow two"><div><label for="pddate">When</label><input type="date" id="pddate" min="' + tdy + '" value="' + esc(d.date) + '"></div>' +
     '<div><label for="pdtime">Time <span class="opt">optional</span></label><input type="time" id="pdtime" value="' + esc(d.time) + '"></div></div>' +
     '<div><label for="pdmeet">Where to meet <span class="opt">optional</span></label><input id="pdmeet" maxlength="80" placeholder="Seathwaite car park" value="' + esc(d.meet) + '"></div>' +
     '<div><label for="pdnote">A note <span class="opt">optional</span></label><input id="pdnote" maxlength="200" placeholder="Bring a flask, it’ll be windy on top" value="' + esc(d.note) + '"></div>' +
@@ -21723,6 +21756,15 @@ var ptrBusy = false;
     } else { d.style.opacity = 0; setTimeout(() => d.remove(), 200); }
   };
   document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
+})();
+/* Has the page moved? The desktop header reads off this to decide whether it
+   needs its own background. rAF-throttled: this fires on every scroll frame. */
+(function(){
+  let queued = false;
+  const set = () => { queued = false;
+    document.documentElement.classList.toggle('scrolled', (window.scrollY || 0) > 4); };
+  addEventListener('scroll', () => { if (!queued){ queued = true; requestAnimationFrame(set); } }, {passive:true});
+  set();
 })();
 /* A phone keyboard lifts anything fixed to the bottom with it, so the tab bar
    bows out while a text field has focus and comes back when it lets go. */
