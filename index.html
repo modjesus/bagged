@@ -918,7 +918,15 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   text-transform:uppercase; color:var(--ink-3)}
 .dsummits ul{list-style:none; margin:6px 0 0; padding:0}
 .dsummits li{display:flex; align-items:baseline; gap:10px; padding:4px 0}
-.dsummits li .linkbtn{padding:0; font-family:var(--font-display); font-size:15px;
+/* these three were 20-23px tall: wide enough, short enough to miss */
+/* These were 20-23px tall: wide enough to see, a pixel or two short to hit.
+   min-height only, no extra padding — padding each summit row by 10px to gain
+   ONE pixel added 600px to the Journal, which is a worse trade than the bug. */
+.planintro .linkbtn{padding:0; min-height:24px}
+.hbrand{min-height:24px}
+/* padding:0 must stay — dropping it let the base .linkbtn's 9px back in and
+   put 1,000px on the Journal */
+.dsummits li .linkbtn{padding:0; min-height:24px; font-family:var(--font-display); font-size:15px;
   color:var(--ink); text-align:left}
 .dsummits li i{ margin-left:auto; font-style:normal; font-family:var(--font-ui); color:var(--ink-3); white-space:nowrap }
 .dnote{margin:10px 0 0; font-size:14px; line-height:1.6; color:var(--ink-2)}
@@ -1047,7 +1055,12 @@ dl.lfacts{margin:0}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none; border:1px solid var(--line); background:var(--surface); border-radius:99px; padding:6px 12px; font-size:13px; color:var(--ink-2); white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text); font-weight:700}
-:root[data-theme="dark"] .chip[aria-pressed="true"], :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:var(--ink)}
+/* This said color:var(--ink) back when a pressed chip had an --accent-soft
+   background. A later rule changed that background to --ink itself and this was
+   never revisited, so in dark it painted --ink on --ink: contrast 1:1, the text
+   exactly its own background. It has higher specificity than the rule it now
+   contradicts, so it has to agree with it rather than simply be removed. */
+:root[data-theme="dark"] .chip[aria-pressed="true"], :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:var(--surface)}
 
 /* list */
 .grouphead{position:sticky; top:var(--topH,104px); z-index:5; padding:16px 2px 6px; background:linear-gradient(var(--ground) 70%, transparent)}
@@ -1397,7 +1410,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .banner.soft b{color:var(--ink)}
 .banner{display:flex; gap:10px; align-items:flex-start; margin-top:14px; background:var(--surface); border:1px solid var(--warn); border-left-width:4px; border-radius:var(--r); padding:11px 13px; font-size:13.5px; color:var(--ink-2); line-height:1.45}
 .banner b{color:var(--warn); display:block; margin-bottom:2px}
-.banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1; padding:0 2px; align-self:center}
+/* was 19x18 — under the 24x24 floor on both axes, and the hardest control on
+   the screen to hit */
+.banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1;
+  min-width:32px; min-height:32px; display:inline-flex; align-items:center; justify-content:center;
+  padding:0; align-self:center}
 /* ---- Routes: day strip, search results, mode bar ---- */
 .rstep{margin:14px 0 7px; font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
@@ -2851,7 +2868,28 @@ button.bstriprow{cursor:pointer}
   background:linear-gradient(90deg, var(--done), var(--accent))}
 .dpn{font-family:var(--font-data); font-size:12px; color:var(--ink-2);
   font-variant-numeric:tabular-nums; display:flex; gap:7px; white-space:nowrap}
-.dpn small{font-size:12px; color:var(--sage)}
+/* --sage is 3.9:1 on the light card and 3.71:1 on the dark one — it fails in
+   BOTH, at the 12px this layout uses. --ink-2 is the token that is contrast-
+   checked for small text. */
+.dpn small{font-size:12px; color:var(--ink-2)}
+
+/* ---- focus rings on wrapper-bordered fields ----
+   The global :focus-visible ring (line ~118) covers everything EXCEPT these:
+   their border sits on the wrapper, so the input inside sets outline:none —
+   which also removed the only thing telling a keyboard user where they are.
+   Tabbing the five tabs for real, these were the only three tab stops in 339
+   with no indicator at all: the hill search, the map search and the route
+   search. Ring the wrapper instead, and do the same for the four other fields
+   built the same way before they bite too. */
+.field:focus-within, .msearch:focus-within, .ibsearch:focus-within,
+.donfield:focus-within, .cvfield:focus-within{
+  outline:2px solid var(--accent); outline-offset:2px}
+/* the wrapper already owns a radius; match it so the ring is not a rectangle
+   around a pill */
+.cvfield:focus-within{border-radius:21px}
+.ibsearch:focus-within{border-radius:12px}
+/* rust on the dark chip ground is 2.42:1; the dark accent text is 6.6:1 */
+:root[data-theme="dark"] .dpt em, :root:not([data-theme="light"]) .dpt em{color:var(--accent-text)}
 /* Two to a row once the column can hold them. No viewport breakpoint: the
    journal column is 606px inside a 768px tablet and 720px inside a 1280px
    desktop, so a min-width query asks the wrong question — auto-fit measures
@@ -3119,7 +3157,12 @@ button.bstriprow{cursor:pointer}
 .side .sfoot{border-top-color:#2C5C52; color:#9DB4AD}
 .side .tagline{color:#9DB4AD}
 .side .brand{color:#F3EFE6}
-.side .brand em{color:#A8431A}
+/* The sidebar is dark pine in BOTH themes, so it cannot use the accent token,
+   which is tuned for a light ground. #A8431A on pine is 2.26:1 for the wordmark
+   and 1.70:1 for the counts. #EE9A62 is the app's own dark-theme accent text. */
+.side .brand em{color:#EE9A62}
+.side .navbtn[aria-selected="true"] .nc{color:#EE9A62}
+.side .navbtn[aria-selected="true"] .ni{color:#EE9A62}
 
 
 /* ================= the field-guide sheet =================
@@ -3789,6 +3832,13 @@ body.guiding{overflow:hidden}
 .mpill b{font:400 12px/1 var(--font-data); color:var(--ink-3)}
 .mpill.on{background:var(--ink); color:#F3EFE6}
 .mpill.on svg, .mpill.on b{color:inherit; opacity:.75}
+/* The pill's glass was hardcoded light while its text is var(--ink), so in dark
+   it put cream on near-white: 1.38:1 for the label, 1.26:1 for the count.
+   :not(.on) leaves the selected pill's own dark fill alone. */
+:root[data-theme="dark"] .mpill:not(.on), :root:not([data-theme="light"]) .mpill:not(.on){
+  background:rgba(21,42,38,.82);
+  box-shadow:0 0 0 1px rgba(243,239,230,.16), 0 14px 30px -18px rgba(0,0,0,.6),
+             inset 0 1px 0 rgba(243,239,230,.08)}
 .mmenu.mleft{left:12px; right:auto; top:auto; bottom:110px; width:min(340px, calc(100% - 24px - var(--grip, 0px)))}
 .mmenu .listbar{padding:2px 0 6px; flex-wrap:wrap; overflow:visible}
 .mmenu .daystrip{margin:0}
@@ -5500,7 +5550,13 @@ img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
 .shhead{display:flex; align-items:flex-start; gap:14px; margin:26px 0 10px; padding-top:16px; border-top:1px solid var(--line)}
 .shhead:first-of-type{margin-top:14px}
 .shhead > div{flex:1; min-width:0}
-.shhead h3{margin:0; font:400 21px var(--font-display); color:var(--ink)}
+/* h2 now (h3 kept so nothing that still emits one loses its styling) */
+.shhead h2, .shhead h3{margin:0; font:400 21px var(--font-display); color:var(--ink)}
+/* "Recently earned" / "Within reach" carry .shhead on the heading ITSELF, so the
+   rule above does not reach them and they fell back to the UA size — which for
+   an h2 is 1.5em against the h3's 1.17em, so promoting the tag made them jump
+   from 18.7px to 24px. Pin it to what it was. */
+h2.shhead{font-size:18.7px; font-weight:700}
 .shverb{display:inline-block; margin-left:6px; font:600 12px var(--font-data); font-style:normal;
   letter-spacing:.05em; color:var(--accent); vertical-align:2px}
 .shhead p{margin:3px 0 0; font-size:13.5px; color:var(--ink-2); line-height:1.45; max-width:44ch}
@@ -6349,7 +6405,8 @@ html.kbopen .cvcompose{padding-bottom:8px}
      parent there is no ancestor left that can do that to it. -->
 <nav class="bnav" id="bnav" role="tablist" aria-label="Sections"></nav>
 
-<div class="sheet" id="sheet">
+<!-- the only sheet that was not announced as a dialog; the other four already were -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
   <div class="sheetbox">
     <button class="xbtn" id="sheetX" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <div class="setbar">
@@ -11690,7 +11747,7 @@ function renderChallenges(ps){
     const gotN = inG.filter(p => p.got).length;
     s += '<section class="shhead ' + shCls(view) + '">' +
       (PATCH_SHAPES ? '<span class="shglyph" aria-hidden="true"></span>' : '') +
-      '<div><h3>' + GROUP_NAME[view] + ' <i class="shverb">' + GROUP_VERB[view] + '</i></h3>' +
+      '<div><h2>' + GROUP_NAME[view] + ' <i class="shverb">' + GROUP_VERB[view] + '</i></h2>' +
       '<p>' + groupBlurb(view) + '</p>' +
       '<i>' + gotN + ' of ' + inG.length + ' earned</i></div></section>';
     if (!inG.length) return s + '<p class="empty">Nothing in this group yet.</p>';
@@ -11719,7 +11776,7 @@ function renderChallenges(ps){
     const gotN = inG.filter(p => p.got).length;
     s += '<section class="shhead ' + shCls(g) + '">' +
       (PATCH_SHAPES ? '<span class="shglyph" aria-hidden="true"></span>' : '') +
-      '<div><h3>' + GROUP_NAME[g] + ' <i class="shverb">' + GROUP_VERB[g] + '</i></h3>' +
+      '<div><h2>' + GROUP_NAME[g] + ' <i class="shverb">' + GROUP_VERB[g] + '</i></h2>' +
       '<p>' + groupBlurb(g) + '</p>' +
       '<i>' + gotN + ' of ' + inG.length + ' earned</i></div>' +
       '<button class="linkbtn shall" data-act="chalview" data-v="' + g + '">See all ' +
@@ -11820,7 +11877,7 @@ function recentStrip(ps){
     .sort((a, b) => b.e.date.localeCompare(a.e.date))
     .slice(0, 3);
   if (!recent.length) return '';
-  let s = '<h3 class="shhead reachhead">Recently earned</h3><ul class="reclist">';
+  let s = '<h2 class="shhead reachhead">Recently earned</h2><ul class="reclist">';
   for (const r of recent){
     s += '<li><button data-act="openpatch" data-v="' + esc(r.p.id) + '">' +
       '<span class="patch got recdisc">' + patchDisc(r.p, ' tiny') + '</span>' +
@@ -11835,7 +11892,7 @@ function recentStrip(ps){
 function reachRail(B, f){
   if (!B.near.length) return B.hidden
     ? '<p class="jnote">' + B.hidden + ' more to go after these.</p>' : '';
-  let s = '<h3 class="shhead reachhead">Within reach</h3>' +
+  let s = '<h2 class="shhead reachhead">Within reach</h2>' +
     '<div class="patchstrip reachstrip">';
   for (const p of B.near){
     const left = p.target > 1 && p.have != null ? Math.max(0, p.target - p.have) : 0;
@@ -12281,6 +12338,27 @@ function saveView(){
 }
 addEventListener('pagehide', saveView);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveView(); });
+/* The name of wherever you are, for the heading below and for nothing else. */
+const SCREEN_NAME = {
+  d: 'Home', p: 'Plan a walk', m: 'Map', j: 'Journal', u: 'Hikers',
+  a: {cork: 'Patches', collection: 'Patches', journey: 'Your journey', supplies: 'The shop'}
+};
+function screenName(){
+  const n = SCREEN_NAME[tab];
+  if (typeof n === 'string') return n;
+  if (n) return n[ui.patchView] || 'Basecamp';
+  return 'WayMark';
+}
+/* A screen with no <h1> gets a hidden one. A screen that painted its own is
+   left alone — two h1s is its own problem. */
+function ensureScreenHeading(){
+  const m = document.getElementById('main');
+  if (!m || m.querySelector('h1')) return;
+  const h = document.createElement('h1');
+  h.className = 'vh';
+  h.textContent = screenName();
+  m.insertBefore(h, m.firstChild);
+}
 function render(){
   if (!viewRestored) restoreView();
   if (FB && fbUser && !notesUnsub && !notesFailed) watchNotes();
@@ -12327,6 +12405,11 @@ function render(){
   }
 
   const psb = document.getElementById('profsheetbox'), psTop = psb ? psb.scrollTop : 0;
+  /* Eight of the nine screens had no <h1> — and the Shop had no heading of any
+     level. Screen-reader users navigate by heading first, so there was nothing
+     to land on. Added here rather than in six renderers: whatever the screen
+     paints, if it produced no h1 of its own it gets a visually hidden one
+     naming where you are. Home and the shop detail pages keep theirs. */
   document.getElementById('main').innerHTML = banner +
     (tab === 'd' ? renderDashboard() :
      tab === 'p' ? renderPlans() :
@@ -12336,6 +12419,7 @@ function render(){
      tab === 'u' ? renderHikers() : renderHills());
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
+  ensureScreenHeading();
   paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell(); paintBag();
   if (tab === 'u') hydratePostPhotos();
   if (tab === 'd') setTimeout(tuneStamp, 0);
@@ -12409,7 +12493,10 @@ function renderHills(){
 
   html += '<div style="margin-top:18px">' + renderPatches(id) + '</div>';
 
-  html += '<h3 class="sect">By ' + (isW ? 'book' : 'area') + '</h3>';
+  /* h2, not h3: this is a section of the page, directly under its h1. It was
+     an h3 sitting above h2s, so the list outranked its own heading. .sect is a
+     class rule, so nothing about how it looks changes. */
+  html += '<h2 class="sect">By ' + (isW ? 'book' : 'area') + '</h2>';
   html += '<div class="regionlist">';
   for (const b of s.regions){
     const p = b.total ? Math.round(b.done / b.total * 100) : 0;
@@ -12424,7 +12511,10 @@ function renderHills(){
 
   html += '<div class="controls"><div class="field">';
   html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>';
-  html += '<input type="search" id="q" placeholder="Search a hill…" value="' + esc(ui.q) + '" autocomplete="off"></div>';
+  /* a placeholder is not a label: it is announced inconsistently and vanishes
+     the moment you type */
+  html += '<label for="q" class="vh">Search a hill</label>' +
+    '<input type="search" id="q" placeholder="Search a hill…" value="' + esc(ui.q) + '" autocomplete="off"></div>';
   html += '<div class="chips">';
   html += '<button class="chip" data-act="status" data-v="all" aria-pressed="' + (ui.status==='all') + '">All</button>';
   for (const sd of STATES)
@@ -25466,6 +25556,191 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) camStop(); else if (!cam.still) camStart();
 });
 document.addEventListener('click', e => { const b = e.target.closest('[data-act="cam"]'); if (b){ e.preventDefault(); camOpen(); } });
+
+
+/* ================= modal sheets: focus management =================
+   Audited 24 Sep. Every sheet failed the same four ways: focus never entered
+   it (it stayed on the button that opened it), Tab walked straight out into
+   the page behind (23 times out of 25 for the Backpack), Escape closed only
+   the Settings sheet, and focus never came back to the opener. A walker using
+   a keyboard or a screen reader opened the Backpack and was still standing on
+   the page underneath, with nothing to say anything had happened.
+
+   One helper rather than five, because they all fail identically. It does not
+   replace any existing close path — it calls them. */
+(function(){
+  /* selector -> the sheet's OWN close function, so the drag-to-close, the X
+     button and Escape all end up in the same place */
+  const SHEETS = [
+    {sel:'#sheet',       close(){ try{ closeSheetNow(); }catch(e){} }, escape:false},
+    {sel:'#notesheet',   close(){ try{ closeNotes(); }catch(e){} }},
+    {sel:'#bcsheet',     close(){ try{ bcSheetClose(); }catch(e){} }},
+    {sel:'#basketsheet', close(){ try{ closeBasket(); }catch(e){} }},
+    {sel:'#shopsheet',   close(){ try{ shopClose(); }catch(e){} }}
+  ];
+
+  const shown = el => {
+    if (!el || !el.isConnected) return false;
+    const s = getComputedStyle(el);
+    if (s.display === 'none' || s.visibility === 'hidden') return false;
+    return el.getBoundingClientRect().height > 20;
+  };
+  /* last in the list wins: a checkout opened over a backpack is the live one */
+  const topSheet = () => {
+    for (let i = SHEETS.length - 1; i >= 0; i--){
+      const el = document.querySelector(SHEETS[i].sel);
+      if (shown(el)) return {el, def: SHEETS[i]};
+    }
+    return null;
+  };
+  const tabbable = root => [...root.querySelectorAll(
+      'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]')]
+    .filter(el => el.tabIndex > -1 && el.getClientRects().length);
+
+  let opener = null, current = null, lastOutside = null;
+
+  /* The opener is whatever the walker last touched OUTSIDE a sheet — tracked
+     live, not read inside sync(). sync() runs a frame after the sheet appears,
+     and some sheets move focus into themselves before then, so reading
+     activeElement there captured an element inside the sheet: closing it then
+     "restored" focus to something that no longer existed and left it on
+     <body>. */
+  const noteOutside = e => {
+    const t = e.target;
+    if (!(t instanceof Element)) return;
+    const el = t.closest('a[href],button,input,select,textarea,[tabindex]');
+    if (!el) return;
+    for (const s of SHEETS){
+      const n = document.querySelector(s.sel);
+      if (n && n.contains(el)) return;
+    }
+    lastOutside = el;
+  };
+  document.addEventListener('focusin', noteOutside, true);
+  document.addEventListener('pointerdown', noteOutside, true);
+
+  function sync(){
+    const t = topSheet();
+    const el = t ? t.el : null;
+    if (el === current) return;
+
+    if (!el){                                   /* everything closed */
+      document.querySelectorAll('[data-wm-inert]').forEach(n => {
+        n.removeAttribute('inert'); n.removeAttribute('data-wm-inert'); });
+      const back = opener;
+      current = null; opener = null;
+      /* Put them back where they were, not at the top of the page.
+         Two things made this harder than it looks. A sheet hides with
+         display:none, not a transition, so at the instant it closes
+         document.activeElement is still a stale reference to the field inside
+         it — testing "is activeElement body yet" is therefore false, and any
+         fallback keyed on that never fires. And tabbing into a text field in a
+         sheet sets html.kbopen, which bows the tab bar out of view for another
+         60ms, so an opener living in that bar cannot take focus at the moment
+         we ask. So: try, check whether focus actually landed on something real
+         rather than trusting the call, and try once more after the bar is
+         back. */
+      const landed = () => {
+        const a = document.activeElement;
+        return a && a !== document.body && a.isConnected && a.getClientRects().length;
+      };
+      const restore = () => {
+        if (landed() && current === null && !document.activeElement.closest('.sheet')) return true;
+        if (back && back.isConnected && back.getClientRects().length){
+          try{ back.focus({preventScroll:true}); }catch(e){}
+          if (landed()) return true;
+        }
+        return false;
+      };
+      if (!restore()) setTimeout(() => {
+        if (current !== null) return;                 /* another sheet opened meanwhile */
+        if (restore()) return;
+        /* Never leave focus on <body> after a dialog closes: the next Tab would
+           start again from the top of the document. */
+        const m = document.getElementById('main');
+        if (m){ m.setAttribute('tabindex', '-1'); try{ m.focus({preventScroll:true}); }catch(e){} }
+      }, 150);
+      return;
+    }
+
+    if (!current) opener = lastOutside || document.activeElement;   /* once per stack */
+    current = el;
+
+    /* anything at body level that does not contain the sheet is out of play.
+       The Tab trap below is what actually holds — inert is the belt. */
+    [...document.body.children].forEach(n => {
+      if (n === el || n.contains(el) || n.hasAttribute('data-wm-inert')) return;
+      try{ n.setAttribute('inert', ''); n.setAttribute('data-wm-inert', ''); }catch(e){}
+    });
+
+    if (el.contains(document.activeElement)) return;
+    /* the heading first so a screen reader announces WHAT opened, not just the
+       first button in it */
+    const head = el.querySelector('h1,h2,h3,.bcsheettitle');
+    const target = head || tabbable(el)[0] || el;
+    if (target && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(target.tagName) && !target.hasAttribute('tabindex'))
+      target.setAttribute('tabindex', '-1');
+    try{ target.focus({preventScroll:true}); }catch(e){}
+  }
+
+  /* sheets open by class, by style and by being created outright, so watch for
+     all three rather than hooking five call sites */
+  let queued = false, settle = null;
+  const ping = () => {
+    if (!queued){ queued = true; requestAnimationFrame(() => { queued = false; sync(); }); }
+    /* A sheet closes by losing a class and then sliding out over ~220ms. At the
+       moment the class changes it is still full height, so the check above sees
+       nothing yet — and the end of a transition is not a mutation, so nothing
+       ever checks again and focus is never handed back. Look once more after
+       the animation has had time to finish.
+       NOT clearTimeout-and-reset: the transitionend listener below is on
+       capture, so every child that animates pings this. Resetting the timer
+       each time let a sheet with several animated children push the check back
+       indefinitely, and focus was never restored. Let the first one land. */
+    if (!settle) settle = setTimeout(() => { settle = null; sync(); }, 400);
+  };
+  new MutationObserver(ping).observe(document.body,
+    {childList:true, subtree:true, attributes:true, attributeFilter:['class','style','hidden']});
+  document.addEventListener('transitionend', ping, true);
+  ping();
+
+  /* ---- Tab stays inside ---- */
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const t = topSheet(); if (!t) return;
+    const f = tabbable(t.el); if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (!t.el.contains(document.activeElement)){
+      e.preventDefault(); (e.shiftKey ? last : first).focus(); return;
+    }
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }, true);
+
+  /* ---- Escape ----
+     There is already a keydown chain that closes the viewer, the marking
+     sheet, the picker, the win card and several more, innermost first, and it
+     ends by closing #sheet. Running a second Escape handler blind would close
+     a sheet out from under a photo viewer sitting on top of it, so this one
+     stands down whenever any of those is open, and leaves #sheet to the chain
+     that already handles it (escape:false above). */
+  const higher = () => {
+    const t = f => { try{ return !!f(); }catch(e){ return false; } };
+    return t(() => ndOpen()) || t(() => mkOpen()) || t(() => pickOpen()) || t(() => askOpen())
+        || t(() => winOpen()) || t(() => avOpen()) || t(() => listInfoOpen()) || t(() => poiSheetOpen())
+        || t(() => viewer.classList.contains('open')) || t(() => infoSheet.classList.contains('open'))
+        || t(() => document.getElementById('camx').classList.contains('open'));
+  };
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    const t = topSheet();
+    if (!t || t.def.escape === false) return;
+    if (higher()) return;
+    e.preventDefault();
+    t.def.close();
+    setTimeout(sync, 0);
+  });
+})();
 
 
 </script>
