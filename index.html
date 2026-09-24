@@ -10,7 +10,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
      link. That, not a stylesheet, is where the blue date text came from. -->
 <meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
 <title>WayMark — Free UK Hill Bagging Log: Wainwrights, Munros &amp; More</title>
-<meta name="description" content="Free walking log for the hills of Britain. Tick off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists. Keep a journal, earn patches.">
+<meta name="description" content="Free walking log for the hills of Britain. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists. Keep a journal, earn patches.">
 <link rel="canonical" href="https://waymark.it.com/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <meta property="og:type" content="website">
@@ -1157,6 +1157,89 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .hh s{text-decoration:none; color:var(--ink-3); font-size:10.5px; display:block}
 .tags{display:flex; gap:3px; flex-wrap:wrap; margin-top:3px}
 .tag{font-family:var(--font-ui); font-size:9px; letter-spacing:.04em; border:1px solid var(--line); color:var(--ink-3); border-radius:4px; padding:1px 4px}
+/* On a hill's info card the lists are buttons, not labels: they are the way in
+   for somebody who arrived from that hill's page with nothing switched on. */
+/* The introduction a first-time visitor from the website sees, above the hill
+   they came for. Pine, with Scafell Pike's own contours behind it — cut from
+   OS Terrain 50, the same source the /hills/ pages they just left are drawn
+   from, so arriving here looks like the place they came from. Gone the moment
+   they pick a list. */
+/* Sand in daylight, and the dark theme gets the matching dark surface: --cream
+   is a fixed brand token but --ink FLIPS to cream after dark, so painting this
+   panel with --cream directly would put cream type on a cream slab. Hence a
+   token of its own, declared for both themes. */
+.webhi{--web-sand:var(--surface-2); --web-wash:215,210,195; --web-wash-a:.40;
+  position:relative; overflow:hidden; background:var(--web-sand);
+  border:1px solid var(--line); border-radius:var(--r); margin:0 0 14px; isolation:isolate}
+:root[data-theme="dark"] .webhi{--web-wash:243,239,230; --web-wash-a:.05}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .webhi{--web-wash:243,239,230; --web-wash-a:.05} }
+.webhi .wbg{position:absolute; inset:0; width:100%; height:100%; z-index:0}
+.webhi .wbg path{fill:none; stroke:var(--contour-ink); stroke-width:1.15; opacity:.34;
+  vector-effect:non-scaling-stroke}
+/* a wash of stone off the top corner, so the sand reads as ground, not fill */
+.webhi::after{content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:radial-gradient(120% 86% at 92% 0%,
+    rgba(var(--web-wash), var(--web-wash-a)) 0%,
+    rgba(var(--web-wash), calc(var(--web-wash-a) * .36)) 46%,
+    rgba(var(--web-wash), 0) 78%)}
+.webhi .webin{position:relative; z-index:2; padding:14px 14px 13px}
+/* The lockup is the app's own .sbt — wordmark with the tagline tracked out
+   underneath it by fitTaglines(). Only its size and its place in the panel are
+   set here; the two lines centre on each other exactly as they do in the header. */
+.webhi .weblock{display:inline-flex; width:max-content; max-width:100%;
+  margin:0; flex:0 0 auto; align-self:flex-start; color:var(--ink)}
+.webhi .weblock .brand{font-size:18px}
+.webhi .weblock .tagline{font-size:8px}
+/* The arrow gets the introduction out of the way of the hill they came for.
+   It sits on its own row at the foot, not the top right — the sheet's own
+   close button already owns that corner and the two would overlap. */
+/* one row: the footnote takes what it needs, the arrow sits at the end of it */
+.webhi .webfoot{display:flex; align-items:center; justify-content:flex-end;
+  gap:10px; margin-top:10px}
+.webhi[data-open="0"] .webfoot{margin-top:9px}
+.webhi .webtog{flex:0 0 auto; display:inline-flex; align-items:center; gap:7px;
+  width:32px; height:32px; padding:0; justify-content:center; cursor:pointer;
+  border:1px solid var(--line); border-radius:999px; background:var(--surface);
+  font-family:var(--font-data); font-size:10px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--ink-2);
+  transition:background .18s ease, border-color .18s ease}
+.webhi .webtog:hover{background:var(--raise); border-color:var(--ink-2)}
+.webhi .webtog svg{width:15px; height:15px; flex:0 0 auto; transition:transform .22s ease}
+/* The label is only ever the accessible name — the arrow is an arrow in both
+   states, and whoever folded the panel up is the one who knows what is inside. */
+.webhi .webtoglab{position:absolute; width:1px; height:1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+/* Folded up it is one row: wordmark, then the arrow at the end of it. The extra
+   right padding keeps that arrow clear of the sheet's own close button, which
+   sits over this corner. */
+.webhi[data-open="0"] .webin{display:flex; align-items:center; gap:10px;
+  padding:12px 44px 12px 14px}
+.webhi[data-open="0"] .webfoot{flex:0 0 auto; margin-top:0; margin-left:auto}
+.webhi[data-open="0"] .webtog svg{transform:rotate(-180deg)}
+.webhi[data-open="0"] .webbody, .webhi[data-open="0"] .webm{display:none}
+.webhi[data-open="0"] .wbg path{opacity:.24}
+.webhi .webbody{margin-top:12px}
+.webhi .webk{margin:0 0 11px; font-family:var(--font-display); font-weight:400;
+  font-size:27px; line-height:1.05; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--ink); text-wrap:balance}
+.webhi .webnum{list-style:none; display:flex; gap:20px; margin:0 0 11px; padding:0}
+.webhi .webnum li{display:flex; flex-direction:column; gap:1px}
+.webhi .webnum b{font-family:var(--font-data); font-weight:600; font-size:21px;
+  line-height:1; color:var(--accent-text); font-variant-numeric:tabular-nums}
+.webhi .webnum span{font-family:var(--font-data); font-size:9px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-2)}
+.webhi .webl{margin:0 0 9px; font-size:14px; line-height:1.5; color:var(--ink-2); max-width:34em}
+.webhi .webm{flex:1 1 auto; margin:0; font-family:var(--font-data); font-size:10px;
+  letter-spacing:.07em; line-height:1.35; text-transform:uppercase; color:var(--ink-2)}
+@media (prefers-reduced-motion: reduce){ .webhi .webtog, .webhi .webtog svg{transition:none} }
+#info .webpick{margin:0 0 7px; font-size:13.5px; color:var(--ink-2)}
+.tagb{background:var(--surface); cursor:pointer; font-size:11px; padding:3px 8px;
+  border-radius:999px; min-height:24px; transition:none}
+.tagb:hover{border-color:var(--accent); color:var(--accent-text)}
+.tagb[data-on="1"]{border-color:var(--done-line); color:var(--ink-2); background:var(--done-soft)}
+.tagb::after{content:""}
+.tagb:not([data-on="1"])::after{content:" +"; font-weight:700; opacity:.55}
 
 .detail{border-top:1px solid var(--line-soft); padding:10px 12px 12px; display:flex; flex-direction:column; gap:10px}
 .detail label, .form label{font-family:var(--font-ui); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
@@ -6362,8 +6445,8 @@ html.kbopen .cvcompose{padding-bottom:8px}
 
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain."}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain. Tick off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "@id": "https://waymark.it.com/#app", "name": "WayMark", "url": "https://waymark.it.com/", "applicationCategory": "HealthApplication", "applicationSubCategory": "Hiking and hill walking log", "operatingSystem": "Any (web browser, installable as a PWA)", "browserRequirements": "Requires JavaScript", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP", "availability": "https://schema.org/InStock"}, "description": "A free walking log for the hills of Britain. Mark the summits you have reached across 16 hill lists and 2,531 hills, keep a journal with photographs, earn patches and follow other walkers.", "featureList": ["Tick off 16 British hill lists including the Wainwrights, Munros, Corbetts, Grahams, Nuttalls, Hewitts, Birketts, Marilyns and Peak District Ethels", "2,531 summits with heights, grid references and regions", "Offline map with saveable sheets", "Walk journal with photographs and notes", "Patches earned for summits, challenges and milestones", "Follow other walkers and share completed walks", "Works offline and installs to the home screen"]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "@id": "https://waymark.it.com/#app", "name": "WayMark", "url": "https://waymark.it.com/", "applicationCategory": "HealthApplication", "applicationSubCategory": "Hiking and hill walking log", "operatingSystem": "Any (web browser, installable as a PWA)", "browserRequirements": "Requires JavaScript", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP", "availability": "https://schema.org/InStock"}, "description": "A free walking log for the hills of Britain. Mark the summits you have reached across 16 hill lists and 2,531 hills, keep a journal with photographs, earn patches and follow other walkers.", "featureList": ["Mark off 16 British hill lists including the Wainwrights, Munros, Corbetts, Grahams, Nuttalls, Hewitts, Birketts, Marilyns and Peak District Ethels", "2,531 summits with heights, grid references and regions", "Offline map with saveable sheets", "Walk journal with photographs and notes", "Patches earned for summits, challenges and milestones", "Follow other walkers and share completed walks", "Works offline and installs to the home screen"]}</script>
 </head>
 <body>
 <noscript>
@@ -9271,6 +9354,79 @@ function takeSuppliesRoute(){
   if (d) ui.supOpen = d.n;
   try{ history.replaceState({sup: d ? d.n : 0}, '', SUP_BASE + 'supplies' + (d ? '/' + d.slug : '')); }catch(e){}
   return true;
+}
+
+/* Deep links, so every one of the hill pages under /hills/ can land somebody
+   somewhere useful instead of on the Home screen.
+
+     #hill=NY342151   the hill itself: opened in its list if you follow that
+                      list, otherwise its info sheet, which works for anyone
+     #list=wainwright the list, switched on if it was not already — arriving
+                      from that list's own page is consent enough, and it is
+                      one tap to undo in Settings
+     #plan #map #journal #patches #collection #journey #hikers #shop
+                      (#map lands on Plan a walk: render() folds tab 'm' into 'p')
+
+   restoreView() already stands aside when there is a hash, so a deep link is
+   never overwritten by the last session's screen. */
+const WEB_CONTOURS = '<svg class="wbg" viewBox="0 0 520 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><path d="M0 217 L3 227 L7 239 L11 249 L16 261 L22 271 L30 283 L39 294 L44 300 L50 305 L55 310 M0 124 L11 134 L16 139 L22 145 L28 150 L33 155 L39 161 L39 172 L22 176 L11 178 L7 183 L8 194 L10 205 L12 216 L15 227 L19 239 L22 247 L30 261 L38 272 L44 278 L55 292 L66 302 L77 310 M0 105 L11 112 L19 117 L30 128 L41 139 L53 150 L66 161 L72 172 L66 180 L55 185 L44 187 L33 189 L22 193 L21 205 L23 216 L27 227 L31 239 L37 250 L44 258 L55 271 L65 283 L77 292 L89 300 L97 305 L111 309 L122 313 M0 87 L5 95 L11 99 L19 106 L33 113 L40 117 L50 128 L55 132 L66 138 L77 145 L87 150 L90 161 L99 172 L92 183 L77 191 L69 194 L55 198 L44 201 L35 205 L33 216 L38 227 L44 238 L53 250 L64 261 L75 272 L89 282 L100 290 L109 294 L122 298 L133 302 L141 305 L155 308 L166 311 L177 312 L188 312 L199 313 L210 313 L221 309 L228 305 L243 295 L254 291 L266 292 L277 299 L278 305 M387 -12 L385 -5 L385 6 L387 14 L395 28 L404 39 L409 49 L414 61 L416 73 L419 84 L419 95 L409 103 L398 99 L389 95 L380 84 L373 73 L365 64 L354 59 L343 51 L332 46 L321 42 L310 34 L304 28 L299 22 L291 6 L286 -5 M66 -15 L55 -9 L49 -5 L44 2 L33 5 L23 -5 L11 -7 L3 6 L0 14 M409 -5 L413 6 L417 17 L423 28 L427 39 L430 50 L431 58 L435 73 L436 84 L436 95 L434 106 L434 117 L433 128 L420 135 L412 128 L398 120 L387 117 L376 110 L370 106 L366 95 L363 84 L355 73 L343 64 L332 56 L321 56 L310 54 L299 43 L288 40 L277 41 L272 28 L276 17 L269 6 L275 -5 M92 -5 L89 3 L78 17 L70 28 L66 34 L60 39 L55 44 L44 50 L33 58 L26 73 L25 84 L29 95 L44 103 L55 116 L66 123 L77 126 L89 130 L100 134 L111 138 L112 150 L116 161 L121 172 L118 183 L111 187 L100 191 L89 199 L77 204 L66 209 L55 212 L49 216 L53 227 L62 239 L73 250 L85 261 L97 272 L111 280 L122 285 L133 289 L144 293 L155 297 L166 300 L177 302 L188 302 L199 302 L210 299 L221 294 L231 283 L243 273 L254 278 L266 280 L277 283 L288 287 L292 294 L289 305 M520 33 L509 36 L505 28 L498 20 L487 11 L476 6 L465 14 L462 28 L461 39 L460 50 L457 61 L454 69 L450 84 L449 95 L447 106 L447 117 L449 128 L448 139 L445 150 L443 158 L431 160 L420 160 L411 150 L403 139 L387 129 L376 124 L365 119 L354 118 L352 106 L352 95 L351 84 L343 75 L332 64 L321 67 L310 68 L299 62 L288 53 L277 54 L266 57 L254 59 L246 50 L242 39 L241 28 L241 17 L240 6 L250 -5 L254 -8 M114 -5 L111 1 L101 17 L95 28 L91 39 L89 49 L82 61 L78 73 L72 84 L72 95 L75 106 L87 117 L100 122 L111 124 L122 127 L133 126 L144 130 L153 139 L157 150 L156 161 L150 172 L144 177 L138 183 L133 192 L122 198 L111 202 L101 205 L90 216 L85 227 L89 235 L96 250 L107 261 L122 271 L133 276 L144 283 L155 288 L166 291 L177 294 L188 294 L199 291 L210 283 L218 272 L221 265 L232 262 L242 261 L254 261 L266 268 L273 272 L288 272 L299 274 L305 283 L305 294 L310 303 L321 310 M520 65 L509 56 L504 50 L498 39 L487 42 L483 50 L480 61 L476 71 L469 84 L465 91 L460 106 L460 117 L462 128 L463 139 L462 150 L460 161 L456 172 L454 182 L443 191 L432 183 L420 183 L409 188 L402 183 L399 172 L397 161 L396 150 L387 141 L376 134 L365 130 L354 129 L343 131 L332 131 L332 121 L338 106 L341 95 L337 84 L332 78 L321 81 L310 84 L299 80 L291 73 L277 66 L266 70 L254 75 L243 77 L232 75 L226 73 L224 61 L227 50 L228 39 L229 28 L226 17 L222 6 L227 -5 L232 -11 M135 -5 L126 6 L122 12 L112 28 L108 39 L106 50 L105 61 L103 73 L100 84 L99 95 L102 106 L111 112 L120 117 L133 115 L143 117 L155 121 L166 125 L177 138 L181 150 L180 161 L179 172 L174 183 L166 191 L155 203 L144 211 L137 216 L133 222 L128 239 L133 249 L141 261 L150 272 L155 276 L164 283 L177 285 L188 286 L195 283 L206 272 L210 261 L217 250 L221 243 L230 239 L243 248 L254 242 L266 240 L277 233 L288 238 L290 250 L299 258 L310 264 L321 272 L320 283 L332 294 L338 305 M398 312 L404 305 L409 300 L420 295 L431 291 L443 289 L454 293 L459 305 L465 310 M520 105 L513 95 L509 89 L501 84 L487 91 L479 106 L476 114 L474 128 L475 139 L476 150 L474 161 L472 172 L470 183 L469 194 L468 205 L465 216 L462 227 L454 235 L447 227 L443 223 L439 216 L431 208 L420 212 L409 216 L398 209 L388 194 L386 183 L385 172 L383 161 L381 150 L376 145 L365 140 L354 137 L347 139 L332 144 L321 150 L310 151 L305 139 L308 128 L320 117 L322 106 L310 101 L299 98 L290 95 L277 84 L266 89 L255 95 L243 96 L232 91 L221 92 L214 84 L211 73 L213 61 L215 50 L218 39 L218 28 L210 18 L205 6 L210 -2 L212 -5 M166 -13 L160 -5 L155 1 L150 6 L144 11 L137 17 L133 22 L129 28 L124 39 L122 50 L122 61 L123 73 L123 84 L123 95 L131 106 L144 109 L155 111 L166 115 L177 117 L188 116 L193 128 L191 139 L193 150 L193 161 L193 172 L195 183 L198 194 L208 205 L221 210 L227 205 L243 199 L254 201 L259 205 L277 213 L286 216 L299 218 L310 219 L318 216 L332 222 L342 239 L343 250 L341 261 L341 272 L344 283 L347 294 L350 305 L354 311 M387 306 L398 296 L409 289 L419 283 L431 272 L443 261 L454 254 L465 250 L475 239 L487 231 L498 220 L509 206 L520 198 M509 311 L516 305 L519 294 L512 283 L498 277 L487 281 L485 294 L498 304 L509 311 M188 276 L195 272 L199 267 L205 250 L210 239 L199 231 L188 235 L178 239 L175 250 L179 261 L179 272 L188 276 M520 153 L509 146 L498 146 L489 161 L485 172 L482 183 L482 194 L484 205 L498 200 L502 194 L509 187 L515 183 L520 174 M365 301 L376 303 L387 294 L398 286 L405 283 L409 277 L415 261 L412 250 L398 242 L393 239 L393 227 L387 217 L377 205 L371 194 L371 183 L372 172 L371 161 L365 153 L354 147 L343 147 L335 150 L323 161 L310 162 L299 161 L294 150 L293 139 L296 128 L299 120 L288 110 L277 106 L266 108 L254 111 L243 112 L232 112 L221 114 L210 114 L205 128 L199 139 L203 150 L204 161 L206 172 L210 180 L217 183 L232 183 L243 182 L254 179 L266 177 L276 183 L277 194 L288 201 L297 205 L310 208 L321 201 L332 201 L338 205 L343 212 L353 227 L361 239 L358 250 L354 257 L356 272 L354 283 L360 294 L365 301 M166 107 L177 108 L188 108 L199 110 L206 106 L208 95 L205 84 L201 73 L199 63 L203 50 L208 39 L203 28 L190 17 L191 6 L193 -5 L180 6 L166 16 L155 25 L144 36 L138 50 L138 61 L139 73 L142 84 L145 95 L155 102 L161 106 L166 107 M354 199 L356 183 L357 172 L355 161 L343 160 L339 172 L337 183 L343 192 L354 199 M232 164 L243 167 L254 167 L266 165 L277 164 L284 150 L283 139 L282 128 L277 122 L266 121 L254 127 L243 130 L232 134 L221 138 L217 150 L221 160 L232 164 M166 95 L177 99 L188 99 L199 95 L196 84 L188 76 L182 61 L186 50 L191 39 L177 35 L170 39 L158 50 L155 61 L156 73 L162 84 L166 95 L166 95"/></svg>';
+/* set when this visit began on one of the /hills/ pages, so the hill card
+   can introduce WayMark to somebody who has never seen it. */
+var fromWeb = false;
+/* the introduction starts open, but folds away so the hill they came for is
+   the first thing on screen the moment they want it to be */
+var webOpen = true;
+const DEEP_TAB = {map:['p',null], plan:['p',null], journal:['j',null],
+  hikers:['u',null], patches:['a','cork'], collection:['a','collection'],
+  journey:['a','journey'], shop:['a','supplies']};
+
+function takeDeepLink(){
+  const h = decodeURIComponent(location.hash || '');
+  if (!h) return false;
+
+  const hill = h.match(/^#hill=([A-Za-z0-9:_-]{4,24})$/);
+  if (hill){
+    const key = hill[1].toUpperCase(), rec0 = BY_KEY[key];
+    history.replaceState(null, '', location.pathname + location.search);
+    if (!rec0) return false;
+    fromWeb = true;
+    const lid = homeListFor(rec0);
+    if (state.enabled.includes(lid)){
+      ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.open = key;
+      tab = 'd';
+      setTimeout(() => {
+        const row = document.querySelector('.hrow[data-row="' + CSS.escape(key) + '"]');
+        if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72});
+      }, 80);
+    } else {
+      tab = 'd';
+      setTimeout(() => { try{ openInfo(key); }catch(e){} }, 160);
+    }
+    return true;
+  }
+
+  const list = h.match(/^#list=([a-z0-9-]{3,20})$/i);
+  if (list){
+    const id = list[1].toLowerCase();
+    history.replaceState(null, '', location.pathname + location.search);
+    if (!LIST_BY[id]) return false;
+    if (!state.enabled.includes(id)){
+      state.enabled.push(id);
+      try{ save(); }catch(e){}
+      try{ toast(LIST_BY[id].name + ' switched on — change it any time in Settings.'); }catch(e){}
+    }
+    ui.list = id; ui.region = ''; ui.q = ''; ui.status = 'all';
+    tab = 'd';
+    return true;
+  }
+
+  const t = DEEP_TAB[h.slice(1).toLowerCase()];
+  if (t){
+    history.replaceState(null, '', location.pathname + location.search);
+    tab = t[0]; if (t[1]) ui.patchView = t[1];
+    return true;
+  }
+  return false;
 }
 
 window.addEventListener('popstate', () => {
@@ -17552,6 +17708,41 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'info'){ openInfo(el.dataset.k); }
   else if (a === 'closeinfo'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; }
+  /* Someone arriving from a hill page on the website has no lists switched on
+     yet. The lists printed on that hill's card are the shortest route in:
+     tap one and it starts, with the hill you came for already in it. */
+  /* fold the introduction away without redrawing the sheet, so their place in
+     the hill card is exactly where they left it */
+  else if (a === 'webtoggle'){
+    webOpen = !webOpen;
+    const box = el.closest('.webhi');
+    if (box){
+      box.dataset.open = webOpen ? '1' : '0';
+      el.setAttribute('aria-expanded', webOpen ? 'true' : 'false');
+      el.title = webOpen ? 'Hide this' : 'What is WayMark?';
+      const lab = el.querySelector('.webtoglab');
+      if (lab) lab.textContent = webOpen ? 'Hide the introduction' : 'What is WayMark?';
+    }
+  }
+  else if (a === 'infolist'){
+    const id = el.dataset.v;
+    if (!LIST_BY[id]) return;
+    if (!state.enabled.includes(id)){
+      state.enabled.push(id);
+      saveLocal();
+      if (!seenOnboard()) markOnboarded();
+      ui.onboard = 'done';
+      toast(LIST_BY[id].name + ' started — change your lists any time in Settings.');
+    }
+    const k = wikiOpen && wikiOpen.k;
+    document.getElementById('info').classList.remove('open'); wikiOpen = null;
+    ui.list = id; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.open = k || null;
+    tab = 'd'; render();
+    if (k) setTimeout(() => {
+      const row = document.querySelector('.hrow[data-row="' + CSS.escape(k) + '"]');
+      if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
+    }, 60);
+  }
   else if (a === 'editavatar'){ openAvatarEditor(); }
   else if (a === 'avatarclear'){
     fbAvatar = ''; markDirty('avatar'); prof.avHi = ''; saveProf();
@@ -19790,6 +19981,7 @@ async function openInfo(key){
   wikiOpen = h; wikiBusy = true;
   paintInfo();
   document.getElementById('info').classList.add('open');
+  fitTaglines();   /* now it has a width to measure */
   try{ await wikiLookup(h); }catch(e){}
   wikiBusy = false;
   if (wikiOpen === h) paintInfo();
@@ -19801,12 +19993,56 @@ function paintInfo(){
   const v = wikiMem[h.k];
   const r = rec(h.k), on = isBagged(h.k);
 
-  let s = '<h2>' + esc(hillName(h)) + '</h2>';
+  /* Somebody who arrived from a hill page on the website has never seen any of
+     this. One short introduction, above the hill, and only while they have no
+     lists of their own — it disappears the moment they pick one. */
+  let s = '';
+  if (fromWeb && !state.enabled.length){
+    const nl = LISTS.filter(l => l.id !== 'route-top').length;
+    s += '<div class="webhi" data-open="' + (webOpen ? '1' : '0') + '">' +
+      WEB_CONTOURS +
+      '<div class="webin">' +
+        '<p class="weblock sbt"><b class="brand">WAY<em>MARK</em></b>' +
+          '<i class="tagline">Mark Your Journeys</i></p>' +
+        '<div class="webbody" id="webbody">' +
+          '<p class="webk">The log for Britain\u2019s hills</p>' +
+          '<ul class="webnum">' +
+            '<li><b>' + HILLS.length.toLocaleString() + '</b><span>Hills</span></li>' +
+            '<li><b>' + nl + '</b><span>Lists</span></li>' +
+            '<li><b>Free</b><span>Always</span></li></ul>' +
+          '<p class="webl">Mark off what you have climbed, keep a journal with photographs, ' +
+            'earn patches, and watch your journey draw itself on the map.</p>' +
+        '</div>' +
+        /* the footnote and the arrow share the last row — the arrow does not
+           earn a line of its own, and the footnote goes with the body it
+           belongs to when the panel folds up */
+        '<div class="webfoot">' +
+          '<p class="webm">No account &middot; Nothing to install</p>' +
+          '<button class="webtog" data-act="webtoggle" aria-controls="webbody" ' +
+            'aria-expanded="' + (webOpen ? 'true' : 'false') + '" ' +
+            'title="' + (webOpen ? 'Hide this' : 'What is WayMark?') + '">' +
+            '<span class="webtoglab">' + (webOpen ? 'Hide the introduction' : 'What is WayMark?') + '</span>' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+              'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ' +
+              'focusable="false"><path d="M6 15l6-6 6 6"/></svg>' +
+          '</button>' +
+        '</div>' +
+      '</div></div>';
+  }
+  s += '<h2>' + esc(hillName(h)) + '</h2>';
   s += '<p class="istats">' + htFlat(h) + ' · ' + esc(h.c) +
        (h.g ? ' · grid ' + esc(h.g) : '') +
        ((h.alt && h.alt.length) ? ' · also ' + esc(h.alt.join(', ')) : '') + '</p>';
+  if (fromWeb && !state.enabled.length){
+    s += '<p class="webpick">' + esc(hillName(h)) + ' counts on ' +
+         (h.l.length === 1 ? 'one list' : h.l.length + ' of them') +
+         '. Pick where you want to start — you can change it any time.</p>';
+  }
   s += '<div class="tags" style="margin-bottom:12px">' +
-       h.l.map(x => '<span class="tag">' + esc(LIST_BY[x].name) + '</span>').join('') + '</div>';
+       h.l.map(x => '<button class="tag tagb" data-act="infolist" data-v="' + esc(x) + '"' +
+         (state.enabled.includes(x) ? ' data-on="1"' : '') +
+         ' title="' + (state.enabled.includes(x) ? 'Go to ' : 'Start ') + esc(LIST_BY[x].name) + '">' +
+         esc(LIST_BY[x].name) + '</button>').join('') + '</div>';
 
   const wq = QUOTES[h.k];
   if (wq){
@@ -19835,6 +20071,11 @@ function paintInfo(){
        (on ? 'Unmark' : 'Mark it') + '</button>' +
        '<button class="btn quiet" data-act="closeinfo">Close</button></div>';
   box.innerHTML = s;
+  /* The wordmark here is the app's own lockup, so it gets the app's own fitter:
+     the tagline is tracked out to sit exactly under WAYMARK, never past it.
+     Only once the sheet is on screen, though — fitTaglines reads zero from a
+     closed sheet and caches that as "nothing to fit" for the whole session. */
+  if (document.getElementById('info').classList.contains('open')) fitTaglines();
 }
 
 let fbDetail = false;
@@ -22463,7 +22704,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v202';
+const APP_VERSION = 'v209';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -24397,6 +24638,9 @@ saveLocal();   // persist the migration immediately, so it happens once
 if (state.enabled.length && !state.enabled.includes(ui.list)) ui.list = state.enabled[0];
 /* an existing walker has already answered all this */
 if (seenOnboard() || state.enabled.length) ui.onboard = 'done';
+/* after the state is loaded and ui.list has been reconciled with it, or a
+   deep link would be overwritten by both */
+try{ takeDeepLink(); }catch(e){}
 seedSeen();
 render();
 introEverest();
