@@ -6,6 +6,9 @@ try{ var wmT = localStorage.getItem('waymark.theme') || 'light'; if (wmT !== 'au
 catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- iOS Safari turns a bare date, address or number into its own tappable blue
+     link. That, not a stylesheet, is where the blue date text came from. -->
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
 <title>WayMark — Mark Your Journeys</title>
 <meta name="description" content="Mark the hills you have climbed across Britain. Wainwrights, Munros, Corbetts, Marilyns, Nuttalls and more. Keep a journal, earn patches, follow other walkers.">
 <meta property="og:type" content="website">
@@ -53,7 +56,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
   --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#F3E0D4; --accent-text:#A8431A;   /* text on cream: 5:1 */
   --done:#1E453E; --done-soft:#DFE9E6; --done-line:#A2BCB6; --crew:#14332D;
   --plan:#5F5B8C; --plan-soft:#E7E5F2;
-  --prog:#2E6B8A; --prog-soft:#DFEBF2;
+  --prog:#625E55; --prog-soft:#EAE6DA;   /* in progress reads as greyed out, not blue */
   --warn:#B0561F;
   --shadow:0 1px 2px rgba(20,51,45,.08), 0 6px 20px -12px rgba(20,51,45,.38);
   --r:12px;
@@ -78,7 +81,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
     --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#EE9A62;
     --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#173A33;
     --plan:#A9A3E0; --plan-soft:#2B2A44;
-    --prog:#7FB6D6; --prog-soft:#1E3644;
+    --prog:#A9A49A; --prog-soft:#2A2A26;
     --warn:#E58B4E;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.75);
     --grain:.12; --noise:.05;
@@ -93,7 +96,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
   --accent:#A8431A; --accent-ink:#F6EFE4; --accent-soft:#33261F; --accent-text:#EE9A62;
   --done:#6FC0AC; --done-soft:#12342C; --done-line:#2F6558; --crew:#173A33;
   --plan:#A9A3E0; --plan-soft:#2B2A44;
-  --prog:#7FB6D6; --prog-soft:#1E3644;
+  --prog:#A9A49A; --prog-soft:#2A2A26;
   --warn:#E58B4E;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.75);
   --grain:.12; --noise:.05;
@@ -3108,7 +3111,7 @@ button.bstriprow{cursor:pointer}
   --ground:#F4F2EC; --surface:#FBFAF6; --raise:#FFFFFF; --surface-2:#ECE9E1;
   --line:#CBC8BE; --line-soft:#DDDAD1;
   --contour-ink:#65847E;
-  --stamp-orange:#A8431A; --stamp-green:#7A9A3A; --stamp-blue:#4A86B8;
+  --stamp-orange:#A8431A; --stamp-green:#7A9A3A; --stamp-blue:#625E55;
   --shadow:none;
   --sheet:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cg fill='none' stroke='%2365847E' stroke-width='.9' stroke-opacity='.55'%3E%3Cpath d='M-30 60c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 100c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 140c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 180c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 220c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 260c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 300c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 340c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 380c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cpath d='M-30 20c60-40 120-40 180 0s120 40 180 0 90-30 120-15'/%3E%3Cellipse cx='300' cy='120' rx='46' ry='26'/%3E%3Cellipse cx='300' cy='120' rx='24' ry='12'/%3E%3Cellipse cx='90' cy='300' rx='56' ry='30'/%3E%3Cellipse cx='90' cy='300' rx='30' ry='14'/%3E%3C/g%3E%3Cg fill='%2365847E' fill-opacity='.7' font-family='Source Code Pro, monospace' font-size='9'%3E%3Ctext x='214' y='97'%3E280%3C/text%3E%3Ctext x='34' y='257'%3E300%3C/text%3E%3Ctext x='334' y='337'%3E260%3C/text%3E%3C/g%3E%3Cg stroke='%2314332D' stroke-opacity='.18' stroke-width='1'%3E%3Cpath d='M20 0v8M16 4h8'/%3E%3Cpath d='M230 210v8M226 214h8'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -3663,10 +3666,10 @@ li.hill.bk .hrow{padding-left:2px}
   border-radius:99px; background:var(--accent);
 }
 .locatectl button, .mctl button[data-act="mlocate"]{position:relative}
-.walkpill{position:sticky; top:calc(var(--topH, 104px) + 6px); z-index:40; display:inline-flex; align-items:center; gap:8px; margin:0 0 8px; padding:8px 14px; border-radius:99px; border:1px solid #2C7BE5; background:var(--surface); color:#1E5FB8; font:700 13px/1 var(--font-ui); box-shadow:0 2px 8px -2px rgba(20,51,45,.35); cursor:pointer}
-.walkpill::before{content:""; width:8px; height:8px; border-radius:99px; background:#2C7BE5; animation:pulse 1.4s ease-in-out infinite}
+.walkpill{position:sticky; top:calc(var(--topH, 104px) + 6px); z-index:40; display:inline-flex; align-items:center; gap:8px; margin:0 0 8px; padding:8px 14px; border-radius:99px; border:1px solid var(--accent); background:var(--surface); color:var(--accent-text); font:700 13px/1 var(--font-ui); box-shadow:0 2px 8px -2px rgba(20,51,45,.35); cursor:pointer}
+.walkpill::before{content:""; width:8px; height:8px; border-radius:99px; background:var(--accent); animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-.walkdone{margin:6px 0 16px; padding:14px 14px 12px; background:var(--surface); border:1px solid var(--line); border-left:3px solid #2C7BE5; border-radius:5px}
+.walkdone{margin:6px 0 16px; padding:14px 14px 12px; background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:5px}
 .walkdone h3{margin:4px 0 0; font-family:var(--font-ui); font-weight:700; font-size:19px}
 .walkdone .pstrip{margin-top:8px}
 .walkhills{font-size:14px; color:var(--ink-2); margin:10px 0 0; line-height:1.45}
@@ -4267,7 +4270,11 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
    a finger on a photo fought the carousel and the page juddered up and down.
    Saying pan-x hands every vertical gesture straight to the page and keeps
    only horizontal ones here — which also makes swiping across behave. */
-.pcar{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; width:100%;
+/* overflow-y MUST be stated. CSS computes a `visible` on one axis to `auto`
+   when the other axis is not visible, so overflow-x:auto alone made this a
+   vertical scroll container too: a wheel or a drag over a photo was eaten by
+   an element with nothing to scroll instead of reaching the page. */
+.pcar{display:flex; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; width:100%;
   aspect-ratio:1/1; max-height:min(72vh, 560px); scrollbar-width:none;
   touch-action:pan-x pinch-zoom; overscroll-behavior-x:contain}
 .pcar::-webkit-scrollbar{display:none}
@@ -5401,14 +5408,6 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 /* iOS zooms into any field under 16px and never zooms back out, which took the
    sheet with it. Every field a thumb can reach is 16px. */
 .form input, .form select, .form textarea, .field input, .pickin, .bcsheet input, .bcsheet select, .bcsheet textarea{font-size:16px}
-/* a date and a time next to each other: both shrink, neither overlaps */
-.pdrow{flex-wrap:wrap}
-.pdrow > *{flex:1 1 44%; min-width:0}
-.pdrow input, .pdrow select{width:100%; min-width:0; box-sizing:border-box}
-/* was: nowrap + ellipsis, which truncated 'Time (optional)' to 'Time (opt…'.
-   The row is align-items:flex-end, so a label that wraps keeps the inputs
-   bottom-aligned anyway. */
-.pdrow label{display:block; white-space:normal}
 /* an image that is rebuilt on a repaint should not blink white first */
 img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
 .bcsheethead{display:flex; align-items:center; gap:12px; padding-right:44px; cursor:grab}
@@ -5553,6 +5552,11 @@ img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
 .bcfit tr.on{background:var(--bc-ok-soft)}
 .bccheck{display:flex; align-items:center; gap:10px; min-height:48px; padding:0 12px; border-radius:10px; border:1px solid var(--line); background:var(--raise); font:600 15px var(--font-ui); color:var(--ink)}
 .bccheck input{width:20px; height:20px; accent-color:var(--bc-ok)}
+/* "keep it anonymous" on the donation form */
+.donanon{display:flex; align-items:flex-start; gap:10px; margin:12px 0 0; cursor:pointer}
+.donanon input{flex:none; width:20px; height:20px; margin:1px 0 0; accent-color:var(--accent)}
+.donanon > span{font:600 14.5px var(--font-ui); color:var(--ink); line-height:1.35}
+.donanon > span i{display:block; margin-top:2px; font:400 13px var(--font-ui); font-style:normal; color:var(--ink-3)}
 .bclede{margin:0 !important; font-size:15px !important; color:var(--ink-2)}
 
 /* ---- the backpack ---- */
@@ -5664,7 +5668,9 @@ img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
 /* the profile editor: a sheet that leaves the cover above it live */
 .profsheet{background:transparent; pointer-events:none; z-index:900}
 .sheet.bottom.profsheet .sheetbox{pointer-events:auto; max-height:56dvh; margin-bottom:calc(62px + env(safe-area-inset-bottom)); box-shadow:0 -14px 34px -10px rgba(10,28,24,.45); padding-top:6px; transition:max-height .25s cubic-bezier(.32,.72,0,1)}
-.profsheethead{user-select:none; -webkit-user-select:none; touch-action:none; cursor:grab; position:sticky; top:-6px; z-index:2; background:var(--surface); margin:0 -16px; padding:6px 16px 8px}
+/* z-index was 2, which a patch badge (also 2, and later in the DOM) beat —
+   so the showcase artwork scrolled over the header instead of under it. */
+.profsheethead{user-select:none; -webkit-user-select:none; touch-action:none; cursor:grab; position:sticky; top:-6px; z-index:20; background:var(--surface); margin:0 -16px; padding:6px 16px 8px}
 .profsheet .ntop{display:flex; align-items:center; gap:10px; margin:0}
 .profsheet .ntop h3{flex:1; margin:0}
 .profsheetbtns{display:flex; align-items:center; gap:8px}
@@ -5876,6 +5882,18 @@ mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding
 .pdrow{display:flex; gap:10px; align-items:flex-end}
 .pdrow > *{flex:1; min-width:0}
 .pdrow > .btn{flex:none}
+/* MOVED HERE (v198). This block used to sit ~470 lines earlier, where the
+   later plain `.pdrow > *{flex:1}` beat its `flex:1 1 44%` at equal
+   specificity — so the date and time never wrapped and a date input, which
+   will not shrink past its own control width, sat on top of the time one. */
+/* a date and a time next to each other: both shrink, neither overlaps */
+.pdrow{flex-wrap:wrap}
+.pdrow > *{flex:1 1 44%; min-width:0}
+.pdrow input, .pdrow select{width:100%; min-width:0; box-sizing:border-box}
+/* was: nowrap + ellipsis, which truncated 'Time (optional)' to 'Time (opt…'.
+   The row is align-items:flex-end, so a label that wraps keeps the inputs
+   bottom-aligned anyway. */
+.pdrow label{display:block; white-space:normal}
 .hpres{display:flex; flex-direction:column; gap:2px; max-height:46vh; overflow-y:auto}
 .bcsheet .form.walkinv{border:0; padding:0; background:none}
 .stgrid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px 6px; max-height:40vh; overflow-y:auto}
@@ -5913,7 +5931,7 @@ mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding
 .iossteps{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
 .iossteps li{display:flex; align-items:center; gap:12px; font-size:15px; color:var(--ink)}
 .iosn{flex:none; width:28px; height:28px; border-radius:99px; background:var(--ink); color:var(--surface); display:grid; place-items:center; font:700 13px var(--font-data)}
-.iosic{flex:none; width:40px; height:40px; border-radius:11px; background:var(--tint); display:grid; place-items:center; color:#2E6B8A}
+.iosic{flex:none; width:40px; height:40px; border-radius:11px; background:var(--tint); display:grid; place-items:center; color:var(--ink-2)}
 .iosic svg{width:22px; height:22px}
 
 /* ================= the chat screen =================
@@ -8512,10 +8530,12 @@ function paintBasket(msg){
     (msg ? '<p class="bkmsg" role="alert">' + esc(msg) + '</p>' : '');
   s += '<dl class="bktotals"><div><dt>Subtotal</dt><dd>' + gbp(t.sub) + '</dd></div>' +
     (t.off ? '<div class="off"><dt>Discount</dt><dd>&minus;' + gbp(t.off) + '</dd></div>' : '') +
-    '<div><dt>UK delivery</dt><dd' + (t.ship ? '' : ' class="free"') + '>' + (t.ship ? gbp(t.ship) : 'Free') + '</dd></div>' +
+    /* nothing being posted: a "UK delivery: Free" row on a donation is noise */
+    (t.goods ? '<div><dt>UK delivery</dt><dd' + (t.ship ? '' : ' class="free"') + '>' + (t.ship ? gbp(t.ship) : 'Free') + '</dd></div>' : '') +
     '<div class="tot"><dt>Total</dt><dd>' + gbp(t.total) + '</dd></div></dl>';
   s += '<button class="btn bkgo" data-act="bkcheckout">' + ti('lock') + 'Checkout securely &middot; ' + gbp(t.total) + '</button>' +
-    '<p class="shopnote bkpay">Apple Pay, Google Pay or card &middot; by Stripe &middot; arrives ' + esc(bcArrive()) + ' &middot; 14-day returns. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>';
+    '<p class="shopnote bkpay">Apple Pay, Google Pay or card &middot; by Stripe' +
+      (t.goods ? ' &middot; arrives ' + esc(bcArrive()) + ' &middot; 14-day returns' : '') + '. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>';
   el.innerHTML = s + '</div>';
   if (typeof wire === 'function') wire();
   if (ui.bkCodeOpen === 'focus'){ ui.bkCodeOpen = true; const b = document.getElementById('bkcode'); if (b) b.focus(); }
@@ -8538,7 +8558,9 @@ async function checkoutBasket(){
   try{
     await shopScript();
     const r = await fetch(w + '/checkout', {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({items: basket.map(l => ({k:l.k, opt:l.opt, qty:l.qty})), code: basketCode ? basketCode.code : ''})});
+      body: JSON.stringify({items: basket.map(l => ({k:l.k, opt:l.opt, qty:l.qty})),
+        anon: basket.some(l => l.anon && isDonation(l.k)),
+        code: basketCode ? basketCode.code : ''})});
     const j = await r.json();
     if (!r.ok || !j.clientSecret) throw new Error(j.message || 'Checkout would not open');
     const stripe = window.Stripe(pk);
@@ -8559,6 +8581,23 @@ function basketDone(id){
   basket = []; basketCode = null; saveBasket();
   const now = new Date(), hhmm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
   const step = (on, title, sub) => '<li class="' + (on ? 'on' : '') + '"><span>' + (on ? ti('check') : '') + '</span><div><b>' + title + '</b><i>' + sub + '</i></div></li>';
+  /* Nothing but donations: there is no parcel, no printing and no tracking, so
+     the shipping confirmation was telling somebody their kit was on its way
+     when they had just given a pound and bought nothing. */
+  if (lines.length && lines.every(l => isDonation(l.k))){
+    const anon = lines.some(l => l.anon);
+    shopSheet('<div class="bcorder">' +
+      '<span class="bcorderok">' + bcHeart(true) + '</span>' +
+      '<p class="bceyebrow ok">' + gbp(t.total) + ' &middot; thank you</p>' +
+      '<h3>That keeps WayMark going.</h3>' +
+      '<p>WayMark has no ads and sells nothing it does not make, so the maps, the ' +
+      'hill data and the servers come out of the shop and out of donations like this one. ' +
+      'Your receipt is in your inbox. There is nothing to post and nothing else to do.</p>' +
+      (anon ? '<p class="shopnote">Recorded anonymously — your name is not shown against it.</p>' : '') +
+      '<button class="btn pine" data-act="shopclose">Back to the hills</button></div>' + peekSetupNudge());
+    const h = document.querySelector('#shopsheet .shophead b'); if (h) h.textContent = 'Thank you';
+    return;
+  }
   shopSheet('<div class="bcorder">' +
     '<span class="bcorderok">' + ti('check') + '</span>' +
     '<p class="bceyebrow ok">Order in &middot; paid</p>' +
@@ -8850,6 +8889,10 @@ function donateDetail(k, it){
        filled-in value sitting above a button saying "enter an amount" */
     '<input id="donamt" type="number" inputmode="decimal" step="0.50" min="' + (min / 100) +
       '" placeholder="0.00" value="' + esc(amt) + '" data-act="doninput"></div>' +
+    /* Anonymous means "do not credit me", not "hide from Joe" — a payment that
+       fails still has to be traceable to the person who made it. */
+    '<label class="donanon"><input type="checkbox" data-act="dananon"' + (ui.donAnon ? ' checked' : '') + '>' +
+      '<span>Keep my donation anonymous<i>Your name will not be shown against it anywhere.</i></span></label>' +
     '<button class="btn shopgo" data-act="donadd" data-k="' + esc(k) + '"' + (ok ? '' : ' disabled') + '>' + ti('backpack') +
       (ok ? 'Add \u00a3' + (pence / 100).toFixed(2) + ' to the backpack' : 'Enter \u00a3' + (min / 100).toFixed(2) + ' or more') + '</button></div>' +
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
@@ -11787,8 +11830,9 @@ function yourWayMark(p){
     (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') + '</div>';
   if (!title && !bits.length && !way.length)
     s += '<p class="ywmnone">No journal entry for that day. Write one and it shows up here.</p>';
+  /* "View journey" went to the whole trail, which is one tap from Basecamp
+     anyway and told you nothing about the patch you were looking at. */
   s += '<div class="btnrow ywmrow">' +
-    '<button class="btn ghost" data-act="patchview" data-v="journey">View journey</button>' +
     '<button class="btn ghost" data-act="pdday" data-d="' + esc(e.date) + '">' +
       (ent ? 'Read that day' : 'Write that day up') + '</button>' +
     '</div></section>';
@@ -13456,7 +13500,9 @@ function nearestPatchCard(np, cls){
   /* height and distance patches carry their own wording (feet, miles); count patches are whole hills */
   const togo = np.togo || (left === 1 ? 'One to go' : Math.round(left).toLocaleString() + ' to go');
   const prog = np.prog || Math.round(np.have).toLocaleString() + ' of ' + Math.round(np.target).toLocaleString();
-  return '<button class="dcard nextpatch np2' + (cls || '') + '" data-tab="a">' +
+  /* data-tab="a" dropped you on Basecamp, which opens on whichever pane you
+     last used — so from the shop it looked like the card WAS the shop. */
+  return '<button class="dcard nextpatch np2' + (cls || '') + '" data-act="openpatch" data-v="' + esc(np.id) + '">' +
     '<div class="npbody"><span class="patch">' + patchDisc(np, ' small') + '</span>' +
     /* the same past tense as the Patches page had: this one is not earned yet */
     '<div><p class="sumlabel">' + esc(nearLabel(np)) + '</p><b class="npname">' + esc(String(np.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</b>' +
@@ -15332,7 +15378,7 @@ let hereAt = null, hereBusy = false;
    facing direction has to come from the phone's own magnetometer. iOS will
    only hand that over from inside a tap, which is why asking happens on the
    Where-am-I button and nowhere else. */
-let headDeg = null, headOn = false, headAsked = false;
+let headDeg = null, headOn = false, headDenied = false, headAbs = false;
 const roseCtls = new Set();
 
 function screenTilt(){
@@ -15341,10 +15387,16 @@ function screenTilt(){
   return isFinite(window.orientation) ? window.orientation : 0;
 }
 function onHeadEvent(e){
-  let d = null;
-  if (e.webkitCompassHeading != null && isFinite(e.webkitCompassHeading)) d = e.webkitCompassHeading;
-  else if (e.alpha != null && isFinite(e.alpha) && (e.absolute || e.webkitCompassHeading != null)) d = (360 - e.alpha) % 360;
+  let d = null, abs = false;
+  if (e.webkitCompassHeading != null && isFinite(e.webkitCompassHeading)){ d = e.webkitCompassHeading; abs = true; }
+  /* The old test also required e.absolute, so on every browser that fires only
+     the plain deviceorientation event with absolute:false the needle never
+     moved at all. A relative alpha is not true north, but it does turn with the
+     phone, and it is used only while nothing absolute has arrived. */
+  else if (e.alpha != null && isFinite(e.alpha)){ d = (360 - e.alpha) % 360; abs = !!e.absolute; }
   if (d == null) return;
+  if (headAbs && !abs) return;
+  if (abs) headAbs = true;
   /* a phone held sideways reports the heading of its own top edge */
   d = (d + screenTilt() + 360) % 360;
   if (headDeg != null && Math.abs(((d - headDeg + 540) % 360) - 180) < 1.5) return;
@@ -15355,18 +15407,25 @@ function onHeadEvent(e){
 }
 async function askHeading(){
   if (headOn) return true;
-  if (headAsked && !headOn) return false;
-  headAsked = true;
+  /* Only an outright "no" is final. This used to latch on ANY failure — a
+     dismissed iOS prompt, or a call that landed a tick outside the user
+     gesture — and then refused to ask again for the rest of the session, so
+     one miss killed the compass until a reload. */
+  if (headDenied) return false;
   try{
     const D = window.DeviceOrientationEvent;
     if (!D) return false;
     if (typeof D.requestPermission === 'function'){
       const r = await D.requestPermission();
+      if (r === 'denied'){ headDenied = true; return false; }
       if (r !== 'granted') return false;
     }
   }catch(e){ return false; }
+  /* Both events. 'ondeviceorientationabsolute' in window is true on devices
+     whose absolute event never actually fires, and the plain event is the only
+     one some Android webviews give. onHeadEvent prefers whichever is absolute. */
   if ('ondeviceorientationabsolute' in window) addEventListener('deviceorientationabsolute', onHeadEvent);
-  else addEventListener('deviceorientation', onHeadEvent);
+  addEventListener('deviceorientation', onHeadEvent);
   headOn = true;
   return true;
 }
@@ -18179,6 +18238,8 @@ document.addEventListener('click', async e => {
     bcAdd(el.dataset.k, el.dataset.o);
   }
   else if (a === 'donpick'){ ui.donAmt = String(el.dataset.v); render(); }
+  /* no render(): re-rendering under a checkbox loses the tick it was given */
+  else if (a === 'dananon'){ ui.donAnon = !!el.checked; }
   else if (a === 'doninput'){ ui.donAmt = el.value; const b = document.querySelector('[data-act=donadd]');
     if (b){ const it = shopItem(b.dataset.k) || {}, pence = donateAmt(), ok = pence >= (it.min || 100);
       b.disabled = !ok;
@@ -18189,8 +18250,8 @@ document.addEventListener('click', async e => {
     if (pence < (it.min || 100)) return;
     /* one donation line, not a stack of them: adding again replaces the amount */
     basket = basket.filter(l => l.k !== el.dataset.k);
-    basket.push({k: el.dataset.k, opt: String(pence), qty: 1});
-    saveBasket(); paintBag(); ui.donAmt = ''; ui.kitOpen = null; render();
+    basket.push({k: el.dataset.k, opt: String(pence), qty: 1, anon: !!ui.donAnon});
+    saveBasket(); paintBag(); ui.donAmt = ''; ui.donAnon = false; ui.kitOpen = null; render();
     toast('\u00a3' + (pence / 100).toFixed(2) + ' added. Thank you.');
   }
   else if (a === 'bagopen'){ openBasket(); }
