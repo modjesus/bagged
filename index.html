@@ -10664,7 +10664,7 @@ function paintPlanComposer(){
   const el = bcSheet('<h3 class="bcsheettitle">Plan a Walk</h3><div class="form walkinv" style="margin:0">' + rline +
     '<div><label for="pdq">Which hill <span class="opt">optional</span></label>' + (h
       ? '<div class="mrow on"><button class="mmain" data-act="pdhillclear"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; change</span></button></div>'
-      : '<div class="field">' + ti('search') + '<input id="pdq" placeholder="Search any hill…" autocomplete="off" value="' + esc(d.q) + '"></div><div id="pdres">' + walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"') + '</div>') + '</div>' +
+      : '<div class="field">' + ti('search') + '<input id="pdq" placeholder="Search any hill…" autocomplete="off" value="' + esc(d.q) + '"></div><div id="pdres">' + walkHillResults(d.q) + '</div>') + '</div>' +
     '<div class="pdrow two"><div><label for="pddate">When</label><input type="date" id="pddate" min="' + tdy + '" value="' + esc(d.date) + '"></div>' +
     '<div><label for="pdtime">Time <span class="opt">optional</span></label><input type="time" id="pdtime" value="' + esc(d.time) + '"></div></div>' +
     '<div><label for="pdmeet">Where to meet <span class="opt">optional</span></label><input id="pdmeet" maxlength="80" placeholder="Seathwaite car park" value="' + esc(d.meet) + '"></div>' +
@@ -10674,7 +10674,7 @@ function paintPlanComposer(){
   const bind = (id, k) => { const i = el.querySelector('#' + id); if (i) i.oninput = e => { d[k] = e.target.value; const b = el.querySelector('[data-act=plansend]'); if (b) b.disabled = !d.date; }; };
   bind('pddate', 'date'); bind('pdtime', 'time'); bind('pdmeet', 'meet'); bind('pdnote', 'note');
   const q = el.querySelector('#pdq');
-  if (q) q.oninput = e => { d.q = e.target.value; const r = el.querySelector('#pdres'); if (r) r.innerHTML = walkHillResults(d.q).replace(/data-act="wihill"/g, 'data-act="pdhill"'); };
+  if (q) q.oninput = e => { d.q = e.target.value; const r = el.querySelector('#pdres'); if (r) r.innerHTML = walkHillResults(d.q); };
 }
 async function sendPlan(){
   const d = ui.planDraft; if (!d || !d.date) return;
@@ -17634,15 +17634,6 @@ document.addEventListener('click', async e => {
     shareLink(wmBase() + '#post=' + p.id, who + ' day on the hills', postSnip(p) + ' \u2014 on WayMark');
   }
   else if (a === 'invitewalk' && el.dataset.uid && fbUser){ planComposer(null, {with:[el.dataset.uid]}); }
-  else if (a === 'wihill'){ if (ui.walkInv){ ui.walkInv.hill = el.dataset.k; paintWalkInvite(); } }
-  else if (a === 'wihillclear'){ if (ui.walkInv){ ui.walkInv.hill = ''; paintWalkInvite(); const q = document.getElementById('wiq'); if (q) q.focus(); } }
-  else if (a === 'wiclose'){ closeWalkInvite(); }
-  else if (a === 'wisend'){
-    const w = ui.walkInv; if (!w || !w.hill || !w.date) return;
-    notify(w.uid, 'w_' + Date.now().toString(36), {type:'walk', hill:w.hill, date:w.date, text:String(w.text || '').trim().slice(0, 140)});
-    toast('Invite sent to ' + firstName(w.name) + '.');
-    closeWalkInvite();
-  }
   else if (a === 'walkreply'){
     const n = notes.find(x => x.id === el.dataset.id); if (!n) return;
     const yes = el.dataset.v === 'yes';
@@ -21187,45 +21178,14 @@ async function searchDirectory(q){
   return [...out.values()].slice(0, 30);
 }
 
-/* ---------- invite someone for a walk: a real invitation, not a link ---------- */
-function openWalkInvite(uid, name){
-  ui.walkInv = {uid, name, date:'', hill:'', q:'', text:''};
-  let el = document.getElementById('walksheet');
-  if (!el){
-    el = document.createElement('div'); el.id = 'walksheet'; el.className = 'sheet bottom notesheet';
-    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Invite for a walk');
-    el.addEventListener('click', e => { if (e.target === el) closeWalkInvite(); });
-    el.addEventListener('input', e => {
-      const w = ui.walkInv; if (!w) return;
-      if (e.target.id === 'wiq'){ w.q = e.target.value; const r = document.getElementById('wires'); if (r) r.innerHTML = walkHillResults(w.q); }
-      if (e.target.id === 'widate') w.date = e.target.value;
-      if (e.target.id === 'witext') w.text = e.target.value;
-    });
-    document.body.appendChild(el);
-  }
-  paintWalkInvite();
-  el.classList.add('open');
-}
 function walkHillResults(q){
-  return markSearch(q).slice(0, 5).map(h => '<button class="mrow" data-act="wihill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) +
+  /* pdhill directly. This used to emit "wihill" for the old walk-invite sheet, and
+     every caller had to rewrite it with .replace() — so once that sheet went the
+     function was emitting an action with no handler, and any caller who forgot the
+     rewrite would have produced buttons that silently did nothing. */
+  return markSearch(q).slice(0, 5).map(h => '<button class="mrow" data-act="pdhill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) +
     '</b><span>' + htFlat(h) + '</span></span></button>').join('');
 }
-function paintWalkInvite(){
-  const el = document.getElementById('walksheet'), w = ui.walkInv; if (!el || !w) return;
-  const h = w.hill ? BY_KEY[w.hill] : null;
-  const today = new Date().toISOString().slice(0, 10);
-  el.innerHTML = '<div class="sheetbox walkinv"><div class="cmgrab"></div><div class="ntop"><h3>Walk with ' + esc(firstName(w.name)) + '</h3>' +
-    '<button class="xbtn" data-act="wiclose" aria-label="Close">' + ti('x') + '</button></div>' +
-    '<p class="wilede">Suggest a hill and a day. ' + esc(firstName(w.name)) + ' can say they’re in, or that they can’t make it.</p>' +
-    '<div class="form" style="margin:0"><div><label for="wiq">Which hill</label>' + (h
-      ? '<div class="mrow on"><button class="mmain" data-act="wihillclear"><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h) + ' &middot; change</span></button></div>'
-      : '<div class="field">' + ti('search') + '<input id="wiq" placeholder="Search any hill…" autocomplete="off" value="' + esc(w.q) + '"></div><div id="wires">' + walkHillResults(w.q) + '</div>') + '</div>' +
-    '<div><label for="widate">When</label><input type="date" id="widate" min="' + today + '" value="' + esc(w.date) + '"></div>' +
-    '<div><label for="witext">A note <span class="opt">optional</span></label><input id="witext" maxlength="140" placeholder="Meet at the car park at 9?" value="' + esc(w.text) + '"></div>' +
-    '<div class="btnrow" style="margin:0"><button class="btn" data-act="wisend"' + (h && w.date ? '' : ' disabled') + '>' + ti('send') + 'Send invite</button>' +
-    '<button class="btn quiet" data-act="wiclose">Cancel</button></div></div></div>';
-}
-function closeWalkInvite(){ ui.walkInv = null; const el = document.getElementById('walksheet'); if (el) el.classList.remove('open'); }
 const walkWhen = d => { try{ return new Date(d + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}); }catch(e){ return d; } };
 
 /* Discover: people first, then what everybody is out doing. */
