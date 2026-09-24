@@ -6842,14 +6842,6 @@ function dateParts(v){
   const m = /^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?$/.exec(v || '');
   return m ? {y:m[1]||'', mo:m[2]||'', d:m[3]||''} : {y:'', mo:'', d:''};
 }
-/* Picking a day or month before the year used to compose to '' — which wiped
-   the record and snapped all three dropdowns back to blank, with nothing to say
-   why. Assume the current year in that case; the walker can change it. */
-function composeDate(y, mo, d){
-  if (!y && (mo || d)) y = String(new Date().getFullYear());
-  return !y ? '' : !mo ? y : !d ? y+'-'+mo : y+'-'+mo+'-'+d;
-}
-function daysIn(y, mo){ return !mo ? 31 : new Date(Number(y)||2024, Number(mo), 0).getDate(); }
 function prettyDate(v){
   const p = dateParts(v);
   if (!p.y) return v || '';
@@ -8272,8 +8264,6 @@ function patchArtGone(img, id){
     try{ localStorage.setItem('waymark.noart', JSON.stringify([...NO_ART].slice(-400))); }catch(e){}
   }
 }
-/* If artwork is added later, a hard reload clears the note. */
-function patchArtReset(){ NO_ART.clear(); try{ localStorage.removeItem('waymark.noart'); }catch(e){} render(); }
 function patchDisc(p, cls){
   /* The shape is on the frame, not the picture, so a patch drawn as a plain
      square PNG is clipped to its shape here and nothing has to be redrawn to
@@ -8284,33 +8274,6 @@ function patchDisc(p, cls){
       'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" ' +
       'onerror="patchArtGone(this, &quot;' + esc(p.id) + '&quot;)">') +
     patchBadge(p) + '</span>';
-}
-function trailStep(){ return (typeof innerWidth !== 'undefined' && innerWidth >= 768) ? 232 : 176; }
-function trailBlock(list){
-  const STEP = trailStep(), H = list.length * STEP + 140;
-  let s = '<div class="trail topo" style="height:' + H + 'px">';
-  let d = '';
-  list.forEach((p, i) => {
-    const x = i % 2 === 0 ? 30 : 70, y = 88 + i * STEP;
-    if (i === 0) d += 'M' + x + ' ' + y;
-    else {
-      const px = (i-1) % 2 === 0 ? 30 : 70, py = 88 + (i-1) * STEP;
-      d += ' C' + px + ' ' + (py + STEP*0.45) + ', ' + x + ' ' + (y - STEP*0.45) + ', ' + x + ' ' + y;
-    }
-  });
-  s += '<svg class="trailline" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
-       '<path class="tl-under" d="' + d + '"/><path class="tl-over" d="' + d + '"/></svg>';
-  list.forEach((p, i) => {
-    const x = i % 2 === 0 ? 30 : 70, y = 88 + i * STEP;
-    const pct = p.target ? Math.min(100, Math.round((p.have || 0) / p.target * 100)) : 0;
-    s += '<button class="milestone' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '"' +
-         ' style="left:' + x + '%; top:' + y + 'px">' +
-         '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
-         '<span class="mstext"><b>' + esc(p.label) + '</b>' +
-           '<i>' + esc(patchState(p, pct)) + '</i></span>' +
-         '</button>';
-  });
-  return s + '</div>';
 }
 /* What a patch you have not started should say.
    "0 of 10 summits · 0%" appeared in four places and told you nothing in any of
@@ -8334,18 +8297,6 @@ function patchState(p, pct){
   if (p.target > 1) return (p.have || 0) + ' of ' + p.target + ' \u00b7 ' + pct + '%';
   return String(p.need || '');
 }
-function patchRow(list){
-  let s = '<div class="patchrow topo">';
-  for (const p of list){
-    const pct = p.target ? Math.min(100, Math.round((p.have || 0) / p.target * 100)) : 0;
-    s += '<button class="milestone flow' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '">' +
-         '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p) + '</span>' +
-         '<span class="mstext"><b>' + esc(p.label) + '</b>' +
-           '<i>' + esc(patchState(p, pct)) + '</i></span>' +
-         '</button>';
-  }
-  return s + '</div>';
-}
 /* ---------- the journey: patches as milestones along one trail ----------
    The trail reads as a walk through your own log: every patch you have earned
    in the order you earned it, with the date and the summit that tipped it, a
@@ -8360,39 +8311,11 @@ function earnedOn(p){
   const last = hs[hs.length - 1];
   return last ? {h:last.h, date:last.r.date || ''} : null;
 }
-function earnedKey(p){ const e = earnedOn(p); return e ? (e.date || '9999') : '9999'; }
 function toGo(p){ return Math.max(0, (p.target || 0) - (p.have || 0)); }
-function weekdayOf(d){ try{ return new Date(d + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long'}); }catch(e){ return ''; } }
-/* what the next planned walk would do to the count */
-function nudgeFor(p){
-  if (!p || p.kind !== 'count') return '';
-  const t = today();
-  const plans = livePlans().filter(x => x.date && x.date >= t && (x.hills || []).some(k => !isBagged(k))).sort((a, b) => a.date.localeCompare(b.date));
-  const pl = plans[0]; if (!pl) return '';
-  const fresh = pl.hills.filter(k => !isBagged(k)).map(k => BY_KEY[k]).filter(Boolean);
-  if (!fresh.length) return '';
-  const after = (p.have || 0) + fresh.length;
-  const when = pl.date === t ? 'today' : 'on ' + weekdayOf(pl.date);
-  const what = fresh.length === 1 ? hillName(fresh[0]) : hillName(fresh[0]) + ' and ' + (fresh.length - 1) + ' more';
-  return after >= p.target ? what + ' ' + when + ' earns it.' : what + ' ' + when + ' makes it ' + after + '.';
-}
 function nextPatch(ps){
   const counts = ps.filter(p => (p.kind === 'count' || p.kind === 'climb') && !p.got).sort((a, b) => a.sort - b.sort);
   if (counts.length) return counts[0];
   return ps.filter(p => !p.got).sort((a, b) => (toGo(a) / (a.target || 1)) - (toGo(b) / (b.target || 1)))[0] || null;
-}
-function nextPatchHTML(ps, got){
-  const p = nextPatch(ps);
-  if (!p) return '<section class="nextpatch done"><p class="sumlabel">Every patch earned</p><h2>The board is full.</h2></section>';
-  const pct = p.target ? Math.min(100, (p.have || 0) / p.target) : 0;
-  const R = 54, C = 2 * Math.PI * R;
-  return '<section class="nextpatch"><button class="npdisc" data-act="openpatch" data-v="' + esc(p.id) + '" aria-label="' + esc(p.label) + '">' +
-    '<span class="patch">' + patchDisc(p) + '</span>' +
-    '<svg class="npring" viewBox="0 0 120 120" aria-hidden="true"><circle class="npr-track" cx="60" cy="60" r="' + R + '"/>' +
-    '<circle class="npr-fill" cx="60" cy="60" r="' + R + '" stroke-dasharray="' + (C * pct).toFixed(1) + ' ' + C.toFixed(1) + '"/></svg></button>' +
-    '<div class="nptext"><p class="npeyebrow">Next patch &middot; ' + got + ' of ' + ps.length + ' earned</p>' +
-    '<h2>' + esc(String(p.label).replace(/\s+(fully\s+)?marked$/i, '')) + '</h2>' +
-    '<p><b>' + esc(p.togo || (toGo(p) + ' to go')) + '.</b> ' + esc(nudgeFor(p) || p.need || '') + '</p></div></section>';
 }
 /* the trail itself: a list of nodes, each with a height, alternating sides */
 /* ---- Journey: the Milestones ladder ----
@@ -8988,7 +8911,6 @@ function supList(){
       (supUp(b.n) - supDown(b.n)) - (supUp(a.n) - supDown(a.n)) || a.n - b.n);
   return list;
 }
-const supFiltered = () => !!(ui.supSide || ui.supTodo || ui.supSort === 'liked');
 
 /* ---------- the shop rail ----------
    Tees that can be bought are shown the way an outdoor brand shows product: one
@@ -8996,43 +8918,12 @@ const supFiltered = () => !!(ui.supSide || ui.supTodo || ui.supSort === 'liked')
    swiped for the other side, and a few plain facts under it. No buttons on the
    card: the picture is the way in. */
 const shopImg = (n, side) => SUP_BASE + 'tees/' + sup2(n) + '-' + side + '-shop.webp';
-function shopCard(d){
-  const it = shopItem(d.n), lead = supLead(d), other = supOther(lead);
-  const slide = (side, i) =>
-    '<button class="shopslide" data-act="supopen" data-v="' + d.n + '" tabindex="' + (i ? -1 : 0) + '"' +
-    ' aria-label="' + esc(d.name) + ', ' + side + ' of the tee. Open">' +
-    '<img loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, side) + '"></button>';
-  return '<article class="shopcard">' +
-    '<div class="shoptile">' +
-      '<div class="shoptrack" data-n="' + d.n + '">' + slide(lead, 0) + slide(other, 1) + '</div>' +
-      '<span class="shoppager" aria-hidden="true"><i class="on"></i><i></i></span>' +
-      '<span class="shopside" aria-hidden="true">' + supCap(lead) + '</span>' +
-    '</div>' +
-    '<div class="shopmeta">' +
-      '<h3><button data-act="supopen" data-v="' + d.n + '">' + esc(d.name) + '</button></h3>' +
-      '<span class="shopamt">' + gbp(it.price) + '</span>' +
-    '</div>' +
-    '<p class="shopspec"><span class="swatch" style="--sw:' + (SHIRT_HEX[d.shirt] || '#EDE7D9') + '"></span>' +
-      SHIRTS[d.shirt] + ' &middot; Unisex heavyweight tee</p>' +
-    '<p class="shopsz">' + it.sizes.map(esc).join('<span>&middot;</span>') + '</p>' +
-  '</article>';
-}
 const SHIRT_HEX = {cream:'#EDE7D9', sand:'#EDE7D9', pine:'#4C6151'};
 /* Everything on sale that is not a tee: stickers, caps, beanies, bottles,
    patches, gaiters. Each needs only a catalogue entry with a picture. */
 /* Everything on sale that is not a tee. A donation is the one kind with no
    picture to show, so it is admitted without one and draws a mark instead. */
 const kitItems = () => shopCat && shopCat.items ? Object.entries(shopCat.items).filter(([k, it]) => (it.kind || 'tee') !== 'tee' && ((it.img && it.img.length) || it.custom)) : [];
-function kitCard([k, it]){
-  const tile = it.img && it.img.length
-    ? '<img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '">'
-    : '<span class="donmark">' + ti('mountain') + '</span>';
-  return '<article class="shopcard kitcard"><button class="shoptile kittile" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open">' +
-    tile + '</button>' +
-    '<div class="shopmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3><span class="shopamt">' +
-      (it.custom ? 'Any amount' : gbp(it.price)) + '</span></div>' +
-    '<p class="shopspec">' + esc(KIND_LABEL[it.kind] || it.kind) + (it.blurb ? ' &middot; ' + esc(it.blurb) : '') + '</p></article>';
-}
 /* ---- a donation ----
    No size, no picture, no postage: one field and a few suggested amounts. The
    field is the source of truth; the chips only fill it in. Pence go into the
@@ -9090,23 +8981,6 @@ function kitDetail(k){
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
     '</div></div></div>';
 }
-function shopHero(sale){
-  const prices = [...new Set(sale.map(d => shopItem(d.n).price))];
-  const order = ['XS','S','M','L','XL','2XL','3XL','4XL'];
-  const sizes = order.filter(z => sale.some(d => shopItem(d.n).sizes.includes(z)));
-  const ship = shopCat && shopCat.shipping;
-  return '<header class="shophero">' +
-    '<p class="shopeyebrow">The shop <span>&middot;</span> ' + sale.length + (sale.length === 1 ? ' tee' : ' tees') +
-      (kitItems().length ? ' &amp; kit' : '') + '</p>' +
-    '<h2>Made for the walk home.</h2>' +
-    '<p class="shoplede">Unisex heavyweight cotton, garment-dyed for a lived-in feel from day one. Printed in the UK.</p>' +
-    '<ul class="shopfacts">' +
-      '<li><b>' + (prices.length === 1 ? gbp(prices[0]) : 'From ' + gbp(Math.min(...prices))) + '</b>each</li>' +
-      '<li><b>' + (sizes.length ? sizes[0] + '&ndash;' + sizes[sizes.length - 1] : '') + '</b>sizes</li>' +
-      '<li><b>' + (ship ? gbp(ship) : 'Free') + '</b>UK delivery</li>' +
-    '</ul>' +
-  '</header>';
-}
 /* which side a tile is showing, and the side label with it, as it is swiped */
 document.addEventListener('scroll', e => {
   const t = e.target;
@@ -9119,26 +8993,6 @@ document.addEventListener('scroll', e => {
   tile.querySelector('.shopside').textContent = supCap(k ? supOther(lead) : lead);
   t.querySelectorAll('.shopslide').forEach((b, j) => b.tabIndex = j === k ? 0 : -1);
 }, true);
-
-function supCard(d){
-  const side = supFlipped[d.n] || supLead(d), other = supOther(side);
-  return '<article class="supcard">' +
-    '<div class="supplate">' +
-      '<span class="supside">' + supCap(side) + '</span>' +
-      '<button class="supopen" data-act="supopen" data-v="' + d.n + '" aria-label="Open ' + esc(d.name) + '">' +
-        '<span class="well"><img loading="lazy" decoding="sync" alt="' + esc(d.name) + ', ' +
-        side + ' of shirt" src="' + supImg(d.n, side, 'sm') + '"></span>' +
-      '</button>' +
-    '</div>' +
-    '<h3>' + esc(d.name) + (shopItem(d.n) ? ' <span class="shoptag">' + gbp(shopItem(d.n).price) + '</span>' : '') + '</h3>' +
-    '<p class="shirtline">' + SHIRTS[d.shirt] + ' shirt' +
-      '<button class="supflip" data-act="supflip" data-v="' + d.n + '"' +
-      ' aria-label="Show the ' + other + ' of ' + esc(d.name) + '">See ' + other + '</button></p>' +
-    (shopItem(d.n)
-      ? '<button class="btn shopcardgo" data-act="supopen" data-v="' + d.n + '">Choose a size</button>'
-      : supVoteRow(d)) +
-  '</article>';
-}
 
 /* A flip is one picture changing, not a page changing: repainting the tab would
    throw the walker back to the top of a very long sheet. */
@@ -9157,87 +9011,6 @@ function supFlip(n){
   plate.querySelector('.supside').textContent = supCap(next);
   btn.textContent = supCap(supOther(next));
   btn.setAttribute('aria-label', 'Show the ' + supOther(next) + ' of ' + d.name);
-}
-
-function supChip(act, val, label, on){
-  return '<button class="chip" data-act="' + act + '" data-v="' + val + '" aria-pressed="' + on + '">' +
-    label + '</button>';
-}
-
-function renderSupplies(){
-  /* Arrived from the welcome without finishing setup: keep a way back, or the
-     only route out is a tab that throws them at the welcome unannounced. */
-  if (ui.kitOpen){
-    if (shopItem(ui.kitOpen)) return '<div class="supplies">' + kitDetail(ui.kitOpen) + '</div>';
-    if (shopCat) ui.kitOpen = null;
-  }
-  if (ui.supOpen){
-    const d = supById(ui.supOpen);
-    if (d) return '<div class="supplies">' + supDetail(d) + '</div>';
-    ui.supOpen = null;
-  }
-  const pool = supPool(), sale = SUPPLIES.filter(d => shopItem(d.n));
-  const rated = pool.filter(d => supMine[d.n]).length;
-  const pct = pool.length ? Math.round(rated / pool.length * 100) : 0;
-  let cast = 0; for (const d of pool) cast += supUp(d.n) + supDown(d.n);
-
-  let s = '<div class="supplies">';
-  if (sale.length){
-    const kit = kitItems();
-    s += shopHero(sale) + '<div class="shopgrid">' + sale.map(shopCard).join('') + '</div>' +
-      (kit.length ? '<h2 class="kithead">Kit for the hill</h2><div class="shopgrid">' + kit.map(kitCard).join('') + '</div>' : '') +
-      '<p class="shopfoot">UK delivery only &middot; 14-day returns &middot; <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms, returns and privacy</a></p>';
-  }
-  s += '<header class="suphead' + (sale.length ? ' supnext' : '') + '">' +
-    (sale.length
-      ? '<p class="shopeyebrow">On the drawing board</p>' +
-        '<h2>Which should we print next?</h2>' +
-        '<p>These are drawn and ready, but not printed yet. Vote for the ones you would wear &mdash; the most wanted go on sale next.</p>'
-      : '<span class="nosale">Not for sale yet</span>' +
-        '<h2>Which of these should we actually print?</h2>' +
-        '<p>Every one is drawn and ready for a printer. None of them have been made. ' +
-        'Say yes or no to as many as you like — the counts are live, and you can change ' +
-        'your mind.</p>') +
-    '</header>';
-
-  s += '<div class="supprog">' +
-    '<span class="track" role="img" aria-label="' + rated + ' of ' + pool.length + ' rated">' +
-      '<i style="width:' + Math.max(pct, rated ? 2 : 0) + '%"></i></span>' +
-    '<b>' + rated + ' / ' + pool.length + ' rated</b></div>';
-
-  s += '<div class="supfilters">' +
-    '<span class="flabel">Print</span>' +
-    supChip('supside', 'back',  'Back',  ui.supSide === 'back') +
-    supChip('supside', 'front', 'Front', ui.supSide === 'front') +
-    '<span class="rule"></span>' +
-    supChip('suptodo', '1', 'Not rated yet', !!ui.supTodo) +
-    supChip('supsort', 'liked', 'Most liked', ui.supSort === 'liked') +
-    (supFiltered() ? '<button class="clear" data-act="supclear">Clear</button>' : '') +
-    '</div>';
-
-  const list = supList();
-  s += '<p class="supcount">' +
-    (list.length === pool.length ? 'All ' + pool.length + ' designs'
-                                 : list.length + ' of ' + pool.length + ' designs') +
-    ' &middot; ' + cast + (cast === 1 ? ' vote so far' : ' votes so far') + '</p>';
-
-  s += list.length
-    ? '<div class="supgrid">' + list.map(supCard).join('') + '</div>'
-    : '<div class="supempty"><b>Nothing matches that</b>' +
-      '<span>Try the other side of the shirt, or clear the filters.</span></div>';
-
-  /* Somebody who followed a link here has not met the app yet; say what it is
-     once, at the bottom, rather than making them work it out from the tabs. */
-  if (!state.enabled.length){
-    s += '<div class="supfoot"><b>WayMark</b> is a walking log for the hills of Britain — ' +
-      'mark a summit and it works out which lists it belongs to. ' +
-      '<button class="linkbtn" data-tab="d">Start your log</button>' +
-      '<br>Printed in the UK on heavyweight cotton when these are made.</div>';
-  } else {
-    s += '<p class="jnote">Printed in the UK on heavyweight cotton. ' +
-      'Share the whole sheet at <b>waymark.it.com/supplies</b>.</p>';
-  }
-  return s + '</div>';
 }
 
 /* Comfort Colors 1717, measured flat: length, chest width, sleeve (Printful's chart) */
@@ -10365,8 +10138,6 @@ function inboxWire(el){
     if (l) delete l.dataset.swallow;
   }, true);
 }
-/* The Hikers screen used to hold the inbox; it lives above every tab now. */
-function renderInbox(){ setTimeout(openInbox, 0); return ''; }
 
 /* ================= starting a chat ================= */
 function msgPeople(){
@@ -14234,19 +14005,6 @@ function skeletonRows(n){
     s += '<div class="skelrow" aria-hidden="true"><span class="skel skav"></span><span class="skel skl"></span><span class="skel skn"></span></div>';
   return s + '</div>';
 }
-
-/* The week so far: who has been out, from what the feed already holds. A
-   nudge, not a scoreboard — it only counts summit posts. */
-function weekBoard(){
-  const since = Date.now() - 7 * 86400000;
-  const tally = {};
-  for (const p of feed){
-    if (p.kind !== 'summit' || (p.t || 0) < since) continue;
-    const t = tally[p.uid] = tally[p.uid] || {uid:p.uid, name:p.name, av:p.av, n:0, days:new Set()};
-    t.n += (p.hills || []).length; t.days.add(p.date || '');
-  }
-  return Object.values(tally).sort((a, b) => b.n - a.n).slice(0, 5);
-}
 /* Who has been out this week, newest first. A dot marks somebody with an
    adventure you have not opened Hikers since. Nobody out, no strip. */
 const SEEN_KEY = 'waymark.feedseen';
@@ -16365,7 +16123,6 @@ function sheetOutlines(){
   return {type:'FeatureCollection', features:sheets().map(s => ({type:'Feature', properties:{id:s.id},
     geometry:{type:'LineString', coordinates:[[s.box.w, s.box.s], [s.box.e, s.box.s], [s.box.e, s.box.n], [s.box.w, s.box.n], [s.box.w, s.box.s]]}}))};
 }
-function inSavedSheet(la, lo){ return sheets().some(s => la >= s.box.s && la <= s.box.n && lo >= s.box.w && lo <= s.box.e); }
 
 async function saveSheet(){
   const m = curMap();
@@ -17206,21 +16963,6 @@ document.addEventListener('click', e => {
   if (e.target.closest && (e.target.closest('#layers') || e.target.closest('.mlayers'))) return;
   ui.layersOpen = false; paintLayers();
 }, true);
-
-function candoStrip(){
-  /* Short enough that four fit one line on the narrowest phone without a
-     sideways scroll. The pill is a handle; the sentence it opens does the
-     explaining. */
-  let s = '<div class="dostrip">' +
-    canDo('route', 'Paths') +
-    canDo('gpx', 'GPX') +
-    canDo('map', 'Edit') +
-    canDo('tick', 'Mark') +
-    '</div>';
-  const open = (ui.doOpen || [])[0];
-  if (open && DO_BODY[open]) s += '<p class="dodetail">' + DO_BODY[open] + '</p>';
-  return s;
-}
 
 function planCardHTML(p){
   const hs = p.hills.map(k => BY_KEY[k]).filter(Boolean);
@@ -19243,15 +18985,6 @@ const DO_ICON = {
 /* One strip of pills, not four stacked rows. Even collapsed, four full-width
    headlines put seven hundred pixels between the top of the screen and the day
    picker — which is the first thing you actually came to do. Tapping a pill
-   drops one line of detail underneath the row. */
-function canDo(icon, title, body){
-  const open = (ui.doOpen || []).includes(icon);
-  return '<button class="dopill' + (open ? ' on' : '') + '" data-act="dotoggle" data-v="' + icon +
-    '" aria-expanded="' + open + '" title="' + esc(body) + '">' +
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
-    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + DO_ICON[icon] + '</svg>' +
-    '<span>' + title + '</span></button>';
-}
 
 const DO_BODY = {
   route:'Points snap to rights of way and footpaths from OpenStreetMap, not straight lines across a crag.',
@@ -22030,7 +21763,6 @@ function allFriends(){
 const following    = () => friends.filter(f => !f.pending);
 const followingUids = () => following().map(f => f.uid);
 const followerUids  = () => followers.map(f => f.uid);
-const friendUids    = () => followerUids();          // the audience of a post
 const isFollowing   = uid => friends.some(f => f.uid === uid && !f.pending);
 const hasRequested  = uid => friends.some(f => f.uid === uid && f.pending);
 const followsMe     = uid => followers.some(f => f.uid === uid);
@@ -22905,17 +22637,6 @@ async function refreshPeople(){
    friends, which is how a shared walk reaches both sides. */
 const FEED_LIMIT = 60;
 const AUD_CAP = 300;
-const REACTIONS = [
-  {id:'cheer',     label:'Cheer',      plural:'Cheers',      icon:'thumb-up'},
-  {id:'epic',      label:'Epic',       plural:'Epic',        icon:'mountain'},
-  {id:'tough',     label:'Tough one',  plural:'Tough one',   icon:'flame'},
-  {id:'beautiful', label:'Beautiful',  plural:'Beautiful',   icon:'sunrise'},
-  {id:'doggo',     label:'Good doggo', plural:'Good doggo',  icon:'dog'}
-];
-const REACT_BY = Object.fromEntries(REACTIONS.map(r => [r.id, r]));
-/* the emoji the first posts were reacted with, read as the new words */
-const REACT_LEGACY = {'👍':'cheer', '🎉':'epic', '💪':'tough', '😍':'beautiful', '😮':'epic'};
-const reactId = e => REACT_BY[e] ? e : (REACT_LEGACY[e] || 'cheer');
 /* What it was like up there. Chips on the composer, pills on the post: the
    thing a friend planning the same hill next weekend actually wants to know. */
 const CONDITIONS = [
@@ -23905,24 +23626,6 @@ function friendStats(pp){
   return '<div class="pfigs n' + cells.length + '' + (n >= 4 ? ' four' : ' few') + '">' + cells.slice(0, 5).join('') + '</div>';
 }
 
-/* ---- the lists they walk, as rows rather than a right-aligned column ----
-   The breakdown used to float at the edge in small type with nothing round it.
-   A row each, with how far through that list they are, fills the same space
-   and actually says something. */
-function friendLists(counts){
-  const rows = LISTS.filter(l => (counts || {})[l.id])
-    .map(l => ({name:l.name, n:counts[l.id], of:l.count || 0}))
-    .sort((a, b) => b.n - a.n);
-  if (!rows.length) return '';
-  const POOL = ['--moss', '--accent', '--sage', '--plan', '--prog', '--bk5', '--bk1'];
-  return pcard('list-check', 'Their lists', rows.length + (rows.length === 1 ? ' list' : ' lists'), null,
-    '<div class="pregions">' + rows.slice(0, 7).map((r, i) =>
-      '<div class="pregion"><span class="prn">' + esc(r.name) + '</span>' +
-      '<span class="prb"><s style="width:' + (r.of ? Math.max(2, Math.round(r.n / r.of * 100)) : 2) +
-        '%; background:var(' + POOL[i % POOL.length] + ')"></s></span>' +
-      '<b>' + r.n + (r.of ? ' / ' + r.of.toLocaleString() : '') + '</b></div>').join('') +
-    '</div>');
-}
 
 /* ---- their photographs, from the log they have shared with me ---- */
 function friendShots(log, code){
