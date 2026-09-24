@@ -2828,24 +2828,43 @@ button.bstriprow{cursor:pointer}
 .lgrp .tinfo span{font-size:13px; line-height:1.35}
 
 /* ---------- day card: where it left you on your lists (v197) ---------- */
-.dprog{display:flex; flex-direction:column; gap:7px; margin:10px 0 2px}
-.dpchip{display:grid; grid-template-columns:minmax(0,1fr); gap:5px; width:100%;
-  text-align:left; font:inherit; color:inherit; padding:9px 11px;
+/* Three stacked rows at full column width spent 72px and most of a 720px line
+   to say "+2 Wainwrights". One row now: name and count on the left, the bar
+   taking up the slack, the figures on the right — and two to a row once there
+   is width for them. minmax(0,1fr) so a long list name cannot push a track
+   wider than its share. */
+.dprog{display:grid; grid-template-columns:minmax(0,1fr); gap:6px; margin:10px 0 2px}
+.dpchip{display:grid; grid-template-columns:auto minmax(40px,1fr) auto;
+  align-items:center; gap:10px; width:100%;
+  text-align:left; font:inherit; color:inherit; padding:7px 11px;
   background:var(--surface); border:1px solid var(--line-soft); border-radius:10px}
 .dpchip:active{background:var(--surface-2)}
-.dpt{display:flex; align-items:baseline; gap:7px}
-.dpt b{font-size:14px; font-weight:600}
-.dpt em{font-style:normal; font-family:var(--font-data); font-size:12.5px;
+.dpt{display:flex; align-items:baseline; gap:6px; min-width:0}
+.dpt b{font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dpt em{font-style:normal; font-family:var(--font-data); font-size:12px;
   font-weight:600; color:var(--accent); background:var(--accent-soft);
-  border-radius:20px; padding:1px 6px}
+  border-radius:20px; padding:1px 6px; flex:none}
 .dpbar{display:block; height:5px; border-radius:4px; background:var(--surface-2);
-  border:1px solid var(--line-soft); overflow:hidden}
+  border:1px solid var(--line-soft); overflow:hidden; min-width:0}
 /* the same fill as every other progress bar in the app (.bar > i) */
 .dpbar i{display:block; height:100%; border-radius:4px;
   background:linear-gradient(90deg, var(--done), var(--accent))}
-.dpn{font-family:var(--font-data); font-size:12.5px; color:var(--ink-2);
-  font-variant-numeric:tabular-nums; display:flex; gap:8px}
-.dpn small{font-size:12.5px; color:var(--sage)}
+.dpn{font-family:var(--font-data); font-size:12px; color:var(--ink-2);
+  font-variant-numeric:tabular-nums; display:flex; gap:7px; white-space:nowrap}
+.dpn small{font-size:12px; color:var(--sage)}
+/* Two to a row once the column can hold them. No viewport breakpoint: the
+   journal column is 606px inside a 768px tablet and 720px inside a 1280px
+   desktop, so a min-width query asks the wrong question — auto-fit measures
+   the container it is actually in and decides for itself. auto-fit (not
+   auto-fill) so a single list fills the width instead of sitting in a
+   half-width box with a hole beside it. */
+.dprog{grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:6px 8px}
+/* A narrow phone cannot hold name + bar + figures on one line, so the bar
+   drops under them rather than being squeezed to nothing. */
+@media (max-width:379px){
+  .dpchip{grid-template-columns:auto minmax(0,1fr); padding:8px 11px}
+  .dpbar{grid-column:1 / -1; order:3}
+}
 
 /* the route carried into a walk invite */
 .pdroute{display:flex; gap:10px; align-items:flex-start; margin:0 0 14px;
@@ -5922,11 +5941,28 @@ mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding
    wider, and the cell clips as a last resort. auto-fit drops to a single column
    when two will not honestly fit, which is the right answer on a small phone
    anyway. Only the When/Time row: .pdrow also carries an input-plus-button row. */
-.pdrow.two{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+/* 200px, not 150px. On a phone the sheet gives about 330px of content, so two
+   tracks would be 160px each — too narrow for "24 Sep 2026" in any engine, and
+   the point at which Safari stops co-operating. At 200px two tracks need 410px,
+   so a phone stacks them and only a tablet or desktop column puts them side by
+   side. auto-fit measures the real container, so no viewport query. */
+.pdrow.two{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap:10px; align-items:end}
-.pdrow.two > *{min-width:0; max-width:100%; overflow:hidden}
+/* No overflow:hidden. It was clipping the right-hand border off the time field
+   — a box with three sides looks more broken than a slightly wide one. */
+.pdrow.two > *{min-width:0; max-width:100%}
 .pdrow.two input, .pdrow.two select{display:block; box-sizing:border-box;
   width:100%; max-width:100%; min-width:0}
+/* Safari draws a date or time field through ::-webkit-date-and-time-value,
+   which reserves width for the whole formatted string and centres it — which
+   is why the values sit centred on iOS and left-aligned everywhere else, and
+   why the control would not shrink into the space it was given. Letting it
+   align left and drop its reserved margin lets width:100% actually hold. */
+.pdrow.two input[type=date]::-webkit-date-and-time-value,
+.pdrow.two input[type=time]::-webkit-date-and-time-value{
+  text-align:left; margin:0; min-width:0; max-width:100%}
+.pdrow.two input[type=date]::-webkit-datetime-edit,
+.pdrow.two input[type=time]::-webkit-datetime-edit{padding:0; min-width:0}
 .hpres{display:flex; flex-direction:column; gap:2px; max-height:46vh; overflow-y:auto}
 .bcsheet .form.walkinv{border:0; padding:0; background:none}
 .stgrid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px 6px; max-height:40vh; overflow-y:auto}
@@ -22532,7 +22568,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v197';
+const APP_VERSION = 'v198';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';

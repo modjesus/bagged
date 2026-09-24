@@ -4,7 +4,7 @@
 /* Bump this EVERY release. The service worker serves index.html from this
    cache, so leaving the name unchanged ships a new index.html that nobody who
    has visited before ever sees — v197 sat on the server behind a v196 cache. */
-const CACHE = 'waymark-v197';
+const CACHE = 'waymark-v198';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
