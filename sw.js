@@ -1,10 +1,16 @@
 // WayMark — offline shell.
-// Bump the version below every time you change index.html, or phones will keep
-// showing the old build from their cache.
-/* Bump this EVERY release. The service worker serves index.html from this
-   cache, so leaving the name unchanged ships a new index.html that nobody who
-   has visited before ever sees — v197 sat on the server behind a v196 cache. */
-const CACHE = 'waymark-v198';
+//
+// ONE LINE IN THIS FILE IS A VERSION: the `const CACHE` below. Bump it every
+// time index.html changes, and keep it matching APP_VERSION in index.html.
+// Leave it unchanged and a new index.html ships that nobody who has visited
+// before ever sees, because the worker keeps serving the old one from this
+// cache. (It has happened: one release sat on the server behind the previous
+// release's cache for days.) On activate, every cache whose name is not the
+// current one is deleted — that is what forces a stale phone over.
+//
+// Any other version number you see in this file is prose in a comment and does
+// nothing at all.
+const CACHE = 'waymark-v199';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',

@@ -5953,16 +5953,43 @@ mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding
 .pdrow.two > *{min-width:0; max-width:100%}
 .pdrow.two input, .pdrow.two select{display:block; box-sizing:border-box;
   width:100%; max-width:100%; min-width:0}
-/* Safari draws a date or time field through ::-webkit-date-and-time-value,
-   which reserves width for the whole formatted string and centres it — which
-   is why the values sit centred on iOS and left-aligned everywhere else, and
-   why the control would not shrink into the space it was given. Letting it
-   align left and drop its reserved margin lets width:100% actually hold. */
-.pdrow.two input[type=date]::-webkit-date-and-time-value,
-.pdrow.two input[type=time]::-webkit-date-and-time-value{
+/* ---- iOS: a date or time input will not stay inside its box ----
+   Measured on an iPhone, Plan a Walk with the fields stacked full width: the
+   search, meet and note inputs all stopped at the container's edge and ONLY
+   the date and time ran past it. Safari lays a native date/time control out
+   from its own intrinsic width and ignores `width`, `max-width`, `min-width:0`
+   and `box-sizing` alike — so no amount of sizing the parent helps, which is
+   why a flex fix, then a grid fix, both failed.
+
+   -webkit-appearance:none drops the native layout and the control becomes an
+   ordinary box again. WayMark draws the border, background and padding on all
+   of these itself and the width comes from the container, so nothing is lost,
+   and the picker still opens on tap.
+
+   Listed by class rather than globally: these are every date/time input in the
+   app, and each one already has an app-drawn box. A bare `input[type=date]`
+   selector would also catch anything added later that meant to size itself. */
+.form input[type=date], .form input[type=time],
+input.pickin[type=date], input.pickin[type=time],
+.peddate, .mkdate, .dategroup .dinput{
+  -webkit-appearance:none; appearance:none;
+  max-width:100%; min-width:0; box-sizing:border-box}
+/* Safari draws the value through ::-webkit-date-and-time-value, which centres
+   it and reserves width for the whole formatted string — that is why the
+   values sit centred on iOS and left-aligned in every other engine. */
+.form input[type=date]::-webkit-date-and-time-value,
+.form input[type=time]::-webkit-date-and-time-value,
+input.pickin[type=date]::-webkit-date-and-time-value,
+.peddate::-webkit-date-and-time-value,
+.mkdate::-webkit-date-and-time-value,
+.dategroup .dinput::-webkit-date-and-time-value{
   text-align:left; margin:0; min-width:0; max-width:100%}
-.pdrow.two input[type=date]::-webkit-datetime-edit,
-.pdrow.two input[type=time]::-webkit-datetime-edit{padding:0; min-width:0}
+.form input[type=date]::-webkit-datetime-edit,
+.form input[type=time]::-webkit-datetime-edit,
+input.pickin[type=date]::-webkit-datetime-edit,
+.peddate::-webkit-datetime-edit,
+.mkdate::-webkit-datetime-edit,
+.dategroup .dinput::-webkit-datetime-edit{padding:0; min-width:0; overflow:hidden}
 .hpres{display:flex; flex-direction:column; gap:2px; max-height:46vh; overflow-y:auto}
 .bcsheet .form.walkinv{border:0; padding:0; background:none}
 .stgrid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px 6px; max-height:40vh; overflow-y:auto}
@@ -22568,7 +22595,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v198';
+const APP_VERSION = 'v199';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
