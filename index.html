@@ -5468,6 +5468,16 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .mofield textarea{min-height:76px; resize:vertical; line-height:1.45}
 /* soft reads as "not yours yet", hard as "not available": lighter vs heavier */
 .bclock-soft .bcimg img{filter:grayscale(.72) brightness(1.06); opacity:.74}
+/* v228 shipped the second picture on kit cards and it showed THROUGH on every
+   locked tile: `.bclocked .bcimg img{opacity:.55}` and `.bcimg img.alt{opacity:0}`
+   have the SAME specificity, and the locked rule is written later, so it won
+   and both pictures stacked. Put the alt back to nothing when locked, and give
+   it the tile's own dimmed opacity on hover so locked cards still roll over. */
+.bccard.bclocked .bcimg img.alt, .bccard.bclock-soft .bcimg img.alt{opacity:0}
+@media (hover:hover){
+  .bccard.bclocked:hover .bcimg img.alt{opacity:.55}
+  .bccard.bclock-soft:hover .bcimg img.alt{opacity:.74}
+}
 .bclock-soft .bctag{background:rgba(20,51,45,.72)}
 .bcpad svg{width:30px; height:30px; stroke:var(--ink-2)}
 .bcflag{position:absolute; left:8px; top:8px; background:#14332D; color:#F3EFE6; font:700 10.5px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px; border-radius:3px; pointer-events:none}
@@ -23176,7 +23186,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v228';
+const APP_VERSION = 'v229';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
