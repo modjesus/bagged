@@ -5460,7 +5460,10 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcpad svg{width:30px; height:30px; stroke:var(--ink-2)}
 .bcflag{position:absolute; left:8px; top:8px; background:#14332D; color:#F3EFE6; font:700 10.5px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px; border-radius:3px; pointer-events:none}
 .bctag{position:absolute; left:0; right:0; bottom:0; padding:5px 8px; background:rgba(20,51,45,.9); color:#F3EFE6; font:600 9.5px var(--font-data); letter-spacing:.08em; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.bcround{width:36px; height:36px; border-radius:50%; border:1px solid rgba(20,51,45,.14); background:rgba(255,253,248,.94); color:#14332D; display:grid; place-items:center; padding:0; transition:transform .12s}
+/* Near-white was invisible on the old white tile. On the cream one it read as
+   a white disc stuck on the card. It now matches the tile, and a soft shadow
+   does the separating where the button sits over artwork instead. */
+.bcround{width:36px; height:36px; border-radius:50%; border:1px solid rgba(20,51,45,.12); background:rgba(243,240,232,.96); color:#14332D; display:grid; place-items:center; padding:0; transition:transform .12s; box-shadow:0 1px 3px rgba(20,51,45,.13)}
 .bcround:active{transform:scale(.92)}
 .bcround svg{width:18px; height:18px}
 .bctile .bcheart{position:absolute; right:8px; top:8px}
@@ -8656,8 +8659,14 @@ const SUPPLIES = [
   {n:25, slug:'hiking-dept',           name:'Hiking Dept.',             shirt:'cream'},
   {n:26, slug:'rocks-in-piles',        name:'I Like My Rocks In Piles', shirt:'cream'}
 ];
-/* the two shirts Printful makes them on: cream and sand designs both go on Ivory */
-const SHIRTS = {cream:'Ivory', sand:'Ivory', pine:'Blue Spruce'};
+/* What the garment is actually CALLED by the printer who makes it.
+   "Ivory" and "Blue Spruce" were Printful's names and survived the move to
+   Inkthreadable, so the shop was telling people a colour that does not exist
+   on the shirt they receive. Every tee on sale goes over as GD05-NAT: Gildan
+   Heavy Cotton, Natural. `pine` is still Printful's name - no pine design is
+   on sale, so nothing wrong reaches a customer, but it needs its real
+   Inkthreadable colour before one does. */
+const SHIRTS = {cream:'Natural', sand:'Natural', pine:'Blue Spruce'};
 
 /* ---------- the shop: Stripe takes the money, Printful prints and posts ----------
    What is on sale, at what price and in which sizes, lives in the shop helper
@@ -8718,7 +8727,22 @@ const gbp = p => { const n = numOr(p, NaN); return isFinite(n) ? '£' + (n / 100
 const BASKET_KEY = 'waymark.basket';
 let basket = (() => { try{ const b = JSON.parse(localStorage.getItem(BASKET_KEY) || '[]'); return Array.isArray(b) ? b : []; }catch(e){ return []; } })();
 let basketCode = null;   /* {code, label, percent, amount, min} once a code checks out */
-function saveBasket(){ try{ localStorage.setItem(BASKET_KEY, JSON.stringify(basket)); }catch(e){} paintBag(); }
+/* A tees-only code on a mixed basket is FINE - it just takes its money off the
+   tees. The only time it cannot be used is when there is no tee to discount. */
+function codeWontApply(c){
+  if (!c || !c.teeOnly) return '';
+  const tees = basket.filter(l => { const it = shopItem(l.k); return it && (it.kind || 'tee') === 'tee'; });
+  if (tees.length) return '';
+  return esc(c.code) + ' is for tees, and there aren\u2019t any in your backpack.';
+}
+/* A code can stop applying because the BASKET changed, not the code: take the
+   last tee out and a tees-only code has nothing left to discount. */
+function recheckCode(){
+  if (basketCode && codeWontApply(basketCode)) basketCode = null;
+}
+/* Every basket change runs through here, so it is the one place a code has to
+   be re-checked: add a sticker to a tees-only order and the discount lapses. */
+function saveBasket(){ recheckCode(); try{ localStorage.setItem(BASKET_KEY, JSON.stringify(basket)); }catch(e){} paintBag(); }
 const basketCount = () => basket.reduce((a, l) => a + (l.qty || 1), 0);
 function basketAdd(k, opt, qty){
   k = String(k);
@@ -8751,8 +8775,19 @@ function basketTotals(){
   /* Postage is judged on the things that get posted. A donation on its own has
      nothing to send, and it must not earn anyone free delivery either. */
   const goods = basket.reduce((a, l) => a + (isDonation(l.k) ? 0 : linePrice(l) * l.qty), 0);
+  /* A tees-only code is worked out on the TEE lines alone, exactly the way the
+     shop helper does it, so the number here is the number they pay. */
   let off = 0;
-  if (basketCode && sub >= (basketCode.min || 0)) off = basketCode.percent ? Math.round(sub * basketCode.percent / 100) : Math.min(sub, basketCode.amount || 0);
+  if (basketCode){
+    const base = basket.reduce((a, l) => {
+      const it = shopItem(l.k); if (!it) return a;
+      if (basketCode.teeOnly && (it.kind || 'tee') !== 'tee') return a;
+      return a + linePrice(l) * l.qty;
+    }, 0);
+    if (base >= (basketCode.min || 0) && base > 0)
+      off = basketCode.percent ? Math.round(base * basketCode.percent / 100)
+                               : Math.min(base, basketCode.amount || 0);
+  }
   /* free delivery is judged on the goods, before any code, the same way the shop helper judges it */
   const ship = goods ? bcShipFor(goods) : 0;
   return {sub, off, ship, goods, total: Math.max(0, sub - off) + ship};
@@ -8808,6 +8843,10 @@ function paintBasket(msg){
   s += t.goods ? bcFreeBar(t.goods) : '';
   s += '<div class="bkcode">' + (basketCode
       ? '<p class="bkapplied">' + ti('check') + '<b>' + esc(basketCode.code) + '</b> ' + esc(basketCode.label) +
+        /* On a mixed basket the saving is smaller than the headline, so say
+           what it is coming off rather than leave them to work it out. */
+        (basketCode.teeOnly && basket.some(l => { const it = shopItem(l.k); return it && (it.kind || 'tee') !== 'tee'; })
+          ? ' <i>(tees only)</i>' : '') +
         (basketCode.min && t.sub < basketCode.min ? ' <i>(on orders over ' + gbp(basketCode.min) + ')</i>' : '') +
         '<button class="linkbtn" data-act="bkcodeoff">Remove</button></p>'
       : ui.bkCodeOpen || msg
@@ -8833,8 +8872,12 @@ async function applyCode(){
   try{
     const r = await fetch(w + '/code?c=' + encodeURIComponent(box.value.trim().toUpperCase()));
     const j = await r.json();
-    if (j.ok){ basketCode = j; paintBasket(); }
-    else paintBasket(j.message || 'That code isn’t valid.');
+    if (!j.ok) return paintBasket(j.message || 'That code isn’t valid.');
+    /* Say it here, where they can still take the sticker out, rather than
+       letting them reach the payment panel and be refused there. */
+    const no = codeWontApply(j);
+    if (no) return paintBasket(no);
+    basketCode = j; paintBasket();
   }catch(e){ paintBasket('Couldn’t check that code. Try again.'); }
 }
 async function checkoutBasket(){
@@ -9119,7 +9162,10 @@ function supList(){
    swiped for the other side, and a few plain facts under it. No buttons on the
    card: the picture is the way in. */
 const shopImg = (n, side) => SUP_BASE + 'tees/' + sup2(n) + '-' + side + '-shop.webp';
-const SHIRT_HEX = {cream:'#EDE7D9', sand:'#EDE7D9', pine:'#4C6151'};
+/* Inkthreadable's own Natural swatch, not an eyeballed match: rgb(234,225,208).
+   The mockups on the shop are built on this exact value too, so the dot beside
+   the name and the shirt in the picture agree. */
+const SHIRT_HEX = {cream:'#EAE1D0', sand:'#EAE1D0', pine:'#4C6151'};
 /* Everything on sale that is not a tee: stickers, caps, beanies, bottles,
    patches, gaiters. Each needs only a catalogue entry with a picture. */
 /* Everything on sale that is not a tee. A donation is the one kind with no
@@ -23076,7 +23122,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v216';
+const APP_VERSION = 'v219';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';

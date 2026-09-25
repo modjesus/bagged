@@ -10,7 +10,7 @@
 //
 // Any other version number you see in this file is prose in a comment and does
 // nothing at all.
-const CACHE = 'waymark-v216';
+const CACHE = 'waymark-v219';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
