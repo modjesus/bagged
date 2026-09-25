@@ -5422,6 +5422,10 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .softlock{display:flex; gap:10px; align-items:center; margin-top:11px; padding:10px 12px;
   background:var(--surface-2); border:1px solid var(--line); border-radius:12px}
 .softlock>svg{width:18px; height:18px; flex:none; stroke:var(--ink-2)}
+.softlock.open{background:var(--done-soft); border-color:var(--done-line)}
+.softlock.open>svg{stroke:var(--done)}
+.softlock.open span, .softlock.open b{color:var(--done)}
+.softlock.open .softbar i{background:var(--done)}
 .softlock span{flex:1; min-width:0; font:normal 12.5px/1.4 var(--font-ui); color:var(--ink-2)}
 .softlock b{display:block; font:700 13px var(--font-ui); color:var(--ink)}
 .softlock .chip{flex:none; min-height:38px; white-space:nowrap}
@@ -9211,17 +9215,25 @@ function kitDetail(k){
       (locked ? esc(kitLockWhy(k))
               : pick ? 'Add to backpack' : 'Choose a ' + esc(String(wantLabel).toLowerCase())) + '</button>' +
     (locked ? '<p class="tplocknote">Not for sale until you\u2019ve been up it. Mark the walk in your log and it opens here.</p>' : '') +
-    (lock === 'soft' ? (() => {
+    (() => {
+       /* The progress bar belongs to the sticker, not to the lock: "214 and
+          Counting" is not locked and still wants to show how far along you
+          are. That is the whole point of it. */
        const l = kitListProgress(k);
-       if (l) return '<div class="softlock">' + ti('lock') +
+       if (!l) return '';
+       const pct = Math.round(l.done / l.total * 100);
+       return '<div class="softlock' + (l.lock && !l.full ? '' : ' open') + '">' +
+         (l.lock && !l.full ? ti('lock') : ti('mountain')) +
          '<span><b>' + l.done + ' of ' + l.total + ' ' + esc(l.name) + ' marked off.</b>' +
-         'This one is for finishing the round. Buy it whenever you like \u2014 nobody is checking.</span>' +
-         '<span class="softbar"><i style="width:' + Math.round(l.done / l.total * 100) + '%"></i></span></div>';
-       return '<div class="softlock">' + ti('lock') +
-         '<span><b>' + esc(hillName(kitHill(k)) || 'This hill') + ' isn\u2019t in your log.</b>' +
-         'You can still buy it \u2014 mark the walk and it stops asking.</span>' +
-         '<button class="chip" data-act="markoff" data-k="' + esc(k) + '">Mark it off</button></div>';
-     })() : '') +
+         esc(l.full ? 'Round finished. This one is yours.'
+           : l.lock ? 'This one is for finishing. Buy it whenever you like \u2014 nobody is checking.'
+           : 'This one is for being on your way. It counts from the first.') + '</span>' +
+         '<span class="softbar"><i style="width:' + pct + '%"></i></span></div>';
+     })() +
+    (lock === 'soft' && !kitListProgress(k) ? '<div class="softlock">' + ti('lock') +
+       '<span><b>' + esc(hillName(kitHill(k)) || 'This hill') + ' isn\u2019t in your log.</b>' +
+       'You can still buy it \u2014 mark the walk and it stops asking.</span>' +
+       '<button class="chip" data-act="markoff" data-k="' + esc(k) + '">Mark it off</button></div>' : '') +
     '</div>' +
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
     '</div></div></div>';
@@ -9610,15 +9622,20 @@ const kitHill = k => KIT_HILL[k] && BY_KEY[KIT_HILL[k]] || null;
    goal. So these are soft-locked exactly like an unbagged hill: the sticker
    says what it stands for and how far along you are, and sells anyway. */
 const KIT_LIST = {
-  'st-17-earned-1-patch':          'wainwright',   // 214 Club
-  'st-28-small-19-214-wainwrights':'wainwright'    // 214 and Counting
+  /* 214 Club is the finished round, so it carries a lock. "214 and Counting"
+     is the opposite - it is about being part-way, and locking it would be
+     telling somebody they cannot buy the sticker that says they are still
+     going. It shows the same progress and sells to anyone. */
+  'st-17-earned-1-patch':          {list:'wainwright', lock:true},
+  'st-28-small-19-214-wainwrights':{list:'wainwright', lock:false}
 };
 function kitListProgress(k){
-  const id = KIT_LIST[k]; if (!id) return null;
-  const all = hillsIn(id); if (!all.length) return null;
+  const e = KIT_LIST[k]; if (!e) return null;
+  const all = hillsIn(e.list); if (!all.length) return null;
   const done = all.filter(h => isBagged(h.k)).length;
-  const l = LIST_BY[id];
-  return { id, done, total: all.length, name: (l && l.name) || id, full: done >= all.length };
+  const l = LIST_BY[e.list];
+  return { id: e.list, lock: !!e.lock, done, total: all.length,
+           name: (l && l.name) || e.list, full: done >= all.length };
 }
 
 /* The National Three Peaks set. Each triangle is earned by standing on its own
@@ -9645,7 +9662,7 @@ function kitLock(k){
   if (TP_PEAKS[k]) return isBagged(TP_PEAKS[k]) ? '' : 'hard';
   if (k === TP_CENTRE) return tpDone() < 3 ? 'hard' : '';
   const l = kitListProgress(k);
-  if (l) return l.full ? '' : 'soft';
+  if (l) return (l.lock && !l.full) ? 'soft' : '';
   const h = kitHill(k);
   return (h && !isBagged(h.k)) ? 'soft' : '';
 }
@@ -23028,7 +23045,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v214';
+const APP_VERSION = 'v215';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
