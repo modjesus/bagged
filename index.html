@@ -8798,7 +8798,7 @@ function basketTotals(){
      and the one already getting the most away. */
   const paidGoods = Math.max(0, goods - offGoods);
   const ship = goods ? bcShipFor(paidGoods) : 0;
-  return {sub, off, ship, goods, total: Math.max(0, sub - off) + ship};
+  return {sub, off, ship, goods, paidGoods, total: Math.max(0, sub - off) + ship};
 }
 function paintBag(){
   const n = basketCount();
@@ -8848,7 +8848,7 @@ function paintBasket(msg){
       '<button class="linkbtn bklater" data-act="bklater" data-i="' + i + '">Save for later</button></div></div>' +
       '<span class="bkprice">' + gbp(linePrice(l) * l.qty) + '</span></li>';
   }).join('') + '</ul>';
-  s += t.goods ? bcFreeBar(t.goods) : '';
+  s += t.goods ? bcFreeBar(t.paidGoods) : '';
   s += '<div class="bkcode">' + (basketCode
       ? '<p class="bkapplied">' + ti('check') + '<b>' + esc(basketCode.code) + '</b> ' + esc(basketCode.label) +
         /* On a mixed basket the saving is smaller than the headline, so say
@@ -9820,6 +9820,10 @@ const bcLetterOnly = () => {
 const bcRate = () => (bcLetterOnly() && bcLetterRate() ? bcLetterRate() : bcParcelRate());
 const itemShip = it => (itemPost(it) === 'letter' && bcLetterRate() ? bcLetterRate() : bcParcelRate());
 const bcShipFor = sub => { const s = bcRate(), f = bcFreeOver(); return f && sub >= f ? 0 : s; };
+/* Counts the DISCOUNTED goods, because that is what the threshold is judged
+   on. Fed the ticket price it told a basket paying £21.75 it was £22 from free
+   delivery: add £22 of stickers on the strength of that, reach £50 of tickets,
+   pay £43.75, and get charged postage anyway. */
 function bcFreeBar(sub){
   const f = bcFreeOver(), s = bcRate();
   if (!f || !s) return '';
@@ -10181,7 +10185,7 @@ function bcAdd(k, opt){
   const why = pick && teeHill(pick.n) && isBagged(teeHill(pick.n).k) ? 'You’ve summited it' : 'Goes well with it';
   bcSheet('<p class="bcok">' + ti('check') + 'In your backpack</p>' +
     '<div class="bcsheethead"><span class="bctile"><img alt="" src="' + esc(p.img) + '"></span><div><b>' + esc(p.name) + '</b><span>' + esc([p.sub, opt !== 'One size' ? opt : ''].filter(Boolean).join(' · ')) + '</span></div><b class="bcprice">' + gbp(p.it.price) + '</b></div>' +
-    bcFreeBar(t.sub) +
+    bcFreeBar(t.paidGoods) +
     (pick ? '<div class="bcupsell"><span class="bctile"><img alt="" src="' + shopImg(pick.n, supLead(pick)) + '"></span><div><b>' + esc(pick.name) + '</b><span>' + why + ' &middot; ' + gbp(shopItem(pick.n).price) + '</span></div>' +
       '<button class="chip" data-act="bcquick" data-k="' + pick.n + '">' + ti('plus') + 'Add</button></div>' : '') +
     /* This button used to go straight to Stripe. That was survivable while
@@ -23136,7 +23140,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v220';
+const APP_VERSION = 'v221';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
