@@ -633,7 +633,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    gave the span the button's own dark chrome, so the pair sat on a slab. */
 .pbanner .peditbar{position:absolute; right:10px; top:10px; z-index:3; display:flex; gap:7px}
 .pbanner .peditbar .btn{flex:none; box-shadow:0 2px 8px -2px rgba(0,0,0,.5)}
-.pbanner .peditbar .btn.quiet{
+.peditbar .btn.quiet{
   background:rgba(20,51,45,.62); color:#F6EFE4;
   border-color:rgba(246,239,228,.5); backdrop-filter:blur(4px);
 }
@@ -7004,6 +7004,11 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const today = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const uid = () => Math.random().toString(36).slice(2,9) + now().toString(36).slice(-4);
 const feet = h => h.f.toLocaleString();
+/* Irish hills are keyed "IRISH:J357276" so they cannot collide with a GB grid
+   square, and h.g carries the same prefix. That prefix is ours, not Ordnance
+   Survey's — it must never reach a walker. Everything that PRINTS a grid
+   reference goes through here; nothing that stores or looks one up does. */
+const gridRef = h => String((h && (h.g || h.k)) || '').replace(/^IRISH:/, '');
 /* One unit in a row — the one you chose in Settings, feet unless you say
    otherwise. Both units live on the hill's own page. */
 const UNITS_KEY = 'waymark.units';
@@ -9903,8 +9908,23 @@ function bcKitCard([k, it]){
      colourblind reading. */
   const lock = kitLock(k), locked = lock === 'hard', why = lock ? kitLockWhy(k) : '';
   const h = kitHill(k), done = h && isBagged(h.k);
+  /* Tee cards roll over to the back of the shirt. Kit cards showed one picture
+     and never moved. Second picture, best first: a plate has colourway shots,
+     and another colour is a better reason to look than a measurement, so it
+     wins over the size diagram that every sticker carries as img[1].
+     Hover only, so this is desktop; a phone sees the first picture as before. */
+  const altSrc = (() => {
+    if (!(it.img && it.img.length)) return '';
+    const cols = (it.opts2 || []).filter(c => it.optImg && it.optImg[c]);
+    /* opts2[0] is the colour the lead picture already shows. Its optImg entry
+       has a DIFFERENT filename but is the SAME shot, so testing the url finds
+       a false difference and the hover changes nothing. Take the next one. */
+    if (cols.length > 1) return it.optImg[cols[1]];
+    return it.img[1] || '';
+  })();
   const pic = (it.img && it.img.length)
-    ? '<img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '">'
+    ? '<img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '">' +
+      (altSrc ? '<img class="alt" loading="lazy" decoding="sync" alt="" src="' + esc(altSrc) + '">' : '')
     : (don ? '<span class="bcdonmark">' + ti('mountain', 'width="56" height="56"') + '</span>' : '');
   return '<article class="bccard' + (don ? ' bcdon' : '') + (lock ? ' bclocked bclock-' + lock : '') + '"><div class="bctile">' +
     '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) +
@@ -10158,7 +10178,8 @@ function bcMarkOff(k){
   const h = kitHill(k); if (!h) return;
   const c = rec(h.k);
   bcSheet('<h3 class="bcsheettitle">Mark off ' + esc(hillName(h) || 'this hill') + '</h3>' +
-    '<p class="mofline">' + feet(h).toLocaleString() + ' ft &middot; ' + esc(h.k) + '</p>' +
+    '<p class="mofline">' + feet(h).toLocaleString() + ' ft &middot; ' +
+      esc(gridRef(h)) + '</p>' +
     '<div class="mofield"><label for="mofdate">When did you walk it?</label>' +
       '<input id="mofdate" type="date" max="' + today() + '" value="' + esc(c.date || today()) + '"></div>' +
     '<div class="mofield"><label for="mofnote">Anything worth remembering?</label>' +
@@ -13759,7 +13780,7 @@ function buildGPX(plan){
     s += '  <wpt lat="' + h.a + '" lon="' + h.o + '">' +
          '<ele>' + h.h + '</ele>' +
          '<name>' + xesc(hillName(h)) + '</name>' +
-         '<desc>' + xesc(feet(h) + ' ft (' + h.h + ' m) · ' + (h.g || '')) + '</desc>' +
+         '<desc>' + xesc(feet(h) + ' ft (' + h.h + ' m) · ' + gridRef(h)) + '</desc>' +
          '<sym>Summit</sym></wpt>\n';
   }
   const pts = plan.trk || [];
@@ -20482,7 +20503,7 @@ function paintInfo(){
   }
   s += '<h2>' + esc(hillName(h)) + '</h2>';
   s += '<p class="istats">' + htFlat(h) + ' · ' + esc(h.c) +
-       (h.g ? ' · grid ' + esc(h.g) : '') +
+       (h.g ? ' \u00b7 grid ' + esc(gridRef(h)) : '') +
        ((h.alt && h.alt.length) ? ' · also ' + esc(h.alt.join(', ')) : '') + '</p>';
   if (fromWeb && !state.enabled.length){
     s += '<p class="webpick">' + esc(hillName(h)) + ' counts on ' +
@@ -23155,7 +23176,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v224';
+const APP_VERSION = 'v228';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -24774,7 +24795,7 @@ function certData(k){
   return {
     h, key:k, name:hillName(h), walker,
     m:isFinite(h.h) ? h.h : null, ft:isFinite(h.f) ? h.f : null,
-    grid:h.g || '', country:h.c || '',
+    grid:gridRef(h), country:h.c || '',
     region:lid ? String(regionOf(h, lid)).replace(/^The /, '') : '',
     list:lid ? ((LIST_BY[lid] || {}).name || '') : '',
     lists:(h.l || []).map(x => (LIST_BY[x] || {}).name).filter(Boolean),
