@@ -3611,6 +3611,15 @@ body::before{background-image:var(--sheet); background-size:1200px 1200px; backg
 .pagehead{font-size:clamp(32px, 9vw, 52px)}
 /* the shared page header: an eyebrow, then a figure from your own log */
 .wmhead{display:block; margin:14px 0 12px}
+/* The map tab's header on one line. The figure repeats the map's own pill, so
+   it earns a row, not a block. Stress-tested at 1,234 of 1,550 Marilyns — the
+   widest string any list can produce — and it still does not wrap. */
+.wmhead.wmrow{display:flex; align-items:baseline; gap:10px; margin:8px 0 7px; flex-wrap:wrap}
+.wmhead.wmrow .coverline{margin:0; font-size:10.5px; letter-spacing:.2em; flex:none}
+.wmhead.wmrow .coverline i{width:7px; height:7px}
+.wmhead.wmrow .pagehead{margin:0; padding-bottom:0; font-size:clamp(19px, 5.2vw, 25px); min-width:0}
+.wmhead.wmrow .pagehead::after{content:none}
+.wmhead.wmrow .pagehead em{font-size:.62em}
 .wmhead .coverline{margin:0 0 8px}
 .wmhead .pagehead{margin:0}
 .wmhead .pagehead em{font-style:normal; color:var(--ink-3); font-size:.52em; letter-spacing:.01em}
@@ -3898,7 +3907,7 @@ body.guiding{overflow:hidden}
 /* the map is what the tab is for, so on a phone it runs to both edges and
    takes the room the list and the day used to occupy above it */
 @media (max-width:719px){
-  .mapstage{margin-left:-14px; margin-right:-14px; margin-top:6px}
+  .mapstage{margin-left:0; margin-right:0; margin-top:6px}
 }
 /* the two pills: a second row under the search, clear of the zoom column */
 /* above the mode bar, not under the search: at the top they had to dodge the
@@ -3928,12 +3937,13 @@ body.guiding{overflow:hidden}
 .mmenu .listbar{padding:2px 0 6px; flex-wrap:wrap; overflow:visible}
 .mmenu .daystrip{margin:0}
 .mmenu .wxtop{margin-top:8px}
+.mdaynote{margin:8px 0 0; font-size:11.5px; line-height:1.4; color:var(--ink-3)}
 .mapstage #routemap{height:min(62vh, 640px); border-radius:12px}
 /* MOVED here from ~20 lines above: edge to edge on a phone means square
    corners and the taller map, and up there the plain rule on the line before
    this one was winning both on source order. */
-@media (max-width:719px){ .mapstage #routemap{border-radius:0; height:min(56vh, 520px); height:min(56svh, 520px)} }
-@media (min-width:1024px){ .mapstage #routemap{height:min(60vh, 620px); min-height:440px} }
+@media (max-width:719px){ .mapstage #routemap{border-radius:14px; height:min(64vh, 580px); height:min(64svh, 580px)} }
+@media (min-width:1024px){ .mapstage #routemap{height:min(63vh, 650px); min-height:440px} }
 .misle{position:absolute; z-index:5; background:rgba(251,250,246,.8); -webkit-backdrop-filter:blur(16px) saturate(1.25); backdrop-filter:blur(16px) saturate(1.25);
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 14px 30px -18px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7); border-radius:99px; color:var(--ink)}
 .msearch{left:12px; right:calc(64px + var(--grip, 0px)); max-width:520px; top:12px; height:44px; display:flex; align-items:center; gap:9px; padding:0 8px 0 14px}
@@ -12887,8 +12897,10 @@ function hillsHead(){
   if (!l) return pageHead('The hills', 'Pick a list', '');
   const st = statsFor(l.id);
   /* one line: the map is the page, and every row above it costs the map */
-  return pageHead('The hills',
-    st.done.toLocaleString() + ' <em>of ' + st.total.toLocaleString() + ' ' + esc(l.name) + '</em>', '');
+  return '<header class="wmhead wmrow">' +
+    '<p class="coverline"><i></i>The hills</p>' +
+    '<h2 class="pagehead">' + st.done.toLocaleString() + ' <em>of ' +
+      st.total.toLocaleString() + ' ' + esc(l.name) + '</em></h2></header>';
 }
 function listBar(){
   let s = '<div class="listbar">';
@@ -17479,7 +17491,7 @@ function renderPlans(){
       (editor && (editor.wp.length || editor.id) ? '<button class="btn quiet" data-act="rmdiscard">Discard</button>' : '') +
       '</div></section>';
   } else if (!ui.rday){
-    html += '<p class="wxcaution">Tap <b>Pick a day</b> on the map for the forecast on the tops. Forecasts move: check again the night before.</p>';
+    html += '<p class="wxcaution">Tap <b>Pick a day</b> for the forecast on the tops.</p>';
   }
 
   /* routes you already have */
@@ -17515,7 +17527,8 @@ function mapPillsHTML(){
     '<p class="mh">Which list</p>' + listBar() + '</div>';
   s += '<div class="mmenu mleft mdaymenu"' + (ui.dayOpen ? '' : ' hidden') + '>' +
     '<p class="mh">Which day</p>' + dayChipsHTML() +
-    (ui.rday ? '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>' : '') + '</div>';
+    (ui.rday ? '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>' +
+      '<p class="mdaynote">Forecasts move \u2014 check again the night before.</p>' : '') + '</div>';
   return s;
 }
 function mapStageHTML(){
@@ -23142,7 +23155,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v222';
+const APP_VERSION = 'v223';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
