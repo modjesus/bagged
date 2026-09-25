@@ -5345,9 +5345,9 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
    collections as chips, a heart and a quick add on every picture, and buying
    pinned to the bottom of the product page. Colours come from the theme
    tokens, so light and dark are the same design. */
-:root{--bc-ok:#2E6B4F; --bc-ok-soft:#E4EFE8; --bc-tile:#FFFFFF}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--bc-ok:#6FC0AC; --bc-ok-soft:#12342C; --bc-tile:#FFFFFF} }
-:root[data-theme="dark"]{--bc-ok:#6FC0AC; --bc-ok-soft:#12342C; --bc-tile:#FFFFFF}
+:root{--bc-ok:#2E6B4F; --bc-ok-soft:#E4EFE8; --bc-tile:#F3F0E8}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--bc-ok:#6FC0AC; --bc-ok-soft:#12342C; --bc-tile:#F3F0E8} }
+:root[data-theme="dark"]{--bc-ok:#6FC0AC; --bc-ok-soft:#12342C; --bc-tile:#F3F0E8}
 
 .bcswitch{display:flex; gap:4px; padding:4px; margin:14px 0 0; border-radius:26px; background:var(--surface-2); border:1px solid var(--line-soft)}
 .bcswitch button{flex:1; display:flex; align-items:center; justify-content:center; gap:7px; min-height:42px; border:0; border-radius:22px; background:none; color:var(--ink); font:700 15px var(--font-ui); transition:background .18s, color .18s}
@@ -5409,6 +5409,21 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bclocked .bcimg img{filter:grayscale(1) contrast(.55) brightness(1.18); opacity:.55}
 .bclocked .bcmeta h3 button, .bclocked .bcprice{color:var(--ink-2)}
 .bcpad{position:absolute; inset:0; display:grid; place-items:center; pointer-events:none}
+/* "3 colours", bottom left of the tile, so a plate reads as a choice at a
+   glance instead of looking like one pine sticker. */
+.bcswatch{position:absolute; left:8px; bottom:8px; display:flex; align-items:center; gap:4px;
+  padding:4px 9px 4px 7px; border-radius:999px; background:var(--raise);
+  box-shadow:0 1px 3px rgba(20,51,45,.16); pointer-events:none}
+/* Overlapped, the pine and cream dots merged into one shape and the row read
+   as two colours under a label saying three. Separate dots, each ringed. */
+.bcswatch i{width:10px; height:10px; border-radius:50%; display:block; flex:none;
+  box-shadow:0 0 0 1px rgba(20,51,45,.32)}
+.bcswatch b{margin-left:3px; font:600 11px var(--font-ui); color:var(--ink); white-space:nowrap}
+/* A tile with a bottom strip already owns that corner, so the pill sits above
+   it rather than half behind it. */
+.bctile:has(.bctag) .bcswatch{bottom:31px}
+/* a locked tile greys its picture, not the label that says what it comes in */
+.bclocked .bcswatch{opacity:.9}
 .tpband{display:flex; gap:11px; align-items:flex-start; margin:14px 0 4px; padding:11px 13px;
   background:var(--done-soft); border:1px solid var(--done-line); border-radius:12px}
 .tpband>b{font:900 19px/1 var(--font-data); color:var(--done); flex:none; padding-top:1px}
@@ -9616,6 +9631,21 @@ const KIT_HILL = {
 };
 const kitHill = k => KIT_HILL[k] && BY_KEY[KIT_HILL[k]] || null;
 
+/* The colours a sticker actually prints in, sampled from the print artwork
+   rather than guessed from the brand palette - they happen to agree, but the
+   artwork is the thing being sold. A name with no swatch here simply draws no
+   dot, so a new colourway cannot paint a wrong one. */
+const KIT_SWATCH = { Pine: '#14332D', Cream: '#F3EFE6', Rust: '#A8431A' };
+/* Cream is within a few points of the pill it sits on, so every dot gets the
+   same ring. Without it the row reads as two dots and the "3" looks wrong. */
+function kitSwatches(it){
+  const cols = (it && it.opts2 || []).filter(c => KIT_SWATCH[c]);
+  if (cols.length < 2) return '';
+  return '<span class="bcswatch">' +
+    cols.map(c => '<i style="background:' + KIT_SWATCH[c] + '" title="' + esc(c) + '"></i>').join('') +
+    '<b>' + cols.length + ' colours</b></span>';
+}
+
 /* Stickers that belong to a whole LIST rather than one summit. The 214 ones
    mean something only to somebody who has done the round - but asking a new
    walker to mark 214 fells before they can buy a \u00a33 sticker is a wall, not a
@@ -9811,6 +9841,7 @@ function bcKitCard([k, it]){
       (lock ? ', ' + esc(why) + '. Open' : '. Open') + '">' + pic +
       (lock ? '<span class="bcpad" aria-hidden="true">' + ti('lock') + '</span>' : '') + '</button>' +
     (don ? '<span class="bcflag">Support</span>' : '') +
+    kitSwatches(it) +
     (lock ? '<span class="bctag">' + esc(why.toUpperCase()) + '</span>'
           : (TP_PEAKS[k] || k === TP_CENTRE ? '<span class="bcflag">Earned</span>' : '')) +
     '<button class="bcround bcheart" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) + '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button></div>' +
@@ -23045,7 +23076,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v215';
+const APP_VERSION = 'v216';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
