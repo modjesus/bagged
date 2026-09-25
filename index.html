@@ -3928,12 +3928,12 @@ body.guiding{overflow:hidden}
 .mmenu .listbar{padding:2px 0 6px; flex-wrap:wrap; overflow:visible}
 .mmenu .daystrip{margin:0}
 .mmenu .wxtop{margin-top:8px}
-.mapstage #routemap{height:min(64vh, 680px); border-radius:12px}
+.mapstage #routemap{height:min(62vh, 640px); border-radius:12px}
 /* MOVED here from ~20 lines above: edge to edge on a phone means square
    corners and the taller map, and up there the plain rule on the line before
    this one was winning both on source order. */
-@media (max-width:719px){ .mapstage #routemap{border-radius:0; height:min(76vh, 760px)} }
-@media (min-width:1024px){ .mapstage #routemap{height:min(68vh, 760px)} }
+@media (max-width:719px){ .mapstage #routemap{border-radius:0; height:min(56vh, 520px); height:min(56svh, 520px)} }
+@media (min-width:1024px){ .mapstage #routemap{height:min(60vh, 620px); min-height:440px} }
 .misle{position:absolute; z-index:5; background:rgba(251,250,246,.8); -webkit-backdrop-filter:blur(16px) saturate(1.25); backdrop-filter:blur(16px) saturate(1.25);
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 14px 30px -18px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7); border-radius:99px; color:var(--ink)}
 .msearch{left:12px; right:calc(64px + var(--grip, 0px)); max-width:520px; top:12px; height:44px; display:flex; align-items:center; gap:9px; padding:0 8px 0 14px}
@@ -5048,7 +5048,9 @@ span.pshow{cursor:default}
    and each of them put the phone's frosted blur back on the desktop header.
    Last man standing has to be this one. */
 @media (min-width:768px){
-  .top{background:none; backdrop-filter:none; -webkit-backdrop-filter:none;
+  .top{background:color-mix(in srgb, var(--ground) 94%, transparent);
+    -webkit-backdrop-filter:blur(14px) saturate(1.3);
+    backdrop-filter:blur(14px) saturate(1.3);
     border-bottom:1px solid var(--line-soft)}
   /* …but .top is position:sticky, so the moment anything scrolls under it you
      were reading the icons against whatever passed behind — on a profile, the
@@ -23140,7 +23142,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v221';
+const APP_VERSION = 'v222';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
