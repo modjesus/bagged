@@ -4920,8 +4920,21 @@ span.pshow{cursor:default}
 .kithead{margin:34px 0 14px; font-family:var(--font-display); font-weight:400; font-size:26px; color:var(--ink)}
 .kittile{display:block; width:100%; padding:0; border:0; cursor:pointer; aspect-ratio:1/1; overflow:hidden}
 .kittile img{width:100%; height:100%; object-fit:cover; display:block}
-.kitshots{display:grid; gap:10px}
-.kitshots img{width:100%; border-radius:12px; display:block}
+/* Kit rides the same one-at-a-time snap track as the tee gallery. It used to
+   be a grid, which stacked every picture down the page. Stickers are square
+   and padded, so they sit inside the tile rather than being cropped to the
+   tee's 10/11. */
+.shopdetail .supsides.kitshots img{aspect-ratio:1/1; object-fit:contain}
+/* The dot is drawn in ::before so the button itself can be a 44px target. A 9px
+   button would have been a 9px tap. */
+.kitdots{justify-content:center; gap:0; margin-top:4px}
+.kitdots .chip, .kitdots .chip[aria-current="true"]{
+  width:44px; height:44px; min-height:44px; padding:0; border:0; border-radius:0;
+  background:none; color:inherit; font-size:0; display:grid; place-items:center}
+.kitdots .chip::before{content:""; display:block; width:9px; height:9px; border-radius:50%;
+  background:var(--line); transition:width .18s, background .18s}
+.kitdots .chip[aria-current="true"]::before{width:22px; border-radius:5px; background:var(--ink)}
+@media (prefers-reduced-motion:reduce){ .kitdots .chip::before{transition:none} }
 .basketsheet .sheetbox{max-width:560px; padding:8px 16px 18px; max-height:86vh; overflow-y:auto}
 .bklist{list-style:none; margin:4px 0 0; padding:0}
 .bkline{display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--line-soft)}
@@ -5385,7 +5398,11 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcimg{display:block; width:100%; padding:0; border:0; background:none; position:relative; aspect-ratio:10/11}
 .bcimg img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity .25s}
 .bcimg img.alt{opacity:0}
-@media (hover:hover){ .bccard:hover .bcimg img.alt{opacity:1} .bccard:hover .bcimg img:not(.alt){opacity:0} }
+/* The fade-out is scoped to tiles that HAVE a second picture. Without the
+   :has(), hovering any single-image card faded its only picture to nothing —
+   every sticker, and the two tees whose design is one-sided. */
+@media (hover:hover){ .bccard:hover .bcimg img.alt{opacity:1}
+  .bccard:hover .bcimg:has(img.alt) img:not(.alt){opacity:0} }
 .bcflag{position:absolute; left:8px; top:8px; background:#14332D; color:#F3EFE6; font:700 10.5px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px; border-radius:3px; pointer-events:none}
 .bctag{position:absolute; left:0; right:0; bottom:0; padding:5px 8px; background:rgba(20,51,45,.9); color:#F3EFE6; font:600 9.5px var(--font-data); letter-spacing:.08em; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .bcround{width:36px; height:36px; border-radius:50%; border:1px solid rgba(20,51,45,.14); background:rgba(255,253,248,.94); color:#14332D; display:grid; place-items:center; padding:0; transition:transform .12s}
@@ -9062,6 +9079,22 @@ function donateAmt(){
   const el = document.getElementById('donamt');
   return el ? Math.round(parseFloat(el.value || '0') * 100) : 0;
 }
+/* One picture at a time, swiped, with a dot row underneath — the same ids
+   supMountSlides() already wires after every render. Only one detail view is
+   ever on screen, so reusing them cannot collide. */
+function kitShots(it){
+  const list = (it.img || []).slice();
+  if (!list.length) return '';
+  return '<div class="supsides kitshots" id="supsides">' +
+    list.map(u => '<figure><img decoding="async" alt="' + esc(it.name) + '" src="' + esc(u) + '"></figure>').join('') +
+    '</div>' +
+    (list.length > 1
+      ? '<div class="supdots kitdots" id="supdots" role="group" aria-label="Which picture">' +
+        list.map((u, i) => '<button type="button" class="chip" aria-current="' + (i === 0) +
+          '" aria-label="Picture ' + (i + 1) + ' of ' + list.length + '">' + (i + 1) + '</button>').join('') +
+        '</div>'
+      : '');
+}
 function donateDetail(k, it){
   const min = it.min || 100, amt = ui.donAmt || '';
   const pence = Math.round(parseFloat(amt || '0') * 100);
@@ -9071,8 +9104,7 @@ function donateDetail(k, it){
   return '<div class="supdetail shopdetail"><div class="pdnav"><button class="backbtn" data-act="kitclose">&larr; The shop</button></div>' +
     '<div class="pdgrid"><div class="pdmedia">' +
       ((it.img && it.img.length)
-        ? '<div class="supsides kitshots">' + it.img.map(u =>
-            '<figure><img decoding="async" alt="' + esc(it.name) + '" src="' + esc(u) + '"></figure>').join('') + '</div>'
+        ? kitShots(it)
         : '<div class="donmark">' + ti('mountain', 'width="74" height="74"') + '</div>') +
       '</div>' +
     '<div class="pdinfo"><p class="shopeyebrow">WayMark</p><h2>' + esc(it.name) + '</h2>' +
@@ -9111,7 +9143,7 @@ function kitDetail(k){
     '</div>';
   const wantLabel = !p1 ? (it.opt || 'option') : (it.opt2 || 'option');
   return '<div class="supdetail shopdetail"><div class="pdnav"><button class="backbtn" data-act="kitclose">&larr; The shop</button></div>' +
-    '<div class="pdgrid"><div class="pdmedia"><div class="supsides kitshots">' + it.img.map(u => '<figure><img decoding="async" alt="' + esc(it.name) + '" src="' + esc(u) + '"></figure>').join('') + '</div></div>' +
+    '<div class="pdgrid"><div class="pdmedia">' + kitShots(it) + '</div>' +
     '<div class="pdinfo"><p class="shopeyebrow">WayMark &middot; ' + esc(KIND_LABEL[it.kind] || it.kind) + '</p><h2>' + esc(it.name) + '</h2>' +
     (it.blurb ? '<p class="shoplede">' + esc(it.blurb) + '</p>' : '') +
     '<div class="shopbuy"><p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (itemShip(it) ? '+ ' + gbp(itemShip(it)) + ' UK delivery per order' : 'Free UK delivery') + '</span></p>' +
@@ -22737,7 +22769,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v211';
+const APP_VERSION = 'v212';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
