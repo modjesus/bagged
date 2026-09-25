@@ -8727,7 +8727,7 @@ function paintBasket(msg){
     const p = prodInfo(l.k); if (!p) return '';
     const open = p.d ? 'data-act="supopen" data-v="' + p.d.n + '"' : 'data-act="kitopen" data-k="' + esc(l.k) + '"';
     return '<li class="bkline"><button class="bkpic" ' + open + ' aria-label="Open ' + esc(p.name) + '">' + (p.img ? '<img src="' + esc(p.img) + '" alt="" loading="lazy">' : '<span class="bkimg"></span>') + '</button>' +
-      '<div class="bkmid"><b>' + esc(p.name) + '</b><span>' + esc([p.sub, isDonation(l.k) ? '' : l.opt && l.opt !== 'One size' ? 'Size ' + l.opt : ''].filter(Boolean).join(' · ')) + '</span>' +
+      '<div class="bkmid"><b>' + esc(p.name) + '</b><span>' + esc([p.sub, isDonation(l.k) ? '' : !l.opt || l.opt === 'One size' ? '' : String(l.opt).indexOf('|') >= 0 ? String(l.opt).split('|').join(' \u00b7 ') : 'Size ' + l.opt].filter(Boolean).join(' · ')) + '</span>' +
       '<div class="bkrow"><div class="bkqty" role="group" aria-label="Quantity"><button data-act="bkqty" data-i="' + i + '" data-v="-1" aria-label="' + (l.qty > 1 ? 'One fewer' : 'Take it out') + '">' + ti(l.qty > 1 ? 'minus' : 'trash') + '</button>' +
       '<output>' + l.qty + '</output><button data-act="bkqty" data-i="' + i + '" data-v="1" aria-label="One more"' + (l.qty >= 10 ? ' disabled' : '') + '>' + ti('plus') + '</button></div>' +
       '<button class="linkbtn bklater" data-act="bklater" data-i="' + i + '">Save for later</button></div></div>' +
@@ -8828,7 +8828,7 @@ function shopBuyHTML(d){
   const it = shopItem(d.n); if (!it) return '';
   const size = ui.shopSize && it.sizes.includes(ui.shopSize) ? ui.shopSize : '';
   return '<div class="shopbuy">' +
-    '<p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (shopCat.shipping ? '+ ' + gbp(shopCat.shipping) + ' UK delivery' : 'Free UK delivery') + '</span></p>' +
+    '<p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (itemShip(it) ? '+ ' + gbp(itemShip(it)) + ' UK delivery' : 'Free UK delivery') + '</span></p>' +
     '<p class="szhead"><span>Size</span><button class="linkbtn" data-act="szchart">Size chart</button></p>' +
     '<div class="shopsizes" role="group" aria-label="Size">' + it.sizes.map(z =>
       '<button class="chip" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
@@ -9097,16 +9097,28 @@ function kitDetail(k){
   const it = shopItem(k); if (!it) return '';
   if (it.custom) return donateDetail(k, it);
   const opts = it.sizes || [], one = opts.length === 1;
-  const pick = one ? opts[0] : (ui.kitOpt && opts.includes(ui.kitOpt) ? ui.kitOpt : '');
+  /* A summit plate is a size AND a colour. Two axes travel as one string,
+     "Large|Pine", because a basket line carries a single option. Products with
+     one axis are untouched. */
+  const two = Array.isArray(it.opts2) && it.opts2.length ? it.opts2 : null;
+  const p1 = one ? opts[0] : (ui.kitOpt && opts.includes(ui.kitOpt) ? ui.kitOpt : '');
+  const p2 = !two ? '' : (two.length === 1 ? two[0] : (ui.kitOpt2 && two.includes(ui.kitOpt2) ? ui.kitOpt2 : ''));
+  const pick = (!p1 || (two && !p2)) ? '' : (two ? p1 + '|' + p2 : p1);
+  const chips = (label, list, sel, act) =>
+    '<p class="szhead"><span>' + esc(label) + '</span></p>' +
+    '<div class="shopsizes" role="group" aria-label="' + esc(label) + '">' +
+    list.map(z => '<button class="chip" data-act="' + act + '" data-v="' + esc(z) + '" aria-pressed="' + (z === sel) + '">' + esc(z) + '</button>').join('') +
+    '</div>';
+  const wantLabel = !p1 ? (it.opt || 'option') : (it.opt2 || 'option');
   return '<div class="supdetail shopdetail"><div class="pdnav"><button class="backbtn" data-act="kitclose">&larr; The shop</button></div>' +
     '<div class="pdgrid"><div class="pdmedia"><div class="supsides kitshots">' + it.img.map(u => '<figure><img decoding="async" alt="' + esc(it.name) + '" src="' + esc(u) + '"></figure>').join('') + '</div></div>' +
     '<div class="pdinfo"><p class="shopeyebrow">WayMark &middot; ' + esc(KIND_LABEL[it.kind] || it.kind) + '</p><h2>' + esc(it.name) + '</h2>' +
     (it.blurb ? '<p class="shoplede">' + esc(it.blurb) + '</p>' : '') +
-    '<div class="shopbuy"><p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (shopCat.shipping ? '+ ' + gbp(shopCat.shipping) + ' UK delivery per order' : 'Free UK delivery') + '</span></p>' +
-    (one ? '' : '<p class="szhead"><span>' + esc(it.opt || 'Option') + '</span></p><div class="shopsizes" role="group" aria-label="' + esc(it.opt || 'Option') + '">' +
-      opts.map(z => '<button class="chip" data-act="kitopt" data-v="' + esc(z) + '" aria-pressed="' + (z === pick) + '">' + esc(z) + '</button>').join('') + '</div>') +
+    '<div class="shopbuy"><p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (itemShip(it) ? '+ ' + gbp(itemShip(it)) + ' UK delivery per order' : 'Free UK delivery') + '</span></p>' +
+    (one ? '' : chips(it.opt || 'Option', opts, p1, 'kitopt')) +
+    (two && two.length > 1 ? chips(it.opt2 || 'Colour', two, p2, 'kitopt2') : '') +
     '<button class="btn shopgo" data-act="bkadd" data-k="' + esc(k) + '" data-o="' + esc(pick) + '"' + (pick ? '' : ' disabled') + '>' + ti('backpack') +
-      (pick ? 'Add to backpack' : 'Choose a ' + esc((it.opt || 'option').toLowerCase())) + '</button></div>' +
+      (pick ? 'Add to backpack' : 'Choose a ' + esc(String(wantLabel).toLowerCase())) + '</button></div>' +
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
     '</div></div></div>';
 }
@@ -9510,9 +9522,22 @@ const bcArrive = () => bcDate(bcWorkdays(4)) + ' – ' + bcDate(bcWorkdays(10));
 
 /* ---- delivery: flat, or free past a line the shop helper sets ---- */
 const bcFreeOver = () => (shopCat && +shopCat.freeOver) || 0;
-const bcShipFor = sub => { const s = (shopCat && shopCat.shipping) || 0, f = bcFreeOver(); return f && sub >= f ? 0 : s; };
+/* Postage band. A basket of nothing but stickers goes in an envelope, and is
+   charged as a letter rather than as a parcel. The shop helper decides the
+   same way at checkout, off each product's own `post` field, so what the
+   backpack shows and what Stripe charges cannot drift apart. */
+const itemPost = it => (it && it.post) || '';
+const bcLetterRate = () => (shopCat && +shopCat.letterShipping) || 0;
+const bcParcelRate = () => (shopCat && +shopCat.shipping) || 0;
+const bcLetterOnly = () => {
+  const g = basket.filter(l => shopItem(l.k) && !isDonation(l.k));
+  return g.length > 0 && g.every(l => itemPost(shopItem(l.k)) === 'letter');
+};
+const bcRate = () => (bcLetterOnly() && bcLetterRate() ? bcLetterRate() : bcParcelRate());
+const itemShip = it => (itemPost(it) === 'letter' && bcLetterRate() ? bcLetterRate() : bcParcelRate());
+const bcShipFor = sub => { const s = bcRate(), f = bcFreeOver(); return f && sub >= f ? 0 : s; };
 function bcFreeBar(sub){
-  const f = bcFreeOver(), s = (shopCat && shopCat.shipping) || 0;
+  const f = bcFreeOver(), s = bcRate();
   if (!f || !s) return '';
   if (sub >= f) return '<div class="bcfree done">' + bcIcon(BC_TRUCK) + '<span><b>Free UK delivery unlocked.</b> Arrives ' + esc(bcArrive()) + '</span></div>';
   const pct = Math.max(4, Math.round(sub / f * 100));
@@ -18504,9 +18529,10 @@ document.addEventListener('click', async e => {
   else if (a === 'bkcode'){ await applyCode(); }
   else if (a === 'bkcodeoff'){ basketCode = null; ui.bkCodeOpen = false; paintBasket(); }
   else if (a === 'bkcheckout'){ await checkoutBasket(); }
-  else if (a === 'kitopen'){ bcSheetClose(); closeBasket(); bcSeen(el.dataset.k); ui.kitOpen = el.dataset.k; ui.kitOpt = ''; ui.patch = null; tab = 'a'; ui.patchView = 'supplies'; render(); window.scrollTo({top:0}); }
+  else if (a === 'kitopen'){ bcSheetClose(); closeBasket(); bcSeen(el.dataset.k); ui.kitOpen = el.dataset.k; ui.kitOpt = ''; ui.kitOpt2 = ''; ui.patch = null; tab = 'a'; ui.patchView = 'supplies'; render(); window.scrollTo({top:0}); }
   else if (a === 'kitclose'){ ui.kitOpen = null; render(); }
   else if (a === 'kitopt'){ ui.kitOpt = el.dataset.v; render(); }
+  else if (a === 'kitopt2'){ ui.kitOpt2 = el.dataset.v; render(); }
   else if (a === 'shopbuy'){ await shopBuy(+el.dataset.v); }
   else if (a === 'shopclose'){ shopClose(); }
   else if (a === 'supvote'){ await supVote(+el.dataset.v, el.dataset.d === 'up' ? 1 : -1); }
@@ -22711,7 +22737,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v210';
+const APP_VERSION = 'v211';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
