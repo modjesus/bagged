@@ -8918,6 +8918,18 @@ const supImg = (n, side, size) => SUP_BASE + 'tees/' + sup2(n) + '-' + side + '-
 const supLead  = d => d.lead || 'back';
 const supOther = side => (side === 'back' ? 'front' : 'back');
 const supCap   = side => (side === 'back' ? 'Back' : 'Front');
+/* Which sides a design is really printed on. The catalogue has always known —
+   it holds one artwork file per side — but the shop assumed every tee had both
+   and offered a flip to a photograph of an empty shirt for the front-only
+   ones. The helper now publishes `sides`; fall back to both if it is missing
+   so an older helper still renders. */
+const supSides = d => {
+  const it = typeof shopItem === 'function' ? shopItem(d.n) : null;
+  const have = it && Array.isArray(it.sides) && it.sides.length ? it.sides : null;
+  const lead = supLead(d);
+  if (!have) return [lead, supOther(lead)];
+  return have.indexOf(lead) >= 0 ? [lead].concat(have.filter(x => x !== lead)) : have.slice();
+};
 
 let supTally = {};          /* {'u13': 4, 'd13': 1, ...} straight from the tally doc */
 let supMine = {};           /* {13: 1, 16: -1} — this visitor's own votes           */
@@ -9130,15 +9142,15 @@ function supFlip(n){
   btn.setAttribute('aria-label', 'Show the ' + supOther(next) + ' of ' + d.name);
 }
 
-/* Comfort Colors 1717, measured flat: length, chest width, sleeve (Printful's chart) */
+/* Gildan Heavy Cotton, measured flat: length, chest width, sleeve.
+   Straight off Inkthreadable's own sizing table, converted to inches. */
 const SIZE_CHART = {
-  S:   ['26⅝','18¼','16¼', '67.6','46.4','41.3'],
-  M:   ['28','20¼','17¾',  '71','51.4','45'],
-  L:   ['29⅜','22','19',    '74.6','56','48.3'],
-  XL:  ['30¾','24','20½',  '78','61','52'],
-  '2XL':['31⅝','26','21¾', '80.3','66','55.2'],
-  '3XL':['32½','27¾','23¼','82.6','70.5','59'],
-  '4XL':['33½','29¾','24⅝','85','75.6','62.6'],
+  S:   ['28','18⅛','15¾',   '71','46','40'],
+  M:   ['29⅛','20','17⅜',   '74','51','44'],
+  L:   ['29⅞','22','18⅞',   '76','56','48'],
+  XL:  ['30¾','24','20½',   '78','61','52'],
+  '2XL':['31⅞','26','21⅝',  '81','66','55'],
+  '3XL':['32⅝','28','22⅞',  '83','71','58'],
 };
 function shopSizeChart(it){
   const rows = it.sizes.filter(z => SIZE_CHART[z]);
@@ -9157,7 +9169,7 @@ function shopSizeChart(it){
   '</details>';
 }
 function supDetail(d){
-  const lead = supLead(d), other = supOther(lead);
+  const sides = supSides(d), lead = sides[0], other = sides[1] || sides[0];
   const big = side =>
     '<figure><figcaption>' + supCap(side) + ' &middot; tap to zoom</figcaption>' +
     '<button class="zoomhit" data-act="supzoom" data-v="' + d.n + '" data-d="' + side + '"' +
@@ -9178,9 +9190,9 @@ function supDetail(d){
       ' aria-label="Zoom in on the ' + side + ' of ' + esc(d.name) + '">' +
       '<img decoding="async" alt="' + esc(d.name) + ', ' + side + ' of the tee" src="' + shopImg(d.n, side) + '"></button></figure>';
     s += '<div class="pdgrid"><div class="pdmedia">' +
-      '<div class="supsides" id="supsides">' + shot(lead) + shot(other) + '</div>' +
-      '<div class="supdots" id="supdots" role="group" aria-label="Which side of the tee">' +
-        [lead, other].map((side, i) =>
+      '<div class="supsides" id="supsides">' + sides.map(shot).join('') + '</div>' +
+      '<div class="supdots" id="supdots" role="group" aria-label="Which side of the tee"' + (sides.length < 2 ? ' hidden' : '') + '>' +
+        sides.map((side, i) =>
           '<button type="button" class="chip" aria-current="' + (i === 0) + '">' + supCap(side) + '</button>'
         ).join('') + '<span class="pdzoom">Tap the picture to zoom</span></div>' +
       '</div><div class="pdinfo">' +
@@ -9191,23 +9203,19 @@ function supDetail(d){
       '<div class="pdmore">' +
         shopSizeChart(it) +
         '<details><summary>The tee</summary>' +
-          '<p>Our heavyweight tee pairs a structured fit with garment-dyed softness that feels lived-in from day one. 100% cotton, tough enough for repeat wear and soft enough to wear anywhere. Unisex &mdash; take your usual size.</p>' +
+          '<p>A heavyweight cotton tee built for wear rather than show. Straight cut, full through the body, with enough weight to keep its shape wash after wash. Unisex &mdash; take your usual size.</p>' +
           '<ul class="pdspecs">' +
-            '<li>100% ring-spun cotton</li>' +
-            '<li>Fabric weight 6.1&nbsp;oz/yd² (206.8&nbsp;g/m²)</li>' +
-            '<li>Yarn diameter: 20 singles</li>' +
-            '<li>Garment-dyed, pre-shrunk fabric</li>' +
-            '<li>Relaxed fit</li>' +
-            '<li>7/8″ double-needle topstitched collar</li>' +
-            '<li>Twill-taped neck and shoulders for extra durability</li>' +
-            '<li>Double-needle armhole, sleeve and bottom hems</li>' +
-            '<li>Signature twill label</li>' +
-            '<li>Made in Honduras</li>' +
+            '<li>100% cotton</li>' +
+            '<li>Fabric weight 185&nbsp;g/m² (5.5&nbsp;oz/yd²)</li>' +
+            '<li>Seamless twin-needle collar</li>' +
+            '<li>Taped neck and shoulders</li>' +
+            '<li>Tubular body</li>' +
+            '<li>Twin-needle sleeves and hem</li>' +
+            '<li>Printed in the UK, to order</li>' +
           '</ul>' +
-          '<p class="pdfine">Each tee is garment-dyed and softened, so colour can vary slightly from one to the next.</p>' +
         '</details>' +
         '<details><summary>The print</summary><p>Printed in the UK, ' +
-          (d.n === 3 || d.n === 9 ? 'on the front only.' : 'front and back, exactly as shown.') + ' Wash inside out, cool, and it keeps its edges.</p></details>' +
+          (supSides(d).length < 2 ? 'on the front only.' : 'front and back, exactly as shown.') + ' Wash inside out, cool, and it keeps its edges.</p></details>' +
         '<details><summary>Delivery</summary><p>We post to UK addresses only, and your tee arrives within 4&ndash;10 working days. ' +
           (shopCat && shopCat.shipping ? 'Delivery is ' + gbp(shopCat.shipping) + '.' : 'Delivery is free.') + '</p></details>' +
         '<details><summary>Returns</summary><p>Changed your mind? Tell us within 14 days of it arriving and send it back unworn for a full refund. Anything faulty or wrong, we put right at our cost. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Read the shop terms</a>.</p></details>' +
@@ -9536,7 +9544,7 @@ function bcSheetClose(){ const el = document.getElementById('bcsheet'); if (el) 
 function bcCard(d, opts){
   opts = opts || {};
   const it = shopItem(d.n); if (!it) return '';
-  const lead = supLead(d), h = teeHill(d.n), done = h && isBagged(h.k);
+  const sides = supSides(d), lead = sides[0], h = teeHill(d.n), done = h && isBagged(h.k);
   const flag = SUP_NEW.includes(d.n) ? '<span class="bcflag">New</span>' : '';
   const tag = h ? '<span class="bctag">' + feet(h).toLocaleString() + ' FT &middot; ' + esc(String(regionOf(h, h.l[0]) || '').toUpperCase()) + '</span>' : '';
   const foot = h
@@ -9546,7 +9554,7 @@ function bcCard(d, opts){
     '<div class="bctile">' +
       '<button class="bcimg" data-act="supopen" data-v="' + d.n + '" aria-label="' + esc(d.name) + ', ' + gbp(it.price) + '. Open">' +
         '<img loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, lead) + '">' +
-        '<img class="alt" loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, supOther(lead)) + '"></button>' +
+        (sides.length > 1 ? '<img class="alt" loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, sides[1]) + '">' : '') + '</button>' +
       flag + tag +
       (opts.small ? '' :
         '<button class="bcround bcheart" data-act="bcsave" data-k="' + d.n + '" aria-pressed="' + isSaved(d.n) + '" aria-label="Save ' + esc(d.name) + '">' + bcHeart(isSaved(d.n)) + '</button>' +
@@ -9699,26 +9707,26 @@ function bcPairs(d){
   return same.concat(rest).slice(0, 6);
 }
 function bcProduct(d){
-  const it = shopItem(d.n), lead = supLead(d), other = supOther(lead), h = teeHill(d.n);
+  const it = shopItem(d.n), sides = supSides(d), lead = sides[0], other = sides[1] || sides[0], h = teeHill(d.n);
   const size = ui.shopSize && it.sizes.includes(ui.shopSize) ? ui.shopSize : '';
   const shot = (side, i) => '<figure><button class="zoomhit" data-act="supzoom" data-v="' + d.n + '" data-d="' + side + '" aria-label="Zoom in on the ' + side + ' of ' + esc(d.name) + '">' +
     '<img decoding="async"' + (i ? ' loading="lazy"' : '') + ' alt="' + esc(d.name) + ', ' + side + ' of the tee" src="' + shopImg(d.n, side) + '"></button></figure>';
   let s = '<div class="bcpdp">';
-  s += '<div class="bcgallery"><div class="supsides" id="supsides">' + shot(lead, 0) + shot(other, 1) + '</div>' +
+  s += '<div class="bcgallery"><div class="supsides" id="supsides">' + sides.map(shot).join('') + '</div>' +
     '<div class="bcgtop"><button class="bcround" data-act="supclose" aria-label="Back to the shop">' + ti('arrow-left') + '</button><span></span>' +
       '<button class="bcround" data-act="bcsave" data-k="' + d.n + '" aria-pressed="' + isSaved(d.n) + '" aria-label="Save ' + esc(d.name) + '">' + bcHeart(isSaved(d.n)) + '</button>' +
       '<button class="bcround" data-act="supshare" data-v="' + d.n + '" aria-label="Share">' + ti('share') + '</button></div>' +
-    '<div class="supdots" id="supdots" role="group" aria-label="Which side of the tee">' +
-      [lead, other].map((side, i) => '<button type="button" class="chip" aria-current="' + (i === 0) + '">' + supCap(side) + '</button>').join('') + '</div>' +
+    '<div class="supdots" id="supdots" role="group" aria-label="Which side of the tee"' + (sides.length < 2 ? ' hidden' : '') + '>' +
+      sides.map((side, i) => '<button type="button" class="chip" aria-current="' + (i === 0) + '">' + supCap(side) + '</button>').join('') + '</div>' +
     '</div>';
   s += '<div class="bcinfo">';
   s += '<p class="bceyebrow">' + (SUP_NEW.includes(d.n) ? 'New in &middot; ' : '') + 'Tee' + (h ? ' &middot; ' + feet(h).toLocaleString() + ' ft' : '') + '</p>' +
     '<div class="bctitle"><h1>' + esc(d.name) + '</h1><b>' + gbp(it.price) + '</b></div>' +
-    '<p class="bcline"><span class="swatch" style="--sw:' + (SHIRT_HEX[d.shirt] || '#EDE7D9') + '"></span>' + SHIRTS[d.shirt] + ' &middot; heavyweight, garment-dyed &middot; ' +
-      (d.n === 3 || d.n === 9 ? 'printed on the front' : 'printed front and back') + '</p>' +
+    '<p class="bcline"><span class="swatch" style="--sw:' + (SHIRT_HEX[d.shirt] || '#EDE7D9') + '"></span>' + SHIRTS[d.shirt] + ' &middot; heavyweight, 185&nbsp;gsm &middot; ' +
+      (supSides(d).length < 2 ? 'printed on the front' : 'printed front and back') + '</p>' +
     (h && isBagged(h.k) ? '<p class="bcdone">' + ti('check') + 'You’ve summited ' + esc(hillName(h)) + '</p>' : '');
   s += '<div class="bcbuy" id="bcbuy">' +
-    '<div class="bcszhead"><b>Size</b><span>Relaxed fit &middot; take your usual</span><button class="linkbtn" data-act="bcfit" data-k="' + d.n + '">Size &amp; fit</button></div>' +
+    '<div class="bcszhead"><b>Size</b><span>Straight cut &middot; take your usual</span><button class="linkbtn" data-act="bcfit" data-k="' + d.n + '">Size &amp; fit</button></div>' +
     '<div class="bcszrow" role="group" aria-label="Size">' + it.sizes.map(z =>
       '<button class="bcsz" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
     '<button class="btn bcadd" data-act="' + (size ? 'bkadd' : 'bcfit') + '" data-k="' + d.n + '" data-o="' + esc(size) + '">' +
@@ -9728,13 +9736,12 @@ function bcProduct(d){
       (bcFreeOver() ? 'UK ' + gbp(shopCat.shipping || 0) + ', free over ' + gbp(bcFreeOver()) : (shopCat.shipping ? 'UK ' + gbp(shopCat.shipping) : 'free UK delivery')) + '</span></li>' +
     '<li>' + bcIcon(BC_RETURN) + '<span>14-day returns</span></li>' +
     '<li>' + ti('lock') + '<span>Apple Pay, Google Pay or card, by Stripe</span></li></ul>';
-  s += '<dl class="bcspecs"><div><dt>Weight</dt><dd>6.1 oz</dd></div><div><dt>Cotton</dt><dd>100%</dd></div><div><dt>Printed</dt><dd>UK, to order</dd></div></dl>';
+  s += '<dl class="bcspecs"><div><dt>Weight</dt><dd>185 gsm</dd></div><div><dt>Cotton</dt><dd>100%</dd></div><div><dt>Printed</dt><dd>UK, to order</dd></div></dl>';
   s += '<div class="pdmore">' +
-    '<details><summary>Size &amp; fit</summary><p>Unisex and relaxed, with a boxy cut. Most walkers take their usual size; go down one for a neater fit.</p>' + shopSizeChart(it).replace('<details class="szchart"><summary>Size chart</summary>', '<div class="szchart">').replace(/<\/details>$/, '</div>') + '</details>' +
+    '<details><summary>Size &amp; fit</summary><p>Unisex, straight cut, full through the body. Take your usual size.</p>' + shopSizeChart(it).replace('<details class="szchart"><summary>Size chart</summary>', '<div class="szchart">').replace(/<\/details>$/, '</div>') + '</details>' +
     '<details><summary>The tee</summary>' +
-      '<p>A heavyweight tee with a structured fit and garment-dyed softness that feels lived-in from day one. Tough enough for repeat wear, soft enough to wear anywhere.</p>' +
-      '<ul class="pdspecs"><li>100% ring-spun cotton</li><li>Fabric weight 6.1&nbsp;oz/yd² (206.8&nbsp;g/m²)</li><li>Garment-dyed, pre-shrunk</li><li>Twill-taped neck and shoulders</li><li>Made in Honduras, printed in the UK</li></ul>' +
-      '<p class="pdfine">Each tee is garment-dyed and softened, so colour can vary slightly from one to the next.</p></details>' +
+      '<p>A heavyweight cotton tee built for wear rather than show. Straight cut, full through the body, with enough weight to keep its shape wash after wash.</p>' +
+      '<ul class="pdspecs"><li>100% cotton</li><li>Fabric weight 185&nbsp;g/m² (5.5&nbsp;oz/yd²)</li><li>Seamless twin-needle collar</li><li>Taped neck and shoulders</li><li>Tubular body</li><li>Twin-needle sleeves and hem</li><li>Printed in the UK, to order</li></ul></details>' +
     '<details><summary>Delivery &amp; returns</summary><p>Printed to order and posted to UK addresses only. Order today and it arrives ' + esc(bcArrive()) + '. ' +
       'Changed your mind? Tell us within 14 days of it arriving and send it back unworn for a full refund. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p></details>' +
     '<details><summary>Care</summary><p>Wash inside out, cool, and hang to dry. The print keeps its edges that way.</p></details>' +
@@ -22704,7 +22711,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v209';
+const APP_VERSION = 'v210';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
