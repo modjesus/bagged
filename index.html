@@ -5377,6 +5377,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bclogitem .bctile{width:44px; height:48px; flex:none; border-radius:6px}
 .bclogitem b{display:block; font:700 13.5px/1.2 var(--font-ui)}
 .bclogitem i{display:block; font:normal 12px var(--font-ui); color:#A3BEB8; margin-top:2px}
+.bclogmore{margin:0; font:normal 12.5px var(--font-ui); color:#A3BEB8}
 
 .bcchips{display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; margin:0 -14px 14px; padding:2px 14px}
 .bcchips::-webkit-scrollbar{display:none}
@@ -5403,6 +5404,21 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
    every sticker, and the two tees whose design is one-sided. */
 @media (hover:hover){ .bccard:hover .bcimg img.alt{opacity:1}
   .bccard:hover .bcimg:has(img.alt) img:not(.alt){opacity:0} }
+/* Locked is a state you can read at tile size: the picture drops to grey, a
+   padlock sits over it and the strip says what it wants. */
+.bclocked .bcimg img{filter:grayscale(1) contrast(.55) brightness(1.18); opacity:.55}
+.bclocked .bcmeta h3 button, .bclocked .bcprice{color:var(--ink-2)}
+.bcpad{position:absolute; inset:0; display:grid; place-items:center; pointer-events:none}
+.tpband{display:flex; gap:11px; align-items:flex-start; margin:14px 0 4px; padding:11px 13px;
+  background:var(--done-soft); border:1px solid var(--done-line); border-radius:12px}
+.tpband>b{font:900 19px/1 var(--font-data); color:var(--done); flex:none; padding-top:1px}
+.tpband>span{display:flex; flex-direction:column; gap:5px; font:normal 12.5px/1.45 var(--font-ui); color:var(--done)}
+.tpband i{font-style:normal}
+.tpband>span>i{font:700 11px var(--font-ui); letter-spacing:.09em; text-transform:uppercase}
+.tpbar{display:block; height:6px; border-radius:3px; background:var(--raise); overflow:hidden}
+.tpbar i{display:block; height:6px; background:var(--done)}
+.tplocknote{margin:9px 0 0; font:normal 12.5px/1.45 var(--font-ui); color:var(--ink-2)}
+.bcpad svg{width:30px; height:30px; stroke:var(--ink-2)}
 .bcflag{position:absolute; left:8px; top:8px; background:#14332D; color:#F3EFE6; font:700 10.5px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px; border-radius:3px; pointer-events:none}
 .bctag{position:absolute; left:0; right:0; bottom:0; padding:5px 8px; background:rgba(20,51,45,.9); color:#F3EFE6; font:600 9.5px var(--font-data); letter-spacing:.08em; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .bcround{width:36px; height:36px; border-radius:50%; border:1px solid rgba(20,51,45,.14); background:rgba(255,253,248,.94); color:#14332D; display:grid; place-items:center; padding:0; transition:transform .12s}
@@ -9082,9 +9098,18 @@ function donateAmt(){
 /* One picture at a time, swiped, with a dot row underneath — the same ids
    supMountSlides() already wires after every render. Only one detail view is
    ever on screen, so reusing them cannot collide. */
-function kitShots(it){
+function kitShots(it, pick){
   const list = (it.img || []).slice();
   if (!list.length) return '';
+  /* A summit plate comes in three colours and the picker used to change
+     nothing you could see: the pine plate stayed up whichever you chose.
+     Choosing one now swaps the LEAD picture for that colourway's own shot.
+     The rest of the strip - the size diagram, the three-up - is the same in
+     every colour, so only the first frame moves. The file that goes to
+     PRINT is still chosen worker-side from optFiles; this is the shop
+     window, not the order. */
+  const alt = pick && it.optImg && it.optImg[pick];
+  if (alt) list[0] = alt;
   return '<div class="supsides kitshots" id="supsides">' +
     list.map(u => '<figure><img decoding="async" alt="' + esc(it.name) + '" src="' + esc(u) + '"></figure>').join('') +
     '</div>' +
@@ -9142,15 +9167,31 @@ function kitDetail(k){
     list.map(z => '<button class="chip" data-act="' + act + '" data-v="' + esc(z) + '" aria-pressed="' + (z === sel) + '">' + esc(z) + '</button>').join('') +
     '</div>';
   const wantLabel = !p1 ? (it.opt || 'option') : (it.opt2 || 'option');
+  const locked = kitLocked(k);
+  /* The set, and where the walker is in it. Shown on all four pieces, earned
+     or not, so the centre badge is never a surprise at the end. */
+  const tpBand = (TP_PEAKS[k] || k === TP_CENTRE) ? (() => {
+    const n = tpDone();
+    return '<div class="tpband"><b>' + n + '/3</b><span><i>National Three Peaks</i>' +
+      esc(n === 3 ? 'All three bagged \u2014 the centre badge is yours to buy.'
+        : n === 0 ? 'Ben Nevis, Scafell Pike and Snowdon. Each piece unlocks when you stand on its hill.'
+        : NUMWORD(3 - n) + ' to go. Each piece unlocks when you stand on its hill.') +
+      '<span class="tpbar"><i style="width:' + Math.round(n / 3 * 100) + '%"></i></span></span></div>';
+  })() : '';
   return '<div class="supdetail shopdetail"><div class="pdnav"><button class="backbtn" data-act="kitclose">&larr; The shop</button></div>' +
-    '<div class="pdgrid"><div class="pdmedia">' + kitShots(it) + '</div>' +
+    '<div class="pdgrid"><div class="pdmedia">' + kitShots(it, p2) + '</div>' +
     '<div class="pdinfo"><p class="shopeyebrow">WayMark &middot; ' + esc(KIND_LABEL[it.kind] || it.kind) + '</p><h2>' + esc(it.name) + '</h2>' +
     (it.blurb ? '<p class="shoplede">' + esc(it.blurb) + '</p>' : '') +
+    tpBand +
     '<div class="shopbuy"><p class="shopprice"><b>' + gbp(it.price) + '</b><span>' + (itemShip(it) ? '+ ' + gbp(itemShip(it)) + ' UK delivery per order' : 'Free UK delivery') + '</span></p>' +
-    (one ? '' : chips(it.opt || 'Option', opts, p1, 'kitopt')) +
-    (two && two.length > 1 ? chips(it.opt2 || 'Colour', two, p2, 'kitopt2') : '') +
-    '<button class="btn shopgo" data-act="bkadd" data-k="' + esc(k) + '" data-o="' + esc(pick) + '"' + (pick ? '' : ' disabled') + '>' + ti('backpack') +
-      (pick ? 'Add to backpack' : 'Choose a ' + esc(String(wantLabel).toLowerCase())) + '</button></div>' +
+    (locked ? '' : (one ? '' : chips(it.opt || 'Option', opts, p1, 'kitopt'))) +
+    (locked ? '' : (two && two.length > 1 ? chips(it.opt2 || 'Colour', two, p2, 'kitopt2') : '')) +
+    '<button class="btn shopgo" data-act="bkadd" data-k="' + esc(k) + '" data-o="' + esc(pick) + '"' +
+      (pick && !locked ? '' : ' disabled') + '>' + (locked ? ti('lock') : ti('backpack')) +
+      (locked ? esc(kitLockWhy(k))
+              : pick ? 'Add to backpack' : 'Choose a ' + esc(String(wantLabel).toLowerCase())) + '</button>' +
+    (locked ? '<p class="tplocknote">Not for sale until you\u2019ve been up it. Mark the walk in your log and it opens here.</p>' : '') +
+    '</div>' +
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
     '</div></div></div>';
 }
@@ -9510,6 +9551,49 @@ const SUP_NEW = [18];
 const TEE_HILL = {1:'NY215072', 20:'NY215072'};
 const teeHill = n => TEE_HILL[n] && BY_KEY[TEE_HILL[n]] || null;
 
+/* Stickers that belong to one summit, the same way the two Scafell tees do.
+   Every grid ref here was read back out of HILLS rather than typed from the
+   artwork - Ben Lomond is NN367028, and the 029 in my notes would have left
+   its band silently empty. A key that stops matching a hill just drops out;
+   nothing downstream assumes it resolves. */
+const KIT_HILL = {
+  'st-plate-ben-lomond':     'NN367028', 'st-maptile-ben-lomond':   'NN367028',
+  'st-plate-ben-nevis':      'NN166712', 'st-maptile-ben-nevis':    'NN166712',
+  'st-plate-blencathra':     'NY323277', 'st-maptile-blencathra':   'NY323277',
+  'st-plate-catbells':       'NY244198', 'st-maptile-catbells':     'NY244198',
+  'st-plate-helvellyn':      'NY342151', 'st-maptile-helvellyn':    'NY342151',
+  'st-plate-mam-tor':        'SK127836', 'st-maptile-mam-tor':      'SK127836',
+  'st-plate-pen-y-fan':      'SO012215', 'st-maptile-pen-y-fan':    'SO012215',
+  'st-plate-scafell-pike':   'NY215072', 'st-maptile-scafell-pike': 'NY215072',
+  'st-plate-snowdon':        'SH609543', 'st-maptile-snowdon':      'SH609543',
+  'st-plate-tryfan':         'SH664593', 'st-maptile-tryfan':       'SH664593',
+  'st-40-tp-ben-nevis':      'NN166712',
+  'st-41-tp-snowdon':        'SH609543',
+  'st-42-tp-scafell-pike':   'NY215072'
+};
+const kitHill = k => KIT_HILL[k] && BY_KEY[KIT_HILL[k]] || null;
+
+/* The National Three Peaks set. Each triangle is earned by standing on its own
+   hill; the centre needs all three. "Earned" is the word used throughout -
+   these are still bought, one at a time, and the badge is not a reward for
+   spending. */
+const TP_PEAKS = {'st-40-tp-ben-nevis':'NN166712', 'st-41-tp-snowdon':'SH609543',
+                  'st-42-tp-scafell-pike':'NY215072'};
+const TP_CENTRE = 'st-43-tp-centre';
+const tpDone = () => Object.values(TP_PEAKS).filter(isBagged).length;
+/* Locked means shown and explained, never hidden: a walker should be able to
+   see what the set is before they have any of it. */
+function kitLocked(k){
+  if (TP_PEAKS[k]) return !isBagged(TP_PEAKS[k]);
+  if (k === TP_CENTRE) return tpDone() < 3;
+  return false;
+}
+function kitLockWhy(k){
+  if (TP_PEAKS[k]){ const h = BY_KEY[TP_PEAKS[k]]; return h ? 'Stand on ' + hillName(h) + ' first' : ''; }
+  if (k === TP_CENTRE) return 'All three peaks first \u00b7 ' + tpDone() + ' of 3';
+  return '';
+}
+
 /* ---- small stores on this device: what you saved, what you looked at ---- */
 const BC_SAVED = 'waymark.saved', BC_RECENT = 'waymark.recent';
 const bcRead = k => { try{ const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v.map(String) : []; }catch(e){ return []; } };
@@ -9628,16 +9712,29 @@ function bcKitCard([k, it]){
      src="undefined". It also gets the summit gear's treatment — a flag and a
      bottom tag — so it reads as its own thing rather than a tee with no photo. */
   const don = !!it.custom;
+  /* Three Peaks pieces are shown before they are earned, greyed with a padlock
+     and a line saying what they want. Hiding them would mean a walker never
+     learns the set exists, which is the opposite of the point. The grey and
+     the padlock differ in LIGHTNESS, not hue, so the state survives a
+     colourblind reading. */
+  const locked = kitLocked(k), why = locked ? kitLockWhy(k) : '';
+  const h = kitHill(k), done = h && isBagged(h.k);
   const pic = (it.img && it.img.length)
     ? '<img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '">'
     : (don ? '<span class="bcdonmark">' + ti('mountain', 'width="56" height="56"') + '</span>' : '');
-  return '<article class="bccard' + (don ? ' bcdon' : '') + '"><div class="bctile">' +
-    '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) + '. Open">' + pic + '</button>' +
+  return '<article class="bccard' + (don ? ' bcdon' : '') + (locked ? ' bclocked' : '') + '"><div class="bctile">' +
+    '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) +
+      (locked ? ', locked. ' + esc(why) + '. Open' : '. Open') + '">' + pic +
+      (locked ? '<span class="bcpad" aria-hidden="true">' + ti('lock') + '</span>' : '') + '</button>' +
     (don ? '<span class="bcflag">Support</span>' : '') +
+    (locked ? '<span class="bctag">' + esc(why.toUpperCase()) + '</span>'
+            : (TP_PEAKS[k] || k === TP_CENTRE ? '<span class="bcflag">Earned</span>' : '')) +
     '<button class="bcround bcheart" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) + '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button></div>' +
     '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3>' +
       '<span class="bcprice">' + (don ? 'Any amount' : gbp(it.price)) + '</span></div>' +
-    '<span class="bcsub">' + esc(KIND_LABEL[it.kind] || it.kind || '') + '</span></article>';
+    '<span class="' + (done ? 'bcdone' : 'bcsub') + '">' +
+      (done ? ti('check') + 'You’ve summited this' : esc(KIND_LABEL[it.kind] || it.kind || '')) +
+    '</span></article>';
 }
 /* a small tile for rows: recently viewed, pairs with, saved */
 function bcMini(k){
@@ -9649,17 +9746,51 @@ function bcMini(k){
 
 /* ---- the Shop side of Basecamp ---- */
 const bcSale = () => SUPPLIES.filter(d => shopItem(d.n));
+/* This band read the TEE list and nothing else, so a walker with ten bagged
+   hills was shown two Scafell tees and none of the plates or map tiles made
+   for the hills they had actually climbed. It now draws from both, newest
+   ascent first, because the thing that earned the entry is the walk. */
 function bcLogBand(sale){
-  const mine = sale.filter(d => { const h = teeHill(d.n); return h && isBagged(h.k); }).sort((a, b) => ([20, 1].indexOf(a.n) + 1 || 9) - ([20, 1].indexOf(b.n) + 1 || 9));
-  if (!mine.length) return '';
-  const hills = [...new Set(mine.map(d => TEE_HILL[d.n]))];
+  const entry = (ref, img, name, act) => {
+    const h = BY_KEY[ref];
+    if (!h) return null;
+    const r = lastAscent(h.k);
+    return { ref, img, name, act, when: r,
+             sub: r ? 'Summited ' + prettyDate(r) : feet(h).toLocaleString() + ' ft' };
+  };
+  const tees = sale
+    .filter(d => { const h = teeHill(d.n); return h && isBagged(h.k); })
+    .map(d => entry(TEE_HILL[d.n], shopImg(d.n, supLead(d)), d.name,
+                    'data-act="supopen" data-v="' + d.n + '"'));
+  const kit = kitItems()
+    .filter(([k]) => { const h = kitHill(k); return h && isBagged(h.k) && !kitLocked(k); })
+    .map(([k, it]) => entry(KIT_HILL[k], (it.img || [])[0] || '', it.name,
+                            'data-act="kitopen" data-k="' + esc(k) + '"'));
+  const all = tees.concat(kit).filter(Boolean)
+    .sort((a, b) => (b.when || '').localeCompare(a.when || ''));
+  if (!all.length) return '';
+  const hills = [...new Set(all.map(e => e.ref))];
+  /* Sorted by date alone, one recent hill with a tee, a plate, a map tile and
+     a triangle filled every slot, so the heading said four hills and the row
+     showed one. Deal one piece per hill before a second piece of any. */
+  const byHill = new Map();
+  for (const e of all){ if (!byHill.has(e.ref)) byHill.set(e.ref, []); byHill.get(e.ref).push(e); }
+  const mine = [];
+  for (let round = 0; mine.length < all.length; round++){
+    let moved = false;
+    for (const ref of hills){ const q = byHill.get(ref);
+      if (q[round]){ mine.push(q[round]); moved = true; } }
+    if (!moved) break;
+  }
+  const shown = mine.slice(0, 6), more = mine.length - shown.length;
   return '<section class="bclog"><p class="bceyebrow">Made from your log</p>' +
     '<h2>You’ve stood on ' + (hills.length === 1 ? 'a hill' : NUMWORD(hills.length).toLowerCase() + ' hills') + ' we print.</h2>' +
-    '<div class="bclogrow">' + mine.slice(0, 4).map(d => {
-      const h = teeHill(d.n), r = h && lastAscent(h.k);
-      return '<button class="bclogitem" data-act="supopen" data-v="' + d.n + '"><span class="bctile"><img alt="" src="' + shopImg(d.n, supLead(d)) + '"></span>' +
-        '<span><b>' + esc(d.name) + '</b><i>' + (r ? 'Summited ' + esc(prettyDate(r)) : feet(h).toLocaleString() + ' ft') + '</i></span></button>';
-    }).join('') + '</div></section>';
+    '<div class="bclogrow">' + shown.map(e =>
+      '<button class="bclogitem" ' + e.act + '><span class="bctile"><img alt="" loading="lazy" src="' + esc(e.img) + '"></span>' +
+      '<span><b>' + esc(e.name) + '</b><i>' + esc(e.sub) + '</i></span></button>'
+    ).join('') + '</div>' +
+    (more > 0 ? '<p class="bclogmore">' + more + ' more made for hills in your log.</p>' : '') +
+  '</section>';
 }
 function lastAscent(k){
   const a = (typeof ascents === 'function' ? ascents(k) : []) || [];
@@ -18494,6 +18625,10 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'shopsize'){ ui.shopSize = el.dataset.v; render(); }
   else if (a === 'bkadd'){
+    /* The disabled attribute is the button's business; this is the basket's.
+       A view rendered before the walker un-marked a hill would otherwise still
+       carry a live add for a piece that is locked again. */
+    if (kitLocked(el.dataset.k)) return;
     if (!el.dataset.o){ bcFit(el.dataset.k); return; }
     bcAdd(el.dataset.k, el.dataset.o);
   }
@@ -22769,7 +22904,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v212';
+const APP_VERSION = 'v213';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
