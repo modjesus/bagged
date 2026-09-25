@@ -8777,19 +8777,27 @@ function basketTotals(){
   const goods = basket.reduce((a, l) => a + (isDonation(l.k) ? 0 : linePrice(l) * l.qty), 0);
   /* A tees-only code is worked out on the TEE lines alone, exactly the way the
      shop helper does it, so the number here is the number they pay. */
-  let off = 0;
+  let off = 0, offGoods = 0;
   if (basketCode){
-    const base = basket.reduce((a, l) => {
-      const it = shopItem(l.k); if (!it) return a;
-      if (basketCode.teeOnly && (it.kind || 'tee') !== 'tee') return a;
-      return a + linePrice(l) * l.qty;
-    }, 0);
-    if (base >= (basketCode.min || 0) && base > 0)
+    const hit = l => { const it = shopItem(l.k); if (!it) return false;
+      return !basketCode.teeOnly || (it.kind || 'tee') === 'tee'; };
+    const base = basket.filter(hit).reduce((a, l) => a + linePrice(l) * l.qty, 0);
+    if (base > 0 && base >= (basketCode.min || 0)){
       off = basketCode.percent ? Math.round(base * basketCode.percent / 100)
                                : Math.min(base, basketCode.amount || 0);
+      /* the share of that coming off POSTABLE goods - a donation must not help
+         anyone over the free-delivery line, before or after a code */
+      const gbase = basket.filter(l => hit(l) && !isDonation(l.k))
+        .reduce((a, l) => a + linePrice(l) * l.qty, 0);
+      offGoods = base ? Math.round(off * gbase / base) : 0;
+    }
   }
-  /* free delivery is judged on the goods, before any code, the same way the shop helper judges it */
-  const ship = goods ? bcShipFor(goods) : 0;
+  /* Free delivery is judged on what they actually SPEND, after the code, the
+     same way the shop helper judges it. On the full price, two tees with 25%
+     off would cross £50 while paying £37.50 - the thinnest basket in the shop
+     and the one already getting the most away. */
+  const paidGoods = Math.max(0, goods - offGoods);
+  const ship = goods ? bcShipFor(paidGoods) : 0;
   return {sub, off, ship, goods, total: Math.max(0, sub - off) + ship};
 }
 function paintBag(){
@@ -10176,7 +10184,13 @@ function bcAdd(k, opt){
     bcFreeBar(t.sub) +
     (pick ? '<div class="bcupsell"><span class="bctile"><img alt="" src="' + shopImg(pick.n, supLead(pick)) + '"></span><div><b>' + esc(pick.name) + '</b><span>' + why + ' &middot; ' + gbp(shopItem(pick.n).price) + '</span></div>' +
       '<button class="chip" data-act="bcquick" data-k="' + pick.n + '">' + ti('plus') + 'Add</button></div>' : '') +
-    '<div class="bcbtns"><button class="btn ghost" data-act="bcsheetclose">Keep shopping</button><button class="btn bcgo" data-act="bkcheckout">Checkout &middot; ' + gbp(t.total) + '</button></div>', 'Added to your backpack');
+    /* This button used to go straight to Stripe. That was survivable while
+       Stripe offered its own discount box; now that codes live in the backpack
+       only, jumping past it meant a customer with a code had nowhere to put it.
+       It opens the backpack instead - one tap, and the code box is there. */
+    '<div class="bcbtns"><button class="btn ghost" data-act="bcsheetclose">Keep shopping</button>' +
+      '<button class="btn bcgo" data-act="bagopen">View backpack &middot; ' + gbp(t.total) + '</button></div>',
+    'Added to your backpack');
 }
 
 /* ---- the drawing board: a deck you swipe through ---- */
@@ -23122,7 +23136,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v219';
+const APP_VERSION = 'v220';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
