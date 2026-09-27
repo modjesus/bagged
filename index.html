@@ -3092,31 +3092,36 @@ button.bstriprow{cursor:pointer}
 /* v235: the four figures under the Up next line. Same numbers and the same
    summit-height wind the map's forecast uses, drawn read-only — the card is
    itself a button, so nothing in here may be one. */
-.upwxf{display:flex; flex-wrap:wrap; gap:7px; margin:5px 0 0 28px}
+/* Flush left with the weather icon, the kit chips, the route name and
+   everything else on the card. These used to be indented 28px to sit under the
+   TEXT rather than the icon, which left a notch of empty card below the icon
+   and gave the card two left edges. One edge, all the way down. */
+.upwxf{display:flex; flex-wrap:wrap; gap:7px; margin:7px 0 0}
 .upwxf em{font-style:normal; font-family:var(--font-ui); font-size:12px; color:var(--ink-2);
   background:var(--tint); border-radius:6px; padding:3px 7px; line-height:1.25}
 .upwxf em.warn{color:var(--warn); font-weight:700}
 /* what to pack, top right of the card. In flow beside the "Up next" stamp
    rather than absolutely positioned over it — a long route name would have
    run underneath and the two would have collided at some width or other. */
-/* The kit gets a row of ITS OWN, always — never shared with the "Up next"
-   stamp. Sharing worked until a mild, wet, windy day asked for Waterproofs and
-   Windproof together: at 360 and 390px, the two commonest phone widths, that
-   pair squeezed the stamp from 97px down to 72 and then ran outside the card.
-   Letting it wrap only when it had to would have made the card change shape
-   depending on the weather. A row of its own cannot clash at any width, with
-   any number of chips, in any language. */
-.upntop{display:block}
-.upntop .sumlabel{margin:0}
-/* Left-aligned, like every other line on the card. Right-aligned they left a
-   wide empty notch under the stamp and the second row floated away from the
-   first — the chips were pinned to an edge nothing else on the card uses. */
-.packrow{display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-start;
-  margin:14px 0 14px}
-/* .dch has no top margin of its own, so the kit row owns the space on both
-   sides of itself — it needs room above to read as its own thing rather than
-   an extension of the stamp, and room below so it is not crowding the route
-   name. */
+/* One chip or two ride alongside the "Up next" stamp, which is otherwise dead
+   space; three or more take a line of their own. The browser decides, not a
+   count in the code — a count is a guess about width, and the guess was wrong:
+   "Waterproofs" and "Windproof" together are only TWO chips and they still
+   squeezed the stamp from 97px to 72 at 360 and 390, then ran outside the card.
+
+   So: the stamp is flex:none and never gives ground, the chips wrap as one
+   block, and row-gap supplies the breathing room on the line they land on.
+   Whatever the width, the language or the number of chips, the worst case is
+   a second line — never an overlap and never an overflow.
+
+   No margin-left:auto. Pushed right, a wrapped row left a wide empty notch
+   under the stamp and sat on an edge nothing else on the card uses. */
+.upntop{display:flex; flex-wrap:wrap; align-items:center;
+  column-gap:10px; row-gap:14px; margin-bottom:14px}
+.upntop .sumlabel{margin:0; flex:none}
+.packrow{display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-start; margin:0}
+/* .dch has no top margin of its own, so the row above owns the space below
+   itself, so the route name is never crowded. */
 .packrow i{display:inline-grid; grid-auto-flow:column; align-items:center; gap:5px;
   padding:4px 8px; border-radius:8px; background:var(--tint); color:var(--accent-text);
   font-style:normal}
@@ -3124,10 +3129,9 @@ button.bstriprow{cursor:pointer}
   white-space:nowrap}
 @media (max-width:359px){ .packrow u{display:none} .packrow i{padding:5px} }
 /* what to do about it, in one sentence */
-.uppack{display:block; margin:6px 0 0 28px; font-size:12.5px; line-height:1.45;
+.uppack{display:block; margin:7px 0 0; font-size:12.5px; line-height:1.45;
   color:var(--ink-2); font-style:italic}
-@media (max-width:359px){ .uppack{margin-left:0} }
-@media (max-width:359px){ .upwxf{margin-left:0} }
+
 .npbody{display:flex; align-items:center; gap:14px}
 .npbody > div{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
 .npname{font-family:var(--font-display); font-size:17px; color:var(--ink)}
@@ -14182,6 +14186,18 @@ function summitLine(h, dateISO){
     (wind != null ? ' · ' + wind + ' mph' : '') +
     (day.rain != null && day.rain >= 50 ? ' · ' + day.rain + '% rain' : '') + '</span>';
 }
+/* The card can name the weather and then contradict itself. Waun Fach on 3 Oct
+   came back as code 51 — drizzle — with a precipitation PROBABILITY of 10%.
+   The line read "Drizzle" and, because the advice only ever looked at that 10%,
+   offered nothing to pack. Probability answers "will any fall"; the code
+   answers "what is the model actually showing", and on a drizzly day the honest
+   answer to "do I want a jacket" is yes whatever the percentage says. So a wet
+   or snowy CODE counts as wet in its own right, alongside the percentage.
+   Grouped exactly as wxLook() groups them, so the words and the advice can
+   never disagree again. */
+const wxWetCode = c => { c = Number(c); return (c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95; };
+const wxSnowCode = c => { c = Number(c); return (c >= 71 && c <= 77) || (c >= 85 && c <= 86); };
+
 /* One sentence of what to do about it, which is the thing a walker actually
    wants — the figures say what the weather is, this says what to pack. Only
    ever ONE line, the most consequential thing about that day, because a list of
@@ -14208,10 +14224,14 @@ function packLine(day, metres){
     return 'Properly cold at the top. Wrap up \u2014 more than the valley suggests.';
   if (w != null && w >= 35)
     return 'Strong wind on the tops. You\u2019ll be leaning into it.';
-  if (rain != null && rain >= 60)
+  if (wxSnowCode(day.code))
+    return 'Snow on the tops. Waterproofs, and something warm for stopping in.';
+  if ((rain != null && rain >= 60) || (wxWetCode(day.code) && rain != null && rain >= 30))
     return 'Looks like rain. Pack your waterproofs.';
   if (t != null && t <= 4)
     return 'Cold at the top. One more layer than you think.';
+  if (wxWetCode(day.code))
+    return 'Wet weather about. Worth a jacket in the bag.';
   if (rain != null && rain >= 40)
     return 'Might catch a shower. Worth a jacket in the bag.';
   if (t != null && t >= 16 && day.code != null && Number(day.code) <= 2)
@@ -14242,7 +14262,8 @@ function packKit(day, metres){
     out.push(['shoe', 'Spikes']);
   if (visWarn(day.vis)) out.push(['compass', 'Map']);
   if (t != null && t <= 4) out.push(['flame', 'Layers']);
-  if (day.rain != null && day.rain >= 40) out.push(['shirt', 'Waterproofs']);
+  if ((day.rain != null && day.rain >= 40) || wxWetCode(day.code) || wxSnowCode(day.code))
+    out.push(['shirt', 'Waterproofs']);
   if (w != null && w >= 35) out.push(['wind', 'Windproof']);
   if (!out.length && t != null && t >= 16) out.push(['droplet', 'Water']);
   return out;
@@ -23526,7 +23547,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v235';
+const APP_VERSION = 'v236';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
