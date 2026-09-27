@@ -3089,6 +3089,45 @@ button.bstriprow{cursor:pointer}
 .upwx .wxi{width:20px; height:20px; flex:none; display:inline-flex}
 .upwx .wxi svg{width:20px; height:20px}
 .upwx b{font-weight:600; color:var(--ink)}
+/* v235: the four figures under the Up next line. Same numbers and the same
+   summit-height wind the map's forecast uses, drawn read-only — the card is
+   itself a button, so nothing in here may be one. */
+.upwxf{display:flex; flex-wrap:wrap; gap:7px; margin:5px 0 0 28px}
+.upwxf em{font-style:normal; font-family:var(--font-ui); font-size:12px; color:var(--ink-2);
+  background:var(--tint); border-radius:6px; padding:3px 7px; line-height:1.25}
+.upwxf em.warn{color:var(--warn); font-weight:700}
+/* what to pack, top right of the card. In flow beside the "Up next" stamp
+   rather than absolutely positioned over it — a long route name would have
+   run underneath and the two would have collided at some width or other. */
+/* The kit gets a row of ITS OWN, always — never shared with the "Up next"
+   stamp. Sharing worked until a mild, wet, windy day asked for Waterproofs and
+   Windproof together: at 360 and 390px, the two commonest phone widths, that
+   pair squeezed the stamp from 97px down to 72 and then ran outside the card.
+   Letting it wrap only when it had to would have made the card change shape
+   depending on the weather. A row of its own cannot clash at any width, with
+   any number of chips, in any language. */
+.upntop{display:block}
+.upntop .sumlabel{margin:0}
+/* Left-aligned, like every other line on the card. Right-aligned they left a
+   wide empty notch under the stamp and the second row floated away from the
+   first — the chips were pinned to an edge nothing else on the card uses. */
+.packrow{display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-start;
+  margin:14px 0 14px}
+/* .dch has no top margin of its own, so the kit row owns the space on both
+   sides of itself — it needs room above to read as its own thing rather than
+   an extension of the stamp, and room below so it is not crowding the route
+   name. */
+.packrow i{display:inline-grid; grid-auto-flow:column; align-items:center; gap:5px;
+  padding:4px 8px; border-radius:8px; background:var(--tint); color:var(--accent-text);
+  font-style:normal}
+.packrow u{text-decoration:none; font:700 11px var(--font-ui); color:var(--ink-2);
+  white-space:nowrap}
+@media (max-width:359px){ .packrow u{display:none} .packrow i{padding:5px} }
+/* what to do about it, in one sentence */
+.uppack{display:block; margin:6px 0 0 28px; font-size:12.5px; line-height:1.45;
+  color:var(--ink-2); font-style:italic}
+@media (max-width:359px){ .uppack{margin-left:0} }
+@media (max-width:359px){ .upwxf{margin-left:0} }
 .npbody{display:flex; align-items:center; gap:14px}
 .npbody > div{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
 .npname{font-family:var(--font-display); font-size:17px; color:var(--ink)}
@@ -14143,6 +14182,124 @@ function summitLine(h, dateISO){
     (wind != null ? ' · ' + wind + ' mph' : '') +
     (day.rain != null && day.rain >= 50 ? ' · ' + day.rain + '% rain' : '') + '</span>';
 }
+/* One sentence of what to do about it, which is the thing a walker actually
+   wants — the figures say what the weather is, this says what to pack. Only
+   ever ONE line, the most consequential thing about that day, because a list of
+   advice gets skimmed and ignored. Ordered by what will hurt you: ice first,
+   then wind that will blow you over, then cloud you can get lost in, then cold,
+   then wet. Temperature and wind are both read at the SUMMIT'S pressure level,
+   not the valley's — a valley at 9 degrees with a light breeze can be a top at
+   freezing in a gale, and packing for the valley is how people get caught out. */
+function packLine(day, metres){
+  if (!day) return '';
+  const lev = wxLevelFor(metres);
+  const wRaw = (lev && day.up && day.up[lev.hPa] != null) ? day.up[lev.hPa] : day.wind;
+  const tRaw = (lev && day.upT && day.upT[lev.hPa] != null) ? day.upT[lev.hPa] : day.hi;
+  const w = wRaw == null ? null : Math.round(wRaw);
+  const t = tRaw == null ? null : Math.round(tRaw);
+  const rain = day.rain;
+  if (day.freeze != null && isFinite(metres) && metres > 0 && day.freeze <= metres)
+    return 'Below freezing on the tops \u2014 expect ice. Spikes if you have them.';
+  if (w != null && w >= 45)
+    return 'Severe wind up there. Worth thinking about another day.';
+  if (visWarn(day.vis))
+    return 'Cloud will be down on the tops. Map and compass weather.';
+  if (t != null && t <= 0)
+    return 'Properly cold at the top. Wrap up \u2014 more than the valley suggests.';
+  if (w != null && w >= 35)
+    return 'Strong wind on the tops. You\u2019ll be leaning into it.';
+  if (rain != null && rain >= 60)
+    return 'Looks like rain. Pack your waterproofs.';
+  if (t != null && t <= 4)
+    return 'Cold at the top. One more layer than you think.';
+  if (rain != null && rain >= 40)
+    return 'Might catch a shower. Worth a jacket in the bag.';
+  if (t != null && t >= 16 && day.code != null && Number(day.code) <= 2)
+    return 'Clear and warm on the tops. Take more water than you think.';
+  return '';
+}
+
+/* The same judgement as packLine, as things to put in a bag. NOT capped: if a
+   day genuinely calls for spikes, a map, layers, waterproofs and something
+   windproof, then that is the day, and quietly dropping three of them to keep
+   a card tidy is the wrong trade on a mountain. They wrap to their own line
+   when they do not fit. Same order of consequence and the same figures as the
+   sentence below, read at the summit's pressure level — if these ever
+   disagreed with the sentence the card would be worse than having neither. */
+function packKit(day, metres){
+  if (!day) return [];
+  const lev = wxLevelFor(metres);
+  const wRaw = (lev && day.up && day.up[lev.hPa] != null) ? day.up[lev.hPa] : day.wind;
+  const tRaw = (lev && day.upT && day.upT[lev.hPa] != null) ? day.upT[lev.hPa] : day.hi;
+  const w = wRaw == null ? null : Math.round(wRaw);
+  const t = tRaw == null ? null : Math.round(tRaw);
+  const out = [];
+  /* A boot for spikes and a garment for waterproofs, NOT the snow and rain
+     clouds — those are the icons the forecast line right below already uses
+     for the conditions, and the same picture twice on one card, once meaning
+     "it is snowing" and once meaning "bring these", reads as a mistake. */
+  if (day.freeze != null && isFinite(metres) && metres > 0 && day.freeze <= metres)
+    out.push(['shoe', 'Spikes']);
+  if (visWarn(day.vis)) out.push(['compass', 'Map']);
+  if (t != null && t <= 4) out.push(['flame', 'Layers']);
+  if (day.rain != null && day.rain >= 40) out.push(['shirt', 'Waterproofs']);
+  if (w != null && w >= 35) out.push(['wind', 'Windproof']);
+  if (!out.length && t != null && t >= 16) out.push(['droplet', 'Water']);
+  return out;
+}
+function packKitHTML(day, metres){
+  const kit = packKit(day, metres);
+  if (!kit.length) return '';
+  return '<span class="packrow">' + kit.map(([ic, lab]) =>
+    '<i>' + ti(ic, 'width="14" height="14"') + '<u>' + esc(lab) + '</u></i>').join('') + '</span>';
+}
+
+/* The Up next card's forecast. summitLine gave one line; this adds the four
+   figures the map's panel leads with — temperature, rain, wind AT THE TOP and
+   visibility — so the card answers "is it worth going" without a tap. It
+   reads the same cached forecast, so it costs no extra request. Read-only by
+   necessity: the card is a <button>, and a button inside a button is invalid
+   and stops working. The full panel, freezing level and rain timeline included,
+   is still one tap away on the map. */
+function summitStrip(h, dateISO){
+  const at = {la:h.a, lo:h.o};
+  if (!isFinite(at.la)) return '';
+  const wx = wxCached(at);
+  if (!wx){
+    const k = wxKey(at);
+    if (!wxPainting[k]){
+      wxPainting[k] = true;
+      fetchWeather(at).then(() => { delete wxPainting[k]; if (tab === 'd') render(); });
+    }
+    return '<span class="upwx dim">Checking the forecast for the top\u2026</span>';
+  }
+  if (!wx.days || !wx.days.length) return '';
+  const want = dateISO || weekendISO();
+  const day = wx.days.find(d => d.date === want) ||
+    (dateISO && dateISO > wx.days[wx.days.length - 1].date ? null : wx.days[wx.days.length - 1]);
+  if (!day) return '<span class="upwx dim">Too far out for a forecast yet.</span>';
+  const look = wxLook(day.code);
+  const lev = wxLevelFor(h.h);
+  const up = lev && day.up ? day.up[lev.hPa] : null;
+  const wind = up != null ? Math.round(up) : (day.wind != null ? Math.round(day.wind) : null);
+  /* The line says "at the top", so the temperature beside it has to be the
+     top's. It used to be the valley's daily maximum, which on a cold day read
+     "9 degrees" directly above "properly cold at the top" — the card arguing
+     with itself. Same pressure level the wind is read from. */
+  const upT = lev && day.upT && day.upT[lev.hPa] != null ? day.upT[lev.hPa] : null;
+  const temp = upT != null ? Math.round(upT) : (day.hi != null ? Math.round(day.hi) : null);
+  const fig = (v, warn) => '<em' + (warn ? ' class="warn"' : '') + '>' + v + '</em>';
+  return '<span class="upwx"><span class="wxi">' + wxSvg(look.i) + '</span>' +
+      '<b>' + esc(shortDay(day.date)) + ' at the top</b> \u00b7 ' + esc(look.t) + '</span>' +
+    '<span class="upwxf">' +
+      fig(temp == null ? '\u2013' : temp + '&deg;', temp != null && temp <= 0) +
+      fig(day.rain == null ? '\u2013' : day.rain + '% rain', day.rain >= 60) +
+      fig(wind == null ? '\u2013' : wind + ' mph', wind >= 35) +
+      fig(esc(shortVis(day.vis)), visWarn(day.vis)) +
+    '</span>' +
+    (() => { const pk = packLine(day, h.h);
+      return pk ? '<span class="uppack">' + esc(pk) + '</span>' : ''; })();
+}
 function shortDay(iso){
   const d = new Date(iso + 'T12:00');
   return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()] + ' ' + d.getDate() + ' ' +
@@ -14443,13 +14600,27 @@ function renderDashboard(){
   const upnextCard = () => {
   const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean).sort((x, y) => y.h - x.h);
   const dn = hs.filter(x => isBagged(x.k)).length;
+  /* the forecast is read twice here — once for the chips at the top and once
+     for the strip at the bottom — but wxCached is memory-first, so the second
+     read costs nothing and no request is made twice */
+  const wxDay = (() => {
+    const h0 = hs[0]; if (!h0 || !isFinite(h0.a)) return null;
+    const wx = wxCached({la:h0.a, lo:h0.o}); if (!wx || !wx.days || !wx.days.length) return null;
+    const want = nr.date || weekendISO();
+    return wx.days.find(d => d.date === want) ||
+      (nr.date && nr.date > wx.days[wx.days.length - 1].date ? null : wx.days[wx.days.length - 1]);
+  })();
   return '<button class="dcard upnext" data-tab="p">' +
-    '<p class="sumlabel">Up next</p>' +
+    /* a DIV, not a span: a <span> may not contain a <p>, and the parser would
+       have lifted the paragraph out of it and left the flex row empty. The card
+       already puts a div (.dch) inside its button, so this is nothing new. */
+    '<div class="upntop"><p class="sumlabel">Up next</p>' +
+    (wxDay && hs.length ? packKitHTML(wxDay, hs[0].h) : '') + '</div>' +
     '<div class="dch"><b>' + esc(nr.name || 'Untitled route') + '</b>' +
       (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '<span class="tag">no date yet</span>') + '</div>' +
     '<p class="dcs">' + (hs.length ? hs.length + ' hill' + (hs.length === 1 ? '' : 's') + ', ' + dn + ' walked' : 'No summits on it yet') +
       ((nr.trk && nr.trk.length > 1) ? ', ' + prettyDist(trackLength(nr.trk)) : '') + '</p>' +
-    (hs.length ? summitLine(hs[0], nr.date || '') : '') + '</button>';
+    (hs.length ? summitStrip(hs[0], nr.date || '') : '') + '</button>';
   };
 
   s += '<div class="lead' + (shot ? ' hasshot' : '') + '">';
@@ -17365,7 +17536,13 @@ async function wxFetchNow(at, k){
   try{
     /* Every pressure level we might want, fetched once — the answer is cached
        per location and the route's top height picks a level from it later. */
-    const lv = WX_LEVELS.map(l => 'wind_speed_' + l.hPa + 'hPa').join(',');
+    /* v235: temperature at the same pressure levels as the wind. The app has
+       always been careful to quote wind at the summit rather than the valley;
+       the temperature beside it was still the valley's. It is one more field on
+       a request we were making anyway, so the cost is nothing and the figure
+       stops being a small lie. */
+    const lv = WX_LEVELS.map(l => 'wind_speed_' + l.hPa + 'hPa').join(',') + ',' +
+               WX_LEVELS.map(l => 'temperature_' + l.hPa + 'hPa').join(',');
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + at.la + '&longitude=' + at.lo +
       '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,' +
       'wind_speed_10m_max,wind_gusts_10m_max,sunrise,sunset' +
@@ -17381,7 +17558,7 @@ async function wxFetchNow(at, k){
     /* Visibility comes back hourly. Midday is the honest number for a walk, so
        take the reading nearest noon for each day rather than a daily average
        that a clear night would flatter. */
-    const vis = {}, hours = {}, tops = {}, freeze = {};
+    const vis = {}, hours = {}, tops = {}, temps = {}, freeze = {};
     const pick = (arr, i) => (arr && arr[i] != null) ? arr[i] : null;
     ht.forEach((t, i) => {
       const day = t.slice(0, 10), hour = +t.slice(11, 13);
@@ -17403,6 +17580,13 @@ async function wxFetchNow(at, k){
         for (const l of WX_LEVELS){
           const v2 = pick(h['wind_speed_' + l.hPa + 'hPa'], i);
           if (v2 != null) t2[l.hPa] = Math.max(t2[l.hPa] == null ? -1 : t2[l.hPa], v2);
+          /* the COLDEST it gets while you are likely to be up there, not the
+             warmest — what you pack for is the worst of the day, not the best */
+          const c2 = pick(h['temperature_' + l.hPa + 'hPa'], i);
+          if (c2 != null){
+            const tt = temps[day] = temps[day] || {};
+            tt[l.hPa] = tt[l.hPa] == null ? c2 : Math.min(tt[l.hPa], c2);
+          }
         }
         const fz = pick(h.freezing_level_height, i);
         if (fz != null) freeze[day] = freeze[day] == null ? fz : Math.min(freeze[day], fz);
@@ -17417,7 +17601,8 @@ async function wxFetchNow(at, k){
       rain: (d.precipitation_probability_max || [])[i],
       wind: (d.wind_speed_10m_max || [])[i],
       gust: (d.wind_gusts_10m_max || [])[i],
-      up: tops[day] || {},           // wind by pressure level
+      up: tops[day] || {},           // strongest wind by pressure level
+      upT: temps[day] || {},         // coldest temperature by pressure level
       freeze: freeze[day],
       hours: hours[day] || [],
       sunrise: ((d.sunrise || [])[i] || '').slice(11, 16),
@@ -23341,7 +23526,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v234';
+const APP_VERSION = 'v235';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
