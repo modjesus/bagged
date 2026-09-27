@@ -21084,8 +21084,22 @@ function ownAdd(){
   touched();
   render();
   toast(peak.n + ' added to Out of bounds.');
-  /* straight to the hill, because the next thing anybody wants is to mark it */
-  setTimeout(() => { try{ openHill(peak.k); }catch(e){} }, 120);
+  /* Straight into marking it, not just onto the list. Adding a peak and
+     marking it are one intention — nobody adds Kilimanjaro for the filing.
+     markFromMap() is the ordinary mark flow despite its name: the sheet with
+     the date and the GPS check, then marking(), which earns the patch and
+     posts the day to the feed exactly as it would for Scafell Pike. The peak
+     is already registered by the touched() above, so BY_KEY has it.
+
+     This used to call openHill(), which DOES NOT EXIST — inside a try/catch
+     that swallowed the error without a word. Adding Kilimanjaro put it on the
+     list and then did nothing at all, with nothing on screen or in the console
+     to say why. A catch that hides a missing function is worse than no catch. */
+  setTimeout(() => {
+    ui.list = 'own'; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
+    ui.open = peak.k; tab = 'd'; render();
+    markFromMap(peak.k);
+  }, 120);
 }
 /* ---------- the third way in: point at it on the map ----------
    The gazetteer covers a named summit and standing on it covers one underfoot.
@@ -21168,9 +21182,21 @@ function ownPinAdd(){
   ownPinStop();
   touched();
   toast(peak.n + ' added to Out of bounds.');
+  /* Straight into marking it, not just onto the list. Adding a peak and
+     marking it are one intention — nobody adds Kilimanjaro for the filing.
+     markFromMap() is the ordinary mark flow despite its name: the sheet with
+     the date and the GPS check, then marking(), which earns the patch and
+     posts the day to the feed exactly as it would for Scafell Pike. The peak
+     is already registered by the touched() above, so BY_KEY has it.
+
+     This used to call openHill(), which DOES NOT EXIST — inside a try/catch
+     that swallowed the error without a word. Adding Kilimanjaro put it on the
+     list and then did nothing at all, with nothing on screen or in the console
+     to say why. A catch that hides a missing function is worse than no catch. */
   setTimeout(() => {
-    try{ ui.list = 'own'; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
-      ui.open = peak.k; tab = 'd'; render(); }catch(e){}
+    ui.list = 'own'; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
+    ui.open = peak.k; tab = 'd'; render();
+    markFromMap(peak.k);
   }, 120);
 }
 
@@ -24157,7 +24183,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v238';
+const APP_VERSION = 'v239';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
