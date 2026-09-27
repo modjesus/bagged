@@ -7192,6 +7192,24 @@ function registerOwn(){
     (NAME_IDX[nm] = NAME_IDX[nm] || []).push(h);
   }
   OWN_LIST.count = ownPeaks().length;
+  /* If you have peaks of your own, Out of bounds belongs in your switched-on
+     lists -- that is how it counts towards your totals. Adding and adopting
+     both put it there, but v240 took it back out of everybody's saved lists
+     and nothing put it back, so a peak already on the list stopped counting
+     and the total dropped by one. This repairs it wherever it is missing. */
+  if (ownPeaks().length && !state.enabled.includes('own')){
+    state.enabled = [...state.enabled, 'own'];
+    state.enabledT = now();
+  }
+  /* And the other way: remove your last peak and the list goes with it. It is
+     not in the picker, so an empty Out of bounds left sitting in your lists is
+     a 0/0 nobody can switch off -- in the list bar, in the map's "My lists"
+     count, and on the totals. */
+  else if (!ownPeaks().length && state.enabled.includes('own')){
+    state.enabled = state.enabled.filter(x => x !== 'own');
+    state.enabledT = now();
+    if (ui.list === 'own') ui.list = state.enabled[0];
+  }
   /* Every other list has a fixed running order of areas in DATA.order, written
      when the data was built. This one is written as you go, so it has to be
      rebuilt here -- and without it statsFor() returns no areas, and
@@ -24205,7 +24223,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v241';
+const APP_VERSION = 'v242';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';

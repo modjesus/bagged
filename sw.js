@@ -10,7 +10,7 @@
 //
 // Any other version number you see in this file is prose in a comment and does
 // nothing at all.
-const CACHE = 'waymark-v241';
+const CACHE = 'waymark-v242';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
@@ -30,8 +30,21 @@ const OS_VTS = 'https://api.os.uk/maps/vector/v1/vts/';
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      // cache each file on its own: one missing file must not fail the whole install
-      .then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => null))))
+      // cache each file on its own: one missing file must not fail the whole install.
+      //
+      // 'reload' matters more than it looks. Without it these fetches may be
+      // answered from the browser's or the CDN's own cache, and a worker whose
+      // name says v241 quietly fills itself with the v240 page it was built to
+      // replace. That happened: the site served the new release, every tab
+      // showed the old one, and the cache name said the update had worked.
+      // Nothing short of clearing the cache by hand got out of it.
+      .then(c => Promise.all(SHELL.map(u => {
+        let req = u;
+        // an engine that does not know this option throws here rather than
+        // ignoring it, and a shell that will not cache is worse than a stale one
+        try{ req = new Request(u, {cache:'reload'}); }catch(e){}
+        return c.add(req).catch(() => null);
+      })))
       .then(() => self.skipWaiting())
   );
 });
