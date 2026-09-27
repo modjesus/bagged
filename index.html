@@ -14198,6 +14198,26 @@ function summitLine(h, dateISO){
 const wxWetCode = c => { c = Number(c); return (c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95; };
 const wxSnowCode = c => { c = Number(c); return (c >= 71 && c <= 77) || (c >= 85 && c <= 86); };
 
+/* Is it freezing ON THE TOP of this hill?
+
+   The freezing level is the honest answer and it is what this used to ask. But
+   Open-Meteo only supplies freezing_level_height for about the first THREE
+   days — checked against the real cache for Waun Fach: 27, 28 and 29 September
+   had it, 30 September to 3 October had no such field at all. So the ice
+   warning, the most consequential line on the card, silently could not fire for
+   a walk planned further out than that. It failed by saying nothing, which is
+   the worst way for a safety warning to fail.
+
+   The temperature at the summit's pressure level IS there for all seven days,
+   and air at or below zero on the top means the same thing. So: use the
+   freezing level where it exists, and fall back to the summit temperature where
+   it does not. */
+function wxFreezingOnTop(day, metres, summitTemp){
+  if (!day) return false;
+  if (day.freeze != null && isFinite(metres) && metres > 0) return day.freeze <= metres;
+  return summitTemp != null && summitTemp <= 0;
+}
+
 /* One sentence of what to do about it, which is the thing a walker actually
    wants — the figures say what the weather is, this says what to pack. Only
    ever ONE line, the most consequential thing about that day, because a list of
@@ -14214,7 +14234,7 @@ function packLine(day, metres){
   const w = wRaw == null ? null : Math.round(wRaw);
   const t = tRaw == null ? null : Math.round(tRaw);
   const rain = day.rain;
-  if (day.freeze != null && isFinite(metres) && metres > 0 && day.freeze <= metres)
+  if (wxFreezingOnTop(day, metres, t))
     return 'Below freezing on the tops \u2014 expect ice. Spikes if you have them.';
   if (w != null && w >= 45)
     return 'Severe wind up there. Worth thinking about another day.';
@@ -14258,8 +14278,7 @@ function packKit(day, metres){
      clouds — those are the icons the forecast line right below already uses
      for the conditions, and the same picture twice on one card, once meaning
      "it is snowing" and once meaning "bring these", reads as a mistake. */
-  if (day.freeze != null && isFinite(metres) && metres > 0 && day.freeze <= metres)
-    out.push(['shoe', 'Spikes']);
+  if (wxFreezingOnTop(day, metres, t)) out.push(['shoe', 'Spikes']);
   if (visWarn(day.vis)) out.push(['compass', 'Map']);
   if (t != null && t <= 4) out.push(['flame', 'Layers']);
   if ((day.rain != null && day.rain >= 40) || wxWetCode(day.code) || wxSnowCode(day.code))
@@ -20613,6 +20632,71 @@ var syncFails = 0;
 /* back online, or back to the app: catch up straight away */
 addEventListener('online', () => { if (FB && fbUser) setTimeout(() => fbSync(), 800); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && FB && fbUser && syncState !== 'synced') setTimeout(() => fbSync(), 800); });
+
+/* ---------- the night-before reminder, for routes you planned alone ----------
+   The push helper sends a reminder at 5pm for walks happening tomorrow. It
+   found them by querying the `chats` collection — so it only ever saw walks
+   planned WITH somebody. A route planned on your own lives in state.plans,
+   never becomes a chat, and so got nothing. If you have only ever planned solo
+   you would conclude the feature did not exist.
+
+   Rather than have the worker read every account and unpack every log, each
+   dated route leaves a small signpost of its own at
+   users/{uid}/reminders/{planId}: the date, a name, and where the top is. The
+   worker then finds tomorrow's in one query across everybody.
+
+   It lives under the walker's own user document, which the existing security
+   rules already allow them to write, so no rules change is needed. `uid` is
+   stored inside the record as well as being in its path, because a
+   collection-group query hands back the document and not the path it came
+   from.
+
+   Reconciled as a whole rather than patched per edit: work out what SHOULD be
+   there, compare with what IS, write the difference. A missed hook then heals
+   itself on the next sync instead of leaving a reminder for a walk that was
+   moved, or silence for one that was not. */
+async function syncReminders(){
+  if (!FB || !fbUser || !fbDb) return;
+  const want = new Map();
+  const tdy = today();
+  for (const pl of livePlans()){
+    if (!pl.date || pl.date < tdy) continue;
+    const hs = (pl.hills || []).map(k => BY_KEY[k]).filter(Boolean).sort((a, b) => b.h - a.h);
+    /* a route whose summits are all marked is a walk already done */
+    if (hs.length && hs.every(h => isBagged(h.k))) continue;
+    let la = null, lo = null, m = 0, where = '';
+    if (hs.length && isFinite(hs[0].a)){
+      la = hs[0].a; lo = hs[0].o; m = hs[0].h; where = hillName(hs[0]);
+    } else if (pl.trk && pl.trk.length && pl.trk[0] && pl.trk[0].length >= 2){
+      /* an imported track with no summits on it still has a start */
+      lo = pl.trk[0][0]; la = pl.trk[0][1]; m = routeTop(pl) || 0;
+    }
+    if (!isFinite(la) || !isFinite(lo)) continue;
+    want.set(pl.id, {
+      uid: fbUser.uid, date: pl.date,
+      hn: String(pl.name || where || 'your walk').slice(0, 60),
+      la: +(+la).toFixed(4), lo: +(+lo).toFixed(4), m: Math.round(m) || 0, t: Date.now()
+    });
+  }
+  let have = [];
+  try{
+    const snap = await FB.getDocs(FB.collection(fbDb, 'users', fbUser.uid, 'reminders'));
+    snap.forEach(d => have.push({id: d.id, data: d.data() || {}}));
+  }catch(e){ return; }
+  const jobs = [];
+  for (const [id, rec] of want){
+    const old = have.find(h => h.id === id);
+    /* only write when something a walker would notice has changed — t moves
+       every time, so comparing the whole record would rewrite it on every sync */
+    const same = old && old.data.date === rec.date && old.data.hn === rec.hn &&
+      Math.abs((old.data.la || 0) - rec.la) < 0.0002 && Math.abs((old.data.lo || 0) - rec.lo) < 0.0002;
+    if (!same) jobs.push(FB.setDoc(FB.doc(fbDb, 'users', fbUser.uid, 'reminders', id), rec));
+  }
+  for (const h of have)
+    if (!want.has(h.id)) jobs.push(FB.deleteDoc(FB.doc(fbDb, 'users', fbUser.uid, 'reminders', h.id)));
+  try{ await Promise.all(jobs); }catch(e){}
+}
+
 async function fbSync(initial){
   if (!FB || !fbUser || fbSyncing) return;
   fbSyncing = true;
@@ -20658,6 +20742,11 @@ async function fbSync(initial){
     fbDirty.clear();
     cloudSig = sig(state); lastSynced = now(); syncState = 'synced'; syncErr = ''; syncFails = 0;
     saveLocal();
+    /* after the log is safely up, not beside it: the signposts are derived from
+       the plans, so they should follow the plans rather than race them. Its own
+       failures are its own — a reminder that did not get written must never
+       fail a sync that did. */
+    syncReminders().catch(() => {});
     if (pending.length > 4) scheduleSync(1500);
   }catch(e){
     /* "The client is offline" is usually a blip: a phone waking up, a tab coming
@@ -23547,7 +23636,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v236';
+const APP_VERSION = 'v237';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
