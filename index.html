@@ -7192,6 +7192,15 @@ function registerOwn(){
     (NAME_IDX[nm] = NAME_IDX[nm] || []).push(h);
   }
   OWN_LIST.count = ownPeaks().length;
+  /* Every other list has a fixed running order of areas in DATA.order, written
+     when the data was built. This one is written as you go, so it has to be
+     rebuilt here -- and without it statsFor() returns no areas, and
+     hillResults() draws its rows by looping those areas, so the Out of bounds
+     list came out completely empty. The peak was on the list. It just had
+     nowhere to be drawn. That is why searching for a peak you added and
+     pressing it looked like it did nothing: it DID take you to the list; the
+     list had nothing on it. */
+  DATA.order.own = [...new Set(ownPeaks().map(p => p.c || 'Elsewhere'))].sort();
 }
 /* Feet is what the walker types, because feet is what the app shows. */
 const feetToM = f => Math.round(+f / 3.28084);
@@ -7440,7 +7449,10 @@ function normalise(s){
       asc:+d.strava.gpx.asc||0, mins:+d.strava.gpx.mins||0, at:d.strava.gpx.at||0};
     out.diary.push(e);
   }
-  if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id]);
+  /* Anyone who pressed Mark on a peak of their own before v240 has 'own'
+     sitting in their saved lists, where it cannot be taken out again because
+     it is not in the picker. Drop it on the way in: following() covers it. */
+  if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id] && id !== 'own');
   out.groups = (s && Array.isArray(s.groups)) ? s.groups.filter(g => g && g.code) : [];
   out.enabledT = (s && s.enabledT) || 0;
   return out;
@@ -9864,7 +9876,7 @@ function takeDeepLink(){
     if (!rec0) return false;
     fromWeb = true;
     const lid = homeListFor(rec0);
-    if (state.enabled.includes(lid)){
+    if (onList(lid)){
       ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.open = key;
       tab = 'd';
       setTimeout(() => {
@@ -13194,7 +13206,7 @@ function listBar(){
 }
 
 function renderHills(){
-  if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
+  if (!onList(ui.list)) ui.list = state.enabled[0];
   const id = ui.list, L = LIST_BY[id], s = statsFor(id);
   const pct = s.done ? Math.max(1, Math.round(s.done/s.total*100)) : 0;
   const isW = id === 'wainwright';
@@ -14608,8 +14620,15 @@ function markSearch(q){
   const starts = h => norm(h.n).startsWith(q) || norm(h.cy).startsWith(q);
   return HILLS.filter(hit).sort((a, b) => (starts(b) - starts(a)) || (b.h - a.h)).slice(0, 8);
 }
+/* Out of bounds is never in state.enabled: it is not in the picker, so nobody
+   can switch it on. But every guard in the app asks "do you follow this list?"
+   before it will take you to a row, and for a peak you added yourself the
+   honest answer is yes -- you put it there. Without this they all fell through
+   to the thin info card, or bounced you back to your first list. Named onList
+   because `following()` further down is the Hikers one -- who you follow. */
+const onList = lid => lid === 'own' || state.enabled.includes(lid);
 /* The list a hill should be filed under: one you have on, else its first. */
-const homeListFor = h => h.l.find(x => state.enabled.includes(x)) || h.l[0];
+const homeListFor = h => h.l.find(x => onList(x)) || h.l[0];
 function markResults(){
   const found = markSearch(ui.mq);
   /* A search that finds nothing used to be the end of the road. It is now the
@@ -14625,7 +14644,7 @@ function markResults(){
   return found.map(h => {
     const onboarding = !state.enabled.length;
     const on = isBagged(h.k), lid = onboarding ? (h.l.find(x => ui.pick.includes(x)) || h.l[0]) : homeListFor(h);
-    const off = !onboarding && !state.enabled.includes(lid);
+    const off = !onboarding && !onList(lid);
     return '<div class="mrow' + (on ? ' on' : '') + '">' +
       '<button class="mmain" data-act="mopen" data-k="' + esc(h.k) + '"><b>' + esc(hillName(h)) + '</b>' +
         '<span>' + (unitsPref() === 'm' ? h.h.toLocaleString() + ' m' : feet(h) + ' ft') +
@@ -14688,7 +14707,7 @@ async function markFromSearch(k){
   }
   const lid = homeListFor(h);
   let switched = '';
-  if (!state.enabled.includes(lid)){ state.enabled.push(lid); state.enabledT = now(); switched = LIST_BY[lid].name; }
+  if (!onList(lid)){ state.enabled.push(lid); state.enabledT = now(); switched = LIST_BY[lid].name; }
   ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
   await marking(() => { ui.open = k; setBagged(k, true, ''); });
   renderListToggles();
@@ -15375,7 +15394,7 @@ let map = null, mapReady = false;
 function renderMapTab(){
   /* With nothing switched on there is no map to draw and no list to name, so
      send the walker to the same picker the other screens show. */
-  if (!state.enabled.includes(ui.list)) ui.list = state.enabled[0];
+  if (!onList(ui.list)) ui.list = state.enabled[0];
   let html = hillsHead() + mapModeBar() + listBar();
   html += '<div class="controls" style="margin-bottom:0"><div class="seg" role="group">';
   html += '<button data-act="mapscope" data-v="all" aria-pressed="' + (ui.mapScope==='all') + '">All hills</button>';
@@ -18531,7 +18550,7 @@ document.addEventListener('click', async e => {
     closePopups(map); closePopups(rmap);
     /* a hill on a list you do not follow has no row to open, so it gets its
        page instead rather than dumping you on somebody else's list */
-    if (!state.enabled.includes(lid)){ openInfo(h.k); return; }
+    if (!onList(lid)){ openInfo(h.k); return; }
     ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = ''; ui.open = h.k;
     tab = 'd'; render();
     setTimeout(() => {
@@ -18555,8 +18574,8 @@ document.addEventListener('click', async e => {
     /* the row itself if its list is on; the hill's page if not */
     const h = BY_KEY[el.dataset.k]; if (!h) return;
     const lid = homeListFor(h);
-    if (!state.enabled.includes(lid)){ openInfo(h.k); return; }
-    ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = ''; ui.open = h.k; render();
+    if (!onList(lid)){ openInfo(h.k); return; }
+    ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = ''; ui.open = h.k; tab = 'd'; render();
     const row = document.querySelector('.hrow[data-row="' + CSS.escape(h.k) + '"]');
     if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
   }
@@ -19125,7 +19144,7 @@ document.addEventListener('click', async e => {
   else if (a === 'addjourney'){
     const h = BY_KEY[el.dataset.k]; if (!h) return;
     const lid = homeListFor(h);
-    if (!state.enabled.includes(lid)){ state.enabled.push(lid); state.enabledT = now(); renderListToggles(); }
+    if (!onList(lid)){ state.enabled.push(lid); state.enabledT = now(); renderListToggles(); }
     setState(h.k, 'planned'); touched(); render();
     toast(hillName(h) + ' added to your journey as planned.');
   }
@@ -24183,7 +24202,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v239';
+const APP_VERSION = 'v240';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
