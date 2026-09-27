@@ -1065,7 +1065,12 @@ dl.lfacts{margin:0}
 :root[data-theme="dark"] .chip[aria-pressed="true"], :root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:var(--surface)}
 
 /* list */
-.grouphead{position:sticky; top:var(--topH,104px); z-index:5; padding:16px 2px 6px; background:linear-gradient(var(--ground) 70%, transparent)}
+.grouphead{position:sticky; top:var(--topH,104px); z-index:5; padding:16px 2px 6px;
+  /* it used to fade to clear over its bottom third, so a row scrolling under
+     it showed through — the Marked stamp landed on top of the hill name.
+     Frosted paper instead: soft, but nothing reads through it. */
+  background:color-mix(in srgb, var(--ground) 92%, transparent);
+  -webkit-backdrop-filter:blur(10px) saturate(1.2); backdrop-filter:blur(10px) saturate(1.2)}
 .gt{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
 .grouphead h2{ margin:0; display:flex; align-items:center; gap:8px }
 .grouphead span{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}.swatch{width:10px; height:10px; border-radius:3px; flex:none; display:inline-block}
@@ -11496,7 +11501,7 @@ function routeCard(m){
   const r = m.route || {}; const hs = (r.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   return '<div class="cvcard"><span class="cvcic">' + ti('route') + '</span><span><i class="lbl">Route</i><b>' + esc(r.name || 'A route') + '</b><span>' +
     (hs.length ? hs.length + (hs.length === 1 ? ' hill' : ' hills') + ' &middot; ' + esc(hs.slice(0, 3).map(h => hillName(h)).join(', ')) : 'No hills on it') +
-    (r.trk ? ' &middot; ' + prettyDist(trackLength(unpackTrk(r.trk))) : '') + '</span>' +
+    (msgTrk(r.trk).length > 1 ? ' &middot; ' + prettyDist(trackLength(msgTrk(r.trk))) : '') + '</span>' +
     '<button class="chip" data-act="chatrouteadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button></span></div>';
 }
 function postCard(m){
@@ -11857,8 +11862,12 @@ async function routeSendGo(){
 }
 /* one shape for a route message, wherever it is sent from */
 function sendRouteMsg(pl){
+  /* Firestore refuses an array of arrays, so the line goes as packed text —
+     the same shape a journal entry stores. Sending it raw failed with
+     "invalid:argument" and no route ever arrived. */
+  const line = packTrk(pl.trk || [], 1500);
   return sendMsg({kind:'route', route:{name: pl.name || '', hills: (pl.hills || []).slice(0, 40),
-    date: pl.date || '', trk: pl.trk && pl.trk.length < 60000 ? pl.trk : null}},
+    date: pl.date || '', trk: line || null}},
     'Shared ' + (pl.name || 'a route'));
 }
 
@@ -12081,11 +12090,11 @@ async function chatAct(a, el){
   }
   else if (a === 'chatsendroute'){
     bcSheetClose(); const p = livePlans().find(x => x.id === el.dataset.v); if (!p) return true;
-    await sendMsg({kind:'route', route:{name: p.name || '', hills: (p.hills || []).slice(0, 40), date: p.date || '', trk: p.trk && p.trk.length < 60000 ? p.trk : null}}, 'Shared ' + (p.name || 'a route'));
+    await sendRouteMsg(p);
   }
   else if (a === 'chatrouteadd'){
     const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || !m.route) return true;
-    const r = m.route; state.plans.push({id:'p' + uid(), name: r.name || 'Shared route', date: r.date || '', notes:'From a chat with ' + chatName(c), hills: r.hills || [], trk: r.trk || null, wp:null, snap:true, deleted:false, t: now()});
+    const r = m.route; state.plans.push({id:'p' + uid(), name: r.name || 'Shared route', date: r.date || '', notes:'From a chat with ' + chatName(c), hills: r.hills || [], trk: msgTrk(r.trk), wp:null, snap:true, deleted:false, t: now()});
     touched(); toast('Added to your plans on the Map.');
   }
   else if (a === 'chatplanwalk'){ bcSheetClose(); planComposer(chatOpen ? chatOpen.id : null); }
@@ -12193,7 +12202,9 @@ async function chatAct(a, el){
   else if (a === 'walkwith'){ const u = el.dataset.uid; if (!u || !fbUser) return true; bcSheetClose(); planComposer(null, {with:[u], hill: el.dataset.k || ''}); }
   else if (a === 'planwalk'){ openPicker('walk'); }
   else if (a === 'sendpost'){ sendToSheet(el.dataset.id); }
-  else if (a === 'sttoggle'){ const d = ui.sendTo; if (!d) return true; const k = el.dataset.v, i = d.sel.indexOf(k); if (i >= 0) d.sel.splice(i, 1); else d.sel.push(k); paintSendTo(); }
+  /* the same grid serves the send-a-post and send-a-route sheets; it only
+     ever looked at ui.sendTo, so in the route sheet no one could be picked */
+  else if (a === 'sttoggle'){ const d = ui.sendTo || ui.rtSend; if (!d) return true; const k = el.dataset.v, i = d.sel.indexOf(k); if (i >= 0) d.sel.splice(i, 1); else d.sel.push(k); if (ui.sendTo) paintSendTo(); else paintRouteSend(); }
   else if (a === 'stsend'){ await sendToGo(); }
   else if (pushAct(a, el)){}
   else return false;
@@ -13445,7 +13456,9 @@ function hillRow(h, listId){
   if (on && r.date) bits.push('<span class="stampdate">' + esc(prettyDate(r.date)) + '</span>');
   if (r.notes) bits.push('<span class="hnote">note</span>');
   if (bits.length) s += '<span class="hsub">' + bits.join('') + '</span>';
-  const others = h.l.filter(x => x !== listId && state.enabled.includes(x));
+  /* every list the hill counts on, not only the ones you follow — the hill
+     card already showed all of them and the row disagreeing read as a fault */
+  const others = h.l.filter(x => x !== listId);
   if (others.length) s += '<span class="tags">' + others.map(x => '<span class="tag">' + esc(listTag(x)) + '</span>').join('') + '</span>';
   s += '</button>';
   s += '<i class="lead"></i>';
@@ -14087,6 +14100,12 @@ function packTrk(pts, max){
 function unpackTrk(str){
   if (!str || typeof str !== 'string') return [];
   return str.split(';').map(p => p.split(',').map(Number)).filter(q => q.length === 2 && isFinite(q[0]) && isFinite(q[1]));
+}
+/* A track off a chat message: new ones are packed text, older ones came
+   through as an array before Firestore started refusing them. */
+function msgTrk(v){
+  if (typeof v === 'string') return unpackTrk(v);
+  return Array.isArray(v) ? v.filter(q => Array.isArray(q)) : [];
 }
 function postTrk(p){
   if (p.trkS) return unpackTrk(p.trkS);
@@ -24469,7 +24488,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v246';
+const APP_VERSION = 'v247';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
