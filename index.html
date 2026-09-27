@@ -5367,7 +5367,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .trackstrip .msc{left:50%}
 .trackstrip svg.mstrk{position:absolute; left:0; top:0; overflow:visible; margin:0; z-index:1}
 .mstrk .u{fill:none; stroke:#F6EFE4; stroke-width:6; stroke-linecap:round; stroke-linejoin:round; opacity:.9}
-.mstrk .o{fill:none; stroke:#FC5200; stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
+.mstrk .o{fill:none; stroke:#A8431A; stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
 .mstrk .st{fill:#14332D; stroke:#F6EFE4; stroke-width:2}
 .trackstrip .mspin .mscoin{position:absolute; left:0; top:0; transform:translate(-50%, -50%)}
 .dststats{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:10px 0 4px}
@@ -5815,6 +5815,22 @@ h2.shhead{font-size:18.7px; font-weight:700}
 .wshoprow > svg{width:22px; height:22px; flex:none; color:var(--accent)}
 .wshoprow > svg:last-child{width:16px; height:16px; color:var(--ink-3); margin-left:auto}
 .wshoprow span{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; font-size:13px; color:var(--ink-2); line-height:1.35}
+/* ---- v246: the one real web address on the welcome screen ----
+   Every other route into the hill pages is a button that swaps a screen
+   without changing the address, and the seventeen links that did exist were
+   all inside the <noscript> block, which a working browser never renders and
+   neither does a search engine. This is an <a> with a real href on purpose:
+   it is what joins the app to the 104 pages under /hills/.
+   Shaped from .wshoprow above so the two read as the same kind of row. */
+.whillsrow{display:flex; align-items:center; gap:12px; width:100%; margin:0; padding:12px 14px;
+  min-height:60px; text-align:left; text-decoration:none; border:1px solid var(--line);
+  border-radius:14px; background:var(--surface); color:var(--ink)}
+.whillsrow:hover{border-color:var(--ink-3)}
+.whillsrow > svg{width:22px; height:22px; flex:none; color:var(--accent)}
+.whillsrow > svg:last-child{width:16px; height:16px; color:var(--ink-3); margin-left:auto}
+.whillsrow span{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;
+  font-size:13px; color:var(--ink-2); line-height:1.35}
+.whillsrow b{font-size:14.5px; color:var(--ink); font-weight:700}
 .wshoprow b{font:700 15px var(--font-ui); color:var(--ink)}
 
 .peekbar{position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px;
@@ -14288,6 +14304,22 @@ function welcomeShop(){
     '</div></section>';
 }
 
+/* ---- the hill pages, on the welcome ----
+   It goes to the hub at /hills/, which links on to all 16 list pages and the
+   86 area pages beneath them, so one address is enough for a crawler to reach
+   the lot. Nothing about it is clever: the point is that it is an ordinary
+   web address rather than a button. The counts come from the data, never
+   typed in, so they cannot drift. */
+function welcomeHills(){
+  const nl = LISTS.filter(l => l.id !== 'own' && l.id !== 'route-top').length;
+  return '<p class="eyebrow">Browse the hill lists</p>' +
+    '<a class="whillsrow" href="/hills/">' + ti('mountain') +
+      '<span><b>Every list, as a plain page</b>' +
+      HILLS.length.toLocaleString() + ' hills across ' + nl +
+      ' lists. Heights, grid refs and areas \u2014 no account needed.</span>' +
+      ti('chevron-right') + '</a>';
+}
+
 function renderPickLists(){
   const n = ui.pick.length;
   const yr = new Date().getFullYear();
@@ -14339,6 +14371,7 @@ function renderPickLists(){
        (n ? 'Continue with ' + n + ' list' + (n === 1 ? '' : 's') : 'Mark a hill or pick a list') +
        '</button></div>';
   s += welcomeShop();
+  s += welcomeHills();
   return s;
 }
 
@@ -24436,7 +24469,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v244';
+const APP_VERSION = 'v246';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
