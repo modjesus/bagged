@@ -2799,6 +2799,8 @@ button.bstriprow{cursor:pointer}
 .avstage:active{cursor:grabbing}
 .avstage canvas{width:100%; height:100%; display:block}
 /* everything outside the circle is dimmed, so the crop is obvious */
+.avsheet.avwide .avmask::after, #avsheet.avwide .avmask::after{border-radius:var(--r)}
+#avsheet.avwide .avstage{aspect-ratio:16/9}
 .avmask{
   position:absolute; inset:0; pointer-events:none;
   background:rgba(10,22,19,.62);
@@ -5432,7 +5434,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 
 .dogcard{border:1px solid var(--line); border-radius:var(--r); overflow:hidden; margin:0 0 12px;
   background:var(--raise); width:100%; padding:0; text-align:left; display:block; cursor:pointer}
-.dogcover{display:block; height:104px; position:relative; background:var(--surface-2)}
+.dogcover{display:block; aspect-ratio:16/9; position:relative; background:var(--surface-2)}
 .dogcover img{border-radius:0}
 .dogcover img{width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.02)}
 .dogcover .noph{position:absolute; inset:0 0 0 88px; display:flex; align-items:center; color:var(--ink-3);
@@ -5467,7 +5469,9 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .dogtabs button[aria-pressed="true"]{color:var(--accent-text); border-color:var(--accent)}
 .dogtabs .dogface{width:30px; height:30px; border-width:2px; box-shadow:none; outline:0}
 .dogtabs .dogface svg{width:15px; height:15px}
-.doghero{position:relative; height:186px; border-radius:var(--r); overflow:hidden; background:var(--surface-2)}
+/* 16:9, the shape the cropper frames in, so a phone and a laptop show exactly
+   the same picture and nobody's face is cut off by a different screen */
+.doghero{position:relative; aspect-ratio:16/9; border-radius:var(--r); overflow:hidden; background:var(--surface-2)}
 .doghero img{width:100%; height:100%; object-fit:cover}
 .doghero .noph{position:absolute; inset:0; display:grid; place-items:center; color:var(--ink-3)}
 .doghero .noph svg{width:56px; height:56px}
@@ -5521,6 +5525,9 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .pdogs{display:flex; align-items:center; gap:6px; margin:6px 0 0; font-family:var(--font-ui);
   font-size:13px; color:var(--accent-text)}
 .pdogs svg{width:15px; height:15px; flex:none}
+.doglinkbox{margin-top:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r); padding:10px}
+.doglinkbox code{display:block; font-family:var(--font-data); font-size:11.5px; word-break:break-all; margin-bottom:8px; color:var(--ink-2)}
+.sublabel{font:700 11px var(--font-ui); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin:0 0 8px}
 .dogstrip{display:flex; gap:14px; overflow-x:auto; padding:2px 0 6px; margin-bottom:10px}
 .dogstripitem{background:none; border:0; padding:0; cursor:pointer; text-align:center; width:84px; flex:none}
 .dogstripitem .dogface{width:64px; height:64px; margin:0 auto; outline:3px solid var(--dogc, var(--accent))}
@@ -5533,8 +5540,20 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .dogpick .dogface{width:32px; height:32px; border-width:2px; box-shadow:none}
 .dogpick .dogface svg{width:16px; height:16px}
 .dogpick button[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
+.dogday{margin:10px 0 2px}
+.dogdaylab{display:flex; align-items:center; gap:6px; font:700 11px var(--font-ui); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:8px}
+.dogdaylab svg{width:14px; height:14px}
+.dogpick button.part{border-style:dashed; border-color:var(--accent); color:var(--accent-text)}
 .dogcheer{font-family:var(--font-hand); font-size:19px; color:var(--accent-text); display:inline-block; transform:rotate(-2deg); margin:8px 0 0}
 .dogeditav .dogface{width:84px; height:84px; margin:0 auto}
+.dogslider{margin:10px 0 2px}
+.dogslider label{display:block; font:600 11.5px var(--font-ui); color:var(--ink-3); margin:0 0 4px;
+  letter-spacing:.06em; text-transform:uppercase}
+.dogslider input[type=range]{width:100%; accent-color:var(--accent)}
+.dogcoverpick{margin-top:4px}
+.dogcovprev{aspect-ratio:16/9; border-radius:var(--r); overflow:hidden; border:1px solid var(--line); margin-bottom:8px}
+.dogcovprev img{width:100%; height:100%; object-fit:cover; display:block}
 .dogeditav .dogface svg{width:38px; height:38px}
 .dogform label{display:block; font:700 13px var(--font-ui); margin:12px 0 5px}
 .dogform input[type=text], .dogform input[type=date]{width:100%}
@@ -7697,7 +7716,12 @@ function normalise(s){
         breed:String(d.breed || '').slice(0, 40), dob:String(d.dob || '').slice(0, 10),
         collar:String(d.collar || '').slice(0, 12),
         best:String(d.best || '').slice(0, 80), nope:String(d.nope || '').slice(0, 80),
-        av:typeof d.av === 'string' ? d.av : '', cover:typeof d.cover === 'string' ? d.cover : '',
+        av:typeof d.av === 'string' ? d.av : '',
+        /* the round portrait rides in the log as a small picture; the wide
+           cover is a proper photo in the photo store, so only its id does */
+        afy:isFinite(+d.afy) ? Math.max(0, Math.min(100, +d.afy)) : 50,
+        cov:(d.cov && d.cov.id) ? {id:String(d.cov.id), up:d.cov.up ? 1 : 0} : null,
+        cfy:isFinite(+d.cfy) ? Math.max(0, Math.min(100, +d.cfy)) : 50,
         deleted:!!d.deleted, t:+d.t || 0
       }))
     : [];
@@ -8022,14 +8046,37 @@ let av = null;                       // {bmp, scale, min, x, y}
 function avEl(){ return document.getElementById('avsheet'); }
 function avOpen(){ return avEl().classList.contains('open'); }
 
-async function openAvatarEditor(src){
+/* The cropper started life as the profile picture editor: one square canvas,
+   drag to move, pinch or slide to zoom. A dog's face and a dog's cover want
+   exactly the same tool in two different shapes, so the job it is doing is
+   now handed in rather than assumed. */
+let avJob = null;   /* {title, hint, w, h, out, save(dataUrl)} */
+async function openCropper(src, job){
+  avJob = job;
+  const c = document.getElementById('avCanvas');
+  c.width = job.w; c.height = job.h;
+  avEl().classList.toggle('avwide', job.w !== job.h);
+  document.getElementById('avTitle').textContent = job.title || 'Your picture';
+  const lbl = avEl().querySelector('label.btn');
+  if (lbl) lbl.childNodes[0].nodeValue = 'Choose another';
+  document.getElementById('avResetRow').hidden = true;
+  return openAvatarEditor(src, true);
+}
+async function openAvatarEditor(src, keepJob){
+  if (!keepJob){
+    avJob = null;
+    const c0 = document.getElementById('avCanvas');
+    c0.width = 560; c0.height = 560;
+    avEl().classList.remove('avwide');
+    document.getElementById('avTitle').textContent = 'Your picture';
+  }
   const stage = document.getElementById('avStage');
   const c = document.getElementById('avCanvas');
   avEl().classList.add('open');
-  document.getElementById('avResetRow').hidden = !fbAvatar;
+  if (!avJob) document.getElementById('avResetRow').hidden = !fbAvatar;
   if (src === undefined) src = myAvatar();
   const fileLabel = avEl().querySelector('label.btn');
-  if (fileLabel) fileLabel.childNodes[0].nodeValue = myAvatar() ? 'Choose another' : 'Choose a picture';
+  if (fileLabel && !avJob) fileLabel.childNodes[0].nodeValue = myAvatar() ? 'Choose another' : 'Choose a picture';
   if (!src){
     /* nothing to crop yet — let them pick a file straight away */
     av = null; avPaint();
@@ -8087,21 +8134,31 @@ function avSetZoom(pct){
   avClamp(); avPaint();
 }
 /* Redraw the same framing at the saved size and hand back a data URL. */
-function avExport(size){
+function avExport(size, q){
   if (!av) return null;
-  const S = size || AV_OUT;
   const c = document.getElementById('avCanvas');
+  const S = size || AV_OUT;
   const k = S / c.width;                            // canvas -> output
+  const OW = S, OH = Math.round(c.height * k);      // same shape as the stage
   const out = document.createElement('canvas');
-  out.width = S; out.height = S;
+  out.width = OW; out.height = OH;
   const g = out.getContext('2d');
   g.imageSmoothingQuality = 'high';
   const w = av.bmp.width * av.scale * k, h = av.bmp.height * av.scale * k;
-  g.drawImage(av.bmp, (S - w) / 2 + av.x * k, (S - h) / 2 + av.y * k, w, h);
-  return out.toDataURL('image/jpeg', 0.82);
+  g.drawImage(av.bmp, (OW - w) / 2 + av.x * k, (OH - h) / 2 + av.y * k, w, h);
+  return out.toDataURL('image/jpeg', q || 0.82);
 }
 const AV_HI = 400;                   // the profile header gets a sharper one
-function avClose(){ avEl().classList.remove('open'); av = null; }
+function avClose(){
+  avEl().classList.remove('open'); av = null;
+  if (avJob){
+    avJob = null;
+    const c = document.getElementById('avCanvas');
+    c.width = 560; c.height = 560;
+    avEl().classList.remove('avwide');
+    document.getElementById('avTitle').textContent = 'Your picture';
+  }
+}
 
 async function addPhotos(key, files){
   let added = 0;
@@ -12538,10 +12595,12 @@ function openFromPush(h){
   const m = (h || '').match(/^#chat=([A-Za-z0-9_-]{4,80})(?:&m=([A-Za-z0-9_-]{4,40}))?$/);
   if (m){ const go = () => { if (!fbUser){ setTimeout(go, 500); return; } openInbox(); openChat(m[1], m[2] || ''); }; go(); return true; }
   if (h === '#notes'){ const go = () => { if (!fbUser){ setTimeout(go, 500); return; } openNotes(); }; go(); return true; }
+  const dm = (h || '').match(/^#dog=([A-Za-z0-9_-]{6,80})$/);
+  if (dm){ setTimeout(() => dogInviteOpen(dm[1]), 600); return true; }
   return false;
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const d = e.data || {}; if (d.open) openFromPush(d.open); });
-(function(){ const h = location.hash || ''; if (/^#(chat=|notes$)/.test(h)){ history.replaceState(null, '', location.pathname + location.search); setTimeout(() => openFromPush(h), 800); } })();
+(function(){ const h = location.hash || ''; if (/^#(chat=|notes$|dog=)/.test(h)){ history.replaceState(null, '', location.pathname + location.search); setTimeout(() => openFromPush(h), 800); } })();
 
 /* ================= the pack: dogs (v248) =================
    A dog is a member of the household, not a field on a walk, so each one gets
@@ -12605,7 +12664,16 @@ function dogFacts(d){
 }
 function dogFaceHTML(d, cls){
   return '<span class="dogface' + (cls ? ' ' + cls : '') + '" style="--dogc:' + collarOf(d) + '">' +
-    (d.av ? '<img src="' + esc(d.av) + '" alt="">' : ti('paw')) + '</span>';
+    (d.av ? '<img src="' + esc(d.av) + '" alt="" style="object-position:50% ' + (isFinite(+d.afy) ? +d.afy : 50) + '%">' : ti('paw')) + '</span>';
+}
+/* the wide picture at the top of their page, and on their card */
+function dogCoverHTML(d, cls){
+  const fy = isFinite(+d.cfy) ? +d.cfy : 50;
+  if (d.cov && d.cov.id) return '<img class="' + (cls || '') + '" data-pid="' + esc(d.cov.id) + '" data-up="' + (d.cov.up ? 1 : 0) +
+    '" alt="' + esc(dogName(d)) + '" style="object-position:50% ' + fy + '%">';
+  if (d.av) return '<img class="' + (cls || '') + '" src="' + esc(d.av) + '" alt="' + esc(dogName(d)) +
+    '" style="object-position:50% ' + fy + '%">';
+  return '';
 }
 /* every hill you have marked with this dog, newest first */
 function dogHills(id){
@@ -12656,7 +12724,7 @@ function renderDogsPane(){
     const rows = dogHills(d.id), ph = dogPhotos(d.id);
     s += '<button class="dogcard" data-act="dogopen" data-v="' + esc(d.id) + '" style="--dogc:' + collarOf(d) + '">' +
       '<span class="dogcover">' +
-        (d.av ? '<img src="' + esc(d.av) + '" alt="">' : '<span class="noph">No photo yet</span>') +
+        (dogCoverHTML(d) || '<span class="noph">No photo yet</span>') +
         '<span class="cnt">' + rows.length + (rows.length === 1 ? ' hill' : ' hills') + '</span>' +
         dogFaceHTML(d) +
       '</span>' +
@@ -12701,7 +12769,7 @@ function renderDogPage(id){
       dogFaceHTML(x) + esc(dogName(x)) + '</button>').join('') + '</div>';
   }
   s += '<div class="doghero">' +
-    (d.av ? '<img src="' + esc(d.av) + '" alt="' + esc(dogName(d)) + '">' : '<span class="noph">' + ti('paw') + '</span>') +
+    (dogCoverHTML(d) || '<span class="noph">' + ti('paw') + '</span>') +
     (rows.length ? '<span class="dogribbon">' + rows.length + (rows.length === 1 ? ' hill' : ' hills') + ' together</span>' : '') +
     '<div class="dogheroin"><h2>' + esc(dogName(d)) + '</h2><p>' + (esc(dogFacts(d)) || 'Add their details') + '</p></div></div>';
 
@@ -12778,7 +12846,8 @@ function renderDogPage(id){
 function dogDraftFrom(d){
   return {id:(d && d.id) || '', name:(d && d.name) || '', sex:(d && d.sex) || '', breed:(d && d.breed) || '',
           dob:(d && d.dob) || '', collar:(d && d.collar) || 'teal', best:(d && d.best) || '',
-          nope:(d && d.nope) || '', av:(d && d.av) || ''};
+          nope:(d && d.nope) || '', av:(d && d.av) || '', afy:(d && isFinite(+d.afy)) ? +d.afy : 50,
+          cov:(d && d.cov) ? {...d.cov} : null, cfy:(d && isFinite(+d.cfy)) ? +d.cfy : 50};
 }
 function openDogEdit(id){
   ui.dogDraft = dogDraftFrom(id ? dogById(id) : null);
@@ -12789,8 +12858,21 @@ function paintDogEdit(){
   const el = bcSheet('<h3 class="bcsheettitle">' + (d.id ? 'Edit ' + esc(d.name || 'your dog') : 'Add a dog') + '</h3>' +
     '<div class="form dogform" style="margin:0">' +
     '<div style="text-align:center" class="dogeditav">' + dogFaceHTML(d, '') +
-      '<div style="margin-top:8px"><label class="btn ghost sm" style="display:inline-block">' + ti('camera') + 'Choose a photo' +
-      '<input type="file" accept="image/*" data-act="dogphoto" hidden></label></div></div>' +
+      '<div class="btnrow" style="justify-content:center; margin-top:8px">' +
+        '<label class="btn ghost sm">' + ti('camera') + (d.av ? 'Change their face' : 'Add their face') +
+        '<input type="file" accept="image/*" data-act="dogphoto" hidden></label>' +
+        (d.av ? '<button class="btn quiet sm" data-act="dogfaceadjust">Adjust</button>' : '') + '</div>' +
+      '<p class="pdfine" style="margin-top:4px">Drag and pinch to frame them.</p>' +
+    '</div>' +
+    '<label>Cover picture <span class="opt">the wide one at the top of their page</span></label>' +
+    '<div class="dogcoverpick">' +
+      (d.cov && d.cov.id ? '<div class="dogcovprev">' + dogCoverHTML(d) + '</div>' : '<p class="pdfine">None yet \u2014 their face is used instead.</p>') +
+      '<div class="btnrow"><label class="btn ghost sm">' + ti('photo') + (d.cov && d.cov.id ? 'Change it' : 'Choose one') +
+        '<input type="file" accept="image/*" data-act="dogcover" hidden></label>' +
+      (d.cov && d.cov.id ? ' <button class="btn quiet sm" data-act="dogcovadjust">Adjust</button>' +
+        ' <button class="btn quiet sm" data-act="dogcovclear">Remove</button>' : '') + '</div>' +
+      '<p class="pdfine">Framed the same on a phone and a laptop, so nothing is cut off.</p>' +
+    '</div>' +
     '<label for="dgname">Name</label><input id="dgname" type="text" maxlength="40" placeholder="Bramble" value="' + esc(d.name) + '">' +
     '<label>She or he</label><div class="dogsexrow">' +
       ['f:Female', 'm:Male', ':Rather not say'].map(x => { const v = x.split(':')[0], l = x.split(':')[1];
@@ -12809,24 +12891,77 @@ function paintDogEdit(){
     if (k === 'name'){ const b = el.querySelector('[data-act=dogsave]'); if (b) b.disabled = !d.name.trim(); }
   }; };
   bind('dgname', 'name'); bind('dgbreed', 'breed'); bind('dgdob', 'dob'); bind('dgbest', 'best'); bind('dgnope', 'nope');
+  /* the cover in the sheet is a photo-store picture like any other, and the
+     sheet is painted outside render(), so it has to be filled in by hand */
+  hydratePhotos();
 }
 /* one round portrait, small enough to ride in the log with everything else */
+/* The two pictures both go through the app's own cropper: drag to move,
+   pinch or slide to zoom, and what you frame is exactly what everyone sees —
+   the same crop on a phone and on a laptop, so nobody loses a face to a
+   different screen shape. */
+function dogCropFace(src){
+  openCropper(src, {title:'Frame their face', w:560, h:560, out:400, q:0.78,
+    save:pic => { if (!ui.dogDraft) return; ui.dogDraft.av = pic; ui.dogDraft.afy = 50; paintDogEdit(); }});
+}
+function dogCropCover(src){
+  openCropper(src, {title:'Frame the cover', w:640, h:360, out:1280, q:0.72,
+    save:async pic => {
+      if (!ui.dogDraft) return;
+      try{
+        const blob = await (await fetch(pic)).blob();
+        const id = uid();
+        const ok = await putBlob(id, blob);
+        if (ok === null && !(await getBlob(id))) throw new Error('storage');
+        ui.dogDraft.cov = {id, up:0}; ui.dogDraft.cfy = 50; paintDogEdit();
+      }catch(e){ toast('Could not save that picture.'); }
+    }});
+}
+/* re-framing an existing picture: the cropper needs the picture itself back */
+async function dogAdjust(which){
+  const d = ui.dogDraft; if (!d) return;
+  if (which === 'face'){
+    if (!d.av) return;
+    dogCropFace(d.av);
+  } else {
+    if (!d.cov || !d.cov.id) return;
+    const src = await photoSrc({id:d.cov.id, up:d.cov.up});
+    if (!src){ toast('That picture is not on this device any more.'); return; }
+    dogCropCover(src);
+  }
+}
+/* The portrait is kept whole rather than cropped, so the slider can move it
+   afterwards without asking for the picture again. Small enough to ride in the
+   log with everything else. */
 async function dogPhotoFrom(file){
   const bmp = await createImageBitmap(file, {imageOrientation:'from-image'}).catch(() => createImageBitmap(file));
-  const N = 320, c = document.createElement('canvas'); c.width = N; c.height = N;
+  const max = 420, sc = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const w = Math.max(1, Math.round(bmp.width * sc)), h = Math.max(1, Math.round(bmp.height * sc));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
-  const side = Math.min(bmp.width, bmp.height);
-  g.drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, N, N);
+  g.drawImage(bmp, 0, 0, w, h);
   if (bmp.close) bmp.close();
   let out = c.toDataURL('image/jpeg', 0.72);
-  if (out.length > 60000) out = c.toDataURL('image/jpeg', 0.6);
+  if (out.length > 70000) out = c.toDataURL('image/jpeg', 0.6);
+  if (out.length > 70000) out = c.toDataURL('image/jpeg', 0.5);
   return out;
+}
+/* the cover goes in the photo store with the hill photos, not in the log:
+   a wide picture is far too big to sit in a record that has to sync whole */
+async function dogCoverFrom(file){
+  const blob = await shrink(file);
+  const id = uid();
+  const ok = await putBlob(id, blob);
+  if (ok === null && !(await getBlob(id))) throw new Error('storage');
+  return {id, up:0};
 }
 function saveDog(){
   const d = ui.dogDraft; if (!d || !d.name.trim()) return;
   const clean = {name:d.name.trim().slice(0, 40), sex:d.sex, breed:d.breed.trim().slice(0, 40),
     dob:d.dob || '', collar:d.collar || 'teal', best:d.best.trim().slice(0, 80),
-    nope:d.nope.trim().slice(0, 80), av:d.av || '', deleted:false, t:now()};
+    nope:d.nope.trim().slice(0, 80), av:d.av || '', afy:isFinite(+d.afy) ? +d.afy : 50,
+    cov:d.cov && d.cov.id ? {id:d.cov.id, up:d.cov.up ? 1 : 0} : null,
+    cfy:isFinite(+d.cfy) ? +d.cfy : 50, deleted:false, t:now()};
   if (d.id){
     const cur = dogById(d.id); if (!cur) return;
     Object.assign(cur, clean);
@@ -12873,6 +13008,36 @@ function ordinal(n){
   const v = n % 100;
   const suf = (v >= 11 && v <= 13) ? 'th' : ({1:'st', 2:'nd', 3:'rd'}[n % 10] || 'th');
   return n + suf;
+}
+/* the dog row on a journal day */
+function dogDayHTML(day){
+  const ds = dogList(); if (!ds.length || !day.hills.length) return '';
+  const keys = day.hills.map(h => h.k);
+  return '<div class="dogday"><span class="dogdaylab">' + ti('paw') + 'Who came?</span><div class="dogpick">' +
+    ds.map(d => {
+      const on = keys.every(k => dogsOn(k).indexOf(d.id) >= 0);
+      const some = !on && keys.some(k => dogsOn(k).indexOf(d.id) >= 0);
+      return '<button data-act="dogday" data-d="' + esc(day.date) + '" data-v="' + esc(d.id) + '" aria-pressed="' + on + '"' +
+        (some ? ' class="part" title="On some of that day"' : '') + '>' + dogFaceHTML(d) + esc(dogName(d)) + '</button>';
+    }).join('') + '</div></div>';
+}
+/* one tap: every summit on that day goes on their page, or comes off it */
+function dogDay(date, id){
+  const day = diaryDays().find(x => x.date === date); if (!day) return;
+  const keys = day.hills.map(h => h.k); if (!keys.length) return;
+  const all = keys.every(k => dogsOn(k).indexOf(id) >= 0);
+  for (const k of keys){
+    const r = rec(k);
+    const list = Array.isArray(r.dogs) ? [...r.dogs] : [];
+    const i = list.indexOf(id);
+    if (all && i >= 0) list.splice(i, 1);
+    else if (!all && i < 0) list.push(id);
+    else continue;
+    state.bagged[k] = {...r, dogs:list, t:now()};
+  }
+  touched(); render(); dogPushMarks(id);
+  const d = dogById(id);
+  if (!all && d) toast(dogName(d) + ' was on ' + keys.length + (keys.length === 1 ? ' summit' : ' summits') + ' that day.');
 }
 function toggleDogOnHill(key, id){
   const r = rec(key);
@@ -12936,6 +13101,7 @@ async function dogPull(){
     }catch(e){}
   }
   dogCloud = next;
+  await dogClaims();
   try{
     const q = FB.query(FB.collection(fbDb, 'dogs'), FB.where('pending', 'array-contains', fbUser.uid));
     const snap = await FB.getDocs(q);
@@ -12946,32 +13112,134 @@ async function dogPull(){
 }
 function dogSharePick(id){
   const d = dogById(id); if (!d) return;
-  const ppl = (typeof following === 'function' ? following() : []).filter(f => f && f.uid);
-  if (!ppl.length){
-    bcSheet('<h3 class="bcsheettitle">Share ' + esc(dogName(d)) + '</h3>' +
-      '<p class="bclede">You are not following anyone yet. Follow the person you walk with on Hikers, then share ' +
-      esc(dogName(d)) + ' with them.</p>', 'Share a dog');
-    return;
-  }
-  bcSheet('<h3 class="bcsheettitle">Share ' + esc(dogName(d)) + '</h3>' +
-    '<p class="bclede">They can add their own days with ' + esc(dogName(d)) + '. Your hill list stays yours.</p>' +
-    '<div class="hpres">' + ppl.slice(0, 20).map(f =>
-      '<button class="mrow" data-act="dogshareto" data-k="' + esc(id) + '" data-v="' + esc(f.uid) + '">' +
-      '<span class="mmain"><b>' + esc(niceName(f.name) || 'Walker') + '</b><span>' +
-      (f.hills ? f.hills + ' hills' : 'On WayMark') + '</span></span></button>').join('') + '</div>',
-    'Share a dog');
+  ui.dogShare = {sel:[id]};
+  paintDogShare();
 }
-async function dogShareTo(id, uid){
-  const d = dogById(id); if (!d || !FB || !fbUser) return;
-  bcSheetClose();
+function paintDogShare(){
+  const st = ui.dogShare; if (!st) return;
+  const ds = dogList();
+  const ppl = (typeof following === 'function' ? following() : []).filter(f => f && f.uid);
+  const names = st.sel.map(x => dogName(dogById(x))).filter(Boolean);
+  const who = listWords(names) || 'your dog';
+  const el = bcSheet('<h3 class="bcsheettitle">Share ' + esc(who) + '</h3>' +
+    '<p class="bclede">Whoever you share with can add their own days. Your hill list stays yours.</p>' +
+    (ds.length > 1 ? '<p class="sublabel">Which dogs</p><div class="dogpick">' + ds.map(x =>
+      '<button data-act="dogsharetick" data-v="' + esc(x.id) + '" aria-pressed="' + (st.sel.indexOf(x.id) >= 0) + '">' +
+      dogFaceHTML(x) + esc(dogName(x)) + '</button>').join('') + '</div>' : '') +
+    '<p class="sublabel" style="margin-top:14px">Someone on WayMark</p>' +
+    (ppl.length
+      ? '<div class="hpres">' + ppl.slice(0, 20).map(f =>
+          '<button class="mrow" data-act="dogshareto" data-v="' + esc(f.uid) + '"' + (st.sel.length ? '' : ' disabled') + '>' +
+          '<span class="mmain"><b>' + esc(niceName(f.name) || 'Walker') + '</b><span>' +
+          (f.hills ? f.hills + ' hills' : 'On WayMark') + '</span></span></button>').join('') + '</div>'
+      : '<p class="pdfine">You are not following anyone yet.</p>') +
+    '<p class="sublabel" style="margin-top:14px">Someone who is not on WayMark</p>' +
+    '<p class="pdfine">A link they can open on their phone. It asks them to join, follow you, and takes ' +
+      esc(who) + ' with them.</p>' +
+    '<button class="btn bcgo" data-act="doglink"' + (st.sel.length ? '' : ' disabled') + '>' + ti('share') + 'Make a link</button>' +
+    (st.link ? '<div class="doglinkbox"><code>' + esc(st.link) + '</code>' +
+      '<button class="btn ghost sm" data-act="doglinkcopy">Copy it</button></div>' : ''),
+    'Share a dog', 'dogsharesheet');
+  return el;
+}
+/* a link for somebody who has never heard of WayMark */
+async function dogMakeLink(){
+  const st = ui.dogShare; if (!st || !st.sel.length) return;
+  if (!FB || !fbUser){ toast('Sign in on Hikers to make a link.'); return; }
   try{
-    const names = {}; names[fbUser.uid] = myName(); names[uid] = personName(uid) || '';
-    await FB.setDoc(dogRef(id), {name:dogName(d), breed:d.breed || '', sex:d.sex || '', dob:d.dob || '',
-      collar:d.collar || '', av:d.av || '', owners:[fbUser.uid], pending:[uid], names, t:Date.now()}, {merge:true});
-    dogCloud[id] = {owners:[fbUser.uid], pending:[uid], names, marks:[]};
-    await dogPushMarks(id);
-    render(); toast('Asked them to share ' + dogName(d) + '.');
-  }catch(e){ toast('That did not send. ' + fbWhy(e)); }
+    const token = 'i' + uid() + uid();
+    await FB.setDoc(FB.doc(fbDb, 'invites', token), {
+      by:fbUser.uid, byName:myName(), dogs:st.sel.slice(0, 8),
+      names:st.sel.map(x => dogName(dogById(x))).filter(Boolean), t:Date.now()});
+    /* the dog records have to exist before anyone can be let into them */
+    for (const id of st.sel){
+      const d = dogById(id); if (!d) continue;
+      if (!dogCloud[id]){
+        const nm = {}; nm[fbUser.uid] = myName();
+        await FB.setDoc(dogRef(id), {name:dogName(d), breed:d.breed || '', sex:d.sex || '', dob:d.dob || '',
+          collar:d.collar || '', av:d.av || '', owners:[fbUser.uid], pending:[], names:nm, t:Date.now()}, {merge:true});
+        dogCloud[id] = {owners:[fbUser.uid], pending:[], names:nm, marks:[]};
+      }
+      await dogPushMarks(id);
+    }
+    st.link = 'https://waymark.it.com/#dog=' + token;
+    paintDogShare();
+    try{ await navigator.clipboard.writeText(st.link); toast('Link copied.'); }catch(e){ toast('Link ready \u2014 press Copy it.'); }
+  }catch(e){ toast('That did not work. ' + fbWhy(e)); }
+}
+/* somebody opened one of those links */
+async function dogInviteOpen(token){
+  if (!FB) return;
+  try{
+    const snap = await FB.getDoc(FB.doc(fbDb, 'invites', token));
+    if (!snap.exists()){ toast('That link has expired.'); return; }
+    const v = snap.data() || {};
+    if (!fbUser){
+      ui.dogInviteWait = token;
+      bcSheet('<h3 class="bcsheettitle">' + esc(firstName(v.byName) || 'A walker') + ' wants to share ' +
+        esc(listWords(v.names || []) || 'their dog') + ' with you</h3>' +
+        '<p class="bclede">WayMark is a free walking log for the hills of Britain. Sign in and you will follow ' +
+        esc(firstName(v.byName) || 'them') + ', and ' + esc(listWords(v.names || []) || 'their dog') +
+        ' turns up in your pack with every hill you have walked together.</p>' +
+        '<button class="btn bcgo" data-act="fbin">' + (typeof GOOGLE_G === 'string' ? GOOGLE_G : '') + 'Sign in with Google</button>',
+        'A dog to share');
+      return;
+    }
+    if (v.by === fbUser.uid){ toast('That is your own link.'); return; }
+    /* follow them, then put your hand up: the owner's app lets you in */
+    try{ if (typeof followUser === 'function') await followUser(v.by); }catch(e){}
+    await FB.setDoc(FB.doc(fbDb, 'invites', token, 'claims', fbUser.uid),
+      {uid:fbUser.uid, name:myName(), t:Date.now()});
+    bcSheet('<h3 class="bcsheettitle">Asked ' + esc(firstName(v.byName) || 'them') + '</h3>' +
+      '<p class="bclede">You are now following ' + esc(firstName(v.byName) || 'them') + '. ' +
+      esc(listWords(v.names || []) || 'The dog') + ' will turn up in your pack once their phone catches up \u2014 ' +
+      'they do not have to do anything.</p>', 'A dog to share');
+    ui.dogInviteWait = null;
+  }catch(e){ toast(fbWhy(e)); }
+}
+/* the owner's side: anyone who has claimed a link gets let in */
+async function dogClaims(){
+  if (!FB || !fbUser) return;
+  try{
+    const q = FB.query(FB.collection(fbDb, 'invites'), FB.where('by', '==', fbUser.uid));
+    const snap = await FB.getDocs(q);
+    for (const inv of snap.docs){
+      const v = inv.data() || {};
+      const cs = await FB.getDocs(FB.collection(fbDb, 'invites', inv.id, 'claims'));
+      for (const c of cs.docs){
+        const x = c.data() || {}; if (!x.uid || x.uid === fbUser.uid) continue;
+        for (const id of (v.dogs || [])){
+          const cur = dogCloud[id]; if (!cur) continue;
+          if ((cur.owners || []).indexOf(x.uid) >= 0 || (cur.pending || []).indexOf(x.uid) >= 0) continue;
+          const nm = {...(cur.names || {})}; nm[x.uid] = x.name || '';
+          await FB.setDoc(dogRef(id), {pending:[...(cur.pending || []), x.uid], names:nm, t:Date.now()}, {merge:true});
+          cur.pending = [...(cur.pending || []), x.uid]; cur.names = nm;
+        }
+      }
+    }
+  }catch(e){}
+}
+async function dogShareTo(ids, uid){
+  const list = (Array.isArray(ids) ? ids : [ids]).filter(x => dogById(x));
+  if (!list.length || !FB || !fbUser) return;
+  bcSheetClose(); ui.dogShare = null;
+  const done = [];
+  for (const id of list){
+    const d = dogById(id);
+    try{
+      const cur = dogCloud[id] || {};
+      const names = {...(cur.names || {})}; names[fbUser.uid] = myName(); names[uid] = personName(uid) || '';
+      const owners = [...new Set([...(cur.owners || []), fbUser.uid])];
+      const pending = [...new Set([...(cur.pending || []), uid])].filter(u => owners.indexOf(u) < 0);
+      await FB.setDoc(dogRef(id), {name:dogName(d), breed:d.breed || '', sex:d.sex || '', dob:d.dob || '',
+        collar:d.collar || '', av:d.av || '', owners, pending, names, t:Date.now()}, {merge:true});
+      dogCloud[id] = {owners, pending, names, marks:(cur.marks || [])};
+      await dogPushMarks(id);
+      done.push(dogName(d));
+    }catch(e){ toast('That did not send. ' + fbWhy(e)); }
+  }
+  render();
+  if (done.length) toast('Asked them to share ' + listWords(done) + '.');
 }
 async function dogAccept(id){
   const inv = dogInvites.find(x => x.id === id); if (!inv || !FB || !fbUser) return;
@@ -13650,10 +13918,14 @@ function renderPatches(listId){
    map with its pin, the boot, the compass for planning a walk */
 /* the Hills mountain is Joe's original pair of peaks, kept, at the family's line weight */
 TI['waymark-mountain'] = '<path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="M8.25 13.03 10.38 15.98 16.35 7.77 22.50 16.23"/>';   /* Joe's mark: two peaks, the tick in the col (WM - ICON.svg, Sep 2026) */
+/* a pawprint small enough to read at 22px: solid, four toes, one pad */
 const NI = {
   d: TI['home'], h: TI['waymark-mountain'], m: TI['map-2'], p: TI['map-2'],
   j: TI['notebook'], a: TI['tent'], u: TI['shoe'], f: TI['users']
 };
+/* Joe's own Basecamp icon: the tent with a pawprint walking in front of it,
+   drawn as solid shapes so it holds together at 22px. */
+const NI_TENT_PAW = '<g fill="currentColor" stroke="none"><path d="M21.66,19.64L12.66,3.64c-.27-.48-1.05-.48-1.31,0l-5.11,9.09c.24.04.46.17.65.37s.33.46.43.76l4.68-8.33,7.72,13.72h-4.32l-2.5-3.75.73-1.08c.23-.34.13-.81-.21-1.04-.35-.23-.81-.14-1.04.21l-.38.56-.37-.56c-.23-.35-.7-.44-1.04-.21-.35.23-.44.7-.21,1.04l.72,1.08-2.5,3.75h-.83c.08.17.13.31.15.41.06.37-.02.71-.22.98-.03.04-.06.08-.1.11h1.4c.25,0,.49-.12.63-.33l2.37-3.56,2.38,3.56c.14.21.37.33.62.33h6c.27,0,.51-.14.65-.37.13-.23.14-.51.01-.74ZM4.56,20.75h0s-.02,0-.03,0h.03Z"/><path d="M6.78,20.72h-.45c-.09-.05-.19-.05-.29-.08-.59-.22-.66-.4-1.39-.33-.41.04-.72.32-1.12.42-.15-.01-.33.02-.48,0-.52-.07-.81-.45-.74-.97.06-.44,1.19-2.03,1.55-2.35.5-.44,1.37-.5,1.93-.15.39.25,1.66,2.03,1.73,2.47.08.52-.22.93-.74,1Z"/><path d="M2.98,13.37c.43-.45.99-.31,1.31.17.44.66.44,1.81-.06,2.44-.32.41-.8.51-1.2.14-.66-.61-.65-2.1-.05-2.74Z"/><path d="M6.59,13.37c.61.64.61,2.14-.05,2.74-.4.37-.88.27-1.2-.14-.5-.63-.5-1.78-.06-2.44.32-.48.89-.62,1.31-.17Z"/><path d="M7.75,15.48c.19-.03.4.03.53.17.65.67-.23,2.51-1.18,2.31s-.37-2.32.65-2.48Z"/><path d="M1.62,15.49c.92-.12,1.75,1.67,1.12,2.31-.55.57-1.32-.26-1.53-.77s-.29-1.45.4-1.55Z"/></g>';
 const NAV = [
   {id:'d', label:'Home',      short:'Home',   count:'h'},
   /* One map. "Hills" is the overview of what you have walked; "Plan a day" is
@@ -13694,9 +13966,9 @@ function navButton(n, c, mobile){
   const on = tab === n.id || (n.also || []).includes(tab);
   return '<button class="navbtn tab' + home + '" role="tab" data-tab="' + n.id + '" aria-selected="' + on + '">' +
     '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
-    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    (n.id === 'a' && dogList().length ? NI_TENT_PAW : NI[n.id]) +
     /* a pawprint walks in front of the tent once there is a dog in the pack */
-    (n.id === 'a' && dogList().length ? '<g transform="translate(0.6,13.2) scale(0.30)" stroke-width="3.6">' + TI['paw'] + '</g>' : '') +
     '</svg>' +
     '<span class="nl">' + esc(label) + '</span>' +
     (n.count && c[n.count] ? '<span class="nc">' + esc(c[n.count]) + '</span>' : '') +
@@ -15773,6 +16045,9 @@ function renderDiary(){
           '">' + esc(hillName(h)) + '</button><i>' + feet(h).toLocaleString() + ' ft</i></li>').join('') +
         '</ul></div>';
       html += dayProgHTML(d);
+      /* tag the dogs who were out that day: one tap puts every summit on that
+         day onto their page, which beats opening each hill in turn */
+      html += dogDayHTML(d);
     }
 
     for (const n of d.notes)
@@ -20087,10 +20362,19 @@ document.addEventListener('click', async e => {
   else if (a === 'dogedit'){ openDogEdit(el.dataset.v); }
   else if (a === 'dogopen'){ ui.dog = el.dataset.v; ui.dogAll = false; render(); window.scrollTo({top:0}); }
   else if (a === 'dogsave'){ saveDog(); }
+  else if (a === 'dogcovclear'){ if (ui.dogDraft){ ui.dogDraft.cov = null; paintDogEdit(); } }
+  else if (a === 'dogfaceadjust'){ await dogAdjust('face'); }
+  else if (a === 'dogcovadjust'){ await dogAdjust('cover'); }
   else if (a === 'dogremove'){ await removeDog(el.dataset.v); }
   else if (a === 'dogtick'){ toggleDogOnHill(el.dataset.k, el.dataset.v); }
+  else if (a === 'dogday'){ dogDay(el.dataset.d, el.dataset.v); }
   else if (a === 'dogsharepick'){ dogSharePick(el.dataset.v); }
-  else if (a === 'dogshareto'){ await dogShareTo(el.dataset.k, el.dataset.v); }
+  else if (a === 'dogshareto'){ await dogShareTo((ui.dogShare && ui.dogShare.sel) || [], el.dataset.v); }
+  else if (a === 'dogsharetick'){ const st = ui.dogShare; if (!st) return true;
+    const k = el.dataset.v, i = st.sel.indexOf(k); if (i >= 0) st.sel.splice(i, 1); else st.sel.push(k); paintDogShare(); }
+  else if (a === 'doglink'){ await dogMakeLink(); }
+  else if (a === 'doglinkcopy'){ const st = ui.dogShare;
+    if (st && st.link){ try{ await navigator.clipboard.writeText(st.link); toast('Link copied.'); }catch(e){ toast('Copy it from the box above.'); } } }
   else if (a === 'dogaccept'){ await dogAccept(el.dataset.v); }
   else if (a === 'dogdecline'){ dogDecline(el.dataset.v); }
   else if (a === 'dogunshare'){ await dogUnshare(el.dataset.v); }
@@ -20584,10 +20868,28 @@ document.addEventListener('click', async e => {
   }
 });
 
+document.addEventListener('input', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act;
+  if (a !== 'dogafy' && a !== 'dogcfy') return;
+  const d = ui.dogDraft; if (!d) return;
+  if (a === 'dogafy'){ d.afy = +el.value;
+    const im = document.querySelector('.dogeditav .dogface img'); if (im) im.style.objectPosition = '50% ' + d.afy + '%'; }
+  else { d.cfy = +el.value;
+    const im = document.querySelector('.dogcovprev img'); if (im) im.style.objectPosition = '50% ' + d.cfy + '%'; }
+});
 document.addEventListener('change', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
   if (a === 'dinput' || a === 'dyear') applyDate(el, el.value || '');
+  else if (a === 'dogafy' && ui.dogDraft){
+    ui.dogDraft.afy = +el.value;
+    const im = document.querySelector('.dogeditav .dogface img'); if (im) im.style.objectPosition = '50% ' + (+el.value) + '%';
+  }
+  else if (a === 'dogcfy' && ui.dogDraft){
+    ui.dogDraft.cfy = +el.value;
+    const im = document.querySelector('.dogcovprev img'); if (im) im.style.objectPosition = '50% ' + (+el.value) + '%';
+  }
   else if (a === 'sdfiles'){ shareDayAddFiles(el.files).finally(() => { el.value = ''; }); }
   else if (a === 'postaddphotos'){ addShotsToPost(el.dataset.id, el.files).finally(() => { el.value = ''; }); }
   else if (a === 'pfield' && ui.draft){ ui.draft[el.dataset.f] = el.value; }
@@ -20597,14 +20899,18 @@ document.addEventListener('change', e => {
     const f = el.files[0]; el.value = '';
     /* straight into the cropper rather than saving a blind centre crop */
     const url = URL.createObjectURL(f);
-    openAvatarEditor(url).then(() => setTimeout(() => URL.revokeObjectURL(url), 4000));
+    const job = avJob;
+    (job ? openCropper(url, job) : openAvatarEditor(url)).then(() => setTimeout(() => URL.revokeObjectURL(url), 4000));
   }
   else if (a === 'dogphoto' && el.files && el.files.length){
     const f = el.files[0]; el.value = '';
     if (!ui.dogDraft) return;
-    toast('Processing\u2026');
-    dogPhotoFrom(f).then(d => { if (ui.dogDraft){ ui.dogDraft.av = d; paintDogEdit(); } })
-      .catch(() => toast('That picture would not open. Try another.'));
+    dogCropFace(URL.createObjectURL(f));
+  }
+  else if (a === 'dogcover' && el.files && el.files.length){
+    const f = el.files[0]; el.value = '';
+    if (!ui.dogDraft) return;
+    dogCropCover(URL.createObjectURL(f));
   }
   else if (a === 'photo' && el.files && el.files.length){
     const files = [...el.files]; el.value = '';
@@ -21298,6 +21604,15 @@ infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
   avEl().onclick = e => { if (e.target === avEl()) avClose(); };
   document.getElementById('avSave').onclick = () => {
     if (!av){ toast('Choose a picture first.'); return; }
+    /* borrowed by something else — a dog's face, a dog's cover */
+    if (avJob){
+      const job = avJob;
+      const pic = avExport(job.out || AV_OUT, job.q);
+      if (!pic){ toast('Could not save that picture.'); return; }
+      avClose();
+      try{ job.save(pic); }catch(e){ toast('Could not save that picture.'); }
+      return;
+    }
     const d = avExport();
     if (!d){ toast('Could not save that picture.'); return; }
     fbAvatar = d; markDirty('avatar');
@@ -22102,6 +22417,9 @@ async function fbSync(initial){
        lived on one device only and vanished with its browser storage. */
     for (const e of (state.diary || []))
       for (const p of (e.photos || [])) if (!p.up) pending.push(p);
+    /* a dog's cover is a photo like any other: left out of this sweep it would
+       live in one browser and vanish with it */
+    for (const g of (state.dogs || [])) if (g && g.cov && !g.cov.up) pending.push(g.cov);
     const lost = new Set();
     for (const p of pending.slice(0, 4)){
       const blob = await getBlob(p.id);
@@ -25139,7 +25457,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v249';
+const APP_VERSION = 'v252';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
