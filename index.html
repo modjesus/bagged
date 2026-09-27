@@ -5475,7 +5475,11 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .dogtabs .dogface svg{width:15px; height:15px}
 /* 16:9, the shape the cropper frames in, so a phone and a laptop show exactly
    the same picture and nobody's face is cut off by a different screen */
-.doghero{position:relative; aspect-ratio:16/9; border-radius:var(--r); overflow:hidden; background:var(--surface-2)}
+/* 16:9, the shape the cropper frames in. Capped on a wide screen so the
+   cover does not become a billboard with a dog's face parked under it. */
+.doghero{position:relative; aspect-ratio:16/9; border-radius:var(--r); overflow:hidden;
+  background:var(--surface-2); max-width:600px; margin:0 auto}
+.doghero:not(:has(img)){aspect-ratio:auto; height:96px}
 .doghero img{width:100%; height:100%; object-fit:cover}
 .doghero .noph{position:absolute; inset:0; display:grid; place-items:center; color:var(--ink-3)}
 .doghero .noph svg{width:56px; height:56px}
@@ -5487,10 +5491,19 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .dogribbon{position:absolute; right:12px; top:12px; background:var(--accent); color:#FFF3E9;
   font-family:var(--font-hand); font-size:19px; padding:3px 15px; border-radius:99px; transform:rotate(3deg);
   box-shadow:0 2px 8px rgba(0,0,0,.28)}
-.dogheroin{position:absolute; left:0; right:0; bottom:0; padding:14px 16px; color:#F3EFE6;
-  background:linear-gradient(transparent, rgba(12,34,29,.86))}
-.dogheroin h2{font-family:var(--font-display); font-size:27px; margin:0; line-height:1}
-.dogheroin p{font-family:var(--font-ui); font-size:13.5px; margin:5px 0 0; opacity:.93}
+/* the big round face, overlapping the cover */
+.dogtop{text-align:center; margin:-58px 0 0; position:relative; z-index:3}
+.dogface.huge{width:124px; height:124px; margin:0 auto; border-width:4px;
+  outline:4px solid var(--dogc, var(--accent)); box-shadow:0 4px 14px rgba(20,51,45,.3)}
+.dogface.huge svg{width:52px; height:52px}
+.dogtop h2{font-family:var(--font-display); font-size:27px; margin:12px 0 0; line-height:1.05}
+.dogtop p{font-family:var(--font-ui); font-size:13.5px; margin:5px 0 0; color:var(--ink-2)}
+.dogtop .dogloc{margin-top:7px}
+@media (min-width:768px){
+  .dogface.huge{width:152px; height:152px}
+  .dogtop{margin-top:-72px}
+  .dogtop h2{font-size:32px}
+}
 .dogstats{display:flex; gap:8px; margin:12px 0}
 .dogstats div{flex:1; background:var(--raise); border:1px solid var(--line); border-radius:var(--r); padding:10px 6px; text-align:center}
 .dogstats b{display:block; font-family:var(--font-data); font-size:18px}
@@ -12775,6 +12788,10 @@ function dogPhotosBack(id){
   d.noph = []; d.t = now(); touched(); render();
   toast('All their photos are back.');
 }
+/* every foot they have been up, the way the walker's own total is worked out */
+function dogFeet(rows){
+  return Math.round((rows || []).reduce((a, r) => a + (isFinite(+r.h.f) ? +r.h.f : 0), 0));
+}
 function dogHighest(rows){
   let best = null;
   for (const r of rows) if (isFinite(r.h.f) && (!best || +r.h.f > +best.f)) best = r.h;
@@ -12792,7 +12809,8 @@ function renderDogsPane(){
       '<button class="dogadd" data-act="dognew">+ Add a dog</button>' +
       '<p class="pdfine" style="margin-top:14px">No dog? <button class="linkbtn" data-act="dogtab" data-v="off">Hide this tab</button> \u2014 Settings, Appearance brings it back.</p></section>';
   }
-  let s = '<section class="mypatches" style="padding-bottom:2px"><p class="eyebrow">The pack</p></section>' + dogInviteHTML();
+  let s = '<section class="mypatches" style="padding-bottom:2px"><p class="eyebrow">' +
+    (ds.length === 1 ? esc(dogName(ds[0])) : 'The pack') + '</p></section>' + dogInviteHTML();
   for (const d of ds){
     const rows = dogHills(d.id), ph = dogPhotos(d.id);
     s += '<button class="dogcard" data-act="dogopen" data-v="' + esc(d.id) + '" style="--dogc:' + collarOf(d) + '">' +
@@ -12841,17 +12859,35 @@ function renderDogPage(id){
       '<button data-act="dogopen" data-v="' + esc(x.id) + '" aria-pressed="' + (x.id === id) + '">' +
       dogFaceHTML(x) + esc(dogName(x)) + '</button>').join('') + '</div>';
   }
+  /* their face, big, over the cover — the way a walker's own profile does it */
   s += '<div class="doghero">' +
-    (dogCoverHTML(d) || '<span class="noph">' + ti('paw') + '</span>') +
+    dogCoverHTML(d) +
     (rows.length ? '<span class="dogribbon">' + rows.length + (rows.length === 1 ? ' hill' : ' hills') + ' together</span>' : '') +
     '<button class="dogheroedit" data-act="dogedit" data-v="' + esc(d.id) + '">' + ti('pencil') + 'Edit</button>' +
-    '<div class="dogheroin"><h2>' + esc(dogName(d)) + '</h2><p>' + (esc(dogFacts(d)) || 'Add their details') + '</p></div></div>';
+    '</div>' +
+    '<div class="dogtop">' + dogFaceHTML(d, 'huge') +
+      '<h2>' + esc(dogName(d)) + '</h2><p>' + (esc(dogFacts(d)) || 'Add their details') + '</p>' +
+      /* the same small-print line a walker's own profile carries: the highest
+         thing they have stood on, and how much mountain that adds up to */
+      (top
+        ? '<p class="ploc dogloc">' + ti('mountain') +
+          '<span class="lochigh">Highest <b>' + esc(hillName(top)) + '</b></span></p>'
+        : '') +
+    '</div>';
 
   const shared = dogShareOf(d);
-  s += '<div class="dogstats"><div><b>' + rows.length + '</b><i>' + (rows.length === 1 ? 'hill' : 'hills') + '</i></div>' +
-    (shared ? '<div><b>' + rows.filter(r => r.mine).length + '</b><i>with you</i></div>'
-            : '<div><b>' + dogPatchCount(rows.length) + '</b><i>' + (dogPatchCount(rows.length) === 1 ? 'patch' : 'patches') + '</i></div>') +
-    '<div><b>' + (top ? Math.round(+top.f).toLocaleString('en-GB') : '\u2014') + '</b><i>highest ft</i></div></div>';
+  /* the same ruled box of figures a walker's own profile uses: rust display
+     numbers, small-caps labels, one cell each */
+  {
+    const cells = [figCell(bigNum(rows.length), rows.length === 1 ? 'Hill' : 'Hills', '')];
+    if (shared) cells.push(figCell(bigNum(rows.filter(r => r.mine).length), 'With you', ''));
+    else { const pc = dogPatchCount(rows.length); cells.push(figCell(bigNum(pc), pc === 1 ? 'Patch' : 'Patches', '')); }
+    /* total feet, the figure the walker's own box ends on. The highest hill
+       itself sits under the name, exactly where a walker's does. */
+    const ft = dogFeet(rows);
+    if (ft) cells.push(figCell(bigNum(ft) + '<em> ft</em>', 'Total feet', ''));
+    s += '<div class="pfigs dogfigs n' + cells.length + (cells.length >= 4 ? ' four' : ' few') + '">' + cells.join('') + '</div>';
+  }
 
   /* the hills, newest first */
   s += '<section class="dogsec"><div class="dogsectop"><h3>' + esc(dogName(d)) + '’s hills</h3>' +
@@ -13398,7 +13434,8 @@ function renderPatchesPage(){
   if (pack && !dogTabOn()){ pack = false; ui.patchView = 'cork'; }
   let s = '<div class="bcswitch ' + (dogTabOn() ? 'bc4' : 'bc3') + '" role="group" aria-label="Basecamp">' +
     '<button data-act="patchview" data-v="' + esc(ui.patchSub === 'collection' ? 'collection' : 'cork') + '" aria-pressed="' + (!shop && !jour && !pack) + '">' + ti('circle-dashed') + 'Patches</button>' +
-    (dogTabOn() ? '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') + 'Dogs</button>' : '') +
+    (dogTabOn() ? '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') +
+      (dogList().length === 1 ? 'Dog' : 'Dogs') + '</button>' : '') +
     '<button data-act="patchview" data-v="journey" aria-pressed="' + jour + '">' + ti('trekking') + 'Journey</button>' +
     '<button data-act="patchview" data-v="supplies" aria-pressed="' + shop + '">' + ti('backpack') + 'Shop</button></div>';
   if (shop){ supWatch(); shopLoad(); return (ui.supOpen || ui.kitOpen ? '' : s) + renderShop(); }
@@ -25575,7 +25612,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v254';
+const APP_VERSION = 'v256';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28556,7 +28593,13 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-act=
     {sel:'#notesheet',   close(){ try{ closeNotes(); }catch(e){} }},
     {sel:'#bcsheet',     close(){ try{ bcSheetClose(); }catch(e){} }},
     {sel:'#basketsheet', close(){ try{ closeBasket(); }catch(e){} }},
-    {sel:'#shopsheet',   close(){ try{ shopClose(); }catch(e){} }}
+    {sel:'#shopsheet',   close(){ try{ shopClose(); }catch(e){} }},
+    /* The picture cropper is opened FROM another sheet, so it has to be last:
+       last in this list is the live one. Leaving it out meant the sheet
+       underneath stayed live and the cropper was marked inert along with the
+       rest of the page — it appeared greyed out, would not drag, and taps went
+       through to the form behind it, which is the keyboard popping up. */
+    {sel:'#avsheet',     close(){ try{ avClose(); }catch(e){} }}
   ];
 
   const shown = el => {
@@ -28645,6 +28688,15 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-act=
 
     if (!current) opener = lastOutside || document.activeElement;   /* once per stack */
     current = el;
+
+    /* A sheet opened FROM another sheet was already marked inert when the
+       first one went up, and nothing ever took it off again: the new sheet
+       arrived dead on the screen. Whatever is live now is live. */
+    for (const n of [el, ...document.querySelectorAll('[data-wm-inert]')]){
+      if (n === el || n.contains(el)){
+        n.removeAttribute('inert'); n.removeAttribute('data-wm-inert');
+      }
+    }
 
     /* anything at body level that does not contain the sheet is out of play.
        The Tab trap below is what actually holds — inert is the belt. */
