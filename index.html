@@ -6717,6 +6717,37 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .sosum p + p{margin-top:7px}
 .sosum b{color:var(--ink)}
 
+
+/* ---- v244: route posts. Map with the paper side, a row of photos, the
+   summits sheet, and the links on one line ---- */
+.pv2 .pmedia.pthumbs:not(.mstrip):not(.art){margin-top:3px; background:none}
+.pthumbs{display:grid; grid-template-columns:repeat(var(--c), minmax(0, 1fr)); gap:3px; border-radius:0 0 10px 10px; background:none}
+.pthumb{padding:0; margin:0; border:0; border-radius:0; aspect-ratio:1/1; overflow:hidden; background:var(--surface-2); cursor:pointer; display:block}
+.pthumb img{width:100%; height:100%; object-fit:cover; display:block; font-size:0; color:transparent}
+.pthumb:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.trackstrip.multi .msc{left:max(80px, 26%)}
+.trackstrip.paperside:not(.multi) .msc{left:max(70px, 24%)}
+.pthumb img:not([src]){visibility:hidden}
+.pmore{background:none; border:0; padding:0; margin:0; font:400 14px var(--font-ui); color:var(--ink-3); cursor:pointer; text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:3px}
+.pmore:hover{color:var(--ink)}
+.mslist li.more .pmore{font:600 12px var(--font-ui); color:inherit; pointer-events:auto}
+.mslist{pointer-events:none} .mslist .pmore{pointer-events:auto}
+.plinks{display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; margin:10px 0 2px}
+.plk{display:inline-flex; align-items:center; gap:5px; background:none; border:0; padding:4px 0; margin:0; font:600 13.5px var(--font-ui); color:var(--ink-2); cursor:pointer; text-decoration:none}
+.plk svg{width:15px; height:15px}
+.plk:hover{color:var(--ink)}
+.plk.strava{color:#FC5200; text-decoration:underline; text-underline-offset:2px}
+.pssub{margin:2px 0 8px !important; font:700 10.5px var(--font-ui) !important; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-text) !important}
+.pslist{list-style:none; margin:0; padding:0}
+.pslist li{border-top:1px solid var(--line-soft)}
+.pslist button{display:grid; grid-template-columns:24px minmax(0, 1fr) auto 16px; gap:10px; align-items:center; width:100%; padding:11px 2px; background:none; border:0; text-align:left; color:var(--ink); cursor:pointer; font:inherit}
+.pslist button i{font:800 11px var(--font-ui); font-style:normal; width:24px; height:24px; border-radius:50%; background:#A8431A; color:#FFF3E9; display:grid; place-items:center; border:2px solid #FFF6EE; box-sizing:border-box; box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.pslist button b{font-family:var(--font-display); font-weight:400; font-size:17px; line-height:1.15; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pslist button span{font:600 13px var(--font-data); color:var(--ink); white-space:nowrap}
+.pslist button span em{font-style:normal; font-size:11.5px; color:var(--ink-3); margin-left:4px}
+.pslist button.hi span{color:var(--accent-text)}
+.pslist button svg{width:16px; height:16px; color:var(--ink-3)}
+.pslist button:hover b{text-decoration:underline; text-underline-offset:3px}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
@@ -18711,6 +18742,8 @@ document.addEventListener('click', async e => {
     render(); window.scrollTo({top:0, behavior:'smooth'});
   }
   else if (a === 'viewpostphoto') openPostViewer(el.dataset.id, el.dataset.p);
+  else if (a === 'postsummits') openPostSummits(el.dataset.id);
+  else if (a === 'postsumhill'){ bcSheetClose(); openInfo(el.dataset.k); }
   else if (a === 'viewfriendphoto') openFriendViewer(el.dataset.code, el.dataset.k, el.dataset.p);
   else if (a === 'dtoday') applyDate(el, today());
   else if (a === 'dyonly') applyDate(el, el.dataset.y || String(new Date().getFullYear()));
@@ -22314,7 +22347,16 @@ function mediaHTML(p, hs, adventure){
   const shots = p.shots || [];
   /* a walk shared with its own GPX: the route on the map, under any photos */
   const wtrk = p.kind !== 'route' ? postTrk(p) : [];
-  const route = wtrk.length > 1 ? trackStrip(wtrk, hs) : '';
+  const route = wtrk.length > 1 ? trackStrip(wtrk, hs, p) : '';
+  /* v244: a route and photos together. The map leads; every photo sits in one
+     row under it, full size a tap away. This used to be a square of photos
+     with the route strip under it, well over a screen tall. */
+  if (shots.length && route){
+    const n = Math.min(shots.length, 6);
+    return route + '<div class="pmedia pthumbs" style="--c:' + Math.max(n, 4) + '">' + shots.slice(0, 6).map((pid, i) =>
+      '<button class="pthumb" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '" aria-label="Photo ' + (i + 1) + ' of ' + n + '">' +
+      '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="' + esc(p.text ? p.text.slice(0, 80) : 'Photo from ' + (p.name || 'a walker') + '’s day out') + '"></button>').join('') + '</div>';
+  }
   if (shots.length){
     return '<div class="pmedia" data-n="' + shots.length + '"><div class="pcar">' + shots.slice(0, 6).map((pid, i) =>
       '<button class="shot" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '" aria-label="Photo ' + (i + 1) + ' of ' + shots.length + '">' +
@@ -22368,7 +22410,7 @@ function mapStrip(hs, p){
   const names = pts.map(h => hillName(h));
   return '<div class="pmedia mstrip' + (multi ? ' multi' : '') + '" role="img" aria-label="Map: ' + esc(names.join(', ')) + '"><div class="msc"' +
     (baked || stripNo.has(skey) ? '' : ' data-bake="' + esc(JSON.stringify({k:skey, z, cx, cy, os})) + '"') + '>' + tiles + pins + '</div>' +
-    '<div class="mswash"></div>' + (multi ? summitList(pts, p && p.date, gpsOn) : summitStampSVG(top, 1, p && p.date) + (gpsOn(top) ? gpsSeal() : '')) +
+    '<div class="mswash"></div>' + (multi ? summitList(pts, p && p.date, gpsOn, p && p.id) : summitStampSVG(top, 1, p && p.date) + (gpsOn(top) ? gpsSeal() : '')) +
     '<span class="msattr">' + (os ? '© Crown copyright, OS' : '© OpenStreetMap, OpenTopoMap') + '</span></div>';
 }
 /* Post maps as pictures. The first time a post's map is on screen its map
@@ -22477,14 +22519,16 @@ async function bakeStrip(el){
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', stripWatch); else setTimeout(stripWatch, 0);
 
 /* several summits: a numbered list on the paper side instead of the stamp */
-function summitList(pts, iso, gpsOn){
+function summitList(pts, iso, gpsOn, pid){
   const d = iso ? new Date(iso + 'T12:00:00') : null;
   const when = d && !isNaN(d) ? d.getDate() + ' ' + d.toLocaleString('en-GB', {month:'short'}).slice(0, 3) : '';
   const MAX = 4, shown = pts.slice(0, pts.length > MAX ? MAX - 1 : MAX);
   const topH = Math.max(...pts.map(h => h.h));
   return '<div class="mslist"><p class="mseye">' + pts.length + ' summits' + (when ? ' · ' + esc(when) : '') + '</p><ol>' +
     shown.map((h, i) => '<li' + (h.h === topH ? ' class="hi"' : '') + '><i>' + (i + 1) + '</i><b>' + esc(hillName(h)) + '</b><span>' + htFlat(h).replace(/\s*\(.*\)$/, '') + '</span></li>').join('') +
-    (pts.length > shown.length ? '<li class="more">+' + (pts.length - shown.length) + ' more</li>' : '') +
+    (pts.length > shown.length ? '<li class="more">' + (pid
+      ? '<button class="pmore" data-act="postsummits" data-id="' + esc(pid) + '">+' + (pts.length - shown.length) + ' more</button>'
+      : '+' + (pts.length - shown.length) + ' more') + '</li>' : '') +
     '</ol></div>';
 }
 /* GPS verified: a small seal pressed onto the corner of the stamp */
@@ -22665,17 +22709,21 @@ function postHTML(p){
     const where = [...new Set(hs.map(h => { const lid = h.l.find(x => state.enabled.includes(x)) || h.l[0]; return regionOf(h, lid).replace('The ', ''); }))].slice(0, 2).join(' & ');
     const names = hs.slice().sort((a, b) => b.h - a.h).map(h => hillName(h));
     s += '<div class="pbodyv2 plead"><p class="pregion">' + esc(where || [...new Set(hs.map(h => h.c))].join(' & ')) + (p.date ? ' · ' + esc(shortDay(p.date)) : '') + '</p>' +
-      '<h3 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <i>+' + (names.length - 3) + ' more</i>' : '') + '</h3>' +
+      '<h3 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <button class="pmore" data-act="postsummits" data-id="' + esc(p.id) + '">+' + (names.length - 3) + ' more</button>' : '') + '</h3>' +
       statRow(p, hs) + '</div>';
   }
   s += media;
 
   s += '<div class="pbodyv2">';
+  /* v244: on a day out, GPX, Add to my routes and Strava are one line of small
+     links under the words, not a row of buttons above them */
+  const hasRoute = adventure && (p.trkS || (p.trk && p.trk.length)) && postTrk(p).length > 1;
+  const plinks = !adventure ? '' : [
+    hasRoute ? '<button class="plk" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' : '',
+    hasRoute ? '<button class="plk" data-act="postcopy" data-id="' + esc(p.id) + '">' + ti('route') + 'Add to my routes</button>' : '',
+    p.strava ? '<a class="plk strava" href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a>' : ''
+  ].filter(Boolean).join('');
   if (adventure){
-    if (p.strava) s += '<p class="pstrava"><a href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a></p>';
-    if ((p.trkS || (p.trk && p.trk.length)) && postTrk(p).length > 1)
-      s += '<div class="proute"><button class="btn sm ghost" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' +
-        '<button class="btn sm ghost" data-act="postcopy" data-id="' + esc(p.id) + '">' + ti('route') + 'Add to my routes</button></div>';
   } else if (p.kind === 'route'){
     s += dataLine(p, hs);
     s += '<div class="proute"><button class="btn sm ghost" data-act="postgpx" data-id="' + esc(p.id) + '">' + ti('download') + 'GPX</button>' +
@@ -22706,7 +22754,9 @@ function postHTML(p){
       '<button class="btn sm ghost" data-act="editcancel">Cancel</button></div></div>';
   } else if (p.text) s += ptextHTML(p);
   s += condPills(p.conds);
-  if (hs.length > 3 && adventure){
+  if (plinks) s += '<div class="plinks">' + plinks + '</div>';
+  /* the route map already lists the summits, and "+N more" opens them all */
+  if (hs.length > 3 && adventure && !hasRoute){
     s += '<div class="phills">' + hs.slice().sort((a, b) => b.h - a.h).map(h => '<span class="hpill">' + esc(hillName(h)) + '<i>' + feet(h).toLocaleString() + ' ft</i></span>').join('') + '</div>';
   }
   s += '</div>';
@@ -24303,15 +24353,22 @@ function stravaDayHTML(s, eid){
         '<label class="btn sm ghost">' + ti('file-upload') + 'Add GPX<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="stgpx" data-id="' + esc(eid || '') + '" hidden></label></div></div>') +
     '</div>';
 }
-/* a walked line on the OS map, fitted to the strip, summits as the map's coins */
-function trackStrip(trk, hs){
+/* a walked line on the OS map, fitted to the strip. With summits (v244) it
+   wears the same paper side as the plain map strip: one summit gets the ink
+   stamp, several get the numbered list, highest first, and the coins on the
+   line carry the same numbers. The route is fitted into the left-hand part so
+   the paper side never sits on top of it. */
+function trackStrip(trk, hs, p){
   if (trk.length < 2) return '';
+  const tops = hs.filter(h => isFinite(h.a) && isFinite(h.o)).slice().sort((a, b) => b.h - a.h);
+  const side = tops.length > 0, multi = tops.length > 1;
+  const fitW = !side ? 300 : multi ? 130 : 120;
   const wx = (lon, z) => (lon + 180) / 360 * 256 * Math.pow(2, z);
   const wy = (lat, z) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256 * Math.pow(2, z); };
   let z = 15;
   for (; z > 8; z--){
     const xs = trk.map(p => wx(p[1], z)), ys = trk.map(p => wy(p[0], z));
-    if (Math.max(...xs) - Math.min(...xs) < 300 && Math.max(...ys) - Math.min(...ys) < 150) break;
+    if (Math.max(...xs) - Math.min(...xs) < fitW && Math.max(...ys) - Math.min(...ys) < 150) break;
   }
   const xs = trk.map(p => wx(p[1], z)), ys = trk.map(p => wy(p[0], z));
   const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
@@ -24322,12 +24379,55 @@ function trackStrip(trk, hs){
   const line = trk.map(p => (wx(p[1], z) - cx).toFixed(1) + ',' + (wy(p[0], z) - cy).toFixed(1)).join(' ');
   const svg = '<svg class="mstrk" width="1" height="1" aria-hidden="true"><polyline points="' + line + '" class="u"/><polyline points="' + line + '" class="o"/>' +
     '<circle class="st" cx="' + (xs[0] - cx).toFixed(1) + '" cy="' + (ys[0] - cy).toFixed(1) + '" r="4.5"/></svg>';
-  const spots = fanOut(hs.filter(h => isFinite(h.a)).map((h, i) => ({h, i, x: wx(h.o, z) - cx, y: wy(h.a, z) - cy, r: 11})));
+  const spots = fanOut(tops.map((h, i) => ({h, i, x: wx(h.o, z) - cx, y: wy(h.a, z) - cy, r: 11})));
   const pins = spots.map(s2 => '<i class="mspin" style="left:' + Math.round(s2.x + (s2.ox || 0)) + 'px;top:' + Math.round(s2.y + (s2.oy || 0)) + 'px" title="' + esc(hillName(s2.h)) + '">' +
-    '<span class="peak mscoin" style="width:22px;height:22px;background:#A8431A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></span></i>').join('');
-  return '<div class="pmedia mstrip trackstrip" aria-hidden="true"><div class="msc"' +
-    (baked || stripNo.has(skey) ? '' : ' data-bake="' + esc(JSON.stringify({k:skey, z, cx, cy, os})) + '"') + '>' + tiles + svg + pins + '</div>' +
+    '<span class="peak mscoin" style="width:22px;height:22px;background:#A8431A">' +
+    (multi ? '<b>' + (s2.i + 1) + '</b>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg>') + '</span></i>').join('');
+  const gpsOn = h => (p && Array.isArray(p.gps) && p.gps.includes(h.k)) || (p && fbUser && p.uid === fbUser.uid && !!verifiedAt(h.k));
+  const paper = !side ? '' : '<div class="mswash"></div>' + (multi ? summitList(tops, p && p.date, gpsOn, p && p.id)
+    : summitStampSVG(tops[0], 1, p && p.date) + (gpsOn(tops[0]) ? gpsSeal() : ''));
+  return '<div class="pmedia mstrip trackstrip' + (side ? ' paperside' : '') + (multi ? ' multi' : '') + '"' + (side ? '' : ' aria-hidden="true"') + '><div class="msc"' +
+    (baked || stripNo.has(skey) ? '' : ' data-bake="' + esc(JSON.stringify({k:skey, z, cx, cy, os})) + '"') + '>' + tiles + svg + pins + '</div>' + paper +
     '<span class="msattr">' + (os ? '© Crown copyright, OS' : '© OpenStreetMap, OpenTopoMap') + '</span></div>';
+}
+
+/* The summits of a post in the order they were walked: each hill sits at the
+   point of the track that passes closest to it. No track, the post's own order. */
+function hillsWalked(hs, trk){
+  if (!trk || trk.length < 2) return hs.slice();
+  const c = Math.cos((trk[0][0] || 54) * Math.PI / 180);
+  const at = h => {
+    let best = 0, bd = Infinity;
+    for (let i = 0; i < trk.length; i++){
+      const dy = trk[i][0] - h.a, dx = (trk[i][1] - h.o) * c, d = dx * dx + dy * dy;
+      if (d < bd){ bd = d; best = i; }
+    }
+    return best;
+  };
+  return hs.map((h, i) => ({h, i, t: isFinite(h.a) && isFinite(h.o) ? at(h) : Infinity}))
+    .sort((a, b) => (a.t - b.t) || (a.i - b.i)).map(x => x.h);
+}
+/* A post held in any of the places posts are kept. */
+function postById(id){
+  return feed.find(x => x.id === id) || (singlePost && singlePost.id === id ? singlePost : null) ||
+    (typeof friendPosts !== 'undefined' && Array.isArray(friendPosts) ? friendPosts.find(x => x.id === id) : null) || null;
+}
+/* "+N more": every summit of the day, in the order walked, each one a way in
+   to that hill's page. */
+function openPostSummits(id){
+  const p = postById(id); if (!p) return;
+  const hs = uniqHills(p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  if (!hs.length) return;
+  const trk = postTrk(p), walked = trk.length > 1;
+  const list = hillsWalked(hs, trk), topH = Math.max(...hs.map(h => h.h));
+  const where = [...new Set(hs.map(h => { const lid = h.l.find(x => state.enabled.includes(x)) || h.l[0]; return regionOf(h, lid).replace('The ', ''); }))].slice(0, 2).join(' & ');
+  const sub = [where, p.date ? shortDay(p.date) : '', walked ? 'in the order walked' : ''].filter(Boolean).join(' · ');
+  bcSheet('<h3 class="bcsheettitle">' + hs.length + (hs.length === 1 ? ' summit' : ' summits') + '</h3>' +
+    (sub ? '<p class="pssub">' + esc(sub) + '</p>' : '') +
+    '<ol class="pslist">' + list.map((h, i) =>
+      '<li><button data-act="postsumhill" data-k="' + esc(h.k) + '"' + (h.h === topH ? ' class="hi"' : '') + '>' +
+      '<i>' + (i + 1) + '</i><b>' + esc(hillName(h)) + '</b><span>' + feet(h) + ' ft <em>' + h.h.toLocaleString() + ' m</em></span>' +
+      ti('chevron-right') + '</button></li>').join('') + '</ol>', 'Summits', 'pssheet');
 }
 
 
@@ -24336,7 +24436,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v243';
+const APP_VERSION = 'v244';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
