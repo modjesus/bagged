@@ -3029,8 +3029,16 @@ button.bstriprow{cursor:pointer}
 .sheet.ask{z-index:2400; background:rgba(10,14,11,.62); display:none}
 .sheet.ask.open{display:block}
 .askbox{max-width:400px; margin:22vh auto 0}
+.opk.mate{box-shadow:inset 0 0 0 1.5px var(--moss); background:rgba(44,95,85,.06)}
+.opkav{flex:none; width:26px; height:26px; border-radius:8px; background:var(--moss); color:#fff;
+  display:grid; place-items:center; font-size:12px; font-weight:700; font-family:var(--font-ui)}
 .askbox h2{padding-right:38px}
 .askbox p{font-size:14px; color:var(--ink-2); margin:8px 0 0}
+.asktick{display:flex; gap:10px; align-items:flex-start; background:var(--tint);
+  border-radius:10px; padding:11px 12px; margin:14px 0 0; cursor:pointer}
+.asktick input{flex:none; width:18px; height:18px; margin:1px 0 0; accent-color:var(--accent); cursor:pointer}
+.asktick b{display:block; font-size:14px; font-weight:600; line-height:1.4}
+.asktick i{display:block; font-style:normal; font-size:13px; color:var(--ink-2); margin-top:2px}
 .askbox .btnrow{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap}
 .askbox .btnrow .btn{flex:1 1 auto; min-width:120px}
 .form{position:relative}
@@ -6936,6 +6944,10 @@ html.kbopen .cvcompose{padding-bottom:8px}
     <button class="xbtn" id="askX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
     <h2 id="askTitle"></h2>
     <p id="askBody"></p>
+    <label class="asktick" id="askTick" hidden>
+      <input type="checkbox" id="askTickBox" checked>
+      <span><b id="askTickLab"></b><i id="askTickSub"></i></span>
+    </label>
     <div class="btnrow">
       <button class="btn quiet" id="askNo">Cancel</button>
       <button class="btn danger" id="askYes">Yes</button>
@@ -7313,10 +7325,28 @@ function prettyDate(v){
 /* ---------- a yes/no question ---------- */
 let askDone = null;
 const askEl = () => document.getElementById('ask');
-function confirmAsk({title, body, yes, no, tone}){
+/* How the last dialog's tick was left. Read it with askTicked() straight after
+   the await. confirmAsk still resolves a plain true/false, because twenty other
+   callers depend on that and a second meaning on the same value is how you get
+   a delete that cancels. */
+let askTick = false;
+const askTicked = () => askTick;
+function confirmAsk({title, body, yes, no, tone, tick}){
   const box = askEl();
   document.getElementById('askTitle').textContent = title;
   document.getElementById('askBody').textContent = body || '';
+  /* An optional tick, on by default: one question, one press, and the quiet
+     way out for somebody who wants only half of it. */
+  const tk = document.getElementById('askTick'), tb = document.getElementById('askTickBox');
+  askTick = !!tick;
+  tk.hidden = !tick;
+  if (tick){
+    document.getElementById('askTickLab').textContent = tick.label || '';
+    document.getElementById('askTickSub').textContent = tick.sub || '';
+    tb.checked = tick.on !== false;
+    askTick = tb.checked;
+    tb.onchange = () => { askTick = tb.checked; };
+  }
   const y = document.getElementById('askYes');
   y.textContent = yes || 'Yes';
   document.getElementById('askNo').textContent = no || 'Cancel';
@@ -7457,6 +7487,11 @@ function normalise(s){
     const e = {id:d.id, date:d.date||'', title:d.title||'', text:d.text||'',
                     photos:Array.isArray(d.photos) ? d.photos : [],
                     shared:d.shared || 0,
+                    /* which post this day made, so deleting the day can offer to
+                       take it down too. Without these three the entry knows only
+                       THAT it was shared, never what it shared. */
+                    post:d.post ? String(d.post) : '',
+                    pvis:d.pvis || '', pshots:+d.pshots || 0,
                     deleted:!!d.deleted, t:d.t||0};
     /* a walk brought in from Strava: kept whole, or it vanished on every reload and sync */
     if (d.strava && d.strava.id) e.strava = {id:String(d.strava.id), name:d.strava.name||'', dist:+d.strava.dist||0, mins:+d.strava.mins||0,
@@ -19254,8 +19289,11 @@ document.addEventListener('click', async e => {
     const opts = await shareOptsAsk(e, chosen);
     if (!opts) return;
     try{
-      await shareDiaryEntry(e, chosen, opts);
-      if (e.id) setDiary(e.id, {shared: now()});
+      const created = await shareDiaryEntry(e, chosen, opts);
+      if (e.id) setDiary(e.id, {shared: now(),
+        post: (created && created.id) || '',
+        pvis: (created && created.vis) || opts.vis || '',
+        pshots: (created && created.shots) ? created.shots.length : 0});
       render();
       toast(opts.vis === 'me' ? 'Saved to your own log.'
         : opts.vis === 'followers' ? 'Shared with your followers.'
@@ -19264,17 +19302,37 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'deldiary'){
     const e = (state.diary || []).find(x => x.id === el.dataset.id); if (!e) return;
-    /* If the day was shared, the post is a separate thing in the feed and
-       deleting the entry does not touch it. Say so here rather than let a
-       walker think deleting the entry pulled it back. */
+    /* A shared day made a post, and the post is a separate thing in the feed.
+       It used to say so and leave you to go and find it. Now it offers, ticked,
+       and names what is going: who saw it, when, and how many photographs, because
+       "the post" means nothing about a day you shared three weeks ago. Untick it
+       and the post stays, which is exactly what used to happen either way. */
+    /* No check that the post is still up: the feed may not be loaded at all
+       (offline, or you have not opened Hikers this session), and a missing
+       post would then read as a deleted one. If it has already gone,
+       deletePost does nothing and says so. */
+    const tick = e.post ? {
+      label:'Take the post down too',
+      sub: (e.pvis === 'public' ? 'Shared with everyone' : e.pvis === 'me' ? 'Saved to your own log' : 'Shared with your followers') +
+           (e.shared ? ' on ' + prettyDate(new Date(e.shared).toISOString().slice(0,10)) : '') +
+           (e.pshots ? ' \u00b7 ' + e.pshots + (e.pshots === 1 ? ' photograph' : ' photographs') : '')
+    } : null;
     const ok = await confirmAsk({title:'Delete this entry?',
       body:'The words go for good. Any summits you marked that day stay in your log.' +
-        (e.shared ? ' You shared this day \u2014 that post stays in the feed until you delete it there too.' : ''),
-      yes:'Delete'});
+        /* an older entry, shared before the app started remembering which post it
+           made: no tick, because there is nothing to press it against */
+        (e.shared && !e.post ? ' You shared this day \u2014 that post stays in the feed until you delete it there too.' : ''),
+      yes:'Delete', tick});
     if (!ok) return;
+    const alsoPost = !!tick && askTicked();
     /* tombstoned rather than spliced, so a delete on one device reaches the others */
     e.deleted = true; e.t = now();
-    touched(); render(); toast('Entry deleted.');
+    touched(); render();
+    if (alsoPost){
+      try{ await deletePost(e.post); toast('Entry and post deleted.'); }
+      catch(err){ toast('Entry deleted. The post would not go \u2014 try it from the feed.'); }
+      render();
+    } else toast('Entry deleted.');
   }
   else if (a === 'newplan'){
     ui.planForm = !ui.planForm;
@@ -21008,6 +21066,37 @@ async function ownLookup(q){
    list they have switched off should be pointed at the list, not handed a
    second Snowdon of their own that counts separately for ever. Within a
    quarter mile of a hill we already have is the same hill. */
+/* Somebody you follow has already added this one.
+   Two people typing "Kilimanjaro" on the same evening used to end up on two
+   different mountains that happened to share a name -- separate keys, separate
+   rows, nothing to compare. Adopting from a profile always joined them, but
+   only if you thought to go there. This does it at the moment you are both
+   looking at the same summit.
+
+   Only people you follow: their peaks are the only ones you are allowed to
+   read, so two strangers still make two. That is the honest limit of this,
+   not an oversight. */
+function ownFriendPeak(x){
+  if (!isFinite(x.a) || !isFinite(x.o)) return null;
+  for (const f of following()){
+    for (const pk of (peaksCache[f.uid] || [])){
+      if (!isFinite(pk.a) || !isFinite(pk.o)) continue;
+      if (Math.abs(pk.a - x.a) > 0.01 || Math.abs(pk.o - x.o) > 0.02) continue;
+      if (metresBetween(pk.a, pk.o, x.a, x.o) <= 400) return {pk, who:f};
+    }
+  }
+  return null;
+}
+/* Everyone you follow, so the check above has something to look at. Fired when
+   the sheet opens; the sheet repaints when it lands, so a slow answer marks the
+   row late rather than holding the search up. */
+async function ownLoadFriendPeaks(){
+  const ids = followingUids();
+  if (!ids.length) return;
+  await Promise.all(ids.map(u => loadPeaks(u)));
+  if (ui.own) paintOwn();
+}
+
 function ownNearExisting(x){
   for (const h of HILLS){
     if (h.own || !isFinite(h.a)) continue;
@@ -21020,6 +21109,7 @@ function ownNearExisting(x){
 function ownOpen(q){
   ui.own = {q: String(q || ''), busy: true, rows: [], err: '', picked: -1, here: null};
   paintOwn();
+  ownLoadFriendPeaks();
   ownLookup(ui.own.q)
     .then(rows => { if (ui.own) { ui.own.rows = rows; ui.own.busy = false; paintOwn(); } })
     .catch(() => { if (ui.own) { ui.own.busy = false; ui.own.err = 'Could not reach the peak lookup. Check your signal, or add it from where you are standing.'; paintOwn(); } });
@@ -21052,10 +21142,17 @@ function ownHTML(){
         : u.rows.length + ' summits carry that name') + '</label><div class="opklist">' +
       u.rows.map((x, i) => {
         const near = ownNearExisting(x);
+        /* a hill WayMark already holds wins over a friend's copy of it: that one
+           is not a peak of your own at all, it is just on a list you have off */
+        const mate = near ? null : ownFriendPeak(x);
+        const who = mate ? firstName(mate.who.name || mate.pk.byn || 'A walker') : '';
         return '<button class="opk' + (u.picked === i ? ' on' : '') + (near ? ' dim' : '') +
+          (mate ? ' mate' : '') +
           '" data-act="ownpick" data-i="' + i + '"' + (near ? ' disabled' : '') + '>' +
+          (mate ? '<span class="opkav">' + esc(who.slice(0,1).toUpperCase()) + '</span>' : '') +
           '<span class="opkn"><b>' + esc(x.n) + '</b><i>' +
           (near ? 'Already in WayMark, on ' + esc(LIST_BY[near.l[0]] ? LIST_BY[near.l[0]].name : 'a list')
+                : mate ? esc(who) + ' added this one \u00b7 join theirs'
                 : esc(x.c || 'Somewhere')) + '</i></span>' +
           '<span class="opkh"><em>' + x.f.toLocaleString() + ' ft</em><i>' + x.m.toLocaleString() + ' m</i></span>' +
           '</button>';
@@ -21108,14 +21205,29 @@ function ownAdd(){
   if (!src) return;
   const name = String((u.here ? (document.getElementById('ownname') || {}).value : '') || src.n || '').trim();
   if (!name){ toast('Give it a name first.'); return; }
-  const peak = {
+  /* Somebody you follow is already on this one. Take their record whole --
+     their key above all, which is what puts you both on one mountain rather
+     than two with the same name. Their name and height come with it, so the
+     two of you are not looking at a summit that is 19,341 ft for you and
+     19,340 ft for them. */
+  const mate = u.here ? null : ownFriendPeak(src);
+  const peak = mate ? {
+    k: mate.pk.k, n: String(mate.pk.n || name).slice(0, 60),
+    h: +mate.pk.h || 0, f: +mate.pk.f || 0, a: +mate.pk.a, o: +mate.pk.o,
+    c: String(mate.pk.c || '').slice(0, 40),
+    by: mate.pk.by || mate.who.uid, byn: mate.pk.byn || mate.who.name || '',
+    src: 'adopted', deleted: false, t: now()
+  } : {
     k: 'OWN:' + uid(), n: name.slice(0, 60),
     h: +src.m || 0, f: +src.f || 0, a: +src.a, o: +src.o,
     c: String(src.c || '').slice(0, 40),
     by: (fbUser && fbUser.uid) || '', byn: fbName || '', src: u.here ? 'gps' : 'gazetteer',
     deleted: false, t: now()
   };
-  state.own = [...(state.own || []), peak];
+  /* already on your list under that key: replace rather than double it up */
+  state.own = (state.own || []).some(z => z.k === peak.k)
+    ? (state.own || []).map(z => z.k === peak.k ? peak : z)
+    : [...(state.own || []), peak];
   if (!state.enabled.includes('own')){
     state.enabled = [...state.enabled, 'own'];
     state.enabledT = now();
@@ -21123,7 +21235,8 @@ function ownAdd(){
   ownClose();
   touched();
   render();
-  toast(peak.n + ' added to Out of bounds.');
+  toast(peak.n + ' added to Out of bounds.' +
+    (mate ? ' Same one ' + firstName(mate.who.name || peak.byn || 'they') + ' is on.' : ''));
   /* Straight into marking it, not just onto the list. Adding a peak and
      marking it are one intention — nobody adds Kilimanjaro for the filing.
      markFromMap() is the ordinary mark flow despite its name: the sheet with
@@ -24223,7 +24336,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v242';
+const APP_VERSION = 'v243';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
