@@ -6591,6 +6591,51 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .pinebtns .walkic{padding:0}
 .pinebtns .walkic svg{margin:0; width:20px; height:20px}
 
+/* ---- Out of bounds ---- */
+.opklist{display:flex; flex-direction:column; gap:6px}
+.opk{display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+  background:var(--raise); font-family:inherit; cursor:pointer}
+.opk.on{border-color:var(--accent); background:var(--accent-soft)}
+.opk.dim{opacity:.55; cursor:default}
+.opk .opkn{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
+.opk .opkn b{font:700 14.5px var(--font-ui); color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.opk .opkn i{font-style:normal; font-size:12px; color:var(--ink-3);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.opk .opkh{flex:none; text-align:right}
+.opk .opkh em{display:block; font-style:normal; font:700 14px var(--font-ui); color:var(--ink)}
+.opk .opkh i{display:block; font-style:normal; font:400 11px var(--font-data); color:var(--ink-3)}
+/* the bar that sits over the map while you are pointing at a summit. Above the
+   tab bar, never under it, and it owns the bottom of the screen while it is up */
+.pinbar{position:fixed; left:0; right:0; z-index:860;
+  bottom:calc(78px + env(safe-area-inset-bottom));
+  margin:0 12px; padding:12px 14px; border-radius:14px;
+  background:var(--raise); border:1px solid var(--line);
+  box-shadow:0 10px 30px -12px rgba(20,51,45,.5);
+  display:flex; flex-direction:column; gap:10px}
+@media (min-width:768px){ .pinbar{bottom:16px; left:auto; right:16px; max-width:380px} }
+.pinbar .pbmsg{display:flex; align-items:flex-start; gap:10px}
+.pinbar .pbmsg > svg{width:18px; height:18px; flex:none; margin-top:2px; color:var(--accent)}
+.pinbar .pbmsg span{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;
+  font-size:12.5px; line-height:1.4; color:var(--ink-3)}
+.pinbar .pbmsg b{font:700 14px var(--font-ui); color:var(--ink)}
+.pinbar input{width:100%; font-size:16px; padding:9px 11px; border-radius:9px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink);
+  font-family:var(--font-ui)}
+.ownpinmk{color:var(--accent); filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.ownpinmk svg{width:26px; height:26px}
+.ownbar{display:flex; align-items:center; flex-wrap:wrap; gap:8px 12px; margin:0 0 12px;
+  padding:9px 11px; border-radius:10px; background:var(--tint)}
+.ownbar .obw{display:inline-flex; align-items:center; gap:6px; flex:1; min-width:0;
+  font:600 12.5px var(--font-ui); color:var(--ink-2)}
+.ownbar .obw svg{color:var(--accent); flex:none}
+.ownbar .linkbtn{padding:4px 9px; font-size:12.5px; background:var(--raise);
+  border:1px solid var(--line); border-radius:99px; color:var(--ink-2)}
+.ownbar .linkbtn.ddel{display:inline-flex; align-items:center; gap:5px;
+  background:transparent; border-color:transparent; color:var(--ink-3)}
+.ownbar .linkbtn.ddel:hover{color:#B3261E}
+
 /* ---- v233: signing back in ----
    The Google button is Google's own downloaded asset (signin-assets.zip from
    their branding guidelines), pill shape, light and dark, dropped in as a
@@ -7104,7 +7149,54 @@ for (const h of HILLS){
   }
 }
 
-let state = {bagged:{}, plans:[], enabled:[], groups:[], diary:[]};
+/* ---------- Out of bounds: peaks the walker added themselves ----------
+
+   A hill in WayMark is nothing but {name, height, feet, lat, lon, which lists
+   it is on} and a key. So rather than build a parallel world for custom peaks
+   — a second search, a second way to mark, a second set of stats — they are
+   put into the SAME three structures the 2,531 built-in hills live in:
+   HILLS, BY_KEY and NAME_IDX. Everything downstream then works on them for
+   nothing: search, marking, the map, the journal, patches, totals, and the GPS
+   seal, which reads a hill's coordinates straight out of BY_KEY.
+
+   Keys are prefixed OWN: so they can never collide with an Ordnance Survey
+   grid square, the same trick the Irish hills use with IRISH:.
+
+   They sit on a list of their own, so a peak on no national list cannot
+   quietly inflate a Wainwright count. There is already a precedent for a list
+   that is not a national one: Route tops. */
+const OWN_LIST = {id:'own', name:'Out of bounds', where:'Peaks you added yourself',
+  country:'', grouped:'region', count:0};
+LISTS.push(OWN_LIST);
+LIST_BY[OWN_LIST.id] = OWN_LIST;
+
+const ownPeaks = () => (state.own || []).filter(p => p && !p.deleted);
+/* Rebuilt whole rather than patched, for the same reason the walk reminders
+   are: work out what should be registered, take out what is, put back what
+   should be. A missed call then heals itself rather than leaving a ghost hill
+   in the search with no peak behind it. */
+function registerOwn(){
+  for (let i = HILLS.length - 1; i >= 0; i--) if (HILLS[i] && HILLS[i].own) HILLS.splice(i, 1);
+  for (const k of Object.keys(BY_KEY)) if (BY_KEY[k] && BY_KEY[k].own) delete BY_KEY[k];
+  for (const n of Object.keys(NAME_IDX)){
+    const keep = NAME_IDX[n].filter(h => !h.own);
+    if (keep.length) NAME_IDX[n] = keep; else delete NAME_IDX[n];
+  }
+  for (const p of ownPeaks()){
+    const h = {n:p.n, h:p.h, f:p.f, a:p.a, o:p.o, g:'', c:p.c || '',
+      l:['own'], r:{own: p.c || 'Elsewhere'}, k:p.k, own:1,
+      by:p.by || '', byn:p.byn || '', src:p.src || ''};
+    HILLS.push(h);
+    BY_KEY[h.k] = h;
+    const nm = String(h.n).toLowerCase();
+    (NAME_IDX[nm] = NAME_IDX[nm] || []).push(h);
+  }
+  OWN_LIST.count = ownPeaks().length;
+}
+/* Feet is what the walker types, because feet is what the app shows. */
+const feetToM = f => Math.round(+f / 3.28084);
+
+let state = {bagged:{}, plans:[], enabled:[], groups:[], diary:[], own:[]};
 let cloudReady = false, cloudWritable = false;
 let syncState = 'local', cloudSig = '', lastSynced = 0;
 let syncTimer = null, syncErr = '';
@@ -7272,6 +7364,12 @@ function sig(s){
 
 /* ---------- local store, with migration from the old two-list keys ---------- */
 function migrateKey(oldKey){
+  /* A peak you added yourself is keyed OWN:xxxx and is NOT in BY_KEY at the
+     moment the log is read — the peaks themselves live in that same log and
+     are only registered a moment later. Without this line the fallback below
+     would decide the key was unknown and quietly drop the mark, so every
+     summit you had logged on your own peaks would disappear on reload. */
+  if (/^OWN:/.test(oldKey)) return oldKey;
   const m = /^([wc]):(.+)$/.exec(oldKey);
   if (!m) return BY_KEY[oldKey] ? oldKey : null;
   const wanted = m[1] === 'w' ? 'wainwright' : 'hewitt-wales';
@@ -7281,6 +7379,15 @@ function migrateKey(oldKey){
 }
 function normalise(s){
   const out = {bagged:{}, plans:[], enabled:null};
+  /* the peaks the walker added themselves, carried through untouched */
+  out.own = Array.isArray(s && s.own)
+    ? s.own.filter(p => p && p.k && /^OWN:/.test(p.k) && p.n).map(p => ({
+        k:p.k, n:String(p.n).slice(0, 60), h:+p.h || 0, f:+p.f || 0,
+        a:+p.a, o:+p.o, c:String(p.c || '').slice(0, 40),
+        by:String(p.by || ''), byn:String(p.byn || '').slice(0, 40),
+        src:String(p.src || ''), deleted:!!p.deleted, t:+p.t || 0
+      })).filter(p => isFinite(p.a) && isFinite(p.o))
+    : [];
   for (const [k, v] of Object.entries((s && s.bagged) || {})){
     const nk = migrateKey(k);
     if (!nk) continue;
@@ -7345,17 +7452,18 @@ function loadLocal(){
       if (!raw) continue;
       const s = normalise(JSON.parse(raw));
       return {bagged:s.bagged, plans:s.plans, diary:s.diary || [],
+              own:s.own || [],
               enabled:s.enabled || [], enabledT:s.enabledT || 0};
     }catch(e){}
   }
   /* a brand new walker starts with nothing on and picks their own lists */
-  return {bagged:{}, plans:[], diary:[], enabled:[], enabledT:0};
+  return {bagged:{}, plans:[], diary:[], own:[], enabled:[], enabledT:0};
 }
 function saveLocal(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
   catch(e){ toast('This browser is blocking storage: your log may not stick.'); }
 }
-function touched(){ saveLocal(); scheduleSync(); schedulePerson(); }
+function touched(){ registerOwn(); saveLocal(); scheduleSync(); schedulePerson(); }
 
 /* ---- keeping your public card honest ----
    `pushPerson()` used to be called only when the profile was edited, a handle
@@ -7421,6 +7529,15 @@ function merge(a, b){
     if (!cur || (d.t||0) > (cur.t||0)) dm.set(d.id, d);
   }
   out.diary = [...dm.values()];
+  /* your own peaks, newest edit wins, tombstones respected — the same rule as
+     a journal entry, so deleting one on the phone deletes it on the laptop */
+  const om = new Map();
+  for (const p of [...(a.own||[]), ...(b.own||[])]){
+    if (!p || !p.k) continue;
+    const cur = om.get(p.k);
+    if (!cur || (p.t||0) > (cur.t||0)) om.set(p.k, p);
+  }
+  out.own = [...om.values()];
   // the list selection is a preference: the most recent edit wins, and a device
   // that has never chosen adopts whatever the account already has
   const aT = a.enabledT || 0, bT = b.enabledT || 0;
@@ -14103,6 +14220,10 @@ function renderPickLists(){
        'and switching one off never loses anything you have marked.</p>';
   s += '<div class="regionlist">';
   for (const l of LISTS){
+    /* Out of bounds is not a list you work through — it fills itself as you
+       add peaks — so it has no business on the welcome, least of all reading
+       "0". It switches itself on the moment a first peak is added. */
+    if (l.id === 'own') continue;
     const on = ui.pick.includes(l.id);
     s += '<div class="pickrow' + (on ? ' on' : '') + '">' +
       '<button class="rrow picker' + (on ? ' on' : '') + '" data-act="picklist" data-v="' + esc(l.id) + '"' +
@@ -14491,7 +14612,16 @@ function markSearch(q){
 const homeListFor = h => h.l.find(x => state.enabled.includes(x)) || h.l[0];
 function markResults(){
   const found = markSearch(ui.mq);
-  if (!found.length) return norm(ui.mq).length >= 2 ? '<p class="mnone">No hill by that name in any list.</p>' : '';
+  /* A search that finds nothing used to be the end of the road. It is now the
+     one place a peak of your own gets added — you only ever add one at the
+     moment you went looking for it. */
+  if (!found.length) return norm(ui.mq).length >= 2
+    ? '<p class="mnone">No hill by that name in any of the 16 lists.</p>' +
+      '<button class="wshoprow" data-act="ownopen" data-q="' + esc(ui.mq) + '">' +
+      ti('mountain', 'width="22" height="22"') +
+      '<span><b>Add it as a peak of your own</b>WayMark looks up the height for you. ' +
+      'It then counts like any other hill.</span>' + ti('chevron-right') + '</button>'
+    : '';
   return found.map(h => {
     const onboarding = !state.enabled.length;
     const on = isBagged(h.k), lid = onboarding ? (h.l.find(x => ui.pick.includes(x)) || h.l[0]) : homeListFor(h);
@@ -16672,6 +16802,9 @@ function mountRouteMap(){
        accident, which is exactly what made this screen hard to work out. */
     rmap.on('click', e => {
       if (rmap.__dotHit && Date.now() - rmap.__dotHit < 300) return;   // a dot took it
+      /* picking a peak takes the tap first. With ui.ownPin unset this line does
+         nothing at all, so route plotting below is untouched. */
+      if (ui.ownPin){ ownPinAt(e.lngLat.lat, e.lngLat.lng); return; }
       if (editor && ui.rmode === 'plot') rmAdd([e.lngLat.lat, e.lngLat.lng]);
     });
     rmap.on('moveend', () => {
@@ -18657,6 +18790,7 @@ document.addEventListener('click', async e => {
     friendOpen = {code:el.dataset.code || '', uid:el.dataset.uid}; render(); loadPersonPosts(el.dataset.uid); window.scrollTo({top:0}); hydrateFriendPhotos();
     /* their card brings the banner, the quote and the kit; paint again when it lands */
     loadPerson(friendOpen.uid).then(() => { if (friendOpen && friendOpen.uid === el.dataset.uid){ render(); hydrateFriendPhotos(); hydratePostPhotos(); } });
+    loadPeaks(el.dataset.uid).then(() => { if (friendOpen && friendOpen.uid === el.dataset.uid) render(); });
   }
   else if (a === 'closefriend'){ friendOpen = null; ui.theirList = null; render(); }
   else if (a === 'proftab'){ ui.profTab = el.dataset.v; render(); hydratePostPhotos(); hydrateFriendPhotos(); }
@@ -19318,6 +19452,32 @@ document.addEventListener('click', async e => {
     shareOptsAnswer({tags:[...soDraft.tags], conds:[...soDraft.conds], vis:soDraft.vis});
   }
   else if (a === 'socancel'){ shareOptsAnswer(null); }
+  /* Out of bounds: peaks the walker adds themselves */
+  else if (a === 'ownopen'){ ownOpen(el.dataset.q || ui.mq || ''); }
+  else if (a === 'ownpick'){
+    if (!ui.own) return;
+    ui.own.picked = +el.dataset.i;
+    paintOwn();
+  }
+  else if (a === 'ownadd'){ ownAdd(); }
+  else if (a === 'ownhere'){ ownHere(); }
+  else if (a === 'ownpin'){ ownPinStart(); }
+  else if (a === 'ownpincancel'){ ownPinStop(); }
+  else if (a === 'ownpinadd'){ ownPinAdd(); }
+  else if (a === 'adoptpeak'){ adoptPeak(el.dataset.k, el.dataset.uid); }
+  else if (a === 'ownshare'){
+    const pk = (state.own || []).find(x => x.k === el.dataset.k); if (!pk) return;
+    pk.share = pk.share === false; pk.t = now();
+    touched(); render();
+    toast(pk.share === false ? 'Kept to yourself.' : 'Shared with people who follow you.');
+  }
+  else if (a === 'owndel'){
+    const k = el.dataset.k;
+    const ok = await confirmAsk({title:'Remove this peak?',
+      body:'It comes off your Out of bounds list. Any day you logged on it stays in your journal.',
+      yes:'Remove'});
+    if (ok) ownDelete(k);
+  }
   else if (a === 'bcsheetclose'){ bcSheetClose(); }
   else if (a === 'bccoll'){ ui.shopColl = el.dataset.v; ui.shopSaved = false; render(); }
   else if (a === 'bcsaved'){ ui.shopSaved = !ui.shopSaved; ui.shopColl = ''; render(); }
@@ -20563,7 +20723,7 @@ async function fbSignOut(){
      inherited the last walker's name and picture on every leaderboard, and
      their whole log got merged into the new account on first sync. */
   fbName = ''; fbAvatar = ''; fbDetail = false; fbDirty.clear(); fbPulled = false;
-  state = {bagged:{}, plans:[], diary:[], groups:[], enabled:state.enabled, enabledT:state.enabledT || 0};
+  state = {bagged:{}, plans:[], diary:[], groups:[], own:[], enabled:state.enabled, enabledT:state.enabledT || 0};
   cloudSig = ''; lastSynced = 0; syncState = 'local'; syncErr = '';
   ui.found = null; ui.pDraft = null; ui.dDraft = null; ui.draft = null;
   ui.postForm = false; ui.diaryForm = false; ui.planForm = false; ui.groupForm = '';
@@ -20595,7 +20755,7 @@ async function fbPull(){
   }catch(e){ return null; }
 }
 async function fbPush(){
-  const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || []});
+  const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || [], own:state.own || []});
   if (payload.length > 900000) throw new Error('log too large for one record');
   /* setDoc replaces the whole record, so writing before ever having read it
      would push empty defaults over a name and picture already saved. Belt to
@@ -20655,6 +20815,72 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
    there, compare with what IS, write the difference. A missed hook then heals
    itself on the next sync instead of leaving a reminder for a walk that was
    moved, or silence for one that was not. */
+/* ---------- sharing a peak you added ----------
+   A peak you added is yours, but a peak nobody else can see is a dead end:
+   somebody who walks the same local top should be able to pick up yours rather
+   than invent a second one beside it. Each shared peak is copied to
+   people/{uid}/peaks/{key}, which sits alongside the rest of a profile and is
+   readable by anyone signed in, the same as the rest of a profile is.
+
+   Adopting keeps the ORIGINAL key. Two people who have walked the same top
+   then hold the same hill, so leaderboards and comparisons line up, rather
+   than two near-identical peaks that can never be reconciled.
+
+   Reconciled whole, like the walk reminders: what should be up there, what is,
+   write the difference. Its failures are its own and never fail a sync. */
+async function syncOwnPeaks(){
+  if (!FB || !fbUser || !fbDb) return;
+  const want = new Map();
+  for (const pk of ownPeaks()){
+    if (pk.share === false) continue;
+    want.set(pk.k, {k:pk.k, n:pk.n, h:pk.h, f:pk.f, a:pk.a, o:pk.o,
+      c:pk.c || '', by:fbUser.uid, byn: fbName || '', src:pk.src || '', t:pk.t || now()});
+  }
+  let have = [];
+  try{
+    const snap = await FB.getDocs(FB.collection(fbDb, 'people', fbUser.uid, 'peaks'));
+    snap.forEach(d => have.push({id:d.id, data:d.data() || {}}));
+  }catch(e){ return; }
+  const jobs = [];
+  for (const [k, rec] of want){
+    const old = have.find(h => h.id === k);
+    const same = old && old.data.n === rec.n && old.data.h === rec.h &&
+      Math.abs((old.data.a || 0) - rec.a) < 0.0002 && Math.abs((old.data.o || 0) - rec.o) < 0.0002;
+    if (!same) jobs.push(FB.setDoc(FB.doc(fbDb, 'people', fbUser.uid, 'peaks', k), rec));
+  }
+  for (const h of have)
+    if (!want.has(h.id)) jobs.push(FB.deleteDoc(FB.doc(fbDb, 'people', fbUser.uid, 'peaks', h.id)));
+  try{ await Promise.all(jobs); }catch(e){}
+}
+
+const peaksCache = {};
+async function loadPeaks(uidX){
+  if (!FB || !fbDb || !uidX || peaksCache[uidX]) return;
+  peaksCache[uidX] = [];
+  try{
+    const snap = await FB.getDocs(FB.collection(fbDb, 'people', uidX, 'peaks'));
+    const rows = []; snap.forEach(d => rows.push(d.data() || {}));
+    peaksCache[uidX] = rows.filter(r => r && r.k && r.n && isFinite(r.a) && isFinite(r.o))
+      .sort((a, b) => (b.h || 0) - (a.h || 0));
+  }catch(e){ peaksCache[uidX] = []; }
+}
+/* Their peak becomes yours, under the same key, so you both hold one hill. */
+function adoptPeak(k, uidX){
+  const src = (peaksCache[uidX] || []).find(x => x.k === k);
+  if (!src){ toast('That peak has gone.'); return; }
+  if ((state.own || []).some(x => x.k === k && !x.deleted)){ toast('Already on your list.'); return; }
+  const mine = (state.own || []).find(x => x.k === k);
+  const peak = {k:src.k, n:String(src.n).slice(0, 60), h:+src.h || 0, f:+src.f || 0,
+    a:+src.a, o:+src.o, c:String(src.c || '').slice(0, 40),
+    by:src.by || uidX, byn:src.byn || '', src:'adopted', deleted:false, t:now()};
+  state.own = mine
+    ? (state.own || []).map(x => x.k === k ? peak : x)
+    : [...(state.own || []), peak];
+  if (!state.enabled.includes('own')){ state.enabled = [...state.enabled, 'own']; state.enabledT = now(); }
+  touched(); render();
+  toast(peak.n + ' added to your Out of bounds.');
+}
+
 async function syncReminders(){
   if (!FB || !fbUser || !fbDb) return;
   const want = new Map();
@@ -20697,13 +20923,271 @@ async function syncReminders(){
   try{ await Promise.all(jobs); }catch(e){}
 }
 
+
+/* ---------- looking a peak up ----------
+   Nobody knows the height of a mountain off the top of their head, and a form
+   asking for one sends the walker out to Google and quite possibly not back.
+   So they type the name they were already typing in the search box and pick
+   the mountain off a list.
+
+   Open-Meteo, who already give us the forecast, run a free gazetteer over
+   GeoNames data: no key, no account, no new dependency. It returns the name,
+   the height in metres, the country and the coordinates.
+
+   The filter matters. Searching "Mount Olympus" raw returns a housing estate
+   in Utah and a village in Jamaica before it returns the mountain in Greece,
+   because populated places outrank summits. Every result is tagged with what
+   it is, so only the summit-ish tags get through. */
+const OWN_SUMMIT = new Set(['PK','PKS','MT','MTS','HLL','HLLS','VLC','VLCS',
+  'RDGE','SPUR','CLF','CONE','BUTE','MESA','PLAT']);
+const mToFeet = m => Math.round(+m * 3.28084);
+
+async function ownLookup(q){
+  const name = String(q || '').trim();
+  if (name.length < 2) return [];
+  const url = 'https://geocoding-api.open-meteo.com/v1/search?count=20&language=en&format=json&name=' +
+    encodeURIComponent(name);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('lookup failed');
+  const j = await r.json();
+  return (j.results || [])
+    .filter(x => OWN_SUMMIT.has(x.feature_code) && isFinite(x.latitude) && isFinite(x.longitude))
+    .map(x => ({
+      n: String(x.name || '').slice(0, 60),
+      m: Math.round(+x.elevation || 0),
+      f: mToFeet(+x.elevation || 0),
+      a: +x.latitude, o: +x.longitude,
+      c: [x.admin1, x.country].filter(Boolean).join(', ').slice(0, 40)
+    }))
+    .filter(x => x.m > 0)
+    .sort((a, b) => b.m - a.m)
+    .slice(0, 8);
+}
+
+/* Is this already a hill WayMark knows? Somebody searching "Snowdon" from a
+   list they have switched off should be pointed at the list, not handed a
+   second Snowdon of their own that counts separately for ever. Within a
+   quarter mile of a hill we already have is the same hill. */
+function ownNearExisting(x){
+  for (const h of HILLS){
+    if (h.own || !isFinite(h.a)) continue;
+    if (Math.abs(h.a - x.a) > 0.01 || Math.abs(h.o - x.o) > 0.02) continue;
+    if (metresBetween(h.a, h.o, x.a, x.o) <= 400) return h;
+  }
+  return null;
+}
+
+function ownOpen(q){
+  ui.own = {q: String(q || ''), busy: true, rows: [], err: '', picked: -1, here: null};
+  paintOwn();
+  ownLookup(ui.own.q)
+    .then(rows => { if (ui.own) { ui.own.rows = rows; ui.own.busy = false; paintOwn(); } })
+    .catch(() => { if (ui.own) { ui.own.busy = false; ui.own.err = 'Could not reach the peak lookup. Check your signal, or add it from where you are standing.'; paintOwn(); } });
+}
+function paintOwn(){ bcSheet(ownHTML(), 'Add a peak', 'ownsheet'); }
+function ownClose(){ ui.own = null; bcSheetClose(); }
+
+function ownHTML(){
+  const u = ui.own; if (!u) return '';
+  let s = '<div class="bcsheethead soHead"><div><b>A peak of your own</b>' +
+    '<span>' + esc(u.q) + '</span></div></div>';
+
+  if (u.here){
+    const h = u.here;
+    s += '<div class="sogrp"><label>Where you are standing</label>' +
+      '<div class="opklist"><button class="opk on"><span class="opkn"><b>' + esc(h.n || 'This spot') +
+      '</b><i>' + h.a.toFixed(4) + ', ' + h.o.toFixed(4) + ' · good to ' + Math.round(h.acc) + ' m</i></span>' +
+      '<span class="opkh"><em>' + h.f.toLocaleString() + ' ft</em><i>' + h.m.toLocaleString() + ' m</i></span></button></div>' +
+      '<div><label for="ownname">What do you call it</label>' +
+      '<input id="ownname" data-act="ownname" value="' + esc(h.n || '') + '" maxlength="60" placeholder="e.g. The Cairn"></div></div>';
+  } else if (u.busy){
+    s += '<p class="mapnote">Looking for summits called “' + esc(u.q) + '”…</p>';
+  } else if (u.err){
+    s += '<p class="wxnote warn">' + esc(u.err) + '</p>';
+  } else if (!u.rows.length){
+    s += '<p class="mapnote">No summit by that name in the gazetteer. It may be a local name, ' +
+      'or too small to be listed. If you are on it now, that works just as well.</p>';
+  } else {
+    s += '<div class="sogrp"><label>' + (u.rows.length === 1 ? 'One summit carries that name'
+        : u.rows.length + ' summits carry that name') + '</label><div class="opklist">' +
+      u.rows.map((x, i) => {
+        const near = ownNearExisting(x);
+        return '<button class="opk' + (u.picked === i ? ' on' : '') + (near ? ' dim' : '') +
+          '" data-act="ownpick" data-i="' + i + '"' + (near ? ' disabled' : '') + '>' +
+          '<span class="opkn"><b>' + esc(x.n) + '</b><i>' +
+          (near ? 'Already in WayMark, on ' + esc(LIST_BY[near.l[0]] ? LIST_BY[near.l[0]].name : 'a list')
+                : esc(x.c || 'Somewhere')) + '</i></span>' +
+          '<span class="opkh"><em>' + x.f.toLocaleString() + ' ft</em><i>' + x.m.toLocaleString() + ' m</i></span>' +
+          '</button>';
+      }).join('') + '</div>' +
+      '<p class="wxsrc">Peaks: GeoNames via <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)</p></div>';
+  }
+
+  const ready = u.here ? true : (u.picked >= 0 && u.rows[u.picked]);
+  s += '<div class="btnrow" style="margin:0">' +
+    '<button class="btn" data-act="ownadd"' + (ready ? '' : ' disabled') + '>' +
+      (ready ? 'Add it' : 'Pick one') + '</button>' +
+    (u.here ? '' : '<button class="btn quiet" data-act="ownhere">' +
+      ti('current-location', 'width="15" height="15"') + 'I’m on it now</button>') +
+    (u.here ? '' : '<button class="btn quiet" data-act="ownpin">' +
+      ti('map-pin', 'width="15" height="15"') + 'Point to it on the map</button>') +
+    '</div>';
+  return s;
+}
+
+/* The fallback, and the only route for a top the gazetteer has never heard of:
+   stand on it. The position comes from the same fix the summit seal uses, and
+   the height from the elevation service for that exact point rather than from
+   the phone's own altimeter, which on a good day is out by tens of metres. */
+async function ownHere(){
+  const u = ui.own; if (!u) return;
+  u.busy = true; u.err = ''; paintOwn();
+  try{
+    const fix = await getFix();
+    let m = 0;
+    try{
+      const r = await fetch('https://api.open-meteo.com/v1/elevation?latitude=' +
+        fix.lat.toFixed(5) + '&longitude=' + fix.lon.toFixed(5));
+      if (r.ok){ const j = await r.json(); m = Math.round((j.elevation || [])[0] || 0); }
+    }catch(e){}
+    u.here = {n: u.q || '', a: fix.lat, o: fix.lon, acc: fix.acc, m, f: mToFeet(m)};
+    u.busy = false; paintOwn();
+    setTimeout(() => { const el = document.getElementById('ownname'); if (el) el.focus(); }, 60);
+  }catch(e){
+    u.busy = false;
+    u.err = 'Could not get a position. Let the phone settle with a view of the sky and try again.';
+    paintOwn();
+  }
+}
+
+/* Adding one switches Out of bounds on, because a peak you cannot see is not
+   worth having added. Nothing else about your lists is touched. */
+function ownAdd(){
+  const u = ui.own; if (!u) return;
+  const src = u.here || u.rows[u.picked];
+  if (!src) return;
+  const name = String((u.here ? (document.getElementById('ownname') || {}).value : '') || src.n || '').trim();
+  if (!name){ toast('Give it a name first.'); return; }
+  const peak = {
+    k: 'OWN:' + uid(), n: name.slice(0, 60),
+    h: +src.m || 0, f: +src.f || 0, a: +src.a, o: +src.o,
+    c: String(src.c || '').slice(0, 40),
+    by: (fbUser && fbUser.uid) || '', byn: fbName || '', src: u.here ? 'gps' : 'gazetteer',
+    deleted: false, t: now()
+  };
+  state.own = [...(state.own || []), peak];
+  if (!state.enabled.includes('own')){
+    state.enabled = [...state.enabled, 'own'];
+    state.enabledT = now();
+  }
+  ownClose();
+  touched();
+  render();
+  toast(peak.n + ' added to Out of bounds.');
+  /* straight to the hill, because the next thing anybody wants is to mark it */
+  setTimeout(() => { try{ openHill(peak.k); }catch(e){} }, 120);
+}
+/* ---------- the third way in: point at it on the map ----------
+   The gazetteer covers a named summit and standing on it covers one underfoot.
+   Neither reaches a top with only a local name, one you walked last year, or
+   one abroad you have not got to yet. Pointing at it does. The height comes
+   from the elevation service for that exact spot — the same source that fills
+   it in when you are standing on it — so there is still nothing to type but a
+   name.
+
+   The map's own tap handler is already gated behind "are you plotting a
+   route", so this adds a branch in FRONT of it rather than competing with it:
+   with ui.ownPin unset, nothing about route editing changes at all. */
+let ownPinMark = null;
+function ownPinStart(){
+  const u = ui.own;
+  ui.ownPin = {q: (u && u.q) || '', at: null, m: 0, f: 0, busy: false};
+  ownClose();
+  tab = 'p'; render();
+  setTimeout(() => { paintPinBar(); toast('Tap the summit on the map.'); }, 150);
+}
+function ownPinStop(){
+  ui.ownPin = null;
+  if (ownPinMark){ try{ ownPinMark.remove(); }catch(e){} ownPinMark = null; }
+  const b = document.getElementById('pinbar'); if (b) b.remove();
+  render();
+}
+async function ownPinAt(lat, lon){
+  const pin = ui.ownPin; if (!pin) return;
+  pin.at = {a: lat, o: lon}; pin.m = 0; pin.f = 0; pin.busy = true;
+  if (rmap){
+    const el = document.createElement('div');
+    el.className = 'ownpinmk';
+    el.innerHTML = ti('map-pin', 'width="18" height="18"');
+    if (ownPinMark){ try{ ownPinMark.remove(); }catch(e){} }
+    try{ ownPinMark = new maplibregl.Marker({element: el, anchor: 'bottom'}).setLngLat([lon, lat]).addTo(rmap); }catch(e){}
+  }
+  paintPinBar();
+  try{
+    const r = await fetch('https://api.open-meteo.com/v1/elevation?latitude=' +
+      lat.toFixed(5) + '&longitude=' + lon.toFixed(5));
+    if (r.ok){ const j = await r.json(); pin.m = Math.round((j.elevation || [])[0] || 0); pin.f = mToFeet(pin.m); }
+  }catch(e){}
+  pin.busy = false;
+  paintPinBar();
+}
+function paintPinBar(){
+  const pin = ui.ownPin;
+  let b = document.getElementById('pinbar');
+  if (!pin){ if (b) b.remove(); return; }
+  if (!b){ b = document.createElement('div'); b.id = 'pinbar'; b.className = 'pinbar'; document.body.appendChild(b); }
+  const at = pin.at;
+  b.innerHTML = !at
+    ? '<div class="pbmsg">' + ti('map-pin', 'width="18" height="18"') +
+      '<span><b>Tap the summit</b>Pinch and pan to find it. The height comes with the spot.</span></div>' +
+      '<div class="btnrow" style="margin:0"><button class="btn quiet" data-act="ownpincancel">Cancel</button></div>'
+    : '<div class="pbmsg">' + ti('map-pin', 'width="18" height="18"') +
+      '<span><b>' + (pin.busy ? 'Reading the height\u2026'
+        : (pin.m ? pin.f.toLocaleString() + ' ft \u00b7 ' + pin.m.toLocaleString() + ' m'
+                 : 'No height for that spot')) + '</b>' +
+      at.a.toFixed(4) + ', ' + at.o.toFixed(4) + ' \u00b7 tap again to move it</span></div>' +
+      '<div><input id="pinname" value="' + esc(pin.q || '') + '" maxlength="60" placeholder="What do you call it"></div>' +
+      '<div class="btnrow" style="margin:0">' +
+      '<button class="btn" data-act="ownpinadd"' + (pin.busy || !pin.m ? ' disabled' : '') + '>Add it</button>' +
+      '<button class="btn quiet" data-act="ownpincancel">Cancel</button></div>';
+  if (typeof wire === 'function') wire();
+}
+function ownPinAdd(){
+  const pin = ui.ownPin; if (!pin || !pin.at || !pin.m) return;
+  const el = document.getElementById('pinname');
+  const name = String((el && el.value) || pin.q || '').trim();
+  if (!name){ toast('Give it a name first.'); if (el) el.focus(); return; }
+  const peak = {
+    k: 'OWN:' + uid(), n: name.slice(0, 60),
+    h: pin.m, f: pin.f, a: pin.at.a, o: pin.at.o, c: '',
+    by: (fbUser && fbUser.uid) || '', byn: fbName || '', src: 'map',
+    deleted: false, t: now()
+  };
+  state.own = [...(state.own || []), peak];
+  if (!state.enabled.includes('own')){ state.enabled = [...state.enabled, 'own']; state.enabledT = now(); }
+  ownPinStop();
+  touched();
+  toast(peak.n + ' added to Out of bounds.');
+  setTimeout(() => {
+    try{ ui.list = 'own'; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
+      ui.open = peak.k; tab = 'd'; render(); }catch(e){}
+  }, 120);
+}
+
+function ownDelete(k){
+  const p = (state.own || []).find(x => x.k === k); if (!p) return;
+  p.deleted = true; p.t = now();
+  touched(); render();
+  toast('Peak removed. Anything you marked on it stays in your log.');
+}
+
 async function fbSync(initial){
   if (!FB || !fbUser || fbSyncing) return;
   fbSyncing = true;
   syncState = 'saving'; paintSync();
   try{
     const remote = await fbPull();
-    if (remote){ state = merge(state, remote); seedSeen(); }
+    if (remote){ state = merge(state, remote); seedSeen(); registerOwn(); }
 
     const pending = [];
     for (const r of Object.values(state.bagged))
@@ -20747,6 +21231,7 @@ async function fbSync(initial){
        failures are its own — a reminder that did not get written must never
        fail a sync that did. */
     syncReminders().catch(() => {});
+    syncOwnPeaks().catch(() => {});
     if (pending.length > 4) scheduleSync(1500);
   }catch(e){
     /* "The client is offline" is usually a blip: a phone waking up, a tab coming
@@ -20925,10 +21410,29 @@ function paintInfo(){
   const v = wikiMem[h.k];
   const r = rec(h.k), on = isBagged(h.k);
 
+  /* A peak you added yourself gets the two controls only its owner needs:
+     whether people who follow you can see it, and taking it off your list.
+     Removing it leaves anything you logged on it alone — the day out
+     happened whether or not the peak is still on your list. */
+  let ownBar = '';
+  if (h.own){
+    const pk = (state.own || []).find(x => x.k === h.k && !x.deleted);
+    if (pk){
+      const shared = pk.share !== false;
+      ownBar = '<div class="ownbar">' +
+        '<span class="obw">' + ti('mountain', 'width="15" height="15"') +
+          'A peak you added' + (pk.src === 'adopted' && pk.byn ? ' \u00b7 from ' + esc(firstName(pk.byn)) : '') + '</span>' +
+        '<button class="linkbtn" data-act="ownshare" data-k="' + esc(h.k) + '">' +
+          (shared ? 'Shared with followers' : 'Kept to yourself') + '</button>' +
+        '<button class="linkbtn ddel" data-act="owndel" data-k="' + esc(h.k) + '">' +
+          ti('trash', 'width="14" height="14"') + 'Remove</button></div>';
+    }
+  }
+
   /* Somebody who arrived from a hill page on the website has never seen any of
      this. One short introduction, above the hill, and only while they have no
      lists of their own — it disappears the moment they pick one. */
-  let s = '';
+  let s = ownBar;
   if (fromWeb && !state.enabled.length){
     const nl = LISTS.filter(l => l.id !== 'route-top').length;
     s += '<div class="webhi" data-open="' + (webOpen ? '1' : '0') + '">' +
@@ -22624,6 +23128,23 @@ function renderFriend(){
     if (theirPatches.length) html += '<p class="eyebrow" style="margin-top:14px">Patches</p><div class="ppassport">' + theirPatches.map(d =>
       '<span class="patch got" title="' + esc(String(d.label).replace(/&middot;/g, '·')) + '">' + patchDisc(d) + '<i class="spl">' + esc(String(d.label).replace(/\s+(fully\s+)?marked$/i, '').replace(/&middot;/g, '·')) + '</i></span>').join('') + '</div>' +
       '<p class="eyebrow" style="margin-top:16px">Lists</p>';
+    /* Peaks they added themselves. Not a list they are working through, so it
+       sits apart from the passport rows, with a way to take one for yourself. */
+    const theirPeaks = peaksCache[uidX];
+    if (theirPeaks === undefined) loadPeaks(uidX).then(() => { if (friendOpen && friendOpen.uid === uidX) render(); });
+    if (theirPeaks && theirPeaks.length){
+      html += '<p class="eyebrow" style="margin-top:16px">Peaks ' + esc(nm) + ' added</p>' +
+        '<p class="mapnote" style="margin:0 0 8px">Summits on none of the 16 lists. Take one and it joins your Out of bounds.</p>' +
+        '<div class="opklist">' + theirPeaks.map(x => {
+          const mine = (state.own || []).some(y => y.k === x.k && !y.deleted);
+          return '<div class="opk' + (mine ? ' on' : '') + '">' +
+            '<span class="opkn"><b>' + esc(x.n) + '</b><i>' + esc(x.c || 'Out of bounds') + '</i></span>' +
+            '<span class="opkh"><em>' + (+x.f || 0).toLocaleString() + ' ft</em><i>' + (+x.h || 0).toLocaleString() + ' m</i></span>' +
+            (mine ? '<span class="mkchip">Yours</span>'
+                  : '<button class="btn sm" data-act="adoptpeak" data-k="' + esc(x.k) + '" data-uid="' + esc(uidX) + '">Add</button>') +
+            '</div>';
+        }).join('') + '</div>';
+    }
     const rows = LISTS.filter(l => lcounts[l.id]).map(l => ({l, n:lcounts[l.id], of:l.count || hillsIn(l.id).length}))
       .sort((a, b) => (b.n / (b.of || 1)) - (a.n / (a.of || 1)));
     if (!rows.length) html += '<div class="nobody"><b>' + esc(nm) + '’s passport is empty</b><span>Lists they’re working through and patches they earn will show here.</span></div>';
@@ -23636,7 +24157,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v237';
+const APP_VERSION = 'v238';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -25668,6 +26189,9 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fontWatch)
 takeSuppliesRoute();
 takeInviteFromHash();
 state = loadLocal();
+/* before anything reads BY_KEY: the walker's own peaks have to be hills before
+   the first render, or their marks look like marks on hills that do not exist */
+registerOwn();
 /* Nothing is switched on for a new walker. They choose what they are working
    through on first run, rather than inheriting somebody else's two lists. */
 if (!Array.isArray(state.enabled)) state.enabled = [];
