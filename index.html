@@ -5521,6 +5521,12 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .pdogs{display:flex; align-items:center; gap:6px; margin:6px 0 0; font-family:var(--font-ui);
   font-size:13px; color:var(--accent-text)}
 .pdogs svg{width:15px; height:15px; flex:none}
+.dogstrip{display:flex; gap:14px; overflow-x:auto; padding:2px 0 6px; margin-bottom:10px}
+.dogstripitem{background:none; border:0; padding:0; cursor:pointer; text-align:center; width:84px; flex:none}
+.dogstripitem .dogface{width:64px; height:64px; margin:0 auto; outline:3px solid var(--dogc, var(--accent))}
+.dogstripitem b{display:block; font-family:var(--font-ui); font-weight:700; font-size:13px; margin-top:6px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.dogstripitem i{display:block; font-style:normal; font-family:var(--font-data); font-size:10.5px; color:var(--ink-3)}
 .dogpick{display:flex; gap:8px; flex-wrap:wrap}
 .dogpick button{display:flex; align-items:center; gap:8px; border:1.5px solid var(--line); background:var(--raise);
   border-radius:99px; padding:4px 14px 4px 4px; font:700 14px var(--font-ui); color:var(--ink); cursor:pointer}
@@ -5528,10 +5534,13 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .dogpick .dogface svg{width:16px; height:16px}
 .dogpick button[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
 .dogcheer{font-family:var(--font-hand); font-size:19px; color:var(--accent-text); display:inline-block; transform:rotate(-2deg); margin:8px 0 0}
+.dogeditav .dogface{width:84px; height:84px; margin:0 auto}
+.dogeditav .dogface svg{width:38px; height:38px}
 .dogform label{display:block; font:700 13px var(--font-ui); margin:12px 0 5px}
 .dogform input[type=text], .dogform input[type=date]{width:100%}
 .dogcollars{display:flex; gap:9px; flex-wrap:wrap}
-.dogcollars button{width:34px; height:34px; border-radius:50%; border:2px solid var(--line); cursor:pointer}
+.dogcollars{gap:7px}
+.dogcollars button{width:30px; height:30px; border-radius:50%; border:2px solid var(--line); cursor:pointer; flex:none}
 .dogcollars button[aria-pressed="true"]{outline:2px solid var(--ink); outline-offset:2px}
 .dogsexrow{display:flex; gap:8px}
 .dogsexrow button{flex:1; border:1.5px solid var(--line); background:var(--raise); border-radius:99px;
@@ -6973,6 +6982,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
 
     <div class="setpane" id="pn-look" hidden>
       <div id="themeBox"></div>
+      <div id="dogPrefBox"></div>
     </div>
 
     <div class="setpane" id="pn-lists" hidden>
@@ -12542,12 +12552,36 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('mess
    comes from the photos already on the hills you marked together, so nothing
    is stored twice. */
 const DOG_COLLARS = [
-  {id:'moss', v:'#2C5F55', name:'Moss'}, {id:'rust', v:'#A8431A', name:'Rust'},
+  {id:'teal', v:'#17726E', name:'Teal'}, {id:'rust', v:'#A8431A', name:'Rust'},
   {id:'heather', v:'#5F5B8C', name:'Heather'}, {id:'gorse', v:'#C98A12', name:'Gorse'},
-  {id:'fern', v:'#5C8F3C', name:'Fern'}, {id:'slate', v:'#65847E', name:'Slate'}
+  {id:'fern', v:'#5C8F3C', name:'Fern'}, {id:'slate', v:'#65847E', name:'Slate'},
+  {id:'mulberry', v:'#7A2E52', name:'Mulberry'}
 ];
 const DOG_STEPS = [1, 5, 10, 25, 50, 100];
 function collarOf(d){ const c = DOG_COLLARS.find(x => x.id === (d && d.collar)); return (c || DOG_COLLARS[0]).v; }
+/* Somebody with no dog should not have to look at a Dogs tab for ever. It can
+   be put away from the empty state and brought back in Settings, and it comes
+   back on its own the moment there is a dog. */
+function dogTabOn(){
+  if (dogList().length) return true;
+  try{ return localStorage.getItem('wm-dogtab') !== 'off'; }catch(e){ return true; }
+}
+function setDogTab(on){
+  try{ localStorage.setItem('wm-dogtab', on ? 'on' : 'off'); }catch(e){}
+  if (!on && ui.patchView === 'dogs'){ ui.patchView = 'cork'; ui.dog = null; }
+  render(); paintDogPref();
+  toast(on ? 'The Dogs tab is back in Basecamp.' : 'Hidden. Settings, Appearance brings it back.');
+}
+function paintDogPref(){
+  const b = document.getElementById('dogPrefBox'); if (!b) return;
+  const on = dogTabOn(), has = dogList().length;
+  b.innerHTML = '<div class="togglerow"><div class="tinfo"><b>Dogs</b><span>' +
+    (has ? 'You have ' + has + (has === 1 ? ' dog' : ' dogs') + ' in the pack, so the tab stays.'
+         : 'A tab in Basecamp for the dog you walk with.') + '</span></div></div>' +
+    '<div class="seg themeseg" role="group" aria-label="Dogs tab">' +
+      '<button data-act="dogtab" data-v="on" aria-pressed="' + on + '"' + (has ? ' disabled' : '') + '>Show it</button>' +
+      '<button data-act="dogtab" data-v="off" aria-pressed="' + (!on) + '"' + (has ? ' disabled' : '') + '>Hide it</button></div>';
+}
 function dogList(){ return (state.dogs || []).filter(d => d && d.id && !d.deleted).sort((a, b) => (a.made || a.t || 0) - (b.made || b.t || 0)); }
 function dogById(id){ return (state.dogs || []).find(d => d && d.id === id && !d.deleted) || null; }
 function dogName(d){ return (d && d.name) || 'Your dog'; }
@@ -12575,12 +12609,23 @@ function dogFaceHTML(d, cls){
 }
 /* every hill you have marked with this dog, newest first */
 function dogHills(id){
-  const out = [];
+  const seen = new Map(), out = [];
   for (const [k, r] of Object.entries(state.bagged || {})){
     if (!r || !isBagged(k)) continue;
     if (!Array.isArray(r.dogs) || r.dogs.indexOf(id) < 0) continue;
     const h = BY_KEY[k]; if (!h) continue;
-    out.push({k, h, date:r.date || '', photos:(r.photos || [])});
+    const row = {k, h, date:r.date || '', photos:(r.photos || []), mine:true, who:'you', both:false};
+    seen.set(k, row); out.push(row);
+  }
+  /* the other owner's days with the same dog. A hill you were BOTH on is one
+     row, not two — the dog only went up it once — and the row says so. */
+  for (const m of dogMarksOf(id)){
+    if (!m || !m.k) continue;
+    const had = seen.get(m.k);
+    if (had){ had.both = true; had.who = m.who; continue; }
+    const h = BY_KEY[m.k]; if (!h) continue;
+    const row = {k:m.k, h, date:m.date || '', photos:[], mine:false, who:m.who || 'them', both:false};
+    seen.set(m.k, row); out.push(row);
   }
   return out.sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
@@ -12603,7 +12648,8 @@ function renderDogsPane(){
     return '<section class="dogempty">' + ti('paw') +
       '<h3>Who do you walk with?</h3>' +
       '<p>Add your dog and every hill you mark together goes on their own page — their hills, their photos, their patches.</p>' +
-      '<button class="dogadd" data-act="dognew">+ Add a dog</button></section>';
+      '<button class="dogadd" data-act="dognew">+ Add a dog</button>' +
+      '<p class="pdfine" style="margin-top:14px">No dog? <button class="linkbtn" data-act="dogtab" data-v="off">Hide this tab</button> \u2014 Settings, Appearance brings it back.</p></section>';
   }
   let s = '<section class="mypatches" style="padding-bottom:2px"><p class="eyebrow">The pack</p></section>' + dogInviteHTML();
   for (const d of ds){
@@ -12624,6 +12670,16 @@ function renderDogsPane(){
   return s;
 }
 function dogPatchCount(n){ return DOG_STEPS.filter(x => n >= x).length; }
+/* your dogs, on your own Hikers profile. Other walkers get no page for your
+   dog — they see the names on a post and that is all. */
+function dogStripHTML(){
+  const ds = dogList(); if (!ds.length) return '';
+  return '<p class="eyebrow">Walks with</p><div class="dogstrip">' + ds.map(d => {
+    const n = dogHills(d.id).length;
+    return '<button class="dogstripitem" data-act="dogfromprof" data-v="' + esc(d.id) + '" style="--dogc:' + collarOf(d) + '">' +
+      dogFaceHTML(d) + '<b>' + esc(dogName(d)) + '</b><i>' + n + (n === 1 ? ' hill' : ' hills') + '</i></button>';
+  }).join('') + '</div>';
+}
 function dogInviteHTML(){
   if (!dogInvites || !dogInvites.length) return '';
   return dogInvites.map(v => '<div class="dogshare" style="margin-bottom:12px"><b>' +
@@ -12665,7 +12721,7 @@ function renderDogPage(id){
     s += '<ul class="doghills">' + show.map(r =>
       '<li><span class="pawt">' + ti('paw') + '</span>' +
       '<span><span class="hn">' + esc(hillName(r.h)) + '</span> <span class="hw">' + htFlat(r.h) +
-        (dogShareOf(d) ? ' \u00b7 with ' + esc(r.mine ? 'you' : r.who) : '') + '</span></span>' +
+        (dogShareOf(d) ? ' \u00b7 with ' + esc(r.both ? 'you and ' + r.who : (r.mine ? 'you' : r.who)) : '') + '</span></span>' +
       '<span class="hd">' + esc(r.date ? prettyDate(r.date) : '') + '</span></li>').join('') + '</ul>';
   }
   s += '</section>';
@@ -12721,7 +12777,7 @@ function renderDogPage(id){
 /* ---- adding and editing ---- */
 function dogDraftFrom(d){
   return {id:(d && d.id) || '', name:(d && d.name) || '', sex:(d && d.sex) || '', breed:(d && d.breed) || '',
-          dob:(d && d.dob) || '', collar:(d && d.collar) || 'moss', best:(d && d.best) || '',
+          dob:(d && d.dob) || '', collar:(d && d.collar) || 'teal', best:(d && d.best) || '',
           nope:(d && d.nope) || '', av:(d && d.av) || ''};
 }
 function openDogEdit(id){
@@ -12732,7 +12788,7 @@ function paintDogEdit(){
   const d = ui.dogDraft; if (!d) return;
   const el = bcSheet('<h3 class="bcsheettitle">' + (d.id ? 'Edit ' + esc(d.name || 'your dog') : 'Add a dog') + '</h3>' +
     '<div class="form dogform" style="margin:0">' +
-    '<div style="text-align:center">' + dogFaceHTML(d, '') +
+    '<div style="text-align:center" class="dogeditav">' + dogFaceHTML(d, '') +
       '<div style="margin-top:8px"><label class="btn ghost sm" style="display:inline-block">' + ti('camera') + 'Choose a photo' +
       '<input type="file" accept="image/*" data-act="dogphoto" hidden></label></div></div>' +
     '<label for="dgname">Name</label><input id="dgname" type="text" maxlength="40" placeholder="Bramble" value="' + esc(d.name) + '">' +
@@ -12769,7 +12825,7 @@ async function dogPhotoFrom(file){
 function saveDog(){
   const d = ui.dogDraft; if (!d || !d.name.trim()) return;
   const clean = {name:d.name.trim().slice(0, 40), sex:d.sex, breed:d.breed.trim().slice(0, 40),
-    dob:d.dob || '', collar:d.collar || 'moss', best:d.best.trim().slice(0, 80),
+    dob:d.dob || '', collar:d.collar || 'teal', best:d.best.trim().slice(0, 80),
     nope:d.nope.trim().slice(0, 80), av:d.av || '', deleted:false, t:now()};
   if (d.id){
     const cur = dogById(d.id); if (!cur) return;
@@ -12958,10 +13014,11 @@ function renderPatchesPage(){
      not two views of the same list. */
   if (ui.patchView === 'challenges') ui.patchView = 'collection';   // renamed
   const shop = ui.patchView === 'supplies', jour = ui.patchView === 'journey';
-  const pack = ui.patchView === 'dogs';
-  let s = '<div class="bcswitch bc4" role="group" aria-label="Basecamp">' +
+  let pack = ui.patchView === 'dogs';
+  if (pack && !dogTabOn()){ pack = false; ui.patchView = 'cork'; }
+  let s = '<div class="bcswitch ' + (dogTabOn() ? 'bc4' : 'bc3') + '" role="group" aria-label="Basecamp">' +
     '<button data-act="patchview" data-v="' + esc(ui.patchSub === 'collection' ? 'collection' : 'cork') + '" aria-pressed="' + (!shop && !jour && !pack) + '">' + ti('circle-dashed') + 'Patches</button>' +
-    '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') + 'Dogs</button>' +
+    (dogTabOn() ? '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') + 'Dogs</button>' : '') +
     '<button data-act="patchview" data-v="journey" aria-pressed="' + jour + '">' + ti('trekking') + 'Journey</button>' +
     '<button data-act="patchview" data-v="supplies" aria-pressed="' + shop + '">' + ti('backpack') + 'Shop</button></div>';
   if (shop){ supWatch(); shopLoad(); return (ui.supOpen || ui.kitOpen ? '' : s) + renderShop(); }
@@ -13637,7 +13694,10 @@ function navButton(n, c, mobile){
   const on = tab === n.id || (n.also || []).includes(tab);
   return '<button class="navbtn tab' + home + '" role="tab" data-tab="' + n.id + '" aria-selected="' + on + '">' +
     '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
-    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] + '</svg>' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI[n.id] +
+    /* a pawprint walks in front of the tent once there is a dog in the pack */
+    (n.id === 'a' && dogList().length ? '<g transform="translate(0.6,13.2) scale(0.30)" stroke-width="3.6">' + TI['paw'] + '</g>' : '') +
+    '</svg>' +
     '<span class="nl">' + esc(label) + '</span>' +
     (n.count && c[n.count] ? '<span class="nc">' + esc(c[n.count]) + '</span>' : '') +
     (n.id === 'u' && hkNew() ? '<span class="nb" aria-label="' + hkNew() + ' new">' + Math.min(99, hkNew()) + '</span>' : '') +
@@ -20034,6 +20094,8 @@ document.addEventListener('click', async e => {
   else if (a === 'dogaccept'){ await dogAccept(el.dataset.v); }
   else if (a === 'dogdecline'){ dogDecline(el.dataset.v); }
   else if (a === 'dogunshare'){ await dogUnshare(el.dataset.v); }
+  else if (a === 'dogfromprof'){ tab = 'a'; ui.patchView = 'dogs'; ui.dog = el.dataset.v; ui.dogAll = false; render(); window.scrollTo({top:0}); }
+  else if (a === 'dogtab'){ setDogTab(el.dataset.v === 'on'); }
   else if (a === 'dogallhills'){ ui.dogAll = !ui.dogAll; render(); }
   else if (a === 'dogsex'){ if (ui.dogDraft){ ui.dogDraft.sex = el.dataset.v; paintDogEdit(); } }
   else if (a === 'dogcollar'){ if (ui.dogDraft){ ui.dogDraft.collar = el.dataset.v; paintDogEdit(); } }
@@ -22144,6 +22206,7 @@ function renderThemeBox(){
     '<div class="seg themeseg" role="group" aria-label="Heights">' +
       '<button data-act="units" data-v="ft" aria-pressed="' + (unitsPref() === 'ft') + '">Feet</button>' +
       '<button data-act="units" data-v="m" aria-pressed="' + (unitsPref() === 'm') + '">Metres</button></div>';
+  paintDogPref();
 }
 applyTheme(); paintThemeBtn();
 setTimeout(() => { try{ stravaReturn(); }catch(e){} }, 1200);
@@ -25076,7 +25139,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v248';
+const APP_VERSION = 'v249';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -26472,6 +26535,7 @@ function renderMyProfile(){
     '<button class="xbtn" data-act="profmin" aria-label="' + (ui.profMin ? 'Open the editor' : 'Tuck the editor away') + '">' + ti('chevron-down') + '</button></span></div></div>' +
     '<div class="profsheetbody">' + profileEditor() + '</div></div></div>';
 
+  s += dogStripHTML();
   s += myBadgeStrip();
   s += gearHTML(pp, true);
   const mine = feed.filter(p => p.uid === fbUser.uid).slice(0, 20);
