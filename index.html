@@ -2799,8 +2799,12 @@ button.bstriprow{cursor:pointer}
 .avstage:active{cursor:grabbing}
 .avstage canvas{width:100%; height:100%; display:block}
 /* everything outside the circle is dimmed, so the crop is obvious */
-.avsheet.avwide .avmask::after, #avsheet.avwide .avmask::after{border-radius:var(--r)}
+/* the wide crop is a rectangle, so the circular hole and its ring go */
+#avsheet.avwide .avmask{-webkit-mask:none; mask:none; background:none}
+#avsheet.avwide .avmask::after{border-radius:14px; box-shadow:inset 0 0 0 2px rgba(246,239,228,.85)}
 #avsheet.avwide .avstage{aspect-ratio:16/9}
+/* above the sheet that opened it */
+#avsheet.avover{z-index:2400}
 .avmask{
   position:absolute; inset:0; pointer-events:none;
   background:rgba(10,22,19,.62);
@@ -5475,6 +5479,11 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .doghero img{width:100%; height:100%; object-fit:cover}
 .doghero .noph{position:absolute; inset:0; display:grid; place-items:center; color:var(--ink-3)}
 .doghero .noph svg{width:56px; height:56px}
+.dogheroedit{position:absolute; left:12px; top:12px; z-index:3; display:inline-flex; align-items:center; gap:6px;
+  border:0; border-radius:99px; padding:7px 14px 7px 11px; font:700 13.5px var(--font-ui); cursor:pointer;
+  background:color-mix(in srgb, var(--raise) 92%, transparent); color:var(--accent-text);
+  box-shadow:0 1px 4px rgba(20,51,45,.25)}
+.dogheroedit svg{width:15px; height:15px}
 .dogribbon{position:absolute; right:12px; top:12px; background:var(--accent); color:#FFF3E9;
   font-family:var(--font-hand); font-size:19px; padding:3px 15px; border-radius:99px; transform:rotate(3deg);
   box-shadow:0 2px 8px rgba(0,0,0,.28)}
@@ -5501,9 +5510,17 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .doghills .hw{font-family:var(--font-ui); font-size:11px; color:var(--ink-3)}
 .doghills .hd{font-family:var(--font-hand); font-size:17px; color:var(--accent-text); margin-left:auto; white-space:nowrap}
 .dogalbum{display:grid; grid-template-columns:repeat(3, 1fr); gap:6px}
-.dogalbum img, .dogalbum .more{aspect-ratio:1; width:100%; border-radius:10px; object-fit:cover; display:block; border:0; padding:0}
-.dogalbum .more{background:var(--surface-2); border:1px solid var(--line); display:grid; place-items:center;
-  font:700 14px var(--font-ui); color:var(--accent-text); cursor:pointer}
+.dogalbum .dogshot{aspect-ratio:1; width:100%; border-radius:10px; overflow:hidden; border:0; padding:0;
+  background:var(--surface-2); cursor:pointer; display:block}
+.dogalbum .dogshot img{width:100%; height:100%; object-fit:cover; display:block}
+.dogalbum.tidy .dogshot{position:relative}
+.dogalbum.tidy .dogshot img{opacity:.72}
+.dogx{position:absolute; inset:0; display:grid; place-items:center; color:#FFF3E9;
+  background:rgba(122,46,18,.42)}
+.dogx svg{width:26px; height:26px; stroke-width:2.4}
+.dogalbum .more{aspect-ratio:1; width:100%; border-radius:10px; display:grid; place-items:center;
+  background:var(--surface-2); border:1px solid var(--line); font:700 14px var(--font-ui); color:var(--accent-text); cursor:pointer}
+
 .dogpaws{display:flex; gap:10px; flex-wrap:wrap}
 .dogpaw{width:58px; height:58px; border-radius:50%; display:grid; place-items:center; border:2px solid var(--accent);
   background:radial-gradient(circle at 35% 30%, var(--raise), var(--surface-2)); color:var(--accent-text); position:relative}
@@ -7122,6 +7139,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
       <button class="zbtn" id="avOut" aria-label="Zoom out">&minus;</button>
       <input type="range" id="avZoom" min="100" max="400" value="100" aria-label="Zoom">
       <button class="zbtn" id="avIn" aria-label="Zoom in">+</button>
+      <button class="zbtn" id="avRot" aria-label="Turn the picture" title="Turn it a quarter turn">&#8635;</button>
     </div>
     <div class="btnrow">
       <label class="btn ghost">Choose another<input type="file" accept="image/*" data-act="avatarin" hidden></label>
@@ -7721,6 +7739,8 @@ function normalise(s){
            cover is a proper photo in the photo store, so only its id does */
         afy:isFinite(+d.afy) ? Math.max(0, Math.min(100, +d.afy)) : 50,
         cov:(d.cov && d.cov.id) ? {id:String(d.cov.id), up:d.cov.up ? 1 : 0} : null,
+        /* pictures off a hill you walked together that this dog is not in */
+        noph:Array.isArray(d.noph) ? d.noph.filter(x => typeof x === 'string').slice(0, 300) : [],
         cfy:isFinite(+d.cfy) ? Math.max(0, Math.min(100, +d.cfy)) : 50,
         deleted:!!d.deleted, t:+d.t || 0
       }))
@@ -8056,9 +8076,13 @@ async function openCropper(src, job){
   const c = document.getElementById('avCanvas');
   c.width = job.w; c.height = job.h;
   avEl().classList.toggle('avwide', job.w !== job.h);
+  /* the editor sheet it was opened from sits at 2300, so without this the
+     cropper opened silently underneath it and the tap looked like nothing */
+  avEl().classList.add('avover');
   document.getElementById('avTitle').textContent = job.title || 'Your picture';
   const lbl = avEl().querySelector('label.btn');
   if (lbl) lbl.childNodes[0].nodeValue = 'Choose another';
+  const sv = document.getElementById('avSave'); if (sv) sv.textContent = 'Use this picture';
   document.getElementById('avResetRow').hidden = true;
   return openAvatarEditor(src, true);
 }
@@ -8089,7 +8113,9 @@ async function openAvatarEditor(src, keepJob){
     const min = Math.max(c.width / bmp.width, c.height / bmp.height);
     av = {bmp, scale:min, min, x:0, y:0};
     document.getElementById('avZoom').value = 100;
-    document.getElementById('avHint').textContent = 'Drag to move, pinch or use the slider to zoom.';
+    document.getElementById('avHint').textContent = avJob
+      ? 'Drag to move, pinch or zoom, turn it with the arrow. Everyone sees exactly this.'
+      : 'Drag to move, pinch or use the slider to zoom.';
     avClamp(); avPaint();
   }catch(e){
     av = null; avPaint();
@@ -8110,7 +8136,9 @@ function avLoad(src){
 function avClamp(){
   if (!av) return;
   const c = document.getElementById('avCanvas');
-  const w = av.bmp.width * av.scale, h = av.bmp.height * av.scale;
+  const rot = ((av.rot || 0) % 360 + 360) % 360, sideways = rot === 90 || rot === 270;
+  const w = (sideways ? av.bmp.height : av.bmp.width) * av.scale,
+        h = (sideways ? av.bmp.width : av.bmp.height) * av.scale;
   const mx = Math.max(0, (w - c.width) / 2), my = Math.max(0, (h - c.height) / 2);
   av.x = Math.min(mx, Math.max(-mx, av.x));
   av.y = Math.min(my, Math.max(-my, av.y));
@@ -8122,7 +8150,27 @@ function avPaint(){
   if (!av) return;
   const w = av.bmp.width * av.scale, h = av.bmp.height * av.scale;
   g.imageSmoothingQuality = 'high';
-  g.drawImage(av.bmp, (c.width - w) / 2 + av.x, (c.height - h) / 2 + av.y, w, h);
+  const rot = ((av.rot || 0) % 360 + 360) % 360;
+  g.save();
+  g.translate(c.width / 2 + av.x, c.height / 2 + av.y);
+  if (rot) g.rotate(rot * Math.PI / 180);
+  g.drawImage(av.bmp, -w / 2, -h / 2, w, h);
+  g.restore();
+}
+function avRotate(){
+  if (!av) return;
+  av.rot = (((av.rot || 0) + 90) % 360);
+  /* a sideways picture has to cover the stage the other way round too */
+  const c = document.getElementById('avCanvas');
+  const sideways = av.rot === 90 || av.rot === 270;
+  const bw = sideways ? av.bmp.height : av.bmp.width;
+  const bh = sideways ? av.bmp.width : av.bmp.height;
+  const min = Math.max(c.width / bw, c.height / bh);
+  const pct = av.min ? av.scale / av.min : 1;
+  av.min = min; av.scale = min * Math.max(1, pct);
+  av.x = 0; av.y = 0;
+  const z = document.getElementById('avZoom'); if (z) z.value = Math.round(Math.max(1, pct) * 100);
+  avClamp(); avPaint();
 }
 function avSetZoom(pct){
   if (!av) return;
@@ -8145,12 +8193,18 @@ function avExport(size, q){
   const g = out.getContext('2d');
   g.imageSmoothingQuality = 'high';
   const w = av.bmp.width * av.scale * k, h = av.bmp.height * av.scale * k;
-  g.drawImage(av.bmp, (OW - w) / 2 + av.x * k, (OH - h) / 2 + av.y * k, w, h);
+  const rot = ((av.rot || 0) % 360 + 360) % 360;
+  g.save();
+  g.translate(OW / 2 + av.x * k, OH / 2 + av.y * k);
+  if (rot) g.rotate(rot * Math.PI / 180);
+  g.drawImage(av.bmp, -w / 2, -h / 2, w, h);
+  g.restore();
   return out.toDataURL('image/jpeg', q || 0.82);
 }
 const AV_HI = 400;                   // the profile header gets a sharper one
 function avClose(){
-  avEl().classList.remove('open'); av = null;
+  avEl().classList.remove('open'); avEl().classList.remove('avover'); av = null;
+  const sv = document.getElementById('avSave'); if (sv) sv.textContent = 'Save picture';
   if (avJob){
     avJob = null;
     const c = document.getElementById('avCanvas');
@@ -12698,9 +12752,28 @@ function dogHills(id){
   return out.sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 function dogPhotos(id){
+  const d = dogById(id), off = new Set((d && d.noph) || []);
   const out = [];
-  for (const row of dogHills(id)) for (const p of row.photos) out.push(p);
+  for (const row of dogHills(id)) for (const p of (row.photos || [])) if (!off.has(p.id)) out.push({...p, k:row.k});
   return out;
+}
+function dogHiddenCount(id){
+  const d = dogById(id); if (!d || !(d.noph || []).length) return 0;
+  const off = new Set(d.noph), seen = new Set();
+  for (const row of dogHills(id)) for (const p of (row.photos || [])) if (off.has(p.id)) seen.add(p.id);
+  return seen.size;
+}
+/* "that one is not her": the picture stays on the hill, it just leaves the
+   dog's album */
+function dogPhotoOff(id, pid){
+  const d = dogById(id); if (!d || !pid) return;
+  d.noph = [...new Set([...(d.noph || []), pid])].slice(0, 300);
+  d.t = now(); touched(); render();
+}
+function dogPhotosBack(id){
+  const d = dogById(id); if (!d) return;
+  d.noph = []; d.t = now(); touched(); render();
+  toast('All their photos are back.');
 }
 function dogHighest(rows){
   let best = null;
@@ -12771,6 +12844,7 @@ function renderDogPage(id){
   s += '<div class="doghero">' +
     (dogCoverHTML(d) || '<span class="noph">' + ti('paw') + '</span>') +
     (rows.length ? '<span class="dogribbon">' + rows.length + (rows.length === 1 ? ' hill' : ' hills') + ' together</span>' : '') +
+    '<button class="dogheroedit" data-act="dogedit" data-v="' + esc(d.id) + '">' + ti('pencil') + 'Edit</button>' +
     '<div class="dogheroin"><h2>' + esc(dogName(d)) + '</h2><p>' + (esc(dogFacts(d)) || 'Add their details') + '</p></div></div>';
 
   const shared = dogShareOf(d);
@@ -12799,9 +12873,28 @@ function renderDogPage(id){
   if (!ph.length){
     s += '<p class="pdfine">Photos you add to a hill you marked together show up here.</p>';
   } else {
-    s += '<div class="dogalbum">' + ph.slice(0, 8).map(p =>
-      '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt="Photo of ' + esc(dogName(d)) + '">').join('') +
-      (ph.length > 8 ? '<span class="more">+' + (ph.length - 8) + '</span>' : '') + '</div>';
+    /* tapping a picture opens it full size, the same viewer the hill uses.
+       In tidying mode each one gets a cross instead: a day out throws up
+       plenty of pictures with no dog in them. */
+    const tidy = ui.dogPhEdit === id;
+    const shown = ui.dogAllPh ? ph : ph.slice(0, 8);
+    s += '<div class="dogalbum' + (tidy ? ' tidy' : '') + '">' + shown.map(p => tidy
+      ? '<button class="dogshot off" data-act="dogphoff" data-v="' + esc(id) + '" data-p="' + esc(p.id) + '" ' +
+        'aria-label="Not ' + esc(dogName(d)) + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt="">' +
+        '<span class="dogx">' + ti('x') + '</span></button>'
+      : '<button class="dogshot" data-act="viewphoto" data-k="' + esc(p.k) + '" data-p="' + esc(p.id) + '" ' +
+        'aria-label="Photo of ' + esc(dogName(d)) + '">' +
+        '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt=""></button>').join('') +
+      (!ui.dogAllPh && ph.length > 8
+        ? '<button class="more" data-act="dogallph">+' + (ph.length - 8) + '</button>' : '') + '</div>';
+    const hid = dogHiddenCount(id);
+    s += '<div class="drow" style="margin-top:10px">' +
+      (ui.dogAllPh && ph.length > 8 ? '<button class="linkbtn" data-act="dogallph">Show fewer</button>' : '') +
+      '<button class="linkbtn" data-act="dogphedit" data-v="' + esc(id) + '">' +
+        (tidy ? 'Done' : 'Some of these are not ' + esc(dogName(d)) + '?') + '</button>' +
+      (hid ? '<button class="linkbtn" data-act="dogphback" data-v="' + esc(id) + '">Put back ' + hid + ' hidden</button>' : '') +
+      '</div>';
+    if (tidy) s += '<p class="pdfine">Tap any picture ' + esc(dogName(d)) + ' is not in. It stays on the hill \u2014 it just leaves this album.</p>';
   }
   s += '</section>';
 
@@ -12847,7 +12940,8 @@ function dogDraftFrom(d){
   return {id:(d && d.id) || '', name:(d && d.name) || '', sex:(d && d.sex) || '', breed:(d && d.breed) || '',
           dob:(d && d.dob) || '', collar:(d && d.collar) || 'teal', best:(d && d.best) || '',
           nope:(d && d.nope) || '', av:(d && d.av) || '', afy:(d && isFinite(+d.afy)) ? +d.afy : 50,
-          cov:(d && d.cov) ? {...d.cov} : null, cfy:(d && isFinite(+d.cfy)) ? +d.cfy : 50};
+          cov:(d && d.cov) ? {...d.cov} : null, cfy:(d && isFinite(+d.cfy)) ? +d.cfy : 50,
+          noph:(d && Array.isArray(d.noph)) ? d.noph.slice() : []};
 }
 function openDogEdit(id){
   ui.dogDraft = dogDraftFrom(id ? dogById(id) : null);
@@ -12902,7 +12996,14 @@ function paintDogEdit(){
    different screen shape. */
 function dogCropFace(src){
   openCropper(src, {title:'Frame their face', w:560, h:560, out:400, q:0.78,
-    save:pic => { if (!ui.dogDraft) return; ui.dogDraft.av = pic; ui.dogDraft.afy = 50; paintDogEdit(); }});
+    save:pic => {
+      if (!ui.dogDraft) return;
+      ui.dogDraft.av = pic; ui.dogDraft.afy = 50;
+      /* keep it straight away: leaving the sheet without pressing Save used to
+         throw the picture away, which is not what choosing a picture means */
+      dogKeepPic({av:pic, afy:50});
+      paintDogEdit();
+    }});
 }
 function dogCropCover(src){
   openCropper(src, {title:'Frame the cover', w:640, h:360, out:1280, q:0.72,
@@ -12913,9 +13014,20 @@ function dogCropCover(src){
         const id = uid();
         const ok = await putBlob(id, blob);
         if (ok === null && !(await getBlob(id))) throw new Error('storage');
-        ui.dogDraft.cov = {id, up:0}; ui.dogDraft.cfy = 50; paintDogEdit();
+        ui.dogDraft.cov = {id, up:0}; ui.dogDraft.cfy = 50;
+        dogKeepPic({cov:{id, up:0}, cfy:50});
+        paintDogEdit();
       }catch(e){ toast('Could not save that picture.'); }
     }});
+}
+/* A picture belongs to the dog the moment it is framed. For a dog that does
+   not exist yet there is nothing to write to, so it waits in the draft and
+   goes in with the rest when they are added. */
+function dogKeepPic(fields){
+  const d = ui.dogDraft; if (!d || !d.id) return;
+  const cur = dogById(d.id); if (!cur) return;
+  Object.assign(cur, fields, {t:now()});
+  touched(); render();
 }
 /* re-framing an existing picture: the cropper needs the picture itself back */
 async function dogAdjust(which){
@@ -12961,7 +13073,7 @@ function saveDog(){
     dob:d.dob || '', collar:d.collar || 'teal', best:d.best.trim().slice(0, 80),
     nope:d.nope.trim().slice(0, 80), av:d.av || '', afy:isFinite(+d.afy) ? +d.afy : 50,
     cov:d.cov && d.cov.id ? {id:d.cov.id, up:d.cov.up ? 1 : 0} : null,
-    cfy:isFinite(+d.cfy) ? +d.cfy : 50, deleted:false, t:now()};
+    cfy:isFinite(+d.cfy) ? +d.cfy : 50, noph:Array.isArray(d.noph) ? d.noph : [], deleted:false, t:now()};
   if (d.id){
     const cur = dogById(d.id); if (!cur) return;
     Object.assign(cur, clean);
@@ -20381,6 +20493,10 @@ document.addEventListener('click', async e => {
   else if (a === 'dogfromprof'){ tab = 'a'; ui.patchView = 'dogs'; ui.dog = el.dataset.v; ui.dogAll = false; render(); window.scrollTo({top:0}); }
   else if (a === 'dogtab'){ setDogTab(el.dataset.v === 'on'); }
   else if (a === 'dogallhills'){ ui.dogAll = !ui.dogAll; render(); }
+  else if (a === 'dogallph'){ ui.dogAllPh = !ui.dogAllPh; render(); }
+  else if (a === 'dogphedit'){ ui.dogPhEdit = ui.dogPhEdit === el.dataset.v ? null : el.dataset.v; render(); }
+  else if (a === 'dogphoff'){ dogPhotoOff(el.dataset.v, el.dataset.p); }
+  else if (a === 'dogphback'){ dogPhotosBack(el.dataset.v); }
   else if (a === 'dogsex'){ if (ui.dogDraft){ ui.dogDraft.sex = el.dataset.v; paintDogEdit(); } }
   else if (a === 'dogcollar'){ if (ui.dogDraft){ ui.dogDraft.collar = el.dataset.v; paintDogEdit(); } }
   else if (a === 'patchview'){ ui.patch = null; ui.patchFrom = null; ui.dog = null; ui.dogAll = false; ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
@@ -21602,6 +21718,8 @@ infoSheet.onclick = e => { if (e.target === infoSheet) closeInfo(); };
   document.getElementById('avX').onclick      = avClose;
   document.getElementById('avCancel').onclick = avClose;
   avEl().onclick = e => { if (e.target === avEl()) avClose(); };
+  const rotBtn = document.getElementById('avRot');
+  if (rotBtn) rotBtn.onclick = () => { if (!av){ toast('Choose a picture first.'); return; } avRotate(); };
   document.getElementById('avSave').onclick = () => {
     if (!av){ toast('Choose a picture first.'); return; }
     /* borrowed by something else — a dog's face, a dog's cover */
@@ -25457,7 +25575,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v252';
+const APP_VERSION = 'v254';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
