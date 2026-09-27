@@ -7449,10 +7449,13 @@ function normalise(s){
       asc:+d.strava.gpx.asc||0, mins:+d.strava.gpx.mins||0, at:d.strava.gpx.at||0};
     out.diary.push(e);
   }
-  /* Anyone who pressed Mark on a peak of their own before v240 has 'own'
-     sitting in their saved lists, where it cannot be taken out again because
-     it is not in the picker. Drop it on the way in: following() covers it. */
-  if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id] && id !== 'own');
+  /* 'own' STAYS in enabled. v240 stripped it out on load, on the theory that a
+     list you cannot switch on has no business in your saved lists -- and took
+     Kilimanjaro out of the headline totals with it, because the totals are
+     built from the lists that are on. Out of bounds counts towards everything;
+     being in enabled is HOW it counts. Adding or adopting a peak puts it there
+     on purpose. onList() covers the moment before your first one. */
+  if (s && Array.isArray(s.enabled)) out.enabled = s.enabled.filter(id => LIST_BY[id]);
   out.groups = (s && Array.isArray(s.groups)) ? s.groups.filter(g => g && g.code) : [];
   out.enabledT = (s && s.enabledT) || 0;
   return out;
@@ -24202,7 +24205,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v240';
+const APP_VERSION = 'v241';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
