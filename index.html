@@ -6540,6 +6540,29 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .pinebtns .walkic{padding:0}
 .pinebtns .walkic svg{margin:0; width:20px; height:20px}
 
+/* ---- v230: the journal says it is private, and Share says what goes out ---- */
+.privline{display:flex; gap:9px; align-items:flex-start; background:var(--surface);
+  border:1px solid var(--line); border-radius:9px; padding:10px 11px; margin:11px 0 0}
+.privline > svg{width:16px; height:16px; flex:none; margin-top:1px; color:var(--ink-2)}
+.privline p{margin:0; font-size:12.5px; line-height:1.5; color:var(--ink-2)}
+.privline b{color:var(--ink); font-weight:700}
+/* the bin makes Delete read as Delete without shouting: still the quietest
+   thing on the row, still last, but now recognisable at a glance */
+.drow .linkbtn.ddel{display:inline-flex; align-items:center; gap:5px}
+/* the share sheet: one group per question, the same fields the composer has */
+.soHead{touch-action:none; user-select:none; -webkit-user-select:none}
+.soHead b{font:700 17px var(--font-ui); color:var(--ink)}
+.sogrp{margin:0}
+.sogrp > label{display:block; font-size:12px; font-weight:700; letter-spacing:.02em;
+  color:var(--ink-2); margin:0 0 6px}
+.soshots{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 5px}
+.soshots img{width:48px; height:48px; border-radius:7px; border:1px solid var(--line);
+  object-fit:cover; background:var(--surface-2)}
+.sosum{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:11px 12px}
+.sosum p{margin:0; font-size:12.5px; line-height:1.6; color:var(--ink-2)}
+.sosum p + p{margin-top:7px}
+.sosum b{color:var(--ink)}
+
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
@@ -9878,7 +9901,15 @@ function bcSheet(inner, label, cls, back){
   if (typeof wire === 'function') wire();
   return el;
 }
-function bcSheetClose(){ const el = document.getElementById('bcsheet'); if (el) el.classList.remove('open'); }
+/* soDone holds the share-options sheet's unanswered promise (v230). Closing
+   that sheet ANY way at all — the X, a tap outside, dragging it down — has to
+   settle it, or the walker's Share press waits for ever with nothing on
+   screen. Declared with var so the handlers further down can reach it. */
+var soDone = null, soDraft = null;
+function bcSheetClose(){
+  const el = document.getElementById('bcsheet'); if (el) el.classList.remove('open');
+  if (soDone){ const f = soDone; soDone = null; soDraft = null; f(null); }
+}
 
 /* ---- a product card: front/back and sizes, or a trail tag for summit gear ---- */
 function bcCard(d, opts){
@@ -14491,6 +14522,13 @@ function renderDiary(){
   html += days.length
     ? '<div class="planintro">Every day you have been out, newest first.</div>'
     : '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
+  /* A journal only gets honest writing if the walker is certain nobody else is
+     reading it. Said on every visit rather than once: it is reassurance, not
+     onboarding, and it is the answer to "is this going to get shared?" */
+  html += '<div class="privline">' + ti('lock', 'width="16" height="16"') +
+    '<p><b>This is yours.</b> Nobody sees your journal. Photos, words, the lot \u2014 it stays ' +
+    'on this device and in your own account. An entry only reaches the feed when you press ' +
+    'Share on it, and it asks you first.</p></div>';
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button>' +
     (stravaCfg() && !ui.diaryForm && stravaOn() ? '<button class="btn ghost" data-act="stopen">' + ti('download') + 'Bring in from Strava</button>' + stravaPowered() : '') +
@@ -14555,7 +14593,8 @@ function renderDiary(){
         (eps.length ? '<button class="linkbtn" data-act="tagagain" data-id="' + esc(e.id) + '">Tag photos</button>' : '') +
         '<button class="linkbtn" data-act="sharediary" data-id="' + esc(e.id) + '">' +
           (e.shared ? 'Share again' : 'Share') + '</button>' +
-        '<button class="linkbtn ddel" data-act="deldiary" data-id="' + esc(e.id) + '">Delete</button>' +
+        '<button class="linkbtn ddel" data-act="deldiary" data-id="' + esc(e.id) + '">' +
+          ti('trash', 'width="14" height="14"') + 'Delete</button>' +
         '</div></div>';
     }
 
@@ -18722,29 +18761,31 @@ document.addEventListener('click', async e => {
       if (!got) return;
       chosen = got;
     }
-    const nsel = chosen.length;
-    const ok = await confirmAsk({
-      title: e.shared ? 'Share this entry again?' : 'Share this entry?',
-      body: 'Your friends will see ' + (e.title ? '“' + e.title + '”' : 'this entry') +
-            ', the words you wrote' +
-            (nsel ? ' and ' + (nsel === 1 ? 'the photo'
-                 : shots.length > nsel ? 'the ' + nsel + ' photos you picked'
-                 : 'all ' + nsel + ' photos') : '') +
-            (e.strava ? (e.strava.gpx ? ', the summits, your route and its stats from the GPX you added, and a “View on Strava” link.'
-              : ', the summits and a “View on Strava” link. Strava doesn’t allow apps to show your route, times or stats to anyone else, so those stay in your journal. Add your GPX to the day to share the route.') : '. Nothing else from your journal is shared.'),
-      yes: 'Share'
-    });
-    if (!ok) return;
+    /* This used to be a plain yes/no box. It is now the same set of questions
+       the Hikers composer asks — who you were with, what it was like up
+       there, who can see it — with a line underneath saying exactly what
+       goes out. Answering it is still entirely optional: Share it with nothing
+       picked behaves as the old yes did. */
+    const opts = await shareOptsAsk(e, chosen);
+    if (!opts) return;
     try{
-      await shareDiaryEntry(e, chosen);
+      await shareDiaryEntry(e, chosen, opts);
       if (e.id) setDiary(e.id, {shared: now()});
       render();
-      toast('Shared to your feed.');
+      toast(opts.vis === 'me' ? 'Saved to your own log.'
+        : opts.vis === 'followers' ? 'Shared with your followers.'
+        : 'Shared with everyone.');
     }catch(err){ toast(fbWhy(err)); }
   }
   else if (a === 'deldiary'){
     const e = (state.diary || []).find(x => x.id === el.dataset.id); if (!e) return;
-    const ok = await confirmAsk({title:'Delete this entry?', body:'The words go for good. Any summits you marked that day stay in your log.', yes:'Delete'});
+    /* If the day was shared, the post is a separate thing in the feed and
+       deleting the entry does not touch it. Say so here rather than let a
+       walker think deleting the entry pulled it back. */
+    const ok = await confirmAsk({title:'Delete this entry?',
+      body:'The words go for good. Any summits you marked that day stay in your log.' +
+        (e.shared ? ' You shared this day \u2014 that post stays in the feed until you delete it there too.' : ''),
+      yes:'Delete'});
     if (!ok) return;
     /* tombstoned rather than spliced, so a delete on one device reaches the others */
     e.deleted = true; e.t = now();
@@ -18938,6 +18979,34 @@ document.addEventListener('click', async e => {
   else if (a === 'bcaddsize'){ bcAdd(el.dataset.k, el.dataset.o); }
   else if (a === 'bcfit'){ bcFit(el.dataset.k); }
   else if (a === 'bcfitpick'){ ui.shopSize = el.dataset.o; bcSheetClose(); if (ui.supOpen === +el.dataset.k) render(); else bcAdd(el.dataset.k, el.dataset.o); }
+  /* the share-options sheet (v230). Each tap flips one pill and rewrites the
+     summary in place rather than repainting the whole sheet, so a long list of
+     friends does not jump back to the top every time you tap one. */
+  else if (a === 'sotag' || a === 'socond'){
+    if (!soDraft) return;
+    const key = a === 'sotag' ? 'tags' : 'conds', cap = a === 'sotag' ? 8 : 4;
+    const v = a === 'sotag' ? el.dataset.u : el.dataset.v;
+    if (soDraft[key].includes(v)) soDraft[key] = soDraft[key].filter(x => x !== v);
+    else if (soDraft[key].length < cap) soDraft[key] = [...soDraft[key], v];
+    else { toast('A post carries ' + cap + (a === 'sotag' ? ' people at most.' : ' at most.')); return; }
+    const on = soDraft[key].includes(v);
+    el.classList.toggle('on', on); el.setAttribute('aria-pressed', on);
+    soRepaintSummary();
+  }
+  else if (a === 'sovis'){
+    if (!soDraft) return;
+    soDraft.vis = el.dataset.v;
+    for (const b of document.querySelectorAll('#bcsheet [data-act="sovis"]')){
+      const on = b.dataset.v === soDraft.vis;
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+    }
+    soRepaintSummary();
+  }
+  else if (a === 'sogo'){
+    if (!soDraft) return;
+    shareOptsAnswer({tags:[...soDraft.tags], conds:[...soDraft.conds], vis:soDraft.vis});
+  }
+  else if (a === 'socancel'){ shareOptsAnswer(null); }
   else if (a === 'bcsheetclose'){ bcSheetClose(); }
   else if (a === 'bccoll'){ ui.shopColl = el.dataset.v; ui.shopSaved = false; render(); }
   else if (a === 'bcsaved'){ ui.shopSaved = !ui.shopSaved; ui.shopColl = ''; render(); }
@@ -23186,7 +23255,7 @@ function trackStrip(trk, hs){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v229';
+const APP_VERSION = 'v230';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -23475,7 +23544,111 @@ function entryShots(e){
   return out;
 }
 const SHARE_SHOTS = 6;
-async function shareDiaryEntry(e, chosen){
+/* ---- offering a journal day to the feed (v230) ----
+   Until now the journal handed createPost an empty tag list and no conditions,
+   so "who were you with", "what was it like up there" and "who can see it"
+   lived on the Hikers composer and nowhere else: the same day, shared from the
+   two places, made two different posts. This is the journal's half of that
+   — the same three fields, read from the same CONDITIONS and VIS lists, so
+   they cannot drift apart again. Built on bcSheet, which brings the grey bar
+   and drag-down-to-close with it. */
+function shareOptsAsk(e, chosen){
+  soDraft = {
+    e,
+    shots: (chosen || []).slice(0, SHARE_SHOTS),
+    hills: Object.entries(state.bagged)
+      .filter(([k, r]) => r.date === e.date && BY_KEY[k] && isBagged(k)).map(([k]) => BY_KEY[k]),
+    tags: [], conds: [], vis: prof.pvis || 'public'
+  };
+  bcSheet(shareOptsHTML(), 'Share this day', 'soSheet');
+  hydratePhotos();
+  return new Promise(res => { soDone = res; });
+}
+function shareOptsAnswer(v){
+  const f = soDone; soDone = null; soDraft = null;
+  const el = document.getElementById('bcsheet'); if (el) el.classList.remove('open');
+  if (f) f(v);
+}
+function shareOptsHTML(){
+  const d = soDraft; if (!d) return '';
+  const e = d.e;
+  const fr = allFriends().filter(f => f.uid && f.uid !== (fbUser ? fbUser.uid : ''));
+  let s = '<div class="bcsheethead soHead"><div><b>Share this day</b><span>' +
+    esc([e.title, prettyDate(e.date)].filter(Boolean).join(' \u00B7 ')) + '</span></div></div>';
+
+  if (d.shots.length){
+    s += '<div class="sogrp"><label>Photos going with it</label><div class="soshots">' +
+      d.shots.map(ph => '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">').join('') +
+      '</div><p class="mapnote">' + (d.shots.length === 1 ? 'The one you picked.'
+        : 'The ' + d.shots.length + ' you picked, in that order.') + '</p></div>';
+  }
+
+  if (fr.length){
+    s += '<div class="sogrp"><label>Who were you with</label><div class="picked">' +
+      fr.slice(0, 20).map(f => '<button class="pill' + (d.tags.includes(f.uid) ? ' on' : '') +
+        '" data-act="sotag" data-u="' + esc(f.uid) + '" aria-pressed="' + d.tags.includes(f.uid) +
+        '">' + esc(f.name) + '</button>').join('') + '</div>' +
+      '<p class="mapnote">Tagging someone puts the day in front of their followers too.</p></div>';
+  }
+
+  s += '<div class="sogrp"><label>What was it like up there</label><div class="picked">' +
+    CONDITIONS.map(c => '<button class="pill' + (d.conds.includes(c.id) ? ' on' : '') +
+      '" data-act="socond" data-v="' + esc(c.id) + '" aria-pressed="' + d.conds.includes(c.id) +
+      '">' + esc(c.label) + '</button>').join('') + '</div></div>';
+
+  s += '<div class="sogrp"><label>Who can see it</label><div class="picked visrow">' +
+    VIS.map(v => '<button class="pill' + (d.vis === v.id ? ' on' : '') + '" data-act="sovis" data-v="' +
+      esc(v.id) + '" aria-pressed="' + (d.vis === v.id) + '">' + ti(v.icon, 'width="14" height="14"') +
+      esc(v.label) + '</button>').join('') + '</div></div>';
+
+  s += '<div class="sosum" id="soSum">' + shareOptsSummary() + '</div>';
+  return s + '<div class="btnrow" style="margin:0">' +
+    '<button class="btn" id="soGo" data-act="sogo">' + soGoLabel() + '</button>' +
+    '<button class="btn quiet" data-act="socancel">Not yet</button></div>';
+}
+/* "Only me" is not sharing, it is filing, and the button should not claim
+   otherwise the moment the walker picks it. */
+function soGoLabel(){
+  return soDraft && soDraft.vis === 'me' ? 'Save to my log' : 'Share it';
+}
+/* The sentence that has to be true. Rebuilt on every tap, so what it promises
+   and what createPost actually sends can never say different things. */
+function shareOptsSummary(){
+  const d = soDraft; if (!d) return '';
+  const e = d.e, FR = allFriends();
+  const bits = [];
+  if ((e.title || '').trim() || (e.text || '').trim()) bits.push('the words you wrote');
+  if (d.shots.length) bits.push(d.shots.length === 1 ? 'the photo you picked'
+    : 'the ' + d.shots.length + ' photos you picked');
+  if (d.hills.length) bits.push(d.hills.length === 1 ? 'the summit you marked that day'
+    : 'the ' + d.hills.length + ' summits you marked that day');
+  const list = bits.length > 1 ? bits.slice(0, -1).join(', ') + ' and ' + bits[bits.length - 1]
+    : bits[0] || 'the date, and nothing else \u2014 there is not much on this one yet';
+  const names = d.tags.map(u => FR.find(f => f.uid === u)).filter(Boolean).map(f => firstName(f.name || ''));
+  const withWho = names.length
+    ? ', and that you were out with ' + esc(names.length > 1
+        ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] : names[0])
+    : '';
+  let s = d.vis === 'me'
+    ? '<p><b>Nobody but you.</b> This one stays in your own log with ' + list +
+      '. You can share it properly later.</p>'
+    : '<p><b>' + (d.vis === 'followers' ? 'Your followers' : 'Anyone on WayMark') +
+      '</b> will see ' + list + withWho + '. Nothing else from your journal goes with it.</p>';
+  if (e.strava) s += '<p>' + (e.strava.gpx
+    ? 'Your route and its stats come across from the GPX you added, with a \u201CView on Strava\u201D link.'
+    : 'Strava doesn\u2019t let apps show your route, times or stats to anyone else, so those stay in ' +
+      'your journal. Add your GPX to the day to share the route.') + '</p>';
+  return s;
+}
+function soRepaintSummary(){
+  const el = document.getElementById('soSum');
+  if (el) el.innerHTML = shareOptsSummary();
+  const go = document.getElementById('soGo');
+  if (go) go.textContent = soGoLabel();
+}
+
+async function shareDiaryEntry(e, chosen, opts){
+  opts = opts || {};
   if (!FB || !fbUser) throw Object.assign(new Error('not signed in'), {code:'not-signed-in'});
   const words = [e.title, e.text].filter(Boolean).join('\n\n');
   const wanted = (chosen && chosen.length ? chosen : entryShots(e)).slice(0, SHARE_SHOTS);
@@ -23495,7 +23668,8 @@ async function shareDiaryEntry(e, chosen){
   /* a Strava day also carries the tops its track went over, even ones first marked on another day */
   if (e.strava && Array.isArray(e.strava.hills)) for (const k of e.strava.hills) if (BY_KEY[k] && isBagged(k) && !dayHills.includes(k)) dayHills.push(k);
   const created = await createPost({
-    kind:'diary', text:words, hills:dayHills, date:e.date || '', tags:[], shots:sent, vis:e.vis,
+    kind:'diary', text:words, hills:dayHills, date:e.date || '',
+    tags: opts.tags || [], conds: opts.conds || [], shots:sent, vis: opts.vis || e.vis,
     strava: e.strava && e.strava.id ? e.strava.id : '',
     ...(e.strava && e.strava.gpx && !prof.hideRoute ? {trk:e.strava.gpx.trk, dist:e.strava.gpx.dist, asc:e.strava.gpx.asc, mins:e.strava.gpx.mins} : {})
   });
