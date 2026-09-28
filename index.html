@@ -13653,6 +13653,9 @@ async function removeDog(id){
   ui.dog = null; touched(); render(); toast('Removed.');
 }
 /* ---- who came with you, on the mark sheet ---- */
+/* Declared ABOVE the renderer that calls it, not below — a const does not
+   hoist, and this file has already lost a saved log once to that. */
+const goodDog = d => d && d.sex === 'f' ? 'Good girl.' : d && d.sex === 'm' ? 'Good boy.' : 'Good dog.';
 function dogPickHTML(key){
   const ds = dogList(); if (!ds.length) return '';
   const on = dogsOn(key);
@@ -13666,7 +13669,9 @@ function dogPickHTML(key){
   const first = ds.find(d => on.indexOf(d.id) >= 0);
   if (first){
     const n = dogHills(first.id).length;
-    s += '<p class="dogcheer">' + esc(dogName(first)) + '’s ' + ordinal(n) + '. Good dog.</p>';
+    /* She, he, or neither. A dog whose sex has not been filled in stays a
+       good dog — better than guessing at somebody's dog. */
+    s += '<p class="dogcheer">' + esc(dogName(first)) + '’s ' + ordinal(n) + '. ' + goodDog(first) + '</p>';
   }
   return s + '</div>';
 }
@@ -27089,7 +27094,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v268';
+const APP_VERSION = 'v269';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
