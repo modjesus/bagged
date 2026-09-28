@@ -5647,6 +5647,26 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcsz[aria-pressed="true"]{background:var(--ink) !important; color:var(--ground) !important}
 .bcsavedchip b{font-weight:700; font-variant-numeric:tabular-nums}
 
+/* ---- the shop in three parts ----
+   Fifty-one cards in one flat grid ran to eight thousand pixels on a phone and
+   never told a walker the shop had a shape. Scafell Pike has five things in it
+   and they were never once on screen together. Three tabs, and inside the
+   summit tab a group per hill, with the hills already in the log at the top.
+   Same underline treatment as the Basecamp sub-tabs so this reads as part of
+   the same furniture rather than a second navigation idea. */
+.bcshoptabs{display:flex; gap:22px; margin:0 2px 16px; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none}
+.bcshoptabs::-webkit-scrollbar{display:none}
+.bcshoptabs button{flex:none; border:0; background:none; padding:10px 0; min-height:44px; font:500 15px var(--font-ui); color:var(--ink-3); box-shadow:inset 0 -2px 0 transparent; white-space:nowrap}
+.bcshoptabs button[aria-pressed="true"]{color:var(--ink); font-weight:700; box-shadow:inset 0 -2px 0 var(--accent)}
+.bcshoptabs button b{color:var(--ink-3); font:600 12.5px var(--font-data); margin-left:5px; font-variant-numeric:tabular-nums}
+.bcgrp{margin:0 0 24px}
+.bcgrphead{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin:0 2px 10px; padding-top:16px; border-top:1px solid var(--line)}
+.bcgrp:first-of-type .bcgrphead{padding-top:0; border-top:0}
+.bcgrphead h3{margin:0; font:400 21px/1.1 var(--font-display); letter-spacing:.01em}
+.bcgrphead i{font:600 12px var(--font-data); color:var(--ink-3); font-style:normal; margin-left:auto; letter-spacing:.06em}
+.bcgbadge{font:600 9.5px/1 var(--font-data); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px; border-radius:4px; background:var(--surface-2); color:var(--ink-3); border:1px solid var(--line)}
+.bcgbadge.on{background:var(--ink); color:var(--ground); border-color:var(--ink)}
+
 /* the grid: two across on a phone, four on a desk */
 .bcgrid{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:22px 12px}
 @media (min-width:620px){ .bcgrid{grid-template-columns:repeat(3, minmax(0, 1fr)); gap:28px 18px} }
@@ -8444,11 +8464,21 @@ function applyDate(el, value){
   state.bagged[k] = {...c, st, done: st === 'done', date:value, asc, t:now()};
   touched(); render();
 }
-/* ================= how many have been up it (v260) =================
+/* ========= how many have been up it (v260, put right in v262) =========
    One counter per hill, and a note under your own name so you are only ever
-   counted once. The counter says how many WayMark walkers have marked it;
-   the note remembers which number you were, so the hill can still tell you
-   in a year's time. Nobody's name is in either: a count and a date. */
+   counted once. Your number is the order you MARKED IT OFF on WayMark, not
+   the order you walked it - two walkers who both did Scafell in 2019 are not
+   1st and 2nd up the hill and it would be a lie to say so. The counter says
+   how many WayMark walkers have marked it; the note remembers which number
+   you were, so the hill can still tell you in a year's time.
+
+   What was wrong in v260: it only ever ran at the moment you marked a hill,
+   so anybody who joined with a log already full - the usual case, since most
+   people fill theirs in from years of walking - got a number on nothing.
+   The counting is unchanged; it now also works through what was already in
+   the log. See peakBackfill below.
+
+   Nobody's name is in either document: a count, and a timestamp. */
 const peakRef = k => FB.doc(fbDb, 'peakcount', peakSlug(k));
 function peakSlug(k){
   return String(hillIdent(k)).replace(/[^a-z0-9|]+/g, '-').slice(0, 90) || String(k);
@@ -8456,7 +8486,8 @@ function peakSlug(k){
 async function peakTally(key){
   if (!FB || !fbUser || !BY_KEY[key]) return null;
   const r = rec(key);
-  if (r && r.nth) return r.nth;
+  if (!r || !r.done) return null;
+  if (+r.nth > 0) return +r.nth;
   try{
     const mine = FB.doc(fbDb, 'peakcount', peakSlug(key), 'who', fbUser.uid);
     const had = await FB.getDoc(mine);
@@ -8468,21 +8499,57 @@ async function peakTally(key){
     const n = snap.exists() ? (+(snap.data() || {}).n || 0) : 0;
     if (n){
       const cur = rec(key);
-      state.bagged[key] = {...cur, nth: had.exists() ? (cur.nth || 0) : n, tot: n, t: now()};
+      /* Already counted on another device, or under v260 before the number
+         was kept: take the total and leave the place alone rather than
+         claiming a number that is not yours. */
+      state.bagged[key] = {...cur, nth: had.exists() ? (+cur.nth || 0) : n, tot: n, t: now()};
       touched();
     }
     return n;
   }catch(e){ return null; }
 }
+/* ---- the hills that were already in the log ----
+   Nobody should have to re-mark 214 fells to be given a number on them. This
+   works through whatever has no number yet, oldest walk first so the log
+   fills in the order it was lived, a handful at a time with half a second
+   between - a dozen small reads spread out, not a stampede at sign-in. It
+   stops while the tab is in the background and picks up when it comes back. */
+let peakFilling = false, peakFillTimer = null;
+async function peakBackfill(n){
+  if (peakFilling || !FB || !fbUser || document.hidden) return;
+  peakFilling = true;
+  let did = 0;
+  try{
+    const todo = Object.keys(state.bagged || {})
+      .filter(k => { const r = state.bagged[k]; return r && r.done && !(+r.nth) && BY_KEY[k]; })
+      .sort((a, b) => String(state.bagged[a].date || '') < String(state.bagged[b].date || '') ? -1 : 1)
+      .slice(0, n || 6);
+    for (const k of todo){
+      if (document.hidden) break;
+      await peakTally(k); did++;
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }catch(e){}
+  peakFilling = false;
+  if (did){ saveLocal(); render(); }
+  /* still some left: come back in a minute rather than pressing on */
+  clearTimeout(peakFillTimer);
+  if (did) peakFillTimer = setTimeout(() => peakBackfill(), 60000);
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && FB && fbUser){ clearTimeout(peakFillTimer); peakFillTimer = setTimeout(() => peakBackfill(), 3000); }
+});
 function peakTallyLine(key){
   const r = state.bagged && state.bagged[key];
   if (!r) return '';
   const tot = +r.tot || 0, nth = +r.nth || 0;
   /* your place and the running total on one line: the first is the bit worth
      having, the second is the one that keeps moving */
-  if (nth && tot > nth) return 'You were the ' + ordinal(nth) + ' \u00b7 ' + tot.toLocaleString('en-GB') + ' have marked it';
-  if (nth) return 'You were the ' + ordinal(nth) + ' on WayMark up this one';
-  if (tot) return tot.toLocaleString('en-GB') + ' on WayMark have marked it';
+  /* "the 3rd up this one" was a lie: the number is the order it was MARKED
+     OFF on WayMark, not the order anybody climbed it. Say what it counts. */
+  if (nth && tot > nth) return 'You were the ' + ordinal(nth) + ' of ' + tot.toLocaleString('en-GB') + ' to mark it off';
+  if (nth) return 'You were the ' + ordinal(nth) + ' on WayMark to mark it off';
+  if (tot) return tot.toLocaleString('en-GB') + ' on WayMark have marked it off';
   return '';
 }
 function setState(key, st, date){
@@ -10594,10 +10661,15 @@ function bcCard(d, opts){
   const it = shopItem(d.n); if (!it) return '';
   const sides = supSides(d), lead = sides[0], h = teeHill(d.n), done = h && isBagged(h.k);
   const flag = SUP_NEW.includes(d.n) ? '<span class="bcflag">New</span>' : '';
-  const tag = h ? '<span class="bctag">' + feet(h).toLocaleString() + ' FT &middot; ' + esc(String(regionOf(h, h.l[0]) || '').toUpperCase()) + '</span>' : '';
-  const foot = h
-    ? (done ? '<span class="bcdone">' + ti('check') + 'You’ve summited this</span>' : '<span class="bcsub">' + esc(hillName(h) || d.name) + ', ' + feet(h).toLocaleString() + ' ft</span>')
-    : '<span class="bcsizes">' + it.sizes.map(z => '<i>' + esc(z) + '</i>').join('') + '</span>';
+  /* Inside a hill group the heading already carries the hill, its height and
+     whether it is marked, so the card saying all three again is three copies
+     of one fact on one screen. There it shows what a tee card is actually
+     useful for: the sizes. */
+  const tag = (h && !opts.bare) ? '<span class="bctag">' + feet(h).toLocaleString() + ' FT &middot; ' + esc(String(regionOf(h, h.l[0]) || '').toUpperCase()) + '</span>' : '';
+  const sizes = it.sizes.length ? '<span class="bcsizes">' + it.sizes.map(z => '<i>' + esc(z) + '</i>').join('') + '</span>' : '';
+  const foot = opts.bare ? ''
+    : h ? (done ? '<span class="bcdone">' + ti('check') + 'You’ve summited this</span>' : '<span class="bcsub">' + esc(hillName(h) || d.name) + ', ' + feet(h).toLocaleString() + ' ft</span>')
+    : sizes;
   return '<article class="bccard' + (opts.small ? ' small' : '') + '">' +
     '<div class="bctile">' +
       '<button class="bcimg" data-act="supopen" data-v="' + d.n + '" aria-label="' + esc(d.name) + ', ' + gbp(it.price) + '. Open">' +
@@ -10613,7 +10685,11 @@ function bcCard(d, opts){
   '</article>';
 }
 /* kit that is not a tee, in the same grid */
-function bcKitCard([k, it]){
+function bcKitCard([k, it], opts){
+  /* Called two ways: bare, through `list.map(bcKitCard)`, where the second
+     argument is the map index, and deliberately, from a hill group, where it
+     is an options object. Guard, or a group's options silently become 0. */
+  opts = (opts && typeof opts === 'object') ? opts : {};
   /* A donation has no price and may have no picture. This card asked for both
      without checking: gbp(undefined) printed "£NaN" and the <img> was given
      src="undefined". It also gets the summit gear's treatment — a flag and a
@@ -10644,6 +10720,15 @@ function bcKitCard([k, it]){
     ? '<img loading="lazy" decoding="sync" alt="" src="' + esc(it.img[0]) + '">' +
       (altSrc ? '<img class="alt" loading="lazy" decoding="sync" alt="" src="' + esc(altSrc) + '">' : '')
     : (don ? '<span class="bcdonmark">' + ti('mountain', 'width="56" height="56"') + '</span>' : '');
+  /* Inside a hill group the heading already says the hill, so the card drops
+     it. Only a leading match counts - "Ben Nevis Triangle" becomes "Triangle",
+     but nothing is cut out of the middle of a name. */
+  let label = it.name || '';
+  for (const pre of (opts.strip || [])){
+    const re = new RegExp('^' + pre.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s,]+', 'i');
+    const short = label.replace(re, '');
+    if (short && short !== label){ label = short.charAt(0).toUpperCase() + short.slice(1); break; }
+  }
   return '<article class="bccard' + (don ? ' bcdon' : '') + (lock ? ' bclocked bclock-' + lock : '') + '"><div class="bctile">' +
     '<button class="bcimg" data-act="kitopen" data-k="' + esc(k) + '" aria-label="' + esc(it.name) +
       (lock ? ', ' + esc(why) + '. Open' : '. Open') + '">' + pic +
@@ -10653,11 +10738,12 @@ function bcKitCard([k, it]){
     (lock ? '<span class="bctag">' + esc(why.toUpperCase()) + '</span>'
           : (TP_PEAKS[k] || k === TP_CENTRE ? '<span class="bcflag">Earned</span>' : '')) +
     '<button class="bcround bcheart" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) + '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button></div>' +
-    '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(it.name) + '</button></h3>' +
+    '<div class="bcmeta"><h3><button data-act="kitopen" data-k="' + esc(k) + '">' + esc(label) + '</button></h3>' +
       '<span class="bcprice">' + (don ? 'Any amount' : gbp(it.price)) + '</span></div>' +
-    '<span class="' + (done ? 'bcdone' : 'bcsub') + '">' +
+    (opts.bare ? '' :
+      '<span class="' + (done ? 'bcdone' : 'bcsub') + '">' +
       (done ? ti('check') + 'You’ve summited this' : esc(KIND_LABEL[it.kind] || it.kind || '')) +
-    '</span></article>';
+    '</span>') + '</article>';
 }
 /* a small tile for rows: recently viewed, pairs with, saved */
 function bcMini(k){
@@ -10669,6 +10755,68 @@ function bcMini(k){
 
 /* ---- the Shop side of Basecamp ---- */
 const bcSale = () => SUPPLIES.filter(d => shopItem(d.n));
+
+/* ---- the three parts of the shop ----
+   A hill piece is anything tied to one summit: the two Scafell tees, and every
+   plate, map tile and Three Peaks triangle. The triangles sit in the Three
+   Peaks group AND under their own hill - somebody looking at Snowdon should
+   see the triangle there, and somebody collecting the set should see all four
+   together. Nothing else is in two places. */
+const sumKitKeys  = () => kitItems().filter(([k]) => kitHill(k) || TP_PEAKS[k] || k === TP_CENTRE);
+const restKitKeys = () => kitItems().filter(([k]) => !(kitHill(k) || TP_PEAKS[k] || k === TP_CENTRE));
+const sumTees     = () => bcSale().filter(d => teeHill(d.n));
+
+/* Marked hills first, most recently marked at the top - the shop should open
+   on the hills a walker has actually stood on. lastAscent() is already how the
+   log band picks its order, so the two agree. */
+function sumGroups(){
+  const by = new Map();
+  const put = (ref, card) => { if (!by.has(ref)) by.set(ref, []); by.get(ref).push(card); };
+  for (const d of sumTees()) put(TEE_HILL[d.n], {d});
+  for (const e of sumKitKeys()){
+    const k = e[0];
+    if (TP_PEAKS[k]) put(TP_PEAKS[k], {e});            /* a triangle also files under its hill */
+    else if (k !== TP_CENTRE) put(KIT_HILL[k], {e});
+  }
+  const groups = [];
+  for (const [ref, cards] of by){
+    const h = BY_KEY[ref]; if (!h) continue;
+    const done = isBagged(ref);
+    groups.push({ref, h, cards, done, when: done ? lastAscent(ref) : ''});
+  }
+  groups.sort((a, b) => (b.done - a.done) ||
+    (a.when === b.when ? 0 : a.when > b.when ? -1 : 1) ||
+    String(hillName(a.h)).localeCompare(String(hillName(b.h))));
+  /* the National Three Peaks set, kept whole and kept last */
+  const tp = sumKitKeys().filter(([k]) => TP_PEAKS[k] || k === TP_CENTRE);
+  if (tp.length) groups.push({tp:true, cards: tp.map(e => ({e})), done: tpDone() >= 3});
+  return groups;
+}
+/* every way this hill's name is written, longest first so "Yr Wyddfa
+   (Snowdon)" is tried before "Yr Wyddfa" */
+function hillAka(h){
+  const n = String(hillName(h) || ''); if (!n) return [];
+  const out = [n];
+  const m = n.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (m){ out.push(m[1].trim(), m[2].trim()); }
+  return out.filter(Boolean).sort((a, b) => b.length - a.length);
+}
+function bcGroup(g){
+  const head = g.tp
+    ? '<h3>Three Peaks</h3><span class="bcgbadge' + (g.done ? ' on' : '') + '">' + tpDone() + ' of 3</span>'
+    : '<h3>' + esc(hillName(g.h)) + '</h3>' +
+      '<span class="bcgbadge' + (g.done ? ' on' : '') + '">' + (g.done ? 'Marked' : 'Not yet') + '</span>' +
+      '<i>' + feet(g.h).toLocaleString() + ' FT</i>';
+  /* inside a hill group the hill's name is already the heading, so the cards
+     drop it: "Scafell Pike Summit Plate" reads as "Summit Plate". A hill with
+     two names carries both - the heading says "Yr Wyddfa (Snowdon)" and the
+     artwork is filed as "Snowdon Map Tile", so either spelling has to match or
+     that one group keeps the long names while every other group loses them. */
+  const strip = g.tp ? [] : hillAka(g.h);
+  return '<section class="bcgrp"><div class="bcgrphead">' + head + '</div><div class="bcgrid">' +
+    g.cards.map(c => c.d ? bcCard(c.d, {bare:true}) : bcKitCard(c.e, {strip, bare:true})).join('') +
+  '</div></section>';
+}
 /* This band read the TEE list and nothing else, so a walker with ten bagged
    hills was shown two Scafell tees and none of the plates or map tiles made
    for the hills they had actually climbed. It now draws from both, newest
@@ -10705,7 +10853,7 @@ function bcLogBand(sale){
       if (q[round]){ mine.push(q[round]); moved = true; } }
     if (!moved) break;
   }
-  const shown = mine.slice(0, 6), more = mine.length - shown.length;
+  const shown = mine.slice(0, 4), more = mine.length - shown.length;
   return '<section class="bclog"><p class="bceyebrow">Made from your log</p>' +
     '<h2>You’ve stood on ' + (hills.length === 1 ? 'a hill' : NUMWORD(hills.length).toLowerCase() + ' hills') + ' we print.</h2>' +
     '<div class="bclogrow">' + shown.map(e =>
@@ -10731,16 +10879,41 @@ function bcBoardBanner(){
     ti('chevron-right') + '</button>';
 }
 function bcChips(sale){
-  const kit = kitItems();
-  const cs = [{id:'', label:'All ' + (sale.length + kit.length)}];
+  /* Only the tee collections now. The kind chips it used to grow - one per
+     sticker, cap, patch - are what the three tabs above do, and having both
+     meant two filters fighting over the same grid. */
+  const cs = [{id:'', label:'All ' + sale.length}];
   for (const c of SUP_COLL) if (sale.some(d => c.ns.includes(d.n))) cs.push(c);
-  const kinds = [...new Set(kit.map(([, it]) => it.kind))];
-  for (const k of kinds) cs.push({id:'kind:' + k, label: (KIND_LABEL[k] || k) + 's'});
-  const sv = bcSaved().length;
+  if (cs.length < 3) return '';
   return '<div class="bcchips" role="group" aria-label="Browse">' +
-    cs.map(c => '<button class="chip" data-act="bccoll" data-v="' + esc(c.id) + '" aria-pressed="' + ((ui.shopColl || '') === c.id && !ui.shopSaved) + '">' + esc(c.label) + '</button>').join('') +
-    '<button class="chip bcsavedchip" data-act="bcsaved" aria-pressed="' + !!ui.shopSaved + '">' + bcHeart(!!ui.shopSaved) + 'Saved <b>' + sv + '</b></button>' +
+    cs.map(c => '<button class="chip" data-act="bccoll" data-v="' + esc(c.id) + '" aria-pressed="' + ((ui.shopColl || '') === c.id) + '">' + esc(c.label) + '</button>').join('') +
   '</div>';
+}
+/* ---- the three tabs ----
+   Saved only appears once something is in it: an empty "Saved 0" was a tab
+   that paid off nothing and it sat in the row all the same. */
+function shopTabNow(){
+  const t = ui.shopTab;
+  if (t === 'tee' || t === 'kit' || t === 'summit') return t;
+  /* a walker with none of the printed hills in their log opens on the tees:
+     a column of "Not yet" is a poor first look at a shop */
+  return sumGroups().some(g => g.done && !g.tp) ? 'summit' : 'tee';
+}
+function bcShopTabs(sale){
+  const sv = bcSaved().length, now = ui.shopSaved ? '' : shopTabNow();
+  /* Count what the tab actually draws, not what is in the catalogue: the three
+     triangles are filed under their hill AND in the Three Peaks group, so
+     counting the catalogue said 26 over a tab showing 29 cards. */
+  const t = [{id:'summit', label:'Summit series', n: sumGroups().reduce((x, g) => x + g.cards.length, 0)},
+             {id:'tee',    label:'Tees',          n: sale.length},
+             {id:'kit',    label:'Stickers',      n: restKitKeys().length}];
+  /* Saved stays in the row while you are standing in it, even after you empty
+     it - otherwise unsaving the last thing leaves no tab lit at all. */
+  if (sv || ui.shopSaved) t.push({id:'saved', label:'Saved', n: sv});
+  return '<div class="bcshoptabs" role="group" aria-label="Browse the shop">' + t.map(x =>
+    '<button data-act="bcshoptab" data-v="' + x.id + '" aria-pressed="' +
+    (x.id === 'saved' ? !!ui.shopSaved : now === x.id) + '">' + esc(x.label) +
+    '<b>' + x.n + '</b></button>').join('') + '</div>';
 }
 function renderShop(){
   /* Browsing, not set up yet: this has to stay on screen wherever they get to
@@ -10771,34 +10944,36 @@ function renderShop(){
     return s + '<header class="suphead"><span class="nosale">Not for sale yet</span><h2>Which of these should we actually print?</h2>' +
       '<p>Every one is drawn and ready for a printer. Vote on the ones you would wear.</p></header>' + bcBoardBanner() + '</div>';
   }
-  if (!ui.shopSaved && !ui.shopColl) s += bcLogBand(sale);
+  /* The band and the summit tab say the same thing - here is what we print
+     for the hills in your log - so only one of them is ever on screen. */
+  if (!ui.shopSaved && shopTabNow() !== 'summit') s += bcLogBand(sale);
   /* Said at the front door. Stripe only accepts a UK address, so somebody
      ordering from abroad used to find that out at the payment page, with a
      basket already filled. */
   s += '<p class="ukonly">' + ti('map-pin') + 'We post within the UK only.</p>';
-  s += bcChips(sale);
-  let list, kit = kitItems();
+  s += bcShopTabs(sale);
   if (ui.shopSaved){
     const sv = bcSaved();
-    list = sale.filter(d => sv.includes(String(d.n)));
-    kit = kit.filter(([k]) => sv.includes(String(k)));
+    const list = sale.filter(d => sv.includes(String(d.n)));
+    const kit = kitItems().filter(([k]) => sv.includes(String(k)));
     if (!list.length && !kit.length)
       return s + '<div class="bcempty">' + bcHeart(false) + '<b>Nothing saved yet</b><span>Tap the heart on anything you like the look of and it waits here.</span>' +
-        '<button class="btn" data-act="bccoll" data-v="">Browse the shop</button></div></div>';
-  } else if ((ui.shopColl || '').startsWith('kind:')){
-    const kind = ui.shopColl.slice(5);
-    list = []; kit = kit.filter(([, it]) => it.kind === kind);
-  } else if (ui.shopColl){
-    const c = SUP_COLL.find(x => x.id === ui.shopColl);
-    list = c ? sale.filter(d => c.ns.includes(d.n)) : sale; kit = [];
-  } else list = sale;
-  /* the newest first, then summit gear, then the rest as listed */
-  list = list.slice().sort((a, b) => SUP_NEW.includes(b.n) - SUP_NEW.includes(a.n));
-  /* the donation goes first: it is the one thing in here that is not a thing */
-  const don = kit.filter(([, it]) => it && it.custom);
-  const rest = kit.filter(([, it]) => !(it && it.custom));
-  s += '<div class="bcgrid">' + don.map(bcKitCard).join('') +
-       list.map(d => bcCard(d)).join('') + rest.map(bcKitCard).join('') + '</div>';
+        '<button class="btn" data-act="bcshoptab" data-v="summit">Browse the shop</button></div></div>';
+    s += '<div class="bcgrid">' + list.map(d => bcCard(d)).join('') + kit.map(bcKitCard).join('') + '</div>';
+  } else if (shopTabNow() === 'summit'){
+    s += sumGroups().map(bcGroup).join('');
+  } else if (shopTabNow() === 'tee'){
+    s += bcChips(sale);
+    const c = ui.shopColl && SUP_COLL.find(x => x.id === ui.shopColl);
+    const list = (c ? sale.filter(d => c.ns.includes(d.n)) : sale.slice())
+      .sort((a, b) => SUP_NEW.includes(b.n) - SUP_NEW.includes(a.n));
+    s += '<div class="bcgrid">' + list.map(d => bcCard(d)).join('') + '</div>';
+  } else {
+    /* the donation goes first: it is the one thing in here that is not a thing */
+    const kit = restKitKeys();
+    s += '<div class="bcgrid">' + kit.filter(([, it]) => it && it.custom).map(bcKitCard).join('') +
+         kit.filter(([, it]) => !(it && it.custom)).map(bcKitCard).join('') + '</div>';
+  }
   if (!ui.shopSaved){
     s += bcBoardBanner();
     const rv = bcRecent();
@@ -10836,10 +11011,13 @@ function bcProduct(d){
     '</div>';
   s += '<div class="bcinfo">';
   s += '<p class="bceyebrow">' + (SUP_NEW.includes(d.n) ? 'New in &middot; ' : '') + 'Tee' + (h ? ' &middot; ' + feet(h).toLocaleString() + ' ft' : '') + '</p>' +
+    /* This was under the fabric blurb, three lines below the price, which is
+       past where anyone reads. It is the one line on the page that knows who
+       is looking at it, so it goes first. */
+    (h && isBagged(h.k) ? '<p class="bcdone">' + ti('check') + 'You’ve summited ' + esc(hillName(h)) + '</p>' : '') +
     '<div class="bctitle"><h1>' + esc(d.name) + '</h1><b>' + gbp(it.price) + '</b></div>' +
     '<p class="bcline"><span class="swatch" style="--sw:' + (SHIRT_HEX[d.shirt] || '#EDE7D9') + '"></span>' + SHIRTS[d.shirt] + ' &middot; heavyweight, 185&nbsp;gsm &middot; ' +
-      (supSides(d).length < 2 ? 'printed on the front' : 'printed front and back') + '</p>' +
-    (h && isBagged(h.k) ? '<p class="bcdone">' + ti('check') + 'You’ve summited ' + esc(hillName(h)) + '</p>' : '');
+      (supSides(d).length < 2 ? 'printed on the front' : 'printed front and back') + '</p>';
   s += '<div class="bcbuy" id="bcbuy">' +
     '<div class="bcszhead"><b>Size</b><span>Straight cut &middot; take your usual</span><button class="linkbtn" data-act="bcfit" data-k="' + d.n + '">Size &amp; fit</button></div>' +
     '<div class="bcszrow" role="group" aria-label="Size">' + it.sizes.map(z =>
@@ -20848,6 +21026,14 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'bcsheetclose'){ bcSheetClose(); }
   else if (a === 'bccoll'){ ui.shopColl = el.dataset.v; ui.shopSaved = false; render(); }
+  else if (a === 'bcshoptab'){
+    const v = el.dataset.v;
+    ui.shopSaved = v === 'saved';
+    if (!ui.shopSaved) ui.shopTab = v;
+    ui.shopColl = '';
+    render();
+    const sh = document.querySelector('.bcshop'); if (sh) sh.scrollIntoView({block:'start'});
+  }
   else if (a === 'bcsaved'){ ui.shopSaved = !ui.shopSaved; ui.shopColl = ''; render(); }
   else if (a === 'bksaved'){ closeBasket(); tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = true; ui.shopColl = ''; supGo(null, true); }
   else if (a === 'bcrecentclear'){ bcWrite(BC_RECENT, []); render(); }
@@ -22727,6 +22913,10 @@ async function fbSync(initial){
     syncOwnPeaks().catch(() => {});
     /* the shared dogs: their record, and the other owner's days with them */
     dogPull().catch(() => {});
+    /* and put a number on the hills that were already in the log when they
+       joined - a few at a time, after everything that matters has gone up */
+    clearTimeout(peakFillTimer);
+    peakFillTimer = setTimeout(() => peakBackfill(), 4000);
     if (pending.length > 4) scheduleSync(1500);
   }catch(e){
     /* "The client is offline" is usually a blip: a phone waking up, a tab coming
@@ -25751,7 +25941,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v260';
+const APP_VERSION = 'v262';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
