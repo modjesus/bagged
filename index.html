@@ -5581,6 +5581,9 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .dogpick .dogface{width:32px; height:32px; border-width:2px; box-shadow:none}
 .dogpick .dogface svg{width:16px; height:16px}
 .dogpick button[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
+.peaktally{display:flex; align-items:center; gap:7px; margin:10px 0 0; font-family:var(--font-ui);
+  font-size:12.5px; color:var(--ink-2)}
+.peaktally svg{width:15px; height:15px; color:var(--accent-text); flex:none}
 .dogday{margin:10px 0 2px}
 .dogdaylab{display:flex; align-items:center; gap:6px; font:700 11px var(--font-ui); letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink-3); margin-bottom:8px}
@@ -7699,6 +7702,8 @@ function normalise(s){
     if (v.v && v.v.t){ next.v = {t:v.v.t, d:v.v.d, acc:v.v.acc}; if (v.v.src) next.v.src = v.v.src; }
     /* Who came with you. Same lesson as the verification badge above: leave it
        off this list and every dog comes off every hill on the next reload. */
+    if (isFinite(+v.nth) && +v.nth > 0) next.nth = +v.nth;
+    if (isFinite(+v.tot) && +v.tot > 0) next.tot = +v.tot;
     if (Array.isArray(v.dogs)){
       const g = [...new Set(v.dogs.filter(x => typeof x === 'string' && x))].slice(0, 8);
       if (g.length) next.dogs = g;
@@ -8439,6 +8444,43 @@ function applyDate(el, value){
   state.bagged[k] = {...c, st, done: st === 'done', date:value, asc, t:now()};
   touched(); render();
 }
+/* ================= how many have been up it (v260) =================
+   One counter per hill, and a note under your own name so you are only ever
+   counted once. The counter says how many WayMark walkers have marked it;
+   the note remembers which number you were, so the hill can still tell you
+   in a year's time. Nobody's name is in either: a count and a date. */
+const peakRef = k => FB.doc(fbDb, 'peakcount', peakSlug(k));
+function peakSlug(k){
+  return String(hillIdent(k)).replace(/[^a-z0-9|]+/g, '-').slice(0, 90) || String(k);
+}
+async function peakTally(key){
+  if (!FB || !fbUser || !BY_KEY[key]) return null;
+  const r = rec(key);
+  if (r && r.nth) return r.nth;
+  try{
+    const mine = FB.doc(fbDb, 'peakcount', peakSlug(key), 'who', fbUser.uid);
+    const had = await FB.getDoc(mine);
+    if (!had.exists()){
+      await FB.setDoc(mine, {t: Date.now()});
+      await FB.setDoc(peakRef(key), {n: FB.increment(1), t: Date.now()}, {merge:true});
+    }
+    const snap = await FB.getDoc(peakRef(key));
+    const n = snap.exists() ? (+(snap.data() || {}).n || 0) : 0;
+    if (n){
+      const cur = rec(key);
+      state.bagged[key] = {...cur, nth: had.exists() ? (cur.nth || 0) : n, tot: n, t: now()};
+      touched();
+    }
+    return n;
+  }catch(e){ return null; }
+}
+function peakTallyLine(key){
+  const r = state.bagged && state.bagged[key];
+  if (!r) return '';
+  if (r.nth) return 'You were the ' + ordinal(r.nth) + ' on WayMark up this one.';
+  if (r.tot) return r.tot.toLocaleString('en-GB') + ' on WayMark have marked it.';
+  return '';
+}
 function setState(key, st, date){
   const c = rec(key);
   const done = st === 'done';
@@ -8451,6 +8493,10 @@ function setState(key, st, date){
   state.bagged[key] = {...c, st, done, date:d, asc, t:now()};
   if (st === 'none' && !c.notes && !(c.photos && c.photos.length) && !c.date) delete state.bagged[key];
   touched(); render();
+  if (done && FB && fbUser) peakTally(key).then(n => {
+    const r2 = state.bagged[key];
+    if (n && r2 && r2.nth){ render(); toast('You were the ' + ordinal(r2.nth) + ' on WayMark up ' + hillName(BY_KEY[key]) + '.'); }
+  });
 }
 function setBagged(key, on, date){ setState(key, on ? 'done' : 'none', date); }
 
@@ -14542,6 +14588,8 @@ function hillRow(h, listId){
     /* the dogs, right under Status: you tick them at the same moment you tick
        the hill, which is the only moment anyone remembers who was there */
     if (isBagged(h.k)) s += dogPickHTML(h.k);
+    const tally = peakTallyLine(h.k);
+    if (tally) s += '<p class="peaktally">' + ti('users') + esc(tally) + '</p>';
     const vf = verifiedAt(h.k);
     if (vf){
       s += '<p class="verified"><span class="vtick">' + ICON_CHECK + '</span>Verified at the summit &middot; ' +
@@ -17645,6 +17693,23 @@ function paintSearch(){
    later instead of a frozen string of coordinates. */
 let editor = null, rmap = null, rmLayer = null, rmBusy = false, rmSeq = 0;
 
+/* A read-only look: the Hills map already draws every saved route, so this
+   just goes there, leaves the tap-to-plot mode alone, and frames the line. */
+function viewRoute(id){
+  const p = planById(id); if (!p) return;
+  const pts = (p.trk && p.trk.length > 1) ? p.trk : (p.hills || []).map(k => BY_KEY[k]).filter(h => h && isFinite(h.a)).map(h => [h.a, h.o]);
+  if (pts.length < 1){ toast('That route has no line on it yet.'); return; }
+  ui.rmode = 'explore';
+  tab = 'm';
+  render();
+  const go = (n) => {
+    if (!mapReady || !map){ if (n < 40) setTimeout(() => go(n + 1), 120); return; }
+    drawMarkers(true);
+    fitTo(map, pts, 40, 15);
+    toast(p.name ? 'Showing ' + p.name + '.' : 'Showing that route.');
+  };
+  go(0);
+}
 function openEditor(id){
   const p = planById(id); if (!p) return;
   ui.rmode = 'plot';
@@ -18742,7 +18807,10 @@ function gpxControls(p, id){
          '<button class="linkbtn" data-act="cleartrk" data-id="' + esc(id) + '">Remove track</button></div>';
   }
   s += '<div class="gpxrow">' +
-       '<button class="btn" data-act="editroute" data-id="' + esc(id) + '">' +
+       /* Looking at a route and changing it are different jobs. Opening the
+          editor to have a look meant one stray tap moved a waypoint. */
+       (pts.length ? '<button class="btn" data-act="viewroute" data-id="' + esc(id) + '">' + ti('map-2') + 'View on the map</button>' : '') +
+       '<button class="btn' + (pts.length ? ' ghost' : '') + '" data-act="editroute" data-id="' + esc(id) + '">' +
          (pts.length ? 'Edit on the map' : 'Draw on the map') + '</button>' +
        '<label class="filebtn">' + (pts.length ? 'Replace with a GPX' : 'Import a GPX') +
        '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + esc(id) + '" hidden></label>';
@@ -19247,19 +19315,40 @@ function mapPillsHTML(){
   const l = LIST_BY[ui.list];
   const st = l ? statsFor(l.id) : null;
   const dayLbl = !ui.rday ? 'Pick a day' : ui.rday === today() ? 'Today' : prettyDate(ui.rday).replace(/ \d{4}$/, '');
+  /* The pill says what the map is actually showing. Tapping it used to offer
+     only one list or another, with no way back to everything — the scope was
+     buried in the layers menu, which is not where anybody looks for it. */
+  const scopeAll = ui.mapScope === 'all', scopeMine = ui.mapScope === 'enabled';
+  const pillLbl = scopeAll ? 'Every hill' : scopeMine ? 'All my lists' : (l ? l.name : 'Lists');
+  const pillNum = (!scopeAll && !scopeMine && st) ? '<b>' + st.done + '/' + st.total + '</b>' : '';
   let s = '<div class="mpills">';
-  if (l) s += '<button class="mpill' + (ui.listOpen ? ' on' : '') + '" data-act="mlistfold"' +
-    ' aria-expanded="' + !!ui.listOpen + '">' + esc(l.name) +
-    (st ? '<b>' + st.done + '/' + st.total + '</b>' : '') + '</button>';
+  s += '<button class="mpill' + (ui.listOpen ? ' on' : '') + '" data-act="mlistfold"' +
+    ' aria-expanded="' + !!ui.listOpen + '">' + esc(pillLbl) + pillNum + '</button>';
   s += '<button class="mpill' + (ui.dayOpen ? ' on' : '') + '" data-act="dayfold"' +
     ' aria-expanded="' + !!ui.dayOpen + '">' + ti('cloud') + esc(dayLbl) + '</button>';
   s += '</div>';
   s += '<div class="mmenu mleft mlistmenu"' + (ui.listOpen ? '' : ' hidden') + '>' +
-    '<p class="mh">Which list</p>' + listBar() + '</div>';
+    '<p class="mh">Which hills</p>' + mapListBar() + '</div>';
   s += '<div class="mmenu mleft mdaymenu"' + (ui.dayOpen ? '' : ' hidden') + '>' +
     '<p class="mh">Which day</p>' + dayChipsHTML() +
     (ui.rday ? '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>' +
       '<p class="mdaynote">Forecasts move \u2014 check again the night before.</p>' : '') + '</div>';
+  return s;
+}
+/* the list chips on the map, with the two "everything" answers first */
+function mapListBar(){
+  const one = ui.mapScope === 'one';
+  let s = '<div class="listbar">';
+  s += '<button class="lchip" data-act="mapscope" data-v="enabled" aria-pressed="' + (ui.mapScope === 'enabled') + '">All my lists' +
+    '<b>' + state.enabled.length + '</b></button>';
+  s += '<button class="lchip" data-act="mapscope" data-v="all" aria-pressed="' + (ui.mapScope === 'all') + '">Every hill' +
+    '<b>' + HILLS.length.toLocaleString('en-GB') + '</b></button>';
+  for (const l of enabled()){
+    const st = statsFor(l.id);
+    s += '<button class="lchip" data-act="mappicklist" data-v="' + l.id + '" aria-pressed="' + (one && ui.list === l.id) + '">' +
+      esc(l.name) + '<b>' + st.done + '/' + st.total + '</b></button>';
+  }
+  s += '<button class="lchip add" data-act="open-lists">\uFF0B Lists</button></div>';
   return s;
 }
 function mapStageHTML(){
@@ -19837,7 +19926,11 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'pick-list'){ ui.list = el.dataset.v; ui.listOpen = false; ui.region=''; ui.q=''; ui.status='all'; render(); if (mapReady && ui.mapScope==='one') drawMarkers(true); }
   else if (a === 'open-lists'){ openSheet(); showSetPane('lists'); }
-  else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; render(); if (mapReady) drawMarkers(true); }
+  else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; ui.listOpen = false; render(); if (mapReady) drawMarkers(true); }
+  /* picking one list from the map also puts the map on that list, which is
+     what tapping a list on a map obviously means */
+  else if (a === 'mappicklist'){ ui.list = el.dataset.v; ui.mapScope = 'one'; ui.listOpen = false;
+    ui.region = ''; ui.q = ''; ui.status = 'all'; render(); if (mapReady) drawMarkers(true); }
   else if (a === 'togglelist'){ toggleList(el.dataset.v); }
   else if (a === 'viewphoto') openViewer(el.dataset.k, el.dataset.p);
   else if (a === 'viewdiaryphoto') openDiaryViewer(el.dataset.id, el.dataset.p);
@@ -20895,6 +20988,7 @@ document.addEventListener('click', async e => {
   else if (a === 'invdrop'){ clearInvite(); render(); }
   else if (a === 'golist'){ ui.list = el.dataset.v; ui.region = ''; ui.q = ''; tab = 'h'; render(); window.scrollTo({top:0}); }
   else if (a === 'editroute'){ openEditor(el.dataset.id); }
+  else if (a === 'viewroute'){ viewRoute(el.dataset.id); }
   else if (a === 'editorclose'){
     if (editor && editor.dirty && !await confirmAsk({title:'Leave without saving?',
         body:'The points you have moved will be lost.', yes:'Leave it', no:'Keep editing'})) return;
@@ -25653,7 +25747,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v258';
+const APP_VERSION = 'v260';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
