@@ -5667,6 +5667,61 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcgbadge{font:600 9.5px/1 var(--font-data); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px; border-radius:4px; background:var(--surface-2); color:var(--ink-3); border:1px solid var(--line)}
 .bcgbadge.on{background:var(--ink); color:var(--ground); border-color:var(--ink)}
 
+/* ---- bringing in photos from before WayMark ---- */
+.impoffer{display:flex; align-items:center; gap:12px; width:100%; margin:0 0 14px; padding:13px 14px;
+  background:var(--surface); border:1px solid var(--line); border-radius:12px; cursor:pointer; text-align:left}
+.impoffer:focus-within{outline:2px solid var(--accent); outline-offset:2px}
+.impoffer > svg{width:26px; height:26px; flex:none; color:var(--accent)}
+.impoffer span{min-width:0}
+.impoffer b{display:block; font:700 15px var(--font-ui)}
+.impoffer i{display:block; font:normal 13px/1.35 var(--font-ui); font-style:normal; color:var(--ink-3); margin-top:2px}
+.impcta{flex:none; align-self:center; font:700 13.5px var(--font-ui); color:var(--ground);
+  background:var(--accent); border-radius:99px; padding:9px 14px; white-space:nowrap}
+.impoffer.slim{margin:10px 0 0; padding:10px 12px}
+.impoffer.slim b{font-size:14px}
+.impoffer.slim i{display:none}
+@media (max-width:420px){ .impoffer{flex-wrap:wrap} .impcta{width:100%; text-align:center} .impoffer.slim{flex-wrap:nowrap} .impoffer.slim .impcta{width:auto} }
+
+.impbox{max-height:86vh; overflow:auto}
+.impttl{margin:2px 0 4px; font:400 24px/1.1 var(--font-display); letter-spacing:.01em}
+.impsub{margin:0 0 14px; font-size:14px; color:var(--ink-3)}
+.impfine{display:block; margin-top:6px; font-size:12.5px; color:var(--ink-3)}
+.impbar{height:8px; border-radius:99px; background:var(--surface-2); overflow:hidden; margin:14px 0 8px}
+.impbar i{display:block; height:100%; background:var(--ink); transition:width .25s}
+@media (prefers-reduced-motion:reduce){ .impbar i{transition:none} }
+
+.impgrp{display:flex; align-items:center; gap:10px; width:100%; margin:0 0 8px; padding:9px 11px; text-align:left;
+  background:var(--raise); border:1px solid var(--line); border-radius:11px; min-height:64px}
+.impgrp.on{border-color:var(--ink)}
+.impgrp.loose{border-style:dashed}
+.impgrp.loose .impg > span{color:var(--warn)}
+.imptick{width:22px; height:22px; flex:none; border-radius:6px; border:1px solid var(--line); background:var(--surface);
+  display:grid; place-items:center}
+.impgrp.on .imptick{background:var(--ink); border-color:var(--ink); color:var(--ground)}
+.imptick svg{width:15px; height:15px}
+.impg{flex:1; min-width:0}
+.impg b{display:block; font:700 15px var(--font-ui); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.impg > span{display:block; font:normal 12.5px var(--font-data); color:var(--ink-3); margin-top:2px}
+.impnew{display:inline-block; font:600 9.5px/1 var(--font-data); letter-spacing:.08em; text-transform:uppercase; font-style:normal;
+  color:var(--ground); background:var(--accent); border-radius:4px; padding:3px 6px; margin-top:3px}
+.impths{display:flex; flex:none; gap:3px}
+.impths img{width:34px; height:34px; border-radius:5px; object-fit:cover; background:var(--surface-2)}
+@media (max-width:380px){ .impths img:nth-child(3){display:none} }
+
+.impnone{display:flex; gap:10px; margin:12px 0 0; padding:12px; background:var(--surface); border:1px solid var(--line); border-radius:11px}
+.impnone > svg{width:20px; height:20px; flex:none; color:var(--accent); margin-top:2px}
+.impnone b{display:block; font:700 14.5px var(--font-ui)}
+.impnone span{display:block; font-size:13px; line-height:1.4; color:var(--ink-3); margin-top:3px}
+.impnone select{width:100%; margin-top:9px; min-height:44px; padding:8px 10px; font:inherit; font-size:15px;
+  color:var(--ink); background:var(--raise); border:1px solid var(--line); border-radius:9px}
+.impgo{width:100%; margin-top:16px}
+.impgo[disabled]{opacity:.45}
+
+.impdone{text-align:center; padding:10px 4px 2px}
+.impdone h4{margin:0 0 6px; font:400 23px/1.15 var(--font-display); letter-spacing:.01em}
+.impdone p{margin:0 0 14px; font-size:14.5px; color:var(--ink-3)}
+.impdone .btn{width:100%; margin-top:8px}
+
 /* the grid: two across on a phone, four on a desk */
 .bcgrid{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:22px 12px}
 @media (min-width:620px){ .bcgrid{grid-template-columns:repeat(3, minmax(0, 1fr)); gap:28px 18px} }
@@ -7080,6 +7135,17 @@ html.kbopen .cvcompose{padding-bottom:8px}
       <div id="connBox"></div>
     </div>
 
+    <div class="setpane" id="pn-photos" hidden>
+      <p class="setnote">Most photos carry the place and the moment they were taken, inside the file. WayMark can read that, work out which summit each one was taken on, and show you the answer before it files anything. It all happens on this device &mdash; no picture and no location is sent anywhere.</p>
+      <label class="impoffer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>
+        <span><b>Choose photos from this device</b><i>Pick as many as you like. Nothing is filed until you have seen where it is going.</i></span>
+        <span class="impcta">Choose photos</span>
+        <input type="file" accept="image/*" multiple data-act="impfiles" hidden>
+      </label>
+      <p class="setnote">Two things worth knowing. Phones often strip the location when a photo is shared to a web page, so some will come through with no place on them &mdash; those are listed separately and you can put them on a hill yourself. And HEIC photos, the iPhone default, cannot be read in a browser at all; most phones hand over a JPEG instead, but not always.</p>
+    </div>
+
     <div class="setpane" id="pn-back" hidden>
       <p class="setnote">Your marks, dates, notes and routes as text you can keep somewhere safe. Photos are kept with the app and are not included.</p>
       <div class="btnrow">
@@ -8263,7 +8329,10 @@ function avClose(){
   }
 }
 
-async function addPhotos(key, files){
+async function addPhotos(key, files, quiet){
+  /* quiet: the importer files onto several hills in a row, and one toast and
+     one repaint per hill is a flicker of seven toasts. It counts and reports
+     once itself. */
   let added = 0;
   const bad = [];
   const list = [...files];
@@ -8290,17 +8359,18 @@ async function addPhotos(key, files){
     /* let the phone breathe and reclaim the last picture's memory */
     await new Promise(r => setTimeout(r, 0));
   }
-  if (added){
+  if (added && !quiet){
     render();
     toast(added + (added === 1 ? ' photo added' : ' photos added') +
       (bad.length ? ', ' + bad.length + ' would not open.' : '.'));
   }
-  else if (bad.length){
+  else if (bad.length && !quiet){
     toast(bad.length === 1
       ? 'That photo would not open. If it came from iCloud, open it in Photos first.'
       : 'None of those would open. If they came from iCloud, open them in Photos first.');
   }
   if (bad.length) console.warn('[waymark] photos that would not open:', bad);
+  return added;
 }
 /* ---- diary entry photos ----
    Same blobs, same IndexedDB store, same upload path as a summit photo; they
@@ -14835,6 +14905,9 @@ function hillRow(h, listId){
         (p.cap ? '<span class="shotcap">' + esc(p.cap) + '</span>' : '') + '</button>';
     s += '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" hidden></label>';
     s += '</div>';
+    /* nothing here yet, and this is exactly where somebody notices that an old
+       photo of this very hill is sitting on their phone */
+    if (!r.photos.length) s += impOfferHTML('slim');
     if (on) s += '<span class="stamp' + (verifiedAt(h.k) ? ' vstamp' : '') + '"><b>Marked</b><span>' +
       esc(r.date ? prettyDate(r.date) : 'no date') + '</span>' +
       (verifiedAt(h.k) ? '<span class="vline">GPS verified</span>' : '') + '</span>';
@@ -16400,6 +16473,10 @@ function renderDiary(){
     '<p><b>This is yours.</b> Nobody sees your journal. Photos, words, the lot \u2014 it stays ' +
     'on this device and in your own account. An entry only reaches the feed when you press ' +
     'Share on it, and it asks you first.</p></div>';
+  /* Offered where somebody is already looking at the gaps in their own log,
+     and only while there are gaps to fill: a walker with plenty of hills and
+     hardly any pictures. Once the log has pictures it stops asking. */
+  if (!ui.diaryForm && impWorthOffering()) html += impOfferHTML();
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button>' +
     (stravaCfg() && !ui.diaryForm && stravaOn() ? '<button class="btn ghost" data-act="stopen">' + ti('download') + 'Bring in from Strava</button>' + stravaPowered() : '') +
@@ -21026,6 +21103,11 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'bcsheetclose'){ bcSheetClose(); }
   else if (a === 'bccoll'){ ui.shopColl = el.dataset.v; ui.shopSaved = false; render(); }
+  else if (a === 'impclose') impClose();
+  else if (a === 'impgrp') impToggle(el.dataset.v);
+  else if (a === 'impgo') impGo();
+  else if (a === 'impmark') impMark();
+  else if (a === 'impopen'){ try{ closeSheetNow(); }catch(e){} const i = document.querySelector('#pn-photos [data-act="impfiles"]'); if (i) i.click(); }
   else if (a === 'bcshoptab'){
     const v = el.dataset.v;
     ui.shopSaved = v === 'saved';
@@ -21369,6 +21451,11 @@ document.addEventListener('change', e => {
     const files = [...el.files]; el.value = '';
     toast('Processing…'); addPhotos(el.dataset.k, files);
   }
+  else if (a === 'impfiles' && el.files && el.files.length){
+    const files = [...el.files]; el.value = '';
+    impStart(files);
+  }
+  else if (a === 'impwhere'){ impWhere(el.value); }
   else if (a === 'diaryphoto' && el.files && el.files.length){
     const files = [...el.files]; el.value = '';
     toast('Processing…'); addDiaryPhotos(el.dataset.id, files);
@@ -21912,6 +21999,8 @@ const SET_PANES = [
   {id:'notify', pane:'', title:'Notifications', icon:'bell',
    val: () => { try{ return pushOnHere() ? 'On this phone' : 'In the app only'; }
                 catch(e){ return 'In the app only'; } }},
+  {id:'photos', pane:'pn-photos', title:'Bring in photos', icon:'photo',
+   val: () => 'From before WayMark'},
   {id:'back',   pane:'pn-back',  title:'Backup', icon:'download',
    val: () => 'Copy or restore'},
   {id:'about',  pane:'pn-about', title:'About WayMark', icon:'info',
@@ -21919,7 +22008,7 @@ const SET_PANES = [
 ];
 const SET_ICON = {
   sun:'sun', mountain:'mountain', user:'user-circle', bell:'bell',
-  download:'download', info:'info-circle'
+  download:'download', info:'info-circle', photo:'photo'
 };
 function renderSetMenu(){
   const box = document.getElementById('setMenu'); if (!box) return;
@@ -25941,7 +26030,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v262';
+const APP_VERSION = 'v263';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28720,12 +28809,24 @@ function camPanel(){
   document.getElementById('cxPanel').innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Caption</h4>' +
     '<div class="cx-row"><span>Moment<i>Right now: ' + auto + '</i></span><div class="cx-seg">' + seg + '</div></div>' +
     sw('weather', 'Weather', 'Temperature, sky and wind') + sw('coords', 'Coordinates', 'Latitude and longitude') +
+    /* The camera already reads a photo's place and date for one picture at a
+       time, to caption it. Somebody standing in here with an old photo open is
+       one step from wanting the whole roll brought in. */
+    '<h4>Your older photos</h4>' +
+    '<div class="cx-row"><span>Bring them into your log<i>We read where each one was taken and file it on that hill</i></span>' +
+      '<button class="cx-btn ghost sm" data-c="import">Choose</button></div>' +
     '<button class="cx-btn ghost" data-c="opts">Done</button>';
 }
 function camClick(e){
   const b = e.target.closest('[data-c]'); if (!b || b.tagName === 'INPUT') return;
   const a = b.dataset.c, panel = document.getElementById('cxPanel');
   if (a === 'close' || a === 'done') camClose();
+  else if (a === 'import'){
+    /* out of the camera first: the importer is an ordinary sheet and the
+       camera is a full-screen layer over everything, including it */
+    camClose();
+    setTimeout(() => { const i = document.querySelector('#pn-photos [data-act="impfiles"]'); if (i) i.click(); }, 60);
+  }
   else if (a === 'opts'){ panel.hidden = !panel.hidden; if (!panel.hidden) camPanel(); document.querySelector('#camx [data-c="opts"]').setAttribute('aria-expanded', String(!panel.hidden)); }
   else if (a === 'moment'){ cam.prefs.moment = b.dataset.v; camKeep(); camJudge(); camLayers(); camPanel(); }
   else if (a === 'weather' || a === 'coords'){ cam.prefs[a] = !cam.prefs[a]; camKeep(); if (a === 'weather') camWeather(); camLayers(); camPanel(); }
@@ -28914,6 +29015,264 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-act=
 
    One helper rather than five, because they all fail identically. It does not
    replace any existing close path — it calls them. */
+/* ============ bringing in photos from before WayMark (v263) ============
+   A walker who joins with ten years of hill photos on their phone had one
+   way in: open a hill, press "+ Photo", find that hill's pictures in a roll
+   of nine thousand, repeat. Nobody does that twice.
+
+   Most photos carry the place and the moment they were taken, in the file
+   itself. This reads that, works out which summit each one was taken on, and
+   shows the answer BEFORE anything is filed - a wrong guess that files itself
+   is worse than no guess at all. Everything happens on this phone: the reader
+   is the same one the camera already uses for its captions, and no picture
+   and no location is sent anywhere.
+
+   The prize is not tidier photos. It is that a photo on a summit is a walk
+   the log never knew about, so the last screen offers to mark those off. It
+   OFFERS. Marking somebody's hill for them off a guess about a JPEG would be
+   putting words in their mouth. */
+
+/* Two distances, because one is not honest enough. Britain has 2,531 hills in
+   this app and in the Lakes almost any spot is within a kilometre of SOME top,
+   so a single radius made a photo of the car park claim a fell nobody had
+   climbed - that turned up in testing as "Eskdale Fell, not in your log" off a
+   picture taken four kilometres away from Scafell.
+
+   150 m is not arbitrary. Measured against the app's own data, 600 m north
+   along the Scafell ridge the NEAREST top is Middleboot Knotts at 304 m - so
+   anything looser hands a Scafell photo to a fell the walker has never heard
+   of and ticks it for them. A phone's fix is good to about 25 m, so 150 m is
+   comfortably "standing on the top" and nothing else.
+
+   So: inside 150 m is the summit, and that ticks itself. Out to a kilometre
+   it is offered with the distance said out loud and the tick OFF, for the
+   walker to judge. Past a kilometre WayMark does not guess at all. */
+const IMPORT_NEAR = 150;
+const IMPORT_RADIUS = 1000;
+let imp = null;
+
+const impYmd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+function impEl(){
+  let el = document.getElementById('impsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'impsheet';
+    el.className = 'sheet bottom impsheet';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-label', 'Bring in photos');
+    el.addEventListener('click', e => { if (e.target === el) impClose(); });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function impClose(){
+  const el = document.getElementById('impsheet'); if (el) el.classList.remove('open');
+  /* every thumbnail is an object URL held against a file the walker picked:
+     let them go or the pictures stay in memory for the rest of the session */
+  if (imp && imp.urls) for (const u of imp.urls){ try{ URL.revokeObjectURL(u); }catch(e){} }
+  imp = null;
+}
+/* Reading is one file at a time with a breath in between. A hundred photos
+   read in a tight loop locks the phone up and looks like a crash; this keeps
+   the progress bar moving and the sheet closable throughout. */
+async function impStart(files){
+  const list = [...files].filter(looksLikeImage);
+  if (!list.length){ toast('No photos WayMark can open in that lot.'); return; }
+  imp = {stage:'read', total:list.length, read:0, rows:[], urls:[], where:''};
+  impPaint(); impEl().classList.add('open');
+  for (const f of list){
+    const meta = (await photoMeta(f).catch(() => null)) || {};
+    if (!imp) return;                                  /* closed while reading */
+    const when = meta.when || (f.lastModified ? new Date(f.lastModified) : null);
+    let key = '', dist = null, near = false;
+    if (meta.fix){
+      const n = nearestHill(meta.fix.lat, meta.fix.lon);
+      if (n && n.d <= IMPORT_RADIUS){ key = n.h.k; dist = Math.round(n.d); near = n.d <= IMPORT_NEAR; }
+    }
+    const url = URL.createObjectURL(f); imp.urls.push(url);
+    imp.rows.push({f, url, when, key, dist, near, on: near});
+    imp.read++;
+    if (imp.read % 3 === 0 || imp.read === list.length) impPaint();
+    await new Promise(r => setTimeout(r, 0));
+    if (!imp) return;
+  }
+  imp.stage = 'pick'; impPaint();
+}
+/* One group per hill PER DAY: two trips up Catbells four years apart are two
+   different days out and should be two rows, not one pile of forty. */
+function impGroups(){
+  const by = new Map();
+  for (const r of imp.rows){
+    const d = r.when ? impYmd(r.when) : '';
+    const id = r.key ? r.key + '|' + d : 'none';
+    if (!by.has(id)) by.set(id, {id, key:r.key, date:d, rows:[]});
+    by.get(id).rows.push(r);
+  }
+  return [...by.values()].sort((a, b) =>
+    (a.key ? 0 : 1) - (b.key ? 0 : 1) || (a.date > b.date ? -1 : a.date < b.date ? 1 : 0));
+}
+function impPaint(){
+  if (!imp) return;
+  const el = impEl();
+  let s = '<div class="sheetbox impbox"><div class="cmgrab"></div>' +
+    '<button class="xbtn" data-act="impclose" aria-label="Close">' + ti('x') + '</button>';
+
+  if (imp.stage === 'read'){
+    const pc = imp.total ? Math.round(imp.read / imp.total * 100) : 0;
+    const placed = imp.rows.filter(r => r.near).length;
+    s += '<h3 class="impttl">Reading ' + imp.total + (imp.total === 1 ? ' photo' : ' photos') + '…</h3>' +
+      '<div class="impbar"><i style="width:' + pc + '%"></i></div>' +
+      '<p class="impsub">' + placed + ' placed so far · nothing leaves this phone</p>';
+
+  } else if (imp.stage === 'pick'){
+    const gs = impGroups(), none = gs.find(g => !g.key);
+    const placed = gs.filter(g => g.key);
+    if (!placed.length && !none){ s += '<h3 class="impttl">Nothing to bring in</h3>'; }
+    else if (!placed.length){
+      s += '<h3 class="impttl">None of those had a location</h3>' +
+        '<p class="impsub">Phones often strip it when a photo is shared to a web page. Exporting from your photos app with the location kept usually works.</p>';
+    } else {
+      s += '<h3 class="impttl">Check before we file them</h3>' +
+        '<p class="impsub">Tap a day to leave it out.</p>';
+    }
+    for (const g of placed){
+      const h = BY_KEY[g.key]; if (!h) continue;
+      const lit = g.rows.every(r => r.on);
+      /* the closest photo in the group decides how sure the guess is */
+      const far = Math.min.apply(null, g.rows.map(r => r.dist == null ? 9e9 : r.dist));
+      const sure = g.rows.some(r => r.near);
+      s += '<button class="impgrp' + (lit ? ' on' : '') + (sure ? '' : ' loose') + '" data-act="impgrp" data-v="' + esc(g.id) + '" aria-pressed="' + lit + '">' +
+        '<span class="imptick">' + (lit ? ti('check') : '') + '</span>' +
+        '<span class="impg"><b>' + esc(hillName(h)) + '</b>' +
+        (sure && !isBagged(g.key) ? '<i class="impnew">Not in your log</i>' : '') +
+        '<span>' + (g.date ? esc(prettyDate(g.date)) : 'no date') + ' · ' +
+          g.rows.length + (g.rows.length === 1 ? ' photo' : ' photos') +
+          (sure ? '' : ' · ' + far + ' m away, so not certain') + '</span></span>' +
+        '<span class="impths">' + g.rows.slice(0, 3).map(r => '<img alt="" src="' + r.url + '">').join('') + '</span></button>';
+    }
+    if (none){
+      /* Their own marked hills, newest first: the photo they cannot place is
+         nearly always from a walk they DID log. A free hill search here would
+         be a worse copy of the one the app already has on every hill page. */
+      const marked = Object.keys(state.bagged)
+        .filter(k => state.bagged[k] && state.bagged[k].done && BY_KEY[k])
+        .sort((a, b) => String(state.bagged[b].date || '').localeCompare(String(state.bagged[a].date || '')))
+        .slice(0, 300);
+      s += '<div class="impnone">' + ti('map-pin') +
+        '<div><b>' + none.rows.length + (none.rows.length === 1 ? ' photo with no location' : ' photos with no location') + '</b>' +
+        '<span>Phones often strip it when a photo is shared to a web page. Put them on a hill, or leave them — you can always add them from a hill’s own page.</span>' +
+        (marked.length
+          ? '<select data-act="impwhere" aria-label="Which hill"><option value="">Leave them out</option>' +
+            marked.map(k => '<option value="' + esc(k) + '"' + (imp.where === k ? ' selected' : '') + '>' +
+              esc(hillName(BY_KEY[k])) + (state.bagged[k].date ? ' · ' + esc(prettyDate(state.bagged[k].date)) : '') +
+            '</option>').join('') + '</select>'
+          : '<span class="impfine">Mark a hill off first and it will be offered here.</span>') +
+        '</div></div>';
+    }
+    const on = imp.rows.filter(r => r.on && (r.key || imp.where)).length;
+    s += '<button class="btn impgo"' + (on ? '' : ' disabled') + ' data-act="impgo">' +
+      (on ? 'Add ' + on + (on === 1 ? ' photo' : ' photos') : 'Nothing picked') + '</button>';
+
+  } else if (imp.stage === 'work'){
+    const pc = imp.toFile ? Math.round(imp.doneN / imp.toFile * 100) : 0;
+    s += '<h3 class="impttl">Filing ' + imp.toFile + (imp.toFile === 1 ? ' photo' : ' photos') + '…</h3>' +
+      '<div class="impbar"><i style="width:' + pc + '%"></i></div>' +
+      '<p class="impsub">' + imp.doneN + ' of ' + imp.toFile + '</p>';
+
+  } else {
+    const f = imp.fresh || [];
+    s += '<div class="impdone"><h4>' + imp.filed + (imp.filed === 1 ? ' photo' : ' photos') +
+      ' filed onto ' + imp.hills + (imp.hills === 1 ? ' hill' : ' hills') + '</h4>';
+    if (f.length){
+      s += '<p>' + (f.length === 1
+        ? 'And ' + esc(hillName(BY_KEY[f[0].k]) || 'a hill') + ', which was never in your log.'
+        : 'And ' + f.length + ' hills that were never in your log.') + '</p>' +
+        '<button class="btn" data-act="impmark">Mark ' + (f.length === 1 ? 'it' : 'them') + ' off</button>' +
+        '<button class="btn ghost" data-act="impclose">Leave ' + (f.length === 1 ? 'it' : 'them') + '</button>';
+    } else {
+      s += '<button class="btn" data-act="impclose">Done</button>';
+    }
+    s += '</div>';
+  }
+  el.innerHTML = s + '</div>';
+  if (typeof wire === 'function') wire();
+}
+function impToggle(id){
+  if (!imp) return;
+  const g = impGroups().find(x => x.id === id); if (!g) return;
+  const lit = g.rows.every(r => r.on);
+  for (const r of g.rows) r.on = !lit;
+  impPaint();
+}
+function impWhere(k){
+  if (!imp) return;
+  imp.where = k || '';
+  for (const r of imp.rows) if (!r.key) r.on = !!imp.where;
+  impPaint();
+}
+async function impGo(){
+  if (!imp) return;
+  const jobs = new Map();
+  for (const r of imp.rows){
+    if (!r.on) continue;
+    const k = r.key || imp.where; if (!k || !BY_KEY[k]) continue;
+    if (!jobs.has(k)) jobs.set(k, []); jobs.get(k).push(r);
+  }
+  if (!jobs.size) return;
+  imp.stage = 'work'; imp.doneN = 0; imp.hills = jobs.size;
+  imp.toFile = [...jobs.values()].reduce((n, a) => n + a.length, 0);
+  impPaint();
+  /* which hills this is about to put photos on that are not marked - worked
+     out BEFORE anything is filed, because filing does not mark anything and
+     the answer would read the same either way */
+  const fresh = [];
+  for (const [k, rows] of jobs){
+    if (!isBagged(k)){
+      const d = rows.map(r => r.when).filter(Boolean).sort((a, b) => a - b)[0];
+      fresh.push({k, date: d ? impYmd(d) : ''});
+    }
+  }
+  let filed = 0;
+  for (const [k, rows] of jobs){
+    const n = await addPhotos(k, rows.map(r => r.f), true);
+    if (!imp) return;
+    filed += (+n || 0); imp.doneN += rows.length; impPaint();
+  }
+  imp.stage = 'done'; imp.filed = filed; imp.fresh = fresh;
+  saveLocal(); render(); impPaint();
+}
+async function impMark(){
+  const list = (imp && imp.fresh) || []; if (!list.length) return;
+  const keys = list.map(x => x.k);
+  await marking(() => {
+    for (const x of list){
+      const c = rec(x.k);
+      state.bagged[x.k] = {...c, st:'done', done:true, date: c.date || x.date || today(),
+        asc: c.date ? c.asc : [x.date || today()], t: now()};
+    }
+    touched();
+  });
+  toast(keys.length + (keys.length === 1 ? ' hill marked off.' : ' hills marked off.'));
+  impClose(); render();
+}
+/* Only worth asking somebody who has walked more than they have photographed.
+   A brand new log has nothing to match against, and a log already full of
+   pictures does not need the card taking up the top of the journal. */
+function impWorthOffering(){
+  const rs = Object.values(state.bagged || {}).filter(r => r && r.done);
+  if (rs.length < 3) return false;
+  const withPics = rs.filter(r => (r.photos || []).length).length;
+  return withPics < rs.length / 2;
+}
+/* the card that offers it, used in the journal and on a hill with no pictures */
+function impOfferHTML(where){
+  return '<label class="impoffer' + (where === 'slim' ? ' slim' : '') + '">' + ti('photo') +
+    '<span><b>Got photos from before WayMark?</b>' +
+    '<i>Pick them and we’ll work out which hills they were taken on, from the location saved in each one.</i></span>' +
+    '<span class="impcta">Choose photos</span>' +
+    '<input type="file" accept="image/*" multiple data-act="impfiles" hidden></label>';
+}
+
 (function(){
   /* selector -> the sheet's OWN close function, so the drag-to-close, the X
      button and Escape all end up in the same place */
@@ -28928,7 +29287,8 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-act=
        underneath stayed live and the cropper was marked inert along with the
        rest of the page — it appeared greyed out, would not drag, and taps went
        through to the form behind it, which is the keyboard popping up. */
-    {sel:'#avsheet',     close(){ try{ avClose(); }catch(e){} }}
+    {sel:'#avsheet',     close(){ try{ avClose(); }catch(e){} }},
+    {sel:'#impsheet',    close(){ try{ impClose(); }catch(e){} }}
   ];
 
   const shown = el => {
