@@ -5714,6 +5714,10 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .impnone span{display:block; font-size:13px; line-height:1.4; color:var(--ink-3); margin-top:3px}
 .impnone select{width:100%; margin-top:9px; min-height:44px; padding:8px 10px; font:inherit; font-size:15px;
   color:var(--ink); background:var(--raise); border:1px solid var(--line); border-radius:9px}
+.impalt{display:block; margin:-4px 0 10px 12px; padding:0 0 0 11px; border-left:2px solid var(--line)}
+.impalt > span{display:block; font:normal 12px var(--font-data); color:var(--ink-3); margin-bottom:5px}
+.impalt select{width:100%; min-height:44px; padding:8px 10px; font:inherit; font-size:15px;
+  color:var(--ink); background:var(--raise); border:1px solid var(--line); border-radius:9px}
 .impgo{width:100%; margin-top:16px}
 .impgo[disabled]{opacity:.45}
 
@@ -7282,14 +7286,14 @@ html.kbopen .cvcompose{padding-bottom:8px}
     </div>
 
     <div class="setpane" id="pn-photos" hidden>
-      <p class="setnote">Most photos carry the place and the moment they were taken, inside the file. WayMark can read that, work out which summit each one was taken on, and show you the answer before it files anything. It all happens on this device &mdash; no picture and no location is sent anywhere.</p>
+      <p class="setnote">Most photos carry the place and the moment they were taken, inside the file. WayMark reads that, works out which summit each one was taken on, and shows you the answer before it files anything. Where there is no location but there is a date, it checks your own log instead &mdash; a photo from a day you already marked belongs to that hill. It all happens on this device &mdash; no picture and no location is sent anywhere.</p>
       <label class="impoffer">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>
         <span><b>Choose photos from this device</b><i>Pick as many as you like. Nothing is filed until you have seen where it is going.</i></span>
         <span class="impcta">Choose photos</span>
         <input type="file" accept="image/*" multiple data-act="impfiles" hidden>
       </label>
-      <p class="setnote">Two things worth knowing. Phones often strip the location when a photo is shared to a web page, so some will come through with no place on them &mdash; those are listed separately and you can put them on a hill yourself. And HEIC photos, the iPhone default, cannot be read in a browser at all; most phones hand over a JPEG instead, but not always.</p>
+      <p class="setnote">Two things worth knowing. Phones often strip the location when a photo is shared to a web page &mdash; the date usually survives, which is what your log is then checked against. And HEIC photos, the iPhone default, cannot be read in a browser at all, so neither the place nor the date comes through; most phones hand over a JPEG instead, but not always, and exporting as JPEG keeps both.</p>
     </div>
 
     <div class="setpane" id="pn-back" hidden>
@@ -13004,7 +13008,7 @@ const NOTIFY_KINDS = [
   {sec:'Friends’ hills', rows:[
     ['summit', 'Someone you follow posts', 'A walk, a summit or a photo'],
     ['chal',   'They finish a challenge you are on', 'Only patches you have earned too'],
-    ['board',  'Somebody joins your leaderboard', '']]}
+    ['board',  'Your leaderboards', 'Somebody joins, or goes past you']]}
 ];
 const NOTIFY_DEFAULT = {dm:'push', group:'push', mention:'push', request:'app', walk:'push', rsvp:'app', remind:'push', like:'app', comment:'push', follow:'app', summit:'app', chal:'app', board:'app'};
 let notifyPrefs = null, notifyPrefsLoading = false;
@@ -13024,7 +13028,7 @@ function saveNotifyPrefs(){
   FB.setDoc(notifyDoc(), notifyPrefs).catch(e => toast(fbWhy(e)));
 }
 /* the bell's notes, filtered by what you asked to see in the app */
-const NOTE_KIND = {like:'like', comment:'comment', reply:'comment', mention:'mention', follow:'follow', request:'follow', accepted:'follow', walk:'walk', walkyes:'rsvp', walkno:'rsvp', posted:'summit', samechal:'chal', joined:'board'};
+const NOTE_KIND = {like:'like', comment:'comment', reply:'comment', mention:'mention', follow:'follow', request:'follow', accepted:'follow', walk:'walk', walkyes:'rsvp', walkno:'rsvp', posted:'summit', samechal:'chal', joined:'board', overtaken:'board'};
 function noteShown(n){ const k = NOTE_KIND[n.type]; return !(k && notifyPrefs && notifyPrefs.kinds && notifyPrefs.kinds[k] === 'off'); }
 
 const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -21439,8 +21443,42 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'delpost'){
     ui.postMenu = null; render();
-    const ok = await confirmAsk({title:'Delete this post?', body:'It goes from everyone\u2019s feed, along with its comments.', yes:'Delete'});
-    if (ok) deletePost(el.dataset.id);
+    const pid = el.dataset.id;
+    /* The other half of the pair. Deleting a journal entry already offers to
+       take its post down; deleting the POST left the entry sitting in the
+       journal with nothing to show it had ever been shared, and the walker
+       had to go and find it. Now it offers, unticked.
+
+       Unticked on purpose, and the opposite way round to the other one. Up
+       there the post is a copy of the entry, so removing both is the tidy
+       answer. Down here the entry is the original and the post was the copy:
+       somebody unsharing a day almost never means to shred what they wrote
+       about it, and the words are the part that cannot be got back. */
+    const entry = (state.diary || []).find(e => e && !e.deleted && e.post === pid);
+    const tick = entry ? {
+      label:'Delete the journal entry too',
+      sub:'\u201c' + (entry.title || prettyDate(entry.date) || 'that day') + '\u201d \u2014 the words go for good',
+      /* confirmAsk reads tick.on and treats anything but false as ticked, so
+         this has to be on:false. Written as off:true it read as ticked and
+         would have deleted the writing by default. */
+      on:false
+    } : null;
+    const ok = await confirmAsk({title:'Delete this post?',
+      body:'It goes from everyone\u2019s feed, along with its comments.' +
+        (entry ? ' Your journal entry for that day stays unless you tick below.' : ''),
+      yes:'Delete', tick});
+    if (!ok) return;
+    const alsoEntry = !!tick && askTicked();
+    try{ await deletePost(pid); }catch(err){ toast(fbWhy(err)); return; }
+    /* The link is dead either way, so clear it - otherwise deleting the entry
+       later offers to take down a post that has already gone. */
+    if (entry){
+      if (alsoEntry){ entry.deleted = true; }
+      entry.post = ''; entry.t = now();
+      touched();
+    }
+    render();
+    toast(alsoEntry ? 'Post and journal entry deleted.' : 'Post deleted.');
   }
   else if (a === 'react'){ react(el.dataset.id, el.dataset.e); }
   /* a walk from the profile list opens where the whole post lives */
@@ -22422,6 +22460,7 @@ document.addEventListener('change', e => {
     impStart(files);
   }
   else if (a === 'impwhere'){ impWhere(el.value); }
+  else if (a === 'impday'){ impDay(el.dataset.v, el.value); }
   else if (a === 'challist'){ if (ui.chalDraft){ ui.chalDraft.list = el.value; chalPaint(); } }
   else if (a === 'chaltarget'){ if (ui.chalDraft) ui.chalDraft.target = Math.max(0, +el.value || 0); }
   else if (a === 'chalfrom'){ if (ui.chalDraft){ ui.chalDraft.from = el.value; chalPaint(); } }
@@ -23374,7 +23413,8 @@ async function fbSignOut(){
   fbUser = null;
   /* forget what we loaded, so the next person to sign in gets their own boards
      rather than the last walker's rows sitting there */
-  groupRows = {}; boardsWanted = new Set(); socialWanted = false; socialFailed = false; socialWhy = '';
+  groupRows = {}; groupRowsAt = {}; boardsWanted = new Set();
+  try{ localStorage.removeItem(BOARD_LEDGER); }catch(e){} socialWanted = false; socialFailed = false; socialWhy = '';
   friendOpen = null;
   friends = []; friendReqs = []; feed = []; reactedBy = {}; commentsBy = {}; fbHandle = '';
   /* And the identity. Leaving these behind meant the next person to sign in
@@ -24789,6 +24829,7 @@ function noteLine(n, count){
     case 'posted':   return who + ' posted' + (n.snip ? ' about <i>' + esc(n.snip) + '</i>' : '');
     case 'samechal': return who + ' finished <i>' + esc(n.snip || 'a challenge') + '</i> too';
     case 'joined':   return who + ' joined <i>' + esc(n.snip || 'your leaderboard') + '</i>';
+    case 'overtaken':return who + ' has gone past you on <i>' + esc(n.snip || 'your leaderboard') + '</i>';
     case 'follow':   return who + ' started following you';
     case 'request':  return who + ' asked to follow you';
     case 'accepted': return who + ' accepted your follow request';
@@ -24798,7 +24839,7 @@ function noteLine(n, count){
     default:         return who + ' did something on WayMark';
   }
 }
-const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check', walk:'walk', walkyes:'user-check', walkno:'x', posted:'mountain', samechal:'award', joined:'users'};
+const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check', walk:'walk', walkyes:'user-check', walkno:'x', posted:'mountain', samechal:'award', joined:'users', overtaken:'trending-up'};
 function notesHTML(){
   const seen = notesSeenAt();
   /* likes on the same post collapse into one line */
@@ -24835,7 +24876,7 @@ function notesHTML(){
        falling back to the person only when there is nothing else to open */
     const target = n.post ? 'data-act="noteopen" data-post="' + esc(n.post) + '" data-c="' + (n.type === 'like' ? '' : '1') + '"'
                   : n.type === 'samechal' && n.patch ? 'data-act="openpatch" data-v="' + esc(n.patch) + '"'
-                  : n.type === 'joined' && n.code ? 'data-act="goboard" data-v="' + esc(n.code) + '"'
+                  : (n.type === 'joined' || n.type === 'overtaken') && n.code ? 'data-act="goboard" data-v="' + esc(n.code) + '"'
                   : 'data-act="openfriend" data-uid="' + esc(n.from) + '"';
     s += '<div class="nrow' + (fresh ? ' fresh' : '') + (n.type === 'walk' ? ' walkrow' : '') + '">' +
       '<button class="pwhobtn" data-act="openfriend" data-uid="' + esc(n.from) + '">' + avatarHTML(n.av, n.name, 'sm', n.from) +
@@ -27004,7 +27045,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v265b';
+const APP_VERSION = 'v267';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -27554,6 +27595,7 @@ const newCode = () => Array.from({length:6}, () => CODE_ALPHABET[Math.floor(Math
 const tidyCode = s => String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
 
 let groupRows = {};      // code -> [member rows]
+let groupRowsAt = {};    // code -> when those rows came down
 let groupBusy = '';
 let friendOpen = null;   // {code, uid}
 
@@ -27698,7 +27740,61 @@ async function pushGroups(){
     try{ await FB.setDoc(memberRef(g.code, fbUser.uid), myMemberDoc(g.code)); }
     catch(e){ /* a group that has gone away shouldn't break the sync */ }
   }
+  /* a courtesy, not part of the sync: it must never be the reason a log
+     fails to go up */
+  try{ boardPassed(); }catch(e){}
   if (myGroups().some(g => groupDetail(g.code))) await pushSharedPhotos();
+}
+
+/* ---- going past somebody on a leaderboard ----
+   No server watches the boards, and nothing should: it would mean reading
+   every board on a schedule for an event that almost never happens. The
+   walker who does the overtaking is the one who knows — their own app has
+   the board's rows and has just worked out their new total. So it tells the
+   person it went past, through the same note-then-ping path that a like or a
+   comment already uses. Nothing new on the server but one word in a map.
+
+   The ledger is what stops it repeating. Without a record of the total this
+   device last published, every sync would look like a fresh overtake and the
+   same person would be told again and again. First run on a device writes
+   the ledger and tells nobody - there is no "before" to compare against, and
+   a new phone should not announce a year of walking as if it happened this
+   morning. */
+const BOARD_LEDGER = 'waymark.boardme';
+const BOARD_FRESH = 6 * 3600000;   /* rows older than this are somebody else's yesterday */
+function boardLedger(){
+  try{ const v = JSON.parse(localStorage.getItem(BOARD_LEDGER) || '{}'); return (v && typeof v === 'object') ? v : {}; }
+  catch(e){ return {}; }
+}
+function boardPassed(){
+  if (!FB || !fbUser) return;
+  const led = boardLedger();
+  const mine = Object.keys(state.bagged || {}).filter(isBagged).length;
+  let wrote = false;
+  for (const g of myGroups()){
+    const code = g.code;
+    const prev = led[code];
+    led[code] = mine; wrote = true;
+    if (prev === undefined || mine <= prev) continue;      /* first sight, or no gain */
+    const rows = groupRows[code];
+    if (!Array.isArray(rows) || !rows.length) continue;    /* board not loaded: nothing to compare */
+    if (Date.now() - (groupRowsAt[code] || 0) > BOARD_FRESH) continue;  /* too old to trust */
+    /* Anybody I was behind or level with, and am now ahead of. Capped, so
+       passing a whole page of people at once is not a burst of twenty
+       notifications - the nearest few are the ones that mean anything. */
+    const passed = rows
+      .filter(r => r && r.uid && r.uid !== fbUser.uid && +r.hills >= prev && +r.hills < mine)
+      .sort((a, b) => (+b.hills || 0) - (+a.hills || 0))
+      .slice(0, 3);
+    for (const r of passed){
+      /* the id carries their total, so passing the same person again after
+         they have walked back ahead is a new event and not a silent repeat */
+      notify(r.uid, 'ov_' + code + '_' + (+r.hills || 0), {
+        type:'overtaken', code, snip: isGlobal(code) ? GLOBAL_NAME : (g.name || 'your leaderboard')
+      });
+    }
+  }
+  if (wrote){ try{ localStorage.setItem(BOARD_LEDGER, JSON.stringify(led)); }catch(e){} }
 }
 
 /* Copy shared photos into each group so friends can actually see them.
@@ -27864,14 +27960,14 @@ async function loadGroup(code){
     const rows = [];
     snap.forEach(d => rows.push(Object.assign({uid:d.id}, d.data())));
     rows.sort((a,b) => (b.hills||0) - (a.hills||0));
-    groupRows[code] = rows;
+    groupRows[code] = rows; groupRowsAt[code] = Date.now();
     /* the board's own document: who started it, and whether it carries a
        shared challenge. One extra read per board, once. */
     try{
       const meta = await FB.getDoc(groupRef(code));
       if (meta.exists()) groupMeta[code] = meta.data() || {};
     }catch(e){}
-  }catch(e){ groupRows[code] = []; }
+  }catch(e){ groupRows[code] = []; groupRowsAt[code] = 0; }
   groupBusy = ''; render();
   return groupRows[code];
 }
@@ -30044,6 +30140,25 @@ const IMPORT_NEAR = 150;
 const IMPORT_RADIUS = 1000;
 let imp = null;
 
+/* ---- the walker's own log as the second way of placing a photo ----
+   A location is the best evidence, but it is the thing phones throw away:
+   an iPhone strips it on the way to a web page, and HEIC cannot be read in
+   a browser at all. Both of those leave a photo with nothing but a date -
+   and a date is often enough, because the log already says where they were.
+   A photo taken on 14 June 2023, with Ben Nevis marked for 14 June 2023, is
+   a Ben Nevis photo on the walker's own say-so. That is not a guess.
+
+   Hills are returned highest first: on a day with several tops, the summit
+   photograph is far more likely to be of the big one. */
+function markedOn(d){
+  if (!d) return [];
+  return Object.keys(state.bagged || {}).filter(k => {
+    const r = state.bagged[k];
+    if (!r || !r.done || !BY_KEY[k]) return false;
+    return r.date === d || (Array.isArray(r.asc) && r.asc.indexOf(d) >= 0);
+  }).sort((a, b) => (+BY_KEY[b].f || 0) - (+BY_KEY[a].f || 0));
+}
+
 const impYmd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 
 function impEl(){
@@ -30071,19 +30186,28 @@ function impClose(){
 async function impStart(files){
   const list = [...files].filter(looksLikeImage);
   if (!list.length){ toast('No photos WayMark can open in that lot.'); return; }
-  imp = {stage:'read', total:list.length, read:0, rows:[], urls:[], where:''};
+  imp = {stage:'read', total:list.length, read:0, rows:[], urls:[], where:'', heic:0};
   impPaint(); impEl().classList.add('open');
   for (const f of list){
     const meta = (await photoMeta(f).catch(() => null)) || {};
     if (!imp) return;                                  /* closed while reading */
-    const when = meta.when || (f.lastModified ? new Date(f.lastModified) : null);
-    let key = '', dist = null, near = false;
+    /* Only the date written INTO the photo can place it. A file's
+       "last modified" is usually the day it was exported or downloaded, so it
+       is fine for sorting the pile and useless as evidence. */
+    const shot = meta.when || null;
+    const when = shot || (f.lastModified ? new Date(f.lastModified) : null);
+    if (/\.hei[cf]$/i.test(f.name || '')) imp.heic++;
+    let key = '', dist = null, near = false, day = [];
     if (meta.fix){
       const n = nearestHill(meta.fix.lat, meta.fix.lon);
       if (n && n.d <= IMPORT_RADIUS){ key = n.h.k; dist = Math.round(n.d); near = n.d <= IMPORT_NEAR; }
     }
+    if (!key && shot){
+      day = markedOn(impYmd(shot));
+      if (day.length) key = day[0];
+    }
     const url = URL.createObjectURL(f); imp.urls.push(url);
-    imp.rows.push({f, url, when, key, dist, near, on: near});
+    imp.rows.push({f, url, when, shot, key, dist, near, day, byDate: !!day.length, on: near || !!day.length});
     imp.read++;
     if (imp.read % 3 === 0 || imp.read === list.length) impPaint();
     await new Promise(r => setTimeout(r, 0));
@@ -30112,7 +30236,7 @@ function impPaint(){
 
   if (imp.stage === 'read'){
     const pc = imp.total ? Math.round(imp.read / imp.total * 100) : 0;
-    const placed = imp.rows.filter(r => r.near).length;
+    const placed = imp.rows.filter(r => r.near || r.byDate).length;
     s += '<h3 class="impttl">Reading ' + imp.total + (imp.total === 1 ? ' photo' : ' photos') + '…</h3>' +
       '<div class="impbar"><i style="width:' + pc + '%"></i></div>' +
       '<p class="impsub">' + placed + ' placed so far · nothing leaves this phone</p>';
@@ -30134,14 +30258,23 @@ function impPaint(){
       /* the closest photo in the group decides how sure the guess is */
       const far = Math.min.apply(null, g.rows.map(r => r.dist == null ? 9e9 : r.dist));
       const sure = g.rows.some(r => r.near);
-      s += '<button class="impgrp' + (lit ? ' on' : '') + (sure ? '' : ' loose') + '" data-act="impgrp" data-v="' + esc(g.id) + '" aria-pressed="' + lit + '">' +
+      const dated = !sure && g.rows.every(r => r.byDate);   /* placed by the log, not by GPS */
+      const alts = dated ? (g.rows[0].day || []) : [];
+      s += '<button class="impgrp' + (lit ? ' on' : '') + (sure || dated ? '' : ' loose') + '" data-act="impgrp" data-v="' + esc(g.id) + '" aria-pressed="' + lit + '">' +
         '<span class="imptick">' + (lit ? ti('check') : '') + '</span>' +
         '<span class="impg"><b>' + esc(hillName(h)) + '</b>' +
         (sure && !isBagged(g.key) ? '<i class="impnew">Not in your log</i>' : '') +
         '<span>' + (g.date ? esc(prettyDate(g.date)) : 'no date') + ' · ' +
           g.rows.length + (g.rows.length === 1 ? ' photo' : ' photos') +
-          (sure ? '' : ' · ' + far + ' m away, so not certain') + '</span></span>' +
+          (dated ? ' · no location, placed by your log' : sure ? '' : ' · ' + far + ' m away, so not certain') + '</span></span>' +
         '<span class="impths">' + g.rows.slice(0, 3).map(r => '<img alt="" src="' + r.url + '">').join('') + '</span></button>';
+      /* A day with more than one top marked: the date alone cannot say which,
+         so the walker picks from that day's hills and nothing else. */
+      if (alts.length > 1)
+        s += '<label class="impalt"><span>You marked ' + alts.length + ' hills that day</span>' +
+          '<select data-act="impday" data-v="' + esc(g.id) + '" aria-label="Which hill these photos are of">' +
+          alts.map(k => '<option value="' + esc(k) + '"' + (k === g.key ? ' selected' : '') + '>' +
+            esc(hillName(BY_KEY[k])) + '</option>').join('') + '</select></label>';
     }
     if (none){
       /* Their own marked hills, newest first: the photo they cannot place is
@@ -30152,8 +30285,17 @@ function impPaint(){
         .sort((a, b) => String(state.bagged[b].date || '').localeCompare(String(state.bagged[a].date || '')))
         .slice(0, 300);
       s += '<div class="impnone">' + ti('map-pin') +
-        '<div><b>' + none.rows.length + (none.rows.length === 1 ? ' photo with no location' : ' photos with no location') + '</b>' +
-        '<span>Phones often strip it when a photo is shared to a web page. Put them on a hill, or leave them — you can always add them from a hill’s own page.</span>' +
+        '<div><b>' + none.rows.length + (none.rows.length === 1 ? ' photo we couldn’t place' : ' photos we couldn’t place') + '</b>' +
+        /* Two different reasons, and the walker can act on one of them. A HEIC
+           still HAS its date and place - a browser simply cannot read it - so
+           saying so is worth more than a shrug. */
+        '<span>' + (imp.heic
+          ? imp.heic + (imp.heic === 1 ? ' is a HEIC file, which a browser can’t open. Export as JPEG and the date and place come with it. '
+                                       : ' are HEIC files, which a browser can’t open. Export them as JPEG and the date and place come with them. ')
+          : '') +
+        (none.rows.length - imp.heic > 0
+          ? (imp.heic ? 'The rest had' : 'No location saved, and') + ' nothing in your log for the day they were taken. ' : '') +
+        'Put them on a hill, or leave them.</span>' +
         (marked.length
           ? '<select data-act="impwhere" aria-label="Which hill"><option value="">Leave them out</option>' +
             marked.map(k => '<option value="' + esc(k) + '"' + (imp.where === k ? ' selected' : '') + '>' +
@@ -30201,6 +30343,12 @@ function impWhere(k){
   if (!imp) return;
   imp.where = k || '';
   for (const r of imp.rows) if (!r.key) r.on = !!imp.where;
+  impPaint();
+}
+function impDay(id, k){
+  if (!imp || !k || !BY_KEY[k]) return;
+  const g = impGroups().find(x => x.id === id); if (!g) return;
+  for (const r of g.rows) r.key = k;
   impPaint();
 }
 async function impGo(){
@@ -30261,7 +30409,7 @@ function impWorthOffering(){
 function impOfferHTML(where){
   return '<label class="impoffer' + (where === 'slim' ? ' slim' : '') + '">' + ti('photo') +
     '<span><b>Got photos from before WayMark?</b>' +
-    '<i>Pick them and we’ll work out which hills they were taken on, from the location saved in each one.</i></span>' +
+    '<i>Pick them and we’ll work out which hills they were taken on — from the location saved in each one, or from the date and your own log.</i></span>' +
     '<span class="impcta">Choose photos</span>' +
     '<input type="file" accept="image/*" multiple data-act="impfiles" hidden></label>';
 }
