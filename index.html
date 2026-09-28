@@ -8477,8 +8477,12 @@ async function peakTally(key){
 function peakTallyLine(key){
   const r = state.bagged && state.bagged[key];
   if (!r) return '';
-  if (r.nth) return 'You were the ' + ordinal(r.nth) + ' on WayMark up this one.';
-  if (r.tot) return r.tot.toLocaleString('en-GB') + ' on WayMark have marked it.';
+  const tot = +r.tot || 0, nth = +r.nth || 0;
+  /* your place and the running total on one line: the first is the bit worth
+     having, the second is the one that keeps moving */
+  if (nth && tot > nth) return 'You were the ' + ordinal(nth) + ' \u00b7 ' + tot.toLocaleString('en-GB') + ' have marked it';
+  if (nth) return 'You were the ' + ordinal(nth) + ' on WayMark up this one';
+  if (tot) return tot.toLocaleString('en-GB') + ' on WayMark have marked it';
   return '';
 }
 function setState(key, st, date){
