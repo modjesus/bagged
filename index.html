@@ -5829,6 +5829,45 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .chpline span{flex:none; font:600 12px var(--font-data); color:var(--ink-3); letter-spacing:.04em}
 .chpline svg{width:15px; height:15px; flex:none; color:var(--ink-3)}
 
+/* ---- your orders ---- */
+.ordfoot{margin:16px 0 0; text-align:center}
+.ordlink{display:inline-flex; align-items:center; gap:7px; min-height:44px; font:600 14px var(--font-ui)}
+.ordlink svg{width:17px; height:17px}
+.ordcard{background:var(--raise); border:1px solid var(--line); border-radius:12px; padding:13px; margin:0 0 10px}
+.ordhead{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.ordref{flex:1; min-width:0; font:600 13px var(--font-data); letter-spacing:.08em; color:var(--accent-text)}
+.ordwhen{font:600 11.5px var(--font-data); color:var(--ink-3); letter-spacing:.05em}
+.ordbadge{font:600 9.5px/1 var(--font-data); letter-spacing:.08em; text-transform:uppercase; padding:4px 7px;
+  border-radius:4px; background:var(--surface-2); color:var(--ink-3); border:1px solid var(--line)}
+.ordbadge.on{background:var(--ink); color:var(--ground); border-color:var(--ink)}
+.ordline{display:flex; align-items:center; gap:8px; margin:10px 0 0}
+.ordline .bctile{width:38px; height:42px; flex:none; border-radius:6px}
+.ordline .bctile img{width:100%; height:100%; object-fit:cover}
+.ordline b{flex:1; min-width:0; font:600 14px var(--font-ui)}
+.ordtot{font:700 14px var(--font-ui)}
+.ordnames{margin:8px 0 0; font-size:13px; color:var(--ink-3); line-height:1.4}
+.ordsteps{list-style:none; display:flex; gap:0; margin:11px 0 0; padding:0}
+.ordsteps li{flex:1; text-align:center; font:600 9.5px var(--font-data); letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.ordsteps li:before{content:""; display:block; height:4px; border-radius:99px; background:var(--surface-2); margin:0 2px 6px}
+.ordsteps li.on{color:var(--ink)}
+.ordsteps li.on:before{background:var(--ink)}
+.ordnote{margin:9px 0 0; font-size:12.5px; color:var(--ink-3); line-height:1.45}
+.ordnote.warn{color:var(--accent-text); font-weight:600}
+.ordnote a{color:var(--accent-text)}
+.ordforget{font-size:12.5px; padding:8px 0 0; min-height:36px}
+.ordempty{display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px; padding:18px 8px}
+.ordempty svg{width:34px; height:34px; color:var(--ink-3)}
+.ordempty b{font:700 16px var(--font-ui)}
+.ordempty span{font-size:13.5px; color:var(--ink-3); line-height:1.45}
+.ordfind{margin-top:14px}
+.ordfind label{display:block; font:600 11px var(--font-data); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
+.ordfindrow{display:flex; gap:8px}
+.ordfindrow input{flex:1; min-width:0; min-height:46px; padding:8px 11px; font:600 16px var(--font-data);
+  letter-spacing:.08em; text-transform:uppercase; color:var(--ink); background:var(--raise);
+  border:1px solid var(--line); border-radius:10px}
+.ordfindrow .btn{flex:none}
+
 /* the grid: two across on a phone, four on a desk */
 .bcgrid{display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:22px 12px}
 @media (min-width:620px){ .bcgrid{grid-template-columns:repeat(3, minmax(0, 1fr)); gap:28px 18px} }
@@ -9811,6 +9850,7 @@ function openBasket(){
 function closeBasket(){ const el = document.getElementById('basketsheet'); if (el) el.classList.remove('open'); }
 function paintBasket(msg){
   const el = document.getElementById('basketsheet'); if (!el) return;
+  /* nothing here yet — the foot of a filled backpack is handled below */
   basket = basket.filter(l => !shopCat || shopItem(l.k));
   const t = basketTotals(), n = basketCount();
   let s = '<div class="sheetbox"><div class="cmgrab"></div><div class="ntop"><h3>Your backpack' + (n ? ' <span class="bccount">&middot; ' + n + '</span>' : '') + '</h3>' +
@@ -9820,6 +9860,9 @@ function paintBasket(msg){
     s += '<div class="bkempty">' + ti('backpack') + '<b>Nothing packed yet</b><span>Tees from ' + gbp(Math.min(...bcSale().map(d => shopItem(d.n).price).concat([3000]))) + ', printed to order in the UK.' +
       (bcFreeOver() ? ' Free delivery over ' + gbp(bcFreeOver()) + '.' : '') + '</span>' +
       '<button class="btn" data-act="bkshop">Browse the shop</button></div>';
+    /* An empty backpack is exactly when somebody is wondering where the last
+       order got to, so the way to it is here rather than buried. */
+    if (ordersRead().length) s += '<p class="ordfoot">' + ordersLinkHTML('bag') + '</p>';
     if (rv.length) s += '<section class="bcrow"><div class="bcrowhead"><h2>You looked at</h2></div><div class="bcscroll">' + rv.slice(0, 6).map(bcMini).join('') + '</div></section>';
     if (sv.length) s += '<button class="bcnews saved" data-act="bksaved">' + bcHeart(true) + '<span><b>Saved &middot; ' + sv.length + '</b></span>' + ti('chevron-right') + '</button>';
     el.innerHTML = s + '</div>'; if (typeof wire === 'function') wire(); return;
@@ -9857,6 +9900,7 @@ function paintBasket(msg){
   s += '<button class="btn bkgo" data-act="bkcheckout">' + ti('lock') + 'Checkout securely &middot; ' + gbp(t.total) + '</button>' +
     '<p class="shopnote bkpay">Apple Pay, Google Pay or card &middot; by Stripe' +
       (t.goods ? ' &middot; arrives ' + esc(bcArrive()) + ' &middot; 14-day returns' : '') + '. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>';
+  if (ordersRead().length) s += '<p class="ordfoot">' + ordersLinkHTML('bag') + '</p>';
   el.innerHTML = s + '</div>';
   if (typeof wire === 'function') wire();
   if (ui.bkCodeOpen === 'focus'){ ui.bkCodeOpen = true; const b = document.getElementById('bkcode'); if (b) b.focus(); }
@@ -9903,6 +9947,11 @@ async function checkoutBasket(){
 function basketDone(id){
   if (shopCheckout){ try{ shopCheckout.destroy(); }catch(e){} shopCheckout = null; }
   const lines = basket.slice(), t = basketTotals(), n = basketCount();
+  /* Before the basket is emptied, not after: this is the only moment the app
+     knows both the Stripe session and what was in it. It used to throw the
+     session away here and the walker had no record of the order anywhere in
+     the app. Donations are money, not a parcel, so they are not kept. */
+  if (!lines.every(l => isDonation(l.k))) orderKeep(id, lines.filter(l => !isDonation(l.k)), t.total);
   basket = []; basketCode = null; saveBasket();
   const now = new Date(), hhmm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
   const step = (on, title, sub) => '<li class="' + (on ? 'on' : '') + '"><span>' + (on ? ti('check') : '') + '</span><div><b>' + title + '</b><i>' + sub + '</i></div></li>';
@@ -9931,6 +9980,7 @@ function basketDone(id){
     '<ol class="bcsteps">' + step(true, 'Paid', 'Today, ' + hhmm) + step(false, 'Printing', 'Usually 2–5 working days') + step(false, 'On its way', 'Arrives ' + esc(bcArrive())) + '</ol>' +
     '<div class="bcorderrow">' + lines.slice(0, 4).map(l => { const p = prodInfo(l.k); return p && p.img ? '<span class="bctile"><img alt="" src="' + esc(p.img) + '"></span>' : ''; }).join('') +
       '<span>' + n + (n === 1 ? ' item' : ' items') + ' &middot; ' + gbp(t.total) + '</span></div>' +
+    '<p class="ordnote">Order <b>' + esc(orderRef(id)) + '</b> \u00b7 ' + ordersLinkHTML() + '</p>' +
     '<button class="btn pine" data-act="shopclose">Back to the hills</button></div>' + peekSetupNudge());
   const hb = document.querySelector('#shopsheet .shophead b'); if (hb) hb.textContent = 'Order confirmed';
 }
@@ -11173,6 +11223,7 @@ function renderShop(){
     if (rv.length) s += '<section class="bcrow"><div class="bcrowhead"><h2>Recently viewed</h2><button class="linkbtn" data-act="bcrecentclear">Clear</button></div>' +
       '<div class="bcscroll">' + rv.slice(0, 8).map(bcMini).join('') + '</div></section>';
   }
+  if (ordersRead().length) s += '<p class="ordfoot">' + ordersLinkHTML() + '</p>';
   s += '<p class="bcfoot">' + (bcFreeOver() ? 'Free UK delivery over ' + gbp(bcFreeOver()) + ' &middot; ' : 'UK delivery &middot; ') +
     '14-day returns &middot; <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms, returns and privacy</a></p>';
   if (!state.enabled.length)
@@ -16372,6 +16423,199 @@ function pendingInviteCard(){
    threw "Cannot access 'chalOf' before initialization" and drew nothing at
    all. Anything a renderer calls has to be initialised before the renderers
    are. */
+/* ==================== your orders (v265) ====================
+   Nothing on the server keeps a list. The shop worker holds no database: its
+   two order endpoints are admin-only and ask Inkthreadable directly, one at a
+   time. So there was nowhere for a walker's own orders to come from.
+
+   Except the app is HANDED the Stripe session at checkout and was throwing it
+   away the moment the confirmation drew. The customer-facing order number is
+   that session's last six characters, and the handle Inkthreadable files the
+   order under is its last thirty-two. Both are already in the browser.
+
+   So the list is kept on the device. That is a real limit and the screen says
+   so out loud: an order placed on the laptop is not on the phone. Better said
+   than left for somebody to discover while wondering where their tee went.
+
+   Live status is asked for with the THIRTY-TWO, not the six. Six characters
+   are guessable; thirty-two are not, so only somebody who actually placed the
+   order can ask after it. The answer carries a status and nothing else - no
+   name, no address, no email. If the worker has not been updated yet, or the
+   ask fails for any reason, the list still works and simply says to check the
+   email for tracking. */
+const BC_ORDERS = 'waymark.orders';
+const orderRef = sid => 'WM-' + String(sid || '').slice(-6).toUpperCase();
+const orderHandle = sid => String(sid || '').slice(-32);
+function ordersRead(){
+  try{ const v = JSON.parse(localStorage.getItem(BC_ORDERS) || '[]'); return Array.isArray(v) ? v : []; }
+  catch(e){ return []; }
+}
+function ordersWrite(v){
+  try{ localStorage.setItem(BC_ORDERS, JSON.stringify(v.slice(0, 40))); }catch(e){}
+}
+/* Called the moment Stripe says it is done. Everything it needs is already in
+   the basket about to be emptied, so it has to run BEFORE that happens. */
+function orderKeep(sid, lines, total){
+  if (!sid) return;
+  const all = ordersRead();
+  if (all.some(o => o.sid === orderHandle(sid))) return;      /* a repeat of the same completion */
+  all.unshift({
+    sid: orderHandle(sid),
+    ref: orderRef(sid),
+    t: Date.now(),
+    total: +total || 0,
+    lines: (lines || []).slice(0, 8).map(l => {
+      const p = prodInfo(l.k);
+      return {k: String(l.k), name: (p && p.name) || 'Item', opt: l.opt || '', qty: +l.qty || 1,
+              img: (p && p.img) || '', don: isDonation(l.k)};
+    })
+  });
+  ordersWrite(all);
+}
+/* Type in a WM- number from an older order, or one placed on another device.
+   Stored with no lines, because all we have is the number. */
+function orderAdopt(ref){
+  ref = String(ref || '').trim().toUpperCase().replace(/^WM[-\s]*/, '');
+  if (!/^[A-Z0-9]{6}$/.test(ref)) return null;
+  const full = 'WM-' + ref;
+  const all = ordersRead();
+  if (all.some(o => o.ref === full)) return full;
+  all.unshift({sid:'', ref: full, t: 0, total: 0, lines: [], typed: true});
+  ordersWrite(all);
+  return full;
+}
+function orderForget(ref){
+  ordersWrite(ordersRead().filter(o => o.ref !== ref));
+}
+
+/* ---- live status ----
+   Best effort and nothing more. A worker that has not been updated answers
+   404, the fetch may fail outright, and either way the list carries on
+   saying what it does know. */
+let orderStat = {};              /* ref -> {s, when, carrier, track} | 'off' */
+let orderAsking = false;
+async function ordersRefresh(force){
+  const {w} = shopCfg(); if (!w || orderAsking) return;
+  const list = ordersRead().filter(o => o.sid || o.ref);
+  const todo = list.filter(o => force || !orderStat[o.ref]).slice(0, 6);
+  if (!todo.length) return;
+  orderAsking = true;
+  for (const o of todo){
+    try{
+      const q = o.sid ? 'x=' + encodeURIComponent(o.sid) : 'ref=' + encodeURIComponent(o.ref);
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 7000);
+      const r = await fetch(w + '/order-status?' + q, {signal: ctl.signal});
+      clearTimeout(t);
+      if (!r.ok){ orderStat[o.ref] = 'off'; continue; }
+      const j = await r.json();
+      orderStat[o.ref] = (j && j.ok && j.status) ? {s: String(j.status).toLowerCase(),
+        when: j.shipped || '', carrier: j.carrier || '', track: j.tracking || ''} : 'off';
+    }catch(e){ orderStat[o.ref] = 'off'; }
+  }
+  orderAsking = false;
+  if (document.getElementById('ordsheet')) ordersPaint();
+}
+/* Inkthreadable's words, turned into the three a walker cares about. Anything
+   unrecognised counts as paid rather than being guessed at. */
+function orderStep(o){
+  const st = orderStat[o.ref];
+  if (!st || st === 'off') return {i: 0, label: '', live: false};
+  const s = st.s || '';
+  if (/cancel|refund/.test(s)) return {i: -1, label: 'Cancelled', live: true, st};
+  if (/ship|dispatch|complete|fulfil|sent|post/.test(s)) return {i: 2, label: 'Posted', live: true, st};
+  if (/print|production|progress|process/.test(s)) return {i: 1, label: 'Printing', live: true, st};
+  return {i: 0, label: 'Paid', live: true, st};
+}
+
+function ordersEl(){
+  let el = document.getElementById('ordsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'ordsheet';
+    el.className = 'sheet bottom chalsheet';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-label', 'Your orders');
+    el.addEventListener('click', e => { if (e.target === el) ordersClose(); });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function ordersClose(){ const el = document.getElementById('ordsheet'); if (el) el.classList.remove('open'); ui.ordFind = false; }
+function ordersOpen(){ ordersPaint(); ordersEl().classList.add('open'); ordersRefresh(); }
+function ordersPaint(){
+  /* Newest first. One typed in by hand has no date, so it goes last - which
+     is right, because a number somebody digs out of an old receipt is an old
+     order. Unsorted, it appeared above the one placed five minutes ago. */
+  const list = ordersRead().slice().sort((a, b) => (b.t || 0) - (a.t || 0));
+  let s = '<div class="sheetbox chalbox"><div class="cmgrab"></div>' +
+    '<button class="xbtn" data-act="ordclose" aria-label="Close">' + ti('x') + '</button>' +
+    '<h3 class="chttl">Your orders</h3>';
+  if (!list.length){
+    s += '<div class="ordempty">' + ti('backpack') +
+      '<b>No orders on this device</b>' +
+      '<span>Anything you have ordered is in your email, with its receipt and its tracking. This list only knows about orders placed on this phone.</span></div>';
+  } else {
+    s += '<p class="impsub">Kept on this device. An order placed somewhere else is not here — the email has all of them.</p>';
+    for (const o of list){
+      const step = orderStep(o);
+      const n = o.lines.reduce((a, l) => a + (l.qty || 1), 0);
+      const names = o.lines.map(l => l.name + (l.opt ? ', ' + l.opt : '')).join(' · ');
+      s += '<article class="ordcard">' +
+        '<div class="ordhead"><b class="ordref">' + esc(o.ref) + '</b>' +
+          (step.live
+            ? '<span class="ordbadge' + (step.i >= 2 ? ' on' : '') + '">' + esc(step.label) + '</span>'
+            : '') +
+          (o.t ? '<span class="ordwhen">' + esc(shortDay(new Date(o.t).toISOString().slice(0, 10))) + '</span>' : '') +
+        '</div>';
+      if (o.lines.length){
+        s += '<div class="ordline">' +
+          o.lines.slice(0, 4).filter(l => l.img).map(l => '<span class="bctile"><img alt="" loading="lazy" src="' + esc(l.img) + '"></span>').join('') +
+          '<b>' + n + (n === 1 ? ' item' : ' items') + '</b>' +
+          (o.total ? '<span class="ordtot">' + gbp(o.total) + '</span>' : '') + '</div>' +
+          '<p class="ordnames">' + esc(names) + '</p>';
+      } else {
+        s += '<p class="ordnames">Looked up by its number, so the items are not listed here.</p>';
+      }
+      if (step.i >= 0){
+        s += '<ol class="ordsteps">' +
+          ['Paid', 'Printing', 'Posted'].map((t, i) =>
+            '<li class="' + (i <= step.i ? 'on' : '') + '">' + t + '</li>').join('') + '</ol>';
+      } else {
+        s += '<p class="ordnote warn">' + esc(step.label) + '</p>';
+      }
+      if (step.live && step.st && step.st.track)
+        s += '<p class="ordnote"><a href="' + esc(step.st.track) + '" target="_blank" rel="noopener">Track it' +
+          (step.st.carrier ? ' · ' + esc(step.st.carrier) : '') + '</a></p>';
+      else if (step.live && step.i >= 2)
+        s += '<p class="ordnote">Posted' + (step.st && step.st.when ? ' ' + esc(prettyDate(step.st.when)) : '') +
+          (step.st && step.st.carrier ? ' · ' + esc(step.st.carrier) : '') + '. The tracking link is in your email.</p>';
+      else
+        s += '<p class="ordnote">Printed to order in the UK. We email the tracking the day it leaves.</p>';
+      s += '<button class="linkbtn ordforget" data-act="ordforget" data-v="' + esc(o.ref) + '">Remove from this list</button>' +
+      '</article>';
+    }
+  }
+  s += ui.ordFind
+    ? '<div class="ordfind"><label for="ordref">Order number</label>' +
+      '<div class="ordfindrow"><input id="ordref" placeholder="WM-HPC6DY" maxlength="12" autocomplete="off" spellcheck="false" data-act="ordrefin">' +
+      '<button class="btn sm" data-act="ordadd">Add</button></div>' +
+      '<p id="ordmsg" class="ordnote">It is on your receipt, and at the end of the email subject.</p></div>'
+    : '<button class="btn ghost chsave" data-act="ordfind">Add an older order by its number</button>';
+  ordersEl().innerHTML = s + '</div>';
+  if (typeof wire === 'function') wire();
+}
+function ordersAdd(){
+  const box = document.getElementById('ordref'), msg = document.getElementById('ordmsg');
+  const got = orderAdopt(box ? box.value : '');
+  if (!got){ if (msg){ msg.textContent = 'That does not look like an order number. Six letters or numbers after WM-.'; msg.className = 'ordnote warn'; } return; }
+  ui.ordFind = false; ordersPaint(); ordersRefresh(true);
+}
+/* the link into it, used under the shop and in the backpack */
+function ordersLinkHTML(where){
+  const n = ordersRead().length;
+  return '<button class="linkbtn ordlink' + (where === 'bag' ? ' bag' : '') + '" data-act="ordopen">' +
+    ti('backpack') + (n ? 'Your orders · ' + n : 'Your orders') + '</button>';
+}
+
 /* ==================== the challenge (v264) ====================
    Goodreads' reading challenge, for hills. You set your own number for a
    stretch of time, WayMark says whether you are ahead of it, and the people
@@ -21750,6 +21994,11 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'bcsheetclose'){ bcSheetClose(); }
   else if (a === 'bccoll'){ ui.shopColl = el.dataset.v; ui.shopSaved = false; render(); }
+  else if (a === 'ordopen') ordersOpen();
+  else if (a === 'ordclose') ordersClose();
+  else if (a === 'ordfind'){ ui.ordFind = true; ordersPaint(); const b = document.getElementById('ordref'); if (b) b.focus(); }
+  else if (a === 'ordadd') ordersAdd();
+  else if (a === 'ordforget'){ orderForget(el.dataset.v); ordersPaint(); }
   else if (a === 'chalpage'){ if (chalOf()) chalPageOpen(); }
   else if (a === 'chalpclose') chalPageClose();
   else if (a === 'chalnew'){ chalPageClose(); chalOpen(false); }
@@ -26739,7 +26988,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v264';
+const APP_VERSION = 'v265';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -30017,6 +30266,7 @@ function impOfferHTML(where){
        through to the form behind it, which is the keyboard popping up. */
     {sel:'#avsheet',     close(){ try{ avClose(); }catch(e){} }},
     {sel:'#impsheet',    close(){ try{ impClose(); }catch(e){} }},
+    {sel:'#ordsheet',    close(){ try{ ordersClose(); }catch(e){} }},
     {sel:'#chalpsheet',  close(){ try{ chalPageClose(); }catch(e){} }},
     {sel:'#chalsheet',   close(){ try{ chalClose(); }catch(e){} }}
   ];
