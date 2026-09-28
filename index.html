@@ -16513,7 +16513,8 @@ async function ordersRefresh(force){
       if (!r.ok){ orderStat[o.ref] = 'off'; continue; }
       const j = await r.json();
       orderStat[o.ref] = (j && j.ok && j.status) ? {s: String(j.status).toLowerCase(),
-        when: j.shipped || '', carrier: j.carrier || '', track: j.tracking || ''} : 'off';
+        when: j.shipped || '', carrier: j.carrier || '', track: j.tracking || '',
+        num: j.number || ''} : 'off';
     }catch(e){ orderStat[o.ref] = 'off'; }
   }
   orderAsking = false;
@@ -16587,12 +16588,22 @@ function ordersPaint(){
       } else {
         s += '<p class="ordnote warn">' + esc(step.label) + '</p>';
       }
-      if (step.live && step.st && step.st.track)
-        s += '<p class="ordnote"><a href="' + esc(step.st.track) + '" target="_blank" rel="noopener">Track it' +
-          (step.st.carrier ? ' · ' + esc(step.st.carrier) : '') + '</a></p>';
+      const st = step.st || {};
+      /* The date comes back as a full timestamp; only the day is any use. */
+      const day = st.when ? prettyDate(String(st.when).slice(0, 10)) : '';
+      if (step.live && st.track)
+        s += '<p class="ordnote"><a href="' + esc(st.track) + '" target="_blank" rel="noopener">Track it' +
+          (st.carrier ? ' \u00b7 ' + esc(st.carrier) : '') + '</a>' +
+          (day ? ' \u00b7 posted ' + esc(day) : '') + '</p>';
       else if (step.live && step.i >= 2)
-        s += '<p class="ordnote">Posted' + (step.st && step.st.when ? ' ' + esc(prettyDate(step.st.when)) : '') +
-          (step.st && step.st.carrier ? ' · ' + esc(step.st.carrier) : '') + '. The tracking link is in your email.</p>';
+        /* Posted, but no clickable link came back - the number on its own is
+           still what somebody needs to paste into Royal Mail. */
+        s += '<p class="ordnote">Posted' + (day ? ' ' + esc(day) : '') +
+          (st.carrier ? ' \u00b7 ' + esc(st.carrier) : '') +
+          (st.num ? ' \u00b7 ' + esc(st.num) : '') + '. The tracking link is in your email.</p>';
+      else if (step.live && step.i === 1)
+        s += '<p class="ordnote">Being printed now' + (st.carrier ? ', going out by ' + esc(st.carrier) : '') +
+          '. We email the tracking the day it leaves.</p>';
       else
         s += '<p class="ordnote">Printed to order in the UK. We email the tracking the day it leaves.</p>';
       s += '<button class="linkbtn ordforget" data-act="ordforget" data-v="' + esc(o.ref) + '">Remove from this list</button>' +
@@ -26993,7 +27004,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v265a';
+const APP_VERSION = 'v265b';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
