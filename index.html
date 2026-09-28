@@ -9862,7 +9862,7 @@ function paintBasket(msg){
       '<button class="btn" data-act="bkshop">Browse the shop</button></div>';
     /* An empty backpack is exactly when somebody is wondering where the last
        order got to, so the way to it is here rather than buried. */
-    if (ordersRead().length) s += '<p class="ordfoot">' + ordersLinkHTML('bag') + '</p>';
+    s += '<p class="ordfoot">' + ordersLinkHTML('bag') + '</p>';
     if (rv.length) s += '<section class="bcrow"><div class="bcrowhead"><h2>You looked at</h2></div><div class="bcscroll">' + rv.slice(0, 6).map(bcMini).join('') + '</div></section>';
     if (sv.length) s += '<button class="bcnews saved" data-act="bksaved">' + bcHeart(true) + '<span><b>Saved &middot; ' + sv.length + '</b></span>' + ti('chevron-right') + '</button>';
     el.innerHTML = s + '</div>'; if (typeof wire === 'function') wire(); return;
@@ -9900,7 +9900,7 @@ function paintBasket(msg){
   s += '<button class="btn bkgo" data-act="bkcheckout">' + ti('lock') + 'Checkout securely &middot; ' + gbp(t.total) + '</button>' +
     '<p class="shopnote bkpay">Apple Pay, Google Pay or card &middot; by Stripe' +
       (t.goods ? ' &middot; arrives ' + esc(bcArrive()) + ' &middot; 14-day returns' : '') + '. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>';
-  if (ordersRead().length) s += '<p class="ordfoot">' + ordersLinkHTML('bag') + '</p>';
+  s += '<p class="ordfoot">' + ordersLinkHTML('bag') + '</p>';
   el.innerHTML = s + '</div>';
   if (typeof wire === 'function') wire();
   if (ui.bkCodeOpen === 'focus'){ ui.bkCodeOpen = true; const b = document.getElementById('bkcode'); if (b) b.focus(); }
@@ -11223,7 +11223,11 @@ function renderShop(){
     if (rv.length) s += '<section class="bcrow"><div class="bcrowhead"><h2>Recently viewed</h2><button class="linkbtn" data-act="bcrecentclear">Clear</button></div>' +
       '<div class="bcscroll">' + rv.slice(0, 8).map(bcMini).join('') + '</div></section>';
   }
-  if (ordersRead().length) s += '<p class="ordfoot">' + ordersLinkHTML() + '</p>';
+  /* NOT gated on already having one. Gated, the only way to reach the list
+     was to have an order on this device already — which made the "add an
+     older order by its number" box, the whole point of which is orders this
+     device has never seen, impossible to get to. */
+  s += '<p class="ordfoot">' + ordersLinkHTML() + '</p>';
   s += '<p class="bcfoot">' + (bcFreeOver() ? 'Free UK delivery over ' + gbp(bcFreeOver()) + ' &middot; ' : 'UK delivery &middot; ') +
     '14-day returns &middot; <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms, returns and privacy</a></p>';
   if (!state.enabled.length)
@@ -16552,7 +16556,8 @@ function ordersPaint(){
   if (!list.length){
     s += '<div class="ordempty">' + ti('backpack') +
       '<b>No orders on this device</b>' +
-      '<span>Anything you have ordered is in your email, with its receipt and its tracking. This list only knows about orders placed on this phone.</span></div>';
+      '<span>Anything you have ordered is in your email, with its receipt and its tracking. This list only knows about orders placed on this phone \u2014 put an order number in below and it will look that one up too.</span></div>';
+    ui.ordFind = true;      /* nothing to look at, so lead with the one thing there is to do */
   } else {
     s += '<p class="impsub">Kept on this device. An order placed somewhere else is not here — the email has all of them.</p>';
     for (const o of list){
@@ -26988,7 +26993,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v265';
+const APP_VERSION = 'v265a';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
