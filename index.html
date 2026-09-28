@@ -5035,6 +5035,12 @@ span.pshow{cursor:default}
 .bkapplied svg{width:16px; height:16px; color:var(--done)}
 .bkapplied .linkbtn{margin-left:auto}
 .bkapplied i{font-style:normal; color:var(--ink-3)}
+.ukonly{display:flex; align-items:center; justify-content:center; gap:7px; margin:0 auto 12px;
+  font-family:var(--font-ui); font-size:12.5px; font-weight:600; color:var(--ink-2);
+  background:var(--surface-2); border:1px solid var(--line-soft); border-radius:99px; padding:7px 14px;
+  width:fit-content}
+.ukonly svg{width:15px; height:15px; color:var(--accent-text); flex:none}
+.ukonly.bkuk{margin:14px auto 10px}
 .bkmsg{margin:8px 2px 0; font-size:13.5px; color:var(--warn)}
 .bktotals{margin:14px 0 0; display:flex; flex-direction:column; gap:6px}
 .bktotals div{display:flex; justify-content:space-between; font-size:14.5px; color:var(--ink-2)}
@@ -5552,6 +5558,11 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
   border-radius:99px; padding:12px; font:700 15px var(--font-ui); cursor:pointer; margin-bottom:10px}
 
 /* who came with you, on the mark sheet */
+/* a tagged name is a way through to them, so it has to look like one */
+.ptag1{border:0; background:none; padding:0; font:inherit; color:var(--accent-text);
+  font-weight:700; cursor:pointer; text-decoration:underline; text-decoration-thickness:1px;
+  text-underline-offset:2px}
+.ptag1:active{opacity:.7}
 .pdogs{display:flex; align-items:center; gap:6px; margin:6px 0 0; font-family:var(--font-ui);
   font-size:13px; color:var(--accent-text)}
 .pdogs svg{width:15px; height:15px; flex:none}
@@ -9532,6 +9543,7 @@ function paintBasket(msg){
     /* nothing being posted: a "UK delivery: Free" row on a donation is noise */
     (t.goods ? '<div><dt>UK delivery</dt><dd' + (t.ship ? '' : ' class="free"') + '>' + (t.ship ? gbp(t.ship) : 'Free') + '</dd></div>' : '') +
     '<div class="tot"><dt>Total</dt><dd>' + gbp(t.total) + '</dd></div></dl>';
+  if (t.goods) s += '<p class="ukonly bkuk">' + ti('map-pin') + 'UK addresses only \u2014 we cannot post abroad yet.</p>';
   s += '<button class="btn bkgo" data-act="bkcheckout">' + ti('lock') + 'Checkout securely &middot; ' + gbp(t.total) + '</button>' +
     '<p class="shopnote bkpay">Apple Pay, Google Pay or card &middot; by Stripe' +
       (t.goods ? ' &middot; arrives ' + esc(bcArrive()) + ' &middot; 14-day returns' : '') + '. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>';
@@ -9622,7 +9634,7 @@ function shopBuyHTML(d){
       '<button class="chip" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
     '<button class="btn shopgo" data-act="bkadd" data-k="' + d.n + '" data-o="' + esc(size) + '"' + (size ? '' : ' disabled') + '>' +
       ti('shopping-bag') + (size ? 'Add to backpack · ' + esc(size) : 'Select a size') + '</button>' +
-    '<p class="shopnote">Secure checkout by Stripe. UK delivery in 4–10 working days. Changed your mind? Return it within 14 days. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>' +
+    '<p class="shopnote">Secure checkout by Stripe. UK addresses only, 4–10 working days. Changed your mind? Return it within 14 days. <a href="' + SUP_BASE + 'shop-terms.html" target="_blank" rel="noopener">Shop terms</a>.</p>' +
   '</div>';
 }
 function shopScript(){
@@ -10710,6 +10722,10 @@ function renderShop(){
       '<p>Every one is drawn and ready for a printer. Vote on the ones you would wear.</p></header>' + bcBoardBanner() + '</div>';
   }
   if (!ui.shopSaved && !ui.shopColl) s += bcLogBand(sale);
+  /* Said at the front door. Stripe only accepts a UK address, so somebody
+     ordering from abroad used to find that out at the payment page, with a
+     basket already filled. */
+  s += '<p class="ukonly">' + ti('map-pin') + 'We post within the UK only.</p>';
   s += bcChips(sale);
   let list, kit = kitItems();
   if (ui.shopSaved){
@@ -23849,11 +23865,36 @@ function listWords(a){
   if (x.length < 2) return x[0] || '';
   return x.slice(0, -1).join(', ') + ' and ' + x[x.length - 1];
 }
+/* On your own post your dogs go through to their page. On somebody else's,
+   their dogs are just names — a dog is not a profile other people can visit. */
+function dogNamesHTML(p, mine){
+  const names = (p.dogs || []).filter(Boolean);
+  if (!mine) return esc(listWords(names));
+  const one = n => {
+    const d = dogList().find(x => dogName(x).toLowerCase() === String(n).toLowerCase());
+    return d ? '<button class="ptag1" data-act="dogfromprof" data-v="' + esc(d.id) + '">' + esc(n) + '</button>' : esc(n);
+  };
+  if (names.length < 2) return names.length ? one(names[0]) : '';
+  return names.slice(0, -1).map(one).join(', ') + ' and ' + one(names[names.length - 1]);
+}
 function postHTML(p){
   const mine = fbUser && p.uid === fbUser.uid;
   const hs = uniqHills(p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   const cs = commentsBy[p.id] || [];
-  const tagged = (p.tags || []).map(u => (allFriends().find(f => f.uid === u) || {}).name).filter(Boolean);
+  /* who else was out: their names go through to their profile, the way a
+     name anywhere else on Hikers does */
+  const tagged = (p.tags || []).map(u => {
+    /* yourself included: somebody else's post that tags you used to drop your
+       own name, because you are not in your own friends list */
+    if (fbUser && u === fbUser.uid) return {uid:u, name:niceName(myName()) || 'You'};
+    const f = allFriends().find(x => x.uid === u) || personCache[u] || null;
+    const nm = f && f.name ? niceName(f.name) : '';
+    return nm ? {uid:u, name:nm} : null;
+  }).filter(Boolean);
+  const taggedHTML = tagged.map(t => (fbUser && t.uid === fbUser.uid)
+    ? '<button class="ptag1" data-act="hikertab" data-v="me">' + esc(t.name) + '</button>'
+    : '<button class="ptag1" data-act="openfriend" data-uid="' + esc(t.uid) + '">' + esc(t.name) + '</button>'
+  ).join(', ');
   const adventure = (p.kind === 'summit' || p.kind === 'diary') && hs.length > 0;
   const open = ui.openComments === p.id;
   let s = '<article class="post pv2 k-' + esc(p.kind || 'post') + (adventure ? ' k-adventure' : '') +
@@ -23863,7 +23904,7 @@ function postHTML(p){
   s += '<header class="phead"><button class="pwhobtn" ' + whoAct + '>' + avatarHTML(p.av, p.name, 'md', p.uid) + '</button>' +
     '<div class="pwho"><p><button class="pwhobtn" ' + whoAct + '><b>' + esc(niceName(p.name) || 'Walker') + '</b></button> ' +
     '<span class="pverb">' + esc(postVerb(p, hs)) + '</span></p>' +
-    '<span>' + esc(whenAgo(p.t)) + (tagged.length ? ' · with ' + esc(tagged.join(', ')) : '') +
+    '<span>' + esc(whenAgo(p.t)) + (tagged.length ? ' \u00b7 with ' + taggedHTML : '') +
     (p.edited ? ' <i class="pedited">(edited)</i>' : '') + '</span></div>' + visTag +
     (mine ? '<div class="pmenuwrap">' +
       '<button class="iconbtn pmenu" data-act="postmenu" data-id="' + esc(p.id) + '" aria-label="More" aria-expanded="' + (ui.postMenu === p.id) + '">' + ti('dots') + '</button>' +
@@ -23885,7 +23926,7 @@ function postHTML(p){
     const names = hs.slice().sort((a, b) => b.h - a.h).map(h => hillName(h));
     s += '<div class="pbodyv2 plead"><p class="pregion">' + esc(where || [...new Set(hs.map(h => h.c))].join(' & ')) + (p.date ? ' · ' + esc(shortDay(p.date)) : '') + '</p>' +
       '<h3 class="ptitle">' + esc(names.slice(0, 3).join(' · ')) + (names.length > 3 ? ' <button class="pmore" data-act="postsummits" data-id="' + esc(p.id) + '">+' + (names.length - 3) + ' more</button>' : '') + '</h3>' +
-      ((p.dogs || []).length ? '<p class="pdogs">' + ti('paw') + esc(listWords(p.dogs)) + ' came too</p>' : '') +
+      ((p.dogs || []).length ? '<p class="pdogs">' + ti('paw') + dogNamesHTML(p, mine) + ' came too</p>' : '') +
       statRow(p, hs) + '</div>';
   }
   s += media;
@@ -25612,7 +25653,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v256';
+const APP_VERSION = 'v258';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
