@@ -954,6 +954,20 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .planhead h3, .gxi b, .gxwho b, .gxrow b{overflow-wrap:anywhere; min-width:0}
 .dnote, .dday h3, .dday p{overflow-wrap:anywhere}
 .dogpick button{overflow-wrap:anywhere; min-width:0; max-width:100%; text-align:left}
+/* who is in a group, for whoever runs it */
+.gmlist{list-style:none; margin:0 0 12px; padding:0; display:grid; gap:8px; max-height:46vh; overflow:auto}
+.gmlist li{display:flex; align-items:center; gap:10px; justify-content:space-between;
+  border:1px solid var(--line); border-radius:12px; padding:9px 11px; background:var(--raise)}
+.gmwho{min-width:0}
+.gmwho b{display:block; font-size:15px; color:var(--ink); overflow-wrap:anywhere}
+.gmwho span{display:block; font:600 11.5px var(--font-data); letter-spacing:.06em;
+  text-transform:uppercase; color:var(--ink-3); margin-top:1px}
+.gmacts{display:flex; gap:6px; flex:none; flex-wrap:wrap; justify-content:flex-end}
+.gmacts .chip{padding:7px 11px; font-size:12.5px; cursor:pointer}
+.gmacts .chip.warn{border-color:var(--warn); color:var(--warn-text)}
+.gmnote{font-size:11.5px; color:var(--ink-3); max-width:12em; text-align:right; line-height:1.3}
+@media (max-width:379px){ .gmlist li{flex-direction:column; align-items:stretch}
+  .gmacts{justify-content:flex-start} }
 .drow{display:flex; gap:14px; margin-top:9px; flex-wrap:wrap; align-items:center}
 .drow .linkbtn{padding:0; font-size:12px}
 /* a file input dressed as one of the row's text buttons */
@@ -7602,7 +7616,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
       <button class="btn ghost" id="winJour">View journey</button>
     </div>
     <div class="btnrow winrow2">
-      <button class="btn quiet" id="winShare">Share</button>
+      <button class="btn quiet" id="winShare">Share the patch</button>
       <button class="btn quiet" id="winClose">Keep walking</button>
     </div>
   </div>
@@ -9174,13 +9188,18 @@ async function marking(fn, opts){
   /* Anything newly marked goes to the feed as one post, so ten fells from a
      route read as one day out rather than ten notifications. */
   const fresh = Object.keys(state.bagged).filter(k => isBagged(k) && !before.has(k));
+  /* Worked out here, above the share, so openShareDay knows a celebration is
+     coming and waits its turn rather than opening on top of it. */
+  const coming = newlyEarned().filter(p => !(seenWins && seenWins.has(p.id)));
+  winComing = coming.length > 0;
   if (fresh.length && !(opts && opts.quiet)) postSummits(fresh, (state.bagged[fresh[0]] || {}).date);
   /* seenWins is the record of what has already been shown. newlyEarned() only
      knows about this one action, so a patch lost and won back came round as a
      fresh popup — which Everest does easily, hanging as it does on a total
      that moves whenever a summit or an ascent does. */
-  const won = newlyEarned().filter(p => !(seenWins && seenWins.has(p.id)));
+  const won = coming;
   if (won.length){ celebrate(won); postPatches(won); }
+  else winComing = false;
 }
 /* A patch earned is worth a word to your friends. */
 async function postPatches(list){
@@ -9232,6 +9251,20 @@ function settleWins(){
   if (due.length <= 3) celebrate(due);
 }
 
+/* A patch celebration takes the screen before the share form.
+
+   Both used to open at once, at the same stacking level, so on the first hill
+   anybody ever marked the share form covered "2 patches earned — first peak"
+   completely. Closing the form revealed it, so nothing was lost, but the best
+   moment in the app arrived second and out of nowhere.
+
+   winComing is set before the share is offered, because the share is offered
+   first in marking(); shareAfterWin holds it until closeWin() lets it through.
+   Leaving the celebration for Basecamp drops it instead — a form over a screen
+   you deliberately walked to is worse than no form at all. */
+let winComing = false, shareAfterWin = null;
+function dropShareAfterWin(){ shareAfterWin = null; winComing = false; }
+
 let celebrating = null;                 // the patches currently on the popup
 function celebrate(list){
   if (!seenWins) loadSeen();
@@ -9257,9 +9290,22 @@ function celebrate(list){
   const jr = document.getElementById('winJour'); if (jr) jr.hidden = off;
   const sh = document.getElementById('winShare');
   if (sh) sh.onclick = () => shareCard(list[0]);
+  /* "Share your day" only when there is actually a day waiting behind this.
+     A patch earned by an import, or by somebody with nothing to post to, gets
+     no form afterwards, and the button must not promise one. */
+  const cl = document.getElementById('winClose');
+  if (cl) cl.textContent = shareAfterWin ? 'Share your day' : 'Keep walking';
   hydratePhotos();
 }
-function closeWin(){ document.getElementById('win').classList.remove('open'); celebrating = null; }
+function closeWin(){
+  document.getElementById('win').classList.remove('open');
+  celebrating = null;
+  winComing = false;
+  const held = shareAfterWin; shareAfterWin = null;
+  /* a beat, so the celebration is gone before the form arrives rather than the
+     two of them crossing over mid-animation */
+  if (held) setTimeout(() => openShareDay(held.hs, held.d), 260);
+}
 
 /* ---------- the share card ----------
    A 1080×1350 picture of the patch on deep green with the name, the date and
@@ -21666,7 +21712,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'toggledetail'){ fbDetail = !fbDetail; markDirty('detail'); renderAccountBox(); scheduleSync(400); }
   else if (a === 'closegroupform'){ ui.groupForm = ''; ui.joinCode = ''; render(); }
-  else if (a === 'newgroup'){ ui.gNewKind = 'private'; ui.gNewName = ''; ui.gNewClash = ''; ui.gNewWhere = 'Anywhere'; ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
+  else if (a === 'newgroup'){ ui.gNewKind = ''; ui.gNewName = ''; ui.gNewClash = ''; ui.gNewWhere = 'Anywhere'; ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
   else if (a === 'joingroup'){ ui.groupForm = ui.groupForm === 'join' ? '' : 'join'; if (!ui.groupForm) ui.joinCode = ''; render(); }
   else if (a === 'dogroup'){
     /* Both branches MUST catch. Without it a rejected Firestore write leaves the
@@ -21679,7 +21725,10 @@ document.addEventListener('click', async e => {
     };
     ui.joinCode = '';
     if (el.dataset.v === 'new'){
-      const kind = ui.gNewKind === 'public' ? 'public' : 'private';
+      if (ui.gNewKind !== 'public' && ui.gNewKind !== 'private'){
+        say('Pick private or public first. It cannot be changed later.', true); return;
+      }
+      const kind = ui.gNewKind;
       const nm = (document.getElementById('gname').value || '').trim() || (kind === 'public' ? 'A public group' : 'My leaderboard');
       const wh = (document.getElementById('gwhere') || {}).value || 'Anywhere';
       say('Creating\u2026');
@@ -21730,6 +21779,26 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'leavegroup'){
     const code = el.dataset.v;
+    /* Leaving your own group used to abandon it: nobody left who could remove
+       a post or a member, and no way to delete it either. Now it is a fork —
+       hand it to an owner, or delete it. */
+    if (gStarted(code) && !isGlobal(code)){
+      const others = (groupRows[code] || []).filter(r => r.uid !== (fbUser || {}).uid).length;
+      if (others){
+        gSheetClose();
+        const show = await confirmAsk({
+          title: 'You run this group',
+          body: 'There ' + (others === 1 ? 'is 1 other person' : 'are ' + others + ' other people') + ' in it. '
+              + 'If you just walk away nobody can remove a post or a member here again. '
+              + 'Make one of them an owner first \u2014 or delete the group.',
+          yes: 'Show me the members', no: 'Not now'});
+        if (show){
+          if (!groupRows[code]) await loadGroup(code);
+          ui.gView = code; gMembersSheet();
+        }
+        return;
+      }
+    }
     const ok = await leaveGroup(code);
     toast(ok ? (isGlobal(code) ? 'Left the open board.' : 'Left that group.')
              : 'Removed here, but the server could not be reached: your row is still on that board.');
@@ -22618,7 +22687,7 @@ document.addEventListener('click', async e => {
     if (bcDeck && bcDeck.i >= bcDeck.list.length) paintDeck();
   }
   else if (a === 'bcnews'){ const t = bcRead('waymark.told'); t.push(el.dataset.v); bcWrite('waymark.told', t); tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
-  else if (a === 'bcwintee'){ closeWin(); ui.patch = null; ui.patchFrom = null; tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
+  else if (a === 'bcwintee'){ dropShareAfterWin(); closeWin(); ui.patch = null; ui.patchFrom = null; tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
   else if (a === 'bcpatchtell'){ await patchTellMe(); toast('We’ll tell you when the real patches are ready.'); }
   else if (a === 'bklater'){
     const l = basket[+el.dataset.i]; if (!l) return;
@@ -23695,7 +23764,7 @@ document.getElementById('win').onclick = e => { if (e.target.id === 'win') close
    go to Basecamp, and neither opens the patch's own page — that is one tap
    further in from either, and this popup should not decide which you wanted. */
 document.getElementById('winGo').onclick = () => {
-  closeWin();
+  dropShareAfterWin(); closeWin();
   /* Collection is the landing view, not the board: the board is earned-only,
      so a new walker opened Basecamp onto an empty wall. */
   ui.patch = null; ui.patchFrom = null; ui.patchView = 'collection'; ui.patchSub = 'collection';
@@ -23703,7 +23772,7 @@ document.getElementById('winGo').onclick = () => {
   render(); window.scrollTo({top:0});
 };
 document.getElementById('winJour').onclick = () => {
-  closeWin();
+  dropShareAfterWin(); closeWin();
   ui.patch = null; ui.patchFrom = null; ui.patchView = 'journey'; ui.jAll = false; tab = 'a';
   render(); window.scrollTo({top:0});
 };
@@ -26651,6 +26720,8 @@ async function postSummits(keys, date){
   }catch(e){}
 }
 function openShareDay(hs, d){
+  /* Wait for the celebration. See winComing, above celebrate(). */
+  if (winComing || winOpen()){ shareAfterWin = {hs, d}; return; }
   const day = diaryDays().find(x => x.date === d) || {photos:[], entries:[]};
   const entry = (day.entries || []).find(e => e.title || e.text) || null;
   const photos = (day.photos || []).concat(...(day.entries || []).map(e => e.photos || [])).filter((p, i, a) => p && a.findIndex(q => q.id === p.id) === i).slice(0, 6);
@@ -27623,7 +27694,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v273';
+const APP_VERSION = 'v275';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28181,12 +28252,25 @@ const groupRef  = c => FB.doc(fbDb, 'groups', c);
 const memberRef = (c, uid) => FB.doc(fbDb, 'groups', c, 'members', uid);
 const gPhotoRef = (c, pid) => FB.doc(fbDb, 'groups', c, 'photos', pid);
 
+/* Groups this device has deleted or left for good.
+
+   Deleting a group takes it off state.groups, but the cloud copy of that list
+   is a whole sync behind. A pull landing seconds later handed the group back,
+   and pushGroups() then wrote a fresh member row into the very group that had
+   just been emptied. On two devices it is worse: the other one has not heard
+   and pushes the old list up again. So a deleted code is remembered here and
+   filtered out of every read of the list, wherever the list came from. */
+const GONE_KEY = 'waymark.gonegroups';
+let gGone = (() => { try{ const v = JSON.parse(localStorage.getItem(GONE_KEY) || '[]'); return new Set(Array.isArray(v) ? v : []); }catch(e){ return new Set(); } })();
+function markGone(code){ gGone.add(code); try{ localStorage.setItem(GONE_KEY, JSON.stringify([...gGone].slice(-80))); }catch(e){} }
+function unmarkGone(code){ if (!gGone.delete(code)) return; try{ localStorage.setItem(GONE_KEY, JSON.stringify([...gGone])); }catch(e){} }
+
 function myGroups(){
   /* Array.isArray, not just a truthy check: a hand-edited or foreign backup can
      put a string or an object here, and a string has .length so it walks past a
      length test. Every renderer calls this, so one wrong shape white-screened the
      whole app, and it is saved to localStorage, so it came back on reload too. */
-  return Array.isArray(state.groups) ? state.groups.filter(g => g && g.code) : [];
+  return Array.isArray(state.groups) ? state.groups.filter(g => g && g.code && !gGone.has(g.code)) : [];
 }
 
 /* Detail sharing is decided per leaderboard: you might tell your walking club
@@ -28449,6 +28533,7 @@ async function createGroup(name, kind, where){
      loadGroup(null) and toast "Share the code null". */
   if (!FB || !fbUser){ const e = new Error('not signed in'); e.code = 'not-signed-in'; throw e; }
   const code = newCode();
+  unmarkGone(code);
   const pub = kind === 'public';
   const nm = name || (pub ? 'A public group' : 'My leaderboard');
   const doc = {name: nm, createdBy: fbUser.uid, createdAt: Date.now(), kind: pub ? 'public' : 'private', mem: 1, lastT: Date.now()};
@@ -28467,6 +28552,8 @@ async function joinGroup(code){
   code = tidyCode(code);
   if (!FB || !fbUser || code.length !== 6) return {ok:false, msg:'That code should be six characters.'};
   if (myGroups().some(g => g.code === code)) return {ok:false, msg:"You're already in that one."};
+  /* deliberately going back into one you deleted or left clears the tombstone */
+  unmarkGone(code);
   let snap;
   try{ snap = await FB.getDoc(groupRef(code)); }
   catch(e){ return {ok:false, msg:'Could not reach the server.'}; }
@@ -28644,7 +28731,11 @@ function boardCard(g, bare){
   if (rows && rows.length) html += chalStripHTML(g);
   if (groupBusy === g.code || !rows) html += skeletonRows(4);
   else if (!rows.length) html += '<p class="empty" style="padding:18px">' +
-    (glob ? 'Nobody on it yet. You are the first.' : 'Just you so far. Send the invite link to whoever you walk with.') + '</p>';
+    (glob ? 'Nobody on it yet. You are the first.'
+          : gKind(g.code) === 'public'
+          /* a public group has no invite link to send — it is found, not invited */
+          ? 'Just you so far. Anyone using WayMark can find this group and join it.'
+          : 'Just you so far. Send the invite link to whoever you walk with.') + '</p>';
   else {
     html += '<div class="regionlist" style="margin-top:10px">';
     rows.forEach((r, i) => {
@@ -28669,20 +28760,26 @@ function groupFormHTML(){
     /* The kind is chosen here and never again. Every talk document carries a
        copy of it so a public group can be read without a lookup, and that copy
        is only honest because the kind cannot move under it afterwards. */
-    const kind = ui.gNewKind === 'public' ? 'public' : 'private';
+    /* Nothing is pre-selected. It used to start on Private, and Private is a
+       permanent choice — somebody who typed a name and tapped Create got a
+       private group for ever without ever seeing the question. Joe did exactly
+       that. The Create button waits until one of them has been tapped. */
+    const kind = ui.gNewKind === 'public' ? 'public' : ui.gNewKind === 'private' ? 'private' : '';
     const clash = kind === 'public' && ui.gNewClash ? ui.gNewClash : '';
     return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button><div><label for="gname">Name it</label>' +
       '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40" value="' + esc(ui.gNewName || '') + '"></div>' +
-      '<div><label>Who can see it?</label>' +
+      '<div><label>Who can see it? <span style="color:var(--accent-text)">Choose one \u2014 it is permanent</span></label>' +
       '<div class="btnrow" style="margin-top:6px">' +
       '<button class="btn sm' + (kind === 'private' ? '' : ' ghost') + '" data-act="gxnewkind" data-v="private">' + ti('lock', 'width="16" height="16"') + 'Private</button>' +
       '<button class="btn sm' + (kind === 'public' ? '' : ' ghost') + '" data-act="gxnewkind" data-v="public">' + ti('globe', 'width="16" height="16"') + 'Public</button></div>' +
       '<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink-3)">' +
         (kind === 'private'
           ? 'Nobody can find it. You send the six-character code to whoever you want in it.'
-          : 'Anyone using WayMark can find it and read it. They join to post. <b>You run it</b> \u2014 you can remove a post and remove a member, and anything you miss can be reported to WayMark.') +
+          : kind === 'public'
+          ? 'Anyone using WayMark can find it and read it. They join to post. <b>You run it</b> \u2014 you can remove a post, remove a member, and delete the whole group.'
+          : 'Private: nobody can find it, you send the code.<br>Public: anyone can find and read it, and joins to post.') +
       '</p>' +
-      '<p style="margin:6px 0 0;font-size:12px;color:var(--ink-3)">This cannot be changed afterwards.</p></div>' +
+      '<p style="margin:6px 0 0;font-size:12px;color:var(--ink-3)">This <b>cannot be changed afterwards</b>, so it is worth a moment.</p></div>' +
       (kind === 'public'
         ? '<div><label for="gwhere">Where do you walk?</label><select id="gwhere">' +
           ['Anywhere', 'Lake District', 'Scotland', 'Eryri', 'Peak District', 'Yorkshire Dales', 'Northern Ireland', 'Ireland', 'Brecon Beacons']
@@ -28690,7 +28787,8 @@ function groupFormHTML(){
           '</select></div>' : '') +
       (clash ? '<p class="gxnote" style="margin:0">' + ti('flag', 'width="16" height="16"') + '<span>There is already a public group called <b>' + esc(clash) + '</b>. Two with the same name splits the people who would have been in one. Yours will still be made if you go ahead.</span></p>' : '') +
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
-      '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new">Create</button></div></div>';
+      '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new"' +
+        (kind ? '' : ' disabled aria-disabled="true"') + '>Create</button></div></div>';
   }
   if (ui.joinCode && ui.groupForm !== 'join') ui.groupForm = 'join';
   if (ui.groupForm === 'join'){
@@ -28803,7 +28901,21 @@ async function gMeta(code){
   }catch(e){}
   return groupMeta[code] || null;
 }
-const gRuns = code => (groupMeta[code] || {}).createdBy === (fbUser && fbUser.uid);
+/* Two levels, deliberately.
+
+   gStarted — the one person who created it. Only they can delete the whole
+   group and only they can appoint or unappoint another owner. Keeping that
+   with one person means a group cannot be taken off its founder by the people
+   they trusted with moderation.
+
+   gRuns — the founder, plus anyone they have made an owner. Removes posts,
+   removes members, renames. This is the "admin" in everyday words. */
+const gStarted = code => !!(groupMeta[code] && fbUser && groupMeta[code].createdBy === fbUser.uid);
+const gOwners = code => { const o = (groupMeta[code] || {}).owners; return Array.isArray(o) ? o.filter(x => typeof x === 'string') : []; };
+const gRuns = code => {
+  const u = fbUser && fbUser.uid; if (!u || !groupMeta[code]) return false;
+  return groupMeta[code].createdBy === u || gOwners(code).indexOf(u) >= 0;
+};
 const gName = code => isGlobal(code) ? GLOBAL_NAME
   : ((myGroups().find(g => g.code === code) || {}).name || (groupMeta[code] || {}).name || 'Group');
 
@@ -29004,6 +29116,183 @@ async function gDelete(code, pid, mine){
   if (ui.gThread === pid) ui.gThread = null;
   render(); toast(mine ? 'Deleted.' : 'Removed from the group.');
 }
+/* ---- running a group: members, owners, and deleting it -------------------
+
+   Until v275 none of this existed. The group menu told whoever started it that
+   they could "remove a post and remove a member" — the post was true, the
+   member was not, there was no such control anywhere. There was also no way to
+   delete a group at all, so a mistake was permanent and an owner who left
+   their own group left it behind with nobody able to moderate it. */
+
+function gMembersSheet(){
+  const code = ui.gView;
+  if (!code || !gRuns(code)) return;
+  const rows = groupRows[code] || [];
+  const me = (fbUser || {}).uid;
+  const founder = (groupMeta[code] || {}).createdBy;
+  const owners = gOwners(code);
+  const boss = gStarted(code);
+  let s = '<div class="ntop"><h3>Who is in this group</h3>' +
+    '<button class="xbtn" data-act="gxclose" aria-label="Close">' + ti('x') + '</button></div>';
+  s += '<p style="margin:0 0 12px;font-size:13px;color:var(--ink-3)">' +
+    (boss ? 'You started this group. You can make somebody else an owner, remove anybody, and delete the whole thing.'
+          : 'You are an owner here, so you can remove a post or a member. Only whoever started it can appoint owners or delete it.') +
+    '</p>';
+  if (!rows.length) s += '<p class="gxnote" style="margin:0 0 12px">' + ti('flag', 'width="16" height="16"') +
+    '<span>Nobody has come down yet. Close this, tap Refresh and try again.</span></p>';
+  s += '<ul class="gmlist">';
+  for (const r of rows){
+    const isFounder = r.uid === founder;
+    const isOwner = owners.indexOf(r.uid) >= 0;
+    const isMe = r.uid === me;
+    s += '<li><div class="gmwho"><b>' + esc(r.name || 'A walker') + (isMe ? ' (you)' : '') + '</b>' +
+      '<span>' + (isFounder ? 'Started it' : isOwner ? 'Owner' : (r.hills || 0) + ' marked') + '</span></div>' +
+      '<div class="gmacts">';
+    if (boss && !isFounder)
+      s += '<button class="chip" data-act="gxowner" data-u="' + esc(r.uid) + '" data-n="' + esc(r.name || '') + '" data-v="' + (isOwner ? '0' : '1') + '">' +
+        (isOwner ? 'Not an owner' : 'Make owner') + '</button>';
+    /* An owner may not remove another owner. Taking somebody off the board is
+       one write; taking them out of the owners list is another, and only the
+       founder is allowed that one — so an owner doing it would leave a removed
+       member still holding the power to remove posts and people. */
+    if (!isFounder && !isMe && (boss || !isOwner))
+      s += '<button class="chip warn" data-act="gxkick" data-u="' + esc(r.uid) + '" data-n="' + esc(r.name || '') + '">Remove</button>';
+    else if (!isFounder && !isMe && isOwner)
+      s += '<span class="gmnote">Only ' + esc(firstName((groupRows[code] || []).reduce((a2, x) => x.uid === founder ? x : a2, {}).name || 'whoever started it')) + ' can remove an owner</span>';
+    s += '</div></li>';
+  }
+  s += '</ul>';
+  s += '<button class="btn quiet" style="width:100%;margin-top:6px" data-act="gxclose">Done</button>';
+  gSheet(s);
+}
+
+/* An owner is a second pair of hands, not a second founder: they moderate,
+   they cannot appoint anybody or delete the group. The rules enforce both. */
+async function gSetOwner(code, uid, name, on){
+  if (!gStarted(code) || !FB || !fbUser) return;
+  const now = gOwners(code).filter(x => x !== uid);
+  const next = on ? [...now, uid].slice(0, 12) : now;
+  if (on && gOwners(code).length >= 12){ toast('Twelve owners is the most a group can have.'); return; }
+  try{ await FB.setDoc(groupRef(code), {owners: next}, {merge:true}); }
+  catch(e){ toast(fbWhy(e)); return; }
+  groupMeta[code] = {...(groupMeta[code] || {}), owners: next};
+  gMembersSheet();
+  toast(on ? (firstName(name) || 'They') + ' can now remove posts and members.'
+           : (firstName(name) || 'They') + ' is no longer an owner.');
+}
+
+async function gKick(code, uid, name){
+  if (!gRuns(code) || !FB || !fbUser) return;
+  if (uid === (groupMeta[code] || {}).createdBy){ toast('You cannot remove whoever started the group.'); return; }
+  if (!gStarted(code) && gOwners(code).indexOf(uid) >= 0){
+    toast('Only whoever started the group can remove an owner.'); return;
+  }
+  const who = firstName(name) || 'this walker';
+  if (!await confirmAsk({
+    title: 'Remove ' + who + '?',
+    body: 'They come off the board and cannot post here again unless they rejoin. '
+        + (gKind(code) === 'public'
+            ? 'This group is public, so nothing stops them rejoining — removing somebody is a nudge, not a lock.'
+            : 'This group is private, so they would need the code again.')
+        + ' Anything they have already said stays until you remove it.',
+    yes: 'Remove ' + who, no: 'Leave them in'})) return;
+  try{ await FB.deleteDoc(memberRef(code, uid)); }
+  catch(e){ toast(fbWhy(e)); return; }
+  if (gOwners(code).indexOf(uid) >= 0){
+    const next = gOwners(code).filter(x => x !== uid);
+    try{ await FB.setDoc(groupRef(code), {owners: next}, {merge:true}); groupMeta[code] = {...(groupMeta[code] || {}), owners: next}; }catch(e){}
+  }
+  if (gKind(code) === 'public') FB.setDoc(groupRef(code), {mem: FB.increment(-1)}, {merge:true}).catch(() => {});
+  groupRows[code] = (groupRows[code] || []).filter(r => r.uid !== uid);
+  gMembersSheet(); render();
+  toast(who + ' removed.');
+}
+
+/* Deleting the whole thing. Only whoever started it, and only with everything
+   named in the confirm, because none of it comes back.
+
+   The order matters and is not arbitrary: the rule that lets an owner delete a
+   post reads the GROUP document to check who runs it. Delete the group first
+   and every remaining write is refused, leaving the posts orphaned in the
+   database for ever. So the group document goes last. */
+async function gDeleteGroup(code){
+  if (!gStarted(code) || !FB || !fbUser) return;
+  const nm = gName(code);
+  const posts = (gTalk[code] || []).length;
+  const mem = (groupRows[code] || []).length || (groupMeta[code] || {}).mem || 0;
+  if (!await confirmAsk({
+    title: 'Delete ' + nm + '?',
+    body: 'Everything in it goes: every post and every answer'
+        + (posts ? ' (' + posts + ' post' + (posts === 1 ? '' : 's') + ' loaded so far)' : '')
+        + ', every photo posted in it, and the board itself'
+        + (mem > 1 ? ' for all ' + mem + ' of you' : '')
+        + '. Nobody will be told, and none of it can be brought back. '
+        + 'Your own hills, journal and photos are not touched.',
+    yes: 'Delete it all', no: 'Keep the group'})) return;
+  if (!await confirmAsk({
+    title: 'Really delete ' + nm + '?',
+    body: 'Last check. This cannot be undone.',
+    yes: 'Yes, delete it', no: 'Cancel'})) return;
+
+  toast('Deleting ' + nm + '…');
+  /* Off your own list FIRST, before a single document goes.
+
+     pushGroups() writes a member row for every group in state.groups, and a
+     sync landing in the middle of a delete put my own row straight back and
+     brought the group back with it. Taking it off the list first leaves the
+     sync nothing to restore, whichever way round the two land. */
+  markGone(code);
+  state.groups = myGroups().filter(g => g.code !== code);
+  touched();
+  const wipe = async (ref) => { try{ await FB.deleteDoc(ref); return true; }catch(e){ return false; } };
+  let failed = 0;
+  /* the talk, with each post's answers and photographs under it */
+  try{
+    const snap = await FB.getDocs(FB.collection(fbDb, 'groups', code, 'talk'));
+    const pids = []; snap.forEach(d => pids.push(d.id));
+    for (const pid of pids){
+      for (const sub of ['replies', 'shots']){
+        try{
+          const kids = await FB.getDocs(FB.collection(fbDb, 'groups', code, 'talk', pid, sub));
+          for (const kd of kids.docs) if (!await wipe(kd.ref)) failed++;
+        }catch(e){ failed++; }
+      }
+      if (!await wipe(talkRef(code, pid))) failed++;
+    }
+  }catch(e){ failed++; }
+  /* the shared summit photographs */
+  try{
+    const ph = await FB.getDocs(FB.collection(fbDb, 'groups', code, 'photos'));
+    for (const d of ph.docs) if (!await wipe(d.ref)) failed++;
+  }catch(e){}
+  /* the members, mine last so the rules still see me in the group */
+  try{
+    const ms = await FB.getDocs(FB.collection(fbDb, 'groups', code, 'members'));
+    const ids = []; ms.forEach(d => { if (d.id !== fbUser.uid) ids.push(d.id); });
+    for (const uid of ids) if (!await wipe(memberRef(code, uid))) failed++;
+  }catch(e){}
+  if (!await wipe(memberRef(code, fbUser.uid))) failed++;
+  /* and the group itself, last of all */
+  if (!await wipe(groupRef(code))){
+    /* back on the list: the group still exists on the server, and a walker who
+       cannot see it cannot try again */
+    unmarkGone(code);
+    if (!myGroups().some(g => g.code === code))
+      state.groups = [...myGroups(), {code, name: nm, kind: gKind(code), detail:false, t:now()}];
+    touched(); render();
+    toast('Could not delete the group itself. Try again.');
+    return;
+  }
+  state.groups = myGroups().filter(g => g.code !== code);
+  delete groupRows[code]; delete groupRowsAt[code]; delete groupMeta[code];
+  delete gTalk[code]; delete gTalkAt[code]; gFind = null;
+  for (const k of Object.keys(gReplies)) if (k.indexOf(code + '|') === 0) delete gReplies[k];
+  for (const k of Object.keys(gHillQ)){ delete gHillQ[k]; delete gHillQAt[k]; }
+  if (ui.gView === code){ ui.gView = null; ui.gThread = null; ui.gTab = 'talk'; }
+  touched(); render();
+  toast(failed ? nm + ' deleted. A few pieces would not go — tell me if it reappears.' : nm + ' is gone.');
+}
+
 /* Joining a public one. Read costs nothing; writing means standing in the room. */
 async function gJoinPublic(code){
   if (!FB || !fbUser) return;
@@ -29510,10 +29799,20 @@ function gMenuSheet(){
       '<div class="btnrow" style="margin-top:10px"><button class="btn sm ghost" data-act="shareboard" data-v="' + esc(code) + '">' + ti('share', 'width="16" height="16"') + 'Share this group</button></div>';
   }
   if (runs) s += '<div class="gxnote">' + ti('flag', 'width="16" height="16"') +
-    '<span>You started this group, so you run it. You can remove a post and remove a member. Anything you miss, a member can report to WayMark.</span></div>';
+    '<span>' + (gStarted(code)
+      ? 'You started this group, so you run it: remove a post, remove a member, make somebody else an owner, or delete the whole thing.'
+      : 'You are an owner here: you can remove a post or a member. Only whoever started it can appoint owners or delete it.') +
+    ' Anything you miss, a member can report to WayMark.</span></div>';
+  if (runs && !isGlobal(code))
+    s += '<div class="btnrow" style="margin-top:10px"><button class="btn sm ghost" data-act="gxmembers">' +
+      ti('users', 'width="16" height="16"') + 'Members and owners</button></div>';
   s += '<div class="btnrow" style="margin-top:12px"><button class="btn sm ghost" data-act="gxrefresh" data-v="' + esc(code) + '">' + ti('refresh', 'width="16" height="16"') + 'Refresh</button>';
   if (joined && !isGlobal(code)) s += '<button class="btn sm ghost" style="border-color:var(--warn);color:var(--warn-text)" data-act="leavegroup" data-v="' + esc(code) + '">Leave this group</button>';
   s += '</div>';
+  if (gStarted(code) && !isGlobal(code))
+    s += '<div class="btnrow" style="margin-top:10px"><button class="btn sm quiet" style="width:100%;border-color:var(--warn);color:var(--warn-text)" data-act="gxdelgroup" data-v="' + esc(code) + '">' +
+      ti('trash', 'width="16" height="16"') + 'Delete this group</button></div>' +
+      '<p style="margin:6px 0 0;font-size:12px;color:var(--ink-3)">Everything in it goes, for everybody, and none of it comes back.</p>';
   return gSheet(s);
 }
 function gPostMenu(code, pid){
@@ -29530,7 +29829,7 @@ function gPostMenu(code, pid){
        front line: one person cannot read every public group on WayMark. */
     if (runs){
       s += '<button class="btn quiet" style="width:100%;margin-bottom:8px;border-color:var(--warn);color:var(--warn-text)" data-act="gxremove" data-c="' + esc(code) + '" data-p="' + esc(pid) + '">' + ti('trash', 'width="16" height="16"') + 'Remove this post</button>';
-      s += '<div class="gxnote" style="margin:0 0 10px">' + ti('flag', 'width="16" height="16"') + '<span>You can do this because you started the group. Anything you miss, a member can report to WayMark.</span></div>';
+      s += '<div class="gxnote" style="margin:0 0 10px">' + ti('flag', 'width="16" height="16"') + '<span>You can do this because you ' + (gStarted(code) ? 'started' : 'are an owner of') + ' the group. Anything you miss, a member can report to WayMark.</span></div>';
     } else {
       const to = (k === 'open' || !groupMeta[code] || !groupMeta[code].createdBy) ? 'WayMark' : 'whoever runs this group';
       s += '<button class="btn quiet" style="width:100%;margin-bottom:8px" data-act="gxreport" data-c="' + esc(code) + '" data-p="' + esc(pid) + '">' + ti('flag', 'width="16" height="16"') + 'Report this post</button>';
@@ -29806,6 +30105,10 @@ document.addEventListener('click', async e => {
   if (a === 'gxunbest'){ if (await gBest(code, pid, null)) toast('Unmarked.'); return; }
   if (a === 'gxpmenu'){ gPostMenu(code, pid); return; }
   if (a === 'gxgmenu'){ gMenuSheet(); return; }
+  if (a === 'gxmembers'){ gSheetClose(); if (!groupRows[ui.gView]) await loadGroup(ui.gView); gMembersSheet(); return; }
+  if (a === 'gxowner'){ await gSetOwner(ui.gView, el.dataset.u, el.dataset.n || '', el.dataset.v === '1'); return; }
+  if (a === 'gxkick'){ await gKick(ui.gView, el.dataset.u, el.dataset.n || ''); return; }
+  if (a === 'gxdelgroup'){ gSheetClose(); await gDeleteGroup(el.dataset.v || ui.gView); return; }
   if (a === 'gxdel'){ gSheetClose(); await gDelete(code, pid, true); return; }
   if (a === 'gxremove'){ gSheetClose(); await gDelete(code, pid, false); return; }
   if (a === 'gxrefresh'){ gSheetClose(); delete groupMeta[code]; await gMeta(code); await loadTalk(code, true); if (gJoined(code)) loadGroup(code); toast('Pulled it again.'); return; }
