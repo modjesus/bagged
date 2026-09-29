@@ -966,6 +966,22 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .gmacts .chip{padding:7px 11px; font-size:12.5px; cursor:pointer}
 .gmacts .chip.warn{border-color:var(--warn); color:var(--warn-text)}
 .gmnote{font-size:11.5px; color:var(--ink-3); max-width:12em; text-align:right; line-height:1.3}
+/* who is in a photo */
+.vtagbar{position:relative; z-index:3; display:flex; justify-content:center; padding:0 16px 10px}
+.vtagbtn{display:inline-flex; align-items:center; gap:7px; border:1px solid #4A5148; background:rgba(20,26,22,.72);
+  color:#D8DCD0; border-radius:99px; padding:8px 14px; font:600 13.5px var(--font-ui); cursor:pointer;
+  max-width:100%; min-height:38px}
+.vtagbtn span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.viewer.readonly .vtagbar{display:none}
+.tagwrap{display:flex; flex-wrap:wrap; gap:8px}
+.tagpick{display:inline-flex; align-items:center; gap:7px; border:1.5px solid var(--line); background:var(--raise);
+  color:var(--ink-2); border-radius:99px; padding:7px 13px; font:600 13.5px var(--font-ui); cursor:pointer;
+  min-height:38px; max-width:100%; overflow-wrap:anywhere}
+.tagpick.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
+.tagpick i{font-style:normal; font:600 10.5px var(--font-data); letter-spacing:.06em;
+  text-transform:uppercase; color:var(--ink-3)}
+.tagpick.on i{color:var(--accent-text)}
+.tagoffer{display:block; width:100%; border-radius:12px; max-height:46vh; object-fit:cover; background:var(--ground)}
 @media (max-width:379px){ .gmlist li{flex-direction:column; align-items:stretch}
   .gmacts{justify-content:flex-start} }
 .drow{display:flex; gap:14px; margin-top:9px; flex-wrap:wrap; align-items:center}
@@ -7412,7 +7428,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .gxhq .gxhqn{margin:6px 0 0; font-size:12.5px; color:var(--ink-3)}
 
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain."}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain and Ireland."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "@id": "https://waymark.it.com/#app", "name": "WayMark", "url": "https://waymark.it.com/", "applicationCategory": "HealthApplication", "applicationSubCategory": "Hiking and hill walking log", "operatingSystem": "Any (web browser, installable as a PWA)", "browserRequirements": "Requires JavaScript", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP", "availability": "https://schema.org/InStock"}, "description": "A free walking log for the hills of Britain and Ireland. Mark the summits you have reached across 20 hill lists and 2,531 hills, keep a journal with photographs, earn patches and follow other walkers.", "featureList": ["Mark off 16 British hill lists including the Wainwrights, Munros, Corbetts, Grahams, Nuttalls, Hewitts, Birketts, Marilyns and Peak District Ethels", "2,531 summits with heights, grid references and regions", "Offline map with saveable sheets", "Walk journal with photographs and notes", "Patches earned for summits, challenges and milestones", "Follow other walkers and share completed walks", "Works offline and installs to the home screen"]}</script>
 </head>
@@ -7584,6 +7600,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
     <input id="vcapin" maxlength="140" placeholder="Add a caption&hellip;" aria-label="Photo caption" autocomplete="off">
     <p class="vcapro" id="vcapro"></p>
   </div>
+  <div class="vtagbar" id="vtagbar" hidden><button class="vtagbtn" data-act="tagopen" id="vtagbtn"></button></div>
   <div class="vstrip" id="vstrip"></div>
   <div class="vconfirm">
     <span class="ask">Delete this photo?<small>This cannot be undone.</small></span>
@@ -12405,6 +12422,7 @@ function pickChosenHTML(p){
 }
 function pickGoLabel(p){
   const n = p.sel.length, walk = p.mode === 'walk', group = p.mode === 'group';
+  if (p.mode === 'board') return n ? 'Invite ' + n + (n === 1 ? ' person' : ' people') : 'Choose who to invite';
   return walk ? (n ? 'Next: the walk' : 'Choose who’s going')
     : p.mode === 'add' ? (n ? 'Add ' + n + ' to the chat' : 'Choose people')
     : (n > 1 || group) ? (n ? 'Start group chat · ' + n : 'Choose people')
@@ -12418,16 +12436,19 @@ function pickRefresh(){
   if (ch){ ch.innerHTML = pickChosenHTML(p); ch.hidden = !p.sel.length; }
   const lst = el.querySelector('.pklist'); if (lst) lst.innerHTML = pickListHTML(p);
   const nm = el.querySelector('.pknamewrap');
-  if (nm) nm.hidden = !((p.sel.length > 1 || p.mode === 'group' || (p.mode === 'walk' && p.sel.length)) && p.mode !== 'add');
+  if (nm) nm.hidden = !((p.sel.length > 1 || p.mode === 'group' || (p.mode === 'walk' && p.sel.length)) && p.mode !== 'add' && p.mode !== 'board');
   const go = el.querySelector('[data-act=pickgo]');
   if (go){ go.disabled = !p.sel.length; go.textContent = pickGoLabel(p); }
   if (typeof wire === 'function') wire();
 }
 function paintPicker(){
   const p = ui.mpick; if (!p) return;
-  const walk = p.mode === 'walk', group = p.mode === 'group';
-  const title = walk ? 'Plan a walk with…' : p.mode === 'add' ? 'Add people' : group ? 'New group' : 'New message';
-  const showName = (p.sel.length > 1 || group || (walk && p.sel.length)) && p.mode !== 'add';
+  const walk = p.mode === 'walk', group = p.mode === 'group', board = p.mode === 'board';
+  const title = walk ? 'Plan a walk with…' : p.mode === 'add' ? 'Add people'
+              : board ? 'Invite to ' + (p.gname || 'the group')
+              : group ? 'New group' : 'New message';
+  /* An invite has no name to give: the group is already named. */
+  const showName = (p.sel.length > 1 || group || (walk && p.sel.length)) && p.mode !== 'add' && !board;
   let s = '<h3 class="bcsheettitle">' + title + '</h3>' +
     '<div class="pkchosen"' + (p.sel.length ? '' : ' hidden') + '>' + pickChosenHTML(p) + '</div>' +
     '<div class="field">' + ti('search', 'width="18" height="18"') +
@@ -12457,8 +12478,28 @@ async function pickGo(){
       hill: pl && (pl.hills || [])[0] || '', date: pl && pl.date || '', route: p.route || ''});
     return;
   }
+  if (p.mode === 'board'){ await inviteToGroup(p.code, p.sel); return; }
   const id = p.sel.length === 1 && p.mode !== 'group' ? await ensureDm(p.sel[0]) : await makeGroup(p.sel, p.title, 'group');
   if (id) openChat(id);
+}
+
+/* ---- inviting people you already follow into a group ----
+
+   Nothing new underneath: the invite is one note per person, the same kind of
+   note a like or a follow writes, and it carries the group's code. A note with
+   the code in it is exactly as much as sending somebody the code by hand —
+   which is how a private group has always worked — so no rules change, and
+   nobody is added to anything without tapping Join themselves. */
+async function inviteToGroup(code, uids){
+  if (!FB || !fbUser || !code) return;
+  const nm = gName(code);
+  const already = new Set((groupRows[code] || []).map(r => r.uid));
+  const send = uids.filter(u => u && u !== fbUser.uid && !already.has(u)).slice(0, FANOUT_CAP);
+  const skipped = uids.length - send.length;
+  if (!send.length){ toast(skipped ? 'They are all in it already.' : 'Nobody to invite.'); return; }
+  for (const u of send) notify(u, 'inv_' + code + '_' + fbUser.uid, {type:'invited', code, snip: nm});
+  toast('Invited ' + send.length + (send.length === 1 ? ' person' : ' people') + ' to ' + nm + '.' +
+        (skipped ? ' ' + skipped + ' already in it.' : ''));
 }
 function personName(uid){ const x = personCache[uid] || allFriends().find(f => f.uid === uid) || followers.find(f => f.uid === uid) || {}; return {name: x.name || 'Walker', av: x.av || ''}; }
 async function ensureDm(uid, name, av){
@@ -22721,6 +22762,52 @@ document.addEventListener('click', async e => {
   else if (a === 'pcat'){ ui.pCat = el.dataset.v; render(); }
   else if (a === 'corkshuffle'){ ui.corkSeed = (Math.random() * 1e9) | 0; render(); }
   /* a "joined your leaderboard" note lands on that board */
+  else if (a === 'tagopen'){ tagSheet(); }
+  else if (a === 'tagtoggle' || a === 'tagdog'){
+    const t = taggableNow(); if (!t) return;
+    const tg = new Set(photoTags(t.ph)), dg = new Set(photoDogTags(t.ph));
+    if (a === 'tagtoggle'){ const u = el.dataset.u; tg.has(u) ? tg.delete(u) : tg.add(u); }
+    else { const v = el.dataset.v; dg.has(v) ? dg.delete(v) : dg.add(v); }
+    setPhotoTags(t, [...tg], [...dg]);
+    tagSheet();
+  }
+  else if (a === 'tagsend'){
+    const t = taggableNow(); if (!t){ gSheetClose(); return; }
+    const tg = photoTags(t.ph), dg = photoDogTags(t.ph);
+    gSheetClose();
+    /* anybody taken back off the photo has their offer withdrawn, so long as
+       they have not already kept it */
+    for (const u of (tagSendBefore || [])) if (tg.indexOf(u) < 0) await dropTagOffer(u, t.ph.id);
+    const n = await sendTagOffers(t, tg, dg, new Set(tagSendBefore || []));
+    tagSendBefore = null;
+    paintTagBar(); render();
+    if (n) toast(n === 1 ? 'Offered to 1 person. They choose whether to keep it.'
+                         : 'Offered to ' + n + ' people. They choose whether to keep it.');
+    else if (tg.length || dg.length) toast('Saved on the photo.');
+  }
+  else if (a === 'tagoffer'){ gSheetClose(); closeNotes(); await openTagOffer(el.dataset.v); }
+  else if (a === 'tagkeep'){ await keepTagOffer(el.dataset.v); }
+  else if (a === 'tagdrop'){ await dropTagOfferMine(el.dataset.v); }
+  else if (a === 'goinvite'){
+    const code = el.dataset.v; if (!code) return;
+    const nm = el.dataset.n || 'that group';
+    if (myGroups().some(g => g.code === code)){
+      closeNotes(); tab = 'u'; ui.hikerTab = 'boards'; ui.gFind = false; ui.gFrom = 'list';
+      ui.gView = code; ui.gTab = 'talk'; ui.gThread = null;
+      render(); window.scrollTo({top:0}); loadGroup(code); loadTalk(code, true);
+      return;
+    }
+    closeNotes();
+    if (!await confirmAsk({title:'Join ' + nm + '?',
+      body:'You were invited. Joining puts you on the board and lets you post. You can leave again whenever you like.',
+      yes:'Join', no:'Not now'})) return;
+    const r = await joinGroup(code);
+    if (!r.ok){ toast(r.msg); return; }
+    tab = 'u'; ui.hikerTab = 'boards'; ui.gFind = false; ui.gFrom = 'list';
+    ui.gView = code; ui.gTab = 'talk'; ui.gThread = null;
+    render(); window.scrollTo({top:0}); loadGroup(code); loadTalk(code, true);
+    await askShareFor(code, r.name || nm);
+  }
   else if (a === 'goboard'){
     const code = el.dataset.v; if (!code) return;
     closeNotes(); tab = 'u'; ui.hikerTab = 'boards';
@@ -23253,6 +23340,7 @@ async function paintViewer(){
     const box = document.getElementById('vcapin');
     if (document.activeElement !== box) box.value = p.cap || '';
   }
+  paintTagBar();
   document.getElementById('vcount').textContent = ps.length > 1 ? (viewing.i + 1) + ' / ' + ps.length : '';
   viewer.classList.toggle('single', ps.length < 2);
   document.getElementById('vprev').disabled = viewing.i === 0;
@@ -25466,6 +25554,8 @@ function noteLine(n, count){
     case 'posted':   return who + ' posted' + (n.snip ? ' about <i>' + esc(n.snip) + '</i>' : '');
     case 'samechal': return who + ' finished <i>' + esc(n.snip || 'a challenge') + '</i> too';
     case 'joined':   return who + ' joined <i>' + esc(n.snip || 'your leaderboard') + '</i>';
+    case 'invited':  return who + ' invited you to <i>' + esc(n.snip || 'a group') + '</i>';
+    case 'tagged':   return who + ' tagged you in a photo from <i>' + esc(n.snip || 'a day out') + '</i>';
     case 'overtaken':return who + ' has gone past you on <i>' + esc(n.snip || 'your leaderboard') + '</i>';
     case 'answered': return who + ' answered your question' + (n.snip ? ' about <i>' + esc(n.snip) + '</i>' : '') + said;
     case 'follow':   return who + ' started following you';
@@ -25515,6 +25605,8 @@ function notesHTML(){
     const target = n.post ? 'data-act="noteopen" data-post="' + esc(n.post) + '" data-c="' + (n.type === 'like' ? '' : '1') + '"'
                   : n.type === 'samechal' && n.patch ? 'data-act="openpatch" data-v="' + esc(n.patch) + '"'
                   : n.type === 'answered' && n.code && n.pid ? 'data-act="gxgoq" data-c="' + esc(n.code) + '" data-p="' + esc(n.pid) + '"'
+                  : n.type === 'tagged' && n.oid ? 'data-act="tagoffer" data-v="' + esc(n.oid) + '"'
+                  : n.type === 'invited' && n.code ? 'data-act="goinvite" data-v="' + esc(n.code) + '" data-n="' + esc(n.snip || '') + '"'
                   : (n.type === 'joined' || n.type === 'overtaken') && n.code ? 'data-act="goboard" data-v="' + esc(n.code) + '"'
                   : 'data-act="openfriend" data-uid="' + esc(n.from) + '"';
     s += '<div class="nrow' + (fresh ? ' fresh' : '') + (n.type === 'walk' ? ' walkrow' : '') + '">' +
@@ -27694,7 +27786,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v275';
+const APP_VERSION = 'v278';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28735,7 +28827,15 @@ function boardCard(g, bare){
           : gKind(g.code) === 'public'
           /* a public group has no invite link to send — it is found, not invited */
           ? 'Just you so far. Anyone using WayMark can find this group and join it.'
-          : 'Just you so far. Send the invite link to whoever you walk with.') + '</p>';
+          : 'Just you so far.') + '</p>' +
+    /* the empty board is exactly where somebody needs this, so it is a button
+       here and not only three taps away in the group menu */
+    (glob ? '' : '<div class="btnrow" style="justify-content:center;margin:0 0 14px">' +
+      '<button class="btn sm" data-act="gxinvite" data-v="' + esc(g.code) + '">' +
+      ti('users', 'width="16" height="16"') + 'Invite people you follow</button>' +
+      (gKind(g.code) === 'public' ? '' :
+        '<button class="btn sm ghost" data-act="shareboard" data-v="' + esc(g.code) + '">' +
+        ti('share', 'width="16" height="16"') + 'Invite by link</button>') + '</div>');
   else {
     html += '<div class="regionlist" style="margin-top:10px">';
     rows.forEach((r, i) => {
@@ -29293,6 +29393,229 @@ async function gDeleteGroup(code){
   toast(failed ? nm + ' deleted. A few pieces would not go — tell me if it reappears.' : nm + ' is gone.');
 }
 
+/* ================= tagging people and dogs in a photo (v277) =================
+
+   The journal says, in so many words, that nobody sees it and nothing appears
+   in it that you did not put there. That promise is worth more than the
+   convenience of dropping a photo straight into somebody's log, so a tag is an
+   OFFER: they get a note, they look at the picture, and they choose. Nothing
+   is written into anybody's journal without them tapping Keep it.
+
+   What travels: one document under their own account holding the picture and
+   where it was taken, plus a note pointing at it. A note carrying a photo is
+   no more than the walker could already send them in a message. Accepting
+   copies the bytes into their own log and the offer is thrown away; declining
+   throws it away without copying anything.
+
+   Who can be tagged: people you follow who follow you back. A stranger from a
+   public group cannot put your name on a picture.
+
+   A dog is really its owner. Your own dog is a label on the photo and nothing
+   leaves the device. A dog shared with somebody else offers them the photo the
+   same way a person is offered it. */
+
+const offerRef = (u, id) => FB.doc(fbDb, 'people', u, 'offers', id);
+
+/* who was already tagged when the sheet opened, so closing it can withdraw an
+   offer to anybody taken back off */
+let tagSendBefore = null;
+
+/* the line under the caption in the photo viewer */
+function paintTagBar(){
+  const bar = document.getElementById('vtagbar'), btn = document.getElementById('vtagbtn');
+  if (!bar || !btn) return;
+  const t = taggableNow();
+  if (!t || !FB || !fbUser){ bar.hidden = true; return; }
+  const tg = photoTags(t.ph), dg = photoDogTags(t.ph);
+  const names = [
+    ...tg.map(u => { const x = tagPeople().find(y => y.uid === u); return x ? firstName(x.name) : 'Someone'; }),
+    ...dg.map(id => { const d = (state.dogs || []).find(x => x.id === id); return d ? dogName(d) : 'a dog'; })
+  ];
+  bar.hidden = false;
+  btn.innerHTML = names.length
+    ? ti('users', 'width="15" height="15"') + '<span>' + esc(names.slice(0, 3).join(', ')) +
+      (names.length > 3 ? ' and ' + (names.length - 3) + ' more' : '') + '</span>'
+    : ti('users', 'width="15" height="15"') + '<span>Who is in it?</span>';
+}
+
+/* the people you may tag: mutuals only */
+function tagPeople(){
+  if (!FB || !fbUser) return [];
+  const m = new Map();
+  for (const f of allFriends()) if (isMutual(f.uid) && !isBlocked(f.uid)) m.set(f.uid, {uid:f.uid, name:f.name || 'Walker', av:f.av || ''});
+  for (const f of followers) if (isMutual(f.uid) && !isBlocked(f.uid) && !m.has(f.uid)) m.set(f.uid, {uid:f.uid, name:f.name || 'Walker', av:f.av || ''});
+  return [...m.values()].sort((a, b) => niceName(a.name).localeCompare(niceName(b.name)));
+}
+/* your dogs, and who else keeps each one */
+function tagDogs(){
+  return (state.dogs || []).filter(d => d && d.id && !d.deleted).map(d => ({
+    id: d.id, name: dogName(d),
+    others: ((dogCloud[d.id] || {}).owners || []).filter(u => u && u !== (fbUser || {}).uid)
+  }));
+}
+
+/* the photo being viewed, and the record it sits on, whichever screen opened it */
+function taggableNow(){
+  if (!viewing || viewing.friend || viewing.post || viewing.readonly) return null;
+  const ps = viewPhotos(); const ph = ps[viewing.i];
+  if (!ph || !ph.id) return null;
+  if (viewing.diary){
+    const e = diaryEntry(viewing.diary); if (!e) return null;
+    return {ph, where:'diary', id:viewing.diary, date:e.date || '', hill:'', hn:(e.title || 'a day out')};
+  }
+  const key = viewing.key || (ph.k || '');
+  const h = BY_KEY[key]; if (!h) return null;
+  return {ph, where:'hill', id:key, date:(rec(key).date || ''), hill:key, hn:hillName(h)};
+}
+function photoTags(ph){ return Array.isArray(ph && ph.tg) ? ph.tg : []; }
+function photoDogTags(ph){ return Array.isArray(ph && ph.dg) ? ph.dg : []; }
+
+/* write the tag onto my own copy of the photo */
+function setPhotoTags(t, tg, dg){
+  const put = (arr) => arr.map(x => x && x.id === t.ph.id ? {...x, tg: tg.length ? tg : undefined, dg: dg.length ? dg : undefined} : x);
+  if (t.where === 'diary'){
+    state.diary = (state.diary || []).map(e => e.id === t.id ? {...e, photos: put(e.photos || []), t: now()} : e);
+  } else {
+    const r = rec(t.id);
+    state.bagged[t.id] = {...r, photos: put(r.photos || []), t: now()};
+  }
+  touched();
+}
+
+/* the sheet: who is in this photo */
+function tagSheet(){
+  const t = taggableNow(); if (!t) return;
+  if (!FB || !fbUser){ toast('Sign in on Hikers to tag somebody.'); return; }
+  if (tagSendBefore === null) tagSendBefore = photoTags(t.ph).slice();
+  const tg = new Set(photoTags(t.ph)), dg = new Set(photoDogTags(t.ph));
+  const ppl = tagPeople(), dogs = tagDogs();
+  let s = '<div class="ntop"><h3>Who is in it?</h3>' +
+    '<button class="xbtn" data-act="gxclose" aria-label="Close">' + ti('x') + '</button></div>';
+  s += '<p style="margin:0 0 12px;font-size:13px;color:var(--ink-3)">' +
+    esc(t.hn) + (t.date ? ' · ' + esc(prettyDate(t.date)) : '') +
+    '. They are offered the photo and choose whether to keep it — it does not go into anybody’s journal on its own.</p>';
+  if (!ppl.length && !dogs.length)
+    s += '<p class="gxnote" style="margin:0 0 12px">' + ti('flag', 'width="16" height="16"') +
+      '<span>Nobody to tag yet. You can tag people you follow who follow you back, and your own dogs.</span></p>';
+  if (ppl.length){
+    s += '<div class="lbl2" style="margin-bottom:6px">People</div><div class="tagwrap">';
+    for (const x of ppl)
+      s += '<button class="tagpick' + (tg.has(x.uid) ? ' on' : '') + '" data-act="tagtoggle" data-u="' + esc(x.uid) + '" aria-pressed="' + tg.has(x.uid) + '">' +
+        avatarHTML(x.av, x.name, 'tiny', x.uid) + esc(firstName(x.name)) + '</button>';
+    s += '</div>';
+  }
+  if (dogs.length){
+    s += '<div class="lbl2" style="margin:12px 0 6px">Dogs</div><div class="tagwrap">';
+    for (const d of dogs)
+      s += '<button class="tagpick' + (dg.has(d.id) ? ' on' : '') + '" data-act="tagdog" data-v="' + esc(d.id) + '" aria-pressed="' + dg.has(d.id) + '">' +
+        ti('paw', 'width="15" height="15"') + esc(d.name) + (d.others.length ? '<i>shared</i>' : '') + '</button>';
+    s += '</div>';
+  }
+  s += '<button class="btn" style="width:100%;margin-top:14px" data-act="tagsend">' +
+    (tg.size || dg.size ? 'Save and tell them' : 'Done') + '</button>';
+  s += '<button class="btn quiet" style="width:100%;margin-top:8px" data-act="gxclose">Cancel</button>';
+  gSheet(s);
+}
+
+/* Offer the photo to everybody newly tagged. Already-offered and
+   already-accepted are left alone: an offer is sent once. */
+async function sendTagOffers(t, tg, dg, before){
+  if (!FB || !fbUser) return 0;
+  const owners = new Set();
+  for (const u of tg) if (!before.has(u)) owners.add(u);
+  /* a shared dog offers its other keepers the same photo */
+  const dogs = tagDogs();
+  for (const id of dg) for (const u of (dogs.find(d => d.id === id) || {others:[]}).others) owners.add(u);
+  owners.delete(fbUser.uid);
+  if (!owners.size) return 0;
+  let b64 = '';
+  try{
+    const blob = await getBlob(t.ph.id);
+    if (!(blob instanceof Blob)) { toast('That photo is not on this device any more.'); return 0; }
+    b64 = await blobToB64(blob);
+  }catch(e){ toast('Could not read that photo.'); return 0; }
+  if (b64.length > 700000){ toast('That photo is too big to send. Nothing else changed.'); return 0; }
+  let sent = 0;
+  for (const u of [...owners].slice(0, 20)){
+    const oid = 'tg_' + t.ph.id + '_' + fbUser.uid;
+    try{
+      await FB.setDoc(offerRef(u, oid), {from: fbUser.uid, name: myName(), av: myAvatar() || '',
+        hill: t.hill || '', hn: t.hn || '', date: t.date || '', cap: t.ph.cap || '', d: b64, t: Date.now()});
+      notify(u, oid, {type:'tagged', oid, snip: t.hn || 'a photo'});
+      sent++;
+    }catch(e){ toast(fbWhy(e)); break; }
+  }
+  return sent;
+}
+
+/* Taking a tag off. If they have not taken the photo yet, the offer goes with
+   it. If they have, it is their photo now and only they can remove it — which
+   the toast says, rather than pretending otherwise. */
+async function dropTagOffer(uid, photoId){
+  if (!FB || !fbUser) return;
+  try{ await FB.deleteDoc(offerRef(uid, 'tg_' + photoId + '_' + fbUser.uid)); }catch(e){}
+  try{ await FB.deleteDoc(noteRef(uid, 'tg_' + photoId + '_' + fbUser.uid)); }catch(e){}
+}
+
+/* ---- the other end: being offered a photo ---- */
+async function openTagOffer(oid){
+  if (!FB || !fbUser) return;
+  let d = null;
+  try{ const snap = await FB.getDoc(offerRef(fbUser.uid, oid)); if (snap.exists()) d = snap.data(); }catch(e){}
+  if (!d){ toast('That photo is not there any more.'); try{ await FB.deleteDoc(noteRef(fbUser.uid, oid)); }catch(e){} render(); return; }
+  const who = firstName(d.name) || 'Somebody';
+  const marked = d.hill && isBagged(d.hill);
+  let src = '';
+  try{ const bytes = Uint8Array.from(atob(d.d), c => c.charCodeAt(0)); src = URL.createObjectURL(new Blob([bytes], {type:'image/jpeg'})); }catch(e){}
+  let s = '<div class="ntop"><h3>' + esc(who) + ' tagged you</h3>' +
+    '<button class="xbtn" data-act="gxclose" aria-label="Close">' + ti('x') + '</button></div>';
+  if (src) s += '<img class="tagoffer" src="' + esc(src) + '" alt="The photo ' + esc(who) + ' tagged you in">';
+  s += '<p style="margin:10px 0 2px;font-size:15px"><b>' + esc(d.hn || 'A day out') + '</b>' +
+       (d.date ? ' · ' + esc(prettyDate(d.date)) : '') + '</p>';
+  s += '<p style="margin:0 0 12px;font-size:13px;color:var(--ink-3)">' +
+    (marked ? 'Keeping it puts it on your own ' + esc(d.hn) + ', on ' + esc(prettyDate(rec(d.hill).date || d.date)) + '.'
+            : d.date ? 'You have not marked ' + esc(d.hn || 'that hill') + '. Keeping it puts it in your journal on ' + esc(prettyDate(d.date)) + '.'
+                     : 'Keeping it puts it in your journal.') +
+    ' It is yours after that — ' + esc(who) + ' cannot take it back, and you can delete it whenever you like.</p>';
+  s += '<button class="btn" style="width:100%" data-act="tagkeep" data-v="' + esc(oid) + '">Keep it</button>';
+  s += '<button class="btn quiet" style="width:100%;margin-top:8px" data-act="tagdrop" data-v="' + esc(oid) + '">No thanks</button>';
+  gSheet(s);
+}
+async function keepTagOffer(oid){
+  if (!FB || !fbUser) return;
+  let d = null;
+  try{ const snap = await FB.getDoc(offerRef(fbUser.uid, oid)); if (snap.exists()) d = snap.data(); }catch(e){}
+  if (!d){ toast('That photo is not there any more.'); return; }
+  let blob = null;
+  try{ blob = new Blob([Uint8Array.from(atob(d.d), c => c.charCodeAt(0))], {type:'image/jpeg'}); }catch(e){}
+  if (!blob){ toast('That photo would not open.'); return; }
+  const id = uid();
+  const okB = await putBlob(id, blob);
+  if (okB === null && !(await getBlob(id))){ toast('No room to save it. Free some space and try again.'); return; }
+  const from = firstName(d.name) || 'a walker';
+  const shot = {id, up:0, cap: d.cap || '', by: from};
+  if (d.hill && isBagged(d.hill)){
+    const r = rec(d.hill);
+    state.bagged[d.hill] = {...r, photos:[...(r.photos || []), shot], t:now()};
+  } else {
+    const date = d.date || today();
+    const e = (state.diary || []).find(x => x && x.date === date && !x.deleted);
+    if (e) state.diary = state.diary.map(x => x.id === e.id ? {...x, photos:[...(x.photos || []), shot], t:now()} : x);
+    else state.diary = [...(state.diary || []), {id:uid(), date, title:d.hn || '', text:'', photos:[shot], t:now()}];
+  }
+  try{ await FB.deleteDoc(offerRef(fbUser.uid, oid)); }catch(e){}
+  try{ await FB.deleteDoc(noteRef(fbUser.uid, oid)); }catch(e){}
+  gSheetClose(); touched(); render();
+  toast('Kept. It is in your journal' + (d.date ? ' on ' + prettyDate(d.date) : '') + '.');
+}
+async function dropTagOfferMine(oid){
+  if (!FB || !fbUser) return;
+  try{ await FB.deleteDoc(offerRef(fbUser.uid, oid)); }catch(e){}
+  try{ await FB.deleteDoc(noteRef(fbUser.uid, oid)); }catch(e){}
+  gSheetClose(); render();
+  toast('No photo kept.');
+}
+
 /* Joining a public one. Read costs nothing; writing means standing in the room. */
 async function gJoinPublic(code){
   if (!FB || !fbUser) return;
@@ -29803,6 +30126,9 @@ function gMenuSheet(){
       ? 'You started this group, so you run it: remove a post, remove a member, make somebody else an owner, or delete the whole thing.'
       : 'You are an owner here: you can remove a post or a member. Only whoever started it can appoint owners or delete it.') +
     ' Anything you miss, a member can report to WayMark.</span></div>';
+  if (joined && !isGlobal(code))
+    s += '<div class="btnrow" style="margin-top:10px"><button class="btn sm" data-act="gxinvite" data-v="' + esc(code) + '">' +
+      ti('users', 'width="16" height="16"') + 'Invite people you follow</button></div>';
   if (runs && !isGlobal(code))
     s += '<div class="btnrow" style="margin-top:10px"><button class="btn sm ghost" data-act="gxmembers">' +
       ti('users', 'width="16" height="16"') + 'Members and owners</button></div>';
@@ -30105,6 +30431,14 @@ document.addEventListener('click', async e => {
   if (a === 'gxunbest'){ if (await gBest(code, pid, null)) toast('Unmarked.'); return; }
   if (a === 'gxpmenu'){ gPostMenu(code, pid); return; }
   if (a === 'gxgmenu'){ gMenuSheet(); return; }
+  if (a === 'gxinvite'){
+    const c = el.dataset.v || ui.gView; if (!c) return;
+    gSheetClose();
+    if (!FB || !fbUser){ toast('Sign in on Hikers to invite somebody.'); return; }
+    if (!groupRows[c]) loadGroup(c);
+    openPicker('board', {code:c, gname:gName(c)});
+    return;
+  }
   if (a === 'gxmembers'){ gSheetClose(); if (!groupRows[ui.gView]) await loadGroup(ui.gView); gMembersSheet(); return; }
   if (a === 'gxowner'){ await gSetOwner(ui.gView, el.dataset.u, el.dataset.n || '', el.dataset.v === '1'); return; }
   if (a === 'gxkick'){ await gKick(ui.gView, el.dataset.u, el.dataset.n || ''); return; }
