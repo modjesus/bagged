@@ -3027,6 +3027,10 @@ button.bstriprow{cursor:pointer}
   display:grid; place-items:center; line-height:0; cursor:pointer;
 }
 .xbtn:active{background:var(--surface-2)}
+/* 34x34 to look at, 46x46 to hit. The close button on every sheet in the app
+   was a 34px target; this widens the touch area without moving a pixel of it.
+   Same trick .cmgrab already uses. */
+.xbtn::after{content:""; position:absolute; top:-6px; right:-6px; bottom:-6px; left:-6px; border-radius:99px}
 .xbtn svg{width:15px; height:15px}
 .sheetbox > h2{padding-right:38px}
 .formx{position:absolute; top:8px; right:8px; width:30px; height:30px}
@@ -7178,6 +7182,119 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .pslist button.hi span{color:var(--accent-text)}
 .pslist button svg{width:16px; height:16px; color:var(--ink-3)}
 .pslist button:hover b{text-decoration:underline; text-underline-offset:3px}
+/* ================= Groups (v270) =================
+   Every class here is prefixed gx- so it cannot collide with anything the app
+   already has. v244 lost the route map to a style called `side` that already
+   existed; this is the cheap way not to do that again. */
+:root{ --warn-text:#9E4A17; }   /* --warn is 4.13:1 on the cream, under the bar. This is 5.03:1. */
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --warn-text:#E58B4E; } }
+:root[data-theme="dark"]{ --warn-text:#E58B4E; }
+
+/* who can read this — said in words, never only an icon */
+.gxaud{display:inline-flex; align-items:center; gap:5px; flex:none; font:600 10px/1 var(--font-data);
+  letter-spacing:.09em; text-transform:uppercase; padding:5px 8px; border-radius:99px; white-space:nowrap}
+.gxaud svg{width:12px; height:12px; flex:none}
+.gxaud.priv{background:var(--surface-2); color:var(--ink-2)}
+.gxaud.pub{background:var(--accent-soft); color:var(--accent-text)}
+.gxaud.open{background:var(--ink); color:var(--ground)}
+.gxline{display:flex; align-items:center; gap:8px; padding:9px 11px; border-radius:10px; margin:0 0 10px;
+  font-size:12.5px; line-height:1.35}
+.gxline svg{width:16px; height:16px; flex:none}
+.gxline.priv{background:var(--surface-2); color:var(--ink-2)}
+.gxline.pub{background:var(--accent-soft); color:var(--accent-text)}
+.gxline.open{background:var(--ink); color:var(--ground)}
+.gxline.thin{padding:6px 10px; font-size:11.5px}
+.gxline.thin svg{width:13px; height:13px}
+
+/* one group in the list */
+.gxrow{display:flex; align-items:center; gap:11px; width:100%; text-align:left; background:var(--raise);
+  border:1px solid var(--line); border-radius:var(--r); padding:12px; margin:0 0 8px; min-height:64px; color:inherit}
+.gxrow .gxi{flex:1; min-width:0}
+.gxrow .gxi b{display:block; font:700 15px var(--font-display)}
+.gxrow .gxm{display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:5px}
+.gxrow .gxm .gxaud{padding:4px 7px; font-size:9.5px}
+.gxrow .gxm em{font:500 12px var(--font-data); color:var(--ink-3); font-style:normal}
+.gxrow .gxn{flex:none; min-width:22px; height:22px; padding:0 6px; border-radius:99px; background:var(--accent);
+  color:var(--accent-ink); font:700 11.5px/22px var(--font-ui); text-align:center}
+.gxrow .chev{flex:none; color:var(--ink-3)}
+
+/* the tabs inside a group */
+.gxtabs{display:flex; gap:2px; background:var(--surface-2); padding:3px; border-radius:10px; margin:0 0 10px}
+.gxtabs button{flex:1; border:0; background:none; padding:9px 6px; border-radius:8px; min-height:40px;
+  font:600 14px var(--font-ui); color:var(--ink-2); cursor:pointer}
+.gxtabs button.on{background:var(--raise); color:var(--ink); box-shadow:var(--shadow)}
+.gxtabs .gxct{font:700 11px var(--font-data); color:var(--accent-text); margin-left:5px}
+
+/* the box you tap to say something */
+.gxask{background:var(--raise); border:1px solid var(--line); border-radius:var(--r); padding:11px; margin:0 0 12px}
+.gxask .gxprompt{display:flex; align-items:center; gap:10px; width:100%; background:none; border:0; padding:0; cursor:pointer}
+.gxask .gxfake{flex:1; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:99px;
+  padding:11px 15px; color:var(--ink-3); font:400 14.5px var(--font-ui); min-height:44px; display:flex; align-items:center}
+
+/* one thing somebody said */
+.gxpost{background:var(--raise); border:1px solid var(--line); border-radius:var(--r); padding:13px; margin:0 0 10px}
+.gxpost.q{border-left:3px solid var(--accent)}
+.gxhead{display:flex; align-items:center; gap:9px; margin-bottom:9px}
+.gxwho{flex:1; min-width:0}
+.gxwho b{display:block; font:700 14.5px var(--font-ui)}
+.gxwho span{display:block; font:500 11.5px var(--font-data); color:var(--ink-3)}
+.gxflag{flex:none; font:600 9.5px/1 var(--font-data); letter-spacing:.1em; text-transform:uppercase;
+  padding:6px 9px; border-radius:99px}
+.gxflag.ans{background:var(--done); color:var(--surface)}
+.gxflag.asking{background:var(--accent); color:var(--accent-ink)}
+.gxtext{margin:0; font-size:15px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
+.gxhill{display:inline-flex; align-items:center; gap:7px; margin-top:10px; background:var(--surface);
+  border:1px solid var(--line); border-radius:99px; padding:8px 13px; min-height:38px;
+  font:700 13.5px var(--font-ui); color:inherit; cursor:pointer}
+.gxhill svg{width:14px; height:14px; color:var(--accent-text)}
+.gxbest{margin:10px 0 0; padding:10px 11px; background:var(--surface); border:1px solid var(--line);
+  border-left:3px solid var(--done); border-radius:10px}
+.gxbest .gxbh{display:flex; align-items:center; gap:6px; font:600 10.5px/1 var(--font-data); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--done); margin-bottom:6px}
+.gxbest .gxbh svg{width:13px; height:13px}
+.gxbest p{margin:0; font-size:14px; line-height:1.45}
+.gxbest .gxbw{display:block; margin-top:6px; font:500 11.5px var(--font-data); color:var(--ink-3)}
+.gxacts{display:flex; align-items:center; gap:4px; margin-top:10px; padding-top:8px; border-top:1px solid var(--line-soft)}
+.gxact{background:none; border:0; display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 9px;
+  color:var(--ink-2); font:600 13.5px var(--font-ui); border-radius:99px; flex:0 1 auto; min-width:0;
+  white-space:nowrap; cursor:pointer}
+.gxact svg{width:20px; height:20px}
+.gxact b{font-variant-numeric:tabular-nums}
+.gxact.on{color:var(--accent-text)}
+.gxact.gxend{margin-left:auto; flex:0 0 auto; padding:0 10px; min-width:44px; justify-content:center}
+
+/* the answers under a question */
+.gxreply{display:flex; gap:10px; padding:12px 0; border-bottom:1px solid var(--line-soft)}
+.gxreply:last-child{border-bottom:0}
+.gxrb{flex:1; min-width:0}
+.gxrb .gxrw{font:700 13.5px var(--font-ui)}
+.gxrb .gxrt{font:500 11.5px var(--font-data); color:var(--ink-3); margin-left:7px}
+.gxrb p{margin:4px 0 0; font-size:14.5px; line-height:1.45; white-space:pre-wrap; overflow-wrap:anywhere}
+.gxra{display:flex; gap:4px; margin-top:6px}
+.gxbestflag{display:inline-block; margin-left:7px; font:600 9.5px/1 var(--font-data); letter-spacing:.08em;
+  text-transform:uppercase; background:var(--done-soft); color:var(--done); padding:5px 7px; border-radius:99px}
+
+/* joining a public group you are only reading */
+.gxjoin{position:sticky; bottom:0; margin:12px -2px 0; padding:12px 2px calc(10px + env(safe-area-inset-bottom));
+  background:var(--ground); border-top:1px solid var(--line); z-index:4}
+.gxnote{display:flex; gap:9px; padding:11px 12px; background:var(--surface); border:1px solid var(--line);
+  border-left:3px solid var(--accent); border-radius:10px; margin:10px 0 0; font-size:13px; line-height:1.45;
+  color:var(--ink-2)}
+.gxnote svg{width:16px; height:16px; flex:none; color:var(--accent-text); margin-top:1px}
+.gxmark{display:flex; align-items:center; gap:10px; margin:14px 0 10px}
+.gxmark span{font:700 10px/1 var(--font-data); letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent-text); flex:none}
+.gxmark i{flex:1; height:1px; background:var(--accent-soft)}
+
+/* what the groups know, on a hill's page */
+.gxmore{min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center}
+.gxhq{margin-top:6px; padding:11px 12px; background:var(--surface); border:1px solid var(--line); border-radius:10px}
+.gxhq + .gxhq{margin-top:8px}
+.gxhq .gxhqq{margin:0; font:700 14px var(--font-ui)}
+.gxhq .gxhqa{margin:6px 0 0; font-size:14px; line-height:1.45}
+.gxhq .gxhqw{display:block; margin-top:6px; font:500 11.5px var(--font-data); color:var(--ink-3)}
+.gxhq .gxhqn{margin:6px 0 0; font-size:12.5px; color:var(--ink-3)}
+
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
@@ -13050,7 +13167,7 @@ function saveNotifyPrefs(){
   FB.setDoc(notifyDoc(), notifyPrefs).catch(e => toast(fbWhy(e)));
 }
 /* the bell's notes, filtered by what you asked to see in the app */
-const NOTE_KIND = {like:'like', comment:'comment', reply:'comment', mention:'mention', follow:'follow', request:'follow', accepted:'follow', walk:'walk', walkyes:'rsvp', walkno:'rsvp', posted:'summit', samechal:'chal', joined:'board', overtaken:'board'};
+const NOTE_KIND = {like:'like', comment:'comment', reply:'comment', mention:'mention', follow:'follow', request:'follow', accepted:'follow', walk:'walk', walkyes:'rsvp', walkno:'rsvp', posted:'summit', samechal:'chal', joined:'board', overtaken:'board', answered:'comment'};
 function noteShown(n){ const k = NOTE_KIND[n.type]; return !(k && notifyPrefs && notifyPrefs.kinds && notifyPrefs.kinds[k] === 'off'); }
 
 const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -21258,11 +21375,15 @@ document.addEventListener('click', async e => {
     };
     ui.joinCode = '';
     if (el.dataset.v === 'new'){
-      const nm = (document.getElementById('gname').value || '').trim() || 'My leaderboard';
+      const kind = ui.gNewKind === 'public' ? 'public' : 'private';
+      const nm = (document.getElementById('gname').value || '').trim() || (kind === 'public' ? 'A public group' : 'My leaderboard');
+      const wh = (document.getElementById('gwhere') || {}).value || 'Anywhere';
       say('Creating\u2026');
-      createGroup(nm).then(code => {
-        ui.groupForm = ''; render(); loadGroup(code);
-        toast('Created. Share the code ' + code);
+      createGroup(nm, kind, wh).then(code => {
+        ui.groupForm = ''; ui.gNewName = ''; ui.gNewClash = ''; gFind = null;
+        ui.gView = code; ui.gTab = 'talk'; ui.gThread = null;
+        render(); loadGroup(code); loadTalk(code, true);
+        toast(kind === 'public' ? 'Made. Anyone using WayMark can find it.' : 'Created. Share the code ' + code);
       }).catch(e => say(fbWhy(e), true));
     } else {
       const code = tidyCode(document.getElementById('gcode').value);
@@ -22221,8 +22342,11 @@ document.addEventListener('click', async e => {
   /* a "joined your leaderboard" note lands on that board */
   else if (a === 'goboard'){
     const code = el.dataset.v; if (!code) return;
-    closeNotes(); tab = 'u'; ui.hikerTab = 'boards'; render();
-    try{ loadGroup(code); }catch(e){}
+    closeNotes(); tab = 'u'; ui.hikerTab = 'boards';
+    /* land in the group itself, not the list it sits in */
+    ui.gFind = false; ui.gView = code; ui.gTab = 'table'; ui.gThread = null;
+    render();
+    try{ loadGroup(code); loadTalk(code); }catch(e){}
     window.scrollTo({top:0});
   }
   else if (a === 'openpatch'){
@@ -23398,8 +23522,8 @@ function loadFirebase(){
     s.textContent =
       "import { initializeApp } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-app.js';" +
       "import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-auth.js';" +
-      "import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-firestore.js';" +
-      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously, getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer };" +
+      "import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, collectionGroup, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-firestore.js';" +
+      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously, getFirestore, doc, getDoc, setDoc, deleteDoc, collection, collectionGroup, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer };" +
       "window.dispatchEvent(new Event('fb-ready'));";
     s.onerror = () => resolve(null);
     window.addEventListener('fb-ready', () => resolve(window.__fb), {once:true});
@@ -24341,6 +24465,10 @@ function paintInfo(){
     if (r.date) s += '<p class="istats">Marked ' + esc(prettyDate(r.date)) + '</p>';
     if (r.notes) s += '<p class="iex">' + esc(r.notes) + '</p>';
   }
+  /* Everything any group has asked about this hill. The reason to build talk
+     here rather than start a Facebook group: ask about Sharp Edge in January
+     on Facebook and the answer is gone by March. Here it waits on the hill. */
+  try{ s += hillQuestionsHTML(h.k); }catch(e){}
   s += '<div class="btnrow"><button class="btn' + (on ? ' quiet' : '') + '" data-act="tick" data-k="' + esc(h.k) + '">' +
        (on ? 'Unmark' : 'Mark it') + '</button>' +
        '<button class="btn quiet" data-act="closeinfo">Close</button></div>';
@@ -24610,6 +24738,8 @@ TI['heart'] = '<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566
 TI['flag'] = '<path d="M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z"/><path d="M5 21v-7"/>';
 TI['ban'] = '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/>';
 TI['corner-down-right'] = '<path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4"/>';
+TI['globe'] = '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/>';
+TI['message-circle'] = '<path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1"/>';
 TI['send'] = '<path d="M10 14l11 -11"/><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5"/>';
 TI['arrow-up-right'] = '<path d="M17 7l-10 10"/><path d="M8 7l9 0l0 9"/>';
 
@@ -24879,6 +25009,7 @@ function noteLine(n, count){
     case 'samechal': return who + ' finished <i>' + esc(n.snip || 'a challenge') + '</i> too';
     case 'joined':   return who + ' joined <i>' + esc(n.snip || 'your leaderboard') + '</i>';
     case 'overtaken':return who + ' has gone past you on <i>' + esc(n.snip || 'your leaderboard') + '</i>';
+    case 'answered': return who + ' answered your question' + (n.snip ? ' about <i>' + esc(n.snip) + '</i>' : '') + said;
     case 'follow':   return who + ' started following you';
     case 'request':  return who + ' asked to follow you';
     case 'accepted': return who + ' accepted your follow request';
@@ -24888,7 +25019,7 @@ function noteLine(n, count){
     default:         return who + ' did something on WayMark';
   }
 }
-const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check', walk:'walk', walkyes:'user-check', walkno:'x', posted:'mountain', samechal:'award', joined:'users', overtaken:'trending-up'};
+const NOTE_ICON = {like:'heart', comment:'message-circle', reply:'corner-down-right', mention:'message-circle', follow:'user-plus', request:'user-plus', accepted:'user-check', walk:'walk', walkyes:'user-check', walkno:'x', posted:'mountain', samechal:'award', joined:'users', overtaken:'trending-up', answered:'message-circle'};
 function notesHTML(){
   const seen = notesSeenAt();
   /* likes on the same post collapse into one line */
@@ -24925,6 +25056,7 @@ function notesHTML(){
        falling back to the person only when there is nothing else to open */
     const target = n.post ? 'data-act="noteopen" data-post="' + esc(n.post) + '" data-c="' + (n.type === 'like' ? '' : '1') + '"'
                   : n.type === 'samechal' && n.patch ? 'data-act="openpatch" data-v="' + esc(n.patch) + '"'
+                  : n.type === 'answered' && n.code && n.pid ? 'data-act="gxgoq" data-c="' + esc(n.code) + '" data-p="' + esc(n.pid) + '"'
                   : (n.type === 'joined' || n.type === 'overtaken') && n.code ? 'data-act="goboard" data-v="' + esc(n.code) + '"'
                   : 'data-act="openfriend" data-uid="' + esc(n.from) + '"';
     s += '<div class="nrow' + (fresh ? ' fresh' : '') + (n.type === 'walk' ? ' walkrow' : '') + '">' +
@@ -25468,6 +25600,9 @@ function renderHikers(){
   /* One stream. Search opens Discover; the trophy opens the boards. Anything
      that is not the feed gets a way back to it. */
   if (t === 'feed');
+  /* A group screen carries its own way back. Two back rows stacked on top of
+     each other is one too many. */
+  else if (t === 'boards' && (ui.gView || ui.gFind));
   else if (t !== 'friends') s += '<button class="hkback" data-act="hikertab" data-v="feed">' + ti('arrow-left') + 'Hikers</button>';
   s += '<div style="margin-top:6px">';
   if (t === 'feed') s += '<div class="feedgrid g3"><aside class="feedleft">' + feedLeft() + '</aside><div class="feedmain">' + renderFeed() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
@@ -27094,7 +27229,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v269';
+const APP_VERSION = 'v270';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -27909,14 +28044,21 @@ function fbWhy(e){
   return 'That did not work: ' + (c || (e && e.message) || 'unknown error') + '.';
 }
 
-async function createGroup(name){
+async function createGroup(name, kind, where){
   /* throw rather than resolve null — a null code used to sail on into
      loadGroup(null) and toast "Share the code null". */
   if (!FB || !fbUser){ const e = new Error('not signed in'); e.code = 'not-signed-in'; throw e; }
   const code = newCode();
-  await FB.setDoc(groupRef(code), {name: name || 'My leaderboard', createdBy: fbUser.uid, createdAt: Date.now()});
-  /* register the board first so myMemberDoc(code) can read its detail flag */
-  state.groups = [...myGroups(), {code, name: name || 'My leaderboard', detail: !!fbDetail, t:now()}];
+  const pub = kind === 'public';
+  const nm = name || (pub ? 'A public group' : 'My leaderboard');
+  const doc = {name: nm, createdBy: fbUser.uid, createdAt: Date.now(), kind: pub ? 'public' : 'private', mem: 1, lastT: Date.now()};
+  if (pub) doc.where = where || 'Anywhere';
+  await FB.setDoc(groupRef(code), doc);
+  groupMeta[code] = doc;
+  /* register the board first so myMemberDoc(code) can read its detail flag.
+     A public group starts on totals only whatever the default says — everyone
+     using WayMark can read it, and nobody has been asked yet. */
+  state.groups = [...myGroups(), {code, name: nm, kind: doc.kind, detail: pub ? false : !!fbDetail, t:now()}];
   await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code));
   touched();
   return code;
@@ -27984,12 +28126,15 @@ async function leaveGroup(code){
   let ok = true;
   if (FB && fbUser){
     await pullSharedPhotos(code);
+    /* the tally on a public group follows you out as well as in */
+    if (gKind(code) === 'public') FB.setDoc(groupRef(code), {mem: FB.increment(-1)}, {merge:true}).catch(() => {});
     /* Say so if the row could not actually be removed, rather than reporting a
        departure that never left this device. */
     try{ await FB.deleteDoc(memberRef(code, fbUser.uid)); }catch(e){ ok = false; }
   }
   state.groups = myGroups().filter(g => g.code !== code);
-  delete groupRows[code];
+  delete groupRows[code]; delete gTalk[code]; delete gTalkAt[code]; gFind = null;
+  if (ui.gView === code){ ui.gView = null; ui.gThread = null; ui.gTab = 'talk'; }
   touched(); render();
   return ok;
 }
@@ -28056,10 +28201,13 @@ async function hydrateFriendPhotos(){
 /* ---------- Friends tab ---------- */
 /* One leaderboard card. Same shape whichever section it sits in — only the
    meta line and the wording on the share switch differ for the open board. */
-function boardCard(g){
+function boardCard(g, bare){
   const glob = isGlobal(g.code);
   const rows = groupRows[g.code];
-  let html = '<article class="plan' + (glob ? ' globalcard' : '') + '" style="margin-top:14px">';
+  let html = '<article class="plan' + (glob ? ' globalcard' : '') + '" style="margin-top:' + (bare ? '0' : '14px') + '">';
+  /* Inside a group's Table tab the name, the code and Leave are all one tap
+     away in the group menu already, so the card drops its own head. */
+  if (!bare){
   html += '<div class="planhead"><h3>' + esc(glob ? GLOBAL_NAME : g.name) + '</h3>' +
     '<button class="linkbtn" data-act="refreshgroup" data-v="' + esc(g.code) + '">Refresh</button></div>';
   html += '<div class="planmeta">' +
@@ -28071,6 +28219,7 @@ function boardCard(g){
   /* Reading a six-character code down the phone was the only way in. The link
      carries the code and drops it straight into the join box. */
   if (!glob) html += '<div class="btnrow" style="margin-top:10px"><button class="btn sm" data-act="shareboard" data-v="' + esc(g.code) + '">' + ti('share') + 'Invite by link</button></div>';
+  }
 
   /* One decision per board: the club can have the lot, the work one only totals. */
   const shares = groupDetail(g.code);
@@ -28110,8 +28259,29 @@ function boardCard(g){
 
 function groupFormHTML(){
   if (ui.groupForm === 'new'){
+    /* The kind is chosen here and never again. Every talk document carries a
+       copy of it so a public group can be read without a lookup, and that copy
+       is only honest because the kind cannot move under it afterwards. */
+    const kind = ui.gNewKind === 'public' ? 'public' : 'private';
+    const clash = kind === 'public' && ui.gNewClash ? ui.gNewClash : '';
     return '<div class="form"><button class="xbtn formx" data-act="closegroupform" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button><div><label for="gname">Name it</label>' +
-      '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40"></div>' +
+      '<input id="gname" placeholder="e.g. The Sunday Club" maxlength="40" value="' + esc(ui.gNewName || '') + '"></div>' +
+      '<div><label>Who can see it?</label>' +
+      '<div class="btnrow" style="margin-top:6px">' +
+      '<button class="btn sm' + (kind === 'private' ? '' : ' ghost') + '" data-act="gxnewkind" data-v="private">' + ti('lock', 'width="16" height="16"') + 'Private</button>' +
+      '<button class="btn sm' + (kind === 'public' ? '' : ' ghost') + '" data-act="gxnewkind" data-v="public">' + ti('globe', 'width="16" height="16"') + 'Public</button></div>' +
+      '<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink-3)">' +
+        (kind === 'private'
+          ? 'Nobody can find it. You send the six-character code to whoever you want in it.'
+          : 'Anyone using WayMark can find it and read it. They join to post. <b>You run it</b> \u2014 you can remove a post and remove a member, and anything you miss can be reported to WayMark.') +
+      '</p>' +
+      '<p style="margin:6px 0 0;font-size:12px;color:var(--ink-3)">This cannot be changed afterwards.</p></div>' +
+      (kind === 'public'
+        ? '<div><label for="gwhere">Where do you walk?</label><select id="gwhere">' +
+          ['Anywhere', 'Lake District', 'Scotland', 'Eryri', 'Peak District', 'Yorkshire Dales', 'Northern Ireland', 'Ireland', 'Brecon Beacons']
+            .map(r => '<option value="' + esc(r) + '"' + ((ui.gNewWhere || 'Anywhere') === r ? ' selected' : '') + '>' + esc(r) + '</option>').join('') +
+          '</select></div>' : '') +
+      (clash ? '<p class="gxnote" style="margin:0">' + ti('flag', 'width="16" height="16"') + '<span>There is already a public group called <b>' + esc(clash) + '</b>. Two with the same name splits the people who would have been in one. Yours will still be made if you go ahead.</span></p>' : '') +
       '<p id="gmsg" style="font-size:13px;margin:0"></p>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="dogroup" data-v="new">Create</button></div></div>';
   }
@@ -28125,39 +28295,239 @@ function groupFormHTML(){
   return '';
 }
 
-function renderBoard(){
-  if (!fbConfigured()) return '';
-  if (!fbUser) return '<p class="empty">Sign in above and you can start or join a leaderboard with friends.</p>';
-  if (friendOpen) return renderFriend();
 
+/* ================= Groups (v270) =================
+   A group is the leaderboard people already have, with somewhere to talk in
+   it. Three kinds, and the kind decides three things and nothing else: who
+   can find it, who can read it, and who cleans up.
+
+     private   nobody finds it, you need the six-character code.  (what boards
+               have always been — every existing board is one of these)
+     public    anyone finds it under Find groups, anyone READS it without
+               joining, and joining is what buys you a voice.
+     open      the WayMark board. Everybody is already on it.
+
+   The kind is fixed when the group is made and can NEVER be changed. Every
+   talk document carries a copy of it in `gk`, which is what lets a public
+   group's talk be read without a lookup of the parent on every single row —
+   and that copy is only honest because the kind cannot move under it. The
+   rules enforce both halves.
+
+   Talk lives in /groups/{code}/talk, not /posts. A collection-group query on
+   `posts` would sweep the feed's own /posts collection in with it. */
+
+let gTalk = {};        // code -> [posts, newest first]
+let gTalkAt = {};      // code -> when they came down
+let gReplies = {};     // code|pid -> [replies, oldest first]
+let gTalkBusy = '';
+let gFind = null;      // public groups, browsed not searched
+let gFindBusy = false;
+let gSeen = {};        // code -> the newest t this device has looked at
+let gHillQ = {};       // hill key -> questions asked about it
+let gHillQAt = {};
+
+const GSEEN_KEY = 'waymark.gseen';
+try{ gSeen = JSON.parse(localStorage.getItem(GSEEN_KEY) || '{}') || {}; }catch(e){ gSeen = {}; }
+const gSaveSeen = () => { try{ localStorage.setItem(GSEEN_KEY, JSON.stringify(gSeen)); }catch(e){} };
+
+const talkCol  = c => FB.collection(fbDb, 'groups', c, 'talk');
+const talkRef  = (c, pid) => FB.doc(fbDb, 'groups', c, 'talk', pid);
+const replyCol = (c, pid) => FB.collection(fbDb, 'groups', c, 'talk', pid, 'replies');
+const replyRef = (c, pid, rid) => FB.doc(fbDb, 'groups', c, 'talk', pid, 'replies', rid);
+
+/* A board saved before groups existed has no kind at all, which is exactly
+   right: it was private then and it is private now. */
+function gKind(code){
+  if (isGlobal(code)) return 'open';
+  const m = groupMeta[code] || {};
+  if (m.kind === 'public') return 'public';
+  const g = myGroups().find(x => x.code === code);
+  return (g && g.kind === 'public') ? 'public' : 'private';
+}
+const GAUD = {
+  private:{ic:'lock',  word:'Private', cls:'priv', short:'Only the people with the code.'},
+  public: {ic:'globe', word:'Public',  cls:'pub',  short:'Anyone using WayMark can read it.'},
+  open:   {ic:'users', word:'Open',    cls:'open', short:'Everyone using WayMark.'}
+};
+const gAud = code => GAUD[gKind(code)] || GAUD.private;
+function gAudLine(code){
+  const k = gKind(code), n = gMembers(code);
+  if (k === 'private') return 'Only the ' + (n || 'few') + ' people in this group can see what you write. Nobody can find it without the code.';
+  if (k === 'public')  return 'Anyone using WayMark can read this group. You must join to post.' + (n ? ' ' + n.toLocaleString() + ' have.' : '');
+  return 'Everybody using WayMark is here. Treat it as a public square.';
+}
+function gMembers(code){
+  const rows = groupRows[code];
+  if (rows && rows.length && gKind(code) === 'private') return rows.length;
+  const m = groupMeta[code] || {};
+  return +m.mem || (rows ? rows.length : 0);
+}
+const gBadge = code => '<span class="gxaud ' + gAud(code).cls + '">' + ti(gAud(code).ic, 'width="12" height="12"') + gAud(code).word + '</span>';
+const gJoined = code => myGroups().some(g => g.code === code);
+const gRuns = code => (groupMeta[code] || {}).createdBy === (fbUser && fbUser.uid);
+const gName = code => isGlobal(code) ? GLOBAL_NAME
+  : ((myGroups().find(g => g.code === code) || {}).name || (groupMeta[code] || {}).name || 'Group');
+
+/* ---------- reading ---------- */
+async function loadTalk(code, force){
+  if (!FB || !fbUser || !code) return [];
+  if (!force && gTalk[code] && Date.now() - (gTalkAt[code] || 0) < 45000) return gTalk[code];
+  gTalkBusy = code; render();
+  try{
+    const snap = await FB.getDocs(FB.query(talkCol(code), FB.orderBy('t', 'desc'), FB.limit(60)));
+    const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
+    gTalk[code] = out.filter(p => !isBlocked(p.uid));
+    gTalkAt[code] = Date.now();
+  }catch(e){ gTalk[code] = gTalk[code] || []; gTalkAt[code] = 0; }
+  gTalkBusy = ''; render();
+  return gTalk[code];
+}
+async function loadReplies(code, pid){
+  if (!FB || !fbUser) return [];
+  const key = code + '|' + pid;
+  try{
+    const snap = await FB.getDocs(FB.query(replyCol(code, pid), FB.orderBy('t', 'asc'), FB.limit(200)));
+    const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
+    gReplies[key] = out.filter(r => !isBlocked(r.uid));
+  }catch(e){ gReplies[key] = gReplies[key] || []; }
+  render();
+  return gReplies[key];
+}
+/* Browsing, not searching. One query: kind == 'public'. A private group has no
+   `kind` field at all, so it can never come back from it — which is what keeps
+   its code a secret. No orderBy, so no composite index is needed. */
+async function loadPublic(force){
+  if (!FB || !fbUser) return [];
+  if (!force && gFind) return gFind;
+  gFindBusy = true; render();
+  try{
+    const snap = await FB.getDocs(FB.query(FB.collection(fbDb, 'groups'), FB.where('kind', '==', 'public'), FB.limit(80)));
+    const out = []; snap.forEach(d => out.push({code:d.id, ...(d.data() || {})}));
+    out.sort((a, b) => (b.lastT || 0) - (a.lastT || 0) || (b.mem || 0) - (a.mem || 0));
+    gFind = out;
+    for (const g of out) if (!groupMeta[g.code]) groupMeta[g.code] = g;
+  }catch(e){ gFind = gFind || []; }
+  gFindBusy = false; render();
+  return gFind;
+}
+
+/* ---------- writing ---------- */
+function gMine(map){ return !!(map && fbUser && map[fbUser.uid]); }
+const gCount = map => map ? Object.keys(map).length : 0;
+
+async function gPost(code, kind, text, hillKey){
+  if (!FB || !fbUser) return false;
+  const h = hillKey ? BY_KEY[hillKey] : null;
+  const id = 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const doc = {
+    uid: fbUser.uid, name: myName(), av: myAvatar() || '',
+    t: Date.now(), k: kind === 'ask' ? 'ask' : 'say',
+    text: String(text || '').slice(0, 1500),
+    hill: h ? h.k : null, hn: h ? hillName(h) : null,
+    gk: gKind(code), best: null, nr: 0, helps: {}
+  };
+  await FB.setDoc(talkRef(code, id), doc);
+  gTalk[code] = [{id, ...doc}, ...(gTalk[code] || [])];
+  gSeen[code] = doc.t; gSaveSeen();
+  /* the list sorts on this, and the group card shows when it last stirred */
+  FB.setDoc(groupRef(code), {lastT: doc.t}, {merge:true}).catch(() => {});
+  if (h){ delete gHillQ[h.k]; delete gHillQAt[h.k]; }
+  return true;
+}
+async function gReply(code, pid, text){
+  if (!FB || !fbUser) return false;
+  const p = (gTalk[code] || []).find(x => x.id === pid);
+  const id = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const doc = {uid: fbUser.uid, name: myName(), av: myAvatar() || '', t: Date.now(),
+               text: String(text || '').slice(0, 1500), helps: {}};
+  await FB.setDoc(replyRef(code, pid, id), doc);
+  const key = code + '|' + pid;
+  gReplies[key] = [...(gReplies[key] || []), {id, ...doc}];
+  if (p){
+    p.nr = (p.nr || 0) + 1;
+    FB.setDoc(talkRef(code, pid), {nr: p.nr}, {merge:true}).catch(() => {});
+    /* One note, to whoever asked. Not to the whole group: a public group of a
+       thousand people answering each other would be a bell that never stops. */
+    if (p.uid && p.uid !== fbUser.uid)
+      notify(p.uid, 'ga_' + pid, {type:'answered', code, pid,
+        snip: (p.hn || (p.text || '').slice(0, 40) || 'your question'), text: doc.text.slice(0, 90)});
+  }
+  FB.setDoc(groupRef(code), {lastT: doc.t}, {merge:true}).catch(() => {});
+  return true;
+}
+/* Helpful is a map of uids on the document, and the rules let you change your
+   own key and nobody else's. A plain number would have had to be writable by
+   anyone, which is a number anyone could invent. */
+async function gHelp(code, pid, rid){
+  if (!FB || !fbUser) return;
+  const me = fbUser.uid;
+  const p = (gTalk[code] || []).find(x => x.id === pid); if (!p) return;
+  const key = code + '|' + pid;
+  const target = rid ? (gReplies[key] || []).find(r => r.id === rid) : p;
+  if (!target) return;
+  target.helps = target.helps || {};
+  const on = !target.helps[me];
+  if (on) target.helps[me] = true; else delete target.helps[me];
+  render();
+  const patch = {helps: {[me]: on ? true : FB.deleteField()}};
+  try{ await FB.setDoc(rid ? replyRef(code, pid, rid) : talkRef(code, pid), patch, {merge:true}); }
+  catch(e){ if (on) delete target.helps[me]; else target.helps[me] = true; render(); toast('That did not save.'); }
+}
+async function gBest(code, pid, rid){
+  const p = (gTalk[code] || []).find(x => x.id === pid); if (!p) return;
+  p.best = rid || null; render();
+  try{ await FB.setDoc(talkRef(code, pid), {best: p.best}, {merge:true}); }
+  catch(e){ toast(fbWhy(e)); }
+}
+async function gDelete(code, pid, mine){
+  if (!await confirmAsk({
+    title: mine ? 'Delete your post?' : 'Remove this post?',
+    body: mine ? 'It goes from the group, and its answers go with it.'
+               : 'It goes from the group for everyone, and its answers go with it. You can do this because you started the group.',
+    yes: mine ? 'Delete' : 'Remove', no: 'Keep it'})) return;
+  try{ await FB.deleteDoc(talkRef(code, pid)); }
+  catch(e){ toast(fbWhy(e)); return; }
+  gTalk[code] = (gTalk[code] || []).filter(x => x.id !== pid);
+  if (ui.gThread === pid) ui.gThread = null;
+  render(); toast(mine ? 'Deleted.' : 'Removed from the group.');
+}
+/* Joining a public one. Read costs nothing; writing means standing in the room. */
+async function gJoinPublic(code){
+  if (!FB || !fbUser) return;
+  if (gJoined(code)) return;
+  const meta = groupMeta[code] || {};
+  state.groups = [...myGroups(), {code, name: meta.name || 'Group', kind:'public', detail:false, t:now()}];
+  try{ await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code)); }
+  catch(e){ state.groups = myGroups().filter(g => g.code !== code); toast(fbWhy(e)); return; }
+  /* increment, not a number worked out here: two people joining in the same
+     minute from a stale count would both write the same total, and the rules
+     only allow a move of one either way. The server does the arithmetic. */
+  FB.setDoc(groupRef(code), {mem: FB.increment(1)}, {merge:true}).catch(() => {});
+  groupMeta[code] = {...meta, mem: (+meta.mem || 0) + 1};
+  touched(); gFind = null; render();
+  toast('Joined ' + gName(code) + '. You can post now.');
+}
+
+/* ---------- the group list ---------- */
+function gBoardsList(){
   const gs = myGroups();
   const global = gs.find(g => isGlobal(g.code));
   const mine = gs.filter(g => !isGlobal(g.code));
-  let html = '';
-
-  /* Your own boards lead; the open board everybody shares sits underneath. */
-  html += '<p class="eyebrow">Your leaderboards</p>';
-  html += '<div class="planintro">A leaderboard is private to whoever has its code. Start one and send the code to your walking friends, or paste in a code someone sent you.</div>';
-  html += '<div class="btnrow"><button class="btn" data-act="newgroup">+ Start one</button>' +
-          '<button class="btn ghost" data-act="joingroup">Join with a code</button></div>';
-  html += groupFormHTML();
-
+  let s = '<p class="eyebrow">Your groups</p>' +
+    '<div class="planintro">A private group needs its code. A public one anybody can find and join.</div>' +
+    '<div class="btnrow"><button class="btn" data-act="newgroup">+ Start one</button>' +
+    '<button class="btn ghost" data-act="gxfind">' + ti('search', 'width="18" height="18"') + 'Find groups</button>' +
+    '<button class="btn ghost" data-act="joingroup">Join with a code</button></div>';
+  s += groupFormHTML();
   if (!mine.length){
-    html += '<p class="empty">No private leaderboards yet. Nobody can see your hills until you start or join one.</p>';
+    s += '<p class="empty">No groups yet. Start one and send the code to whoever you walk with, or find a public one.</p>';
   } else {
-    for (const g of mine) html += boardCard(g);
+    for (const g of mine) s += gGroupRow(g.code);
   }
-
-  if (global){
-    html += '<p class="eyebrow">The WayMark board</p>';
-    html += '<div class="planintro">Everyone using WayMark, ranked by summits. Anyone can see this one.</div>';
-    html += boardCard(global);
-  }
-  /* Not on the open board: the offer goes last, so it reads as an extra rather
-     than as the thing this screen is about. */
-  if (!global){
-    html += '<p class="eyebrow">The WayMark board</p>';
-    html += '<article class="plan globalcard" style="margin-top:0">' +
+  s += '<p class="eyebrow">The open board</p>' +
+    '<div class="planintro">Everyone using WayMark, ranked by summits, and one place they can all talk.</div>';
+  if (global) s += gGroupRow(GLOBAL_CODE);
+  else s += '<article class="plan globalcard" style="margin-top:0">' +
       '<div class="planhead"><h3>' + GLOBAL_NAME + '</h3><span class="tag">open to all</span></div>' +
       '<p class="planintro" style="margin:8px 0 0">One board for everyone using WayMark. ' +
       'Anyone can see it, so joining shares your name and your total: nothing else. ' +
@@ -28166,10 +28536,475 @@ function renderBoard(){
       '<div class="btnrow" style="margin-top:12px">' +
       '<button class="btn" data-act="joinglobal">Join the open board</button></div>' +
       '<p id="globalmsg" style="font-size:13px;margin:8px 0 0"></p></article>';
-  }
-  return html;
+  return s;
+}
+function gUnread(code){
+  const seen = gSeen[code] || 0;
+  return (gTalk[code] || []).filter(p => (p.t || 0) > seen && p.uid !== (fbUser || {}).uid).length;
+}
+function gGroupRow(code){
+  const n = gUnread(code), k = gKind(code);
+  const rows = groupRows[code] || [];
+  const mem = gMembers(code);
+  const sub = k === 'open' ? 'Everyone using WayMark'
+    : (mem ? mem.toLocaleString() + (mem === 1 ? ' walker' : ' walkers') : 'Just you so far') +
+      (gRuns(code) ? ' · yours' : '');
+  return '<button class="gxrow" data-act="gxopen" data-v="' + esc(code) + '">' +
+    '<span class="gxi"><b>' + esc(gName(code)) + '</b>' +
+    '<span class="gxm">' + gBadge(code) + '<em>' + esc(sub) + '</em></span></span>' +
+    (n ? '<span class="gxn">' + n + '</span>' : '<span class="chev">' + ti('chevron-right', 'width="18" height="18"') + '</span>') +
+    '</button>';
 }
 
+/* ---------- finding a public group ----------
+   Browsed by where people walk, because a walker knows where they walk.
+   Nothing here is suggested by an algorithm. */
+const GREGIONS = ['Lake District', 'Scotland', 'Eryri', 'Peak District', 'Yorkshire Dales',
+                  'Northern Ireland', 'Ireland', 'Brecon Beacons', 'Anywhere'];
+function gFindView(){
+  let s = '<button class="hkback" data-act="gxunfind">' + ti('arrow-left') + 'Your groups</button>' +
+    '<p class="eyebrow">Public groups</p>' +
+    '<div class="planintro">Anyone can read these. You join to post. Nothing here is suggested by an algorithm.</div>';
+  const region = ui.gRegion || '';
+  s += '<div class="chips gxchips"><button class="chip' + (region ? '' : ' on') + '" data-act="gxregion" data-v="">All</button>' +
+    GREGIONS.map(r => '<button class="chip' + (region === r ? ' on' : '') + '" data-act="gxregion" data-v="' + esc(r) + '">' + esc(r) + '</button>').join('') + '</div>';
+  if (gFindBusy && !gFind) return s + skeletonRows(3);
+  const all = (gFind || []).filter(g => !gJoined(g.code));
+  const list = region ? all.filter(g => (g.where || '') === region) : all;
+  if (!list.length){
+    s += '<p class="empty">' + (region ? 'No public groups for ' + esc(region) + ' yet. Start the first one.' : 'No public groups yet. Start the first one.') + '</p>';
+  } else {
+    for (const g of list){
+      const mem = +g.mem || 0;
+      s += '<button class="gxrow" data-act="gxopen" data-v="' + esc(g.code) + '">' +
+        '<span class="gxi"><b>' + esc(g.name || 'Group') + '</b>' +
+        '<span class="gxm"><span class="gxaud pub">' + ti('globe', 'width="12" height="12"') + 'Public</span>' +
+        '<em>' + (mem ? mem.toLocaleString() + (mem === 1 ? ' walker' : ' walkers') : 'New') +
+        (g.where ? ' · ' + esc(g.where) : '') + '</em></span></span>' +
+        '<span class="chev">' + ti('chevron-right', 'width="18" height="18"') + '</span></button>';
+    }
+  }
+  s += '<div class="gxnote">' + ti('flag', 'width="16" height="16"') +
+    '<span><b style="color:var(--ink)">Whoever starts a public group runs it.</b> ' +
+    'They approve nothing, but they can remove a post and remove a member. Anything they miss can be reported to WayMark.</span></div>';
+  return s;
+}
+
+/* ---------- one group ---------- */
+function gGroupScreen(){
+  const code = ui.gView, k = gKind(code), joined = gJoined(code);
+  if (ui.gThread) return gThreadView(code);
+  let s = '<button class="hkback" data-act="gxback">' + ti('arrow-left') + (ui.gFrom === 'find' ? 'Public groups' : 'Your groups') + '</button>';
+  s += '<div class="planhead" style="margin:4px 0 10px"><h3 style="flex:1">' + esc(gName(code)) + '</h3>' +
+    '<button class="linkbtn gxmore" data-act="gxgmenu" aria-label="About this group">' + ti('dots', 'width="20" height="20"') + '</button></div>';
+  const tab = ui.gTab === 'table' ? 'table' : ui.gTab === 'people' ? 'people' : 'talk';
+  const un = joined ? gUnread(code) : 0;
+  s += '<div class="gxtabs" role="tablist">' +
+    '<button role="tab" aria-selected="' + (tab === 'talk') + '" class="' + (tab === 'talk' ? 'on' : '') + '" data-act="gxtab" data-v="talk">Talk' + (un ? '<span class="gxct">' + un + '</span>' : '') + '</button>' +
+    '<button role="tab" aria-selected="' + (tab === 'table') + '" class="' + (tab === 'table' ? 'on' : '') + '" data-act="gxtab" data-v="table">Table</button>' +
+    '</div>';
+  /* Spelled out in full while you are deciding whether to join; one quiet line
+     once you are in, and it never goes away. */
+  s += '<div class="gxline ' + gAud(code).cls + (joined ? ' thin' : '') + '">' + ti(gAud(code).ic, 'width="16" height="16"') +
+    '<span>' + esc(joined ? gAud(code).short : gAudLine(code)) + '</span></div>';
+  if (tab === 'table') return s + gTableTab(code);
+  return s + gTalkTab(code);
+}
+function gTableTab(code){
+  if (!gJoined(code)) return '<p class="empty">Join to see the table. Reading the talk never needs it.</p>' + gJoinBar(code);
+  const g = myGroups().find(x => x.code === code) || {code, name: gName(code)};
+  return boardCard(g, true);
+}
+function gTalkTab(code){
+  const joined = gJoined(code), posts = gTalk[code] || [];
+  let s = '';
+  if (joined){
+    s += '<div class="gxask"><button class="gxprompt" data-act="gxask">' +
+      avatarHTML(myAvatar(), myName(), 'sm', fbUser.uid) +
+      '<span class="gxfake">' + (gKind(code) === 'private' ? 'Ask the group, or say something' : 'Ask, or say something') + '</span></button>' +
+      '<div class="btnrow" style="margin-top:9px"><button class="btn sm ghost" data-act="gxask" data-v="hill">' +
+      ti('mountain', 'width="16" height="16"') + 'Ask about a hill</button></div></div>';
+  }
+  if (gTalkBusy === code && !posts.length) return s + skeletonRows(3);
+  if (!posts.length) return s + '<p class="empty">' +
+    (joined ? 'Nothing said yet. Ask something — somebody in here has walked it.' : 'Nothing said yet. Join and be the first to ask.') +
+    '</p>' + (joined ? '' : gJoinBar(code));
+  const seen = gSeen[code] || 0;
+  const un = joined ? gUnread(code) : 0;
+  let drew = !un;
+  for (const p of posts){
+    if (!drew && (p.t || 0) <= seen){ drew = true; s += '<div class="gxmark"><span>Where you got to</span><i></i></div>'; }
+    s += gPostCard(code, p);
+  }
+  s += '<p style="text-align:center;font:500 12px var(--font-data);color:var(--ink-3);margin:14px 0 0">' +
+    (gKind(code) === 'private' ? 'That is all of it. ' + posts.length + (posts.length === 1 ? ' post.' : ' posts.') : 'Newest first. Nothing is ranked.') + '</p>';
+  if (!joined) s += gJoinBar(code);
+  return s;
+}
+function gJoinBar(code){
+  return '<div class="gxjoin"><button class="btn" style="width:100%" data-act="gxjoin" data-v="' + esc(code) + '">' +
+    ti('plus', 'width="18" height="18"') + 'Join this group</button>' +
+    '<p style="margin:7px 0 0;font-size:12px;color:var(--ink-3);text-align:center">Joining lets you post. You can read it all without.</p></div>';
+}
+function gPostCard(code, p){
+  const ask = p.k === 'ask';
+  const key = code + '|' + p.id;
+  const best = p.best ? (gReplies[key] || []).find(r => r.id === p.best) : null;
+  const nHelp = gCount(p.helps), iHelped = gMine(p.helps), nr = +p.nr || 0;
+  let s = '<article class="gxpost' + (ask ? ' q' : '') + '"><div class="gxhead">' +
+    avatarHTML(p.av, p.name, 'sm', p.uid) +
+    '<span class="gxwho"><b>' + esc(niceName(p.name) || 'Walker') + '</b><span>' + esc(whenAgo(p.t)) + '</span></span>' +
+    (ask ? '<span class="gxflag ' + (p.best ? 'ans' : 'asking') + '">' + (p.best ? 'Answered' : 'Asking') + '</span>' : '') +
+    '</div><p class="gxtext">' + esc(p.text || '') + '</p>';
+  if (p.hill && BY_KEY[p.hill])
+    s += '<button class="gxhill" data-act="info" data-k="' + esc(p.hill) + '">' + ti('map-pin', 'width="14" height="14"') + esc(p.hn || hillName(BY_KEY[p.hill])) + '</button>';
+  if (best) s += '<div class="gxbest"><div class="gxbh">' + ti('check', 'width="13" height="13"') + 'Best answer</div>' +
+    '<p>' + esc(best.text.length > 180 ? best.text.slice(0, 178) + '…' : best.text) + '</p>' +
+    '<span class="gxbw">' + esc(niceName(best.name) || 'Walker') + ' · ' + esc(whenAgo(best.t)) + '</span></div>';
+  s += '<div class="gxacts">' +
+    '<button class="gxact' + (iHelped ? ' on' : '') + '" data-act="gxhelp" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" aria-pressed="' + iHelped + '">' +
+      ti('heart', 'width="20" height="20"') + '<b>' + nHelp + '</b> Helpful</button>' +
+    '<button class="gxact" data-act="gxthread" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '">' +
+      ti('message-circle', 'width="20" height="20"') + '<b>' + nr + '</b> ' +
+      (nr === 1 ? (ask ? 'Answer' : 'Reply') : (ask ? 'Answers' : 'Replies')) + '</button>' +
+    '<button class="gxact gxend" data-act="gxpmenu" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" aria-label="More on this post">' +
+      ti('dots', 'width="20" height="20"') + '</button></div>';
+  return s + '</article>';
+}
+function gThreadView(code){
+  const p = (gTalk[code] || []).find(x => x.id === ui.gThread);
+  if (!p){ ui.gThread = null; return gGroupScreen(); }
+  const ask = p.k === 'ask', mine = p.uid === (fbUser || {}).uid, joined = gJoined(code);
+  const rs = gReplies[code + '|' + p.id] || [];
+  let s = '<button class="hkback" data-act="gxtback">' + ti('arrow-left') + esc(gName(code)) + '</button>';
+  s += '<article class="gxpost' + (ask ? ' q' : '') + '"><div class="gxhead">' +
+    avatarHTML(p.av, p.name, 'sm', p.uid) +
+    '<span class="gxwho"><b>' + esc(niceName(p.name) || 'Walker') + '</b><span>' + esc(whenAgo(p.t)) + '</span></span>' +
+    (ask ? '<span class="gxflag ' + (p.best ? 'ans' : 'asking') + '">' + (p.best ? 'Answered' : 'Asking') + '</span>' : '') +
+    '</div><p class="gxtext">' + esc(p.text || '') + '</p>';
+  if (p.hill && BY_KEY[p.hill])
+    s += '<button class="gxhill" data-act="info" data-k="' + esc(p.hill) + '">' + ti('map-pin', 'width="14" height="14"') + esc(p.hn || hillName(BY_KEY[p.hill])) + '</button>';
+  s += '<div class="gxacts"><button class="gxact' + (gMine(p.helps) ? ' on' : '') + '" data-act="gxhelp" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" aria-pressed="' + gMine(p.helps) + '">' +
+    ti('heart', 'width="20" height="20"') + '<b>' + gCount(p.helps) + '</b> Helpful</button>' +
+    '<button class="gxact gxend" data-act="gxpmenu" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" aria-label="More on this post">' + ti('dots', 'width="20" height="20"') + '</button></div></article>';
+  s += '<p class="eyebrow">' + (rs.length ? rs.length + ' ' + (ask ? (rs.length === 1 ? 'answer' : 'answers') : (rs.length === 1 ? 'reply' : 'replies')) : (ask ? 'No answers yet' : 'Nothing said yet')) + '</p>';
+  for (const r of rs){
+    const isBest = p.best === r.id;
+    s += '<div class="gxreply">' + avatarHTML(r.av, r.name, 'sm', r.uid) +
+      '<div class="gxrb"><span class="gxrw">' + esc(niceName(r.name) || 'Walker') + '</span>' +
+      '<span class="gxrt">' + esc(whenAgo(r.t)) + '</span>' +
+      (isBest ? '<span class="gxbestflag">Best</span>' : '') +
+      '<p>' + esc(r.text || '') + '</p>' +
+      '<div class="gxra"><button class="gxact' + (gMine(r.helps) ? ' on' : '') + '" data-act="gxrhelp" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" data-r="' + esc(r.id) + '" aria-pressed="' + gMine(r.helps) + '">' +
+        ti('heart', 'width="18" height="18"') + '<b>' + gCount(r.helps) + '</b></button>' +
+      (ask && mine ? '<button class="gxact" data-act="' + (isBest ? 'gxunbest' : 'gxbest') + '" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" data-r="' + esc(r.id) + '">' +
+        ti('check', 'width="18" height="18"') + (isBest ? 'Unmark best' : 'Best answer') + '</button>' : '') +
+      '</div></div></div>';
+  }
+  if (joined){
+    s += '<div class="form" style="margin-top:12px"><div><label for="gxans">' + (ask ? 'Your answer' : 'Reply') + '</label>' +
+      '<textarea id="gxans" rows="3" maxlength="1500" placeholder="' + (ask ? 'What do you know?' : 'Say something') + '"></textarea></div>' +
+      '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="gxsendreply" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '">' +
+      ti('send', 'width="16" height="16"') + (ask ? 'Answer' : 'Reply') + '</button></div></div>';
+  } else s += gJoinBar(code);
+  return s;
+}
+
+/* ---------- the sheets ---------- */
+function gSheet(html){
+  let el = document.getElementById('gxsheet');
+  if (!el){
+    el = document.createElement('div'); el.id = 'gxsheet'; el.className = 'sheet bottom';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Group');
+    document.body.appendChild(el);
+    el.addEventListener('click', e => { if (e.target === el) gSheetClose(); });
+  }
+  el.innerHTML = '<div class="sheetbox"><div class="cmgrab"></div>' + html + '</div>';
+  el.classList.add('open');
+}
+function gSheetClose(){ const el = document.getElementById('gxsheet'); if (el) el.classList.remove('open'); ui.gDraft = null; }
+
+function gAskSheet(withHill){
+  const code = ui.gView; if (!code) return;
+  ui.gDraft = ui.gDraft || {kind:'ask', hill: withHill ? (ui.open || null) : null};
+  gPaintAsk();
+}
+function gPaintAsk(){
+  const code = ui.gView, d = ui.gDraft || {kind:'ask', hill:null};
+  /* The hills a walker asks about are the ones they have just been up or are
+     about to be — not the first six in the file, which is every Cairngorm. */
+  const marked = HILLS.filter(h => isBagged(h.k))
+    .sort((a2, b2) => String((rec(b2.k) || {}).date || '').localeCompare(String((rec(a2.k) || {}).date || '')));
+  const onLists = HILLS.filter(h => (h.l || []).some(l => state.enabled.indexOf(l) >= 0));
+  const seenK = new Set();
+  const picks = [];
+  const push = h => { if (h && !seenK.has(h.k)){ seenK.add(h.k); picks.push(h); } };
+  if (ui.open && BY_KEY[ui.open]) push(BY_KEY[ui.open]);
+  if (d.hill && BY_KEY[d.hill]) push(BY_KEY[d.hill]);
+  for (const h of marked) if (picks.length < 6) push(h);
+  for (const h of onLists) if (picks.length < 6) push(h);
+  for (const h of HILLS) if (picks.length < 6) push(h);
+  let s = '<div class="ntop"><h3>' + (d.kind === 'ask' ? 'Ask' : 'Say something') + '</h3>' +
+    '<button class="xbtn" data-act="gxclose" aria-label="Close">' + ti('x') + '</button></div>';
+  s += '<div class="gxline ' + gAud(code).cls + '">' + ti(gAud(code).ic, 'width="16" height="16"') +
+    '<span><b>' + esc(gName(code)) + '</b> · ' + esc(gAud(code).short) + '</span></div>';
+  s += '<div class="btnrow" style="margin-top:0">' +
+    '<button class="btn sm' + (d.kind === 'ask' ? '' : ' ghost') + '" data-act="gxkind" data-v="ask">Question</button>' +
+    '<button class="btn sm' + (d.kind === 'say' ? '' : ' ghost') + '" data-act="gxkind" data-v="say">Just saying</button></div>';
+  s += '<div class="form" style="margin-top:10px"><div><label for="gxnew" class="vh">What do you want to say?</label>' +
+    '<textarea id="gxnew" rows="4" maxlength="1500" placeholder="' + (d.kind === 'ask' ? 'What do you want to know?' : 'What happened?') + '">' + esc(d.text || '') + '</textarea></div></div>';
+  s += '<p class="eyebrow" style="margin-top:12px">Attach a hill</p><div class="chips gxchips">' +
+    picks.map(h => '<button class="chip' + (d.hill === h.k ? ' on' : '') + '" data-act="gxpick" data-v="' + esc(h.k) + '">' +
+      ti('map-pin', 'width="14" height="14"') + esc(hillName(h)) + '</button>').join('') +
+    '<button class="chip' + (d.hill ? '' : ' on') + '" data-act="gxpick" data-v="">No hill</button></div>';
+  s += '<p style="margin:9px 0 0;font-size:12.5px;color:var(--ink-3)">' +
+    (gKind(code) === 'private'
+      ? 'A question attached to a hill shows on that hill’s page for this group only.'
+      : 'A question attached to a hill shows on that hill’s page for anyone using WayMark.') + '</p>';
+  s += '<div class="btnrow" style="margin-top:14px"><button class="btn quiet" data-act="gxclose">Cancel</button>' +
+    '<button class="btn" data-act="gxsend">' + ti('check', 'width="16" height="16"') + 'Post</button></div>';
+  gSheet(s);
+}
+function gMenuSheet(){
+  const code = ui.gView, k = gKind(code), runs = gRuns(code), joined = gJoined(code);
+  let s = '<div class="ntop"><h3>' + esc(gName(code)) + '</h3>' +
+    '<button class="xbtn" data-act="gxclose" aria-label="Close">' + ti('x') + '</button></div>';
+  s += '<div class="gxline ' + gAud(code).cls + '">' + ti(gAud(code).ic, 'width="16" height="16"') + '<span>' + esc(gAudLine(code)) + '</span></div>';
+  if (k === 'private'){
+    s += '<div class="planmeta"><span>Code <b class="gcode">' + esc(code) + '</b></span>' +
+      '<button class="linkbtn" style="padding:0" data-act="copycode" data-v="' + esc(code) + '">Copy code</button></div>' +
+      '<div class="btnrow" style="margin-top:10px"><button class="btn sm ghost" data-act="shareboard" data-v="' + esc(code) + '">' + ti('share', 'width="16" height="16"') + 'Invite by link</button></div>';
+  } else if (k === 'public'){
+    s += '<p style="margin:0;font-size:13px;color:var(--ink-3)">No code needed. Anyone can find this group under Find groups.</p>' +
+      '<div class="btnrow" style="margin-top:10px"><button class="btn sm ghost" data-act="shareboard" data-v="' + esc(code) + '">' + ti('share', 'width="16" height="16"') + 'Share this group</button></div>';
+  }
+  if (runs) s += '<div class="gxnote">' + ti('flag', 'width="16" height="16"') +
+    '<span>You started this group, so you run it. You can remove a post and remove a member. Anything you miss, a member can report to WayMark.</span></div>';
+  s += '<div class="btnrow" style="margin-top:12px"><button class="btn sm ghost" data-act="gxrefresh" data-v="' + esc(code) + '">' + ti('refresh', 'width="16" height="16"') + 'Refresh</button>';
+  if (joined && !isGlobal(code)) s += '<button class="btn sm ghost" style="border-color:var(--warn);color:var(--warn-text)" data-act="leavegroup" data-v="' + esc(code) + '">Leave this group</button>';
+  s += '</div>';
+  return gSheet(s);
+}
+function gPostMenu(code, pid){
+  const p = (gTalk[code] || []).find(x => x.id === pid); if (!p) return;
+  const mine = p.uid === (fbUser || {}).uid, runs = gRuns(code), k = gKind(code);
+  const first = firstName(p.name);
+  let s = '<div class="ntop"><h3>' + (mine ? 'Your post' : esc(first) + '’s post') + '</h3>' +
+    '<button class="xbtn" data-act="gxclose" aria-label="Close">' + ti('x') + '</button></div>';
+  s += '<p style="margin:0 0 12px;font-size:13px;color:var(--ink-3)">' + esc(whenAgo(p.t)) + ' in ' + esc(gName(code)) + '</p>';
+  if (mine){
+    s += '<button class="btn quiet" style="width:100%;margin-bottom:8px" data-act="gxdel" data-c="' + esc(code) + '" data-p="' + esc(pid) + '">' + ti('trash', 'width="16" height="16"') + 'Delete my post</button>';
+  } else {
+    /* Whoever runs the group cleans up first. WayMark is the backstop, not the
+       front line: one person cannot read every public group on WayMark. */
+    if (runs){
+      s += '<button class="btn quiet" style="width:100%;margin-bottom:8px;border-color:var(--warn);color:var(--warn-text)" data-act="gxremove" data-c="' + esc(code) + '" data-p="' + esc(pid) + '">' + ti('trash', 'width="16" height="16"') + 'Remove this post</button>';
+      s += '<div class="gxnote" style="margin:0 0 10px">' + ti('flag', 'width="16" height="16"') + '<span>You can do this because you started the group. Anything you miss, a member can report to WayMark.</span></div>';
+    } else {
+      const to = (k === 'open' || !groupMeta[code] || !groupMeta[code].createdBy) ? 'WayMark' : 'whoever runs this group';
+      s += '<button class="btn quiet" style="width:100%;margin-bottom:8px" data-act="gxreport" data-c="' + esc(code) + '" data-p="' + esc(pid) + '">' + ti('flag', 'width="16" height="16"') + 'Report this post</button>';
+      s += '<div class="gxnote" style="margin:0 0 10px">' + ti('flag', 'width="16" height="16"') + '<span>' +
+        (k === 'open' ? 'Nobody runs the open board, so reports come straight to WayMark.'
+                      : 'It goes to ' + esc(to) + ' and to WayMark together.') + '</span></div>';
+    }
+    s += '<button class="btn quiet" style="width:100%;margin-bottom:8px" data-act="gxblock" data-u="' + esc(p.uid) + '" data-n="' + esc(p.name || '') + '">' + ti('ban', 'width="16" height="16"') + 'Block ' + esc(first) + '</button>';
+  }
+  s += '<button class="btn quiet" style="width:100%" data-act="gxclose">Cancel</button>';
+  gSheet(s);
+}
+
+/* ---------- what the groups know, on a hill's page ----------
+   The reason to build this here rather than start a Facebook group. Ask about
+   Sharp Edge in January on Facebook and the answer is gone by March. Attach it
+   to Blencathra and it is waiting for whoever opens Blencathra next winter. */
+async function loadHillQ(key){
+  if (!FB || !fbUser || !key) return [];
+  if (gHillQ[key] && Date.now() - (gHillQAt[key] || 0) < 120000) return gHillQ[key];
+  const out = [];
+  const seen = new Set();
+  const add = (code, d) => {
+    if (!d || seen.has(d.id) || isBlocked(d.uid)) return;
+    seen.add(d.id); out.push({...d, code});
+  };
+  /* every group this walker is in: cheap, and it is the only way their own
+     private groups' answers reach the page */
+  for (const g of myGroups().slice(0, 12)){
+    try{
+      const snap = await FB.getDocs(FB.query(talkCol(g.code), FB.where('hill', '==', key), FB.limit(8)));
+      snap.forEach(d => add(g.code, {id:d.id, ...(d.data() || {})}));
+    }catch(e){}
+  }
+  /* and every public group at once, in one collection-group query. The rules
+     only allow it when the query itself constrains gk, which is what keeps a
+     private group's talk out of it. */
+  if (FB.collectionGroup){
+    try{
+      const snap = await FB.getDocs(FB.query(FB.collectionGroup(fbDb, 'talk'),
+        FB.where('gk', 'in', ['public', 'open']), FB.where('hill', '==', key), FB.limit(20)));
+      snap.forEach(d => {
+        const path = (d.ref && d.ref.parent && d.ref.parent.parent) ? d.ref.parent.parent.id : '';
+        add(path, {id:d.id, ...(d.data() || {})});
+      });
+    }catch(e){ /* wants a composite index the first time; the console prints the link */ }
+  }
+  out.sort((a, b) => ((b.best ? 1 : 0) - (a.best ? 1 : 0)) || (b.t || 0) - (a.t || 0));
+  gHillQ[key] = out.slice(0, 6); gHillQAt[key] = Date.now();
+  /* the best answers are on the replies, so fetch those for the ones that have one */
+  for (const q of gHillQ[key]) if (q.best && q.code && !gReplies[q.code + '|' + q.id]) await loadReplies(q.code, q.id);
+  if (wikiOpen && wikiOpen.k === key) paintInfo();
+  return gHillQ[key];
+}
+function hillQuestionsHTML(key){
+  if (!(FB && fbUser)) return '';
+  const qs = gHillQ[key];
+  if (!qs){
+    if (!gHillQAt[key]){ gHillQAt[key] = 1; setTimeout(() => loadHillQ(key), 60); }
+    return '';
+  }
+  if (!qs.length) return '';
+  const groups = new Set(qs.map(q => q.code).filter(Boolean));
+  let s = '<h3>What the groups know</h3>' +
+    '<p class="istats">' + qs.length + (qs.length === 1 ? ' question' : ' questions') +
+    ', from ' + groups.size + (groups.size === 1 ? ' group' : ' groups') + '</p>';
+  for (const q of qs){
+    const best = q.best ? (gReplies[q.code + '|' + q.id] || []).find(r => r.id === q.best) : null;
+    s += '<div class="gxhq"><p class="gxhqq">' + esc(q.text.length > 140 ? q.text.slice(0, 138) + '…' : q.text) + '</p>';
+    if (best) s += '<p class="gxhqa">' + esc(best.text.length > 220 ? best.text.slice(0, 218) + '…' : best.text) + '</p>' +
+      '<span class="gxhqw">' + esc(niceName(best.name) || 'Walker') + ' · ' + esc(whenAgo(best.t)) + ' · ' + esc(gName(q.code)) + '</span>';
+    else s += '<p class="gxhqn">Asked in ' + esc(gName(q.code)) + ' · ' + esc(whenAgo(q.t)) +
+      ((+q.nr || 0) ? ' · ' + q.nr + (q.nr === 1 ? ' answer' : ' answers') : ' · no answers yet') + '</p>';
+    s += '<div class="btnrow" style="margin-top:9px"><button class="btn sm ghost" data-act="gxgoq" data-c="' + esc(q.code) + '" data-p="' + esc(q.id) + '">Open it</button>' +
+      (q.uid !== (fbUser || {}).uid ? '<button class="linkbtn" data-act="gxreport" data-c="' + esc(q.code) + '" data-p="' + esc(q.id) + '">Report</button>' : '') +
+      '</div></div>';
+  }
+  return s;
+}
+
+/* ---------- actions ---------- */
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act; if (!a || a.slice(0, 2) !== 'gx') return;
+  const code = el.dataset.c || ui.gView, pid = el.dataset.p;
+  if (a === 'gxnewkind'){
+    const nb = document.getElementById('gname');
+    ui.gNewName = nb ? nb.value : (ui.gNewName || '');
+    const wb = document.getElementById('gwhere'); if (wb) ui.gNewWhere = wb.value;
+    ui.gNewKind = el.dataset.v;
+    ui.gNewClash = '';
+    render();
+    /* Nine dead groups called "Lake District" is what happens when anybody can
+       start one. This does not stop them — it just says so first. */
+    if (ui.gNewKind === 'public'){
+      const list = await loadPublic();
+      const want = (ui.gNewName || '').trim().toLowerCase();
+      const hit = want.length > 2 && list.find(g => (g.name || '').trim().toLowerCase() === want);
+      if (hit){ ui.gNewClash = hit.name; render(); }
+    }
+    return;
+  }
+  if (a === 'gxfind'){ ui.gView = null; ui.gThread = null; ui.gFind = true; render(); window.scrollTo({top:0}); loadPublic(); return; }
+  if (a === 'gxunfind'){ ui.gFind = false; render(); window.scrollTo({top:0}); return; }
+  if (a === 'gxregion'){ ui.gRegion = el.dataset.v || ''; render(); return; }
+  if (a === 'gxopen'){
+    ui.gFrom = ui.gFind ? 'find' : 'list';
+    ui.gView = el.dataset.v; ui.gThread = null; ui.gTab = 'talk'; ui.gFind = false;
+    render(); window.scrollTo({top:0});
+    if (!groupMeta[ui.gView]) { try{ const m = await FB.getDoc(groupRef(ui.gView)); if (m.exists()) groupMeta[ui.gView] = m.data() || {}; }catch(err){} render(); }
+    loadTalk(ui.gView);
+    if (gJoined(ui.gView) && !groupRows[ui.gView]) loadGroup(ui.gView);
+    return;
+  }
+  if (a === 'gxback'){
+    const was = ui.gView;
+    if (was) { gSeen[was] = Math.max(gSeen[was] || 0, ...(gTalk[was] || []).map(p => p.t || 0), 0); gSaveSeen(); }
+    ui.gView = null; ui.gThread = null; ui.gFind = ui.gFrom === 'find';
+    render(); window.scrollTo({top:0}); return;
+  }
+  if (a === 'gxtab'){ ui.gTab = el.dataset.v; ui.gThread = null; render(); window.scrollTo({top:0});
+    if (el.dataset.v === 'table' && ui.gView && !groupRows[ui.gView]) loadGroup(ui.gView); return; }
+  if (a === 'gxjoin'){ await gJoinPublic(el.dataset.v || code); return; }
+  if (a === 'gxthread'){ ui.gThread = pid; render(); window.scrollTo({top:0}); loadReplies(code, pid); return; }
+  if (a === 'gxtback'){ ui.gThread = null; render(); window.scrollTo({top:0}); return; }
+  if (a === 'gxask'){ gAskSheet(el.dataset.v === 'hill'); return; }
+  if (a === 'gxclose'){ gSheetClose(); return; }
+  if (a === 'gxkind'){
+    const box = document.getElementById('gxnew');
+    ui.gDraft = {...(ui.gDraft || {}), kind: el.dataset.v, text: box ? box.value : ''};
+    gPaintAsk(); return;
+  }
+  if (a === 'gxpick'){
+    const box = document.getElementById('gxnew');
+    ui.gDraft = {...(ui.gDraft || {}), hill: el.dataset.v || null, text: box ? box.value : ''};
+    gPaintAsk(); return;
+  }
+  if (a === 'gxsend'){
+    const box = document.getElementById('gxnew'), t = (box && box.value || '').trim();
+    if (!t){ if (box) box.focus(); toast('Write something first.'); return; }
+    const d = ui.gDraft || {kind:'ask'}, k = gKind(ui.gView);
+    try{ await gPost(ui.gView, d.kind, t, d.hill); }
+    catch(err){ toast(fbWhy(err)); return; }
+    gSheetClose(); render(); window.scrollTo({top:0});
+    toast(d.kind === 'ask'
+      ? (k === 'private' ? 'Asked. The group can answer.' : 'Asked. Anyone on WayMark can answer.')
+      : (k === 'private' ? 'Posted. Only the group sees it.' : 'Posted. Anyone on WayMark can see it.'));
+    return;
+  }
+  if (a === 'gxsendreply'){
+    const box = document.getElementById('gxans'), t = (box && box.value || '').trim();
+    if (!t){ if (box) box.focus(); toast('Write something first.'); return; }
+    try{ await gReply(code, pid, t); }catch(err){ toast(fbWhy(err)); return; }
+    if (box) box.value = '';
+    render();
+    toast(gKind(code) === 'private' ? 'Answered. Only the group sees it.' : 'Answered. Anyone on WayMark can see it.');
+    return;
+  }
+  if (a === 'gxhelp'){ await gHelp(code, pid, ''); return; }
+  if (a === 'gxrhelp'){ await gHelp(code, pid, el.dataset.r); return; }
+  if (a === 'gxbest'){ await gBest(code, pid, el.dataset.r); toast('Marked as the best answer.'); return; }
+  if (a === 'gxunbest'){ await gBest(code, pid, null); toast('Unmarked.'); return; }
+  if (a === 'gxpmenu'){ gPostMenu(code, pid); return; }
+  if (a === 'gxgmenu'){ gMenuSheet(); return; }
+  if (a === 'gxdel'){ gSheetClose(); await gDelete(code, pid, true); return; }
+  if (a === 'gxremove'){ gSheetClose(); await gDelete(code, pid, false); return; }
+  if (a === 'gxrefresh'){ gSheetClose(); gFind = null; await loadTalk(code, true); if (gJoined(code)) loadGroup(code); toast('Pulled it again.'); return; }
+  if (a === 'gxblock'){ gSheetClose(); await blockUser(el.dataset.u, el.dataset.n || ''); return; }
+  if (a === 'gxreport'){
+    gSheetClose();
+    const p = (gTalk[code] || []).find(x => x.id === pid) || (gHillQ[wikiOpen ? wikiOpen.k : ''] || []).find(x => x.id === pid);
+    const runner = (groupMeta[code] || {}).createdBy;
+    const toWho = (gKind(code) === 'open' || !runner || runner === (fbUser || {}).uid) ? 'WayMark' : firstName((groupRows[code] || []).find(r => r.uid === runner) ? (groupRows[code] || []).find(r => r.uid === runner).name : '') || 'whoever runs it';
+    if (!await confirmAsk({title:'Report this post?',
+      body:'It goes to WayMark' + (toWho === 'WayMark' ? '' : ' and to ' + toWho + ', who runs this group') +
+           '. Nothing is removed automatically — a person reads it.',
+      yes:'Report it', no:'Cancel'})) return;
+    try{
+      await FB.setDoc(FB.doc(fbDb, 'reports', 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+        {by: fbUser.uid, why:'other', note: ('group ' + code + ' post ' + pid + ': ' + ((p && p.text) || '').slice(0, 380)).slice(0, 500), t: Date.now()});
+      toast('Reported. A person reads every one.');
+    }catch(err){ toast(fbWhy(err)); }
+    return;
+  }
+  if (a === 'gxgoq'){
+    try{ document.getElementById('info').classList.remove('open'); wikiOpen = null; }catch(err){}
+    try{ closeNotes(); }catch(err){}
+    tab = 'u'; ui.hikerTab = 'boards'; ui.gFind = false; ui.gView = code; ui.gTab = 'talk'; ui.gThread = pid;
+    render(); window.scrollTo({top:0});
+    await loadTalk(code); loadReplies(code, pid);
+    return;
+  }
+});
+
+
+function renderBoard(){
+  if (!fbConfigured()) return '';
+  if (!fbUser) return '<p class="empty">Sign in above and you can start or join a group.</p>';
+  if (friendOpen) return renderFriend();
+  /* Three screens now, not one: the list of your groups, browsing the public
+     ones, and a group with Talk beside its Table. */
+  if (ui.gView) return gGroupScreen();
+  if (ui.gFind) return gFindView();
+  return gBoardsList();
+}
 /* ---------- a profile drawn from the log ----------
    A banner nobody chose is a banner nobody owns. This one is the elevation
    profile of the hills the walker has actually stood on, in their true
