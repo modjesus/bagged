@@ -7214,6 +7214,12 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .gxrow .gxm{display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:5px}
 .gxrow .gxm .gxaud{padding:4px 7px; font-size:9.5px}
 .gxrow .gxm em{font:500 12px var(--font-data); color:var(--ink-3); font-style:normal}
+.hkic{position:relative}
+.hkpip{position:absolute; top:-2px; right:-2px; min-width:19px; height:19px; padding:0 5px; border-radius:99px;
+  background:var(--accent); color:var(--accent-ink); font:700 11px/19px var(--font-data); text-align:center;
+  border:2px solid var(--ground)}
+.hkic.on .hkpip{border-color:var(--ink)}
+.gxrow .gxdot{flex:none; width:9px; height:9px; border-radius:99px; background:var(--accent); margin-right:7px}
 .gxrow .gxn{flex:none; min-width:22px; height:22px; padding:0 6px; border-radius:99px; background:var(--accent);
   color:var(--accent-ink); font:700 11.5px/22px var(--font-ui); text-align:center}
 .gxrow .chev{flex:none; color:var(--ink-3)}
@@ -7285,6 +7291,35 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .gxmark span{font:700 10px/1 var(--font-data); letter-spacing:.14em; text-transform:uppercase;
   color:var(--accent-text); flex:none}
 .gxmark i{flex:1; height:1px; background:var(--accent-soft)}
+
+/* what you can put on a post */
+.gxshot{display:block; width:100%; margin:10px 0 0; padding:0; border:1px solid var(--line); border-radius:12px;
+  overflow:hidden; background:var(--surface-2); cursor:zoom-in}
+.gxshot img{display:block; width:100%; height:auto; background:var(--surface-2)}
+.gxatt{display:flex; gap:11px; margin:10px 0 0; padding:11px 12px; background:var(--surface);
+  border:1px solid var(--line); border-radius:12px}
+.gxatt .gxaic{flex:none; width:34px; height:34px; border-radius:9px; background:var(--surface-2);
+  color:var(--ink-2); display:grid; place-items:center}
+.gxatt .gxab{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.gxatt .gxab i{font:600 10px/1 var(--font-data); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-style:normal}
+.gxatt .gxab b{font:700 15px var(--font-display)}
+.gxatt .gxab > span{font:500 12.5px var(--font-data); color:var(--ink-3)}
+.gxatt .gxab .chip{align-self:flex-start; margin-top:8px}
+.gxatt.gxplan{border-left:3px solid var(--plan)}
+.gxatt.gxplan .gxaic{background:var(--plan-soft); color:var(--plan)}
+.gxatt.past{opacity:.72}
+.gxgoing{font:500 12.5px var(--font-data); color:var(--ink-2); margin-top:4px}
+.gxgo{display:flex; gap:7px; flex-wrap:wrap; margin-top:9px}
+.gxprev{margin-top:10px; display:flex; flex-direction:column; gap:9px; align-items:flex-start}
+.gxprev img{display:block; width:100%; border-radius:12px; border:1px solid var(--line)}
+.gxlist{display:flex; flex-direction:column; gap:7px; margin-top:10px}
+.gxpickrow{display:flex; align-items:center; gap:11px; width:100%; text-align:left; min-height:52px;
+  padding:9px 12px; border-radius:10px; border:1px solid var(--line); background:var(--raise); color:inherit; cursor:pointer}
+.gxpickrow.on{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
+.gxpickrow > span{flex:1; min-width:0}
+.gxpickrow b{display:block; font:700 14px var(--font-ui)}
+.gxpickrow i{display:block; font:500 11.5px var(--font-data); color:var(--ink-3); font-style:normal; margin-top:2px}
+.gxpickrow.on i{color:var(--accent-text)}
 
 /* what the groups know, on a hill's page */
 .gxmore{min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center}
@@ -13147,7 +13182,7 @@ const NOTIFY_KINDS = [
   {sec:'Friends’ hills', rows:[
     ['summit', 'Someone you follow posts', 'A walk, a summit or a photo'],
     ['chal',   'They finish a challenge you are on', 'Only patches you have earned too'],
-    ['board',  'Your leaderboards', 'Somebody joins, or goes past you']]}
+    ['board',  'Your groups', 'Somebody joins, or goes past you on the table']]}
 ];
 const NOTIFY_DEFAULT = {dm:'push', group:'push', mention:'push', request:'app', walk:'push', rsvp:'app', remind:'push', like:'app', comment:'push', follow:'app', summit:'app', chal:'app', board:'app'};
 let notifyPrefs = null, notifyPrefsLoading = false;
@@ -14954,7 +14989,7 @@ function render(){
      tab === 'a' ? renderPatchesPage() :
      tab === 'j' ? renderDiary() :
      tab === 'u' ? renderHikers() : renderHills());
-  if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
+  if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   ensureScreenHeading();
   paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell(); paintBag();
@@ -16031,7 +16066,7 @@ function renderPickLists(){
   let s = '';
   if (inv){
     s += '<div class="invited">' + ti(inv.kind === 'board' ? 'medal' : 'user-plus') +
-      '<div><b>' + (inv.kind === 'board' ? 'You have been sent a leaderboard' : 'You have been invited by @' + esc(inv.handle)) + '</b>' +
+      '<div><b>' + (inv.kind === 'board' ? 'You have been sent a group' : 'You have been invited by @' + esc(inv.handle)) + '</b>' +
       '<span>' + (inv.kind === 'board'
         ? 'Code ' + esc(inv.code) + '. Set your log up first and it is waiting for you on Hikers.'
         : 'Set your own log up first \u2014 two taps \u2014 and you can follow them at the end.') + '</span></div></div>';
@@ -16086,7 +16121,7 @@ function renderOnboardSignin(){
   if (inv) s += '<p class="invhandle">' + (inv.kind === 'profile' ? '@' + esc(inv.handle) : 'Code ' + esc(inv.code)) + '</p>';
   if (inv)
     s += '<p class="planintro" style="margin-bottom:14px">' +
-         (inv.kind === 'profile' ? 'Following somebody needs an account' : 'A leaderboard needs an account') +
+         (inv.kind === 'profile' ? 'Following somebody needs an account' : 'A group needs an account') +
          ', and it keeps your log safe at the same time. Without one your marks live only in this browser, on this device.</p>';
   else s += '<p class="planintro" style="margin-bottom:14px">Without an account your marks live only in ' +
        'this browser, on this device: clearing your history or picking up a different phone ' +
@@ -16562,7 +16597,7 @@ function pendingInviteCard(){
   if (!v || !fbConfigured() || onboarding()) return '';
   const what = v.kind === 'profile'
     ? ['@' + esc(v.handle) + ' invited you', 'Sign in and you can follow them.']
-    : ['You have been sent a leaderboard', 'Code ' + esc(v.code) + '. Sign in to join it.'];
+    : ['You have been sent a group', 'Code ' + esc(v.code) + '. Sign in to join it.'];
   return '<div class="invited pending"><span>' + ti(v.kind === 'board' ? 'medal' : 'user-plus') + '</span>' +
     '<div><b>' + what[0] + '</b><span>' + what[1] + '</span>' +
     '<div class="btnrow" style="margin-top:10px"><button class="btn sm" data-act="invopen">' +
@@ -17933,9 +17968,21 @@ function autoLoadSocial(){
   loadFriends(); loadFeed().then(() => refreshPeople()).catch(() => {}); loadDiscover();
 }
 let boardsWanted = new Set();
+const metaWanted = new Set();
 function autoLoadBoards(){
   if (!FB || !fbUser) return;
   for (const g of myGroups()){
+    /* the group's own document as well as its table: it carries the kind and
+       the time of the last thing said, which is what the list needs to show a
+       dot on a group you have not opened yet */
+    /* Once each, and only re-rendering when something actually arrived.
+       Calling gMeta() on every render and rendering in its .then would be a
+       loop: a cached hit still resolves, which would render, which would call
+       it again. */
+    if (typeof gMeta === 'function' && !groupMeta[g.code] && !metaWanted.has(g.code)){
+      metaWanted.add(g.code);
+      gMeta(g.code).then(() => render()).catch(() => {});
+    }
     if (groupRows[g.code] || groupBusy === g.code || boardsWanted.has(g.code)) continue;
     boardsWanted.add(g.code);
     loadGroup(g.code);
@@ -21362,7 +21409,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'toggledetail'){ fbDetail = !fbDetail; markDirty('detail'); renderAccountBox(); scheduleSync(400); }
   else if (a === 'closegroupform'){ ui.groupForm = ''; ui.joinCode = ''; render(); }
-  else if (a === 'newgroup'){ ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
+  else if (a === 'newgroup'){ ui.gNewKind = 'private'; ui.gNewName = ''; ui.gNewClash = ''; ui.gNewWhere = 'Anywhere'; ui.groupForm = ui.groupForm === 'new' ? '' : 'new'; render(); }
   else if (a === 'joingroup'){ ui.groupForm = ui.groupForm === 'join' ? '' : 'join'; if (!ui.groupForm) ui.joinCode = ''; render(); }
   else if (a === 'dogroup'){
     /* Both branches MUST catch. Without it a rejected Firestore write leaves the
@@ -21381,7 +21428,7 @@ document.addEventListener('click', async e => {
       say('Creating\u2026');
       createGroup(nm, kind, wh).then(code => {
         ui.groupForm = ''; ui.gNewName = ''; ui.gNewClash = ''; gFind = null;
-        ui.gView = code; ui.gTab = 'talk'; ui.gThread = null;
+        ui.gView = code; ui.gTab = 'talk'; ui.gThread = null; ui.gMark = 0; ui.gMarkFor = code;
         render(); loadGroup(code); loadTalk(code, true);
         toast(kind === 'public' ? 'Made. Anyone using WayMark can find it.' : 'Created. Share the code ' + code);
       }).catch(e => say(fbWhy(e), true));
@@ -21427,7 +21474,7 @@ document.addEventListener('click', async e => {
   else if (a === 'leavegroup'){
     const code = el.dataset.v;
     const ok = await leaveGroup(code);
-    toast(ok ? (isGlobal(code) ? 'Left the open board.' : 'Left that leaderboard.')
+    toast(ok ? (isGlobal(code) ? 'Left the open board.' : 'Left that group.')
              : 'Removed here, but the server could not be reached: your row is still on that board.');
   }
   else if (a === 'refreshgroup'){ loadGroup(el.dataset.v); }
@@ -21752,7 +21799,7 @@ document.addEventListener('click', async e => {
     }catch(e){ if (m){ m.textContent = fbWhy(e); m.style.color = 'var(--warn)'; } }
   }
   else if (a === 'shareme'){ shareLink(profileLink(fbHandle), 'Follow me on WayMark', 'This is my hill log on WayMark.'); }
-  else if (a === 'shareboard'){ shareLink(boardLink(el.dataset.v), 'Join my WayMark board', 'Tap to join my leaderboard on WayMark.'); }
+  else if (a === 'shareboard'){ shareLink(boardLink(el.dataset.v), 'Join my WayMark group', 'Tap to join my group on WayMark.'); }
   else if (a === 'follow'){
     const u = el.dataset.u; if (!u) return;
     /* This used to look the walker up first and return silently when it found
@@ -22344,9 +22391,10 @@ document.addEventListener('click', async e => {
     const code = el.dataset.v; if (!code) return;
     closeNotes(); tab = 'u'; ui.hikerTab = 'boards';
     /* land in the group itself, not the list it sits in */
-    ui.gFind = false; ui.gView = code; ui.gTab = 'table'; ui.gThread = null;
+    ui.gFind = false; ui.gFrom = 'list'; ui.gView = code; ui.gTab = 'table'; ui.gThread = null;
+    ui.gMark = gSeen[code] || 0; ui.gMarkFor = code;
     render();
-    try{ loadGroup(code); loadTalk(code); }catch(e){}
+    try{ gMeta(code); loadGroup(code); loadTalk(code); }catch(e){}
     window.scrollTo({top:0});
   }
   else if (a === 'openpatch'){
@@ -23586,7 +23634,7 @@ async function fbSignOut(){
   fbUser = null;
   /* forget what we loaded, so the next person to sign in gets their own boards
      rather than the last walker's rows sitting there */
-  groupRows = {}; groupRowsAt = {}; boardsWanted = new Set();
+  groupRows = {}; groupRowsAt = {}; boardsWanted = new Set(); metaWanted.clear(); groupMeta = {};
   try{ localStorage.removeItem(BOARD_LEDGER); }catch(e){} socialWanted = false; socialFailed = false; socialWhy = '';
   friendOpen = null;
   friends = []; friendReqs = []; feed = []; reactedBy = {}; commentsBy = {}; fbHandle = '';
@@ -24591,7 +24639,7 @@ function renderAccountBox(){
       '<span class="avpen">' + ICON_PENCIL + '</span></button>' +
       '<div class="pinfo"><b>' + esc(fbName || fbUser.name) + '</b>' +
       '<span>' + Object.keys(state.bagged).filter(isBagged).length + ' summits marked \u00b7 ' +
-      myGroups().length + ' leaderboard' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
+      myGroups().length + ' group' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
     s += '<div style="margin-top:12px"><label>Name your friends see</label>' +
          '<input class="fbNameIn" data-act="fbname" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
     /* Sharing defaults live in Settings now, and syncing looks after itself —
@@ -24674,7 +24722,7 @@ function paintShareBox(){
   if (!fbConfigured() || !fbUser){ box.innerHTML = ''; return; }
   box.innerHTML =
     '<div class="togglerow"><div class="tinfo"><b>Share detail by default</b>' +
-    '<span>How a new leaderboard starts out. Each board has its own switch under Hikers, and that is the one that counts.</span></div>' +
+    '<span>How a new group starts out. Each group has its own switch under Hikers, and that is the one that counts.</span></div>' +
     '<button class="sw" data-act="toggledetail" aria-pressed="' + (!!fbDetail) + '" aria-label="Share detail by default"></button></div>' +
     '<div class="togglerow"><div class="tinfo"><b>Post my summits to the feed</b>' +
     '<span>When you mark a hill, your followers see it as an adventure. Off means you only ever share by posting deliberately.</span></div>' +
@@ -24738,6 +24786,9 @@ TI['heart'] = '<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566
 TI['flag'] = '<path d="M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z"/><path d="M5 21v-7"/>';
 TI['ban'] = '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/>';
 TI['corner-down-right'] = '<path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4"/>';
+/* Groups. A conversation about a hill: the trophy said leaderboard, and the
+   leaderboard is now one tab inside a group rather than the whole of it. */
+TI['groups'] = '<path d="M3 18.5V7.5A3.5 3.5 0 0 1 6.5 4h11A3.5 3.5 0 0 1 21 7.5v6a3.5 3.5 0 0 1 -3.5 3.5H8z"/><path d="M7.4 13.6l3 -4.2l2.2 2.8l1.6 -1.9l2.4 3.3z"/>';
 TI['globe'] = '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/>';
 TI['message-circle'] = '<path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1"/>';
 TI['send'] = '<path d="M10 14l11 -11"/><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5"/>';
@@ -25576,7 +25627,9 @@ function hikersHead(){
   /* Discover has a real search field of its own, so the header's stand-in
      search disappears there rather than showing two bars at once. */
   return '<h2 class="vh">Hikers</h2><div class="hkhead">' + (hikerTab() === 'discover' ? '' : '<button class="hksearch" data-act="hikerfind">' + ti('search') + '<span>People, places, hills</span></button>') +
-    '<button class="hkic' + (t === 'boards' ? ' on' : '') + '" data-act="hikertab" data-v="boards" aria-label="Leaderboards"' + (t === 'boards' ? ' aria-current="page"' : '') + '>' + ti('trophy') + '</button>' +
+    '<button class="hkic' + (t === 'boards' ? ' on' : '') + '" data-act="hikertab" data-v="boards" aria-label="Groups' +
+      (gTalkUnread() ? ', ' + gTalkUnread() + ' unread' : '') + '"' + (t === 'boards' ? ' aria-current="page"' : '') + '>' +
+      ti('groups') + (gTalkUnread() ? '<span class="hkpip">' + (gTalkUnread() > 99 ? '99+' : gTalkUnread()) + '</span>' : '') + '</button>' +
     '<button class="hkme" data-act="hikertab" data-v="me" aria-label="Your profile">' + avatarHTML(myAvatar(), myName(), 'sm', fbUser.uid) + '</button></div>';
 }
 const GOOGLE_G = '<svg class="gg" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
@@ -26698,8 +26751,8 @@ function showBoardSheet(code, name){
   el.innerHTML = '<div class="sheetbox invbox">' +
     '<p class="eyebrow" style="margin:0">You have been invited to</p>' +
     '<div class="invwho"><span class="invdisc">' + ti('medal') + '</span>' +
-      '<div><b>' + esc(name || 'A leaderboard') + '</b>' +
-      '<span>Private leaderboard &middot; code ' + esc(code) + '</span></div></div>' +
+      '<div><b>' + esc(name || 'A group') + '</b>' +
+      '<span>Private group &middot; code ' + esc(code) + '</span></div></div>' +
     '<p class="invnote">Everyone on it sees your name and how many hills you have marked. Your dates, ' +
       'notes and photos stay off it unless you turn them on, and you can leave whenever you like.</p>' +
     '<div class="btnrow"><button class="btn" data-act="invjoin" data-v="' + esc(code) + '">' + ti('medal') + 'Join ' + esc(name || 'the board') + '</button>' +
@@ -27229,7 +27282,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v270';
+const APP_VERSION = 'v271';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28070,13 +28123,20 @@ async function joinGroup(code){
   let snap;
   try{ snap = await FB.getDoc(groupRef(code)); }
   catch(e){ return {ok:false, msg:'Could not reach the server.'}; }
-  if (!snap.exists()) return {ok:false, msg:'No leaderboard with that code. Check it and try again.'};
+  if (!snap.exists()) return {ok:false, msg:'No group with that code. Check it and try again.'};
   const d = snap.data() || {};
   /* Join quiet. The first member doc carries totals only, whatever the default
      says, because the walker has not been asked yet — askShareFor runs straight
      after and raises it if they want. Nothing of theirs leaks in between. */
-  state.groups = [...myGroups(), {code, name: d.name || 'Leaderboard', detail:false, t:now()}];
+  /* d.kind was being thrown away. Joining a PUBLIC group by its code then
+     left this device thinking it was private, and every post to it carried
+     gk:'private' — invisible to everyone outside, permanently, because gk
+     cannot be changed once written. */
+  const jk = d.kind === 'public' ? 'public' : 'private';
+  groupMeta[code] = d;
+  state.groups = [...myGroups(), {code, name: d.name || 'Leaderboard', kind: jk, detail:false, t:now()}];
   await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code));
+  if (jk === 'public') FB.setDoc(groupRef(code), {mem: FB.increment(1)}, {merge:true}).catch(() => {});
   touched();
   /* Tell the people already on it. The member list is readable to members, so
      this runs after the join, and it is capped like every other fan-out. */
@@ -28319,10 +28379,15 @@ function groupFormHTML(){
 let gTalk = {};        // code -> [posts, newest first]
 let gTalkAt = {};      // code -> when they came down
 let gReplies = {};     // code|pid -> [replies, oldest first]
-let gTalkBusy = '';
+let gTalkBusy = {};     // code -> still fetching
+let gOne = {};         // code|pid -> a single post fetched on its own
+let gOneBusy = {};
+let gFull = {};        // code -> the whole group fits in one page
+const TALK_PAGE = 60;
 let gFind = null;      // public groups, browsed not searched
 let gFindBusy = false;
 let gSeen = {};        // code -> the newest t this device has looked at
+let gIndexSaid = false;  // say the index thing once, not on every hill
 let gHillQ = {};       // hill key -> questions asked about it
 let gHillQAt = {};
 
@@ -28339,11 +28404,18 @@ const replyRef = (c, pid, rid) => FB.doc(fbDb, 'groups', c, 'talk', pid, 'replie
    right: it was private then and it is private now. */
 function gKind(code){
   if (isGlobal(code)) return 'open';
-  const m = groupMeta[code] || {};
-  if (m.kind === 'public') return 'public';
+  /* The group's own document wins. Only when it has not come down yet does the
+     walker's saved row get a say, and anything unknown is private — the safe
+     way to be wrong. */
+  const m = groupMeta[code];
+  if (m) return m.kind === 'public' ? 'public' : 'private';
   const g = myGroups().find(x => x.code === code);
   return (g && g.kind === 'public') ? 'public' : 'private';
 }
+/* True only once the group document itself has been read. Posting waits for
+   this, because a post carries a copy of the kind and a wrong copy cannot be
+   put right afterwards. */
+const gKindKnown = code => isGlobal(code) || !!groupMeta[code];
 const GAUD = {
   private:{ic:'lock',  word:'Private', cls:'priv', short:'Only the people with the code.'},
   public: {ic:'globe', word:'Public',  cls:'pub',  short:'Anyone using WayMark can read it.'},
@@ -28352,7 +28424,9 @@ const GAUD = {
 const gAud = code => GAUD[gKind(code)] || GAUD.private;
 function gAudLine(code){
   const k = gKind(code), n = gMembers(code);
-  if (k === 'private') return 'Only the ' + (n || 'few') + ' people in this group can see what you write. Nobody can find it without the code.';
+  if (k === 'private') return (n === 1 ? 'Only you, so far, can see what you write here.'
+      : 'Only the ' + (n || 'few') + ' people in this group can see what you write.') +
+    ' Nobody can find it without the code.';
   if (k === 'public')  return 'Anyone using WayMark can read this group. You must join to post.' + (n ? ' ' + n.toLocaleString() + ' have.' : '');
   return 'Everybody using WayMark is here. Treat it as a public square.';
 }
@@ -28364,6 +28438,24 @@ function gMembers(code){
 }
 const gBadge = code => '<span class="gxaud ' + gAud(code).cls + '">' + ti(gAud(code).ic, 'width="12" height="12"') + gAud(code).word + '</span>';
 const gJoined = code => myGroups().some(g => g.code === code);
+/* The group document, fetched once and filed under its OWN code. Everything
+   that needs to know a group's kind goes through this. */
+async function gMeta(code){
+  if (!FB || !fbUser || !code) return groupMeta[code] || null;
+  if (groupMeta[code]) return groupMeta[code];
+  try{
+    const m = await FB.getDoc(groupRef(code));
+    if (m.exists()){
+      groupMeta[code] = m.data() || {};
+      /* carry the kind onto the walker's own row, so a board joined by code
+         before this release stops looking private when it is not */
+      const mine = myGroups().find(g => g.code === code);
+      const k = groupMeta[code].kind === 'public' ? 'public' : 'private';
+      if (mine && mine.kind !== k && !isGlobal(code)){ mine.kind = k; touched(); }
+    }
+  }catch(e){}
+  return groupMeta[code] || null;
+}
 const gRuns = code => (groupMeta[code] || {}).createdBy === (fbUser && fbUser.uid);
 const gName = code => isGlobal(code) ? GLOBAL_NAME
   : ((myGroups().find(g => g.code === code) || {}).name || (groupMeta[code] || {}).name || 'Group');
@@ -28372,15 +28464,41 @@ const gName = code => isGlobal(code) ? GLOBAL_NAME
 async function loadTalk(code, force){
   if (!FB || !fbUser || !code) return [];
   if (!force && gTalk[code] && Date.now() - (gTalkAt[code] || 0) < 45000) return gTalk[code];
-  gTalkBusy = code; render();
+  /* Keyed by code. One flag meant opening group B while group A was still
+     coming down cleared the flag when A landed, and B drew "Nothing said yet"
+     over a group that was mid-fetch. */
+  gTalkBusy[code] = true; render();
   try{
-    const snap = await FB.getDocs(FB.query(talkCol(code), FB.orderBy('t', 'desc'), FB.limit(60)));
+    const snap = await FB.getDocs(FB.query(talkCol(code), FB.orderBy('t', 'desc'), FB.limit(TALK_PAGE)));
     const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
-    gTalk[code] = out.filter(p => !isBlocked(p.uid));
+    gTalk[code] = out.filter(p => p && !isBlocked(p.uid));
     gTalkAt[code] = Date.now();
+    /* The card shows the best answer, and the best answer lives on a reply —
+       so the replies for the handful of answered questions come down with the
+       list. Without this the card showed nothing until you opened the thread. */
+    for (const p of gTalk[code]) if (p.best && !gReplies[code + '|' + p.id]) loadReplies(code, p.id);
+    gFull[code] = out.length < TALK_PAGE;
+    /* everything on screen counts as seen; the line stays where it was when
+       you walked in (ui.gMark), so you can still find your place */
+    if (gJoined(code)) { gSeen[code] = Math.max(gSeen[code] || 0, ...out.map(p => (p && p.t) || 0), 0); gSaveSeen(); }
   }catch(e){ gTalk[code] = gTalk[code] || []; gTalkAt[code] = 0; }
-  gTalkBusy = ''; render();
+  delete gTalkBusy[code]; render();
   return gTalk[code];
+}
+/* One post, by id. For a question reached from a hill page that is older than
+   the 60 the group screen carries. */
+async function gFetchOne(code, pid){
+  const key = code + '|' + pid;
+  if (!FB || !fbUser || !code || !pid || gOne[key] || gOneBusy[key]) return;
+  gOneBusy[key] = true;
+  try{
+    const d = await FB.getDoc(talkRef(code, pid));
+    if (d.exists()) gOne[key] = {id: pid, ...(d.data() || {})};
+    else { toast('That post is not there any more.'); ui.gThread = null; }
+  }catch(e){ toast('Could not open that post.'); ui.gThread = null; }
+  delete gOneBusy[key];
+  render();
+  if (gOne[key]) loadReplies(code, pid);
 }
 async function loadReplies(code, pid){
   if (!FB || !fbUser) return [];
@@ -28414,9 +28532,20 @@ async function loadPublic(force){
 /* ---------- writing ---------- */
 function gMine(map){ return !!(map && fbUser && map[fbUser.uid]); }
 const gCount = map => map ? Object.keys(map).length : 0;
+/* Every piece of text on a post comes from somebody else's device. A missing
+   one used to throw on .length and take the whole hill panel down with it. */
+function clipText(t, n){
+  const v = typeof t === 'string' ? t : '';
+  return v.length > n ? v.slice(0, n - 2) + '…' : v;
+}
 
-async function gPost(code, kind, text, hillKey){
+async function gPost(code, kind, text, hillKey, att){
   if (!FB || !fbUser) return false;
+  /* The post carries a copy of the group's kind and that copy can never be
+     changed, so it has to be right the first time. If the group document has
+     not come down yet, fetch it before writing a word. */
+  if (!gKindKnown(code)) await gMeta(code);
+  if (!gKindKnown(code)){ toast('Could not reach that group. Try again in a moment.'); return false; }
   const h = hillKey ? BY_KEY[hillKey] : null;
   const id = 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const doc = {
@@ -28426,9 +28555,24 @@ async function gPost(code, kind, text, hillKey){
     hill: h ? h.k : null, hn: h ? hillName(h) : null,
     gk: gKind(code), best: null, nr: 0, helps: {}
   };
+  /* An attachment, if there is one. The photograph's bytes go in first, under
+     the post's own id, so that by the time anybody can see the post its
+     picture is already there to fetch. */
+  if (att && att.t === 'photo' && att.data){
+    const sid = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    await FB.setDoc(gShotRef(code, id, sid), {owner: fbUser.uid, gk: doc.gk, data: att.data, t: Date.now()});
+    gShotCache.set(sid, att.data);
+    doc.att = 'photo'; doc.shot = sid; doc.sw = att.w || 4; doc.sh = att.h || 3;
+  } else if (att && att.t === 'route' && att.rt){
+    doc.att = 'route'; doc.rt = att.rt;
+  } else if (att && att.t === 'plan' && att.pl){
+    doc.att = 'plan'; doc.pl = att.pl; doc.going = {[fbUser.uid]: 'in'};
+  }
   await FB.setDoc(talkRef(code, id), doc);
   gTalk[code] = [{id, ...doc}, ...(gTalk[code] || [])];
-  gSeen[code] = doc.t; gSaveSeen();
+  /* Saying something is not the same as having read everything. This used to
+     set the mark to now, which swallowed every unread post in the group. */
+  gSeen[code] = Math.max(gSeen[code] || 0, doc.t); gSaveSeen();
   /* the list sorts on this, and the group card shows when it last stirred */
   FB.setDoc(groupRef(code), {lastT: doc.t}, {merge:true}).catch(() => {});
   if (h){ delete gHillQ[h.k]; delete gHillQAt[h.k]; }
@@ -28436,7 +28580,14 @@ async function gPost(code, kind, text, hillKey){
 }
 async function gReply(code, pid, text){
   if (!FB || !fbUser) return false;
-  const p = (gTalk[code] || []).find(x => x.id === pid);
+  /* The post may not be in the list on screen — a question opened from a hill
+     page can be older than the 60 the group carries. Falling through with no
+     post meant the reply saved but the count never moved and the person who
+     asked was never told. */
+  let p = (gTalk[code] || []).find(x => x.id === pid) || gOne[code + '|' + pid];
+  if (!p){
+    try{ const d = await FB.getDoc(talkRef(code, pid)); if (d.exists()) p = gOne[code + '|' + pid] = {id: pid, ...(d.data() || {})}; }catch(e){}
+  }
   const id = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const doc = {uid: fbUser.uid, name: myName(), av: myAvatar() || '', t: Date.now(),
                text: String(text || '').slice(0, 1500), helps: {}};
@@ -28444,8 +28595,12 @@ async function gReply(code, pid, text){
   const key = code + '|' + pid;
   gReplies[key] = [...(gReplies[key] || []), {id, ...doc}];
   if (p){
+    /* increment, not a number worked out from a cache that may be a minute
+       old. Writing our own total was refused whenever somebody else had
+       replied in the meantime, and the refusal was swallowed, so the count on
+       the card stayed wrong for the rest of the session. */
     p.nr = (p.nr || 0) + 1;
-    FB.setDoc(talkRef(code, pid), {nr: p.nr}, {merge:true}).catch(() => {});
+    FB.setDoc(talkRef(code, pid), {nr: FB.increment(1)}, {merge:true}).catch(() => {});
     /* One note, to whoever asked. Not to the whole group: a public group of a
        thousand people answering each other would be a bell that never stops. */
     if (p.uid && p.uid !== fbUser.uid)
@@ -28474,10 +28629,12 @@ async function gHelp(code, pid, rid){
   catch(e){ if (on) delete target.helps[me]; else target.helps[me] = true; render(); toast('That did not save.'); }
 }
 async function gBest(code, pid, rid){
-  const p = (gTalk[code] || []).find(x => x.id === pid); if (!p) return;
+  const p = (gTalk[code] || []).find(x => x.id === pid); if (!p) return false;
+  const was = p.best === undefined ? null : p.best;
   p.best = rid || null; render();
   try{ await FB.setDoc(talkRef(code, pid), {best: p.best}, {merge:true}); }
-  catch(e){ toast(fbWhy(e)); }
+  catch(e){ p.best = was; render(); toast(fbWhy(e)); return false; }
+  return true;
 }
 async function gDelete(code, pid, mine){
   if (!await confirmAsk({
@@ -28485,9 +28642,18 @@ async function gDelete(code, pid, mine){
     body: mine ? 'It goes from the group, and its answers go with it.'
                : 'It goes from the group for everyone, and its answers go with it. You can do this because you started the group.',
     yes: mine ? 'Delete' : 'Remove', no: 'Keep it'})) return;
+  /* The answers first. Firestore does not cascade, so deleting only the post
+     left its replies behind for ever — and the confirm promised otherwise. */
+  try{
+    const rs = gReplies[code + '|' + pid] || await loadReplies(code, pid);
+    for (const r of rs) await FB.deleteDoc(replyRef(code, pid, r.id)).catch(() => {});
+  }catch(e){}
   try{ await FB.deleteDoc(talkRef(code, pid)); }
   catch(e){ toast(fbWhy(e)); return; }
   gTalk[code] = (gTalk[code] || []).filter(x => x.id !== pid);
+  delete gReplies[code + '|' + pid];
+  /* and out of the hill pages it was showing on */
+  for (const k of Object.keys(gHillQ)) if ((gHillQ[k] || []).some(q => q.id === pid)){ delete gHillQ[k]; delete gHillQAt[k]; }
   if (ui.gThread === pid) ui.gThread = null;
   render(); toast(mine ? 'Deleted.' : 'Removed from the group.');
 }
@@ -28495,17 +28661,152 @@ async function gDelete(code, pid, mine){
 async function gJoinPublic(code){
   if (!FB || !fbUser) return;
   if (gJoined(code)) return;
-  const meta = groupMeta[code] || {};
-  state.groups = [...myGroups(), {code, name: meta.name || 'Group', kind:'public', detail:false, t:now()}];
+  /* Never take the kind on trust. This used to write kind:'public' whatever
+     the group was, and the Join bar was drawn for any group you were not in —
+     so joining a private board flagged it public on this device, and every
+     post to it afterwards carried the wrong copy. */
+  const meta = await gMeta(code);
+  const kind = gKind(code);
+  if (kind === 'private'){ toast('That group is private. You need its code.'); return; }
+  state.groups = [...myGroups(), {code, name: (meta && meta.name) || gName(code), kind, detail:false, t:now()}];
   try{ await FB.setDoc(memberRef(code, fbUser.uid), myMemberDoc(code)); }
   catch(e){ state.groups = myGroups().filter(g => g.code !== code); toast(fbWhy(e)); return; }
   /* increment, not a number worked out here: two people joining in the same
      minute from a stale count would both write the same total, and the rules
-     only allow a move of one either way. The server does the arithmetic. */
+     only allow a move of one either way. The server does the arithmetic. The
+     local copy is NOT nudged — if that write is refused the tally would only
+     ever climb. It comes right on the next read. */
   FB.setDoc(groupRef(code), {mem: FB.increment(1)}, {merge:true}).catch(() => {});
-  groupMeta[code] = {...meta, mem: (+meta.mem || 0) + 1};
-  touched(); gFind = null; render();
+  touched(); render();
   toast('Joined ' + gName(code) + '. You can post now.');
+}
+
+
+/* ---------- what you can put on a post ----------
+   A photograph, a saved route, or a walk other people can say they are in for.
+   All three already exist in chats; this is the same data in a group, so a
+   route shared with the Thursday lot looks like a route shared in a chat.
+
+   One attachment per post, plus a hill. The hill is the thing that makes a
+   post findable later; the attachment is what makes it worth reading now. */
+const gShotCache = new Map();          // sid -> data url
+const gShotWant = new Set();
+const gShotRef = (c, pid, sid) => FB.doc(fbDb, 'groups', c, 'talk', pid, 'shots', sid);
+
+async function gShot(code, pid, sid){
+  if (gShotCache.has(sid)) return gShotCache.get(sid);
+  try{
+    const d = await FB.getDoc(gShotRef(code, pid, sid));
+    const v = d.exists() ? (d.data() || {}).data : '';
+    if (v){ gShotCache.set(sid, v); return v; }
+  }catch(e){}
+  return '';
+}
+/* Every group photograph on screen, filled in after the draw. Same shape as
+   the app's other hydrators, so a redraw never blocks on the network. */
+function gHydrate(){
+  for (const img of document.querySelectorAll('img[data-gs]')){
+    if (img.dataset.done) continue;
+    const [c, pid, sid] = (img.dataset.gs || '').split('|');
+    if (!c || !pid || !sid) continue;
+    if (gShotCache.has(sid)){ img.src = gShotCache.get(sid); img.dataset.done = '1'; continue; }
+    if (gShotWant.has(sid)) continue;
+    gShotWant.add(sid);
+    gShot(c, pid, sid).then(v => {
+      gShotWant.delete(sid);
+      if (!v) return;
+      for (const el of document.querySelectorAll('img[data-gs$="|' + sid + '"]')){ el.src = v; el.dataset.done = '1'; }
+    });
+  }
+}
+
+const gGoing = p => (p && p.going) || {};
+const gIn = p => Object.keys(gGoing(p)).filter(u => gGoing(p)[u] === 'in');
+const gOut = p => Object.keys(gGoing(p)).filter(u => gGoing(p)[u] === 'out');
+
+/* the walkers' names come off the group's own table, which is already loaded */
+function gWho(code, uid){
+  if (fbUser && uid === fbUser.uid) return 'You';
+  const r = (groupRows[code] || []).find(x => x.uid === uid);
+  return r && r.name ? firstName(r.name) : 'A walker';
+}
+
+function gAttHTML(code, p, big){
+  if (!p || !p.att) return '';
+  if (p.att === 'photo' && p.shot){
+    return '<button class="gxshot" data-act="gxbig" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" data-s="' + esc(p.shot) + '">' +
+      '<img data-gs="' + esc(code + '|' + p.id + '|' + p.shot) + '" alt="' + esc('Photograph from ' + (niceName(p.name) || 'a walker')) + '"' +
+      (p.sw && p.sh ? ' style="aspect-ratio:' + (+p.sw) + '/' + (+p.sh) + '"' : '') + '></button>';
+  }
+  if (p.att === 'route' && p.rt){
+    const r = p.rt || {};
+    const hs = (r.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+    const pts = msgTrk(r.trk);
+    return '<div class="gxatt"><span class="gxaic">' + ti('route', 'width="20" height="20"') + '</span>' +
+      '<span class="gxab"><i>Route</i><b>' + esc(r.name || 'A route') + '</b><span>' +
+      (hs.length ? hs.length + (hs.length === 1 ? ' hill' : ' hills') + ' · ' + esc(hs.slice(0, 3).map(h => hillName(h)).join(', ')) : 'No hills on it') +
+      (pts.length > 1 ? ' · ' + esc(prettyDist(trackLength(pts))) : '') + '</span>' +
+      '<button class="chip" data-act="gxroute" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '">' + ti('plus', 'width="14" height="14"') + 'Add to my plans</button>' +
+      '</span></div>';
+  }
+  if (p.att === 'plan' && p.pl){
+    const pl = p.pl || {}, h = pl.hill ? BY_KEY[pl.hill] : null;
+    const ins = gIn(p), outs = gOut(p), mine = fbUser ? gGoing(p)[fbUser.uid] : '';
+    const past = pl.date && pl.date < today();
+    return '<div class="gxatt gxplan' + (past ? ' past' : '') + '"><span class="gxaic">' + ti('walk', 'width="20" height="20"') + '</span>' +
+      '<span class="gxab"><i>Walk' + (pl.date ? ' · ' + esc(walkWhen(pl.date)) : '') + (pl.time ? ' · ' + esc(pl.time) : '') + '</i>' +
+      '<b>' + esc(pl.hn || (h ? hillName(h) : 'A walk')) + '</b>' +
+      (h ? '<span>' + feet(h).toLocaleString() + ' ft · ' + esc(regionOf(h, h.l[0])) + '</span>' : '') +
+      (pl.meet ? '<span>Meeting ' + esc(pl.meet) + '</span>' : '') +
+      '<span class="gxgoing">' + (
+          !ins.length ? 'Nobody in yet'
+          : (ins.length === 1 && ins[0] === (fbUser || {}).uid) ? 'Just you so far'
+          : ins.slice(0, 4).map(u => esc(gWho(code, u))).join(', ') +
+            (ins.length > 4 ? ' and ' + (ins.length - 4) + ' more' : '') +
+            (ins.length === 1 ? ' is in' : ' are in')) +
+        (outs.length ? ' · ' + outs.length + ' can’t' : '') + '</span>' +
+      (past ? '<span class="gxgoing">That day has been and gone.</span>'
+        : '<span class="gxgo">' +
+          '<button class="chip' + (mine === 'in' ? ' on' : '') + '" data-act="gxgo" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" data-v="in">' + ti('check', 'width="14" height="14"') + 'I’m in</button>' +
+          '<button class="chip' + (mine === 'out' ? ' on' : '') + '" data-act="gxgo" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" data-v="out">Can’t make it</button></span>') +
+      '</span></div>';
+  }
+  return '';
+}
+
+/* Saying whether you are in. Your own key on the post, nothing else, which is
+   all the rules will take. */
+async function gGo(code, pid, v){
+  if (!FB || !fbUser) return;
+  const p = (gTalk[code] || []).find(x => x.id === pid) || gOne[code + '|' + pid]; if (!p) return;
+  const me = fbUser.uid, was = (p.going || {})[me] || '';
+  const now2 = was === v ? '' : v;
+  p.going = {...(p.going || {})};
+  if (now2) p.going[me] = now2; else delete p.going[me];
+  render();
+  try{ await FB.setDoc(talkRef(code, pid), {going: {[me]: now2 || FB.deleteField()}}, {merge:true}); }
+  catch(e){
+    p.going = {...(p.going || {})};
+    if (was) p.going[me] = was; else delete p.going[me];
+    render(); toast(fbWhy(e)); return;
+  }
+  if (now2 === 'in') toast('You are in.');
+  else if (now2 === 'out') toast('Marked as a no.');
+}
+
+/* Taking somebody's route onto your own map, the same as from a chat. */
+function gTakeRoute(code, pid){
+  const p = (gTalk[code] || []).find(x => x.id === pid) || gOne[code + '|' + pid];
+  const r = p && p.rt; if (!r) return;
+  const pts = msgTrk(r.trk);
+  state.plans = [...(state.plans || []), {
+    id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    name: r.name || 'A route', hills: (r.hills || []).slice(0, 40),
+    date: '', notes: 'From ' + (niceName(p.name) || 'a walker') + ' in ' + gName(code),
+    trk: pts, t: now()
+  }];
+  touched(); render();
+  toast('Added to your plans.');
 }
 
 /* ---------- the group list ---------- */
@@ -28538,21 +28839,44 @@ function gBoardsList(){
       '<p id="globalmsg" style="font-size:13px;margin:8px 0 0"></p></article>';
   return s;
 }
+/* How many you have not read. Only knowable for a group whose talk has come
+   down; for the rest, gStirred() below says whether anything has happened. */
 function gUnread(code){
   const seen = gSeen[code] || 0;
-  return (gTalk[code] || []).filter(p => (p.t || 0) > seen && p.uid !== (fbUser || {}).uid).length;
+  return (gTalk[code] || []).filter(p => p && (p.t || 0) > seen && p.uid !== (fbUser || {}).uid).length;
+}
+/* A group you have not opened this session has no posts in hand, so the badge
+   was always 0 — exactly where a badge is meant to earn its place. The group
+   document carries the time of the last thing said, which is one number and
+   already on the card, so an unopened group shows a dot rather than a lie. */
+/* What the header pip counts: unread talk across every group, plus a nod for
+   a group that has stirred since you last looked but has not been opened this
+   session, which is the only honest thing to say about one. */
+function gTalkUnread(){
+  if (!FB || !fbUser) return 0;
+  let n = 0;
+  for (const g of myGroups()) n += gTalk[g.code] ? gUnread(g.code) : (gStirred(g.code) ? 1 : 0);
+  return n;
+}
+function gStirred(code){
+  if (gTalk[code]) return false;
+  const m = groupMeta[code] || {};
+  return !!(m.lastT && m.lastT > (gSeen[code] || 0));
 }
 function gGroupRow(code){
   const n = gUnread(code), k = gKind(code);
   const rows = groupRows[code] || [];
   const mem = gMembers(code);
   const sub = k === 'open' ? 'Everyone using WayMark'
-    : (mem ? mem.toLocaleString() + (mem === 1 ? ' walker' : ' walkers') : 'Just you so far') +
+    : (mem ? mem.toLocaleString() + (mem === 1 ? ' walker' : ' walkers')
+           : (groupRows[code] ? 'Just you so far' : '—')) +
       (gRuns(code) ? ' · yours' : '');
   return '<button class="gxrow" data-act="gxopen" data-v="' + esc(code) + '">' +
     '<span class="gxi"><b>' + esc(gName(code)) + '</b>' +
     '<span class="gxm">' + gBadge(code) + '<em>' + esc(sub) + '</em></span></span>' +
-    (n ? '<span class="gxn">' + n + '</span>' : '<span class="chev">' + ti('chevron-right', 'width="18" height="18"') + '</span>') +
+    (n ? '<span class="gxn">' + n + '</span>'
+       : gStirred(code) ? '<span class="gxdot" aria-label="Something new"></span>'
+       : '<span class="chev">' + ti('chevron-right', 'width="18" height="18"') + '</span>') +
     '</button>';
 }
 
@@ -28597,7 +28921,7 @@ function gGroupScreen(){
   let s = '<button class="hkback" data-act="gxback">' + ti('arrow-left') + (ui.gFrom === 'find' ? 'Public groups' : 'Your groups') + '</button>';
   s += '<div class="planhead" style="margin:4px 0 10px"><h3 style="flex:1">' + esc(gName(code)) + '</h3>' +
     '<button class="linkbtn gxmore" data-act="gxgmenu" aria-label="About this group">' + ti('dots', 'width="20" height="20"') + '</button></div>';
-  const tab = ui.gTab === 'table' ? 'table' : ui.gTab === 'people' ? 'people' : 'talk';
+  const tab = ui.gTab === 'table' ? 'table' : 'talk';
   const un = joined ? gUnread(code) : 0;
   s += '<div class="gxtabs" role="tablist">' +
     '<button role="tab" aria-selected="' + (tab === 'talk') + '" class="' + (tab === 'talk' ? 'on' : '') + '" data-act="gxtab" data-v="talk">Talk' + (un ? '<span class="gxct">' + un + '</span>' : '') + '</button>' +
@@ -28625,23 +28949,30 @@ function gTalkTab(code){
       '<div class="btnrow" style="margin-top:9px"><button class="btn sm ghost" data-act="gxask" data-v="hill">' +
       ti('mountain', 'width="16" height="16"') + 'Ask about a hill</button></div></div>';
   }
-  if (gTalkBusy === code && !posts.length) return s + skeletonRows(3);
+  if (gTalkBusy[code] && !posts.length) return s + skeletonRows(3);
   if (!posts.length) return s + '<p class="empty">' +
     (joined ? 'Nothing said yet. Ask something — somebody in here has walked it.' : 'Nothing said yet. Join and be the first to ask.') +
     '</p>' + (joined ? '' : gJoinBar(code));
-  const seen = gSeen[code] || 0;
-  const un = joined ? gUnread(code) : 0;
-  let drew = !un;
+  const mark = (joined && ui.gMarkFor === code) ? (ui.gMark || 0) : 0;
+  const fresh = mark ? posts.filter(p => p && (p.t || 0) > mark && p.uid !== (fbUser || {}).uid).length : 0;
+  let drew = !fresh;
   for (const p of posts){
-    if (!drew && (p.t || 0) <= seen){ drew = true; s += '<div class="gxmark"><span>Where you got to</span><i></i></div>'; }
+    if (!drew && (p.t || 0) <= mark){ drew = true; s += '<div class="gxmark"><span>Where you got to</span><i></i></div>'; }
     s += gPostCard(code, p);
   }
+  if (!drew && fresh) s += '<div class="gxmark"><span>Where you got to</span><i></i></div>';
   s += '<p style="text-align:center;font:500 12px var(--font-data);color:var(--ink-3);margin:14px 0 0">' +
-    (gKind(code) === 'private' ? 'That is all of it. ' + posts.length + (posts.length === 1 ? ' post.' : ' posts.') : 'Newest first. Nothing is ranked.') + '</p>';
+    (gKind(code) === 'private' && gFull[code]
+      ? 'That is all of it. ' + posts.length + (posts.length === 1 ? ' post.' : ' posts.')
+      : 'Newest first. Nothing is ranked.' + (gFull[code] ? '' : ' The last ' + TALK_PAGE + '.')) + '</p>';
   if (!joined) s += gJoinBar(code);
   return s;
 }
 function gJoinBar(code){
+  /* A private group is not something you can join by tapping. Offering it was
+     how a private board got flagged public on somebody's phone. */
+  if (gKind(code) === 'private') return '<div class="gxjoin"><p style="margin:0;font-size:13px;color:var(--ink-3);text-align:center">' +
+    'You are not in this group. It is private \u2014 somebody in it has to send you the code.</p></div>';
   return '<div class="gxjoin"><button class="btn" style="width:100%" data-act="gxjoin" data-v="' + esc(code) + '">' +
     ti('plus', 'width="18" height="18"') + 'Join this group</button>' +
     '<p style="margin:7px 0 0;font-size:12px;color:var(--ink-3);text-align:center">Joining lets you post. You can read it all without.</p></div>';
@@ -28658,8 +28989,9 @@ function gPostCard(code, p){
     '</div><p class="gxtext">' + esc(p.text || '') + '</p>';
   if (p.hill && BY_KEY[p.hill])
     s += '<button class="gxhill" data-act="info" data-k="' + esc(p.hill) + '">' + ti('map-pin', 'width="14" height="14"') + esc(p.hn || hillName(BY_KEY[p.hill])) + '</button>';
+  s += gAttHTML(code, p);
   if (best) s += '<div class="gxbest"><div class="gxbh">' + ti('check', 'width="13" height="13"') + 'Best answer</div>' +
-    '<p>' + esc(best.text.length > 180 ? best.text.slice(0, 178) + '…' : best.text) + '</p>' +
+    '<p>' + esc(clipText(best.text, 180)) + '</p>' +
     '<span class="gxbw">' + esc(niceName(best.name) || 'Walker') + ' · ' + esc(whenAgo(best.t)) + '</span></div>';
   s += '<div class="gxacts">' +
     '<button class="gxact' + (iHelped ? ' on' : '') + '" data-act="gxhelp" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" aria-pressed="' + iHelped + '">' +
@@ -28672,8 +29004,14 @@ function gPostCard(code, p){
   return s + '</article>';
 }
 function gThreadView(code){
-  const p = (gTalk[code] || []).find(x => x.id === ui.gThread);
-  if (!p){ ui.gThread = null; return gGroupScreen(); }
+  const p = (gTalk[code] || []).find(x => x.id === ui.gThread) || gOne[code + '|' + ui.gThread];
+  /* Only the last 60 posts come down with a group, so a question opened from
+     a hill page could be older than the list. It used to drop you back on the
+     group screen with no explanation; now the post is fetched on its own. */
+  if (!p){
+    gFetchOne(code, ui.gThread);
+    return '<button class="hkback" data-act="gxtback">' + ti('arrow-left') + esc(gName(code)) + '</button>' + skeletonRows(2);
+  }
   const ask = p.k === 'ask', mine = p.uid === (fbUser || {}).uid, joined = gJoined(code);
   const rs = gReplies[code + '|' + p.id] || [];
   let s = '<button class="hkback" data-act="gxtback">' + ti('arrow-left') + esc(gName(code)) + '</button>';
@@ -28684,6 +29022,7 @@ function gThreadView(code){
     '</div><p class="gxtext">' + esc(p.text || '') + '</p>';
   if (p.hill && BY_KEY[p.hill])
     s += '<button class="gxhill" data-act="info" data-k="' + esc(p.hill) + '">' + ti('map-pin', 'width="14" height="14"') + esc(p.hn || hillName(BY_KEY[p.hill])) + '</button>';
+  s += gAttHTML(code, p, true);
   s += '<div class="gxacts"><button class="gxact' + (gMine(p.helps) ? ' on' : '') + '" data-act="gxhelp" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" aria-pressed="' + gMine(p.helps) + '">' +
     ti('heart', 'width="20" height="20"') + '<b>' + gCount(p.helps) + '</b> Helpful</button>' +
     '<button class="gxact gxend" data-act="gxpmenu" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" aria-label="More on this post">' + ti('dots', 'width="20" height="20"') + '</button></div></article>';
@@ -28702,8 +29041,11 @@ function gThreadView(code){
       '</div></div></div>';
   }
   if (joined){
+    /* The box is redrawn by every render — a Helpful tap, a reply arriving,
+       the list refreshing — so what has been typed lives in state, not only in
+       the DOM. It used to vanish mid-sentence. */
     s += '<div class="form" style="margin-top:12px"><div><label for="gxans">' + (ask ? 'Your answer' : 'Reply') + '</label>' +
-      '<textarea id="gxans" rows="3" maxlength="1500" placeholder="' + (ask ? 'What do you know?' : 'Say something') + '"></textarea></div>' +
+      '<textarea id="gxans" rows="3" maxlength="1500" data-act="gxtype" placeholder="' + (ask ? 'What do you know?' : 'Say something') + '">' + esc(ui.gAns || '') + '</textarea></div>' +
       '<div class="btnrow" style="margin-top:0"><button class="btn" data-act="gxsendreply" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '">' +
       ti('send', 'width="16" height="16"') + (ask ? 'Answer' : 'Reply') + '</button></div></div>';
   } else s += gJoinBar(code);
@@ -28757,6 +29099,48 @@ function gPaintAsk(){
     picks.map(h => '<button class="chip' + (d.hill === h.k ? ' on' : '') + '" data-act="gxpick" data-v="' + esc(h.k) + '">' +
       ti('map-pin', 'width="14" height="14"') + esc(hillName(h)) + '</button>').join('') +
     '<button class="chip' + (d.hill ? '' : ' on') + '" data-act="gxpick" data-v="">No hill</button></div>';
+
+  /* And one of the three things worth putting on a post: a photograph, a
+     route off your own map, or a walk other people can say they are in for.
+     One at a time — a post with all three on it is a form, not a thing said. */
+  const at = (d.att && d.att.t) || '';
+  s += '<p class="eyebrow" style="margin-top:12px">Add something</p><div class="chips gxchips">' +
+    '<button class="chip' + (at === 'photo' ? ' on' : '') + '" data-act="gxattach" data-v="photo">' + ti('camera', 'width="15" height="15"') + 'Photo</button>' +
+    '<button class="chip' + (at === 'route' ? ' on' : '') + '" data-act="gxattach" data-v="route">' + ti('route', 'width="15" height="15"') + 'Route</button>' +
+    '<button class="chip' + (at === 'plan' ? ' on' : '') + '" data-act="gxattach" data-v="plan">' + ti('walk', 'width="15" height="15"') + 'Walk plan</button>' +
+    (at ? '<button class="chip" data-act="gxattach" data-v="">' + ti('x', 'width="14" height="14"') + 'None</button>' : '') +
+    '</div>' +
+    '<input type="file" id="gxfile" accept="image/*" hidden>';
+
+  if (at === 'photo'){
+    s += d.att.data
+      ? '<div class="gxprev"><img src="' + esc(d.att.data) + '" alt="The photograph you are about to post">' +
+        '<button class="btn sm quiet" data-act="gxphoto">Choose another</button></div>'
+      : '<div class="btnrow" style="margin-top:10px"><button class="btn sm ghost" data-act="gxphoto">' + ti('photo', 'width="16" height="16"') + 'Choose a photo</button>' +
+        '<span style="font-size:12.5px;color:var(--ink-3);align-self:center">It is made smaller before it goes.</span></div>';
+  }
+  if (at === 'route'){
+    const rs = livePlans().filter(x => (x.trk || []).length > 1 || (x.hills || []).length);
+    s += rs.length
+      ? '<div class="gxlist">' + rs.slice(0, 8).map(x => {
+          const hs = (x.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+          return '<button class="gxpickrow' + (d.att.id === x.id ? ' on' : '') + '" data-act="gxpickroute" data-v="' + esc(x.id) + '">' +
+            ti('route', 'width="18" height="18"') + '<span><b>' + esc(x.name || 'A route') + '</b><i>' +
+            (hs.length ? hs.length + (hs.length === 1 ? ' hill' : ' hills') : 'No hills') +
+            ((x.trk || []).length > 1 ? ' · ' + esc(prettyDist(trackLength(x.trk))) : '') + '</i></span></button>';
+        }).join('') + '</div>'
+      : '<p style="margin:10px 0 0;font-size:13px;color:var(--ink-3)">You have no saved routes yet. Draw one under Plan and it will be here.</p>';
+  }
+  if (at === 'plan'){
+    s += '<div class="form" style="margin-top:10px">' +
+      '<div><label for="gxdate">Which day?</label><input type="date" id="gxdate" data-act="gxplanfield" data-v="date" value="' + esc((d.att.pl && d.att.pl.date) || '') + '" min="' + today() + '"></div>' +
+      '<div><label for="gxtime">What time? (optional)</label><input type="time" id="gxtime" data-act="gxplanfield" data-v="time" value="' + esc((d.att.pl && d.att.pl.time) || '') + '"></div>' +
+      '<div><label for="gxmeet">Where are you meeting? (optional)</label><input id="gxmeet" maxlength="80" data-act="gxplanfield" data-v="meet" placeholder="e.g. the top car park, 8am" value="' + esc((d.att.pl && d.att.pl.meet) || '') + '"></div>' +
+      '</div>' +
+      '<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink-3)">' +
+      (d.hill ? 'The walk is up ' + esc(hillName(BY_KEY[d.hill]) || 'that hill') + '. ' : 'Pick a hill above and it goes on the walk. ') +
+      'Everyone in the group can say whether they are in.</p>';
+  }
   s += '<p style="margin:9px 0 0;font-size:12.5px;color:var(--ink-3)">' +
     (gKind(code) === 'private'
       ? 'A question attached to a hill shows on that hill’s page for this group only.'
@@ -28822,8 +29206,12 @@ async function loadHillQ(key){
   if (gHillQ[key] && Date.now() - (gHillQAt[key] || 0) < 120000) return gHillQ[key];
   const out = [];
   const seen = new Set();
+  /* Questions only, and only from a group we can name. A "just saying" post
+     with a hill on it was being counted as a question, and a row with no
+     group behind it aimed its buttons at whatever group was last open. */
   const add = (code, d) => {
-    if (!d || seen.has(d.id) || isBlocked(d.uid)) return;
+    if (!code || !d || !d.id || seen.has(d.id)) return;
+    if (d.k !== 'ask' || isBlocked(d.uid) || typeof d.text !== 'string' || !d.text) return;
     seen.add(d.id); out.push({...d, code});
   };
   /* every group this walker is in: cheap, and it is the only way their own
@@ -28845,10 +29233,25 @@ async function loadHillQ(key){
         const path = (d.ref && d.ref.parent && d.ref.parent.parent) ? d.ref.parent.parent.id : '';
         add(path, {id:d.id, ...(d.data() || {})});
       });
-    }catch(e){ /* wants a composite index the first time; the console prints the link */ }
+    }catch(e){
+      /* The FIRST time this runs it needs a composite index that Firestore
+         builds on request, and the error carries a link that makes it in one
+         click. Swallowing it silently meant that link never appeared — and
+         the deploy note told somebody to go and look for it. Say it plainly,
+         once, and carry on with the groups we can read directly. */
+      if (!gIndexSaid){
+        gIndexSaid = true;
+        const msg = (e && e.message) || String(e);
+        if (/index/i.test(msg)) console.warn('[WayMark] Hill pages need one Firestore index before they can ask every public group at once. Firestore says:\n' + msg);
+        else console.warn('[WayMark] Could not ask the public groups about this hill: ' + msg);
+      }
+    }
   }
   out.sort((a, b) => ((b.best ? 1 : 0) - (a.best ? 1 : 0)) || (b.t || 0) - (a.t || 0));
   gHillQ[key] = out.slice(0, 6); gHillQAt[key] = Date.now();
+  /* the collection group hands back codes we may never have opened, and the
+     row prints the group's name */
+  for (const q of gHillQ[key]) if (q.code && !groupMeta[q.code]) await gMeta(q.code);
   /* the best answers are on the replies, so fetch those for the ones that have one */
   for (const q of gHillQ[key]) if (q.best && q.code && !gReplies[q.code + '|' + q.id]) await loadReplies(q.code, q.id);
   if (wikiOpen && wikiOpen.k === key) paintInfo();
@@ -28868,8 +29271,8 @@ function hillQuestionsHTML(key){
     ', from ' + groups.size + (groups.size === 1 ? ' group' : ' groups') + '</p>';
   for (const q of qs){
     const best = q.best ? (gReplies[q.code + '|' + q.id] || []).find(r => r.id === q.best) : null;
-    s += '<div class="gxhq"><p class="gxhqq">' + esc(q.text.length > 140 ? q.text.slice(0, 138) + '…' : q.text) + '</p>';
-    if (best) s += '<p class="gxhqa">' + esc(best.text.length > 220 ? best.text.slice(0, 218) + '…' : best.text) + '</p>' +
+    s += '<div class="gxhq"><p class="gxhqq">' + esc(clipText(q.text, 140)) + '</p>';
+    if (best) s += '<p class="gxhqa">' + esc(clipText(best.text, 220)) + '</p>' +
       '<span class="gxhqw">' + esc(niceName(best.name) || 'Walker') + ' · ' + esc(whenAgo(best.t)) + ' · ' + esc(gName(q.code)) + '</span>';
     else s += '<p class="gxhqn">Asked in ' + esc(gName(q.code)) + ' · ' + esc(whenAgo(q.t)) +
       ((+q.nr || 0) ? ' · ' + q.nr + (q.nr === 1 ? ' answer' : ' answers') : ' · no answers yet') + '</p>';
@@ -28881,10 +29284,42 @@ function hillQuestionsHTML(key){
 }
 
 /* ---------- actions ---------- */
+/* What is being typed lives in state, because every redraw rebuilds the box. */
+document.addEventListener('input', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (el.dataset.act === 'gxtype'){ ui.gAns = el.value; return; }
+  if (el.dataset.act === 'gxplanfield'){
+    const d = ui.gDraft; if (!d || !d.att || d.att.t !== 'plan') return;
+    d.att.pl = {...(d.att.pl || {}), [el.dataset.v]: el.value};
+  }
+});
+/* Choosing a photograph. It is shrunk here, on the phone, before it goes
+   anywhere — the same shrink a chat photo gets. */
+document.addEventListener('change', async e => {
+  const el = e.target.closest('#gxfile'); if (!el) return;
+  const f = el.files && el.files[0]; el.value = '';
+  if (!f) return;
+  const box = document.getElementById('gxnew');
+  const keep = box ? box.value : (ui.gDraft || {}).text;
+  try{
+    const data = await makeBanner(f);
+    const img = new Image(); await new Promise(r => { img.onload = r; img.onerror = r; img.src = data; });
+    ui.gDraft = {...(ui.gDraft || {kind:'say'}), text: keep,
+      att:{t:'photo', data, w: img.naturalWidth || 4, h: img.naturalHeight || 3}};
+    gPaintAsk();
+  }catch(err){
+    toast('That photo could not be read. ' + (/hei[cf]/i.test(f.name || '') ? 'HEIC files need converting to JPEG first.' : (err.message || '')));
+  }
+});
 document.addEventListener('click', async e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act; if (!a || a.slice(0, 2) !== 'gx') return;
-  const code = el.dataset.c || ui.gView, pid = el.dataset.p;
+  /* `el.dataset.c || ui.gView` sent a button carrying an empty code at
+     whatever group happened to be open. A button that names no group does
+     nothing at all. */
+  const hasC = Object.prototype.hasOwnProperty.call(el.dataset, 'c');
+  const code = hasC ? el.dataset.c : ui.gView, pid = el.dataset.p;
+  if (hasC && !code) return;
   if (a === 'gxnewkind'){
     const nb = document.getElementById('gname');
     ui.gNewName = nb ? nb.value : (ui.gNewName || '');
@@ -28906,12 +29341,19 @@ document.addEventListener('click', async e => {
   if (a === 'gxunfind'){ ui.gFind = false; render(); window.scrollTo({top:0}); return; }
   if (a === 'gxregion'){ ui.gRegion = el.dataset.v || ''; render(); return; }
   if (a === 'gxopen'){
+    /* Hold the code in a const. Reading ui.gView back AFTER the await meant a
+       slow fetch for the group you tapped first could land in the entry for
+       the group you are looking at now — and since a post copies its group's
+       kind, that could stamp a private group's post 'public'. */
+    const c = el.dataset.v; if (!c) return;
     ui.gFrom = ui.gFind ? 'find' : 'list';
-    ui.gView = el.dataset.v; ui.gThread = null; ui.gTab = 'talk'; ui.gFind = false;
+    ui.gView = c; ui.gThread = null; ui.gTab = 'talk'; ui.gFind = false;
+    ui.gMark = gSeen[c] || 0; ui.gMarkFor = c;   // where the line goes, fixed at the door
     render(); window.scrollTo({top:0});
-    if (!groupMeta[ui.gView]) { try{ const m = await FB.getDoc(groupRef(ui.gView)); if (m.exists()) groupMeta[ui.gView] = m.data() || {}; }catch(err){} render(); }
-    loadTalk(ui.gView);
-    if (gJoined(ui.gView) && !groupRows[ui.gView]) loadGroup(ui.gView);
+    await gMeta(c);
+    if (ui.gView === c) render();
+    loadTalk(c);
+    if (gJoined(c) && !groupRows[c]) loadGroup(c);
     return;
   }
   if (a === 'gxback'){
@@ -28923,8 +29365,8 @@ document.addEventListener('click', async e => {
   if (a === 'gxtab'){ ui.gTab = el.dataset.v; ui.gThread = null; render(); window.scrollTo({top:0});
     if (el.dataset.v === 'table' && ui.gView && !groupRows[ui.gView]) loadGroup(ui.gView); return; }
   if (a === 'gxjoin'){ await gJoinPublic(el.dataset.v || code); return; }
-  if (a === 'gxthread'){ ui.gThread = pid; render(); window.scrollTo({top:0}); loadReplies(code, pid); return; }
-  if (a === 'gxtback'){ ui.gThread = null; render(); window.scrollTo({top:0}); return; }
+  if (a === 'gxthread'){ ui.gThread = pid; ui.gAns = ''; render(); window.scrollTo({top:0}); loadReplies(code, pid); return; }
+  if (a === 'gxtback'){ ui.gThread = null; ui.gAns = ''; render(); window.scrollTo({top:0}); return; }
   if (a === 'gxask'){ gAskSheet(el.dataset.v === 'hill'); return; }
   if (a === 'gxclose'){ gSheetClose(); return; }
   if (a === 'gxkind'){
@@ -28937,11 +29379,46 @@ document.addEventListener('click', async e => {
     ui.gDraft = {...(ui.gDraft || {}), hill: el.dataset.v || null, text: box ? box.value : ''};
     gPaintAsk(); return;
   }
+  if (a === 'gxattach'){
+    const box = document.getElementById('gxnew');
+    const v = el.dataset.v;
+    ui.gDraft = {...(ui.gDraft || {kind:'ask'}), text: box ? box.value : (ui.gDraft || {}).text,
+      att: v ? {t: v, pl: v === 'plan' ? {date:'', time:'', meet:''} : undefined} : null};
+    gPaintAsk();
+    if (v === 'photo') setTimeout(() => { const f = document.getElementById('gxfile'); if (f) f.click(); }, 60);
+    return;
+  }
+  if (a === 'gxphoto'){ const f = document.getElementById('gxfile'); if (f) f.click(); return; }
+  if (a === 'gxpickroute'){
+    const box = document.getElementById('gxnew');
+    ui.gDraft = {...(ui.gDraft || {kind:'ask'}), text: box ? box.value : (ui.gDraft || {}).text,
+      att: {t:'route', id: el.dataset.v}};
+    gPaintAsk(); return;
+  }
+  if (a === 'gxbig'){
+    const v = gShotCache.get(el.dataset.s);
+    if (v) gSheet('<h3 class="vh">Photograph</h3><img style="width:100%;border-radius:12px;display:block" src="' + esc(v) + '" alt="">' +
+      '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="gxclose">Close</button></div>');
+    return;
+  }
+  if (a === 'gxgo'){ await gGo(code, pid, el.dataset.v); return; }
+  if (a === 'gxroute'){ gTakeRoute(code, pid); return; }
   if (a === 'gxsend'){
     const box = document.getElementById('gxnew'), t = (box && box.value || '').trim();
     if (!t){ if (box) box.focus(); toast('Write something first.'); return; }
     const d = ui.gDraft || {kind:'ask'}, k = gKind(ui.gView);
-    try{ await gPost(ui.gView, d.kind, t, d.hill); }
+    let att = null;
+    if (d.att && d.att.t === 'photo' && d.att.data) att = d.att;
+    else if (d.att && d.att.t === 'route' && d.att.id){
+      const pl = livePlans().find(x => x.id === d.att.id);
+      if (pl) att = {t:'route', rt:{name: pl.name || '', hills:(pl.hills || []).slice(0, 40), date: pl.date || '', trk: packTrk(pl.trk || [], 1500) || null}};
+    } else if (d.att && d.att.t === 'plan'){
+      const pd = d.att.pl || {};
+      if (!pd.date){ toast('A walk needs a day.'); return; }
+      const ph = d.hill ? BY_KEY[d.hill] : null;
+      att = {t:'plan', pl:{hill: d.hill || '', hn: ph ? hillName(ph) : '', date: pd.date, time: pd.time || '', meet: (pd.meet || '').slice(0, 80)}};
+    }
+    try{ await gPost(ui.gView, d.kind, t, d.hill, att); }
     catch(err){ toast(fbWhy(err)); return; }
     gSheetClose(); render(); window.scrollTo({top:0});
     toast(d.kind === 'ask'
@@ -28950,31 +29427,35 @@ document.addEventListener('click', async e => {
     return;
   }
   if (a === 'gxsendreply'){
-    const box = document.getElementById('gxans'), t = (box && box.value || '').trim();
+    const box = document.getElementById('gxans'), t = ((box && box.value) || ui.gAns || '').trim();
     if (!t){ if (box) box.focus(); toast('Write something first.'); return; }
     try{ await gReply(code, pid, t); }catch(err){ toast(fbWhy(err)); return; }
-    if (box) box.value = '';
+    ui.gAns = ''; if (box) box.value = '';
     render();
     toast(gKind(code) === 'private' ? 'Answered. Only the group sees it.' : 'Answered. Anyone on WayMark can see it.');
     return;
   }
   if (a === 'gxhelp'){ await gHelp(code, pid, ''); return; }
   if (a === 'gxrhelp'){ await gHelp(code, pid, el.dataset.r); return; }
-  if (a === 'gxbest'){ await gBest(code, pid, el.dataset.r); toast('Marked as the best answer.'); return; }
-  if (a === 'gxunbest'){ await gBest(code, pid, null); toast('Unmarked.'); return; }
+  if (a === 'gxbest'){ if (await gBest(code, pid, el.dataset.r)) toast('Marked as the best answer.'); return; }
+  if (a === 'gxunbest'){ if (await gBest(code, pid, null)) toast('Unmarked.'); return; }
   if (a === 'gxpmenu'){ gPostMenu(code, pid); return; }
   if (a === 'gxgmenu'){ gMenuSheet(); return; }
   if (a === 'gxdel'){ gSheetClose(); await gDelete(code, pid, true); return; }
   if (a === 'gxremove'){ gSheetClose(); await gDelete(code, pid, false); return; }
-  if (a === 'gxrefresh'){ gSheetClose(); gFind = null; await loadTalk(code, true); if (gJoined(code)) loadGroup(code); toast('Pulled it again.'); return; }
+  if (a === 'gxrefresh'){ gSheetClose(); delete groupMeta[code]; await gMeta(code); await loadTalk(code, true); if (gJoined(code)) loadGroup(code); toast('Pulled it again.'); return; }
   if (a === 'gxblock'){ gSheetClose(); await blockUser(el.dataset.u, el.dataset.n || ''); return; }
   if (a === 'gxreport'){
     gSheetClose();
-    const p = (gTalk[code] || []).find(x => x.id === pid) || (gHillQ[wikiOpen ? wikiOpen.k : ''] || []).find(x => x.id === pid);
+    const p = (gTalk[code] || []).find(x => x.id === pid)
+           || (gHillQ[wikiOpen ? wikiOpen.k : ''] || []).find(x => x.id === pid)
+           || gOne[code + '|' + pid];
     const runner = (groupMeta[code] || {}).createdBy;
-    const toWho = (gKind(code) === 'open' || !runner || runner === (fbUser || {}).uid) ? 'WayMark' : firstName((groupRows[code] || []).find(r => r.uid === runner) ? (groupRows[code] || []).find(r => r.uid === runner).name : '') || 'whoever runs it';
+    const row = runner ? (groupRows[code] || []).find(r => r.uid === runner) : null;
+    const runs = (gKind(code) !== 'open' && runner && runner !== (fbUser || {}).uid)
+      ? (row && row.name ? firstName(row.name) : 'whoever runs this group') : '';
     if (!await confirmAsk({title:'Report this post?',
-      body:'It goes to WayMark' + (toWho === 'WayMark' ? '' : ' and to ' + toWho + ', who runs this group') +
+      body:'It goes to WayMark' + (runs ? ' and to ' + runs : '') +
            '. Nothing is removed automatically — a person reads it.',
       yes:'Report it', no:'Cancel'})) return;
     try{
@@ -28987,9 +29468,10 @@ document.addEventListener('click', async e => {
   if (a === 'gxgoq'){
     try{ document.getElementById('info').classList.remove('open'); wikiOpen = null; }catch(err){}
     try{ closeNotes(); }catch(err){}
-    tab = 'u'; ui.hikerTab = 'boards'; ui.gFind = false; ui.gView = code; ui.gTab = 'talk'; ui.gThread = pid;
+    tab = 'u'; ui.hikerTab = 'boards'; ui.gFind = false; ui.gFrom = 'list';
+    ui.gView = code; ui.gTab = 'talk'; ui.gThread = pid; ui.gMark = gSeen[code] || 0; ui.gMarkFor = code;
     render(); window.scrollTo({top:0});
-    await loadTalk(code); loadReplies(code, pid);
+    await gMeta(code); await loadTalk(code); loadReplies(code, pid);
     return;
   }
 });
