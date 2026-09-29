@@ -8941,7 +8941,7 @@ async function peakBackfill(n){
     }
   }catch(e){}
   peakFilling = false;
-  if (did){ saveLocal(); render(); }
+  if (did){ saveLocal(); softRender(); }
   /* still some left: come back in a minute rather than pressing on */
   clearTimeout(peakFillTimer);
   if (did) peakFillTimer = setTimeout(() => peakBackfill(), 60000);
@@ -17968,6 +17968,31 @@ function autoLoadSocial(){
   loadFriends(); loadFeed().then(() => refreshPeople()).catch(() => {}); loadDiscover();
 }
 let boardsWanted = new Set();
+/* ---- a redraw that can wait ----
+   render() rebuilds the page from state, which throws away whatever box is on
+   screen — and if somebody is typing in it, that closes the keyboard mid-word
+   and takes their words with it. Naming a group was the worst of it: a group
+   document arriving in the background wiped the name as it was typed.
+
+   Anything that arrives ON ITS OWN — a group's document, a board's rows, a
+   notification, the peak tally filling in — goes through softRender(). It
+   waits while a box has the cursor, and catches up the moment it does not.
+   Anything the walker just tapped still calls render() and redraws at once. */
+let softWanted = false;
+function softRender(){
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && !ae.readOnly && !ae.disabled){
+    softWanted = true; return;
+  }
+  softWanted = false; render();
+}
+document.addEventListener('focusout', () => {
+  if (!softWanted) return;
+  softWanted = false;
+  /* after the blur has settled, so the render does not fight it */
+  setTimeout(() => { try{ render(); }catch(e){} }, 0);
+});
+
 const metaWanted = new Set();
 function autoLoadBoards(){
   if (!FB || !fbUser) return;
@@ -17981,7 +18006,7 @@ function autoLoadBoards(){
        it again. */
     if (typeof gMeta === 'function' && !groupMeta[g.code] && !metaWanted.has(g.code)){
       metaWanted.add(g.code);
-      gMeta(g.code).then(() => render()).catch(() => {});
+      gMeta(g.code).then(() => softRender()).catch(() => {});
     }
     if (groupRows[g.code] || groupBusy === g.code || boardsWanted.has(g.code)) continue;
     boardsWanted.add(g.code);
@@ -25036,7 +25061,7 @@ function watchNotes(){
         const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
         notes = out;
         paintNotesSheet();
-        if (unreadNotes() !== before) render();
+        if (unreadNotes() !== before) softRender();
       },
       () => { notesFailed = true; notesUnsub = null; });
   }catch(e){ notesFailed = true; }
@@ -27282,7 +27307,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v271';
+const APP_VERSION = 'v272';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28200,7 +28225,7 @@ async function leaveGroup(code){
 }
 async function loadGroup(code){
   if (!FB || !fbUser) return [];
-  groupBusy = code; render();
+  groupBusy = code; softRender();
   try{
     const col = FB.collection(fbDb, 'groups', code, 'members');
     /* A private board is a handful of friends and can come down whole. The open
@@ -28222,7 +28247,7 @@ async function loadGroup(code){
       if (meta.exists()) groupMeta[code] = meta.data() || {};
     }catch(e){}
   }catch(e){ groupRows[code] = []; groupRowsAt[code] = 0; }
-  groupBusy = ''; render();
+  groupBusy = ''; softRender();
   return groupRows[code];
 }
 async function friendPhoto(code, pid){
@@ -28467,7 +28492,7 @@ async function loadTalk(code, force){
   /* Keyed by code. One flag meant opening group B while group A was still
      coming down cleared the flag when A landed, and B drew "Nothing said yet"
      over a group that was mid-fetch. */
-  gTalkBusy[code] = true; render();
+  gTalkBusy[code] = true; softRender();
   try{
     const snap = await FB.getDocs(FB.query(talkCol(code), FB.orderBy('t', 'desc'), FB.limit(TALK_PAGE)));
     const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
@@ -28482,7 +28507,7 @@ async function loadTalk(code, force){
        you walked in (ui.gMark), so you can still find your place */
     if (gJoined(code)) { gSeen[code] = Math.max(gSeen[code] || 0, ...out.map(p => (p && p.t) || 0), 0); gSaveSeen(); }
   }catch(e){ gTalk[code] = gTalk[code] || []; gTalkAt[code] = 0; }
-  delete gTalkBusy[code]; render();
+  delete gTalkBusy[code]; softRender();
   return gTalk[code];
 }
 /* One post, by id. For a question reached from a hill page that is older than
@@ -28497,7 +28522,7 @@ async function gFetchOne(code, pid){
     else { toast('That post is not there any more.'); ui.gThread = null; }
   }catch(e){ toast('Could not open that post.'); ui.gThread = null; }
   delete gOneBusy[key];
-  render();
+  softRender();
   if (gOne[key]) loadReplies(code, pid);
 }
 async function loadReplies(code, pid){
@@ -28508,7 +28533,7 @@ async function loadReplies(code, pid){
     const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
     gReplies[key] = out.filter(r => !isBlocked(r.uid));
   }catch(e){ gReplies[key] = gReplies[key] || []; }
-  render();
+  softRender();
   return gReplies[key];
 }
 /* Browsing, not searching. One query: kind == 'public'. A private group has no
@@ -28517,7 +28542,7 @@ async function loadReplies(code, pid){
 async function loadPublic(force){
   if (!FB || !fbUser) return [];
   if (!force && gFind) return gFind;
-  gFindBusy = true; render();
+  gFindBusy = true; softRender();
   try{
     const snap = await FB.getDocs(FB.query(FB.collection(fbDb, 'groups'), FB.where('kind', '==', 'public'), FB.limit(80)));
     const out = []; snap.forEach(d => out.push({code:d.id, ...(d.data() || {})}));
@@ -28525,7 +28550,7 @@ async function loadPublic(force){
     gFind = out;
     for (const g of out) if (!groupMeta[g.code]) groupMeta[g.code] = g;
   }catch(e){ gFind = gFind || []; }
-  gFindBusy = false; render();
+  gFindBusy = false; softRender();
   return gFind;
 }
 
@@ -29286,11 +29311,19 @@ function hillQuestionsHTML(key){
 /* ---------- actions ---------- */
 /* What is being typed lives in state, because every redraw rebuilds the box. */
 document.addEventListener('input', e => {
-  const el = e.target.closest('[data-act]'); if (!el) return;
-  if (el.dataset.act === 'gxtype'){ ui.gAns = el.value; return; }
-  if (el.dataset.act === 'gxplanfield'){
+  const el = e.target;
+  /* Naming a group, and the join code: held as they are typed, so that a
+     redraw cannot take the words — belt as well as braces to softRender. */
+  if (el && (el.id === 'gname' || el.id === 'gcode')){
+    if (el.id === 'gname') ui.gNewName = el.value; else ui.joinCode = el.value;
+    return;
+  }
+  if (!el || !el.closest) return;
+  const t = el.closest('[data-act]'); if (!t) return;
+  if (t.dataset.act === 'gxtype'){ ui.gAns = t.value; return; }
+  if (t.dataset.act === 'gxplanfield'){
     const d = ui.gDraft; if (!d || !d.att || d.att.t !== 'plan') return;
-    d.att.pl = {...(d.att.pl || {}), [el.dataset.v]: el.value};
+    d.att.pl = {...(d.att.pl || {}), [t.dataset.v]: t.value};
   }
 });
 /* Choosing a photograph. It is shrunk here, on the phone, before it goes
