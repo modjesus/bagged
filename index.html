@@ -943,6 +943,17 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .dentry{ margin-top:12px; border-radius:0 10px 10px 0 }
 .dentry h3{ margin:0 0 5px; font-family:var(--font-display); color:var(--ink) }
 .dentry p{ margin:0; white-space:pre-wrap }
+/* pre-wrap keeps the walker's own line breaks but will not break a word that
+   has none. One pasted link with no spaces in a journal day made the whole page
+   4872px wide on a 390px phone — every screen scrolled sideways, not just that
+   one. The chat bubbles and group posts already had this; these four did not. */
+.ptext, .dentry p, .dentry h3, .plannotes, .pdsX{overflow-wrap:anywhere}
+/* The same for the headings and names a walker types: a route's name, a group's
+   name in the list and at the top of it, and the name on a post. Found by typing
+   one 400-character word with no spaces in it — a pasted link does the same. */
+.planhead h3, .gxi b, .gxwho b, .gxrow b{overflow-wrap:anywhere; min-width:0}
+.dnote, .dday h3, .dday p{overflow-wrap:anywhere}
+.dogpick button{overflow-wrap:anywhere; min-width:0; max-width:100%; text-align:left}
 .drow{display:flex; gap:14px; margin-top:9px; flex-wrap:wrap; align-items:center}
 .drow .linkbtn{padding:0; font-size:12px}
 /* a file input dressed as one of the row's text buttons */
@@ -1306,6 +1317,32 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .dhint{font-size:12px; color:var(--ink-3); margin:2px 0 0}
 .linkbtn{background:none; border:none; color:var(--accent-text); font-size:13px; padding:9px 0; text-decoration:underline; text-underline-offset:3px}
 
+/* ---- thumbs ----
+   A handful of controls the app uses everywhere are drawn small on purpose —
+   the five icons in the top bar at 34x34, the underlined text buttons at 18
+   to 28px tall, the profile chips. They look right and they are hard to hit.
+   Each one gets a bigger HIT AREA through a pseudo-element, which changes
+   nothing about how any of it looks. The same trick .cmgrab and .xbtn already
+   use, applied to the rest.
+   The reach is half the gap to the nearest neighbour, measured on a 360px
+   screen — 4px for the top bar's 8px gaps, 3px sideways for the text buttons'
+   6px gaps — so nothing steals a tap meant for the control beside it. */
+.linkbtn{position:relative}
+.linkbtn::after{content:""; position:absolute; top:-4px; bottom:-4px; left:-3px; right:-3px}
+.iconbtn, .sync, .hbrand, .eyelink, .ptagadd, .pinechip{position:relative}
+.iconbtn::after, .sync::after{content:""; position:absolute; top:-5px; bottom:-5px; left:-4px; right:-4px; border-radius:12px}
+.hbrand::after, .eyelink::after{content:""; position:absolute; top:-6px; bottom:-6px; left:-3px; right:-3px}
+.ptagadd::after, .pinechip::after{content:""; position:absolute; top:-5px; bottom:-5px; left:-3px; right:-3px}
+/* the back button, the list chips on a hill's page, and the Wikipedia link
+   under them — all drawn small, all now easier to hit without moving */
+.backbtn, button.tagb, #infoBody a{position:relative}
+.backbtn::after{content:""; position:absolute; top:-5px; bottom:-5px; left:-3px; right:-3px}
+button.tagb::after{content:""; position:absolute; top:-7px; bottom:-7px; left:-3px; right:-3px}
+#infoBody a::after{content:""; position:absolute; top:-11px; bottom:-11px; left:-2px; right:-2px}
+/* an icon button that already carries a pip must not have it hidden behind
+   the invisible pad */
+.iconbtn > *, .sync > *{position:relative; z-index:1}
+
 /* photos */
 .shots{display:flex; gap:6px; flex-wrap:wrap}
 /* the picker: a grid of the day's photos, the chosen ones ringed and ticked */
@@ -1540,6 +1577,10 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 .rqempty{margin:8px 0 0; font-size:13px; color:var(--ink-3)}
 
 /* the map, with a lane beside it you can always scroll from */
+/* the map could not be drawn: hide everything that only makes sense on one */
+.mapwrap.nomap .misle, .mapwrap.nomap .mmenu, .mapwrap.nomap .mresults, .mapwrap.nomap .mpills{display:none}
+.mapwrap.nomap #mapbox, .mapwrap.nomap #routemap{display:grid; place-items:center; padding:24px 18px}
+.mapwrap.nomap .empty{margin:0; max-width:30ch; text-align:center}
 .mapwrap{position:relative; display:flex; gap:0; align-items:stretch}
 .mapwrap > #routemap, .mapwrap > #mapbox{flex:1; min-width:0}
 .scrollgrip{
@@ -3030,7 +3071,9 @@ button.bstriprow{cursor:pointer}
 /* 34x34 to look at, 46x46 to hit. The close button on every sheet in the app
    was a 34px target; this widens the touch area without moving a pixel of it.
    Same trick .cmgrab already uses. */
-.xbtn::after{content:""; position:absolute; top:-6px; right:-6px; bottom:-6px; left:-6px; border-radius:99px}
+/* 4px, not more: the notifications sheet puts the settings cog 8px to the
+   left of the X, and a wider pad would have the X taking taps meant for it. */
+.xbtn::after{content:""; position:absolute; top:-5px; right:-4px; bottom:-5px; left:-4px; border-radius:99px}
 .xbtn svg{width:15px; height:15px}
 .sheetbox > h2{padding-right:38px}
 .formx{position:absolute; top:8px; right:8px; width:30px; height:30px}
@@ -4781,9 +4824,29 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
   .top .brand{font-size:clamp(17px, 5.4vw, 24px)}
   .top .brandrow .sync, .top .brandrow .iconbtn{height:34px; min-height:34px; width:auto; min-width:34px}
 }
+/* ---- the smallest phones ----
+   The wordmark plus five icons did not fit across 320px — an iPhone SE, an
+   older Android, or any phone whose owner has turned the text size up. The
+   last icon hung 7px past the edge and the WHOLE APP scrolled sideways, on
+   every single screen. The wordmark is the thing that can go: the icons all
+   do something and Home is in the bar along the bottom anyway. */
+@media (max-width:359px){
+  .top .brandrow{gap:6px}
+  /* the wordmark shrinks first, and steps aside entirely if it still will not fit */
+  .top .hbrand{min-width:0; flex:0 1 auto; overflow:hidden}
+  .top .brand{font-size:clamp(15px, 5vw, 20px)}
+}
+@media (max-width:339px){
+  .top .hbrand{display:none}
+}
+/* Nothing in the header may push the page sideways, whatever is in it. */
+.top .brandrow{flex-wrap:nowrap}
+.top .brandrow .sync, .top .brandrow .iconbtn, .top .brandrow .hkme{flex:none}
 .hkhead{margin-top:6px}
 .fhead{margin:6px 0 -8px; min-height:30px}
 .fhead .refreshbtn{width:32px; height:32px}
+.refreshbtn{position:relative}
+.refreshbtn::after{content:""; position:absolute; top:-6px; bottom:-6px; left:-6px; right:-6px; border-radius:99px}
 .fhead .refreshbtn svg{width:17px; height:17px}
 .fstrip{gap:10px; padding:6px 0 6px 2px}
 .fchip{width:60px; gap:3px}
@@ -4865,8 +4928,12 @@ span.pshow{cursor:default}
 .pinechip svg{width:14px; height:14px}
 .prof.pv3 .ploc, .prof.pv3 .ploc span, .prof.pv3 .ploc em{color:#CAD9D3 !important; opacity:1}
 .pinebtns .btn{white-space:nowrap; font-size:14.5px; padding:0 10px}
-.pinebtns{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px}
-.pinebtns .btn{justify-content:center; min-height:44px; width:100%}
+.pinebtns{position:relative; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; margin-top:14px}
+/* `1fr` is minmax(AUTO,1fr), so a column will not shrink below the width of
+   the words in it — on a 320px screen "Share my year" pushed the second
+   button 14px off the edge. minmax(0,1fr) lets it shrink, and the label
+   wraps inside the button instead of taking the page with it. */
+.pinebtns .btn{justify-content:center; min-height:44px; width:100%; min-width:0; white-space:normal; line-height:1.2}
 .pinebtns .btn.ghost, .pinebtns .btn.quiet, .pinebtns .btn.following{background:transparent; color:#F3EFE6; border:1.5px solid #F3EFE6; box-shadow:none}
 .pinebtns .btn svg{width:16px; height:16px; margin-right:6px}
 .prof.pv3 > .pfigs{position:relative; z-index:2; margin:-24px 12px 0; background:var(--raise); border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 26px -18px rgba(12,34,29,.8)}
@@ -7913,6 +7980,19 @@ const altStr = h => (h.alt || []).join(' ');
    under its Welsh name. Both forms search. */
 function hillName(h){ return h && h.cy ? h.cy + ' (' + h.n + ')' : (h ? h.n : ''); }
 const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+/* One tap, one write.
+
+   Every one of these ends in a document being created, and nothing stopped a
+   second tap creating a second one while the first was still in the air. On a
+   slow signal — which is most of a hillside — the walker sees nothing happen,
+   taps again, and posts twice. Three fast taps on Send in a group made three
+   posts.
+
+   The lock is held only for as long as the write is actually in flight and is
+   released in a finally, so a send that fails can be tried again at once. */
+const tapLock = new Set();
+const tapOnce = k => tapLock.has(k) ? false : (tapLock.add(k), true);
+const tapDone = k => tapLock.delete(k);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const uid = () => Math.random().toString(36).slice(2,9) + now().toString(36).slice(-4);
@@ -8218,7 +8298,49 @@ function loadLocal(){
 }
 function saveLocal(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch(e){ toast('This browser is blocking storage: your log may not stick.'); }
+  catch(e){
+    /* The log shares the browser's five megabytes with two caches that only
+       ever grow: a Wikipedia extract per hill opened, and the places found on
+       each map sheet. When the budget runs out it is the LOG that fails to
+       save, silently, from then on — and nothing told the walker which of the
+       two to clear. Throw the caches away and try the log again: they are
+       both re-fetchable and the log is not. */
+    if (dropCaches()){
+      try{ localStorage.setItem(KEY, JSON.stringify(state)); return; }catch(e2){}
+    }
+    toast('This browser is out of storage, so your log is not being saved. Take a backup from Settings.');
+  }
+}
+/* Everything in localStorage that can be fetched again. Returns whether it
+   found anything to throw away. */
+function dropCaches(){
+  let n = 0;
+  try{
+    const kill = [];
+    for (let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if (k && (k.indexOf('bagged.wiki.') === 0 || k.indexOf('waymark.sheetpoi.') === 0)) kill.push(k);
+    }
+    for (const k of kill){ localStorage.removeItem(k); n++; }
+  }catch(e){}
+  return n > 0;
+}
+/* And keep it from getting there. The Wikipedia cache is capped: past the cap
+   the oldest half goes, which costs one lookup each and nothing else. */
+const WIKI_CAP = 400;
+function wikiTrim(){
+  try{
+    const rows = [];
+    for (let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if (!k || k.indexOf('bagged.wiki.') !== 0) continue;
+      let t = 0; try{ t = (JSON.parse(localStorage.getItem(k)) || {}).t || 0; }catch(e){}
+      rows.push([k, t]);
+    }
+    if (rows.length <= WIKI_CAP) return;
+    rows.sort((a, b) => a[1] - b[1]);
+    for (const [k] of rows.slice(0, rows.length - Math.floor(WIKI_CAP / 2))) localStorage.removeItem(k);
+  }catch(e){}
 }
 function touched(){ registerOwn(); saveLocal(); scheduleSync(); schedulePerson(); }
 
@@ -8251,6 +8373,32 @@ function mergeRec(x, y){
      and fixing the date on the laptop must not cost you the dog. */
   const gs = [...new Set([...(Array.isArray(x.dogs) ? x.dogs : []), ...(Array.isArray(y.dogs) ? y.dogs : [])])];
   if (gs.length) win = {...win, dogs:gs};
+  /* The photographs are a union too, and for the same reason. Last-write-wins
+     on the whole record meant three pictures taken on the phone were thrown
+     away by a note typed on the laptop an hour later — silently, with the
+     blobs left orphaned in storage.
+     A union alone cannot express a deletion, so this works exactly the way
+     the ascent dates above do: a removed picture's id is remembered in `phX`,
+     and the union subtracts it. Without the tombstone, deleting a photo on
+     one device would have it put straight back by the other. */
+  const px = Array.isArray(x.photos) ? x.photos : [];
+  const py = Array.isArray(y.photos) ? y.photos : [];
+  if (px.length || py.length){
+    const binned = new Set([
+      ...(Array.isArray(x.phX) ? x.phX : []),
+      ...(Array.isArray(y.phX) ? y.phX : [])
+    ].filter(Boolean));
+    const lose = win === y ? x : y;
+    const seen = new Set(), pics = [];
+    /* the winner's order first, so the newest arrangement is the one kept */
+    for (const ph of [...(Array.isArray(win.photos) ? win.photos : []), ...(Array.isArray(lose.photos) ? lose.photos : [])]){
+      if (!ph || !ph.id || seen.has(ph.id) || binned.has(ph.id)) continue;
+      seen.add(ph.id); pics.push(ph);
+    }
+    const before = (Array.isArray(win.photos) ? win.photos : []).length;
+    if (pics.length !== before || binned.size)
+      win = {...win, photos: pics, phX: binned.size ? [...binned].slice(-60) : undefined};
+  }
   if (!win.done) return win;
   /* Dates taken off the record are remembered, because a union can never
      express a deletion: without this the other copy puts a removed ascent
@@ -8778,21 +8926,45 @@ async function removeDiaryPhoto(id, pid){
   /* if it was tagged to a hill, take it off that record too */
   if (ph && ph.k){
     const r = rec(ph.k);
-    state.bagged[ph.k] = {...r, photos:(r.photos || []).filter(x => x.id !== pid), t:now()};
+    const binned = [...new Set([...(Array.isArray(r.phX) ? r.phX : []), pid])].slice(-60);
+    state.bagged[ph.k] = {...r, photos:(r.photos || []).filter(x => x.id !== pid), phX:binned, t:now()};
   }
   e.photos = (e.photos || []).filter(p => p.id !== pid);
   e.t = now();
   await delBlob(pid);
+  dropCloudPhoto(pid);
   const u = blobUrls.get(pid); if (u){ URL.revokeObjectURL(u); blobUrls.delete(pid); }
   touched(); render();
 }
 
 async function removePhoto(key, id){
   const r = rec(key);
-  state.bagged[key] = {...r, photos:r.photos.filter(p => p.id !== id), t:now()};
-  await delBlob(id);
-  const u = blobUrls.get(id); if (u){ URL.revokeObjectURL(u); blobUrls.delete(id); }
+  /* phX remembers what was removed, so the other device's copy of this record
+     cannot put the picture back on the next sync. */
+  const binned = [...new Set([...(Array.isArray(r.phX) ? r.phX : []), id])].slice(-60);
+  state.bagged[key] = {...r, photos:r.photos.filter(p => p.id !== id), phX:binned, t:now()};
+  /* One picture can be in two places: tagging a journal photograph to a hill
+     puts the SAME blob in the journal entry and on the hill. Deleting it from
+     the hill used to destroy the blob regardless, which left a permanently
+     blank tile in the journal and the picture gone for good. Only the last
+     reference takes the blob with it. */
+  const stillUsed = (state.diary || []).some(e => (e.photos || []).some(x => x.id === id))
+    || Object.values(state.bagged).some(x => (x.photos || []).some(y => y.id === id));
+  if (!stillUsed){
+    await delBlob(id);
+    dropCloudPhoto(id);
+    const u = blobUrls.get(id); if (u){ URL.revokeObjectURL(u); blobUrls.delete(id); }
+  }
   touched(); render();
+}
+/* The copy in the cloud, which nothing used to remove. A deleted photograph
+   stayed in users/{uid}/photos for ever — and on another device that had not
+   synced yet, the old record could bring the reference back and pull the
+   picture down again. Best effort: if it fails the tombstone still keeps it
+   off the log. */
+function dropCloudPhoto(id){
+  if (!FB || !fbUser || !id) return;
+  try{ FB.deleteDoc(photoRef(id)).catch(() => {}); }catch(e){}
 }
 async function photoSrc(p){
   /* A friend's photo lives under the group, not under your own account, and is
@@ -9877,14 +10049,29 @@ const SHIRTS = {cream:'Natural', sand:'Natural', pine:'Blue Spruce'};
    release. Nothing here decides a price: the helper does, from its own list. */
 const shopCfg = () => ({ w: String(window.SHOP_WORKER || '').trim().replace(/\/$/, ''), pk: String(window.STRIPE_PUBLISHABLE_KEY || '').trim() });
 let shopCat = null, shopLoading = false, shopCheckout = null;
-async function shopLoad(){
+/* Why the shop is empty, if it is. A failed fetch used to land in exactly the
+   same place as a genuinely empty catalogue, so a walker with no signal was
+   told "Not for sale yet — which of these should we actually print?" about a
+   shop that is, in fact, full. And with no worker configured at all the page
+   sat on four grey placeholders for ever with nothing to say. */
+let shopFailed = '';
+async function shopLoad(force){
   const {w, pk} = shopCfg();
-  if (!w || !pk || shopCat || shopLoading) return;
-  shopLoading = true;
+  if (!w || !pk){ shopFailed = 'unconfigured'; return; }
+  /* Once it has failed, STOP. renderShop() calls this on every render, so
+     leaving shopCat null without this guard turned one failed fetch into a
+     new fetch on every single redraw — and the screen never settled out of
+     its loading state to say what had happened. Only the Try again button
+     (force) asks a second time. */
+  if (shopLoading || (shopCat && !force) || (shopFailed && !force)) return;
+  shopLoading = true; if (force){ shopCat = null; shopFailed = ''; render(); }
   try{
-    const r = await fetch(w + '/catalog'); const j = await r.json();
+    const r = await fetch(w + '/catalog');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
     shopCat = j && j.items ? j : {items:{}};
-  }catch(e){ shopCat = {items:{}}; }
+    shopFailed = '';
+  }catch(e){ shopCat = null; shopFailed = navigator.onLine ? 'down' : 'offline'; }
   shopLoading = false;
   if (ui.patchView === 'supplies' || tab === 'd' || onboarding()) render();
 }
@@ -11358,6 +11545,19 @@ function renderShop(){
   const sale = bcSale();
   let s = '<div class="supplies bcshop">' + peek;
   if (!shopCat){
+    if (shopFailed && !shopLoading){
+      /* Say which it is. "Nothing for sale" and "we cannot reach the shop"
+         are different things and used to look identical. */
+      const line = shopFailed === 'offline'
+        ? ['You are offline', 'The shop needs a connection. Everything else in WayMark works without one.']
+        : shopFailed === 'unconfigured'
+        ? ['The shop is not switched on', 'Nothing is wrong with your app \u2014 there is no shop configured for it.']
+        : ['The shop is not answering', 'It is not you. Give it a moment and try again.'];
+      return s + '<div class="bcempty">' + ti('alert-triangle') +
+        '<b>' + esc(line[0]) + '</b><span>' + esc(line[1]) + '</span>' +
+        (shopFailed === 'unconfigured' ? '' : '<button class="btn" data-act="shopretry">Try again</button>') +
+        '</div></div>';
+    }
     return s + '<div class="bcgrid">' + '<div class="bcskel"></div>'.repeat(4) + '</div></div>';
   }
   if (!sale.length && !kitItems().length){
@@ -13931,7 +14131,7 @@ async function dogPull(){
     dogInvites = [];
     snap.forEach(x => { const v = x.data() || {}; if (!dogById(x.id)) dogInvites.push({id:x.id, ...v}); });
   }catch(e){ dogInvites = []; }
-  render();
+  softRender();
 }
 function dogSharePick(id){
   const d = dogById(id); if (!d) return;
@@ -14976,6 +15176,18 @@ function render(){
     return;
   }
 
+  /* Whatever is being typed in, and where the cursor is in it. Rebuilding
+     #main throws the box away and builds a new one, which loses both. Most
+     background redraws now wait (softRender), but a redraw the walker's own
+     tap caused still has to happen — and this puts them back where they
+     were rather than at the start of an empty-looking field. */
+  const ae = document.activeElement;
+  const keep = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && ae.id &&
+               document.getElementById('main') && document.getElementById('main').contains(ae)
+    ? {id: ae.id, v: ae.value, s: (()=>{ try{ return ae.selectionStart; }catch(e){ return null; } })(),
+       e: (()=>{ try{ return ae.selectionEnd; }catch(e){ return null; } })()}
+    : null;
+
   const psb = document.getElementById('profsheetbox'), psTop = psb ? psb.scrollTop : 0;
   /* Eight of the nine screens had no <h1> — and the Shop had no heading of any
      level. Screen-reader users navigate by heading first, so there was nothing
@@ -14992,6 +15204,14 @@ function render(){
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   ensureScreenHeading();
+  /* put the cursor back where it was */
+  if (keep){
+    const el = document.getElementById(keep.id);
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && document.activeElement !== el){
+      if (el.value !== keep.v && !el.value) el.value = keep.v;
+      try{ el.focus({preventScroll:true}); if (keep.s != null) el.setSelectionRange(keep.s, keep.e); }catch(e){}
+    }
+  }
   paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell(); paintBag();
   if (tab === 'u') hydratePostPhotos();
   if (tab === 'd') setTimeout(tuneStamp, 0);
@@ -18344,12 +18564,23 @@ function syncBaseLayer(m){
 }
 
 /* ---------- the hills map ---------- */
+/* No map to zoom, no map to centre on you, no layers to switch. When the
+   library has not loaded, the search bar, the zoom buttons and the layers
+   control were all still drawn over an empty box — and the sentence saying
+   why sat half underneath the search bar. Take the furniture away and give
+   the explanation the room. */
+function mapGone(box){
+  const wrap = box && box.closest('.mapwrap');
+  if (!wrap) return;
+  wrap.classList.add('nomap');
+}
 let mapMarks = [], mapMoveTimer = null;
 function mountMap(){
   const box = document.getElementById('mapbox');
   if (!box) return;
   if (!ML() || !webglOk()){
     box.innerHTML = '<p class="empty">' + (ML() ? 'This browser cannot draw the map: it needs WebGL.' : 'The map library could not load. It needs a connection the first time: try again when you have signal.') + '</p>';
+    mapGone(box);
     return;
   }
   if (map && map.getContainer() !== box){ map.remove(); map = null; mapReady = false; }
@@ -19480,6 +19711,7 @@ function mountRouteMap(){
   if (!box) return;
   if (!ML() || !webglOk()){
     box.innerHTML = '<p class="empty">' + (ML() ? 'This browser cannot draw the map: it needs WebGL.' : 'The map library could not load. It needs a connection the first time.') + '</p>';
+    mapGone(box);
     return;
   }
   if (rmap && rmap.getContainer() !== box) killRouteMap();
@@ -21546,7 +21778,12 @@ document.addEventListener('click', async e => {
     const n = notes.find(x => x.id === el.dataset.id); if (!n) return;
     const yes = el.dataset.v === 'yes';
     notify(n.from, 'wr_' + n.id, {type: yes ? 'walkyes' : 'walkno', hill:n.hill, date:n.date});
-    try{ await FB.updateDoc(noteRef(fbUser.uid, n.id), {ans: yes ? 'yes' : 'no'}); }catch(e){}
+    /* This used to call FB.updateDoc, which was never imported — so every
+       answer threw into an empty catch, the note was never marked answered,
+       and the walk invitation came back unanswered next time notes loaded
+       while the other walker had already been told. */
+    try{ await FB.setDoc(noteRef(fbUser.uid, n.id), {ans: yes ? 'yes' : 'no'}, {merge:true}); }
+    catch(e){ toast('Told them, but this device could not remember it. It may ask you again.'); }
     n.ans = yes ? 'yes' : 'no'; paintNotesSheet();
     toast(yes ? 'Told ' + firstName(n.name) + ' you’re in.' : 'Let ' + firstName(n.name) + ' know you can’t make it.');
   }
@@ -21585,6 +21822,7 @@ document.addEventListener('click', async e => {
     if ((kind === 'post') && !d.text.trim()){ toast('Write something.'); return; }
     /* Keep the draft until the write lands. Clearing it first meant a failed
        post lost everything the walker had written. */
+    if (!tapOnce('sendpost')) return;
     try{
       let sent = [];
       if (kind === 'moment'){
@@ -21602,6 +21840,7 @@ document.addEventListener('click', async e => {
       ui.postForm = false; ui.pDraft = null;
       render(); toast('Shared.');
     }catch(e){ toast(fbWhy(e) + ' Your post is still here.'); }
+    finally{ tapDone('sendpost'); }
   }
   else if (a === 'postcond'){
     const d = ui.pDraft = ui.pDraft || {text:'', hills:[], tags:[], conds:[]};
@@ -22388,6 +22627,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'bkcodeopen'){ ui.bkCodeOpen = 'focus'; paintBasket(); }
   else if (a === 'shoppeek'){ ui.shopPeek = true; tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; ui.shopColl = ''; supGo(null, true); window.scrollTo({top:0}); }
+  else if (a === 'shopretry'){ shopFailed = ''; shopCat = null; render(); shopLoad(true); }
   else if (a === 'shoppeekback'){ shopClose(); bcSheetClose(); ui.shopPeek = false; ui.kitOpen = null; ui.supOpen = null; render(); window.scrollTo({top:0}); }
   else if (a === 'shopgo'){ tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; ui.shopColl = ''; supGo(null, true); window.scrollTo({top:0}); }
   else if (a === 'bkclose'){ closeBasket(); }
@@ -22450,8 +22690,13 @@ document.addEventListener('click', async e => {
     state.groups = []; friends = []; fbHandle = '';
     try{ await fbSignOut(); }catch(e){}
     closeSheetNow(); render();
-    toast(r && r.authGone ? 'Your cloud data and sign-in are gone.'
-        : 'Your cloud data is gone. Sign in once more and delete again to remove the sign-in itself.');
+    /* Every refusal used to be swallowed into the console and the walker was
+       told it had all gone. Say so when some of it did not. */
+    const miss = (r && r.failed) ? r.failed.length : 0;
+    toast(miss
+      ? miss + (miss === 1 ? ' thing' : ' things') + ' could not be deleted. Sign in and try again.'
+      : (r && r.authGone ? 'Your cloud data and sign-in are gone.'
+        : 'Your cloud data is gone. Sign in once more and delete again to remove the sign-in itself.'));
   }
   else if (a === 'fbsyncnow'){ fbSync(); toast('Syncing\u2026'); }
   else if (a === 'picklist'){
@@ -22630,8 +22875,19 @@ document.addEventListener('click', async e => {
     if (box){ box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
   }
   else if (a === 'delplan'){
-    const p = state.plans.find(x => x.id === el.dataset.id);
-    if (p){ p.deleted = true; p.t = now(); }
+    const p = state.plans.find(x => x.id === el.dataset.id); if (!p) return;
+    /* A journal entry asks before it goes. A route — which may be a line
+       plotted point by point, or a GPX somebody imported — did not, and there
+       is no way to get one back. It asks now, and says what it is losing. */
+    const pts = (p.trk || []).length, hs = (p.hills || []).length;
+    const what = [pts > 1 ? 'the line you drew' : '', hs ? hs + (hs === 1 ? ' hill on it' : ' hills on it') : '']
+      .filter(Boolean).join(' and ');
+    if (!await confirmAsk({
+      title: 'Delete ' + (p.name ? '\u201c' + p.name + '\u201d' : 'this route') + '?',
+      body: (what ? 'This takes ' + what + ' with it. ' : '') +
+            'Any summits you have already marked stay in your log. This cannot be undone.',
+      yes: 'Delete', no: 'Keep it'})) return;
+    p.deleted = true; p.t = now();
     touched(); render(); toast('Route deleted.');
   }
   else if (a === 'wxretry'){
@@ -23530,8 +23786,8 @@ document.getElementById('restoreBtn').onclick = () => {
        code dropped both on the floor — a walker with no account lost every
        diary entry permanently, from a backup that contained them. */
     state = {bagged:m.bagged, plans:m.plans, diary:m.diary || [], dogs:m.dogs || state.dogs || [],
-             groups:(m.groups && m.groups.length) ? m.groups : (state.groups || []),
-             enabled:(m.enabled && m.enabled.length) ? m.enabled : state.enabled,
+             groups:(Array.isArray(m.groups) && m.groups.length) ? m.groups : myGroups(),
+             enabled:(Array.isArray(m.enabled) && m.enabled.length) ? m.enabled : state.enabled,
              enabledT:m.enabledT || state.enabledT || 0};
     seedSeen();
     touched(); render(); sheet.classList.remove('open'); toast('Log restored.');
@@ -23567,6 +23823,8 @@ function blobToB64(blob){
 const FB_V = '12.18.0';
 let FB = null;            // the loaded SDK functions
 let fbApp = null, fbAuth = null, fbDb = null;
+let syncAgain = false;   // something changed while a sync was in the air
+let wiping = false;      // "delete everything" is running: nothing may write
 let fbUser = null;        // {uid, name, photo}
 let fbReady = false;      // SDK loaded (or definitively not)
 /* Which of your account preferences have been changed here and not yet saved.
@@ -23595,8 +23853,8 @@ function loadFirebase(){
     s.textContent =
       "import { initializeApp } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-app.js';" +
       "import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-auth.js';" +
-      "import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, collectionGroup, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-firestore.js';" +
-      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously, getFirestore, doc, getDoc, setDoc, deleteDoc, collection, collectionGroup, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer };" +
+      "import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, collectionGroup, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer } from 'https://www.gstatic.com/firebasejs/" + FB_V + "/firebase-firestore.js';" +
+      "window.__fb = { initializeApp, getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, deleteUser, signInAnonymously, getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, collectionGroup, getDocs, query, where, orderBy, limit, onSnapshot, increment, writeBatch, deleteField, getCountFromServer };" +
       "window.dispatchEvent(new Event('fb-ready'));";
     s.onerror = () => resolve(null);
     window.addEventListener('fb-ready', () => resolve(window.__fb), {once:true});
@@ -23667,6 +23925,12 @@ async function fbSignOut(){
      inherited the last walker's name and picture on every leaderboard, and
      their whole log got merged into the new account on first sync. */
   fbName = ''; fbAvatar = ''; fbDetail = false; fbDirty.clear(); fbPulled = false;
+  /* Which patches have already had their moment. Left behind, the next walker
+     to sign in on this phone inherits them and never sees a patch pop for
+     something they earned themselves. */
+  try{ localStorage.removeItem(WIN_SEEN_KEY); }catch(e){}
+  seenWins = new Set();
+  syncAgain = false; wiping = false; clearTimeout(syncTimer);
   state = {bagged:{}, plans:[], diary:[], groups:[], own:[], dogs:[], enabled:state.enabled, enabledT:state.enabledT || 0};
   cloudSig = ''; lastSynced = 0; syncState = 'local'; syncErr = '';
   ui.found = null; ui.pDraft = null; ui.dDraft = null; ui.draft = null;
@@ -23700,7 +23964,15 @@ async function fbPull(){
 }
 async function fbPush(){
   const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || [], own:state.own || [], dogs:state.dogs || [], chal:state.chal || null});
-  if (payload.length > 900000) throw new Error('log too large for one record');
+  /* Firestore's limit is on the WHOLE document, and the log is not the whole
+     document: the picture, the groups and the Strava record go in the same
+     one. Measuring only the log let a push through at 880 KB and then have
+     Firestore refuse the 1 MiB record, with a raw error the walker could do
+     nothing about. Measure what is actually being written. */
+  const extra = (fbAvatar || '').length + JSON.stringify(myGroups() || []).length +
+                JSON.stringify(stravaRec() || null).length + JSON.stringify(state.enabled || []).length + 400;
+  if (payload.length + extra > 950000)
+    throw new Error('Your log has outgrown one cloud record. Nothing is lost — it is all still on this device — but it cannot be saved to the cloud until some routes or photos come off it.');
   /* setDoc replaces the whole record, so writing before ever having read it
      would push empty defaults over a name and picture already saved. Belt to
      the per-field braces above: read first if for any reason we have not. */
@@ -24207,11 +24479,19 @@ function ownDelete(k){
 }
 
 async function fbSync(initial){
-  if (!FB || !fbUser || fbSyncing) return;
+  if (!FB || !fbUser || fbSyncing || wiping) return;
+  /* WHOSE log this is. A sync sits on the network for seconds; sign out in the
+     middle of one and it used to come back and merge the person who had just
+     left straight back into an empty state — their whole log on screen for
+     whoever is holding the phone, and merged into the next account to sign in.
+     Every step below checks it is still the same walker before it writes. */
+  const who = fbUser.uid;
+  const stillMe = () => fbUser && fbUser.uid === who && !wiping;
   fbSyncing = true;
   syncState = 'saving'; paintSync();
   try{
     const remote = await fbPull();
+    if (!stillMe()){ fbSyncing = false; return; }
     if (remote){ state = merge(state, remote); seedSeen(); registerOwn(); }
 
     const pending = [];
@@ -24247,9 +24527,18 @@ async function fbSync(initial){
         const keep = e.photos.filter(p => !lost.has(p.id));
         if (keep.length !== e.photos.length){ e.photos = keep; e.t = now(); }
       }
+      /* A dog's cover was put in the queue above but never taken out of it
+         here, so a cover whose blob had gone was looked for on every single
+         sync from then on — a blank picture nobody could explain, and one of
+         the four upload slots gone for good. */
+      for (const g of (state.dogs || [])){
+        if (g && g.cov && lost.has(g.cov.id)){ g.cov = null; g.t = now(); }
+      }
     }
 
+    if (!stillMe()){ fbSyncing = false; return; }
     await fbPush();
+    if (!stillMe()){ fbSyncing = false; return; }
     await pushGroups();
     fbDirty.clear();
     cloudSig = sig(state); lastSynced = now(); syncState = 'synced'; syncErr = ''; syncFails = 0;
@@ -24285,7 +24574,12 @@ async function fbSync(initial){
     }
   }
   fbSyncing = false;
-  render();
+  /* Something changed while that was in the air. scheduleSync() came back to a
+     running sync, found fbSyncing true and returned, and nothing rescheduled
+     it — so the mark stayed on this device while the cloud said "Synced".
+     Catch it here, where the sync that swallowed it finishes. */
+  if (syncAgain){ syncAgain = false; if (cloudOn()) scheduleSync(900); }
+  softRender();
 }
 
 
@@ -24394,9 +24688,13 @@ function wikiPack(r){
          ('https://en.wikipedia.org/wiki/' + encodeURIComponent(r.title.replace(/ /g,'_')))
   };
 }
+let wikiWrites = 0;
 function wikiSave(h, v){
   wikiMem[h.k] = v;
-  try{ localStorage.setItem('bagged.wiki.' + h.k, JSON.stringify(v)); }catch(e){}
+  try{ localStorage.setItem('bagged.wiki.' + h.k, JSON.stringify(v)); }
+  catch(e){ if (dropCaches()){ try{ localStorage.setItem('bagged.wiki.' + h.k, JSON.stringify(v)); }catch(e2){} } }
+  /* not on every write: counting the keys walks the whole of localStorage */
+  if ((++wikiWrites % 25) === 0) wikiTrim();
   return v;
 }
 async function wikiLookup(h){
@@ -24560,6 +24858,10 @@ const cloudOn = () => !!fbUser;
 /* route every save through whichever backend is chosen */
 function scheduleSync(delay){
   if (!cloudOn()) return;
+  /* A sync is already in the air and will not take this one. Remember that
+     there is something newer, so the sync that is running reschedules when it
+     lands instead of leaving the change behind. */
+  if (fbSyncing) syncAgain = true;
   syncState = 'pending'; paintSync();
   clearTimeout(syncTimer);
   syncTimer = setTimeout(syncNow, delay || 3500);
@@ -24689,9 +24991,18 @@ function renderAccountBox(){
    unless you clear it too. */
 async function deleteMyCloudData(){
   if (!FB || !fbUser || !fbDb) return;
+  /* Nothing else may write while this runs. It takes many seconds, and a
+     pending sync, the every-30-seconds error retry, a tab coming back to the
+     foreground, the public-card push or the peak tally could all fire in the
+     middle of it and re-create exactly what has just been deleted — leaving
+     documents behind that no signed-in account can ever reach afterwards. */
+  wiping = true;
+  clearTimeout(syncTimer); clearTimeout(personTimer); clearTimeout(peakFillTimer);
+  syncAgain = false;
   const uid = fbUser.uid;
-  const gone = [];
-  const zap = async (ref, what) => { try{ await FB.deleteDoc(ref); gone.push(what); }catch(e){ console.warn('[WayMark] could not delete ' + what, e); } };
+  const gone = [], failed = [];
+  const zap = async (ref, what) => { try{ await FB.deleteDoc(ref); gone.push(what); }
+    catch(e){ failed.push(what); console.warn('[WayMark] could not delete ' + what, e); } };
   const zapAll = async (col, what) => {
     try{ const snap = await FB.getDocs(col); const jobs = []; snap.forEach(d => jobs.push(zap(d.ref, what))); await Promise.all(jobs); }
     catch(e){ console.warn('[WayMark] could not list ' + what, e); }
@@ -24736,7 +25047,9 @@ async function deleteMyCloudData(){
   let authGone = false;
   try{ if (FB.deleteUser && fbAuth && fbAuth.currentUser){ await FB.deleteUser(fbAuth.currentUser); authGone = true; } }
   catch(e){ console.warn('[WayMark] auth', e); }
-  return {gone, authGone};
+  /* `wiping` stays true until the sign-out that follows has finished, so
+     nothing can slip a write in between. fbSignOut clears it. */
+  return {gone, failed, authGone};
 }
 
 /* The default for NEW leaderboards. Lives in Settings, out of the way, because
@@ -24873,7 +25186,7 @@ async function loadFeed(){
       FB.setDoc(postRef(p.id), {vis:'followers'}, {merge:true}).catch(() => {});
     }
     socialFailed = false; socialWhy = '';
-    feedBusy = false; render();
+    feedBusy = false; softRender();
     await Promise.all(feed.slice(0, 40).map(p => loadPostBits(p.id)));
     shareWithNewFollowers();
   }catch(e){
@@ -24916,7 +25229,7 @@ async function loadPersonPosts(uid, force){
   ]);
   const list = [...byId.values()].sort((a, b) => (b.t || 0) - (a.t || 0));
   personPosts[uid] = {list, busy:false, done:true, t:Date.now()};
-  render(); hydratePostPhotos();
+  softRender(); hydratePostPhotos();
   await Promise.all(list.slice(0, 20).map(p => loadPostBits(p.id)));
   if (friendOpen && friendOpen.uid === uid) render();
 }
@@ -25898,7 +26211,7 @@ async function loadDirectory(force){
   }catch(e){
     dirWhy = /permission|insufficient/i.test(String(e && e.message)) ? 'rules' : fbWhy(e);
   }
-  dirBusy = false; render();
+  dirBusy = false; softRender();
 }
 const dirCache = {};
 async function loadDirEntry(uid){
@@ -25908,7 +26221,7 @@ async function loadDirEntry(uid){
   if (hit){ dirCache[uid] = hit; return hit; }
   try{ const s = await FB.getDoc(dirRef(uid)); dirCache[uid] = s.exists() ? {uid, ...(s.data() || {})} : {uid, none:true}; }
   catch(e){ dirCache[uid] = {uid, none:true}; }
-  if (friendOpen && friendOpen.uid === uid) render();
+  if (friendOpen && friendOpen.uid === uid) softRender();
   return dirCache[uid];
 }
 function dirPool(){
@@ -26070,7 +26383,7 @@ async function loadCounts(uid){
       FB.getCountFromServer(FB.collection(fbDb, 'people', uid, 'following'))
     ]);
     personCounts[uid] = {followers:a.data().count, following:b.data().count};
-    if (friendOpen && friendOpen.uid === uid) render();
+    if (friendOpen && friendOpen.uid === uid) softRender();
   }catch(e){}
 }
 /* Why this person matters to you: who you both know, the hills you share, and
@@ -26288,7 +26601,7 @@ async function loadTheirList(uid, which){
     const out = []; s.forEach(d => { const v = d.data() || {}; if (!v.pending) out.push({uid:d.id, ...v}); });
     theirLists[k] = {busy:false, list:out};
   }catch(e){ theirLists[k] = {busy:false, list:[], err:true}; }
-  render();
+  softRender();
 }
 function theirListHTML(uid){
   const which = ui.theirList.which, k = uid + ':' + which, L = theirLists[k];
@@ -26418,7 +26731,10 @@ async function addShotsToPost(postId, files){
   }
   if (!added){ toast('Those photos didn’t upload. Try again.'); return; }
   touched();
-  try{ await FB.updateDoc(postRef(postId), {shots:have}); }catch(e){ try{ await FB.setDoc(postRef(postId), {...p, shots:have}); }catch(e2){} }
+  /* A merge, not a whole-document rewrite from this device's cached copy of
+     the post — that used to overwrite anything the server had that the cache
+     did not, such as an audience changed by a follow since the post went up. */
+  try{ await FB.setDoc(postRef(postId), {shots:have}, {merge:true}); }catch(e){}
   p.shots = have; render(); hydratePostPhotos();
   toast(added === 1 ? 'Photo added.' : added + ' photos added.');
 }
@@ -26807,7 +27123,7 @@ function searchKnownPeople(q){
   allFriends().forEach(add);
   followers.forEach(add);
   Object.values(personCache || {}).forEach(add);
-  for (const g of (state.groups || [])) for (const mem of (g.members || [])) add(mem);
+  for (const g of myGroups()) for (const mem of (g.members || [])) add(mem);
   for (const p of [...discover, ...feed]) add({uid:p.uid, name:p.name, av:p.av, handle:p.handle || ''});
   return [...m.values()].filter(p =>
     String(p.name || '').toLowerCase().includes(t) || String(p.handle || '').toLowerCase().includes(t)).slice(0, 12);
@@ -27307,7 +27623,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v272';
+const APP_VERSION = 'v273';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -27440,7 +27756,7 @@ async function loadFriends(){
     await checkAdmin(); if (isAdmin) loadInbox();
   }catch(e){ socialFailed = true; socialWhy = fbWhy(e); }
   friendsBusy = false;
-  render();
+  softRender();
   refreshPeople();
   shareWithNewFollowers();
 }
@@ -27465,7 +27781,7 @@ async function refreshPeople(){
     for (const uid of due) await loadPerson(uid, true);
   }catch(e){}
   peopleBusy = false;
-  render();
+  softRender();
 }
 
 /* ---------- the feed ---------- */
@@ -27797,7 +28113,7 @@ async function loadDiscover(){
     const snap = await FB.getDocs(q);
     const out = []; snap.forEach(d => out.push({id:d.id, ...(d.data() || {})}));
     discover = out; discoverWhy = '';
-    discoverBusy = false; render();
+    discoverBusy = false; softRender();
     await Promise.all(discover.slice(0, 12).map(p => loadPostBits(p.id)));
   }catch(e){
     /* the one query here that needs an index; Firebase puts the link to make
@@ -27865,7 +28181,13 @@ const groupRef  = c => FB.doc(fbDb, 'groups', c);
 const memberRef = (c, uid) => FB.doc(fbDb, 'groups', c, 'members', uid);
 const gPhotoRef = (c, pid) => FB.doc(fbDb, 'groups', c, 'photos', pid);
 
-function myGroups(){ return (state.groups || []).filter(g => g && g.code); }
+function myGroups(){
+  /* Array.isArray, not just a truthy check: a hand-edited or foreign backup can
+     put a string or an object here, and a string has .length so it walks past a
+     length test. Every renderer calls this, so one wrong shape white-screened the
+     whole app, and it is saved to localStorage, so it came back on reload too. */
+  return Array.isArray(state.groups) ? state.groups.filter(g => g && g.code) : [];
+}
 
 /* Detail sharing is decided per leaderboard: you might tell your walking club
    everything and give the work one only your totals. A board saved before this
@@ -29397,7 +29719,12 @@ document.addEventListener('click', async e => {
   }
   if (a === 'gxtab'){ ui.gTab = el.dataset.v; ui.gThread = null; render(); window.scrollTo({top:0});
     if (el.dataset.v === 'table' && ui.gView && !groupRows[ui.gView]) loadGroup(ui.gView); return; }
-  if (a === 'gxjoin'){ await gJoinPublic(el.dataset.v || code); return; }
+  if (a === 'gxjoin'){
+    if (!tapOnce('gxjoin')) return;
+    try{ await gJoinPublic(el.dataset.v || code); }
+    finally{ tapDone('gxjoin'); }
+    return;
+  }
   if (a === 'gxthread'){ ui.gThread = pid; ui.gAns = ''; render(); window.scrollTo({top:0}); loadReplies(code, pid); return; }
   if (a === 'gxtback'){ ui.gThread = null; ui.gAns = ''; render(); window.scrollTo({top:0}); return; }
   if (a === 'gxask'){ gAskSheet(el.dataset.v === 'hill'); return; }
@@ -29451,8 +29778,10 @@ document.addEventListener('click', async e => {
       const ph = d.hill ? BY_KEY[d.hill] : null;
       att = {t:'plan', pl:{hill: d.hill || '', hn: ph ? hillName(ph) : '', date: pd.date, time: pd.time || '', meet: (pd.meet || '').slice(0, 80)}};
     }
+    if (!tapOnce('gxsend')) return;
     try{ await gPost(ui.gView, d.kind, t, d.hill, att); }
     catch(err){ toast(fbWhy(err)); return; }
+    finally{ tapDone('gxsend'); }
     gSheetClose(); render(); window.scrollTo({top:0});
     toast(d.kind === 'ask'
       ? (k === 'private' ? 'Asked. The group can answer.' : 'Asked. Anyone on WayMark can answer.')
@@ -29462,7 +29791,10 @@ document.addEventListener('click', async e => {
   if (a === 'gxsendreply'){
     const box = document.getElementById('gxans'), t = ((box && box.value) || ui.gAns || '').trim();
     if (!t){ if (box) box.focus(); toast('Write something first.'); return; }
-    try{ await gReply(code, pid, t); }catch(err){ toast(fbWhy(err)); return; }
+    if (!tapOnce('gxsendreply')) return;
+    try{ await gReply(code, pid, t); }
+    catch(err){ toast(fbWhy(err)); return; }
+    finally{ tapDone('gxsendreply'); }
     ui.gAns = ''; if (box) box.value = '';
     render();
     toast(gKind(code) === 'private' ? 'Answered. Only the group sees it.' : 'Answered. Anyone on WayMark can see it.');
