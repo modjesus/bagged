@@ -5783,6 +5783,24 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .impoffer i{display:block; font:normal 13px/1.35 var(--font-ui); font-style:normal; color:var(--ink-3); margin-top:2px}
 .impcta{flex:none; align-self:center; font:700 13.5px var(--font-ui); color:var(--ground);
   background:var(--accent); border-radius:99px; padding:9px 14px; white-space:nowrap}
+
+/* the slim row on Home. 46px: a button's height, and two clear of the 44px a
+   finger needs. Anything shorter stops being tappable. */
+.imphome{display:flex; align-items:stretch; gap:0; height:46px; margin:0 0 9px;
+  border:1.5px solid var(--accent); border-radius:10px; overflow:hidden; background:var(--raise)}
+.imphomego{flex:1; min-width:0; display:flex; align-items:center; gap:9px; padding:0 4px 0 11px; cursor:pointer}
+.imphomego:focus-within{outline:2px solid var(--accent); outline-offset:-3px}
+.imphomego > svg{flex:none; color:var(--accent)}
+.imphometx{flex:1; min-width:0; font:600 13.5px var(--font-ui); color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.imphomecta{flex:none; font:700 12px var(--font-ui); color:var(--ground); background:var(--accent);
+  border-radius:7px; padding:6px 11px; white-space:nowrap}
+.imphomex{flex:none; width:38px; border:0; border-left:1px solid var(--line); background:none;
+  color:var(--ink-3); display:grid; place-items:center; cursor:pointer}
+.imphomex:hover{color:var(--ink)}
+.imphomex:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
+/* at 320 the sentence is what gives, never the tap target */
+@media (max-width:359px){ .imphometx{font-size:12.5px} .imphomecta{padding:6px 9px} }
 .impoffer.slim{margin:10px 0 0; padding:10px 12px}
 .impoffer.slim b{font-size:14px}
 .impoffer.slim i{display:none}
@@ -15551,7 +15569,7 @@ function renderHills(){
   const pct = s.done ? Math.max(1, Math.round(s.done/s.total*100)) : 0;
   const isW = id === 'wainwright';
 
-  let html = listBar();
+  let html = listBar() + impHomeRow();
   const pDone = Math.round(s.done / s.total * 100);
   const pProg = Math.round(s.progress / s.total * 100);
   const pPlan = Math.round(s.planned / s.total * 100);
@@ -18080,7 +18098,10 @@ function renderDiary(){
   /* Offered where somebody is already looking at the gaps in their own log,
      and only while there are gaps to fill: a walker with plenty of hills and
      hardly any pictures. Once the log has pictures it stops asking. */
-  if (!ui.diaryForm && impWorthOffering()) html += impOfferHTML();
+  /* Permanent here, by design. Home is where it shouts and then stops; the
+     journal is where it lives, so a walker who dismissed it on Home still
+     knows exactly where to find it. */
+  if (!ui.diaryForm) html += impOfferHTML();
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button>' +
     (stravaCfg() && !ui.diaryForm && stravaOn() ? '<button class="btn ghost" data-act="stopen">' + ti('download') + 'Bring in from Strava</button>' + stravaPowered() : '') +
@@ -22908,6 +22929,7 @@ document.addEventListener('click', async e => {
   else if (a === 'impclose') impClose();
   else if (a === 'impgrp') impToggle(el.dataset.v);
   else if (a === 'impgo') impGo();
+  else if (a === 'imphomehide') impRetire('');
   else if (a === 'impmark') impMark();
   else if (a === 'impopen'){ try{ closeSheetNow(); }catch(e){} const i = document.querySelector('#pn-photos [data-act="impfiles"]'); if (i) i.click(); }
   else if (a === 'bcshoptab'){
@@ -23884,8 +23906,8 @@ const SET_PANES = [
   {id:'notify', pane:'', title:'Notifications', icon:'bell',
    val: () => { try{ return pushOnHere() ? 'On this phone' : 'In the app only'; }
                 catch(e){ return 'In the app only'; } }},
-  {id:'photos', pane:'pn-photos', title:'Bring in photos', icon:'photo',
-   val: () => 'From before WayMark'},
+  {id:'photos', pane:'pn-photos', title:'Mark off hills from photos', icon:'photo',
+   val: () => 'Bring in older photos'},
   {id:'back',   pane:'pn-back',  title:'Backup', icon:'download',
    val: () => 'Copy or restore'},
   {id:'about',  pane:'pn-about', title:'About WayMark', icon:'info',
@@ -28017,7 +28039,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v281';
+const APP_VERSION = 'v282';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -33027,8 +33049,13 @@ async function impMark(){
     }
     touched();
   });
-  toast(keys.length + (keys.length === 1 ? ' hill marked off.' : ' hills marked off.'));
   impClose(); render();
+  /* Using it is the other way it leaves Home — and the happiest one, so the
+     count goes in front of where it went. */
+  const n = keys.length;
+  const said = n + (n === 1 ? ' hill marked off.' : ' hills marked off.');
+  if (impHomeOn()) impRetire(said);
+  else toast(said);
 }
 /* Only worth asking somebody who has walked more than they have photographed.
    A brand new log has nothing to match against, and a log already full of
@@ -33039,10 +33066,45 @@ function impWorthOffering(){
   const withPics = rs.filter(r => (r.photos || []).length).length;
   return withPics < rs.length / 2;
 }
+/* ---- the slim row on Home ----
+
+   THE RULE, and it is the whole design: this NEVER goes away by itself. Not
+   on a count of hills, not on a timer. A thing that vanishes on its own is
+   read as a bug, and the walker is left wondering what they did wrong.
+
+   It leaves Home only when the walker makes it leave — the X, or using it —
+   and at that moment it says where it has gone and offers Undo. It then
+   lives in the journal permanently, so nothing has to be hunted for. */
+const IMP_HOME_KEY = 'waymark.imphome';
+function impHomeOn(){
+  try{ return localStorage.getItem(IMP_HOME_KEY) !== '0'; }catch(e){ return true; }
+}
+function impHomeSet(on){
+  try{ localStorage.setItem(IMP_HOME_KEY, on ? '1' : '0'); }catch(e){}
+}
+/* 46px: the height of a button, and two clear of the 44px a finger needs. */
+function impHomeRow(){
+  if (!impHomeOn()) return '';
+  return '<div class="imphome">' +
+    '<label class="imphomego">' + ti('photo', 'width="19" height="19"') +
+      '<span class="imphometx">Mark off hills from your photos</span>' +
+      '<span class="imphomecta">Choose</span>' +
+      '<input type="file" accept="image/*" multiple data-act="impfiles" hidden></label>' +
+    '<button class="imphomex" data-act="imphomehide" aria-label="Move this to my journal">' +
+      ti('x', 'width="13" height="13"') + '</button></div>';
+}
+/* One place, so the X and a finished import say the same thing. */
+function impRetire(lead){
+  if (!impHomeOn()) return;
+  impHomeSet(false);
+  render();
+  toastAct((lead ? lead + ' ' : '') + 'Moved to your Journal. It lives there from now on.',
+    'Undo', () => { impHomeSet(true); render(); toast('Back on Home.'); });
+}
 /* the card that offers it, used in the journal and on a hill with no pictures */
 function impOfferHTML(where){
   return '<label class="impoffer' + (where === 'slim' ? ' slim' : '') + '">' + ti('photo') +
-    '<span><b>Got photos from before WayMark?</b>' +
+    '<span><b>Mark off hills from your photos</b>' +
     '<i>Pick them and we’ll work out which hills they were taken on — from the location saved in each one, or from the date and your own log.</i></span>' +
     '<span class="impcta">Choose photos</span>' +
     '<input type="file" accept="image/*" multiple data-act="impfiles" hidden></label>';
