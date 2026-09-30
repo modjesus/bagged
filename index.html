@@ -3193,6 +3193,15 @@ button.bstriprow{cursor:pointer}
 
    Visually hidden but still laid out and still hit-testable. Do not put
    `hidden`, `display:none` or `visibility:hidden` on a file input. */
+/* the on-screen photo log — only ever visible when switched on in Settings */
+#plogbox{position:fixed; left:6px; right:6px; bottom:calc(96px + env(safe-area-inset-bottom,0px));
+  z-index:3000; background:rgba(8,14,12,.94); color:#CFEDE2; border:1px solid #2A5A51;
+  border-radius:10px; padding:8px 10px; max-height:46vh; overflow:auto; pointer-events:auto}
+#plogbox b{display:flex; align-items:center; justify-content:space-between;
+  font:700 11px var(--font-data); letter-spacing:.08em; text-transform:uppercase; color:#8FD3BE; margin-bottom:6px}
+#plogbox button{background:#2A5A51; color:#CFEDE2; border:0; border-radius:5px; padding:3px 8px; font:600 11px var(--font-ui)}
+#plogbox pre{margin:0; font:500 10.5px/1.45 var(--font-data); white-space:pre-wrap; word-break:break-word}
+
 .filein{
   position:absolute; width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0;
@@ -7611,6 +7620,13 @@ html.kbopen .cvcompose{padding-bottom:8px}
       <p class="setnote">Two things worth knowing. Phones often strip the location when a photo is shared to a web page &mdash; the date usually survives, which is what your log is then checked against. And HEIC photos, the iPhone default, cannot be read in a browser at all, so neither the place nor the date comes through; most phones hand over a JPEG instead, but not always, and exporting as JPEG keeps both.</p>
     </div>
 
+    <div class="setpane" id="pn-plog" hidden>
+      <p class="setnote">Turn this on and WayMark writes every step of adding a photo to a panel on screen. Take a screenshot of it and send it over &mdash; a phone has no other way of showing what went wrong. Turn it off again when you are done.</p>
+      <div class="btnrow">
+        <button class="btn" data-act="plogtoggle">Turn the photo log on</button>
+      </div>
+    </div>
+
     <div class="setpane" id="pn-back" hidden>
       <p class="setnote">Your marks, dates, notes and routes as text you can keep somewhere safe. Photos are kept with the app and are not included.</p>
       <div class="btnrow">
@@ -8576,7 +8592,27 @@ function merge(a, b){
   for (const d of [...(a.diary||[]), ...(b.diary||[])]){
     if (!d || !d.id) continue;
     const cur = dm.get(d.id);
-    if (!cur || (d.t||0) > (cur.t||0)) dm.set(d.id, d);
+    if (!cur){ dm.set(d.id, d); continue; }
+    /* Newest edit wins for the WORDS — but not for the photographs.
+
+       A hill's photos have always been unioned here, with a comment
+       explaining why. A journal day's were not: the whole entry was replaced
+       wholesale, so photos added on the phone were thrown away by any newer
+       edit of the same day made anywhere else. The blobs stayed in storage
+       with nothing pointing at them, which is the worst kind of lost — the
+       picture is still on the device and the app says it never existed.
+
+       Union them, keyed by id, newest copy of each kept. */
+    const win = (d.t||0) > (cur.t||0) ? d : cur, lose = win === d ? cur : d;
+    const pm = new Map();
+    for (const ph of [...(lose.photos||[]), ...(win.photos||[])]){
+      if (!ph || !ph.id) continue;
+      const had = pm.get(ph.id);
+      if (!had || (ph.t||0) >= (had.t||0)) pm.set(ph.id, ph);
+    }
+    /* A day deleted on purpose still deletes: a tombstone keeps its own
+       emptiness rather than inheriting the other side's pictures. */
+    dm.set(d.id, win.deleted ? win : {...win, photos: [...pm.values()]});
   }
   out.diary = [...dm.values()];
   /* your own peaks, newest edit wins, tombstones respected — the same rule as
@@ -8631,26 +8667,78 @@ function merge(a, b){
 
 /* ---------- photo store ---------- */
 let dbP;
+/* THE PHOTO STORE. Every rule here was paid for.
+
+   The one that cost five releases: an IndexedDB request can settle in FOUR
+   ways — complete, error, ABORT, and blocked — and this code listened for
+   two. WebKit aborts transactions when a standalone app is suspended and
+   resumed, which is exactly what opening the photo picker does to the page.
+   An aborted transaction fired neither handler, so `await putBlob(...)` never
+   came back. Not an error — nothing. The loop stopped mid-photo, no toast, no
+   render, no trace.
+
+   It is the same hang that `deadline()` was written for a few hundred lines
+   below, in the image decoder. The lesson was never carried across to here.
+   A `.catch()` cannot catch a promise that never settles; only a clock can.
+
+   So: every path settles, and every path has a clock. */
+const IDB_MS = 15000;
+
 function db(){
   if (!dbP) dbP = new Promise((res, rej) => {
-    let r; try{ r = indexedDB.open('bagged-photos', 1); }catch(e){ return rej(e); }
+    let r, done = false;
+    const finish = (fn, v) => { if (done) return; done = true; fn(v); };
+    try{ r = indexedDB.open('bagged-photos', 1); }catch(e){ return rej(e); }
     r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('p')) r.result.createObjectStore('p'); };
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-  });
+    r.onsuccess = () => finish(res, r.result);
+    r.onerror   = () => finish(rej, r.error || new Error('idb open failed'));
+    /* Another tab holding an old version blocks the open indefinitely. */
+    r.onblocked = () => finish(rej, new Error('idb blocked'));
+    setTimeout(() => finish(rej, new Error('idb open timed out')), IDB_MS);
+  })
+  /* A rejected open must NOT be remembered. dbP lives in module scope, so a
+     single bad open used to poison every photo for the life of the page. */
+  .catch(e => { dbP = null; throw e; });
   return dbP;
 }
+
 function tx(mode, fn){
   return db().then(d => new Promise((res, rej) => {
-    const t = d.transaction('p', mode), st = t.objectStore('p');
-    let out; try{ out = fn(st); }catch(e){ return rej(e); }
-    t.oncomplete = () => res(out && out.result !== undefined ? out.result : out);
-    t.onerror = () => rej(t.error);
+    let done = false;
+    const ok = v => { if (!done){ done = true; res(v); } };
+    const no = e => { if (!done){ done = true; rej(e || new Error('idb failed')); } };
+    let t;
+    try{ t = d.transaction('p', mode); }catch(e){ return no(e); }
+    const st = t.objectStore('p');
+    let out; try{ out = fn(st); }catch(e){ return no(e); }
+    /* A get that finds nothing has `result === undefined`, and the old
+       expression then fell through and returned the IDBRequest OBJECT
+       instead. Truthy, not a Blob — so the sync read it as "this photo is
+       broken" and deleted it. Always unwrap a request. */
+    t.oncomplete = () => ok((out && typeof IDBRequest !== 'undefined' && out instanceof IDBRequest) ? out.result : out);
+    t.onerror    = () => no(t.error);
+    t.onabort    = () => no(t.error || new Error('idb aborted'));   /* the missing one */
+    setTimeout(() => no(new Error('idb timed out')), IDB_MS);
   }));
 }
-const putBlob = (k,v) => tx('readwrite', st => st.put(v,k)).catch(()=>null);
-const getBlob = k => tx('readonly', st => st.get(k)).catch(()=>null);
-const delBlob = k => tx('readwrite', st => st.delete(k)).catch(()=>null);
+
+/* putBlob answers true, or throws. It no longer swallows.
+   The old version returned null for a failure and callers had to guess. */
+async function putBlob(k, v){ await tx('readwrite', st => st.put(v, k)); return true; }
+async function delBlob(k){ try{ await tx('readwrite', st => st.delete(k)); return true; }catch(e){ return false; } }
+
+/* getBlob HAS TO TELL "not there" APART FROM "could not read it".
+
+   It used to answer null for both, and the sync reads null as "the picture is
+   gone" and strips the photo from the log — permanently. So one transient
+   read failure on a phone that had just woken up silently deleted a photo the
+   walker had only just added. That is data loss, not a missing message.
+
+   `undefined` = not in the store. A throw = could not read. Callers that only
+   want the bytes use getBlob(); callers that are about to DELETE something
+   must use getBlobStrict() and treat a throw as "leave it alone". */
+async function getBlobStrict(k){ return await tx('readonly', st => st.get(k)); }
+const getBlob = k => getBlobStrict(k).catch(() => null);
 
 /* A picked file is an image if the browser says so — or if its name says so
    and the browser has no opinion. Files handed over from iCloud and from some
@@ -8842,7 +8930,10 @@ async function pullProf(){
 }
 /* a banner: wide, not tall, small enough to ride in the card */
 async function makeBanner(file){
-  const bmp = await createImageBitmap(file, {imageOrientation:'from-image'}).catch(() => createImageBitmap(file));
+  /* On the same clock as every other read of a picked file. */
+  const bmp = await deadline(
+    createImageBitmap(file, {imageOrientation:'from-image'}).catch(() => createImageBitmap(file)),
+    PHOTO_GIVEUP_MS, 'icloud');
   const tryAt = (maxW, q) => {
     const sc = Math.min(1, maxW / bmp.width);
     const w = Math.max(1, Math.round(bmp.width * sc)), h = Math.max(1, Math.round(bmp.height * sc));
@@ -9016,6 +9107,7 @@ function avClose(){
 }
 
 async function addPhotos(key, files, quiet){
+  photoLog('addPhotos called', {n: files && files.length});
   /* quiet: the importer files onto several hills in a row, and one toast and
      one repaint per hill is a flicker of seven toasts. It counts and reports
      once itself. */
@@ -9040,12 +9132,11 @@ async function addPhotos(key, files, quiet){
         if (!quiet) toast('Waiting for iCloud to send this photo…' + where);
       }, stalled.length > 0);
       const id = uid();
-      const ok = await putBlob(id, blob);
+      await putBlob(id, blob);
       /* putBlob swallows its own errors and answers null. A photo whose bytes
          never reached IndexedDB used to be added to the record anyway, so the
          hill showed a picture slot that could never load — which is what "it
          just does not upload them" looks like from the outside. */
-      if (ok === null && !(await getBlob(id))) { const se = new Error('storage'); se.full = true; throw se; }
       const r = rec(key);
       state.bagged[key] = {...r, photos:[...r.photos, {id, up:0}], t:now()};
       added++;
@@ -9058,7 +9149,11 @@ async function addPhotos(key, files, quiet){
          its own pile and its own sentence. The loop carries on either way:
          one photo stuck in iCloud must never hold up the five good ones
          chosen with it. */
-      const pile = (e && e.slow) ? stalled : (e && e.full) ? full : bad;
+      /* A storage refusal reads as "no room": that is what a quota or an
+         aborted write means to a walker, and it is the only one of these
+         they can act on. */
+      const isStore = e && (e.full || /idb|quota|storage/i.test(String(e.name || '') + ' ' + String(e.message || '')));
+      const pile = (e && e.slow) ? stalled : isStore ? full : bad;
       pile.push((f && f.name) || 'a photo');
       /* but there is no point trying five more when there is room for none */
       if (e && e.full){ for (let j = i + 1; j < list.length; j++) full.push((list[j] && list[j].name) || 'a photo'); break; }
@@ -9167,14 +9262,16 @@ async function addDiaryPhotos(id, files){
       const blob = await shrink(f, () => toast('Waiting for iCloud to send this photo…' + where), stalled.length > 0);
       if (!blob){ bad.push((f && f.name) || 'a photo'); continue; }
       const pid = uid();
-      const ok = await putBlob(pid, blob);
-      if (ok === null && !(await getBlob(pid))) { const se = new Error('storage'); se.full = true; throw se; }
+      await putBlob(pid, blob);
       const cur = diaryEntry(id); if (!cur) return added;
       cur.photos = [...(cur.photos || []), {id:pid, up:0, cap:'', k:''}];
       fresh.push(pid);
       added++;
       setDiary(id, {});
-    }catch(err){ ((err && err.slow) ? stalled : (err && err.full) ? full : bad).push((f && f.name) || 'a photo'); }
+    }catch(err){
+      const isStore = err && (err.full || /idb|quota|storage/i.test(String(err.name || '') + ' ' + String(err.message || '')));
+      ((err && err.slow) ? stalled : isStore ? full : bad).push((f && f.name) || 'a photo');
+    }
     await new Promise(r => setTimeout(r, 0));
   }
   if (added){
@@ -9274,7 +9371,7 @@ async function photoSrc(p){
   let b = await getBlob(p.id);
   if (!(b instanceof Blob) && p.up){
     if (fbUser) b = await fbGetPhoto(p.id);
-    if (b instanceof Blob) await putBlob(p.id, b);
+    if (b instanceof Blob){ try{ await putBlob(p.id, b); }catch(e){} }
   }
   if (b instanceof Blob){ const u = URL.createObjectURL(b); blobUrls.set(p.id, u); return u; }
   return '';
@@ -14268,8 +14365,7 @@ function dogCropCover(src){
       try{
         const blob = await (await fetch(pic)).blob();
         const id = uid();
-        const ok = await putBlob(id, blob);
-        if (ok === null && !(await getBlob(id))) { const se = new Error('storage'); se.full = true; throw se; }
+        await putBlob(id, blob);
         ui.dogDraft.cov = {id, up:0}; ui.dogDraft.cfy = 50;
         dogKeepPic({cov:{id, up:0}, cfy:50});
         paintDogEdit();
@@ -14319,8 +14415,7 @@ async function dogPhotoFrom(file){
 async function dogCoverFrom(file){
   const blob = await shrink(file);
   const id = uid();
-  const ok = await putBlob(id, blob);
-  if (ok === null && !(await getBlob(id))) { const se = new Error('storage'); se.full = true; throw se; }
+  await putBlob(id, blob);
   return {id, up:0};
 }
 function saveDog(){
@@ -15481,7 +15576,138 @@ function ensureScreenHeading(){
   h.textContent = screenName();
   m.insertBefore(h, m.firstChild);
 }
+/* ---------- WHY THE PHOTO PICKER LOST ITS PHOTOS ----------
+
+   On iOS, opening the photo picker makes the page HIDDEN. Closing it makes
+   it visible again — and the app listens for that and runs a sync 800ms
+   later, which re-renders the screen.
+
+   A re-render replaces the markup, and the file input the walker just used
+   goes with it. iOS then delivers the chosen photos to an element that is no
+   longer part of the page. The change event fires into nothing: the handler
+   is delegated on `document`, and a detached element has no path to it.
+
+   No event, no code, no photo, no error, no message. The screen simply sits
+   there — which is exactly what Joe's recording showed, and why four fixes
+   further down the pipeline all appeared to do nothing. None of that code
+   was ever reached.
+
+   So: while a picker is open, nothing re-renders. The flag is cleared when
+   the files arrive, and on a timer in case the walker cancels — a stuck flag
+   must never freeze the app. */
+let pickerOpen = 0, pickerTimer = null, renderWanted = 0, pickerSeen = 0;
+
+/* THE TWO THINGS THE FIRST VERSION OF THIS GUARD GOT WRONG.
+
+   1. iOS sends NO event when the walker cancels the picker. `pickerEnd` was
+      only ever called from the change handler, so a cancel left the flag set
+      and every render was swallowed for two minutes. Tap the photo button,
+      change your mind, and the app looks dead. A guard that can freeze the
+      app is worse than the bug it guards against.
+
+      So the flag is released by the page becoming visible again with no
+      files having arrived — which is exactly what a cancel looks like — and
+      the wait is short.
+
+   2. The window expired while the picker was still open. Browse a big
+      library for longer than the timeout and the guard lapsed mid-pick,
+      putting the original bug straight back, intermittently. The clock now
+      only runs once the app is back in the foreground; time spent inside the
+      picker does not count against it. */
+const PICK_GRACE_MS = 4000;      /* after returning, before giving up on files */
+const PICK_CEILING_MS = 600000;  /* an absolute backstop, ten minutes */
+
+function pickerBusy(){
+  if (!pickerOpen) return false;
+  /* Hard ceiling, so nothing can wedge for ever. */
+  if (Date.now() - pickerOpen > PICK_CEILING_MS){ pickerOpen = 0; return false; }
+  /* While the page is hidden the picker is up: hold, however long it takes. */
+  if (document.visibilityState !== 'visible') return true;
+  /* Back in the foreground: hold only for the grace period, which is the
+     window in which iOS may still deliver the files. */
+  return !pickerSeen || (Date.now() - pickerSeen) < PICK_GRACE_MS;
+}
+function pickerStart(){
+  pickerOpen = Date.now(); pickerSeen = 0;
+  photoLog('picker opened');
+  clearTimeout(pickerTimer);
+  pickerTimer = setTimeout(() => pickerEnd('gave up waiting'), PICK_CEILING_MS);
+}
+function pickerEnd(why){
+  if (!pickerOpen) return;
+  pickerOpen = 0; clearTimeout(pickerTimer);
+  photoLog('picker closed (' + (why || 'files arrived') + ')');
+  /* NOT synchronously. This runs inside the change event, before the photo
+     handlers further down have had their turn — rendering here would pull
+     the input out of the page mid-event and hand them a detached element,
+     which is the very bug this whole guard exists to prevent. Let the event
+     finish first. */
+  if (renderWanted){
+    const n = renderWanted; renderWanted = 0;
+    setTimeout(() => { photoLog('running the ' + n + ' render(s) held back'); render(); }, 0);
+  }
+}
+/* Any tap on a label holding a file input means a picker is about to open. */
+document.addEventListener('click', e => {
+  const t = e.target;
+  /* The input itself first — #cvphoto and #gxfile sit in neither a label nor
+     anything carrying data-act, and are opened by .click() from code. The
+     old version bailed out before it ever reached this test, so those two
+     had no guard at all. */
+  if (t && t.tagName === 'INPUT' && t.type === 'file'){ pickerStart(); return; }
+  const w = t && t.closest && t.closest('label, [data-act]');
+  if (w && w.querySelector && w.querySelector('input[type=file]')) pickerStart();
+}, true);
+/* Coming back into view is both the moment of danger and the only signal
+   iOS gives that the picker has closed — whether files were chosen or not. */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !pickerOpen) return;
+  pickerSeen = Date.now();
+  photoLog('app visible again — waiting ' + PICK_GRACE_MS + 'ms for files');
+  /* If nothing arrives in the grace period the walker cancelled, or iOS lost
+     them. Either way: release, and never leave the app frozen. */
+  clearTimeout(pickerTimer);
+  pickerTimer = setTimeout(() => {
+    if (pickerOpen) pickerEnd('no files — cancelled, or iOS sent nothing');
+  }, PICK_GRACE_MS);
+});
+
+/* ---------- the on-screen log ----------
+   A phone has no console. Turn this on in Settings and every step of adding
+   a photo is written to a panel on screen that can be screenshotted. It
+   costs nothing when it is off. */
+const PLOG_KEY = 'waymark.photolog';
+const plogOn = () => { try{ return localStorage.getItem(PLOG_KEY) === '1'; }catch(e){ return false; } };
+let plog = [];
+function photoLog(what, extra){
+  if (!plogOn()) return;
+  const t = new Date();
+  plog.push(String(t.getMinutes()).padStart(2,'0') + ':' + String(t.getSeconds()).padStart(2,'0') +
+            '.' + String(t.getMilliseconds()).padStart(3,'0') + '  ' + what +
+            (extra ? '  ' + (typeof extra === 'string' ? extra : JSON.stringify(extra)) : ''));
+  plog = plog.slice(-60);
+  try{ sessionStorage.setItem('waymark.plog', JSON.stringify(plog)); }catch(e){}
+  paintPhotoLog();
+}
+function paintPhotoLog(){
+  let el = document.getElementById('plogbox');
+  if (!plogOn()){ if (el) el.remove(); return; }
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'plogbox';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '<b>Photo log <button id="plogx">clear</button></b><pre></pre>';
+  el.querySelector('pre').textContent = plog.join('\n');
+  const x = el.querySelector('#plogx');
+  if (x) x.onclick = () => { plog = []; try{ sessionStorage.removeItem('waymark.plog'); }catch(e){} paintPhotoLog(); };
+}
+try{ plog = JSON.parse(sessionStorage.getItem('waymark.plog') || '[]'); }catch(e){ plog = []; }
+
 function render(){
+  /* A render while the photo picker is open throws away the very input the
+     walker is using. Hold it. */
+  if (pickerBusy()){ renderWanted++; photoLog('render held back — picker is open'); return; }
   if (!viewRestored) restoreView();
   if (FB && fbUser && !notesUnsub && !notesFailed) watchNotes();
   if (FB && fbUser && !chatsUnsub && !chatsFailed) watchChats();
@@ -21700,23 +21926,13 @@ function wire(){
   }
   const bfy = document.querySelector('[data-act="bfy"]');
   if (bfy) bfy.oninput = e => { const d = profDraft(); if (!d) return; d.bfy = +e.target.value; const img = document.querySelector('.pbanner img'); if (img) img.style.objectPosition = '50% ' + d.bfy + '%'; };
-  const mf = document.querySelector('[data-act="momentphoto"]');
-  if (mf) mf.onchange = async e => {
-    const d = ui.pDraft; if (!d) return;
-    for (const f of [...(e.target.files || [])].slice(0, 6 - (d.shots || []).length)){
-      if (!/^image\//.test(f.type)) continue;
-      try{ const blob = await shrink(f); d.shots = d.shots || []; d.shots.push({id:'ph' + uid(), blob, url:URL.createObjectURL(blob)}); }catch(err){}
-    }
-    render();
-  };
+  /* momentphoto and bannerfile used to be bound here by hand — the only two
+     file inputs not in the dispatcher. That meant no delegated safety net if
+     a repaint recreated them without wire() running, and querySelector takes
+     only the FIRST match so a second copy was dead. Both are in the
+     dispatcher now; see 'momentphoto' and 'bannerfile' there. */
   const rq2 = document.getElementById('recq');
   if (rq2) rq2.oninput = e => { if (!ui.pDraft) return; ui.pDraft.recq = e.target.value; const box = document.getElementById('recres'); if (box) box.innerHTML = recResults(e.target.value); };
-  const bf = document.querySelector('[data-act="bannerfile"]');
-  if (bf) bf.onchange = async e => {
-    const f = e.target.files && e.target.files[0]; if (!f || !/^image\//.test(f.type)){ toast('Choose a photo.'); return; }
-    const d = profDraft(); if (!d) return;
-    try{ d.banner = await makeBanner(f); d.bfy = 50; render(); }catch(err){ toast('Could not read that photo.'); }
-  };
   /* Mark a mountain: results repaint on their own, the field stays put */
   const mqi = document.getElementById('mq');
   if (mqi) mqi.oninput = e => {
@@ -22966,6 +23182,16 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'impclose') impClose();
   else if (a === 'impgrp') impToggle(el.dataset.v);
+  else if (a === 'plogtoggle'){
+    const on = !plogOn();
+    try{ localStorage.setItem(PLOG_KEY, on ? '1' : '0'); }catch(e){}
+    if (!on){ plog = []; try{ sessionStorage.removeItem('waymark.plog'); }catch(e){} }
+    else photoLog('photo log on', {version: APP_VERSION, standalone: !!(window.navigator.standalone || matchMedia('(display-mode: standalone)').matches)});
+    paintPhotoLog();
+    const b2 = document.querySelector('[data-act="plogtoggle"]');
+    if (b2) b2.textContent = on ? 'Turn the photo log off' : 'Turn the photo log on';
+    toast(on ? 'Photo log on. Try adding a photo, then screenshot the panel.' : 'Photo log off.');
+  }
   else if (a === 'impgo') impGo();
   else if (a === 'imphomehide') impRetire('');
   else if (a === 'impmark') impMark();
@@ -23342,6 +23568,24 @@ document.addEventListener('input', e => {
   else { d.cfy = +el.value;
     const im = document.querySelector('.dogcovprev img'); if (im) im.style.objectPosition = '50% ' + d.cfy + '%'; }
 });
+/* The very first thing that happens when a picker hands anything back.
+   Logged before any handler runs, and BEFORE the closest() below — because
+   if this line never appears in the log, the event never reached the page at
+   all, and everything downstream is beside the point. */
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t && t.tagName === 'INPUT' && t.type === 'file'){
+    const fs = t.files ? [...t.files] : [];
+    photoLog('FILES ARRIVED', {
+      act: (t.dataset && (t.dataset.act || t.dataset.c)) || t.id || '?',
+      inPage: document.contains(t),
+      n: fs.length,
+      files: fs.slice(0, 6).map(f => (f.name || '?') + ' ' + Math.round((f.size || 0) / 1024) + 'kB')
+    });
+    pickerEnd();
+  }
+}, true);
+
 document.addEventListener('change', e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
@@ -23359,6 +23603,7 @@ document.addEventListener('change', e => {
   else if (a === 'pfield' && ui.draft){ ui.draft[el.dataset.f] = el.value; }
   else if (a === 'dfield' && ui.dDraft){ ui.dDraft[el.dataset.f] = el.value; }
   else if (a === 'postfield' && ui.pDraft){ ui.pDraft[el.dataset.f] = el.value; }
+  else if (a === 'avatarin' && el.files && !el.files.length){ el.value = ''; toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
   else if (a === 'avatarin' && el.files && el.files.length){
     const f = el.files[0]; el.value = '';
     /* straight into the cropper rather than saving a blind centre crop */
@@ -23366,11 +23611,13 @@ document.addEventListener('change', e => {
     const job = avJob;
     (job ? openCropper(url, job) : openAvatarEditor(url)).then(() => setTimeout(() => URL.revokeObjectURL(url), 4000));
   }
+  else if (a === 'dogphoto' && el.files && !el.files.length){ el.value = ''; toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
   else if (a === 'dogphoto' && el.files && el.files.length){
     const f = el.files[0]; el.value = '';
     if (!ui.dogDraft) return;
     dogCropFace(URL.createObjectURL(f));
   }
+  else if (a === 'dogcover' && el.files && !el.files.length){ el.value = ''; toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
   else if (a === 'dogcover' && el.files && el.files.length){
     const f = el.files[0]; el.value = '';
     if (!ui.dogDraft) return;
@@ -23385,6 +23632,46 @@ document.addEventListener('change', e => {
     if (!files.length){ toast('No photos came through. If they are in iCloud, open them in Photos first.'); return; }
     toast(files.length > 1 ? 'Adding ' + files.length + ' photos…' : 'Adding photo…');
     addPhotos(el.dataset.k, files);
+  }
+  else if (a === 'momentphoto'){
+    const files = el.files ? [...el.files] : []; el.value = '';
+    const d = ui.pDraft;
+    if (!d){ toast('That post is no longer open.'); return; }
+    if (!files.length){ toast('No photos came through. If they are in iCloud, open them in Photos first.'); return; }
+    (async () => {
+      let added = 0; const bad = [], stalled = [], full = [];
+      for (const f of files.slice(0, 6 - (d.shots || []).length)){
+        if (f && f.size === 0){ stalled.push(f.name || 'a photo'); continue; }
+        if (!looksLikeImage(f)){ bad.push((f && f.name) || 'a file'); continue; }
+        try{
+          const blob = await shrink(f, () => toast('Waiting for iCloud to send this photo…'), stalled.length > 0);
+          d.shots = d.shots || [];
+          d.shots.push({id:'ph' + uid(), blob, url:URL.createObjectURL(blob)});
+          added++;
+        }catch(err){
+          const isStore = err && (err.full || /idb|quota|storage/i.test(String(err.name || '') + ' ' + String(err.message || '')));
+          ((err && err.slow) ? stalled : isStore ? full : bad).push((f && f.name) || 'a photo');
+        }
+      }
+      render();
+      /* This loop used to end in `catch(err){}` — every failure vanished and
+         the walker was left looking at a post with no photos on it. */
+      if (bad.length || stalled.length || full.length || !added) photoReport(added, bad, stalled, full);
+    })();
+  }
+  else if (a === 'bannerfile'){
+    const f = el.files && el.files[0]; el.value = '';
+    if (!f){ toast('No photo came through. If it is in iCloud, open it in Photos first.'); return; }
+    if (f.size === 0){ photoReport(0, [], [f.name || 'a photo'], []); return; }
+    if (!looksLikeImage(f)){ toast('Choose a photo.'); return; }
+    const d = profDraft(); if (!d){ toast('Open your profile first.'); return; }
+    (async () => {
+      try{ d.banner = await makeBanner(f); d.bfy = 50; render(); }
+      catch(err){
+        if (err && err.slow) photoReport(0, [], [f.name || 'a photo'], []);
+        else toast('Could not read that photo.');
+      }
+    })();
   }
   else if (a === 'impfiles'){
     /* Never require files.length before doing ANYTHING — that was the silent
@@ -23422,6 +23709,7 @@ document.addEventListener('change', e => {
     }
     toast('Processing…'); addDiaryPhotos(e.id, files);
   }
+  else if (a === 'gpxnew' && el.files && !el.files.length){ el.value = ''; toast('No file came through.'); }
   else if (a === 'gpxnew' && el.files && el.files.length){
     /* Import with nothing selected: make the route from the file itself, so a
        walker can start from a GPX rather than having to build a shell first. */
@@ -23451,6 +23739,7 @@ document.addEventListener('change', e => {
       setTimeout(() => offerRouteSheet(planById(id)), 900);
     }).catch(() => toast('Could not read that file.'));
   }
+  else if (a === 'stgpx' && el.files && !el.files.length){ el.value = ''; toast('No file came through.'); }
   else if (a === 'stgpx' && el.files && el.files.length){
     const f = el.files[0], e = diaryEntry(el.dataset.id); el.value = '';
     if (!e || !e.strava) return;
@@ -23469,6 +23758,7 @@ document.addEventListener('change', e => {
       toast('Route added. Share the day and followers will see it.');
     }).catch(() => toast('Could not read that file.'));
   }
+  else if (a === 'gpxin' && el.files && !el.files.length){ el.value = ''; toast('No file came through.'); }
   else if (a === 'gpxin' && el.files && el.files.length){
     const f = el.files[0], id = el.dataset.id;
     el.value = '';
@@ -23951,6 +24241,8 @@ const SET_PANES = [
                 catch(e){ return 'In the app only'; } }},
   {id:'photos', pane:'pn-photos', title:'Mark off hills from photos', icon:'photo',
    val: () => 'Bring in older photos'},
+  {id:'plog',   pane:'pn-plog',   title:'Photo log', icon:'info',
+   val: () => plogOn() ? 'On' : 'Off'},
   {id:'back',   pane:'pn-back',  title:'Backup', icon:'download',
    val: () => 'Copy or restore'},
   {id:'about',  pane:'pn-about', title:'About WayMark', icon:'info',
@@ -24442,7 +24734,17 @@ let fbSyncing = false;
 var syncFails = 0;
 /* back online, or back to the app: catch up straight away */
 addEventListener('online', () => { if (FB && fbUser) setTimeout(() => fbSync(), 800); });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && FB && fbUser && syncState !== 'synced') setTimeout(() => fbSync(), 800); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !FB || !fbUser || syncState === 'synced') return;
+  /* THE ONE THAT BROKE PHOTOS. Coming back from the photo picker looks
+     exactly like coming back from anywhere else, and this sync re-rendered
+     the screen out from under the input holding the walker's chosen photos.
+     Wait until the picker has actually finished. */
+  setTimeout(function go(){
+    if (pickerBusy()){ setTimeout(go, 600); return; }
+    fbSync();
+  }, 800);
+});
 
 /* ---------- the night-before reminder, for routes you planned alone ----------
    The push helper sends a reminder at 5pm for walks happening tomorrow. It
@@ -24941,12 +25243,22 @@ async function fbSync(initial){
     for (const g of (state.dogs || [])) if (g && g.cov && !g.cov.up) pending.push(g.cov);
     const lost = new Set();
     for (const p of pending.slice(0, 4)){
-      const blob = await getBlob(p.id);
-      /* A photo that has never been uploaded lives in this browser's IndexedDB
-         and nowhere else, so if the blob has gone the picture is gone with it.
-         This used to set up = 1, which says "it is in the cloud" — the record
-         then survived forever as a blank tile in the log and, worse, got
-         offered to leaderboards where friends saw the same blank. Drop it. */
+      /* THE DIFFERENCE BETWEEN "GONE" AND "COULD NOT READ IT" IS A PHOTO.
+
+         This deletes the walker's picture from their log, permanently. The
+         old code called getBlob, which answered null for BOTH "not in the
+         store" and "the read failed" — so one transient IndexedDB failure on
+         a phone that had just woken up silently destroyed a photo they had
+         added minutes earlier. A read failure is not evidence of anything.
+         Leave it alone and look again next time. */
+      let blob;
+      try{ blob = await getBlobStrict(p.id); }
+      catch(err){ photoLog('could not read a photo, leaving it alone', {id: p.id}); continue; }
+      /* undefined means it genuinely is not there. THAT is worth acting on:
+         a photo that never uploaded lives here and nowhere else, so if the
+         bytes have gone the picture has gone with it, and a record pointing
+         at nothing shows as a blank tile in the log and on leaderboards. */
+      if (blob === undefined){ lost.add(p.id); continue; }
       if (!(blob instanceof Blob)){ lost.add(p.id); continue; }
       try{ await fbPutPhoto(p.id, blob); p.up = 1; }
       catch(e){ /* leave for next pass */ }
@@ -27166,6 +27478,9 @@ async function addShotsToPost(postId, files){
     try{
       const blob = await shrink(f, () => toast('Waiting for iCloud to send this photo…' + where), stalled.length > 0);
       const pid = uid();
+      /* Checked here too. addPhotos has always verified this; this path
+         never did, so a failed write added a photo slot that could never
+         load — to the post AND to the log. */
       await putBlob(pid, blob);
       if (key){ const r = rec(key); state.bagged[key] = {...r, photos:[...r.photos, {id:pid, up:0}], t:now()}; }
       const b64 = await blobToB64(blob);
@@ -28082,7 +28397,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v284';
+const APP_VERSION = 'v286';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -29068,7 +29383,7 @@ async function friendPhoto(code, pid){
     if (!d || !d.d) return null;
     const bytes = Uint8Array.from(atob(d.d), c => c.charCodeAt(0));
     const blob = new Blob([bytes], {type:'image/jpeg'});
-    await putBlob(cacheKey, blob);
+    try{ await putBlob(cacheKey, blob); }catch(e){}
     return blob;
   }catch(e){ return null; }
 }
@@ -29896,8 +30211,8 @@ async function keepTagOffer(oid){
   try{ blob = new Blob([Uint8Array.from(atob(d.d), c => c.charCodeAt(0))], {type:'image/jpeg'}); }catch(e){}
   if (!blob){ toast('That photo would not open.'); return; }
   const id = uid();
-  const okB = await putBlob(id, blob);
-  if (okB === null && !(await getBlob(id))){ toast('No room to save it. Free some space and try again.'); return; }
+  try{ await putBlob(id, blob); }
+  catch(e){ toast('No room to save it. Free some space and try again.'); return; }
   const from = firstName(d.name) || 'a walker';
   const shot = {id, up:0, cap: d.cap || '', by: from};
   if (d.hill && isBagged(d.hill)){
@@ -32895,6 +33210,7 @@ function impClose(){
    read in a tight loop locks the phone up and looks like a crash; this keeps
    the progress bar moving and the sheet closable throughout. */
 async function impStart(files){
+  photoLog('impStart called', {n: files && files.length});
   const all = [...files];
   const empty = all.filter(f => f && f.size === 0);
   const list = all.filter(f => f && f.size > 0).filter(looksLikeImage);
