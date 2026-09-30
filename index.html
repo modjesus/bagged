@@ -5786,7 +5786,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 
 /* the slim row on Home. 46px: a button's height, and two clear of the 44px a
    finger needs. Anything shorter stops being tappable. */
-.imphome{display:flex; align-items:stretch; gap:0; height:46px; margin:0 0 9px;
+.imphome{display:flex; align-items:stretch; gap:0; height:46px; margin:10px 0 9px;
   border:1.5px solid var(--accent); border-radius:10px; overflow:hidden; background:var(--raise)}
 .imphomego{flex:1; min-width:0; display:flex; align-items:center; gap:9px; padding:0 4px 0 11px; cursor:pointer}
 .imphomego:focus-within{outline:2px solid var(--accent); outline-offset:-3px}
@@ -28039,7 +28039,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v282';
+const APP_VERSION = 'v283';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -32281,9 +32281,21 @@ function camThumbs(){
 /* ---- where you are, and which moment it is ---- */
 /* Where and when a photo from the library was taken, read from its EXIF.
    JPEG only (what phones hand a web page); anything else answers null. */
+/* THE SAME BUG AS THE HILL PHOTOS, IN A DIFFERENT FUNCTION.
+
+   Reading a file's first 256KB to find its EXIF is still a read, and on a
+   photo whose bytes are in iCloud that read stalls exactly the way decoding
+   does — for ever, without failing. The `.catch()` below cannot catch a
+   promise that never settles.
+
+   This is the importer, which is now the prominent way in on Home, so a
+   silent hang here is the worst possible place for one. A file that will not
+   give up 256KB in 10 seconds is not going to give up the rest either, so
+   this gives up quickly and says which. */
 async function photoMeta(file){
   try{
-    const buf = await file.slice(0, 256 * 1024).arrayBuffer(), v = new DataView(buf);
+    const buf = await deadline(file.slice(0, 256 * 1024).arrayBuffer(), 10000, 'icloud');
+    const v = new DataView(buf);
     if (v.getUint16(0) !== 0xFFD8) return null;
     let o = 2;
     while (o + 4 < v.byteLength){
@@ -32292,7 +32304,7 @@ async function photoMeta(file){
       if ((m & 0xFF00) !== 0xFF00) break;
       o += 2 + len;
     }
-  }catch(e){}
+  }catch(e){ if (e && e.slow) throw e; }
   return null;
 }
 function exifRead(v, t){
@@ -32840,13 +32852,35 @@ function impClose(){
    read in a tight loop locks the phone up and looks like a crash; this keeps
    the progress bar moving and the sheet closable throughout. */
 async function impStart(files){
-  const list = [...files].filter(looksLikeImage);
-  if (!list.length){ toast('No photos WayMark can open in that lot.'); return; }
-  imp = {stage:'read', total:list.length, read:0, rows:[], urls:[], where:'', heic:0};
+  const all = [...files];
+  const empty = all.filter(f => f && f.size === 0);
+  const list = all.filter(f => f && f.size > 0).filter(looksLikeImage);
+  if (!list.length){
+    /* Never just sit there. Say which of the two it was. */
+    if (empty.length) photoReport(0, [], empty.map(f => f.name || 'a photo'), []);
+    else toast('No photos WayMark can open in that lot.');
+    return;
+  }
+  imp = {stage:'read', total:list.length, read:0, rows:[], urls:[], where:'', heic:0,
+         stalled: empty.map(f => f.name || 'a photo')};
   impPaint(); impEl().classList.add('open');
   for (const f of list){
-    const meta = (await photoMeta(f).catch(() => null)) || {};
+    let meta = {}, stalledHere = false;
+    try{ meta = (await photoMeta(f)) || {}; }
+    catch(e){
+      if (e && e.slow){ stalledHere = true; imp.stalled.push(f.name || 'a photo'); }
+    }
     if (!imp) return;                                  /* closed while reading */
+    /* A photo whose bytes will not come out of iCloud cannot be imported at
+       all, so it is left out of the pile rather than shown as a row that can
+       never work. It is counted and named at the end. */
+    if (stalledHere){
+      imp.read++;
+      if (imp.read % 3 === 0 || imp.read === list.length) impPaint();
+      await new Promise(r => setTimeout(r, 0));
+      if (!imp) return;
+      continue;
+    }
     /* Only the date written INTO the photo can place it. A file's
        "last modified" is usually the day it was exported or downloaded, so it
        is fine for sorting the pile and useless as evidence. */
@@ -32869,7 +32903,18 @@ async function impStart(files){
     await new Promise(r => setTimeout(r, 0));
     if (!imp) return;
   }
+  /* Everything stalled: there is nothing to pick from, so do not leave an
+     empty sheet open looking broken. Close it and say why. */
+  if (!imp.rows.length){
+    const stuck = imp.stalled.slice();
+    impClose();
+    photoReport(0, [], stuck, []);
+    return;
+  }
   imp.stage = 'pick'; impPaint();
+  /* Some got through, some did not — say so now rather than at the end, so
+     the walker is not left wondering why forty photos became thirty-one. */
+  if (imp.stalled.length) photoReport(0, [], imp.stalled, []);
 }
 /* One group per hill PER DAY: two trips up Catbells four years apart are two
    different days out and should be two rows, not one pile of forty. */
@@ -33029,12 +33074,16 @@ async function impGo(){
       fresh.push({k, date: d ? impYmd(d) : ''});
     }
   }
-  let filed = 0;
+  let filed = 0, asked = 0;
   for (const [k, rows] of jobs){
+    asked += rows.length;
     const n = await addPhotos(k, rows.map(r => r.f), true);
     if (!imp) return;
     filed += (+n || 0); imp.doneN += rows.length; impPaint();
   }
+  /* addPhotos is called quietly here so it does not toast once per hill, but
+     quiet must not mean secret: if nothing landed, say so. */
+  if (asked && !filed) toastAct('None of those photos could be saved.', 'What to do', iCloudHelp);
   imp.stage = 'done'; imp.filed = filed; imp.fresh = fresh;
   saveLocal(); render(); impPaint();
 }
