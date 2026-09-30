@@ -3161,7 +3161,45 @@ button.bstriprow{cursor:pointer}
 .sw[aria-pressed="true"]{background:var(--done); border-color:var(--done)}
 .sw[aria-pressed="true"]::after{transform:translateX(19px)}
 
-.toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px); background:var(--ink); color:var(--ground); padding:10px 16px; border-radius:99px; font-size:14px; z-index:2200; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; box-shadow:var(--shadow); max-width:90vw; text-align:center}
+/* THE BUG THIS FIXES, and it is why three photo fixes looked like they had
+   done nothing.
+
+   The toast sat at bottom:22px. On a phone the bottom nav is fixed at the
+   foot of the screen and is about 109px tall once the home-indicator safe
+   area is added — so EVERY message the app has ever shown on a phone was
+   drawn on top of the navigation, in the home-indicator strip. It is above
+   the nav in stacking order so it was technically on screen, but squashed
+   over the icons at the very bottom edge and easy to miss completely.
+
+   On a desktop there is no fixed bottom nav, which is why it looked fine in
+   every test and every check: the failure only exists on the device Joe
+   actually uses.
+
+   90px + the safe area is the offset the onboarding bar already uses to sit
+   clear of the nav. Same convention here. */
+/* EVERY FILE INPUT IN THE APP USES THIS, AND IT MUST NOT BE display:none.
+
+   THE BUG: all 23 file inputs carried the `hidden` attribute, which is
+   `display:none`. On a desktop that is fine. On iOS — and worst of all in a
+   home-screen app — a file input that is not rendered does not reliably hand
+   the chosen files back. The picker opens (the surrounding <label> sees to
+   that), the walker chooses, iOS returns to the app, and the `change` event
+   NEVER FIRES. No event means no code runs, which means no photo, no error
+   and no message: the app simply sits there.
+
+   That is what Joe's screen recording showed — six seconds of a completely
+   static screen after picking two photos. It is also why three separate
+   photo fixes appeared to do nothing: none of that code was ever reached.
+
+   Visually hidden but still laid out and still hit-testable. Do not put
+   `hidden`, `display:none` or `visibility:hidden` on a file input. */
+.filein{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0;
+  opacity:0;
+}
+
+.toast{position:fixed; left:50%; bottom:calc(90px + env(safe-area-inset-bottom, 0px)); transform:translateX(-50%) translateY(10px); background:var(--ink); color:var(--ground); padding:10px 16px; border-radius:99px; font-size:14px; z-index:2200; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; box-shadow:var(--shadow); max-width:90vw; text-align:center}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
 
@@ -7568,7 +7606,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>
         <span><b>Choose photos from this device</b><i>Pick as many as you like. Nothing is filed until you have seen where it is going.</i></span>
         <span class="impcta">Choose photos</span>
-        <input type="file" accept="image/*" multiple data-act="impfiles" hidden>
+        <input type="file" accept="image/*" multiple data-act="impfiles" class="filein">
       </label>
       <p class="setnote">Two things worth knowing. Phones often strip the location when a photo is shared to a web page &mdash; the date usually survives, which is what your log is then checked against. And HEIC photos, the iPhone default, cannot be read in a browser at all, so neither the place nor the date comes through; most phones hand over a JPEG instead, but not always, and exporting as JPEG keeps both.</p>
     </div>
@@ -7683,7 +7721,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
       <button class="zbtn" id="avRot" aria-label="Turn the picture" title="Turn it a quarter turn">&#8635;</button>
     </div>
     <div class="btnrow">
-      <label class="btn ghost">Choose another<input type="file" accept="image/*" data-act="avatarin" hidden></label>
+      <label class="btn ghost">Choose another<input type="file" accept="image/*" data-act="avatarin" class="filein"></label>
       <button class="btn" id="avSave">Save picture</button>
       <button class="btn quiet" id="avCancel">Cancel</button>
     </div>
@@ -12773,7 +12811,7 @@ async function openChat(id, focusMsg){
     '<form class="cvcompose" id="cvcompose"><button type="button" class="cvplus" data-act="chatplus" aria-label="Add a walk, poll, photo, hill or location">' + ti('plus') + '</button>' +
     '<div class="cvfield"><textarea id="cvtext" rows="1" placeholder="Message" maxlength="1000" enterkeyhint="send" aria-label="Message"></textarea>' +
     '<button type="button" class="cvcam" data-act="chatpickphoto" aria-label="Send a photo">' + ti('camera') + '</button></div>' +
-    '<button type="submit" class="cvsend" aria-label="Send">' + ti('send') + '</button><input type="file" id="cvphoto" accept="image/*" hidden></form>';
+    '<button type="submit" class="cvsend" aria-label="Send">' + ti('send') + '</button><input type="file" id="cvphoto" accept="image/*" class="filein"></form>';
   el.classList.add('open'); document.documentElement.classList.add('msgopen');
   paintChatHead(); paintPinbar();
   fitChat();
@@ -13130,7 +13168,7 @@ function routePicker(){
   bcSheet('<h3 class="bcsheettitle">Share a Route</h3>' + (ps.length ? '<div class="hpres">' + ps.slice(0, 12).map(p => '<button class="mrow" data-act="chatsendroute" data-v="' + esc(p.id) + '"><span class="mmain"><b>' + esc(p.name || 'Untitled route') + '</b><span>' +
       (p.hills || []).length + ' hills' + (p.date ? ' &middot; ' + esc(prettyDate(p.date)) : '') + '</span></span></button>').join('') + '</div>'
     : '<p class="bclede">You haven’t planned a route yet.</p><div class="cvplusgrid two">' +
-      '<label class="cvplusbtn"><span>' + ti('file-upload') + '</span><b>Upload a GPX</b><input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label>' +
+      '<label class="cvplusbtn"><span>' + ti('file-upload') + '</span><b>Upload a GPX</b><input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label>' +
       '<button data-act="chatrouteplot"><span>' + ti('map-2') + '</span><b>Plot one on the map</b></button></div>'),
     'Share a route', '', 'chatplus');
 }
@@ -14172,7 +14210,7 @@ function paintDogEdit(){
     '<div style="text-align:center" class="dogeditav">' + dogFaceHTML(d, '') +
       '<div class="btnrow" style="justify-content:center; margin-top:8px">' +
         '<label class="btn ghost sm">' + ti('camera') + (d.av ? 'Change their face' : 'Add their face') +
-        '<input type="file" accept="image/*" data-act="dogphoto" hidden></label>' +
+        '<input type="file" accept="image/*" data-act="dogphoto" class="filein"></label>' +
         (d.av ? '<button class="btn quiet sm" data-act="dogfaceadjust">Adjust</button>' : '') + '</div>' +
       '<p class="pdfine" style="margin-top:4px">Drag and pinch to frame them.</p>' +
     '</div>' +
@@ -14180,7 +14218,7 @@ function paintDogEdit(){
     '<div class="dogcoverpick">' +
       (d.cov && d.cov.id ? '<div class="dogcovprev">' + dogCoverHTML(d) + '</div>' : '<p class="pdfine">None yet \u2014 their face is used instead.</p>') +
       '<div class="btnrow"><label class="btn ghost sm">' + ti('photo') + (d.cov && d.cov.id ? 'Change it' : 'Choose one') +
-        '<input type="file" accept="image/*" data-act="dogcover" hidden></label>' +
+        '<input type="file" accept="image/*" data-act="dogcover" class="filein"></label>' +
       (d.cov && d.cov.id ? ' <button class="btn quiet sm" data-act="dogcovadjust">Adjust</button>' +
         ' <button class="btn quiet sm" data-act="dogcovclear">Remove</button>' : '') + '</div>' +
       '<p class="pdfine">Framed the same on a phone and a laptop, so nothing is cut off.</p>' +
@@ -15796,7 +15834,7 @@ function hillRow(h, listId){
         ' aria-label="' + esc(p.cap || ('Photo of ' + h.n)) + '">' +
         '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt="">' +
         (p.cap ? '<span class="shotcap">' + esc(p.cap) + '</span>' : '') + '</button>';
-    s += '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" hidden></label>';
+    s += '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" class="filein"></label>';
     s += '</div>';
     /* nothing here yet, and this is exactly where somebody notices that an old
        photo of this very hill is sitting on their phone */
@@ -18165,7 +18203,7 @@ function renderDiary(){
       html += '<div class="drow">' +
         '<button class="linkbtn" data-act="editdiary" data-id="' + esc(e.id) + '">Edit</button>' +
         '<label class="linkbtn aslabel">Add photos<input type="file" accept="image/*" multiple ' +
-          'data-act="diaryphoto" data-id="' + esc(e.id) + '" hidden></label>' +
+          'data-act="diaryphoto" data-id="' + esc(e.id) + '" class="filein"></label>' +
         (eps.length ? '<button class="linkbtn" data-act="tagagain" data-id="' + esc(e.id) + '">Tag photos</button>' : '') +
         '<button class="linkbtn" data-act="sharediary" data-id="' + esc(e.id) + '">' +
           (e.shared ? 'Share again' : 'Share') + '</button>' +
@@ -18181,7 +18219,7 @@ function renderDiary(){
       html += '<div class="drow">' +
         '<button class="linkbtn" data-act="writeday" data-d="' + esc(d.date) + '">Write it up</button>' +
         '<label class="linkbtn aslabel">Add photos<input type="file" accept="image/*" multiple ' +
-          'data-act="dayphoto" data-d="' + esc(d.date) + '" hidden></label>' +
+          'data-act="dayphoto" data-d="' + esc(d.date) + '" class="filein"></label>' +
         (d.photos.length ? '<button class="linkbtn" data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(d.photos[0].id) + '">Open the day</button>' : '') +
         (d.hills.length ? '<button class="linkbtn" data-act="shareday" data-d="' + esc(d.date) + '">Share</button>' : '') +
         '</div>';
@@ -20768,7 +20806,7 @@ function gpxControls(p, id){
        '<button class="btn' + (pts.length ? ' ghost' : '') + '" data-act="editroute" data-id="' + esc(id) + '">' +
          (pts.length ? 'Edit on the map' : 'Draw on the map') + '</button>' +
        '<label class="filebtn">' + (pts.length ? 'Replace with a GPX' : 'Import a GPX') +
-       '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + esc(id) + '" hidden></label>';
+       '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + esc(id) + '" class="filein"></label>';
   if ((p.hills || []).length > 1)
     s += '<button class="btn ghost" data-act="autoroute" data-id="' + esc(id) + '"' + (routingBusy ? ' disabled' : '') + '>' +
          (routingBusy ? 'Finding paths…' : 'Follow paths between these hills') + '</button>';
@@ -21240,7 +21278,7 @@ function renderPlans(){
         (editor && editor.snap ? '✓ Following paths' : 'Straight lines') + '</button></div>' +
       '<p class="plothint">Tap the map to drop points. Tap a summit to route through it. Tap the start to close the loop.</p>' +
       '<div class="btnrow plotrow">' +
-      '<label class="btn quiet">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label>' +
+      '<label class="btn quiet">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label>' +
       '<span class="grow"></span>' +
       (editor && (editor.wp.length || editor.id) ? '<button class="btn quiet" data-act="rmdiscard">Discard</button>' : '') +
       '</div></section>';
@@ -21251,7 +21289,7 @@ function renderPlans(){
   /* routes you already have */
   const plans = livePlans();
   html += '<div class="routeshead"><h3 class="sect">Your routes</h3>' +
-    '<label class="linkbtn">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label></div>';
+    '<label class="linkbtn">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label></div>';
   if (!plans.length) return html + '<p class="empty">No routes yet. Switch to <b>Plot a route</b> on the map and tap to draw, or import a GPX.</p>';
   const sorted = [...plans].sort((a,b) => {
     const ad = Boolean(a.hills.length && a.hills.every(k => isBagged(k)));
@@ -21328,7 +21366,7 @@ function mapStageHTML(){
       : '<div class="misle mmode" role="group" aria-label="What tapping does">' +
         '<button data-act="rmode" data-v="explore" aria-pressed="true">Explore</button>' +
         '<button data-act="rmode" data-v="plot" aria-pressed="false">Plot a route</button>' +
-        '<label class="mm-import">' + ti('file-upload') + 'Import GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" hidden></label></div>') +
+        '<label class="mm-import">' + ti('file-upload') + 'Import GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label></div>') +
     '<div class="scrollgrip" aria-hidden="true"><span></span><span></span><span></span></div>' +
     '</div>';
   return s;
@@ -23348,8 +23386,11 @@ document.addEventListener('change', e => {
     toast(files.length > 1 ? 'Adding ' + files.length + ' photos…' : 'Adding photo…');
     addPhotos(el.dataset.k, files);
   }
-  else if (a === 'impfiles' && el.files && el.files.length){
-    const files = [...el.files]; el.value = '';
+  else if (a === 'impfiles'){
+    /* Never require files.length before doing ANYTHING — that was the silent
+       path. An empty selection is a real outcome on iOS and it needs saying. */
+    const files = el.files ? [...el.files] : []; el.value = '';
+    if (!files.length){ toast('No photos came through. If they are in iCloud, open them in Photos first.'); return; }
     impStart(files);
   }
   else if (a === 'impwhere'){ impWhere(el.value); }
@@ -23362,10 +23403,12 @@ document.addEventListener('change', e => {
   else if (a === 'chalglist'){ if (ui.chalGDraft){ ui.chalGDraft.list = el.value; chalGPaint(); } }
   else if (a === 'chalgfrom'){ if (ui.chalGDraft){ ui.chalGDraft.from = el.value; chalGPaint(); } }
   else if (a === 'chalgto'){ if (ui.chalGDraft){ ui.chalGDraft.to = el.value; chalGPaint(); } }
+  else if (a === 'diaryphoto' && el.files && !el.files.length){ toast('No photos came through. If they are in iCloud, open them in Photos first.'); }
   else if (a === 'diaryphoto' && el.files && el.files.length){
     const files = [...el.files]; el.value = '';
     toast('Processing…'); addDiaryPhotos(el.dataset.id, files);
   }
+  else if (a === 'dayphoto' && el.files && !el.files.length){ toast('No photos came through. If they are in iCloud, open them in Photos first.'); }
   else if (a === 'dayphoto' && el.files && el.files.length){
     /* photos for a day with no written entry yet: make the entry, then carry on
        exactly as if it had always been there, tagging panel and all */
@@ -26337,7 +26380,7 @@ function postHTML(p){
   s += '</div>';
 
   if (mine && !(p.shots || []).length && (p.kind === 'summit' || p.kind === 'diary'))
-    s += '<label class="paddph">' + ti('camera') + '<span>Add photos from this day</span><input type="file" accept="image/*" multiple data-act="postaddphotos" data-id="' + esc(p.id) + '" hidden></label>';
+    s += '<label class="paddph">' + ti('camera') + '<span>Add photos from this day</span><input type="file" accept="image/*" multiple data-act="postaddphotos" data-id="' + esc(p.id) + '" class="filein"></label>';
   const n = likeCount(p.id), on = iLike(p.id);
   if (p.strava && !adventure) s += '<p class="pstrava"><a href="https://www.strava.com/activities/' + encodeURIComponent(p.strava) + '" target="_blank" rel="noopener">View on Strava</a></p>';
   s += '<div class="pbar">' +
@@ -26535,7 +26578,7 @@ function composeFormHTML(fr){
   } else if (kind === 'moment'){
     s += '<div><label>Photos</label><div class="photorow"><div class="shots">' +
       (d.shots || []).map(ph => '<span class="shot"><img src="' + esc(ph.url) + '" alt=""></span>').join('') +
-      '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="momentphoto" hidden></label></div></div></div>';
+      '<label class="addshot">+ Photo<input type="file" accept="image/*" multiple data-act="momentphoto" class="filein"></label></div></div></div>';
     s += '<div><label for="ptx">Caption</label><textarea id="ptx" data-act="postfield" data-f="text" rows="2" placeholder="Where, and what made it.">' + esc(d.text) + '</textarea></div>';
   } else if (kind === 'goal'){
     const opts = goalOptions();
@@ -27077,7 +27120,7 @@ function paintShareDay(){
     '<p class="sdlab">Photos</p><div class="sdshots">' +
       (sd.withPhotos ? sd.photos.map(ph => '<span class="sdshot"><img data-pid="' + esc(ph.id) + '" alt=""></span>').join('') : '') +
       (sd.photos.length < 6 ? '<label class="sdadd">' + ti('camera') + '<span>' + (sd.photos.length ? 'Add more' : 'Add photos') + '</span>' +
-        '<input type="file" accept="image/*" multiple data-act="sdfiles" hidden></label>' : '') + '</div>' +
+        '<input type="file" accept="image/*" multiple data-act="sdfiles" class="filein"></label>' : '') + '</div>' +
     (sd.photos.length ? '<button class="linkbtn sdtoggle" data-act="sdphotos">' + (sd.withPhotos ? 'Share without photos' : 'Include ' + sd.photos.length + (sd.photos.length === 1 ? ' photo' : ' photos')) + '</button>'
       : '<p class="sdnudge">Days with a photo get far more likes and comments.</p>') +
     '<p class="sdlab">Who sees it</p><div class="picked visrow">' + VIS.map(v => '<button class="pill' + (sd.vis === v.id ? ' on' : '') + '" data-act="sdvis" data-v="' + v.id + '" aria-pressed="' + (sd.vis === v.id) + '">' + ti(v.icon) + esc(v.label) + '</button>').join('') + '</div>' +
@@ -27953,7 +27996,7 @@ function stravaDayHTML(s, eid){
         '<button class="linkbtn" data-act="stgpxoff" data-id="' + esc(eid || '') + '">Remove</button></div></div>'
       : '<div class="dstgpx">' + ti('route') + '<div><b>Want followers to see the route?</b>' +
         '<span>Strava’s rules, not ours: routes, times and stats from Strava can only be shown to you. Your own GPX file is yours to share. On Strava, open this walk, tap ⋯ and choose Export GPX, then add it here.</span>' +
-        '<label class="btn sm ghost">' + ti('file-upload') + 'Add GPX<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="stgpx" data-id="' + esc(eid || '') + '" hidden></label></div></div>') +
+        '<label class="btn sm ghost">' + ti('file-upload') + 'Add GPX<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="stgpx" data-id="' + esc(eid || '') + '" class="filein"></label></div></div>') +
     '</div>';
 }
 /* a walked line on the OS map, fitted to the strip. With summits (v244) it
@@ -28039,7 +28082,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v283';
+const APP_VERSION = 'v284';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -30348,7 +30391,7 @@ function gPaintAsk(){
     '<button class="chip' + (at === 'plan' ? ' on' : '') + '" data-act="gxattach" data-v="plan">' + ti('walk', 'width="15" height="15"') + 'Walk plan</button>' +
     (at ? '<button class="chip" data-act="gxattach" data-v="">' + ti('x', 'width="14" height="14"') + 'None</button>' : '') +
     '</div>' +
-    '<input type="file" id="gxfile" accept="image/*" hidden>';
+    '<input type="file" id="gxfile" accept="image/*" class="filein">';
 
   if (at === 'photo'){
     s += d.att.data
@@ -31202,7 +31245,7 @@ function profileEditor(){
   const earned = patches().filter(p => p.got);
   let s = '<div class="form profform">';
   s += '<div><label>Banner</label><div class="bpick">' +
-    '<label class="btn ghost sm">' + (d.banner ? 'Change photo' : 'Choose a photo') + '<input type="file" accept="image/*" data-act="bannerfile" hidden></label>' +
+    '<label class="btn ghost sm">' + (d.banner ? 'Change photo' : 'Choose a photo') + '<input type="file" accept="image/*" data-act="bannerfile" class="filein"></label>' +
     (d.banner ? '<button class="btn quiet sm" data-act="bannerclear">Remove</button>' : '') + '</div>' +
     (d.banner ? '<label for="bfy" style="margin-top:8px">Which part shows</label><input type="range" id="bfy" min="0" max="100" value="' + d.bfy + '" data-act="bfy">' +
      '<p class="mapnote" style="margin:6px 0 0">Or drag the photo itself, up at the top of this page.</p>' : '') + '</div>';
@@ -32398,7 +32441,7 @@ async function camStart(){
 }
 function camNoCamera(text){
   const msg = document.getElementById('cxMsg');
-  msg.innerHTML = '<p>' + esc(text) + '</p><label class="cx-btn">Choose a photo<input type="file" accept="image/*" data-c="lib" hidden></label>';
+  msg.innerHTML = '<p>' + esc(text) + '</p><label class="cx-btn">Choose a photo<input type="file" accept="image/*" data-c="lib" class="filein"></label>';
   msg.hidden = false;
 }
 function camStop(){
@@ -32436,7 +32479,7 @@ function camBuild(){
       '<div class="cx-lenses" role="radiogroup" aria-label="Caption look">' + CAM_LOOKS.map(([k, t]) =>
         '<button class="cx-lens" role="radio" data-c="look" data-v="' + k + '"><canvas width="90" height="120"></canvas><span>' + t + '</span></button>').join('') + '</div>' +
       '<div class="cx-shoot"><label class="cx-lib" aria-label="Use a photo you have already taken">' + cxI('photo') +
-        '<input type="file" accept="image/*" data-c="lib" hidden></label>' +
+        '<input type="file" accept="image/*" data-c="lib" class="filein"></label>' +
         '<button class="cx-shutter" data-c="shoot" aria-label="Take photo"><i></i></button>' +
         '<button class="cx-ib cx-big" data-c="flip" aria-label="Switch camera">' + cxI('flip') + '</button></div></div>' +
     '<div class="cx-after" id="cxAfter" hidden></div>' +
@@ -33138,7 +33181,7 @@ function impHomeRow(){
     '<label class="imphomego">' + ti('photo', 'width="19" height="19"') +
       '<span class="imphometx">Mark off hills from your photos</span>' +
       '<span class="imphomecta">Choose</span>' +
-      '<input type="file" accept="image/*" multiple data-act="impfiles" hidden></label>' +
+      '<input type="file" accept="image/*" multiple data-act="impfiles" class="filein"></label>' +
     '<button class="imphomex" data-act="imphomehide" aria-label="Move this to my journal">' +
       ti('x', 'width="13" height="13"') + '</button></div>';
 }
@@ -33156,7 +33199,7 @@ function impOfferHTML(where){
     '<span><b>Mark off hills from your photos</b>' +
     '<i>Pick them and we’ll work out which hills they were taken on — from the location saved in each one, or from the date and your own log.</i></span>' +
     '<span class="impcta">Choose photos</span>' +
-    '<input type="file" accept="image/*" multiple data-act="impfiles" hidden></label>';
+    '<input type="file" accept="image/*" multiple data-act="impfiles" class="filein"></label>';
 }
 
 (function(){
