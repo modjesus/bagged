@@ -953,7 +953,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    one 400-character word with no spaces in it — a pasted link does the same. */
 .planhead h3, .gxi b, .gxwho b, .gxrow b{overflow-wrap:anywhere; min-width:0}
 .dnote, .dday h3, .dday p{overflow-wrap:anywhere}
-.dogpick button{overflow-wrap:anywhere; min-width:0; max-width:100%; text-align:left}
+.dogpick button{min-width:0; max-width:100%; text-align:left}
+/* one line, cut with an ellipsis: a long dog name used to wrap into a
+   tall ragged pill. The name still reads, it just stops politely. */
+.dogpick button > span, .dogpick button{overflow:hidden}
+.dogpick button .dogpickname{display:block; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; min-width:0; max-width:11em}
 /* who is in a group, for whoever runs it */
 .gmlist{list-style:none; margin:0 0 12px; padding:0; display:grid; gap:8px; max-height:46vh; overflow:auto}
 .gmlist li{display:flex; align-items:center; gap:10px; justify-content:space-between;
@@ -7334,6 +7339,11 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .gxask .gxfake{flex:1; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:99px;
   padding:11px 15px; color:var(--ink-3); font:400 14.5px var(--font-ui); min-height:44px; display:flex; align-items:center}
 
+/* the three openers under an empty group */
+.gxseed{display:flex; flex-direction:column; align-items:stretch; gap:8px; margin:0 0 4px}
+.gxseed .eyebrow{margin:0 0 2px; text-align:center}
+.gxseed .btn{justify-content:flex-start; text-align:left; white-space:normal; min-height:44px; height:auto; padding:10px 14px}
+
 /* one thing somebody said */
 .gxpost{background:var(--raise); border:1px solid var(--line); border-radius:var(--r); padding:13px; margin:0 0 10px}
 .gxpost.q{border-left:3px solid var(--accent)}
@@ -7553,7 +7563,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
       </div>
       <div id="bkwrap" hidden>
         <p class="setnote">Paste a backup in, then press Restore. It is merged with what is already here, so nothing is lost.</p>
-        <textarea id="backupText" spellcheck="false"></textarea>
+        <textarea id="backupText" spellcheck="false" aria-label="Backup text"></textarea>
         <div class="btnrow"><button class="btn ghost" id="restoreBtn">Restore</button></div>
       </div>
     </div>
@@ -8021,9 +8031,49 @@ const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/
 
    The lock is held only for as long as the write is actually in flight and is
    released in a finally, so a send that fails can be tried again at once. */
+/* A button that shows it is working.
+
+   The one-tap-one-write lock below stops a double tap creating two of a
+   thing, but the walker still got no sign at all: on a slow signal Send
+   looked dead, which is exactly why they tapped it twice. This greys the
+   button and changes its words while the write is in the air.
+
+   It also answers honestly when there is no signal. Saying "Posted" to
+   somebody stood in a car park with no bars is a lie they will act on by
+   posting again. */
+function busyBtn(el, word){
+  if (!el) return () => {};
+  const was = el.innerHTML, wasD = el.disabled;
+  el.disabled = true; el.setAttribute('aria-busy', 'true');
+  el.innerHTML = esc(word || 'Sending\u2026');
+  return () => { try{ el.innerHTML = was; el.disabled = wasD; el.removeAttribute('aria-busy'); }catch(e){} };
+}
+/* Did that write actually reach the server, or is it sitting in the queue? */
+const offline = () => !navigator.onLine;
+
 const tapLock = new Set();
 const tapOnce = k => tapLock.has(k) ? false : (tapLock.add(k), true);
 const tapDone = k => tapLock.delete(k);
+/* A pasted link, made tappable.
+
+   The order here IS the safety argument: the text is escaped FIRST, so it is
+   already harmless HTML before a single tag is added, and nothing a walker
+   types can become markup. Only http, https and www. are matched, so
+   `javascript:` and friends never become a link at all.
+
+   Trailing punctuation is left out of the address — "see waymark.it.com."
+   should not link the full stop. */
+const LINKY_RE = /((?:https?:\/\/|www\.)[^\s<>"']{2,300})/gi;
+function linky(v){
+  return esc(v == null ? '' : v).replace(LINKY_RE, m => {
+    let url = m, tail = '';
+    const t = m.match(/[.,;:!?)\]]+$/);
+    if (t){ tail = t[0]; url = m.slice(0, -tail.length); }
+    if (url.length < 5) return m;
+    const href = /^www\./i.test(url) ? 'https://' + url : url;
+    return '<a href="' + href + '" target="_blank" rel="noopener noreferrer nofollow">' + url + '</a>' + tail;
+  });
+}
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const uid = () => Math.random().toString(36).slice(2,9) + now().toString(36).slice(-4);
@@ -8648,7 +8698,18 @@ function loadProf(){
 let prof = loadProf();
 function saveProf(){
   prof.t = now();
-  try{ localStorage.setItem(PROF_KEY, JSON.stringify(prof)); }catch(e){ toast('This browser is blocking storage.'); }
+  /* The profile is the BIGGEST thing this app keeps in the browser - a banner
+     runs to 380KB and the large avatar to another 80 - so it is usually the
+     one that tips the five-megabyte budget over. It used to say "this browser
+     is blocking storage", which is almost never what happened and gave the
+     walker nothing to do. Throw away the re-fetchable caches, try again, and
+     only then say something - and say the true thing. */
+  try{ localStorage.setItem(PROF_KEY, JSON.stringify(prof)); }
+  catch(e){
+    let saved = false;
+    try{ if (dropCaches()){ localStorage.setItem(PROF_KEY, JSON.stringify(prof)); saved = true; } }catch(e2){}
+    if (!saved) toast('This browser is out of storage, so your profile picture is not being saved here. It is still safe in your account.');
+  }
   pushPerson();
 }
 /* what of the profile goes on the public card */
@@ -13814,7 +13875,7 @@ function renderDogPage(id){
   if (ds.length > 1){
     s += '<div class="dogtabs" role="group" aria-label="Your dogs">' + ds.map(x =>
       '<button data-act="dogopen" data-v="' + esc(x.id) + '" aria-pressed="' + (x.id === id) + '">' +
-      dogFaceHTML(x) + esc(dogName(x)) + '</button>').join('') + '</div>';
+      dogFaceHTML(x) + '<span class="dogpickname">' + esc(dogName(x)) + '</span>' + '</button>').join('') + '</div>';
   }
   /* their face, big, over the cover — the way a walker's own profile does it */
   s += '<div class="doghero">' +
@@ -14102,7 +14163,7 @@ function dogPickHTML(key){
   for (const d of ds){
     const sel = on.indexOf(d.id) >= 0;
     s += '<button data-act="dogtick" data-k="' + esc(key) + '" data-v="' + esc(d.id) + '" aria-pressed="' + sel + '">' +
-      dogFaceHTML(d) + esc(dogName(d)) + '</button>';
+      dogFaceHTML(d) + '<span class="dogpickname">' + esc(dogName(d)) + '</span></button>';
   }
   s += '</div>';
   const first = ds.find(d => on.indexOf(d.id) >= 0);
@@ -14128,7 +14189,7 @@ function dogDayHTML(day){
       const on = keys.every(k => dogsOn(k).indexOf(d.id) >= 0);
       const some = !on && keys.some(k => dogsOn(k).indexOf(d.id) >= 0);
       return '<button data-act="dogday" data-d="' + esc(day.date) + '" data-v="' + esc(d.id) + '" aria-pressed="' + on + '"' +
-        (some ? ' class="part" title="On some of that day"' : '') + '>' + dogFaceHTML(d) + esc(dogName(d)) + '</button>';
+        (some ? ' class="part" title="On some of that day"' : '') + '>' + dogFaceHTML(d) + '<span class="dogpickname">' + esc(dogName(d)) + '</span></button>';
     }).join('') + '</div></div>';
 }
 /* one tap: every summit on that day goes on their page, or comes off it */
@@ -14235,7 +14296,7 @@ function paintDogShare(){
     '<p class="bclede">Whoever you share with can add their own days. Your hill list stays yours.</p>' +
     (ds.length > 1 ? '<p class="sublabel">Which dogs</p><div class="dogpick">' + ds.map(x =>
       '<button data-act="dogsharetick" data-v="' + esc(x.id) + '" aria-pressed="' + (st.sel.indexOf(x.id) >= 0) + '">' +
-      dogFaceHTML(x) + esc(dogName(x)) + '</button>').join('') + '</div>' : '') +
+      dogFaceHTML(x) + '<span class="dogpickname">' + esc(dogName(x)) + '</span>' + '</button>').join('') + '</div>' : '') +
     '<p class="sublabel" style="margin-top:14px">Someone on WayMark</p>' +
     (ppl.length
       ? '<div class="hpres">' + ppl.slice(0, 20).map(f =>
@@ -17920,14 +17981,14 @@ function renderDiary(){
     }
 
     for (const n of d.notes)
-      html += '<p class="dnote"><b>' + esc(hillName(n.h)) + '</b>' + esc(n.text) + '</p>';
+      html += '<p class="dnote"><b>' + esc(hillName(n.h)) + '</b>' + linky(n.text) + '</p>';
 
     for (const e of d.entries){
       const eps = e.photos || [];
       html += '<div class="dentry">' +
         (e.title ? '<h3>' + esc(e.title) + '</h3>' : '') +
         (e.strava ? stravaDayHTML(e.strava, e.id) : '') +
-        (e.text ? '<p>' + esc(e.text) + '</p>' : '');
+        (e.text ? '<p>' + linky(e.text) + '</p>' : '');
 
       /* The entry's own photos used to print here and the day's summit photos
          again lower down, so a day with both showed two strips of the same
@@ -18036,7 +18097,7 @@ function avatarHTML(av, name, cls, uid){
 const CLAMP_AT = 240;
 function ptextHTML(p){
   const long = (p.text || '').length > CLAMP_AT || (p.text || '').split('\n').length > 4;
-  return '<div class="ptextwrap' + (long ? ' clamped' : '') + '"><p class="ptext">' + esc(p.text) + '</p>' +
+  return '<div class="ptextwrap' + (long ? ' clamped' : '') + '"><p class="ptext">' + linky(p.text) + '</p>' +
     (long ? '<button class="linkbtn moretext" data-act="moretext">Read more</button>' : '') + '</div>';
 }
 /* Loading shapes: a post-shaped card and a row-shaped line, so the page keeps
@@ -25125,7 +25186,7 @@ function renderAccountBox(){
       '<span>' + Object.keys(state.bagged).filter(isBagged).length + ' summits marked \u00b7 ' +
       myGroups().length + ' group' + (myGroups().length === 1 ? '' : 's') + '</span></div></div>';
     s += '<div style="margin-top:12px"><label>Name your friends see</label>' +
-         '<input class="fbNameIn" data-act="fbname" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
+         '<input class="fbNameIn" data-act="fbname" aria-label="Name your friends see" value="' + esc(fbName || fbUser.name) + '" maxlength="40"></div>';
     /* Sharing defaults live in Settings now, and syncing looks after itself —
        the status pill in the header says where it is up to. */
     s += '<div class="btnrow"><button class="btn quiet" data-act="fbout">Sign out</button></div>';
@@ -26904,15 +26965,20 @@ async function addShotsToPost(postId, files){
 function closeShareDay(){ ui.shareDay = null; const el = document.getElementById('daysheet'); if (el) el.classList.remove('open'); }
 async function sendShareDay(){
   const sd = ui.shareDay; if (!sd) return;
+  if (!tapOnce('sdsend')) return;
   const box = document.getElementById('sdtext'); if (box) sd.text = box.value;
-  closeShareDay();
+  const undoSend = busyBtn(document.querySelector('[data-act="sdsend"]'), 'Sharing\u2026');
+  const wasOff = offline();
   try{
     let p;
     if (sd.withPhotos && sd.photos.length) p = await shareDiaryEntry({id:'', date:sd.date, title:'', text:sd.text, photos:sd.photos.map(x => ({id:x.id, cap:x.cap || ''})), dayOnly:true, vis:sd.vis});
     else p = await createPost({kind:'summit', text:sd.text, hills:sd.hills, date:sd.date, tags:[], vis:sd.vis});
-    if (p) toastAct((p.vis === 'public' ? 'Shared with everyone' : p.vis === 'me' ? 'Saved to your log' : 'Shared with your followers') + ': ' + postSnip(p), 'Undo', () => deletePost(p.id));
+    closeShareDay();
     if (tab === 'u') render();
-  }catch(e){ toast('Could not share that just now. Try again from your journal.'); }
+    if (wasOff || offline()) toast('Saved. It goes up when you have signal.');
+    else if (p) toastAct((p.vis === 'public' ? 'Shared with everyone' : p.vis === 'me' ? 'Saved to your log' : 'Shared with your followers') + ': ' + postSnip(p), 'Undo', () => deletePost(p.id));
+  }catch(e){ undoSend(); toast('Could not share that just now. Try again from your journal.'); }
+  finally{ tapDone('sdsend'); }
 }
 function toastAct(msg, label, fn){
   const t = document.getElementById('toast');
@@ -27786,7 +27852,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v278';
+const APP_VERSION = 'v280';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28616,7 +28682,17 @@ function fbWhy(e){
            'Open the browser console. Firestore prints a link that builds it in one click.';
   if (c === 'unauthenticated') return 'You have been signed out. Sign in again and retry.';
   if (c === 'not-signed-in')   return 'Sign in from the Profile section first.';
-  if (c === 'resource-exhausted') return 'That project has hit its Firestore quota for today.';
+  /* Two different things arrive under this one code, and sending a walker to
+     the billing page for the wrong one wastes their afternoon. A daily quota
+     is the server saying no; a full write queue is THIS BROWSER holding more
+     than a hundred changes it has not managed to send. The second is far more
+     common and is cleared by closing the tab. */
+  if (c === 'resource-exhausted'){
+    const q = String((e && e.message) || '');
+    return /queued writes|write stream/i.test(q)
+      ? 'This browser has a backlog of changes it could not send. Close every WayMark tab, open one, and it will clear.'
+      : 'The database has hit its limit for today. It resets at midnight Pacific time.';
+  }
   return 'That did not work: ' + (c || (e && e.message) || 'unknown error') + '.';
 }
 
@@ -29909,9 +29985,19 @@ function gTalkTab(code){
       ti('mountain', 'width="16" height="16"') + 'Ask about a hill</button></div></div>';
   }
   if (gTalkBusy[code] && !posts.length) return s + skeletonRows(3);
-  if (!posts.length) return s + '<p class="empty">' +
-    (joined ? 'Nothing said yet. Ask something — somebody in here has walked it.' : 'Nothing said yet. Join and be the first to ask.') +
-    '</p>' + (joined ? '' : gJoinBar(code));
+  if (!posts.length){
+    /* An empty group is the moment a group dies. A blank page asks the walker
+       to invent something; three openers ask them to finish a sentence. */
+    if (!joined) return s + '<p class="empty">Nothing said yet. Join and be the first.</p>' + gJoinBar(code);
+    const opens = gKind(code) === 'private'
+      ? ['Where is everyone walking this weekend?', 'I am planning ', 'Has anyone been up ']
+      : ['Where is everyone walking this weekend?', 'Best walk I have done round here is ', 'Has anyone been up '];
+    return s + '<p class="empty">Nothing said yet.</p>' +
+      '<div class="gxseed"><p class="eyebrow">Start it off</p>' +
+      opens.map(o => '<button class="btn sm ghost" data-act="gxask" data-t="' + esc(o) + '">' +
+        esc(o.trim().replace(/\s*$/, '') + (/[?]$/.test(o.trim()) ? '' : '\u2026')) + '</button>').join('') +
+      '</div>';
+  }
   const mark = (joined && ui.gMarkFor === code) ? (ui.gMark || 0) : 0;
   const fresh = mark ? posts.filter(p => p && (p.t || 0) > mark && p.uid !== (fbUser || {}).uid).length : 0;
   let drew = !fresh;
@@ -29945,7 +30031,7 @@ function gPostCard(code, p){
     avatarHTML(p.av, p.name, 'sm', p.uid) +
     '<span class="gxwho"><b>' + esc(niceName(p.name) || 'Walker') + '</b><span>' + esc(whenAgo(p.t)) + '</span></span>' +
     (ask ? '<span class="gxflag ' + (p.best ? 'ans' : 'asking') + '">' + (p.best ? 'Answered' : 'Asking') + '</span>' : '') +
-    '</div><p class="gxtext">' + esc(p.text || '') + '</p>';
+    '</div><p class="gxtext">' + linky(p.text || '') + '</p>';
   if (p.hill && BY_KEY[p.hill])
     s += '<button class="gxhill" data-act="info" data-k="' + esc(p.hill) + '">' + ti('map-pin', 'width="14" height="14"') + esc(p.hn || hillName(BY_KEY[p.hill])) + '</button>';
   s += gAttHTML(code, p);
@@ -29978,7 +30064,7 @@ function gThreadView(code){
     avatarHTML(p.av, p.name, 'sm', p.uid) +
     '<span class="gxwho"><b>' + esc(niceName(p.name) || 'Walker') + '</b><span>' + esc(whenAgo(p.t)) + '</span></span>' +
     (ask ? '<span class="gxflag ' + (p.best ? 'ans' : 'asking') + '">' + (p.best ? 'Answered' : 'Asking') + '</span>' : '') +
-    '</div><p class="gxtext">' + esc(p.text || '') + '</p>';
+    '</div><p class="gxtext">' + linky(p.text || '') + '</p>';
   if (p.hill && BY_KEY[p.hill])
     s += '<button class="gxhill" data-act="info" data-k="' + esc(p.hill) + '">' + ti('map-pin', 'width="14" height="14"') + esc(p.hn || hillName(BY_KEY[p.hill])) + '</button>';
   s += gAttHTML(code, p, true);
@@ -29992,7 +30078,7 @@ function gThreadView(code){
       '<div class="gxrb"><span class="gxrw">' + esc(niceName(r.name) || 'Walker') + '</span>' +
       '<span class="gxrt">' + esc(whenAgo(r.t)) + '</span>' +
       (isBest ? '<span class="gxbestflag">Best</span>' : '') +
-      '<p>' + esc(r.text || '') + '</p>' +
+      '<p>' + linky(r.text || '') + '</p>' +
       '<div class="gxra"><button class="gxact' + (gMine(r.helps) ? ' on' : '') + '" data-act="gxrhelp" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" data-r="' + esc(r.id) + '" aria-pressed="' + gMine(r.helps) + '">' +
         ti('heart', 'width="18" height="18"') + '<b>' + gCount(r.helps) + '</b></button>' +
       (ask && mine ? '<button class="gxact" data-act="' + (isBest ? 'gxunbest' : 'gxbest') + '" data-c="' + esc(code) + '" data-p="' + esc(p.id) + '" data-r="' + esc(r.id) + '">' +
@@ -30025,9 +30111,15 @@ function gSheet(html){
 }
 function gSheetClose(){ const el = document.getElementById('gxsheet'); if (el) el.classList.remove('open'); ui.gDraft = null; }
 
-function gAskSheet(withHill){
+function gAskSheet(withHill, opener){
   const code = ui.gView; if (!code) return;
-  ui.gDraft = ui.gDraft || {kind:'ask', hill: withHill ? (ui.open || null) : null};
+  /* Opens on "say", not "ask". Most first posts in a new group are not
+     questions, and a group that opens asking one reads as an empty help desk.
+     Asking is still one tap away. */
+  ui.gDraft = ui.gDraft || {kind:'say', hill: withHill ? (ui.open || null) : null};
+  /* A prompt from the empty group is a starting line, not the post. It only
+     ever fills a composer the walker has not already written in. */
+  if (opener && !(ui.gDraft.text || '').trim()){ ui.gDraft.kind = 'say'; ui.gDraft.text = opener; }
   gPaintAsk();
 }
 function gPaintAsk(){
@@ -30352,7 +30444,7 @@ document.addEventListener('click', async e => {
   }
   if (a === 'gxthread'){ ui.gThread = pid; ui.gAns = ''; render(); window.scrollTo({top:0}); loadReplies(code, pid); return; }
   if (a === 'gxtback'){ ui.gThread = null; ui.gAns = ''; render(); window.scrollTo({top:0}); return; }
-  if (a === 'gxask'){ gAskSheet(el.dataset.v === 'hill'); return; }
+  if (a === 'gxask'){ gAskSheet(el.dataset.v === 'hill', el.dataset.t || ''); return; }
   if (a === 'gxclose'){ gSheetClose(); return; }
   if (a === 'gxkind'){
     const box = document.getElementById('gxnew');
@@ -30404,11 +30496,16 @@ document.addEventListener('click', async e => {
       att = {t:'plan', pl:{hill: d.hill || '', hn: ph ? hillName(ph) : '', date: pd.date, time: pd.time || '', meet: (pd.meet || '').slice(0, 80)}};
     }
     if (!tapOnce('gxsend')) return;
+    const undoSend = busyBtn(el, d.kind === 'ask' ? 'Asking\u2026' : 'Posting\u2026');
+    const wasOff = offline();
     try{ await gPost(ui.gView, d.kind, t, d.hill, att); }
-    catch(err){ toast(fbWhy(err)); return; }
+    catch(err){ undoSend(); toast(fbWhy(err)); return; }
     finally{ tapDone('gxsend'); }
     gSheetClose(); render(); window.scrollTo({top:0});
-    toast(d.kind === 'ask'
+    toast(wasOff || offline()
+      ? (d.kind === 'ask' ? 'Saved. Your question goes up when you have signal.'
+                          : 'Saved. It goes up when you have signal.')
+      : d.kind === 'ask'
       ? (k === 'private' ? 'Asked. The group can answer.' : 'Asked. Anyone on WayMark can answer.')
       : (k === 'private' ? 'Posted. Only the group sees it.' : 'Posted. Anyone on WayMark can see it.'));
     return;
@@ -30417,12 +30514,16 @@ document.addEventListener('click', async e => {
     const box = document.getElementById('gxans'), t = ((box && box.value) || ui.gAns || '').trim();
     if (!t){ if (box) box.focus(); toast('Write something first.'); return; }
     if (!tapOnce('gxsendreply')) return;
+    const undoRep = busyBtn(el, 'Sending\u2026');
+    const repOff = offline();
     try{ await gReply(code, pid, t); }
-    catch(err){ toast(fbWhy(err)); return; }
+    catch(err){ undoRep(); toast(fbWhy(err)); return; }
     finally{ tapDone('gxsendreply'); }
     ui.gAns = ''; if (box) box.value = '';
     render();
-    toast(gKind(code) === 'private' ? 'Answered. Only the group sees it.' : 'Answered. Anyone on WayMark can see it.');
+    toast(repOff || offline()
+      ? 'Saved. It goes up when you have signal.'
+      : gKind(code) === 'private' ? 'Answered. Only the group sees it.' : 'Answered. Anyone on WayMark can see it.');
     return;
   }
   if (a === 'gxhelp'){ await gHelp(code, pid, ''); return; }
