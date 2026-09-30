@@ -8143,7 +8143,11 @@ const askTicked = () => askTick;
 function confirmAsk({title, body, yes, no, tone, tick}){
   const box = askEl();
   document.getElementById('askTitle').textContent = title;
-  document.getElementById('askBody').textContent = body || '';
+  /* textContent collapses nothing, but the sheet's CSS did — a body written
+     with blank lines between paragraphs ran together into a wall. */
+  const bodyEl = document.getElementById('askBody');
+  bodyEl.textContent = body || '';
+  bodyEl.style.whiteSpace = /\n/.test(body || '') ? 'pre-line' : '';
   /* An optional tick, on by default: one question, one press, and the quiet
      way out for somebody who wants only half of it. */
   const tk = document.getElementById('askTick'), tb = document.getElementById('askTickBox');
@@ -8599,37 +8603,83 @@ const delBlob = k => tx('readwrite', st => st.delete(k)).catch(()=>null);
 const IMG_EXT = /\.(jpe?g|png|gif|webp|bmp|heic|heif|avif|tiff?)$/i;
 const looksLikeImage = f => !!f && (/^image\//.test(f.type || '') || (!f.type && IMG_EXT.test(f.name || '')));
 
+/* A promise that will not wait for ever.
+
+   THE BUG THIS EXISTS FOR: on an iPhone or a Mac with iCloud Photos set to
+   "Optimise Storage", the picture you choose is often not on the device. The
+   bytes live in iCloud and the system fetches them when something reads the
+   file. When that fetch stalls — no signal, a big old photo, iCloud
+   throttling — the read NEVER SETTLES. It does not fail. It just never comes
+   back.
+
+   `createImageBitmap` had no clock on it, so a stalled fetch hung the whole
+   queue: no error, no toast, nothing at all, for ever, and every photo behind
+   it in the same selection was stuck too. From the outside that is "I picked
+   my photos and the app did nothing" — the exact words. A try/catch cannot
+   catch a promise that never settles; only a clock can. */
+function deadline(promise, ms, label){
+  let timer;
+  const bell = new Promise((_, rej) => {
+    timer = setTimeout(() => { const e = new Error(label || 'timeout'); e.slow = true; rej(e); }, ms);
+  });
+  return Promise.race([promise, bell]).finally(() => clearTimeout(timer));
+}
+
+/* How long to wait before saying something, and before giving up. A real
+   iCloud download of a 12MP photo on a poor signal can genuinely take half a
+   minute, so giving up at five seconds would fail photos that were going to
+   arrive. Speak early, give up late. */
+const PHOTO_NUDGE_MS = 6000;
+const PHOTO_GIVEUP_MS = 45000;
+/* Once one photo in a batch has stalled, the rest almost certainly will too:
+   they were picked from the same library in the same state. Waiting the full
+   45 seconds each would mean four and a half minutes of nothing for six
+   photos, which is worse than the bug this replaced. After the first stall
+   the rest get a short look and are reported together. */
+const PHOTO_GIVEUP_AFTER_STALL_MS = 8000;
+
 /* Decode, then scale. createImageBitmap is the fast path and the only one that
    can rotate from EXIF, but Safari refuses some files it will happily draw in
    an <img> — HEIC above all — so a failure there falls through to the element
-   rather than throwing the photo away. */
-async function decodeImage(file){
+   rather than throwing the photo away.
+
+   Both paths are now on a clock. onSlow fires once if the picture is taking
+   long enough that the walker deserves to know why. */
+async function decodeImage(file, onSlow, hurry){
+  const giveUp = hurry ? PHOTO_GIVEUP_AFTER_STALL_MS : PHOTO_GIVEUP_MS;
+  const nudge = setTimeout(() => { try{ onSlow && onSlow(); }catch(e){} }, Math.min(PHOTO_NUDGE_MS, giveUp - 1));
   try{
-    const bmp = await createImageBitmap(file, {imageOrientation:'from-image'})
-      .catch(() => createImageBitmap(file));
-    if (bmp && bmp.width) return bmp;
-  }catch(e){}
-  const url = URL.createObjectURL(file);
-  try{
-    const img = new Image();
-    img.decoding = 'async';
-    await new Promise((res, rej) => {
-      img.onload = res;
-      img.onerror = () => rej(new Error('decode'));
-      img.src = url;
-      /* a picture that never fires either event must not hang the queue */
-      setTimeout(() => rej(new Error('timeout')), 20000);
-    });
-    if (img.decode) await img.decode().catch(() => {});
-    if (!img.naturalWidth) throw new Error('empty');
-    return img;
+    try{
+      const bmp = await deadline(
+        createImageBitmap(file, {imageOrientation:'from-image'}).catch(() => createImageBitmap(file)),
+        giveUp, 'icloud');
+      if (bmp && bmp.width) return bmp;
+    }catch(e){
+      /* a stall means the bytes are not here; the <img> path would stall too */
+      if (e && e.slow) throw e;
+    }
+    const url = URL.createObjectURL(file);
+    try{
+      const img = new Image();
+      img.decoding = 'async';
+      await deadline(new Promise((res, rej) => {
+        img.onload = res;
+        img.onerror = () => rej(new Error('decode'));
+        img.src = url;
+      }), giveUp, 'icloud');
+      if (img.decode) await img.decode().catch(() => {});
+      if (!img.naturalWidth) throw new Error('empty');
+      return img;
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+    }
   } finally {
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    clearTimeout(nudge);
   }
 }
 
-async function shrink(file){
-  const src = await decodeImage(file);
+async function shrink(file, onSlow, hurry){
+  const src = await decodeImage(file, onSlow, hurry);
   const sw = src.width || src.naturalWidth, sh = src.height || src.naturalHeight;
   if (!sw || !sh) throw new Error('That image has no size.');
   const max = 1400, s = Math.min(1, max / Math.max(sw, sh));
@@ -8914,43 +8964,124 @@ async function addPhotos(key, files, quiet){
      one repaint per hill is a flicker of seven toasts. It counts and reports
      once itself. */
   let added = 0;
-  const bad = [];
+  /* Four different problems, four different answers. They were all reported
+     as "that photo would not open", which blames the picture for a browser
+     that is out of space and tells nobody what to do about it. */
+  const bad = [], stalled = [], full = [];
   const list = [...files];
   for (let i = 0; i < list.length; i++){
     const f = list[i];
-    if (list.length > 1) toast('Adding photos… ' + (i + 1) + ' of ' + list.length);
+    const many = list.length > 1;
+    const where = many ? ' (' + (i + 1) + ' of ' + list.length + ')' : '';
+    if (many && !quiet) toast('Adding photos…' + where);
+    /* An iCloud photo that never downloaded arrives with no bytes at all.
+       Catching it here costs nothing and names the real problem straight
+       away instead of after a 45-second wait. */
+    if (f && f.size === 0){ stalled.push((f && f.name) || 'a photo'); continue; }
     if (!looksLikeImage(f)){ bad.push((f && f.name) || 'a file'); continue; }
     try{
-      const blob = await shrink(f);
+      const blob = await shrink(f, () => {
+        if (!quiet) toast('Waiting for iCloud to send this photo…' + where);
+      }, stalled.length > 0);
       const id = uid();
       const ok = await putBlob(id, blob);
       /* putBlob swallows its own errors and answers null. A photo whose bytes
          never reached IndexedDB used to be added to the record anyway, so the
          hill showed a picture slot that could never load — which is what "it
          just does not upload them" looks like from the outside. */
-      if (ok === null && !(await getBlob(id))) throw new Error('storage');
+      if (ok === null && !(await getBlob(id))) { const se = new Error('storage'); se.full = true; throw se; }
       const r = rec(key);
       state.bagged[key] = {...r, photos:[...r.photos, {id, up:0}], t:now()};
       added++;
       /* save as we go: six photos that all succeed but are written once at the
          end are six photos lost if the tab is closed in the middle */
       touched();
-    }catch(e){ bad.push((f && f.name) || 'a photo'); }
+    }catch(e){
+      /* A stall, a photo that will not open, and a browser with no room left
+         are three different problems with three different answers. Each gets
+         its own pile and its own sentence. The loop carries on either way:
+         one photo stuck in iCloud must never hold up the five good ones
+         chosen with it. */
+      const pile = (e && e.slow) ? stalled : (e && e.full) ? full : bad;
+      pile.push((f && f.name) || 'a photo');
+      /* but there is no point trying five more when there is room for none */
+      if (e && e.full){ for (let j = i + 1; j < list.length; j++) full.push((list[j] && list[j].name) || 'a photo'); break; }
+    }
     /* let the phone breathe and reclaim the last picture's memory */
     await new Promise(r => setTimeout(r, 0));
   }
-  if (added && !quiet){
-    render();
-    toast(added + (added === 1 ? ' photo added' : ' photos added') +
-      (bad.length ? ', ' + bad.length + ' would not open.' : '.'));
-  }
-  else if (bad.length && !quiet){
-    toast(bad.length === 1
-      ? 'That photo would not open. If it came from iCloud, open it in Photos first.'
-      : 'None of those would open. If they came from iCloud, open them in Photos first.');
-  }
+  if (!quiet){ render(); photoReport(added, bad, stalled, full); }
   if (bad.length) console.warn('[waymark] photos that would not open:', bad);
+  if (stalled.length) console.warn('[waymark] photos still in iCloud:', stalled);
+  if (full.length) console.warn('[waymark] no room for photos:', full);
   return added;
+}
+
+/* One place that decides what to say after a batch of photos, so the hill,
+   the journal and the day all say the same thing.
+
+   The rule: never end silently, and never blame the walker for something
+   iCloud is doing. "Nothing happened" was the whole complaint. */
+function photoReport(added, bad, stalled, full, huge){
+  const n = (stalled || []).length, b = (bad || []).length,
+        fl = (full || []).length, hg = (huge || []).length;
+  const got = added ? added + ' added. ' : '';
+  /* Worst first: no room left stops everything and is the only one the
+     walker has to act on straight away. */
+  if (fl){
+    toastAct(got + 'This browser has run out of room, so ' +
+      (fl === 1 ? 'that photo was not saved.' : fl + ' photos were not saved.'),
+      'What to do', storageHelp);
+  } else if (n){
+    toastAct(got + (n === 1
+        ? 'One photo is still in iCloud, so it could not be read.'
+        : n + ' photos are still in iCloud, so they could not be read.'),
+      'What to do', iCloudHelp);
+  } else if (hg){
+    toast(got + (hg === 1 ? 'One photo was too big to send.' : hg + ' photos were too big to send.') +
+      ' It is still in your log.');
+  } else if (b){
+    /* HEIC is the iPhone default and the one format a browser genuinely
+       cannot open, so when that is what these were, say so by name. */
+    const heic = (bad || []).filter(x => /\.hei[cf]$/i.test(String(x))).length;
+    if (heic === b){
+      toast(got + (b === 1
+        ? 'That is a HEIC photo, which a browser cannot open. Export it as a JPEG and try again.'
+        : 'Those ' + b + ' are HEIC photos, which a browser cannot open. Export them as JPEGs and try again.'));
+    } else {
+      toast(got + (b === 1 ? 'One photo would not open.' : b + ' photos would not open.'));
+    }
+  } else if (added){
+    toast(added + (added === 1 ? ' photo added.' : ' photos added.'));
+  } else {
+    toast('No photos were added.');
+  }
+}
+
+/* Out of room is the walker's to solve, so say how. The log's own save
+   already throws away the caches it can fetch again; this is what is left
+   when that was not enough. */
+function storageHelp(){
+  confirmAsk({
+    title: 'This browser is full',
+    body: 'A browser gives each site about five megabytes, and photos are much the biggest thing WayMark keeps in yours.\n\n'
+        + 'Your marks, dates and notes are safe \u2014 it is only new photos that cannot be saved.\n\n'
+        + 'Two things help: sign in, so your photos go to your account instead of living only on this device; and take a backup from Settings before clearing anything.',
+    yes: 'Got it', no: 'Close', tone: 'plain'
+  });
+}
+
+/* Said in full, once, rather than crammed into a toast nobody can read in
+   three seconds. */
+function iCloudHelp(){
+  confirmAsk({
+    title: 'Still in iCloud',
+    body: 'Your phone keeps older photos in iCloud to save space and only fetches them when something asks. '
+        + 'WayMark asked, and they have not arrived.\n\n'
+        + 'Open the Photos app, find those pictures, and let each one finish loading \u2014 you will see it sharpen up. '
+        + 'Then come back and choose them again. On a slow connection this takes a minute; Wi-Fi helps.',
+    yes: 'Got it', no: 'Close', tone: 'plain'
+  });
 }
 /* ---- diary entry photos ----
    Same blobs, same IndexedDB store, same upload path as a summit photo; they
@@ -8965,19 +9096,30 @@ function setDiary(id, patch){
 }
 async function addDiaryPhotos(id, files){
   const e = diaryEntry(id); if (!e) return;
-  let added = 0, failed = 0;
-  const fresh = [];
-  for (const f of files){
-    if (!looksLikeImage(f)){ failed++; continue; }
+  let added = 0;
+  const bad = [], stalled = [], full = [], fresh = [];
+  const list = [...files];
+  for (let i = 0; i < list.length; i++){
+    const f = list[i];
+    const where = list.length > 1 ? ' (' + (i + 1) + ' of ' + list.length + ')' : '';
+    if (list.length > 1) toast('Adding photos…' + where);
+    if (f && f.size === 0){ stalled.push((f && f.name) || 'a photo'); continue; }
+    if (!looksLikeImage(f)){ bad.push((f && f.name) || 'a file'); continue; }
     try{
-      const blob = await shrink(f);
-      if (!blob){ failed++; continue; }
-      const pid = uid(); await putBlob(pid, blob);
-      const cur = diaryEntry(id); if (!cur) return;
+      /* Same clock as a summit photo. A journal day is where the oldest
+         pictures go, so this is the path most likely to meet iCloud. */
+      const blob = await shrink(f, () => toast('Waiting for iCloud to send this photo…' + where), stalled.length > 0);
+      if (!blob){ bad.push((f && f.name) || 'a photo'); continue; }
+      const pid = uid();
+      const ok = await putBlob(pid, blob);
+      if (ok === null && !(await getBlob(pid))) { const se = new Error('storage'); se.full = true; throw se; }
+      const cur = diaryEntry(id); if (!cur) return added;
       cur.photos = [...(cur.photos || []), {id:pid, up:0, cap:'', k:''}];
       fresh.push(pid);
       added++;
-    }catch(err){ failed++; }
+      setDiary(id, {});
+    }catch(err){ ((err && err.slow) ? stalled : (err && err.full) ? full : bad).push((f && f.name) || 'a photo'); }
+    await new Promise(r => setTimeout(r, 0));
   }
   if (added){
     setDiary(id, {});
@@ -8986,7 +9128,11 @@ async function addDiaryPhotos(id, files){
     ui.tagging = {entry:id, ids:fresh, q:''};
     render();
   }
-  else if (failed) toast(failed === 1 ? 'Could not read that image.' : 'Could not read any of those images.');
+  /* Even with the tagging panel opening, a photo that did not make it has to
+     be said out loud — silence here is the original complaint. */
+  if (bad.length || stalled.length || full.length || !added) photoReport(added, bad, stalled, full);
+  if (stalled.length) console.warn('[waymark] journal photos still in iCloud:', stalled);
+  return added;
 }
 
 /* Tagging a diary photo to a hill puts the same photo on that hill's record —
@@ -14067,7 +14213,7 @@ function dogCropCover(src){
         const blob = await (await fetch(pic)).blob();
         const id = uid();
         const ok = await putBlob(id, blob);
-        if (ok === null && !(await getBlob(id))) throw new Error('storage');
+        if (ok === null && !(await getBlob(id))) { const se = new Error('storage'); se.full = true; throw se; }
         ui.dogDraft.cov = {id, up:0}; ui.dogDraft.cfy = 50;
         dogKeepPic({cov:{id, up:0}, cfy:50});
         paintDogEdit();
@@ -14118,7 +14264,7 @@ async function dogCoverFrom(file){
   const blob = await shrink(file);
   const id = uid();
   const ok = await putBlob(id, blob);
-  if (ok === null && !(await getBlob(id))) throw new Error('storage');
+  if (ok === null && !(await getBlob(id))) { const se = new Error('storage'); se.full = true; throw se; }
   return {id, up:0};
 }
 function saveDog(){
@@ -23170,9 +23316,15 @@ document.addEventListener('change', e => {
     if (!ui.dogDraft) return;
     dogCropCover(URL.createObjectURL(f));
   }
-  else if (a === 'photo' && el.files && el.files.length){
-    const files = [...el.files]; el.value = '';
-    toast('Processing…'); addPhotos(el.dataset.k, files);
+  else if (a === 'photo'){
+    /* A picker that hands back nothing is not always a cancel. On iOS a photo
+       iCloud cannot produce can come back as an empty selection, and the old
+       code required files.length before it did ANYTHING — so that case fell
+       through every branch and the app sat there saying nothing. */
+    const files = el.files ? [...el.files] : []; el.value = '';
+    if (!files.length){ toast('No photos came through. If they are in iCloud, open them in Photos first.'); return; }
+    toast(files.length > 1 ? 'Adding ' + files.length + ' photos…' : 'Adding photo…');
+    addPhotos(el.dataset.k, files);
   }
   else if (a === 'impfiles' && el.files && el.files.length){
     const files = [...el.files]; el.value = '';
@@ -26941,19 +27093,32 @@ async function addShotsToPost(postId, files){
   const list = [...files].slice(0, room);
   toast('Adding ' + list.length + (list.length === 1 ? ' photo…' : ' photos…'));
   let added = 0;
-  for (const f of list){
+  const stalled = [], bad = [], full = [], huge = [];
+  for (let i = 0; i < list.length; i++){
+    const f = list[i];
+    const where = list.length > 1 ? ' (' + (i + 1) + ' of ' + list.length + ')' : '';
+    if (f && f.size === 0){ stalled.push((f && f.name) || 'a photo'); continue; }
     try{
-      const blob = await shrink(f);
+      const blob = await shrink(f, () => toast('Waiting for iCloud to send this photo…' + where), stalled.length > 0);
       const pid = uid();
       await putBlob(pid, blob);
       if (key){ const r = rec(key); state.bagged[key] = {...r, photos:[...r.photos, {id:pid, up:0}], t:now()}; }
       const b64 = await blobToB64(blob);
-      if (b64.length > 950000) continue;
+      /* This used to `continue` in silence: the photo was in the log but
+         never reached the post, and nobody was told which or why. */
+      if (b64.length > 950000){ huge.push((f && f.name) || 'a photo'); continue; }
       await FB.setDoc(shotRef(postId, pid), {d:b64, owner:fbUser.uid, cap:'', t:Date.now()});
       have.push(pid); added++;
-    }catch(e){}
+    }catch(e){ ((e && e.slow) ? stalled : (e && e.full) ? full : bad).push((f && f.name) || 'a photo'); }
   }
-  if (!added){ toast('Those photos didn’t upload. Try again.'); return; }
+  /* "Try again" is the wrong advice when the photo is sitting in iCloud —
+     trying again does the same nothing. Say which problem it was. */
+  if (!added){
+    if (stalled.length || bad.length || full.length || huge.length) photoReport(0, bad, stalled, full, huge);
+    else toast('Those photos didn\u2019t upload. Try again.');
+    return;
+  }
+  if (stalled.length || bad.length || full.length || huge.length) photoReport(added, bad, stalled, full, huge);
   touched();
   /* A merge, not a whole-document rewrite from this device's cached copy of
      the post — that used to overwrite anything the server had that the cache
@@ -27852,7 +28017,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v280';
+const APP_VERSION = 'v281';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
