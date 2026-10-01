@@ -13913,7 +13913,7 @@ function iosPushSheet(){
 }
 /* the worker: fire and forget, after the thing itself is saved */
 async function pushPing(body){
-  if (!window.PUSH_WORKER || !fbAuth || !fbAuth.currentUser) return;
+  if (!window.PUSH_WORKER || !fbAuth || !fbAuth.currentUser || !fbUser) return;
   try{
     const tok = await fbAuth.currentUser.getIdToken();
     fetch(String(window.PUSH_WORKER).replace(/\/+$/, '') + '/ping', {method:'POST', keepalive:true, headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + tok}, body: JSON.stringify(body)}).catch(() => {});
@@ -24601,7 +24601,14 @@ async function fbStart(){
   }catch(e){ FB = null; return; }
   try{ await FB.getRedirectResult(fbAuth); }catch(e){}
   FB.onAuthStateChanged(fbAuth, async u => {
-    fbUser = u ? {uid:u.uid, name:u.displayName || 'Walker', photo:u.photoURL || ''} : null;
+    /* An anonymous account is minted for one job only: recording a shop vote.
+       It is not a sign-in. It has no name, so everything downstream fell back
+       to "Walker" — and because nothing here asked, two visitors who had only
+       voted were given a public profile card and a row in Discover, and had
+       their log pushed to the cloud under a throwaway id. */
+    if (u && u.isAnonymous){ supUid = u.uid; return; }
+    fbUser = u ? {uid:u.uid, name:u.displayName || 'Walker', photo:u.photoURL || '',
+                  email:u.email || '', isAnonymous:false} : null;
     if (fbUser){
       fbName = fbName || fbUser.name;
       /* they answered the sign-in step by signing in */
@@ -28397,7 +28404,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v286';
+const APP_VERSION = 'v287';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
