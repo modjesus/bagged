@@ -4479,7 +4479,11 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-msg{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:32px; text-align:center; background:rgba(11,21,18,.88); font-size:16px; line-height:1.45}
 .cx-msg[hidden]{display:none}
 .cx-dock{flex:1; min-height:196px; display:flex; flex-direction:column; justify-content:space-evenly; gap:10px; padding:8px 0 calc(env(safe-area-inset-bottom) + 10px); transition:opacity .2s}
-.cx-lenses{display:flex; justify-content:center; gap:18px}
+.cx-lenses{display:flex; gap:18px; overflow-x:auto; overflow-y:hidden; padding:6px 14px; scroll-snap-type:x proximity; scrollbar-width:none; -ms-overflow-style:none}
+.cx-lenses::-webkit-scrollbar{display:none}
+.cx-lens{scroll-snap-align:center; flex:0 0 auto}
+.cx-lens:first-child{margin-left:auto}
+.cx-lens:last-child{margin-right:auto}
 .cx-lens{background:none; border:none; padding:0; color:#A9BBAF; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase}
 .cx-lens canvas{height:60px; width:auto; max-width:60px; border-radius:9px; border:2px solid rgba(246,239,228,.25); transition:transform .15s, border-color .15s}
 .cx-lens[aria-checked="true"]{color:#F6EFE4}
@@ -28538,7 +28542,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v291';
+const APP_VERSION = 'v293';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -32736,13 +32740,135 @@ function camC(ctx, F){
   }
 }
 
+/* ---- four more looks ----
+   Each one takes a part of the frame the first three leave alone: the left
+   margin, the lower-left block, the foot, and a shape rather than a block. */
+function wkFit(ctx, s, cap, w, min){ min = min || 20; while (cap > min && wkWidth(ctx, s, cap) > w) cap -= 1; return cap; }
+
+/* PILLAR — a margin down the left edge, the way a sheet carries its title */
+function camD(ctx, F){
+  const BW = 252, px = 120, py = 150;
+  const g = ctx.createLinearGradient(0, 0, BW + 90, 0);
+  g.addColorStop(0, 'rgba(14,35,30,.88)'); g.addColorStop(0.72, 'rgba(14,35,30,.80)'); g.addColorStop(1, 'rgba(14,35,30,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, -CAM_T, BW + 90, CAM_FH);
+  ctx.fillStyle = CC.rust; ctx.fillRect(BW, -CAM_T, 3, CAM_FH);
+  cShadow(ctx, true);
+  /* the trig pillar, drawn rather than photographed */
+  ctx.strokeStyle = CC.cream; ctx.lineWidth = 5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(px - 40, py + 66); ctx.lineTo(px - 26, py - 40);
+  ctx.lineTo(px + 26, py - 40); ctx.lineTo(px + 40, py + 66); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px - 34, py - 40); ctx.lineTo(px + 34, py - 40); ctx.stroke();
+  ctx.fillStyle = F.summit ? CC.rust : CC.sage; ctx.beginPath(); ctx.arc(px, py - 58, 9, 0, 7); ctx.fill();
+  cText(ctx, F.summit ? '▲ SUMMIT' : '△ ON THE WAY', 40, py + 110, 15, 4, F.summit ? CC.rust : CC.sage);
+  /* the facts, stacked up from the foot so the column never runs off the bottom */
+  const rows = F.summit
+    ? [F.hSmall, F.gr, F.date, F.time].concat(F.weather ? [F.sky, F.wind] : [])
+    : [F.here].concat(F.altBig ? ['≈ ' + F.altBig] : [], [F.date, F.time],
+                      F.weather ? [F.sky] : [], F.dist ? [F.distShort + ' TO GO'] : []);
+  const big = F.summit ? F.hBig : (F.altBig || F.distShort || '');
+  const ys = []; let y = CAM_H - 104;
+  for (let i = rows.length - 1; i >= 0; i--){ ys[i] = y; y -= 29; }
+  const bigY = y - 10;
+  rows.forEach((t, i) => cText(ctx, t, 40, ys[i], cFit(ctx, t, 17, 2.4, BW - 58, 11, 400), 2.4, CC.cream, {w: 400, a: 0.84}));
+  if (big) cText(ctx, big, 40, bigY, cFit(ctx, big, 22, 3, BW - 58, 13, 700), 3, F.summit ? CC.rust : CC.sage, {w: 700});
+  cLogo(ctx, 40, CAM_H - 50, 20, CC.cream, 'left');
+  /* the name, read bottom-to-top, in the space left between the two */
+  const foot = bigY - 46, avail = foot - (py + 132);
+  if (avail > 120){
+    const cap = wkFit(ctx, F.main, 72, avail, 20);
+    ctx.save(); ctx.translate(px, foot); ctx.rotate(-Math.PI / 2);
+    wkDraw(ctx, F.main, 0, cap / 2 + 3, cap, CC.cream, 'left');
+    ctx.restore();
+  }
+}
+
+/* TICKET — a printed stub: dark ink on paper, not light ink on the photo */
+function camF(ctx, F){
+  const TH = Math.round(Math.min(300, CAM_H * 0.27)), ty = CAM_H - TH - 54;
+  const INK = '#14332D', RUST = '#A8431A', pf = CAM_L + CAM_CW * 0.665;
+  cShadow(ctx, false);
+  ctx.fillStyle = 'rgba(243,239,230,.95)'; ctx.fillRect(CAM_L, ty, CAM_CW, TH);
+  ctx.strokeStyle = INK; ctx.globalAlpha = 0.35; ctx.lineWidth = 3; ctx.setLineDash([9, 11]);
+  ctx.beginPath(); ctx.moveTo(pf, ty + 16); ctx.lineTo(pf, ty + TH - 16); ctx.stroke();
+  ctx.setLineDash([]); ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'destination-out';   // the punched hole
+  ctx.beginPath(); ctx.arc(CAM_L + CAM_CW - 62, ty + TH / 2, 26, 0, 7); ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  const lw = pf - CAM_L - 68;
+  cText(ctx, F.summit ? 'SUMMIT MARKED' : 'ON THE WAY', CAM_L + 34, ty + 48, 16, 4, RUST, {w: 700});
+  wkDraw(ctx, F.main, CAM_L + 34, ty + 118, wkFit(ctx, F.main, 60, lw, 22), INK, 'left');
+  const sub = F.summit ? (F.region + (F.gr ? '  ·  ' + F.gr : '')) : (F.here || F.region);
+  cText(ctx, sub, CAM_L + 34, ty + 158, cFit(ctx, sub, 17, 2.4, lw, 12, 400), 2.4, INK, {w: 400, a: 0.72});
+  const fields = F.summit
+    ? [['HEIGHT', F.hBig], ['DATE', F.date], ['TIME', F.time]]
+    : [[F.altBig ? 'ALTITUDE' : 'TO GO', F.altBig || F.distShort || '—'], ['DATE', F.date], ['TIME', F.time]];
+  let fx = CAM_L + 34;
+  for (const [k, v] of fields){
+    cText(ctx, k, fx, ty + TH - 88, 13, 3, INK, {w: 700, a: 0.5});
+    const w = cText(ctx, v, fx, ty + TH - 54, cFit(ctx, v, 22, 2, 200, 14, 700), 2, INK, {w: 700});
+    fx += Math.max(w, 118) + 44;
+  }
+  /* the stub */
+  wkDraw(ctx, 'WAYMARK', pf + 34, ty + 82, 30, INK, 'left', 0.14);
+  cText(ctx, 'WAYMARK.IT.COM', pf + 34, ty + 112, 13, 2.4, INK, {w: 400, a: 0.6});
+  const stub = F.summit ? F.hSmall : (F.distShort || F.altSmall || '');
+  const sw = CAM_R - 110 - (pf + 34);
+  if (stub) cText(ctx, stub, pf + 34, ty + TH - 102, cFit(ctx, stub, 44, 2, sw, 20, 700), 2, RUST, {w: 700});
+  const note = F.weather ? F.sky : F.when;
+  cText(ctx, note, pf + 34, ty + TH - 66, cFit(ctx, note, 14, 2.2, sw, 10, 400), 2.2, INK, {w: 400, a: 0.8});
+}
+
+/* CONTOUR — the summit as rings, the way the hill reads on a map */
+function camG(ctx, F){
+  const ox = CAM_L + 250, oy = CAM_H - 392;
+  cFade(ctx, CAM_H - 620, 620, FADE);
+  cShadow(ctx, false);
+  const seed = (F.main || '').length;
+  for (let r = 7; r >= 1; r--){
+    const rad = 24 + r * 24;
+    ctx.beginPath();
+    for (let a = 0; a <= 64; a++){
+      const t = a / 64 * Math.PI * 2;
+      const wob = 1 + 0.085 * Math.sin(t * 3 + r * 0.7 + seed) + 0.055 * Math.sin(t * 5 - r * 1.1);
+      const x = ox + Math.cos(t) * rad * wob * 1.14, y = oy + Math.sin(t) * rad * wob;
+      a ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+    const index = r % 3 === 1;                       // index lines heavier, as on a sheet
+    ctx.strokeStyle = CC.cream; ctx.globalAlpha = index ? 0.62 : 0.3;
+    ctx.lineWidth = index ? 3.2 : 1.8; ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = F.summit ? CC.rust : CC.sage;
+  ctx.beginPath(); ctx.moveTo(ox, oy - 16); ctx.lineTo(ox + 15, oy + 10); ctx.lineTo(ox - 15, oy + 10); ctx.closePath(); ctx.fill();
+  cShadow(ctx, true);
+  /* the height sits clear below the rings, not across them */
+  const mid = F.summit ? F.hBig : (F.altBig || F.distShort || '');
+  if (mid) cText(ctx, mid, ox, oy + 262, cFit(ctx, mid, 26, 3.5, 420, 16, 700), 3.5, CC.cream, {w: 700, align: 'center'});
+  const tx = ox + 274, tw = CAM_R - tx;
+  if (!F.summit) cText(ctx, '△ ON THE WAY', tx, oy - 76, 16, 4, CC.sage);
+  wkDraw(ctx, F.main, tx, oy - 44, wkFit(ctx, F.main, 54, tw, 20), CC.cream, 'left');
+  let y = oy - 12;
+  const rows = F.summit
+    ? [F.qual, F.hSmall + (F.gr ? ' · ' + F.gr : ''), F.region, F.when].concat(F.weather ? [F.sky + ' · ' + F.wind] : [])
+    : [F.here, F.dist ? F.dist + ' TO ' + F.main : '', F.when].concat(F.weather ? [F.sky] : []);
+  for (const t of rows){
+    if (!t) continue;
+    cText(ctx, t, tx, y, cFit(ctx, t, 18, 2.6, tw, 12, 400), 2.6, t === F.qual ? CC.sub : CC.cream, {w: 400, a: 0.84});
+    y += 32;
+  }
+  cText(ctx, 'WAYMARK.IT.COM', CAM_L, CAM_H - 54, 16, 3, CC.rust);
+  cLogo(ctx, CAM_R, CAM_H - 54, 20, CC.cream, 'right');
+}
+
 /* ---- overlays: each look is drawn once onto its own transparent layer and
    laid over every video frame, so the live view stays smooth ---- */
-const CAM_LOOKS = [['stamp', 'Stamp'], ['strip', 'Strip'], ['minimal', 'Minimal']];
+const CAM_LOOKS = [['stamp', 'Stamp'], ['strip', 'Strip'], ['minimal', 'Minimal'],
+                   ['pillar', 'Pillar'], ['ticket', 'Ticket'], ['contour', 'Contour']];
 function camLayer(style, F){
   const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH;
   const ctx = c.getContext('2d'); ctx.translate(0, CAM_T);
-  if (F.main) ({stamp: camA, strip: camB, minimal: camC})[style](ctx, F);
+  if (F.main) ({stamp: camA, strip: camB, minimal: camC, pillar: camD, ticket: camF, contour: camG})[style](ctx, F);
   else {                             // no place yet: the photo still carries the mark
     cFade(ctx, CAM_H - 260, 260, FBOT); cShadow(ctx, true);
     const lw = cLogo(ctx, CAM_R, CAM_H - 60, 22, CC.cream, 'right');
@@ -33070,6 +33196,9 @@ function camChrome(){
   else p = '<b class="tri dim">△</b> ' + gDist(cam.dist) + ' to ' + esc(hillName(h));
   pill.innerHTML = p;
   document.querySelectorAll('#camx .cx-lens').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === cam.prefs.style)));
+  /* six looks no longer fit the width, so the chosen one is brought into view */
+  const lens = document.querySelector('#camx .cx-lens[aria-checked="true"]');
+  if (lens && lens.scrollIntoView) try{ lens.scrollIntoView({block: 'nearest', inline: 'center', behavior: 'smooth'}); }catch(e){ lens.scrollIntoView(false); }
   if (!document.getElementById('cxPanel').hidden) camPanel();
 }
 function camPanelClose(){
