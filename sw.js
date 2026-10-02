@@ -10,7 +10,7 @@
 //
 // Any other version number you see in this file is prose in a comment and does
 // nothing at all.
-const CACHE = 'waymark-v293';
+const CACHE = 'waymark-v294';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
@@ -18,7 +18,14 @@ const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-wel
                './map/os-open-outdoor.json', './map/os-open-road.json',
                './map/sprite.json', './map/sprite.png', './map/sprite@2x.json', './map/sprite@2x.png',
                './strava/btn_strava_connect_with_orange.svg', './strava/btn_strava_connect_with_white.svg',
-               './strava/api_logo_pwrdBy_strava_horiz_orange.svg', './strava/api_logo_pwrdBy_strava_horiz_white.svg'];
+               './strava/api_logo_pwrdBy_strava_horiz_orange.svg', './strava/api_logo_pwrdBy_strava_horiz_white.svg',
+'./terrain/index.json'];
+
+/* The height grids are NOT in the shell. They are tens of megabytes, the
+   walker chooses which to have, and once fetched they live decoded in the
+   app's own store rather than in a cache. Only the little catalogue that
+   lists them is kept here, so the Skyline screen can still say what there is
+   when there is no signal. */
 
 // The map's own stores. They are not versioned: a new build must never throw
 // away a sheet somebody saved for a walk.
