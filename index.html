@@ -28469,7 +28469,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v289';
+const APP_VERSION = 'v290';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -29321,10 +29321,17 @@ async function createGroup(name, kind, where){
   unmarkGone(code);
   const pub = kind === 'public';
   const nm = name || (pub ? 'A public group' : 'My leaderboard');
-  const doc = {name: nm, createdBy: fbUser.uid, createdAt: Date.now(), kind: pub ? 'public' : 'private', mem: 1, lastT: Date.now()};
+  /* NO `lastT` here. It means "the last time something was said", and nothing
+     has been said in a group one second old. Setting it on creation made
+     every group you made light the notification pip the moment it existed,
+     and the pip could not be cleared by looking at the Groups page \u2014 only by
+     opening that one group's talk, which has nothing in it to open. */
+  const doc = {name: nm, createdBy: fbUser.uid, createdAt: Date.now(), kind: pub ? 'public' : 'private', mem: 1};
   if (pub) doc.where = where || 'Anywhere';
   await FB.setDoc(groupRef(code), doc);
   groupMeta[code] = doc;
+  /* And you have obviously seen your own new group. */
+  gSeen[code] = Date.now(); gSaveSeen();
   /* register the board first so myMemberDoc(code) can read its detail flag.
      A public group starts on totals only whatever the default says — everyone
      using WayMark can read it, and nobody has been asked yet. */
@@ -29773,7 +29780,9 @@ async function loadPublic(force){
   try{
     const snap = await FB.getDocs(FB.query(FB.collection(fbDb, 'groups'), FB.where('kind', '==', 'public'), FB.limit(80)));
     const out = []; snap.forEach(d => out.push({code:d.id, ...(d.data() || {})}));
-    out.sort((a, b) => (b.lastT || 0) - (a.lastT || 0) || (b.mem || 0) - (a.mem || 0));
+    /* A group that has never been posted in has no `lastT` any more, so fall
+       back to when it was made rather than dropping it to the bottom. */
+    out.sort((a, b) => (b.lastT || b.createdAt || 0) - (a.lastT || a.createdAt || 0) || (b.mem || 0) - (a.mem || 0));
     gFind = out;
     for (const g of out) if (!groupMeta[g.code]) groupMeta[g.code] = g;
   }catch(e){ gFind = gFind || []; }
@@ -29859,6 +29868,9 @@ async function gReply(code, pid, text){
       notify(p.uid, 'ga_' + pid, {type:'answered', code, pid,
         snip: (p.hn || (p.text || '').slice(0, 40) || 'your question'), text: doc.text.slice(0, 90)});
   }
+  /* The same line gPost carries: your own answer must not come back at you as
+     an unread notification. */
+  gSeen[code] = Math.max(gSeen[code] || 0, doc.t); gSaveSeen();
   FB.setDoc(groupRef(code), {lastT: doc.t}, {merge:true}).catch(() => {});
   return true;
 }
@@ -30513,7 +30525,15 @@ function gTalkUnread(){
 function gStirred(code){
   if (gTalk[code]) return false;
   const m = groupMeta[code] || {};
-  return !!(m.lastT && m.lastT > (gSeen[code] || 0));
+  if (!m.lastT) return false;
+  /* FIRST SIGHT. `gSeen[code] || 0` treated "this device has never recorded
+     anything about this group" as "you have read nothing in it", so every
+     group you had never opened on this device badged for ever \u2014 nine of
+     them at once, eight with no posts in them at all. We do not know what has
+     been read here, and inventing unread is the one answer that is certainly
+     wrong. Start the clock instead. */
+  if (gSeen[code] == null){ gSeen[code] = m.lastT; gSaveSeen(); return false; }
+  return m.lastT > gSeen[code];
 }
 function gGroupRow(code){
   const n = gUnread(code), k = gKind(code);
