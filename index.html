@@ -22629,6 +22629,7 @@ document.addEventListener('click', async e => {
   else if (a === 'stopen'){ ui.stravaOpen = true; ui.stravaPick = null; paintStrava(); stravaLoadList(); }
   else if (a === 'stclose'){ ui.stravaOpen = false; ui.stravaPick = null; paintStrava(); }
   else if (a === 'stretry'){ stravaLoadList(); }
+  else if (a === 'stmore'){ stravaMore(); }
   else if (a === 'stprep'){ stravaPrepare(el.dataset.id); }
   else if (a === 'stback'){ ui.stravaPick = null; paintStrava(); }
   else if (a === 'stcommit'){ stravaCommit(); }
@@ -28222,13 +28223,62 @@ async function stravaDisconnect(){
   toast('Strava disconnected.');
 }
 const stravaImported = () => new Set(liveDiary().filter(e => e.strava && e.strava.id).map(e => String(e.strava.id)));
+/* ONE PAGE AT A TIME, AS FAR BACK AS YOU LIKE.
+
+   This used to ask for `per_page=60` and nothing else, which is Strava's
+   sixty most recent activities OF ANY KIND \u2014 and only then did it keep the
+   walks. So nothing older than your last sixty outings could ever appear,
+   and somebody who rides or runs between walks saw almost nothing at all:
+   the cut happens before the filter, not after.
+
+   Strava serves 200 a page and as many pages as you ask for. The first page
+   lands straight away; "Load older walks" fetches the next, and so on until
+   Strava runs out. */
+const STRAVA_PER_PAGE = 200;
+async function stravaPage(n){
+  const acts = await stravaGet('/athlete/activities?per_page=' + STRAVA_PER_PAGE + '&page=' + n);
+  const all = acts || [];
+  return {all, walks: all.filter(x => STRAVA_TYPES.includes(x.sport_type || x.type))};
+}
 async function stravaLoadList(){
-  ui.stravaBusy = true; ui.stravaErr = ''; paintStrava();
+  ui.stravaBusy = true; ui.stravaErr = '';
+  ui.stravaList = null; ui.stravaPage = 0; ui.stravaEnd = false; ui.stravaScanned = 0;
+  paintStrava();
   try{
-    const acts = await stravaGet('/athlete/activities?per_page=60');
-    ui.stravaList = (acts || []).filter(x => STRAVA_TYPES.includes(x.sport_type || x.type));
+    const r = await stravaPage(1);
+    ui.stravaList = r.walks;
+    ui.stravaPage = 1;
+    ui.stravaScanned = r.all.length;
+    /* a short page means that is everything Strava has */
+    ui.stravaEnd = r.all.length < STRAVA_PER_PAGE;
   }catch(e){ ui.stravaErr = e.message || 'Couldn’t reach Strava'; }
   ui.stravaBusy = false; paintStrava();
+}
+/* The next page back. Walks are appended, so the list stays newest first and
+   nothing already on screen moves under the walker's finger. */
+async function stravaMore(){
+  if (ui.stravaMoreBusy || ui.stravaEnd) return;
+  ui.stravaMoreBusy = true; ui.stravaErr = ''; paintStrava();
+  try{
+    const n = (ui.stravaPage || 1) + 1;
+    const r = await stravaPage(n);
+    ui.stravaPage = n;
+    ui.stravaScanned = (ui.stravaScanned || 0) + r.all.length;
+    if (r.walks.length){
+      const have = new Set((ui.stravaList || []).map(x => String(x.id)));
+      ui.stravaList = (ui.stravaList || []).concat(r.walks.filter(x => !have.has(String(x.id))));
+    }
+    if (r.all.length < STRAVA_PER_PAGE) ui.stravaEnd = true;
+  }catch(e){ ui.stravaErr = e.message || 'Couldn’t reach Strava'; }
+  ui.stravaMoreBusy = false; paintStrava();
+}
+/* The oldest walk on screen, so the button can say where it has got back to
+   rather than just "load more". */
+function stravaOldest(){
+  const l = ui.stravaList || [];
+  if (!l.length) return '';
+  const d = String(l[l.length - 1].start_date_local || '').slice(0, 10);
+  return d ? prettyDate(d) : '';
 }
 /* the summits a track passes: within 60 m of the trig point */
 function summitsOnTrack(pts){
@@ -28320,16 +28370,35 @@ function paintStrava(){
         '<div class="btnrow"><button class="btn quiet" data-act="stback">Back</button><button class="btn" data-act="stcommit">Add to journal</button></div>';
     }
   } else {
-    h += '<p class="repsub">' + (who && who.name ? 'Connected as ' + esc(who.name) + '. ' : '') + 'Your recent walks and hikes. Bring one in to see its route in your journal and mark the summits it passed.</p>';
+    h += '<p class="repsub">' + (who && who.name ? 'Connected as ' + esc(who.name) + '. ' : '') + 'Your walks and hikes, newest first. Bring one in to see its route in your journal and mark the summits it passed \u2014 and keep loading older ones to go back as far as your Strava does.</p>';
     if (ui.stravaBusy) h += '<p class="stnote">Fetching your walks…</p>';
     else if (ui.stravaErr) h += '<p class="stnote">' + esc(ui.stravaErr) + '</p><div class="btnrow"><button class="btn" data-act="stretry">Try again</button></div>';
-    else if (!(ui.stravaList || []).length) h += '<p class="stnote">No walks or hikes in your last 60 Strava activities.</p>';
+    else if (!(ui.stravaList || []).length) h += '<p class="stnote">No walks, hikes or trail runs in the ' +
+      (ui.stravaScanned || 0).toLocaleString() + ' Strava activities looked at so far.' +
+      (ui.stravaEnd ? ' That is everything on your Strava.' : '') + '</p>';
     else h += '<div class="stlist">' + ui.stravaList.map(x => {
       const d = String(x.start_date_local || '').slice(0, 10), have = done.has(String(x.id));
       const s = {dist: x.distance || 0, mins: Math.round((x.moving_time || 0) / 60), asc: x.total_elevation_gain || 0};
       return '<div class="strow"><div><b>' + esc(x.name || 'Walk') + '</b><span>' + esc(prettyDate(d)) + ' · ' + stravaStats(s).map(y => y[1]).join(' · ') + '</span></div>' +
         (have ? '<span class="sthave">' + ti('check') + 'In journal</span>' : '<button class="btn sm" data-act="stprep" data-id="' + esc(String(x.id)) + '">Bring in</button>') + '</div>';
     }).join('') + '</div>';
+    /* How far back we have got, and the way further back. Strava hands over
+       200 activities a page, of every kind, so the walks on screen can be a
+       handful out of hundreds \u2014 say both numbers rather than leave somebody
+       wondering where their 2019 walks went. */
+    if ((ui.stravaList || []).length || ui.stravaScanned){
+      const oldest = stravaOldest();
+      h += '<p class="stnote">' + (ui.stravaList || []).length.toLocaleString() +
+        ((ui.stravaList || []).length === 1 ? ' walk' : ' walks') + ' from ' +
+        (ui.stravaScanned || 0).toLocaleString() + ' Strava activities' +
+        (oldest ? ', back to ' + esc(oldest) : '') + '.</p>';
+    }
+    if (!ui.stravaEnd)
+      h += '<div class="btnrow"><button class="btn ghost" data-act="stmore"' +
+           (ui.stravaMoreBusy ? ' disabled' : '') + '>' +
+           (ui.stravaMoreBusy ? 'Looking further back\u2026' : 'Load older walks') + '</button></div>';
+    else if ((ui.stravaList || []).length)
+      h += '<p class="stnote">That is every walk on your Strava.</p>';
     h += '<div class="stfoot">' + stravaPowered() + '<button class="linkbtn" data-act="stdisconnect">Disconnect Strava</button></div>';
   }
   el.innerHTML = h + '</div>';
@@ -28469,7 +28538,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v290';
+const APP_VERSION = 'v291';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
