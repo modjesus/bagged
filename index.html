@@ -4517,7 +4517,11 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-panel[hidden]{display:none}
 .cx-grab{width:44px; height:5px; border-radius:3px; background:rgba(246,239,228,.35); margin:0 auto 12px; position:relative}
 .cx-grab::before{content:""; position:absolute; left:-40px; right:-40px; top:-14px; bottom:-14px}
-.cx-panel{touch-action:none}
+/* The sheet is dragged shut by pulling it DOWN from the top of its content.
+   Anywhere else it scrolls, because it is now long enough to need to.
+   `touch-action:none` across the whole sheet is what stopped that. */
+.cx-panel{touch-action:pan-y; max-height:82%; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain}
+.cx-panel .cx-grab{touch-action:none}
 .cx-panel h4{margin:0 0 4px; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#A9BBAF}
 .cx-row{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 0; border-top:1px solid rgba(246,239,228,.1); font-size:16px; font-weight:600}
 /* Skyline is not a caption style. The other six answer "how should this
@@ -4531,7 +4535,9 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-mode{position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:4;
  display:flex; gap:4px; padding:4px; border-radius:24px; background:#14332D;
  box-shadow:0 2px 12px rgba(8,20,15,.35)}
-.camx.clean .cx-mode, .camx.review .cx-mode, .camx.panel .cx-mode, .camx.recording .cx-mode{display:none}
+.camx.review .cx-mode, .camx.recording .cx-mode{display:none}
+/* NOT hidden when a sheet is open: it is the way back to the camera, it sits
+   at the top, and the sheet covers the bottom. Hiding it stranded people. */
 .cx-mode button{border:none; background:none; color:#A9BBAF; padding:9px 20px; border-radius:20px;
  font:700 14px/1 'Source Sans 3',system-ui,sans-serif; letter-spacing:.02em; min-height:40px}
 .cx-mode button[aria-pressed="true"]{background:#F6EFE4; color:#14332D}
@@ -28619,7 +28625,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v295';
+const APP_VERSION = 'v296';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -32640,50 +32646,119 @@ function skyPackFor(E, N, idx){
   return null;
 }
 
-/* ---- reading one 8-bit plane out of a PNG, a band at a time so a big
-   grid never needs a hundred megabytes of pixels all at once ---- */
+/* ---- reading a height plane out of a PNG ----
+
+   This used to go through a canvas: draw the image, read the pixels back.
+   It does not work. Safari colour-manages an image on its way onto a
+   canvas, so the bytes that come back are not the bytes that went in, and
+   every height in the country comes out a metre or two wrong. On Joe's
+   iPhone the five known heights did not match and the pack was refused,
+   which is what that guard was for — but a refused pack is still a dead
+   feature.
+
+   It was also what crashed the phone. A canvas needs the whole picture
+   decoded (four bytes a pixel — ninety megabytes for the national grid)
+   and then the pixels copied out again.
+
+   So the PNG is unpacked here instead. It is a format WayMark writes
+   itself, always 8-bit greyscale and never interlaced, which is about
+   sixty lines of work: inflate the image data, then undo the per-row
+   filter. One byte a cell, no colour management anywhere near it, and the
+   numbers that come out are the numbers that went in. */
+async function skyInflate(bytes){
+  if (typeof DecompressionStream === 'undefined') throw new Error('this phone is too old for the terrain');
+  const st = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
+  return new Uint8Array(await new Response(st).arrayBuffer());
+}
+/* Unfiltered IN PLACE. For row y the write lands at y*w and the read comes
+   from y*(w+1)+1, so the writing is always behind the reading and the same
+   buffer can be used for both. That saves one whole copy of the national
+   grid — twenty-three megabytes — at the moment the phone is tightest. */
+function skyUnfilter(raw, w, h){
+  const stride = w + 1, out = raw;
+  if (raw.length < stride * h) throw new Error('the terrain file is short');
+  for (let y = 0; y < h; y++){
+    const f = raw[y * stride], row = (y * stride) + 1, o = y * w, up = o - w;
+    if (f === 0){ out.copyWithin(o, row, row + w); continue; }
+    if (f === 2){ for (let x = 0; x < w; x++) out[o + x] = (raw[row + x] + (y ? out[up + x] : 0)) & 255; continue; }
+    for (let x = 0; x < w; x++){
+      const a = x ? out[o + x - 1] : 0, b = y ? out[up + x] : 0, c = (x && y) ? out[up + x - 1] : 0;
+      let v = raw[row + x];
+      if (f === 1) v += a;
+      else if (f === 3) v += (a + b) >> 1;
+      else if (f === 4){
+        const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+        v += (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
+      } else throw new Error('the terrain file is not one of ours');
+      out[o + x] = v & 255;
+    }
+  }
+  return out.subarray(0, w * h);
+}
 async function skyPlane(url, onBit){
   const r = await fetch(url);
   if (!r.ok) throw new Error('terrain ' + r.status);
-  const bm = await createImageBitmap(await r.blob());
-  const w = bm.width, h = bm.height, out = new Uint8Array(w * h);
-  const BAND = Math.max(1, Math.min(h, Math.floor(4e6 / w)));
-  const c = document.createElement('canvas'); c.width = w; c.height = BAND;
-  const x = c.getContext('2d', {willReadFrequently: true});
-  for (let y = 0; y < h; y += BAND){
-    const rows = Math.min(BAND, h - y);
-    x.clearRect(0, 0, w, BAND);
-    x.drawImage(bm, 0, y, w, rows, 0, 0, w, rows);
-    const d = x.getImageData(0, 0, w, rows).data;
-    for (let i = 0, j = 0, o = y * w; i < w * rows; i++, j += 4) out[o + i] = d[j];
-    if (onBit) onBit(Math.min(1, (y + rows) / h));
+  const bytes = new Uint8Array(await r.arrayBuffer());
+  onBit && onBit(0.5);
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let p = 8, w = 0, h = 0, total = 0;
+  const parts = [];
+  while (p + 8 <= bytes.length){
+    const len = dv.getUint32(p);
+    const type = String.fromCharCode(bytes[p+4], bytes[p+5], bytes[p+6], bytes[p+7]);
+    const d = p + 8;
+    if (type === 'IHDR'){
+      w = dv.getUint32(d); h = dv.getUint32(d + 4);
+      /* 8-bit, greyscale, not interlaced — what the build writes */
+      if (bytes[d+8] !== 8 || bytes[d+9] !== 0 || bytes[d+12] !== 0)
+        throw new Error('the terrain file is not one of ours');
+    }
+    else if (type === 'IDAT'){ parts.push(bytes.subarray(d, d + len)); total += len; }
+    else if (type === 'IEND') break;
+    p = d + len + 4;
   }
-  if (bm.close) bm.close();
-  return {w, h, a: out};
+  if (!w || !h || !total) throw new Error('the terrain file is empty');
+  let z;
+  if (parts.length === 1) z = parts[0];
+  else { z = new Uint8Array(total); let o = 0; for (const q of parts){ z.set(q, o); o += q.length; } }
+  const raw = await skyInflate(z);
+  onBit && onBit(0.9);
+  const a = skyUnfilter(raw, w, h);
+  onBit && onBit(1);
+  return {w, h, a};
 }
 async function skyBuild(meta, onP){
-  const hi = await skyPlane(SKY_URL + meta.key + '-hi.png', f => onP && onP(f * 0.45));
-  const lo = await skyPlane(SKY_URL + meta.key + '-lo.png', f => onP && onP(0.45 + f * 0.45));
+  const hi = await skyPlane(SKY_URL + meta.key + '-hi.png', f => onP && onP(f * 0.5));
+  const lo = await skyPlane(SKY_URL + meta.key + '-lo.png', f => onP && onP(0.5 + f * 0.5));
   if (hi.w !== meta.w || hi.h !== meta.h || lo.w !== meta.w || lo.h !== meta.h)
     throw new Error('terrain is the wrong size');
-  const n = meta.w * meta.h, a = new Uint16Array(n);
-  for (let i = 0; i < n; i++) a[i] = (hi.a[i] << 8) | lo.a[i];
-  /* A browser that colour-manages a greyscale PNG would shift every height
-     by a metre or two, silently. Five known cells say whether it did. */
-  for (const [x, y, v] of (meta.probe || []))
-    if (a[y * meta.w + x] !== v) throw new Error('this phone cannot read the terrain exactly');
+  /* The two planes are KEPT APART. Joining them into one 16-bit array meant
+     holding both and the join at once — three times the memory of the thing
+     being built, which is what made the phone flash and shut the tab. The
+     height is put together a cell at a time instead, when it is asked for. */
+  const g = {w: meta.w, h: meta.h, cell: meta.cell, e0: meta.e0, n0: meta.n0, hi: hi.a, lo: lo.a};
+  for (const [x, y, v] of (meta.probe || [])){
+    const i = y * meta.w + x;
+    if (((g.hi[i] << 8) | g.lo[i]) !== v) throw new Error('this phone cannot read the terrain exactly');
+  }
   onP && onP(1);
-  return {w: meta.w, h: meta.h, cell: meta.cell, e0: meta.e0, n0: meta.n0, a};
-}
-async function skyHave(key){ return !!(await skyGet('grid:' + key).catch(() => null)); }
-async function skyGetGrid(meta, onP){
-  const kept = await skyGet('grid:' + meta.key).catch(() => null);
-  if (kept && kept.a && kept.w === meta.w && kept.h === meta.h) return kept;
-  const g = await skyBuild(meta, onP);
-  await skyPut('grid:' + meta.key, g).catch(() => {});
   return g;
 }
-async function skyDrop(key){ skyHeld.pack && skyHeld.pack.key === key && (skyHeld.pack = null); return skyDel('grid:' + key); }
+async function skyHave(key){ return !!(await skyGet('grid2:' + key).catch(() => null)); }
+async function skyGetGrid(meta, onP){
+  const kept = await skyGet('grid2:' + meta.key).catch(() => null);
+  if (kept && kept.hi && kept.lo && kept.w === meta.w && kept.h === meta.h) return kept;
+  const g = await skyBuild(meta, onP);
+  await skyPut('grid2:' + meta.key, g).catch(() => {});
+  skyDel('grid:' + meta.key).catch(() => {});       /* the old joined-up shape */
+  return g;
+}
+async function skyDrop(key){
+  if (skyHeld.pack && skyHeld.pack.key === key) skyHeld.pack = null;
+  if (skyHeld.base && key === 'base') skyHeld.base = null;
+  skyDel('grid:' + key).catch(() => {});
+  return skyDel('grid2:' + key);
+}
 
 /* ---- the height at a point: the fine pack if it reaches, the coarse base
    otherwise, and sea level beyond the edge of the country ---- */
@@ -32692,8 +32767,9 @@ function skyAt(E, N){
     if (!g) continue;
     const x = (E - g.e0) / g.cell, y = (N - g.n0) / g.cell;
     if (!(x >= 0 && y >= 0 && x < g.w - 1 && y < g.h - 1)) continue;
-    const x0 = x | 0, y0 = y | 0, fx = x - x0, fy = y - y0, i = y0 * g.w + x0;
-    const a = g.a[i], b = g.a[i + 1], c = g.a[i + g.w], d = g.a[i + g.w + 1];
+    const x0 = x | 0, y0 = y | 0, fx = x - x0, fy = y - y0, i = y0 * g.w + x0, H = g.hi, L = g.lo;
+    const a = (H[i] << 8) | L[i], b = (H[i + 1] << 8) | L[i + 1];
+    const c = (H[i + g.w] << 8) | L[i + g.w], d = (H[i + g.w + 1] << 8) | L[i + g.w + 1];
     return (a + (b - a) * fx) * (1 - fy) + (c + (d - c) * fx) * fy;
   }
   return 0;
@@ -32894,7 +32970,14 @@ async function skyReady(force){
   const want = skyPackFor(me.E, me.N, idx);
   const haveBase = skyHeld.base, havePack = skyHeld.pack && want && skyHeld.pack.key === want.key;
   if (!force && haveBase && (havePack || !want) && skyView &&
-      Math.hypot(me.E - skyView.E0, me.N - skyView.N0) < 120) return;   /* near enough */
+      Math.hypot(me.E - skyView.E0, me.N - skyView.N0) < 120){
+    /* The view we already have is still the right one. Say so: coming back
+       to Skyline after it has been worked out once used to leave the state
+       reading "idle", and the screen said "Finding where you are" over a
+       drawing that was sitting there ready. */
+    if (skyState !== 'ready'){ skyState = 'ready'; skyTick(); }
+    return;
+  }
   skyState = 'loading'; skyPct = 0; skyTick();
   try{
     if (!skyHeld.base){
@@ -33793,6 +33876,10 @@ function camWatch(){
     if (cam.photoFix) return;
     cam.fix = cam.liveFix; camJudge();
     if (cam.prefs.weather && !cam.wx) camWeather();
+    /* Skyline asks for a position the moment it opens. On a cold start there
+       is not one yet, and without this it waits for ever for a fix that has
+       already arrived. */
+    if (cam.prefs.style === 'skyline') skyReady();
     if (!cam.still) camLayers(); else camChrome();
   }, e => { if (!cam) return; cam.locErr = e.code === 1 ? 'off' : 'wait'; camChrome(); },
   {enableHighAccuracy: true, maximumAge: 5000, timeout: 30000});
@@ -33910,13 +33997,23 @@ function camBuild(){
     '<div class="cx-panel" id="cxPanel" hidden></div>';
   el.addEventListener('click', camClick);
   /* drag the settings sheet down by its handle (or anywhere on it) to close */
-  const panel = el.querySelector('#cxPanel'); let py = null, pdy = 0;
+  const panel = el.querySelector('#cxPanel'); let py = null, pdy = 0, pgrab = false;
   panel.addEventListener('touchstart', e => {
     if (e.target.closest('button') && !e.target.closest('.cx-grab')) return;
+    pgrab = !!e.target.closest('.cx-grab');
+    /* Part way down a list, a downward swipe means SCROLL. The sheet only
+       comes away when it is already at the top, or when it is taken by its
+       handle. */
+    if (!pgrab && panel.scrollTop > 2){ py = null; return; }
     py = e.touches[0].clientY; pdy = 0; panel.style.transition = 'none';
   }, {passive: true});
   panel.addEventListener('touchmove', e => {
-    if (py == null) return; pdy = Math.max(0, e.touches[0].clientY - py);
+    if (py == null) return;
+    const dy = e.touches[0].clientY - py;
+    /* dragging up is scrolling, not dismissing */
+    if (!pgrab && dy < 4 && pdy === 0){ py = null; panel.style.transform = ''; return; }
+    if (!pgrab && panel.scrollTop > 2){ py = null; panel.style.transform = ''; return; }
+    pdy = Math.max(0, dy);
     panel.style.transform = 'translateY(' + pdy + 'px)';
   }, {passive: true});
   panel.addEventListener('touchend', () => {
@@ -33936,7 +34033,11 @@ function camBuild(){
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){ camStep(dx < 0 ? 1 : -1); e.preventDefault(); }
     else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && Date.now() - st < 300 && !cam.still){
       if (skyTap(t)) { e.preventDefault(); return; }
-      el.classList.toggle('clean'); e.preventDefault();
+      /* Skyline is an instrument, not a photograph. There is nothing to
+         admire with the controls out of the way, and no clue how to get
+         them back, so the tap does nothing here. */
+      if (cam.prefs.style !== 'skyline') el.classList.toggle('clean');
+      e.preventDefault();
     }
   });
   /* the Skyline bar: drag it to swing the names round onto the real hills */
@@ -34063,6 +34164,7 @@ function camLook(k){
   cam.prefs.style = k;
   if (k !== 'skyline') cam.prefs.last = k;
   camKeep();
+  if (k === 'skyline') document.getElementById('camx').classList.remove('clean');
   if (k === 'skyline'){
     skyLoadPrefs(); skyWatchTilt(); askHeading(); skyTurnWatch();
     if (cam.noCam){ const P = skyLoadPrefs(); if (P.look === 'camera'){ P.look = 'dusk'; skySavePrefs(); }
@@ -34227,7 +34329,8 @@ async function camPick(file){
 }
 function camRetake(){
   if (cam.photoFix || cam.photoNoPlace){ cam.photoFix = null; cam.photoNoPlace = false; cam.wx = null;
-    cam.fix = cam.liveFix || null; if (cam.fix) camJudge(); }
+    cam.fix = cam.liveFix || null; if (cam.fix) camJudge();
+    if (cam.prefs.style === 'skyline') skyReady(true); }
   cam.still = null; cam.saved = false; cam.marked = null; cam.skyHold = null;
   if (cam.clip){ URL.revokeObjectURL(cam.clip.url); cam.clip = null; }
   const cv = document.getElementById('cxClip'); cv.pause(); cv.removeAttribute('src'); cv.hidden = true;
