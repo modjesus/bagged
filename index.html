@@ -28625,7 +28625,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v296';
+const APP_VERSION = 'v297';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -32918,7 +32918,7 @@ function skyWatchTilt(){
 let skyTurnOn = false;
 function skyTurnWatch(){
   if (skyTurnOn) return; skyTurnOn = true;
-  const again = () => { if (cam && cam.prefs.style === 'skyline') requestAnimationFrame(() => { camPaint(); skyBar(); }); };
+  const again = () => { if (cam && cam.prefs.style === 'skyline') requestAnimationFrame(() => { skyMeasure(true); camPaint(); skyBar(); }); };
   addEventListener('resize', again);
   addEventListener('orientationchange', () => setTimeout(again, 120));
   if (screen.orientation && screen.orientation.addEventListener)
@@ -32947,7 +32947,10 @@ function skySavePrefs(){ try{ localStorage.setItem(SKY_KEY, JSON.stringify(skyPr
    checks the screen is still there rather than assuming it. */
 function skyTick(){
   if (!cam || !document.getElementById('camx')) return;
-  try{ skyBar(); camLayers(); camPaint(); }catch(e){}
+  /* NOT camLayers(). Skyline does not use the caption layers, and rebuilding
+     six full-size drawings on every progress tick is what made the screen
+     stutter while the hills were coming in. */
+  try{ skyMeasure(true); skyBar(); camPaint(); }catch(e){}
 }
 let skyState = 'idle';        /* idle | loading | scanning | ready | none */
 let skyMsg = '', skyPct = 0;
@@ -33012,79 +33015,107 @@ async function skyReady(force){
   skyTick();
 }
 
-/* ---- the ground you are carrying, and getting more of it ---- */
-let skyKeptLine = 'Nothing saved yet';
+/* ---- the hills you are carrying, and getting more of them ----
+
+   The sheet used to rebuild itself from scratch on every progress tick —
+   seventeen store lookups and a full innerHTML rewrite, several times a
+   second, while a download was running. That is why the menu flashed and
+   why a button under your thumb did nothing: the button you pressed had
+   been thrown away and replaced between the touch going down and coming up.
+
+   So: what is on the phone is worked out ONCE and kept, the sheet is drawn
+   once from that, and progress only ever changes the words inside one
+   button. */
+let skyHaveSet = null, skyKeptLine = 'Nothing saved yet', skyDrawing = false, skyGetting = '';
 async function skyRefreshKept(){
   try{
     const idx = await skyCatalogue();
-    const got = [];
-    let bytes = 0;
-    if (await skyHave('base')){ got.push('Great Britain'); bytes += idx.base.bytes; }
-    for (const p of idx.packs) if (await skyHave(p.key)){ got.push(p.name); bytes += p.bytes; }
-    skyKeptLine = got.length
-      ? got.join(', ') + '  \u00B7  ' + (bytes / 1e6).toFixed(1) + ' MB'
-      : 'Nothing saved yet';
-  }catch(e){ skyKeptLine = 'Nothing saved yet'; }
-  const el = document.getElementById('cxPanel');
-  if (el && !el.hidden && /Skyline/.test(el.innerHTML)) skyPanel();
+    const set = new Set();
+    let bytes = 0; const got = [];
+    if (await skyHave('base')){ set.add('base'); got.push('Great Britain'); bytes += idx.base.bytes; }
+    for (const m of idx.packs) if (await skyHave(m.key)){ set.add(m.key); got.push(m.name); bytes += m.bytes; }
+    skyHaveSet = set;
+    skyKeptLine = got.length ? got.join(', ') + '  ·  ' + (bytes / 1e6).toFixed(1) + ' MB'
+                             : 'Nothing saved yet';
+  }catch(e){ skyHaveSet = skyHaveSet || new Set(); skyKeptLine = 'Nothing saved yet'; }
 }
 const skyKept = () => skyKeptLine;
 
-/* One screen: the whole country at a coarse grid so names work anywhere, and
-   the fine ground for wherever you are walking. Both stay on the phone. */
-let skyGetting = '';
 async function skyPanel(){
-  const el = document.getElementById('cxPanel'); el.hidden = false; camSheet();
-  const mb = n => (n / 1e6).toFixed(n < 1e6 ? 2 : 1) + ' MB';
+  if (skyDrawing) return;
+  skyDrawing = true;
+  try{ await skyPanelDraw(); } finally { skyDrawing = false; }
+}
+async function skyPanelDraw(){
+  const el = document.getElementById('cxPanel'); if (!el) return;
+  el.hidden = false; camSheet();
   let idx = null;
   try{ idx = await skyCatalogue(); }catch(e){}
   if (!idx){
-    el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>The ground</h4>' +
+    el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>The hills</h4>' +
       '<p class="cx-info">The first download needs a connection. Everything after that works without one.</p>' +
       '<button class="cx-btn ghost" data-c="opts">Done</button>';
     return;
   }
+  if (!skyHaveSet) await skyRefreshKept();
+  const have = skyHaveSet || new Set();
+  const mb = n => (n / 1e6).toFixed(n < 1e6 ? 2 : 1) + ' MB';
   const me = cam && cam.fix ? osEN(cam.fix.lat, cam.fix.lon) : null;
   const here = me ? skyPackFor(me.E, me.N, idx) : null;
-  const rows = [];
-  const line = async (m, lead) => {
-    const has = await skyHave(m.key);
-    const busy = skyGetting === m.key;
-    rows.push('<div class="cx-row"><span>' + esc(m.name) + '<i>' + (lead || '') +
-      (lead ? '  \u00B7  ' : '') + mb(m.bytes) + (has ? '  \u00B7  on this phone' : '') + '</i></span>' +
-      (busy
-        ? '<button class="cx-btn ghost sm" disabled>' + Math.round(skyPct * 100) + '%</button>'
-        : has
-          ? '<button class="cx-btn ghost sm" data-c="skydrop" data-v="' + m.key + '">Remove</button>'
-          : '<button class="cx-btn sm" data-c="skyadd" data-v="' + m.key + '">Get</button>') + '</div>');
+  const row = (m, lead) => {
+    const has = have.has(m.key), busy = skyGetting === m.key;
+    return '<div class="cx-row"><span>' + esc(m.name) + '<i>' + (lead ? lead + '  ·  ' : '') +
+      mb(m.bytes) + (has ? '  ·  on this phone' : '') + '</i></span>' +
+      (has
+        ? '<button class="cx-btn ghost sm" data-c="skydrop" data-v="' + m.key + '">Remove</button>'
+        : '<button class="cx-btn sm" data-c="skyadd" data-v="' + m.key + '" id="skyg-' + m.key + '"' +
+          (busy ? ' disabled' : '') + '>' + (busy ? Math.round(skyPct * 100) + '%' : 'Get') + '</button>') +
+      '</div>';
   };
-  await line(idx.base, 'the whole country, 200 m');
-  for (const m of idx.packs) await line(m, m === here ? 'where you are now, 50 m' : '50 m');
-  el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Skyline \u2014 the hills</h4>' +
+  el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Skyline — the hills</h4>' +
     '<p class="cx-info">Great Britain at 200 metres makes the names work anywhere. Add the fine ground for ' +
-    'wherever you are walking and the hills are drawn properly. It stays on the phone, so it works with no signal. ' +
-    'Ordnance Survey OS Terrain 50, Open Government Licence.</p>' +
+    'wherever you are walking and the hills are drawn properly. It stays on the phone, so it works with no ' +
+    'signal. Ordnance Survey OS Terrain 50, Open Government Licence.</p>' +
     (here ? '' : '<p class="cx-info">No position yet, so nothing is marked as the one you need.</p>') +
-    rows.join('') +
-    '<p class="cx-info">Northern Ireland is not covered by this data: hills there are named, but the ground is not drawn.</p>' +
+    row(idx.base, 'the whole country, 200 m') +
+    idx.packs.map(m => row(m, m === here ? 'where you are now, 50 m' : '50 m')).join('') +
+    '<p class="cx-info">Northern Ireland is not covered by this data: hills there are named, but the ground ' +
+    'is not drawn.</p>' +
     '<button class="cx-btn ghost" data-c="opts">Done</button>';
 }
+/* progress touches ONE button's words. Nothing else on the sheet moves. */
+function skyProgress(key){
+  const b = document.getElementById('skyg-' + key);
+  if (b) b.textContent = Math.round(skyPct * 100) + '%';
+}
 async function skyAdd(key){
-  let idx; try{ idx = await skyCatalogue(); }catch(e){ toast('That needs a connection the first time.'); return; }
+  if (skyGetting) return;
+  let idx; try{ idx = await skyCatalogue(); }
+  catch(e){ toast('That needs a connection the first time.'); return; }
   const m = key === 'base' ? idx.base : idx.packs.find(x => x.key === key);
   if (!m) return;
-  skyGetting = key; skyPct = 0; skyPanel();
+  skyGetting = key; skyPct = 0;
+  const btn = document.getElementById('skyg-' + key);
+  if (btn){ btn.disabled = true; btn.textContent = '0%'; }
   try{
-    const g = await skyGetGrid(m, f => { skyPct = f; skyPanel(); });
+    const g = await skyGetGrid(m, f => { skyPct = f; skyProgress(key); });
     if (key === 'base') skyHeld.base = g;
-    else { g.key = key; const me = cam && cam.fix ? osEN(cam.fix.lat, cam.fix.lon) : null;
-           if (me && skyPackFor(me.E, me.N, idx) && skyPackFor(me.E, me.N, idx).key === key) skyHeld.pack = g; }
+    else {
+      g.key = key;
+      const me = cam && cam.fix ? osEN(cam.fix.lat, cam.fix.lon) : null;
+      const want = me ? skyPackFor(me.E, me.N, idx) : null;
+      if (want && want.key === key) skyHeld.pack = g;
+    }
+    if (skyHaveSet) skyHaveSet.add(key);
     toast(m.name + ' is on your phone. It works with no signal now.');
   }catch(e){
-    toast(/exactly/.test(e.message) ? 'This phone cannot read the terrain.' : 'That download did not finish.');
+    toast(/exactly/.test(e.message) ? 'This phone cannot read the hill data.'
+        : /too old/.test(e.message) ? 'This phone is too old for the hill data.'
+        : 'That download did not finish.');
   }
   skyGetting = '';
-  await skyRefreshKept(); skyPanel();
+  await skyRefreshKept();
+  if (!document.getElementById('cxPanel').hidden) skyPanel();
   if (skyState !== 'ready') skyReady(true);
 }
 
@@ -33137,13 +33168,9 @@ function skyLabels(ctx, W, H, head, pitch, fov, eyeY, pxd, opt){
      shelf starts below it rather than under it. Measured, not guessed, so it
      stays right whichever way the phone is held. */
   let ceiling = 56 * u;
-  const sw = document.getElementById('camx') && document.querySelector('#camx .cx-mode');
-  const vw = document.getElementById('cxView');
-  if (sw && vw && sw.offsetHeight){
-    const vr = vw.getBoundingClientRect(), sr = sw.getBoundingClientRect();
-    const kk = vr.height ? H / vr.height : 1;
-    ceiling = Math.max(ceiling, (sr.bottom - vr.top) * kk + 34 * u);
-  }
+  const B2 = skyMeasure();
+  if (B2 && B2.modeBottom != null && B2.vh)
+    ceiling = Math.max(ceiling, B2.modeBottom * (H / B2.vh) + 34 * u);
   const step = 104 * u;
   const LY = [];
   for (let i = 0; i < 4; i++){
@@ -33205,6 +33232,31 @@ function skyLabels(ctx, W, H, head, pitch, fov, eyeY, pxd, opt){
 }
 
 /* the drawn hill that stands in for Skyline before there is anything to draw */
+/* Skyline draws sixty times a second. Asking the browser where the controls
+   are while it is drawing forces it to work out the whole page layout again,
+   and doing that four times a frame is what made every tap feel late and the
+   sheets flicker. The measurements are taken once and kept until something
+   that could move them happens. */
+let skyBox = null;
+function skyMeasure(force){
+  if (!force && skyBox && Date.now() - skyBox.t < 500) return skyBox;
+  const v = document.getElementById('cxView');
+  if (!v) return (skyBox = null);
+  const vr = v.getBoundingClientRect();
+  if (!vr.height) return skyBox;
+  const bar = document.getElementById('cxSky'), sw = document.querySelector('#camx .cx-mode');
+  const br = (bar && bar.offsetHeight) ? bar.getBoundingClientRect() : null;
+  const sr = (sw && sw.offsetHeight) ? sw.getBoundingClientRect() : null;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  skyBox = {t: Date.now(), vh: vr.height,
+            /* the canvas size is measured here too, so the drawing loop
+               never has to ask the page about itself at all */
+            cw: Math.max(320, Math.round(vr.width * dpr)),
+            ch: Math.max(320, Math.round(vr.height * dpr)),
+            barTop: br ? br.top - vr.top : null,
+            modeBottom: sr ? sr.bottom - vr.top : null};
+  return skyBox;
+}
 function skyMark(ctx, x, y, r, S){
   S = S || skySkin();
   ctx.save(); ctx.translate(x, y);
@@ -33241,14 +33293,10 @@ function skyScreen(ctx, W, H){
   /* clear of the turn bar. The canvas is in device pixels and the bar is in
      CSS pixels, so the two have to be put on the same scale before the one
      can be kept out of the other's way. */
-  const view = document.getElementById('cxView');
-  const k = view && view.clientHeight ? H / view.clientHeight : 1;
-  const bar = document.getElementById('cxSky');
+  const B = skyMeasure();
+  const k = (B && B.vh) ? H / B.vh : 1;
   let fy = H - Math.round(90 * k);
-  if (bar && view && bar.offsetHeight){
-    const vr = view.getBoundingClientRect(), br = bar.getBoundingClientRect();
-    fy = Math.round((br.top - vr.top) * k) - Math.round(12 * u);
-  }
+  if (B && B.barTop != null) fy = Math.round(B.barTop * k) - Math.round(12 * u);
   fy = Math.max(Math.round(40 * u), fy);
   cText(ctx, dirs[Math.round(head / 45) % 8] + '  ' + Math.round(head) + '\u00B0',
         Math.round(22 * u), fy, Math.round(30 * u), 3.4, S.text);
@@ -33766,11 +33814,12 @@ function camPaint(){
   if (sky){
     /* Skyline is not a photograph. The canvas is whatever shape the screen
        is, in either orientation, and it is redrawn at that size. */
-    const box = document.getElementById('cxView').getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const w = Math.max(320, Math.round(box.width * dpr)), h = Math.max(320, Math.round(box.height * dpr));
-    if (cv.width !== w) cv.width = w;
-    if (cv.height !== h) cv.height = h;
+    /* Not one question asked of the page in here. The size came with the
+       rest of the measurements, and they are taken twice a second at most. */
+    const B0 = skyMeasure();
+    if (!B0) return;
+    const w = B0.cw, h = B0.ch;
+    if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
     const S = skySkin();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, w, h);
@@ -33789,8 +33838,13 @@ function camLoop(){
   if (!cam || cam.still) return;
   camPaint();
   const now = Date.now();
-  if (now - (cam.thumbT || 0) > 1500){ cam.thumbT = now; camThumbs(); }
-  if (now - (cam.tickT || 0) > 20000){ cam.tickT = now; camLayers(); }   // the clock moves on
+  /* In Skyline the caption strip is hidden and no caption is drawn, so
+     neither the thumbnails nor the twenty-second rebuild has anything to do
+     — and each of them costs a full set of full-size drawings. */
+  if (cam.prefs.style !== 'skyline'){
+    if (now - (cam.thumbT || 0) > 1500){ cam.thumbT = now; camThumbs(); }
+    if (now - (cam.tickT || 0) > 20000){ cam.tickT = now; camLayers(); }   // the clock moves on
+  }
   cam.raf = requestAnimationFrame(camLoop);
 }
 function camThumbs(){
@@ -34197,6 +34251,7 @@ function camChrome(){
 function camSheet(){
   const el = document.getElementById('camx'), pn = document.getElementById('cxPanel');
   if (el && pn) el.classList.toggle('panel', !pn.hidden);
+  if (typeof skyMeasure === 'function') skyMeasure(true);
 }
 function camPanelClose(){
   document.getElementById('cxPanel').hidden = true;
@@ -34269,7 +34324,7 @@ function camClick(e){
   }
   else if (a === 'skyget'){ skyPanel(); }
   else if (a === 'skyadd'){ skyAdd(b.dataset.v); }
-  else if (a === 'skydrop'){ skyDrop(b.dataset.v).then(() => { skyRefreshKept().then(skyPanel); }); }
+  else if (a === 'skydrop'){ const k = b.dataset.v; skyDrop(k).then(() => { if (skyHaveSet) skyHaveSet.delete(k); skyRefreshKept().then(skyPanel); }); }
   else if (a === 'mode'){ camMode(b.dataset.v); }
   else if (a === 'skylook'){
     const P = skyLoadPrefs();
@@ -34279,7 +34334,7 @@ function camClick(e){
       /* the strip carries its own colours, so it is drawn again. It takes a
          moment, which is why this is a four-way choice and not a slider. */
       if (skyView) skyView.strip = skyStrip(skyView);
-      skyBar(); camPaint();
+      skyBar(); skyMeasure(true); camPaint();
     }
     if (navigator.vibrate) navigator.vibrate(8);
   }
