@@ -4520,13 +4520,76 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-panel{touch-action:none}
 .cx-panel h4{margin:0 0 4px; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#A9BBAF}
 .cx-row{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 0; border-top:1px solid rgba(246,239,228,.1); font-size:16px; font-weight:600}
+/* Skyline is not a caption style. The other six answer "how should this
+   photograph be labelled"; Skyline answers "what am I looking at". So it is
+   a mode on the viewfinder, where every phone camera has taught people that
+   modes live, rather than the seventh thumbnail in a strip that scrolls off
+   the end and that nobody ever found. */
+/* Solid, not translucent. A part-transparent pill with a blur behind it
+   picks up whatever colour the drawing happens to be under it and reads as a
+   second button sitting behind the first. */
+.cx-mode{position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:4;
+ display:flex; gap:4px; padding:4px; border-radius:24px; background:#14332D;
+ box-shadow:0 2px 12px rgba(8,20,15,.35)}
+.camx.clean .cx-mode, .camx.review .cx-mode, .camx.panel .cx-mode, .camx.recording .cx-mode{display:none}
+.cx-mode button{border:none; background:none; color:#A9BBAF; padding:9px 20px; border-radius:20px;
+ font:700 14px/1 'Source Sans 3',system-ui,sans-serif; letter-spacing:.02em; min-height:40px}
+.cx-mode button[aria-pressed="true"]{background:#F6EFE4; color:#14332D}
 .cx-sky{position:absolute; left:14px; right:14px; bottom:14px; display:none; gap:10px; align-items:center; z-index:3}
 .camx[data-look="skyline"]:not(.review) .cx-sky{display:flex}
+.camx[data-look="skyline"] .cx-lenses{display:none}
+/* Skyline is wayfinding, not photography. It fills the screen, in either
+   orientation, and none of the picture-shaping controls apply to it. */
+.camx.sky .cx-view{width:100%; height:100%; aspect-ratio:auto; margin:0; border-radius:0; flex:1}
+.camx.sky .cx-fmts, .camx.sky .cx-shoot, .camx.sky .cx-hint{display:none}
+.camx.sky .cx-dock{flex:none; min-height:0; padding:6px 0 calc(env(safe-area-inset-bottom) + 8px); gap:8px}
+.camx.sky{display:flex; flex-direction:column}
+.cx-skylooks{display:none; gap:6px; justify-content:center; padding:0 12px}
+.camx.sky .cx-skylooks{display:flex}
+.cx-skylooks button{flex:1; max-width:120px; min-height:46px; border:none; border-radius:14px;
+ background:rgba(246,239,228,.09); color:#A9BBAF; font:700 13px/1 var(--font-ui);
+ letter-spacing:.06em; text-transform:uppercase}
+.cx-skylooks button[aria-checked="true"]{background:#F6EFE4; color:#14332D}
+/* On the paper look the page is cream, so a near-black slider laid across
+   the foot of it looks like somebody else's app. The controls change sides. */
+.camx[data-skin="paper"] .cx-sky .nb{background:#E7E1D3; box-shadow:0 2px 12px rgba(20,51,45,.16)}
+.camx[data-skin="paper"] .cx-sky .nb b{color:#5E7367}
+.camx[data-skin="paper"] .cx-sky .nb i{background:rgba(20,51,45,.22)}
+.camx[data-skin="paper"] .cx-sky .nb u{color:#14332D}
+.camx[data-skin="paper"] .cx-mode{background:#E7E1D3; box-shadow:0 2px 12px rgba(20,51,45,.16)}
+.camx[data-skin="paper"] .cx-mode button{color:#5E7367}
+.camx[data-skin="paper"] .cx-mode button[aria-pressed="true"]{background:#14332D; color:#F6EFE4}
+.camx[data-skin="paper"] .cx-skylooks button{background:rgba(20,51,45,.08); color:#5E7367}
+.camx[data-skin="paper"] .cx-skylooks button[aria-checked="true"]{background:#14332D; color:#F6EFE4}
+.camx[data-skin="paper"] .cx-top .cx-ib{background:#E7E1D3; color:#14332D}
+@media (orientation:landscape){
+  .camx.sky[data-skin="paper"] .cx-dock{background:linear-gradient(rgba(243,239,230,0), rgba(243,239,230,.88))}
+}
+@media (orientation:landscape){
+  .camx.sky .cx-dock{position:absolute; left:0; right:0; bottom:0; z-index:4; padding-bottom:calc(env(safe-area-inset-bottom) + 6px);
+    background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.78))}
+  /* sideways there is width to spare and no height at all, so the turn bar
+     gets out of the way of the view instead of stretching across it */
+  .camx.sky .cx-sky{left:auto; right:12px; width:min(44vw, 300px); bottom:86px}
+  .camx.sky .cx-sky .nb{height:44px; padding:0 14px; gap:9px}
+  .camx.sky .cx-sky .nb b{font-size:11px; letter-spacing:.1em}
+  .camx.sky .cx-sky .nb u{font-size:12px; min-width:38px}
+  .camx.sky .cx-top{position:absolute; left:0; right:0; top:0; z-index:4}
+  .camx.sky .cx-skylooks button{min-height:40px; font-size:12px}
+}
+.camx[data-look="skyline"]:not(.sky-ready) .cx-sky .nb{display:none}
+.camx[data-look="skyline"]:not(.sky-ready) .cx-sky .pb{display:none}
+.cx-sky .get{flex:1; height:52px; border-radius:26px; border:none; background:#A8431A; color:#F6EFE4;
+ font:700 15px/1 'Source Sans 3',system-ui,sans-serif; letter-spacing:.02em; display:none}
+.camx[data-look="skyline"]:not(.sky-ready) .cx-sky .get{display:block}
 /* these have to out-weigh the rule above, not just follow it */
 .camx[data-look="skyline"].clean .cx-sky,
 .camx[data-look="skyline"].panel .cx-sky{display:none}
 #cxPanel .cx-row .cx-btn.sm{flex:none; width:92px; padding-left:0; padding-right:0}
-.cx-sky .nb{flex:1; height:52px; border-radius:26px; background:rgba(14,35,30,.72); backdrop-filter:blur(6px); display:flex; align-items:center; gap:12px; padding:0 18px; touch-action:none; cursor:ew-resize}
+/* the lens dial: 29px wide was the smallest target in the camera, and it
+   is the one you are poking at with cold hands on a top */
+#cxPanel .cx-seg [data-c="skyfov"]{min-width:46px; min-height:46px; font-size:17px}
+.cx-sky .nb{flex:1; height:52px; border-radius:26px; background:#14332D; box-shadow:0 2px 12px rgba(8,20,15,.35); display:flex; align-items:center; gap:12px; padding:0 18px; touch-action:none; cursor:ew-resize}
 .cx-sky .nb b{font:700 13px/1 'Source Code Pro',monospace; letter-spacing:.14em; color:#A9BBAF; flex:none}
 .cx-sky .nb i{flex:1; height:2px; background:rgba(246,239,228,.28); position:relative; border-radius:2px}
 .cx-sky .nb i s{position:absolute; top:-7px; width:16px; height:16px; border-radius:99px; background:#E0784F; margin-left:-8px; transition:left .05s linear}
@@ -28556,7 +28619,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v294';
+const APP_VERSION = 'v295';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -32497,10 +32560,28 @@ const SKY_RE = 6371000;
 const SKY_COLS = 1440;                 /* a quarter of a degree */
 const SKY_RINGS = 384;
 const SKY_NEAR = 300, SKY_FAR = 140000;
+/* Four ways of drawing it. Over the camera for matching what you can see;
+   Paper for reading it like a map sheet; Dusk when the screen is washed out
+   and the camera is no help; Night to keep your eyes dark-adapted. */
+const SKY_LOOKS = [['camera', 'Camera'], ['paper', 'Paper'], ['dusk', 'Dusk'], ['night', 'Night']];
+const SKY_SKIN = {
+  camera: {ink: '#F6EFE4', edge: '#FFFFFF', wash: '14,35,30', deep: 0.58, text: '#F6EFE4',
+           sub: 'rgba(246,239,228,.80)', lead: 'rgba(246,239,228,.55)', dot: '#E0784F', bg: null},
+  /* the map-sheet look: dark ink on warm paper */
+  paper:  {ink: '#2C5F55', edge: '#14332D', wash: '255,255,255', deep: 0.0, text: '#14332D',
+           sub: 'rgba(20,51,45,.66)', lead: 'rgba(20,51,45,.42)', dot: '#A8431A', bg: '#F3EFE6'},
+  /* a moss ground, well clear of the near-black the first version used */
+  dusk:   {ink: '#F3EFE6', edge: '#FFFFFF', wash: '28,70,61', deep: 0.42, text: '#F6EFE4',
+           sub: 'rgba(246,239,228,.80)', lead: 'rgba(246,239,228,.55)', dot: '#E0784F', bg: '#2C5F55'},
+  night:  {ink: '#C9BFA8', edge: '#E8DFC8', wash: '0,0,0', deep: 0.5, text: '#E6DCC4',
+           sub: 'rgba(230,220,196,.62)', lead: 'rgba(230,220,196,.38)', dot: '#C2612C', bg: '#0A0F0D'}
+};
+const skySkin = () => SKY_SKIN[skyLoadPrefs().look] || SKY_SKIN.camera;
 const SKY_PXDEG = 14;                  /* the strip's scale */
-/* A phone frame is about 82 degrees tall, so the strip has to reach 41
-   degrees below your eye or the drawing stops partway down the picture. */
-const SKY_UP = 16, SKY_DOWN = 46;
+/* Held upright the picture is about 70 degrees tall and the strip has to
+   reach well past half of that both ways, or the drawing stops partway down
+   the screen. It is drawn once and used in both orientations. */
+const SKY_UP = 30, SKY_DOWN = 50;
 
 let skyDbP = null, skyIdx = null;
 let skyHeld = {base: null, pack: null};
@@ -32678,7 +32759,8 @@ function skyNames(V, hereKey){
 }
 
 /* ---- the 360° strip, drawn once and then slid about ---- */
-function skyStrip(V){
+function skyStrip(V, skin){
+  skin = skin || skySkin();
   const W = Math.round(360 * SKY_PXDEG), H = Math.round((SKY_UP + SKY_DOWN) * SKY_PXDEG);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
@@ -32694,20 +32776,22 @@ function skyStrip(V){
   x.moveTo(0, H);
   for (let i = 0; i <= V.cols; i++) x.lineTo(colX(i), Y(V.hor[i % V.cols]));
   x.lineTo(W, H); x.closePath();
+  const W3 = skin.wash, D = skin.deep;
   const wash = x.createLinearGradient(0, eyeY - 60, 0, H);
-  wash.addColorStop(0, 'rgba(14,35,30,.18)'); wash.addColorStop(0.30, 'rgba(14,35,30,.46)');
-  wash.addColorStop(0.72, 'rgba(14,35,30,.58)');
+  wash.addColorStop(0, 'rgba(' + W3 + ',' + (D * 0.31).toFixed(3) + ')');
+  wash.addColorStop(0.30, 'rgba(' + W3 + ',' + (D * 0.79).toFixed(3) + ')');
+  wash.addColorStop(0.72, 'rgba(' + W3 + ',' + D.toFixed(3) + ')');
   /* and back out at the foot, so the wash never ends in a hard line across
      the walker's own boots */
-  wash.addColorStop(1, 'rgba(14,35,30,0)');
+  wash.addColorStop(1, 'rgba(' + W3 + ',0)');
   x.fillStyle = wash; x.fill();
   x.restore();
   for (let r = 0; r < V.rings; r++){
     if (V.rng[r] < 900) { for (let i = 0; i < V.cols; i++) run[i] = Math.max(run[i], V.ang[r * V.cols + i]); continue; }
     /* cream, fading with distance, so the same strip reads over a photograph
        and over the plain pine page */
-    const o = r * V.cols, al = (0.72 - 0.52 * Math.pow(r / V.rings, 0.6)).toFixed(3);
-    x.strokeStyle = 'rgba(246,239,228,' + al + ')';
+    const o = r * V.cols, al = (0.72 - 0.52 * Math.pow(r / V.rings, 0.6));
+    x.globalAlpha = al; x.strokeStyle = skin.ink;
     x.lineWidth = 1;
     x.beginPath();
     let open = false;
@@ -32720,15 +32804,16 @@ function skyStrip(V){
     x.stroke();
     for (let i = 0; i < V.cols; i++) run[i] = Math.max(run[i], V.ang[o + i]);
   }
+  x.globalAlpha = 1;
   /* the horizon itself, heavier, so it reads against sky or photograph */
-  x.strokeStyle = '#F6EFE4'; x.lineWidth = 3; x.lineJoin = 'round';
+  x.strokeStyle = skin.edge; x.lineWidth = 3; x.lineJoin = 'round';
   x.beginPath();
   for (let i = 0; i <= V.cols; i++){
     const y = Y(V.hor[i % V.cols]);
     i ? x.lineTo(colX(i), y) : x.moveTo(colX(i), y);
   }
   x.stroke();
-  return {c, W, H, eyeY, pxdeg: SKY_PXDEG};
+  return {c, W, H, eyeY, pxdeg: SKY_PXDEG, look: skyLoadPrefs().look};
 }
 
 /* ---- which way the phone is pointed ----
@@ -32751,6 +32836,18 @@ function skyWatchTilt(){
   if ('ondeviceorientationabsolute' in window) addEventListener('deviceorientationabsolute', on);
   addEventListener('deviceorientation', on);
 }
+/* Turning the phone on its side changes the shape of the screen, and the
+   angle the camera sees across it. Nothing has to be worked out again — the
+   strip is a whole circle — but the canvas has to be resized and redrawn. */
+let skyTurnOn = false;
+function skyTurnWatch(){
+  if (skyTurnOn) return; skyTurnOn = true;
+  const again = () => { if (cam && cam.prefs.style === 'skyline') requestAnimationFrame(() => { camPaint(); skyBar(); }); };
+  addEventListener('resize', again);
+  addEventListener('orientationchange', () => setTimeout(again, 120));
+  if (screen.orientation && screen.orientation.addEventListener)
+    screen.orientation.addEventListener('change', () => setTimeout(again, 120));
+}
 const skyHead = () => headDeg == null ? 0 : headDeg;
 const skyPitch = () => skyPitchDeg;
 
@@ -32760,7 +32857,10 @@ function skyLoadPrefs(){
   if (skyPrefs) return skyPrefs;
   let p = {};
   try{ p = JSON.parse(localStorage.getItem(SKY_KEY) || '{}') || {}; }catch(e){ p = {}; }
-  skyPrefs = {turn: +p.turn || 0, fov: +p.fov || 66, plain: !!p.plain};
+  skyPrefs = {turn: +p.turn || 0, fov: +p.fov || 66,
+              look: SKY_SKIN[p.look] ? p.look : 'camera'};
+  /* the dial is the angle across the LONG edge of the picture, so one
+     setting covers the phone held either way round */
   if (!(skyPrefs.fov >= 35 && skyPrefs.fov <= 100)) skyPrefs.fov = 66;
   return skyPrefs;
 }
@@ -32771,15 +32871,15 @@ function skySavePrefs(){ try{ localStorage.setItem(SKY_KEY, JSON.stringify(skyPr
    checks the screen is still there rather than assuming it. */
 function skyTick(){
   if (!cam || !document.getElementById('camx')) return;
-  try{ camLayers(); camPaint(); }catch(e){}
+  try{ skyBar(); camLayers(); camPaint(); }catch(e){}
 }
 let skyState = 'idle';        /* idle | loading | scanning | ready | none */
 let skyMsg = '', skyPct = 0;
 function skyBusyLine(){
-  if (skyState === 'loading') return 'BRINGING IN THE GROUND… ' + Math.round(skyPct * 100) + '%';
-  if (skyState === 'scanning') return 'WORKING OUT WHAT YOU CAN SEE…';
-  if (skyState === 'none') return skyMsg || 'NO GROUND SAVED FOR HERE YET';
-  return 'WAITING FOR A POSITION…';
+  if (skyState === 'loading') return 'Bringing in the hills… ' + Math.round(skyPct * 100) + '%';
+  if (skyState === 'scanning') return 'Looking around…';
+  if (skyState === 'none') return skyMsg || 'No hills saved for this area yet.';
+  return 'Finding where you are…';
 }
 /* The grids are big. They are loaded once, kept in memory, and only
    reloaded when you walk into a different pack. */
@@ -32787,10 +32887,10 @@ async function skyReady(force){
   if (skyState === 'loading' || skyState === 'scanning') return;
   const fx = cam && cam.fix; if (!fx) { skyState = 'idle'; return; }
   const me = osEN(fx.lat, fx.lon);
-  if (!me){ skyState = 'none'; skyMsg = 'OUTSIDE GREAT BRITAIN'; return; }
+  if (!me){ skyState = 'none'; skyMsg = 'Skyline only knows Great Britain.'; return; }
   let idx;
   try{ idx = await skyCatalogue(); }
-  catch(e){ skyState = 'none'; skyMsg = 'THE GROUND NEEDS A CONNECTION THE FIRST TIME'; skyTick(); return; }
+  catch(e){ skyState = 'none'; skyMsg = 'Skyline needs the hills first. One download, then it works with no signal.'; skyTick(); return; }
   const want = skyPackFor(me.E, me.N, idx);
   const haveBase = skyHeld.base, havePack = skyHeld.pack && want && skyHeld.pack.key === want.key;
   if (!force && haveBase && (havePack || !want) && skyView &&
@@ -32809,10 +32909,11 @@ async function skyReady(force){
     }
   }catch(e){
     skyState = 'none';
-    skyMsg = /exactly/.test(e.message) ? 'THIS PHONE CANNOT READ THE TERRAIN' : 'THE GROUND NEEDS A CONNECTION THE FIRST TIME';
+    skyMsg = /exactly/.test(e.message) ? 'This phone cannot read the hill data.'
+                                      : 'Skyline needs the hills first. One download, then it works with no signal.';
     skyTick(); return;
   }
-  if (!skyGround()){ skyState = 'none'; skyMsg = 'NO GROUND SAVED FOR HERE YET'; skyTick(); return; }
+  if (!skyGround()){ skyState = 'none'; skyMsg = 'No hills saved for this area yet.'; skyTick(); return; }
   skyState = 'scanning'; skyTick();
   await new Promise(r => setTimeout(r, 16));           /* let the message paint */
   const onTop = cam && cam.mode === 'summit' && cam.hill;
@@ -32876,7 +32977,7 @@ async function skyPanel(){
   };
   await line(idx.base, 'the whole country, 200 m');
   for (const m of idx.packs) await line(m, m === here ? 'where you are now, 50 m' : '50 m');
-  el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Skyline \u2014 the ground</h4>' +
+  el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Skyline \u2014 the hills</h4>' +
     '<p class="cx-info">Great Britain at 200 metres makes the names work anywhere. Add the fine ground for ' +
     'wherever you are walking and the hills are drawn properly. It stays on the phone, so it works with no signal. ' +
     'Ordnance Survey OS Terrain 50, Open Government Licence.</p>' +
@@ -32895,7 +32996,7 @@ async function skyAdd(key){
     if (key === 'base') skyHeld.base = g;
     else { g.key = key; const me = cam && cam.fix ? osEN(cam.fix.lat, cam.fix.lon) : null;
            if (me && skyPackFor(me.E, me.N, idx) && skyPackFor(me.E, me.N, idx).key === key) skyHeld.pack = g; }
-    toast('Saved. ' + m.name + ' works with no signal now.');
+    toast(m.name + ' is on your phone. It works with no signal now.');
   }catch(e){
     toast(/exactly/.test(e.message) ? 'This phone cannot read the terrain.' : 'That download did not finish.');
   }
@@ -32933,75 +33034,170 @@ function skyLabels(ctx, W, H, head, pitch, fov, eyeY, pxd, opt){
   const rows = near.map(p => ({p,
     x: W / 2 + (((p.b - head + 540) % 360) - 180) * pxd,
     y: eyeY - p.a * pxd}));
-  cShadow(ctx, true);
+  /* everything below is in screen pixels, and the screen is anything from a
+     small phone held upright to a big one held sideways, so one scale runs
+     through the lot */
+  const S = opt.skin || skySkin(), u = Math.max(0.55, Math.min(1.0, Math.min(W / 1080, H / 1100)));
+  cShadow(ctx, S.bg ? false : true);
   for (const r of rows){
-    ctx.strokeStyle = 'rgba(246,239,228,.5)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(r.x, r.y); ctx.lineTo(r.x, r.y + 14); ctx.stroke();
-    ctx.fillStyle = r.p.t === 0 ? CC.rust : 'rgba(246,239,228,.8)';
-    ctx.beginPath(); ctx.arc(r.x, r.y, r.p.t === 0 ? 5 : 3.4, 0, 7); ctx.fill();
+    ctx.strokeStyle = S.lead; ctx.lineWidth = 2.2 * u;
+    ctx.beginPath(); ctx.moveTo(r.x, r.y); ctx.lineTo(r.x, r.y + 20 * u); ctx.stroke();
+    ctx.fillStyle = r.p.t === 0 ? S.dot : S.sub;
+    ctx.beginPath(); ctx.arc(r.x, r.y, (r.p.t === 0 ? 8 : 5) * u, 0, 7); ctx.fill();
   }
   /* the names stack above the skyline rather than sitting on each hill,
      because from a summit everything is within a degree or two of your eye */
-  const lanes = [[], [], []], LY = [0, 1, 2].map(i => Math.max(76, eyeY - 150 - i * 64));
+  /* Shelves above the skyline, as many as the screen has room for. Held
+     upright there are four; turned sideways there may be only one, and
+     pretending otherwise stacked every name on the same line. */
+  /* The Camera / Skyline switch sits at the head of the picture, so the top
+     shelf starts below it rather than under it. Measured, not guessed, so it
+     stays right whichever way the phone is held. */
+  let ceiling = 56 * u;
+  const sw = document.getElementById('camx') && document.querySelector('#camx .cx-mode');
+  const vw = document.getElementById('cxView');
+  if (sw && vw && sw.offsetHeight){
+    const vr = vw.getBoundingClientRect(), sr = sw.getBoundingClientRect();
+    const kk = vr.height ? H / vr.height : 1;
+    ceiling = Math.max(ceiling, (sr.bottom - vr.top) * kk + 34 * u);
+  }
+  const step = 104 * u;
+  const LY = [];
+  for (let i = 0; i < 4; i++){
+    const y = eyeY - 180 * u - i * step;
+    if (y < ceiling) break;
+    LY.push(y);
+  }
+  /* Held sideways, or tipped down at the valley, there can be no room above
+     the skyline at all. Rather than stacking every name on one line, they
+     hang BELOW it instead, with the leader running up to the hill. */
+  let below = false;
+  if (LY.length < 2){
+    const floorY = H - 150 * u;
+    const down = [];
+    for (let i = 0; i < 4; i++){
+      const y = eyeY + 96 * u + i * step;
+      if (y > floorY) break;
+      down.push(y);
+    }
+    if (down.length > LY.length){ LY.length = 0; LY.push(...down); below = true; }
+  }
+  if (!LY.length) LY.push(Math.max(ceiling, Math.min(eyeY - 60 * u, H - 60 * u)));
+  const lanes = LY.map(() => []);
   const order = rows.slice().sort((a, b) => (a.p.t - b.p.t) || (b.p.a - a.p.a));
   let named = 0;
   for (const r of order){
-    if (named >= (opt.max || 12)) break;
-    cMono(ctx, 23, 700);
+    if (named >= (opt.max || 11)) break;
+    const NP = Math.round(38 * u), SP = Math.round(26 * u);
+    cMono(ctx, NP, 700);
     const sub = r.p.h + ' M  ·  ' + (r.p.d < 10 ? r.p.d.toFixed(1) : Math.round(r.p.d)) + ' KM';
-    const w = Math.max(cMeasure(ctx, r.p.n.toUpperCase(), 1.8), (cMono(ctx, 15, 400), cMeasure(ctx, sub, 2)), 110) + 34;
+    const w = Math.max(cMeasure(ctx, r.p.n.toUpperCase(), 2.4), (cMono(ctx, SP, 400), cMeasure(ctx, sub, 2.4)), 160 * u) + 30 * u;
     if (r.x < 16 || r.x > W - 16) continue;
+    /* The label is nudged in off the edge so it is not clipped. The old code
+       tested the lane against where the peak IS and then stored where the
+       label ENDED UP, so anything pushed inwards sat on top of its
+       neighbour — two names printed over each other. Work out the resting
+       place first, then test THAT. */
+    const lx = Math.min(Math.max(r.x, w / 2 + 12 * u), W - w / 2 - 12 * u);
+    /* and if the nudge is so big the leader line would point somewhere the
+       hill is not, say nothing rather than something misleading */
+    if (Math.abs(lx - r.x) > 90 * u) continue;
     let put = -1;
-    for (let L = 0; L < 3; L++)
-      if (lanes[L].every(([a, b]) => r.x + w / 2 < a || r.x - w / 2 > b)){ put = L; break; }
+    for (let L = 0; L < lanes.length; L++)
+      if (lanes[L].every(([a, b]) => lx + w / 2 < a || lx - w / 2 > b)){ put = L; break; }
     if (put < 0) continue;
-    const lx = Math.min(Math.max(r.x, w / 2 + 12), W - w / 2 - 12);
     lanes[put].push([lx - w / 2, lx + w / 2]); named++;
     const ly = LY[put];
-    ctx.strokeStyle = 'rgba(246,239,228,.5)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(r.x, r.y - 7); ctx.lineTo(lx, ly + 11); ctx.stroke();
-    cText(ctx, r.p.n.toUpperCase(), lx, ly, 23, 1.8, CC.cream, {align: 'center'});
-    cText(ctx, sub, lx, ly + 22, 15, 2, CC.cream, {align: 'center', a: 0.88, w: 400});
+    ctx.strokeStyle = S.lead; ctx.lineWidth = 2.2 * u;
+    ctx.beginPath();
+    ctx.moveTo(r.x, r.y + (below ? 12 : -10) * u);
+    ctx.lineTo(lx, ly + (below ? -30 : 16) * u);
+    ctx.stroke();
+    cText(ctx, r.p.n.toUpperCase(), lx, ly, NP, 2.4, S.text, {align: 'center'});
+    cText(ctx, sub, lx, ly + 36 * u, SP, 2.4, S.sub, {align: 'center', w: 400});
     hit.push({p: r.p, x: lx, y: ly, w, px: r.x, py: r.y});
   }
   cShadow(ctx, false);
   V.hit = hit;
 }
 
-/* ---- the look itself ---- */
-function camI(ctx, F){
-  if (!skyView || !skyView.strip){
-    cFade(ctx, CAM_H - 300, 300, FBOT); cShadow(ctx, true);
-    cText(ctx, skyBusyLine(), CAM_L, CAM_H - 150, cFit(ctx, skyBusyLine(), 22, 2.6, CAM_CW, 14), 2.6, CC.cream, {w: 600});
-    cText(ctx, 'SETTINGS · THE GROUND AROUND YOU', CAM_L, CAM_H - 108, 16, 3, CC.rust);
-    cLogo(ctx, CAM_R, CAM_H - 54, 20, CC.cream, 'right');
-    return;
-  }
-  const P = skyLoadPrefs(), hold = cam && cam.skyHold;
-  const head = hold ? hold.head : ((skyHead() + (P.turn || 0)) % 360 + 360) % 360;
-  skyPaint(ctx, CAM_W, CAM_H, head, hold ? hold.pitch : skyPitch(), P.fov, {max: 12});
-  /* The foot of the picture. While you are looking through it the turn bar
-     is sitting down there, so the reading moves up out of its way and the
-     hill's own name stays in the pill at the top. Once the shutter has gone
-     the bar is away and the picture carries everything. */
+/* the drawn hill that stands in for Skyline before there is anything to draw */
+function skyMark(ctx, x, y, r, S){
+  S = S || skySkin();
+  ctx.save(); ctx.translate(x, y);
+  ctx.strokeStyle = S.text; ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-r, r * 0.55); ctx.lineTo(-r * 0.28, -r * 0.5); ctx.lineTo(r * 0.04, r * 0.02);
+  ctx.lineTo(r * 0.34, -r * 0.34); ctx.lineTo(r, r * 0.55);
+  ctx.stroke();
+  ctx.strokeStyle = S.dot; ctx.lineWidth = 3; ctx.globalAlpha = 0.9;
+  ctx.beginPath(); ctx.moveTo(-r * 1.15, r * 0.9); ctx.lineTo(r * 1.15, r * 0.9); ctx.stroke();
+  ctx.globalAlpha = 1; ctx.restore();
+}
+/* The dial is set across the long edge of the picture. Held upright, the
+   camera's long edge is vertical, so the angle ACROSS the screen is
+   narrower; held sideways it is the full width. One setting, both ways. */
+function skyFovH(w, h){
+  const long = skyLoadPrefs().fov, t = Math.tan(long / 2 * Math.PI / 180);
+  if (w >= h) return long;
+  return 2 * Math.atan(t * w / h) * 180 / Math.PI;
+}
+/* Skyline fills the screen. This is the whole of it: ground behind, the
+   drawing over the top, and a line at the foot saying where you are
+   pointed. */
+function skyScreen(ctx, W, H){
+  const S = skySkin(), P = skyLoadPrefs();
+  if (S.bg){ ctx.fillStyle = S.bg; ctx.fillRect(0, 0, W, H); }
+  if (!skyView || !skyView.strip){ skyEmpty(ctx, W, H, S); return; }
+  if (skyView.strip.look !== P.look) skyView.strip = skyStrip(skyView);
+  const head = ((skyHead() + (P.turn || 0)) % 360 + 360) % 360;
+  skyPaint(ctx, W, H, head, skyPitch(), skyFovH(W, H), {max: W > H ? 14 : 10, skin: S});
   const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+  const u = Math.max(0.8, Math.min(1.6, W / 1080));
+  cShadow(ctx, S.bg ? false : true);
+  /* clear of the turn bar. The canvas is in device pixels and the bar is in
+     CSS pixels, so the two have to be put on the same scale before the one
+     can be kept out of the other's way. */
+  const view = document.getElementById('cxView');
+  const k = view && view.clientHeight ? H / view.clientHeight : 1;
+  const bar = document.getElementById('cxSky');
+  let fy = H - Math.round(90 * k);
+  if (bar && view && bar.offsetHeight){
+    const vr = view.getBoundingClientRect(), br = bar.getBoundingClientRect();
+    fy = Math.round((br.top - vr.top) * k) - Math.round(12 * u);
+  }
+  fy = Math.max(Math.round(40 * u), fy);
+  cText(ctx, dirs[Math.round(head / 45) % 8] + '  ' + Math.round(head) + '\u00B0',
+        Math.round(22 * u), fy, Math.round(30 * u), 3.4, S.text);
   const n = (skyView.peaks || []).length;
-  const dir = dirs[Math.round(head / 45) % 8] + '  ' + Math.round(head) + '°';
-  if (hold){
-    cFade(ctx, CAM_H - 170, 170, FBOT);
-    cShadow(ctx, true);
-    cText(ctx, dir, CAM_L, CAM_H - 104, 24, 3, CC.cream);
-    cText(ctx, n + ' HILLS IN SIGHT', CAM_R, CAM_H - 104, 16, 2.6, CC.sage, {align: 'right', w: 400});
-    const sub = (F.main || '') + (F.hBig ? '  ·  ' + F.hBig : '');
-    cText(ctx, sub, CAM_L, CAM_H - 54, cFit(ctx, sub, 18, 2.6, CAM_CW - 200, 12), 2.6, CC.cream, {w: 400, a: .85});
-    cLogo(ctx, CAM_R, CAM_H - 54, 20, CC.cream, 'right');
-  } else {
-    cFade(ctx, CAM_H - 300, 160, [[0, 0], [1, 0.42]]);
-    cShadow(ctx, true);
-    cText(ctx, dir, CAM_L, CAM_H - 232, 24, 3, CC.cream);
-    cText(ctx, n + ' HILLS IN SIGHT', CAM_R, CAM_H - 232, 16, 2.6, CC.sage, {align: 'right', w: 400});
+  cText(ctx, n + ' HILLS IN SIGHT', W - Math.round(22 * u), fy,
+        Math.round(20 * u), 2.8, S.sub, {align: 'right', w: 400});
+  cShadow(ctx, false);
+}
+/* Nothing to draw yet. The first screen a walker ever sees of Skyline, so it
+   says what it is, what is happening, and what to press. */
+function skyEmpty(ctx, W, H, S){
+  if (!S.bg) cFadeBox(ctx, 0, 0, W, H, 'rgba(11,21,18,.55)', 'rgba(11,21,18,.74)');
+  cShadow(ctx, S.bg ? false : true);
+  const u = Math.max(0.75, Math.min(1.5, Math.min(W, H) / 820));
+  const cx = W / 2, cy = H * 0.42;
+  skyMark(ctx, cx, cy - Math.round(120 * u), Math.round(44 * u), S);
+  cText(ctx, 'SKYLINE', cx, cy - Math.round(26 * u), Math.round(34 * u), 9, S.text, {align: 'center'});
+  const say = skyBusyLine(), px = Math.round(21 * u);
+  cMono(ctx, px, 400);
+  cWrap(ctx, say, px, 2, Math.min(W - 72, Math.round(620 * u))).forEach((ln, i) =>
+    cText(ctx, ln, cx, cy + Math.round(24 * u) + i * Math.round(32 * u), px, 2, S.sub, {align: 'center', w: 400}));
+  if (skyState === 'loading'){
+    const w = Math.min(W - 120, Math.round(520 * u)), x0 = cx - w / 2, y0 = cy + Math.round(118 * u);
+    ctx.fillStyle = S.lead; ctx.fillRect(x0, y0, w, 5);
+    ctx.fillStyle = S.dot; ctx.fillRect(x0, y0, w * Math.max(0.02, skyPct), 5);
   }
   cShadow(ctx, false);
+}
+function cFadeBox(ctx, x, y, w, h, a, b){
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  g.addColorStop(0, a); g.addColorStop(1, b);
+  ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
 }
 
 /* ---- drawing helpers (canvas, so it works offline and on every phone) ---- */
@@ -33442,11 +33638,11 @@ function camG(ctx, F){
 const CAM_LOOKS = [['stamp', 'Stamp'], ['strip', 'Strip'], ['minimal', 'Minimal'],
                    ['pillar', 'Pillar'], ['ticket', 'Ticket'], ['contour', 'Contour'],
                    ['skyline', 'Skyline']];
+/* the six that caption a photograph. Skyline is a mode, not one of these. */
+const CAM_CAPS = () => CAM_LOOKS.filter(l => l[0] !== 'skyline');
 function camLayer(style, F){
   const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH;
   const ctx = c.getContext('2d'); ctx.translate(0, CAM_T);
-  /* Skyline draws the ground, so it works with or without a named hill */
-  if (style === 'skyline'){ camI(ctx, F); cShadow(ctx, false); return c; }
   if (F.main) ({stamp: camA, strip: camB, minimal: camC, pillar: camD, ticket: camF, contour: camG})[style](ctx, F);
   else {                             // no place yet: the photo still carries the mark
     cFade(ctx, CAM_H - 260, 260, FBOT); cShadow(ctx, true);
@@ -33462,7 +33658,7 @@ function camLayers(){
   if (!cam.still) cam.when = new Date();
   const F = camFacts();
   cam.skyF = F;
-  cam.layers = {}; for (const [k] of CAM_LOOKS) cam.layers[k] = camLayer(k, F);
+  cam.layers = {}; for (const [k] of CAM_CAPS()) cam.layers[k] = camLayer(k, F);
   cam.sig = cam.prefs.format + '|' + cam.mode + '|' + (cam.hill && cam.hill.k) + '|' + cam.when.getHours() + ':' + cam.when.getMinutes() + '|' + !!cam.wx +
             '|' + (cam.fix ? Math.round((cam.fix.alt || 0) / 10) + '|' + Math.round((cam.dist || 0) / 100) : '') + '|' + JSON.stringify(cam.prefs);
   camPaint(); camThumbs(); camChrome();
@@ -33484,15 +33680,26 @@ function camPaint(){
      with the phone, so it is drawn fresh each frame from the strip that was
      worked out when you arrived. */
   const sky = cam.prefs.style === 'skyline';
-  const plain = sky && skyLoadPrefs().plain;
-  ctx.fillStyle = plain ? '#0E231E' : '#0B1512'; ctx.fillRect(0, 0, CAM_W, CAM_FH);
-  if (src && !plain) camCover(ctx, src, CAM_W, CAM_FH);
   if (sky){
-    ctx.save(); ctx.translate(0, CAM_T);
-    camI(ctx, cam.skyF || (cam.skyF = camFacts()));
-    ctx.restore();
+    /* Skyline is not a photograph. The canvas is whatever shape the screen
+       is, in either orientation, and it is redrawn at that size. */
+    const box = document.getElementById('cxView').getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.max(320, Math.round(box.width * dpr)), h = Math.max(320, Math.round(box.height * dpr));
+    if (cv.width !== w) cv.width = w;
+    if (cv.height !== h) cv.height = h;
+    const S = skySkin();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = S.bg || '#0B1512'; ctx.fillRect(0, 0, w, h);
+    if (!S.bg && src) camCover(ctx, src, w, h);
+    skyScreen(ctx, w, h);
+    if (cam.rec && cam.recCtx){ cam.recCtx.drawImage(cv, 0, 0); }
+    return;
   }
-  else if (cam.layers) ctx.drawImage(cam.layers[cam.prefs.style], 0, 0);
+  ctx.fillStyle = '#0B1512'; ctx.fillRect(0, 0, CAM_W, CAM_FH);
+  if (src) camCover(ctx, src, CAM_W, CAM_FH);
+  if (cam.layers) ctx.drawImage(cam.layers[cam.prefs.style], 0, 0);
   if (cam.rec && cam.recCtx){ cam.recCtx.drawImage(cv, 0, 0); }
 }
 function camLoop(){
@@ -33624,7 +33831,7 @@ async function camStart(){
       video: {facingMode: cam.facing, width: {ideal: 2560}, height: {ideal: 1920}}});
     if (!cam) return;
     const v = cam.video; v.srcObject = cam.stream; await v.play().catch(() => {});
-    msg.hidden = true; cancelAnimationFrame(cam.raf); camLoop();
+    cam.noCam = false; msg.hidden = true; cancelAnimationFrame(cam.raf); camLoop();
   }catch(e){
     camNoCamera(e && e.name === 'NotAllowedError'
       ? 'Camera access is off for WayMark. Turn it on in your phone’s settings, or use a photo you have already taken.'
@@ -33632,6 +33839,18 @@ async function camStart(){
   }
 }
 function camNoCamera(text){
+  /* Skyline does not need a camera. If the lens will not open, say nothing
+     and draw the hills on a ground of their own — a walker standing on a top
+     wants to know what they are looking at, not to be told about a lens they
+     were not using. */
+  cam.noCam = true;
+  if (cam && cam.prefs.style === 'skyline'){
+    const P = skyLoadPrefs();
+    if (P.look === 'camera'){ P.look = 'dusk'; skySavePrefs(); if (skyView) skyView.strip = skyStrip(skyView); }
+    document.getElementById('cxMsg').hidden = true;
+    skyBar(); camPaint();
+    return;
+  }
   const msg = document.getElementById('cxMsg');
   msg.innerHTML = '<p>' + esc(text) + '</p><label class="cx-btn">Choose a photo<input type="file" accept="image/*" data-c="lib" class="filein"></label>';
   msg.hidden = false;
@@ -33664,20 +33883,24 @@ function camBuild(){
     '<div class="cx-view" id="cxView"><video id="cxVid" playsinline muted autoplay></video>' +
       '<canvas id="cxCan" width="' + CAM_W + '" height="' + CAM_H + '" role="img" aria-label="Camera view with your caption"></canvas>' +
       '<video id="cxClip" class="cx-clip" playsinline loop muted hidden></video><div class="cx-rec" id="cxRec" hidden><i></i><span>0:00</span></div>' +
+      '<div class="cx-mode" role="group" aria-label="What the camera is doing">' +
+        '<button data-c="mode" data-v="photo">Camera</button>' +
+        '<button data-c="mode" data-v="skyline">Skyline</button></div>' +
       '<div class="cx-hint" id="cxHint">Swipe to change the look</div><div class="cx-msg" id="cxMsg" hidden></div>' +
       /* Skyline only: turn the names onto the hills, and swap the camera for
          a plain page. Both remembered. */
       '<div class="cx-sky" id="cxSky">' +
         '<div class="nb" id="cxNudge" role="slider" aria-label="Turn the names" aria-valuemin="-25" aria-valuemax="25" aria-valuenow="0">' +
           '<b>TURN</b><i><s></s></i><u>0\u00B0</u></div>' +
-        '<button class="pb" data-c="skyplain" aria-pressed="false" aria-label="Hide the camera">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-          '<path d="M2 17l6-7 4 4.5L16 9l6 8z"/><circle cx="8" cy="6.5" r="2.2"/></svg></button>' +
+        '<button class="get" data-c="skyget">Get the hills around you</button>' +
       '</div></div>' +
     '<div class="cx-dock" id="cxDock">' +
+      '<div class="cx-skylooks" role="radiogroup" aria-label="How Skyline is drawn">' +
+        SKY_LOOKS.map(([k, t]) => '<button role="radio" data-c="skylook" data-v="' + k + '">' + t + '</button>').join('') +
+      '</div>' +
       '<div class="cx-fmts" role="radiogroup" aria-label="Format">' + Object.entries(CAM_FORMATS).map(([k, f]) =>
         '<button role="radio" data-c="fmt" data-v="' + k + '">' + f.label + '</button>').join('') + '</div>' +
-      '<div class="cx-lenses" role="radiogroup" aria-label="Caption look">' + CAM_LOOKS.map(([k, t]) =>
+      '<div class="cx-lenses" role="radiogroup" aria-label="Caption look">' + CAM_CAPS().map(([k, t]) =>
         '<button class="cx-lens" role="radio" data-c="look" data-v="' + k + '"><canvas width="90" height="120"></canvas><span>' + t + '</span></button>').join('') + '</div>' +
       '<div class="cx-shoot"><label class="cx-lib" aria-label="Use a photo you have already taken">' + cxI('photo') +
         '<input type="file" accept="image/*" data-c="lib" class="filein"></label>' +
@@ -33745,18 +33968,20 @@ function camBuild(){
 /* the bar's own reading */
 function skyBar(){
   const el = document.getElementById('camx'); if (!el) return;
+  const P = skyLoadPrefs(), sky = !!cam && cam.prefs.style === 'skyline';
   el.dataset.look = cam ? cam.prefs.style : '';
-  const P = skyLoadPrefs();
+  el.classList.toggle('sky', sky);
+  el.dataset.skin = sky ? P.look : '';
+  el.classList.toggle('sky-ready', skyState === 'ready');
+  document.querySelectorAll('#camx [data-c="mode"]').forEach(x =>
+    x.setAttribute('aria-pressed', String((x.dataset.v === 'skyline') === sky)));
   const nb = document.getElementById('cxNudge'); if (!nb) return;
   const s2 = nb.querySelector('s'), u = nb.querySelector('u');
   if (s2) s2.style.left = ((P.turn + 25) / 50 * 100) + '%';
   if (u) u.textContent = (P.turn > 0 ? '+' : '') + P.turn.toFixed(P.turn % 1 ? 1 : 0) + '\u00B0';
   nb.setAttribute('aria-valuenow', String(P.turn));
-  const pb = document.querySelector('#camx [data-c="skyplain"]');
-  if (pb){
-    pb.setAttribute('aria-pressed', String(!!P.plain));
-    pb.setAttribute('aria-label', P.plain ? 'Show the camera' : 'Hide the camera');
-  }
+  document.querySelectorAll('#camx [data-c="skylook"]').forEach(x =>
+    x.setAttribute('aria-checked', String(x.dataset.v === P.look)));
 }
 function camFormat(k){
   if (!CAM_FORMATS[k] || cam.rec) return;
@@ -33767,7 +33992,10 @@ function camSizeView(){
   const el = document.getElementById('camx'); if (!el) return;
   el.style.setProperty('--cxar', String(CAM_W / CAM_FH));
   el.dataset.fmt = cam.prefs.format;
-  document.getElementById('cxCan').height = CAM_FH;
+  if (cam.prefs.style !== 'skyline'){
+    document.getElementById('cxCan').width = CAM_W;
+    document.getElementById('cxCan').height = CAM_FH;
+  }
   document.querySelectorAll('#camx .cx-lens canvas').forEach(c => { c.width = 90; c.height = Math.round(90 * CAM_FH / CAM_W); });
   document.querySelectorAll('#camx [data-c="fmt"]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === cam.prefs.format)));
   const sh = document.querySelector('#camx .cx-shutter');
@@ -33818,13 +34046,32 @@ function camRecStop(){
   try{ mr.stop(); }catch(e){}
 }
 function camStep(d){
-  const i = CAM_LOOKS.findIndex(([k]) => k === cam.prefs.style);
-  camLook(CAM_LOOKS[(i + d + CAM_LOOKS.length) % CAM_LOOKS.length][0]);
+  if (cam.prefs.style === 'skyline') return;        /* nothing to swipe through */
+  const L = CAM_CAPS(), i = L.findIndex(([k]) => k === cam.prefs.style);
+  camLook(L[(i + d + L.length) % L.length][0]);
+}
+function camMode(m){
+  if (!cam) return;
+  if (m === 'skyline'){
+    if (cam.prefs.style !== 'skyline') cam.prefs.last = cam.prefs.style;
+    camLook('skyline');
+  } else {
+    camLook(cam.prefs.last && cam.prefs.last !== 'skyline' ? cam.prefs.last : 'stamp');
+  }
 }
 function camLook(k){
-  cam.prefs.style = k; camKeep();
-  if (k === 'skyline'){ skyLoadPrefs(); skyWatchTilt(); askHeading(); skyReady(); }
-  skyBar(); camPaint(); camChrome();
+  cam.prefs.style = k;
+  if (k !== 'skyline') cam.prefs.last = k;
+  camKeep();
+  if (k === 'skyline'){
+    skyLoadPrefs(); skyWatchTilt(); askHeading(); skyTurnWatch();
+    if (cam.noCam){ const P = skyLoadPrefs(); if (P.look === 'camera'){ P.look = 'dusk'; skySavePrefs(); }
+                    document.getElementById('cxMsg').hidden = true; }
+    skyReady();
+  }
+  skyBar();
+  if (k !== 'skyline') camSizeView();
+  camPaint(); camChrome();
   const h = document.getElementById('cxHint'); if (h) h.classList.add('gone');
   if (navigator.vibrate) navigator.vibrate(8);
 }
@@ -33865,13 +34112,13 @@ function camPanel(){
     sw('weather', 'Weather', 'Temperature, sky and wind') + sw('coords', 'Coordinates', 'Latitude and longitude') +
     /* Skyline only. A web page is never told how wide the camera sees, so if
        the names sit too close together or too far apart, this is the dial. */
-    (cam.prefs.style === 'skyline' ? (() => { const S = skyLoadPrefs(); return
+    (cam.prefs.style === 'skyline' ? (() => { const S = skyLoadPrefs(); return '' +
       '<h4>Skyline</h4>' +
-      '<div class="cx-row"><span>How wide the lens sees<i>Widen or narrow until two hills you know line up</i></span>' +
+      '<div class="cx-row"><span>How wide your camera sees<i>Widen or narrow until two hills you know line up</i></span>' +
         '<div class="cx-seg"><button data-c="skyfov" data-v="-4">\u2212</button>' +
         '<button data-c="skyfov" data-v="0" aria-pressed="true">' + Math.round(S.fov) + '\u00B0</button>' +
         '<button data-c="skyfov" data-v="4">+</button></div></div>' +
-      '<div class="cx-row"><span>The ground on this phone<i>' + skyKept() + '</i></span>' +
+      '<div class="cx-row"><span>The hills on this phone<i>' + skyKept() + '</i></span>' +
         '<button class="cx-btn ghost sm" data-c="skyget">Manage</button></div>'; })() : '') +
     /* The camera already reads a photo's place and date for one picture at a
        time, to caption it. Somebody standing in here with an old photo open is
@@ -33921,8 +34168,17 @@ function camClick(e){
   else if (a === 'skyget'){ skyPanel(); }
   else if (a === 'skyadd'){ skyAdd(b.dataset.v); }
   else if (a === 'skydrop'){ skyDrop(b.dataset.v).then(() => { skyRefreshKept().then(skyPanel); }); }
-  else if (a === 'skyplain'){
-    const P = skyLoadPrefs(); P.plain = !P.plain; skySavePrefs(); skyBar(); camPaint();
+  else if (a === 'mode'){ camMode(b.dataset.v); }
+  else if (a === 'skylook'){
+    const P = skyLoadPrefs();
+    if (b.dataset.v === 'camera' && cam.noCam){ toast('The camera will not open on this phone.'); return; }
+    if (P.look !== b.dataset.v){
+      P.look = b.dataset.v; skySavePrefs();
+      /* the strip carries its own colours, so it is drawn again. It takes a
+         moment, which is why this is a four-way choice and not a slider. */
+      if (skyView) skyView.strip = skyStrip(skyView);
+      skyBar(); camPaint();
+    }
     if (navigator.vibrate) navigator.vibrate(8);
   }
   else if (a === 'weather' || a === 'coords'){ cam.prefs[a] = !cam.prefs[a]; camKeep(); if (a === 'weather') camWeather(); camLayers(); camPanel(); }
