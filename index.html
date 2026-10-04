@@ -915,17 +915,25 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .ddate{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   padding-bottom:10px; border-bottom:1px solid var(--line-soft)}
 
-.dsummits{margin-top:10px}
+.dsummits{margin-top:8px}
 .dcount{font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
-/* the count and the lists the day moved, on one line. They wrap together
-   rather than stacking into a block of their own. */
-.dsline{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px}
+/* The count and the lists the day moved, on ONE line — and only ever one.
+   Wrapping, three lists took three rows and 144px of a card that has to fit
+   on a screen. It scrolls sideways instead, the way the photo strip does, so
+   the pills keep their 44px and the block keeps its 44px. */
+.dsline{display:flex; flex-wrap:nowrap; align-items:center; gap:8px;
+  overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch}
+.dsline::-webkit-scrollbar{display:none}
+/* a soft edge so a pill running off the side reads as "there is more", not
+   as something broken against the card border */
+.dsline{-webkit-mask-image:linear-gradient(to right, #000 calc(100% - 22px), transparent)}
+.dsline .dcount{flex:none}
 /* 44px, not the 26 the drawing had. This is the same job as the chip it
    replaced — a tap through to that list — so it does not get harder
    to hit in the name of a shorter card. The layout sweep catches anything
    under 44 and it caught this at 34. The row gap comes down to pay for it. */
-.dgain{display:inline-flex; align-items:center; gap:6px; padding:10px 13px;
+.dgain{flex:none; display:inline-flex; align-items:center; gap:6px; padding:10px 13px;
   border:0; border-radius:99px; background:var(--accent-soft); color:var(--accent-text);
   font:600 12.5px/1.25 var(--font-ui); text-align:left; min-height:44px}
 .dgain:active{background:var(--surface-2)}
@@ -939,7 +947,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    page — they just stop being a column of one-line paragraphs. */
 .dsummits ul{list-style:none; margin:6px 0 0; padding:0;
   display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); column-gap:18px}
-.dsummits li{display:flex; align-items:baseline; gap:10px; padding:4px 0; min-width:0;
+.dsummits li{display:flex; align-items:baseline; gap:10px; padding:2px 0; min-width:0;
   align-self:start}
 /* these three were 20-23px tall: wide enough, short enough to miss */
 /* These were 20-23px tall: wide enough to see, a pixel or two short to hit.
@@ -956,6 +964,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   color:var(--ink); text-align:left; min-width:0; white-space:normal; overflow-wrap:break-word;
   line-height:1.25}
 .dsummits li i{ margin-left:auto; font-style:normal; font-family:var(--font-ui); color:var(--ink-3); white-space:nowrap }
+/* Joe: "I dont want journal entries to span multiple screen scrolls."
+   A long write-up is three lines; a tap gives the rest. Nothing is hidden
+   from a day you only skim past. */
+.dtext{display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+  overflow:hidden; cursor:pointer}
+.dtext.open{display:block; -webkit-line-clamp:none; overflow:visible; cursor:default}
 .dnote{margin:10px 0 0; font-size:14px; line-height:1.6; color:var(--ink-2)}
 .dnote b{display:block; font-family:var(--font-ui); font-size:10px;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:3px}
@@ -965,7 +979,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   100%{ box-shadow:0 0 0 3px transparent; border-radius:10px }
 }
 @media (prefers-reduced-motion: reduce){ .dday.justsaved{animation:none} }
-.dentry{ margin-top:12px; border-radius:0 10px 10px 0 }
+.dentry{ margin-top:6px; border-radius:0 10px 10px 0 }
 .dentry h3{ margin:0 0 5px; font-family:var(--font-display); color:var(--ink) }
 .dentry p{ margin:0; white-space:pre-wrap }
 /* pre-wrap keeps the walker's own line breaks but will not break a word that
@@ -1024,7 +1038,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    without a line of new code. */
 /* wrap stays: the dog page still uses .drow with plain .linkbtn children,
    and three of those can overflow a narrow phone. */
-.drow{display:flex; gap:8px; margin-top:12px; align-items:center; flex-wrap:wrap}
+.drow{display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap}
 .dact{display:inline-flex; align-items:center; gap:7px; min-height:44px; padding:0 15px;
   border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
   border-radius:22px; font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap}
@@ -1054,6 +1068,33 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .dentry .dshots{margin-top:10px}
 
 .dday .shots{margin-top:12px}
+
+/* A DAY'S PHOTOS. The carousel bleeds to the card's edges — a photograph
+   with a 15px margin round it reads as a thumbnail however big it is. The
+   negative margin matches .dday's padding exactly. */
+.dpics{position:relative; margin:10px -15px 0; background:var(--surface-2)}
+/* 4:3, not 1:1. Nearly every photograph from a hill is landscape, so a
+   square was cropping the sides off the view AND costing 91px on a card that
+   has to fit a screen. 40vh as well, so a short phone shrinks it rather than
+   pushing the rest off the bottom. */
+.dpics .pcar{aspect-ratio:3/2; max-height:min(38vh, 400px)}
+.dpic{flex:0 0 100%; width:100%; height:100%; scroll-snap-align:start; position:relative;
+  padding:0; margin:0; border:0; border-radius:0; background:var(--surface-2); cursor:pointer}
+.dpic img{width:100%; height:100%; object-fit:cover; display:block}
+.dpic:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
+/* the caption gets to be read now, instead of two clamped lines at 10px */
+.dpcap{position:absolute; left:0; right:0; bottom:0; padding:28px 14px 12px;
+  font:500 14px/1.4 var(--font-ui); text-align:left; color:#F4F1E8;
+  background:linear-gradient(to top, rgba(8,20,17,.90), rgba(8,20,17,0));
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  pointer-events:none}
+/* the strip below: where you are in the day, and a way to jump */
+.shots.dstrip{margin-top:6px; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;
+  -webkit-overflow-scrolling:touch; padding-bottom:2px}
+.dstrip::-webkit-scrollbar{display:none}
+.dstrip .shot{width:46px; height:46px; opacity:.5; transition:opacity .15s var(--ease)}
+.dstrip .shot.on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 1px var(--accent)}
+.dstrip .shotmore{width:46px; height:46px; font-size:12px}
 
 /* ---- route weather ---- */
 .wx{margin-top:12px; background:var(--surface-2); border:1px solid var(--line);
@@ -3434,7 +3475,7 @@ button.bstriprow{cursor:pointer}
   color:var(--accent-text); border:1.5px solid var(--accent-text); border-radius:4px; padding:3px 8px 2px;
   display:inline-block; transform:rotate(-1.5deg); line-height:1.3}
 .ddate span{font-family:var(--font-ui); font-size:12.5px; letter-spacing:.02em; text-transform:none; color:var(--ink-3)}
-.dentry{border-left:0; padding:14px 2px 4px; background:transparent}
+.dentry{border-left:0; padding:6px 2px 2px; background:transparent}
 .dentry h3{font-size:22px; line-height:1.15; margin-bottom:8px}
 .dentry p{font-size:17px; line-height:1.65; color:var(--ink); max-width:62ch}
 .dentry .dshots .shot{width:88px; height:88px; border-radius:4px}
@@ -18686,7 +18727,7 @@ function renderDiary(){
       html += '<div class="dentry">' +
         (e.title ? '<h3>' + esc(e.title) + '</h3>' : '') +
         (e.strava ? stravaDayHTML(e.strava, e.id) : '') +
-        (e.text ? '<p>' + linky(e.text) + '</p>' : '');
+        (e.text ? '<p class="dtext" data-act="dtext">' + linky(e.text) + '</p>' : '');
 
       /* The entry's own photos used to print here and the day's summit photos
          again lower down, so a day with both showed two strips of the same
@@ -18741,14 +18782,40 @@ function renderDiary(){
     }
 
     /* every photo from that day, whichever it was attached to */
+    /* A DAY'S PHOTOS, AT A SIZE WORTH LOOKING AT.
+
+       They were 76px squares, four to a row — a contact sheet, not a day
+       out. Joe: "journal posts should probably act a little more like hikers
+       posts but with a little more information and space for images."
+
+       So the same carousel a Hikers post uses, 363px edge to edge, AND the
+       thumbnails kept underneath. The strip is no longer a way into the
+       viewer — it is where you are: the one you are looking at is marked,
+       and tapping another jumps the carousel to it. The big picture opens
+       the day, the way tapping a photo in the feed does.
+
+       `.pcar` and `.pcount` on purpose: the scroll listener that keeps a
+       Hikers carousel's counter honest then keeps this one honest too, and
+       it marks the strip in the same pass. One handler, both. */
     const allPics = (typeof dayPhotos === 'function' ? dayPhotos(d.date) : d.photos);
     if (allPics.length){
-      html += '<div class="shots">' + allPics.slice(0, 12).map(ph =>
-        '<button class="shot' + (ph.cap ? ' hascap' : '') + (ph.k ? ' tagged' : '') + '" data-act="viewday" data-d="' + esc(d.date) +
-        '" data-p="' + esc(ph.id) + '"' + (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
+      const pics = allPics.slice(0, 12);
+      html += '<div class="dpics" data-n="' + pics.length + '"><div class="pcar">' + pics.map((ph, i) =>
+        '<button class="dpic" data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(ph.id) + '" ' +
+          'aria-label="Photo ' + (i + 1) + ' of ' + pics.length + (ph.cap ? ': ' + esc(ph.cap) : '') + '">' +
         '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
-        (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') +
-        (allPics.length > 12 ? '<span class="shotmore">+' + (allPics.length - 12) + '</span>' : '') + '</div>';
+        (ph.cap ? '<span class="dpcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') +
+        '</div>' +
+        (pics.length > 1 ? '<span class="pcount">1/' + pics.length + '</span>' : '') +
+        '</div>' +
+        (pics.length > 1
+          ? '<div class="shots dstrip">' + pics.map((ph, i) =>
+              '<button class="shot' + (i ? '' : ' on') + '" data-act="dpicgo" ' +
+                'data-d="' + esc(d.date) + '" data-i="' + i + '" aria-label="Go to photo ' + (i + 1) + '">' +
+              '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt=""></button>').join('') +
+            (allPics.length > 12 ? '<span class="shotmore">+' + (allPics.length - 12) + '</span>' : '') +
+            '</div>'
+          : '');
     }
     html += '</article>';
   }
@@ -23223,6 +23290,18 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'setback'){ showSetPane(''); }
   else if (a === 'install'){ doInstall(); }
+  else if (a === 'dtext'){
+    /* a long write-up is clamped to three lines so the day fits a screen;
+       tapping it opens the rest. A link inside it is still a link. */
+    if (!el.closest('a')) el.classList.toggle('open');
+  }
+  else if (a === 'dpicgo'){
+    /* the thumbnails are a place marker, not a second way into the viewer */
+    const wrap = el.closest('.dday'); if (!wrap) return;
+    const car = wrap.querySelector('.dpics .pcar'); if (!car) return;
+    const i = +el.dataset.i || 0;
+    car.scrollTo({left: i * car.clientWidth, behavior: 'smooth'});
+  }
   else if (a === 'installno'){ try{ localStorage.setItem(INSTALL_KEY, 'no'); }catch(err){} render(); }
   else if (a === 'bkpaste'){
     const w = document.getElementById('bkwrap');
@@ -27914,6 +27993,11 @@ document.addEventListener('scroll', e => {
   const i = Math.round(c.scrollLeft / Math.max(1, c.clientWidth)), m = c.parentElement;
   const n = m.querySelector('.pcount'); if (n) n.textContent = (i + 1) + '/' + m.dataset.n;
   m.querySelectorAll('.pdots i').forEach((d, j) => d.classList.toggle('on', j === i));
+  /* A journal day keeps its thumbnails under the carousel rather than dots,
+     so the one you are looking at is marked there instead. Same pass. */
+  const strip = m.nextElementSibling;
+  if (strip && strip.classList.contains('dstrip'))
+    strip.querySelectorAll('.shot').forEach((bt, j) => bt.classList.toggle('on', j === i));
 }, true);
 var ptrBusy = false;
 /* Pull down at the top of the Hikers feed to refresh it, the way every
@@ -28849,7 +28933,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v302';
+const APP_VERSION = 'v303';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
