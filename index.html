@@ -1471,7 +1471,11 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
    under them — all drawn small, all now easier to hit without moving */
 .backbtn, button.tagb, #infoBody a{position:relative}
 .backbtn::after{content:""; position:absolute; top:-5px; bottom:-5px; left:-3px; right:-3px}
-button.tagb::after{content:""; position:absolute; top:-7px; bottom:-7px; left:-3px; right:-3px}
+/* ::BEFORE, not ::after. The chip already uses ::after to print the " +"
+   that says "tap to add this list". Two rules on the same pseudo-element
+   meant the plus inherited `position:absolute; top:-7px` from this one and
+   floated above the chip instead of sitting inside it. */
+button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-3px; right:-3px}
 #infoBody a::after{content:""; position:absolute; top:-11px; bottom:-11px; left:-2px; right:-2px}
 /* an icon button that already carries a pip must not have it hidden behind
    the invisible pad */
@@ -3654,8 +3658,12 @@ li.hill.on .tick svg{width:20px; height:20px; transform:translate(1px,-2px) rota
    a stitched inset on the orange chip and button, the perforated stamp on
    journal dates, the stitched progress bar with its percentage tab, and the
    section labels as torn paper strips. */
+/* The shape no longer changes with the state. A selected list chip used to
+   become a rounded square while the chips either side of it stayed pills,
+   so a row of them read as two different kinds of control. The colour
+   already says which one is on. */
 .lchip[aria-pressed="true"], :root[data-theme="dark"] .lchip[aria-pressed="true"], :root:not([data-theme="light"]) .lchip[aria-pressed="true"]{
-  border-radius:6px;
+  border-radius:999px;
 }
 
 /* the perforated stamp */
@@ -7593,8 +7601,8 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .gxflag.asking{background:var(--accent); color:var(--accent-ink)}
 .gxtext{margin:0; font-size:15px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere}
 .gxhill{display:inline-flex; align-items:center; gap:7px; margin-top:10px; background:var(--surface);
-  border:1px solid var(--line); border-radius:99px; padding:8px 13px; min-height:38px;
-  font:700 13.5px var(--font-ui); color:inherit; cursor:pointer}
+  border:1px solid var(--line); border-radius:999px; padding:0 14px; min-height:44px;
+  font:600 13.5px var(--font-ui); color:inherit; cursor:pointer}
 .gxhill svg{width:14px; height:14px; color:var(--accent-text)}
 .gxbest{margin:10px 0 0; padding:10px 11px; background:var(--surface); border:1px solid var(--line);
   border-left:3px solid var(--done); border-radius:10px}
@@ -7672,6 +7680,134 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .gxhq .gxhqa{margin:6px 0 0; font-size:14px; line-height:1.45}
 .gxhq .gxhqw{display:block; margin-top:6px; font:500 11.5px var(--font-data); color:var(--ink-3)}
 .gxhq .gxhqn{margin:6px 0 0; font-size:12.5px; color:var(--ink-3)}
+
+/* ==================================================================
+   THE CONTROL SYSTEM
+   ==================================================================
+   Joe, 4 Oct: "everything seems to take up so much space... if you look at
+   facebook or instagram you have so many options/settings but they are all
+   intricately merged and subtle, WayMark is looking a little clunky."
+
+   I walked every screen and counted. WayMark had FORTY kinds of button
+   between them using FIFTEEN heights (18, 24, 25, 34, 36, 37, 38, 39, 40,
+   43, 44, 47, 62, 63, 112), SIX corner radii, EIGHT type sizes and NINE
+   paddings. Worse, the same button changed size depending on where it sat:
+   `.btn.sm` was 37, 39, 40 AND 44px; `.btn.ghost` was 37, 39, 43 and 44 at
+   three different type sizes.
+
+   That is what "clunky" is. An interface feels calm when the eye stops
+   re-measuring, and WayMark made it re-measure every control it met.
+
+   Four sizes. One shape for anything with words — a pill, which is always
+   half its own height, so there is only ever one radius to get wrong — and
+   a circle for anything that is just an icon. Three type sizes.
+
+   THIS BLOCK IS LAST ON PURPOSE. It is the single place that decides how
+   big a control is, and it deliberately out-ranks the forty-odd rules above
+   that each decided for themselves. Nothing above was deleted, so this is
+   one block to revert if it is wrong. Add a size here or nowhere.
+
+   What this does NOT do: decide which button is the important one. "Mark
+   it off" and "Manage" being the same solid rust is a per-screen judgement,
+   not a stylesheet one, and it is a separate pass. */
+:root{
+  --ctl-lg:48px;   /* one per screen, the thing to do */
+  --ctl-md:44px;   /* everything else, and the tap-target floor */
+  --ctl-sm:36px;   /* chips and filters — never on their own */
+  --ctl-ico:44px;  /* icon-only: top bar, ⋯, close */
+  --ctl-t-lg:15px; --ctl-t-md:13.5px; --ctl-t-sm:12.5px;
+}
+
+/* ---- anything with words in it ---- */
+.btn, .btn.ghost, .btn.quiet, .btn.danger{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:var(--ctl-md); border-radius:999px; padding:0 16px;
+  font-size:var(--ctl-t-md); line-height:1.15}
+.btn.lg{min-height:var(--ctl-lg); padding:0 20px; font-size:var(--ctl-t-lg)}
+/* .btn.sm is COMPACT, not small: same 44px as every other button, with
+   lighter type and tighter sides. It is used for things that stand on their
+   own — "Edit profile", "Manage" — and a button standing on its own has
+   to be a real target. 36px belongs to chips, which never stand alone. */
+.btn.sm{min-height:var(--ctl-md); padding:0 13px; font-size:var(--ctl-t-sm)}
+/* gap does the spacing now, so the old per-icon margins would double it */
+.btn svg, .btn.sm svg{margin-right:0; margin-left:0; vertical-align:middle}
+/* two places had pushed .btn.sm back up to 40 and 44 to get a target. 44 is
+   in the system; 40 was not. */
+.banner .btn.sm{min-height:var(--ctl-md)}
+
+/* ---- chips: the small size, and the only thing that uses it ---- */
+.chip, .lchip, .lchip.add, .pinechip{
+  display:inline-flex; align-items:center; gap:6px;
+  min-height:var(--ctl-sm); border-radius:999px; padding:0 13px;
+  font-size:var(--ctl-t-sm); line-height:1.15}
+
+/* ---- icon-only: a circle, and a real target ----
+   The five in the top bar were 34px against a 44px guideline, and they are
+   the controls a walker jabs at one-handed with cold hands. */
+.iconbtn, .xbtn, .top .iconbtn, .top .sync{
+  width:var(--ctl-ico); height:var(--ctl-ico); min-height:var(--ctl-ico);
+  border-radius:50%; padding:0; display:grid; place-items:center}
+.iconbtn svg, .xbtn svg{width:19px; height:19px}
+/* the top bar is five of these plus the wordmark; let them breathe without
+   pushing the logo off */
+.top .brandrow{gap:2px}
+
+/* ---- the journal row and the list-gain pills were built to this already,
+   so they only need pointing at the tokens ---- */
+.dact{min-height:var(--ctl-md); border-radius:999px; font-size:var(--ctl-t-md)}
+.dgain{min-height:var(--ctl-md); border-radius:999px; font-size:var(--ctl-t-sm)}
+
+/* The top bar on a phone had its own rule pushing these back to 34px —
+   inside a media query, so it out-ranked everything. These five are the
+   controls a walker jabs at one-handed in the wet; they are the LAST thing
+   that should be under the guideline. Same specificity, later in the sheet,
+   so this wins. */
+@media (max-width:699px){
+  .top .brandrow .sync, .top .brandrow .iconbtn{
+    height:var(--ctl-ico); min-height:var(--ctl-ico);
+    width:var(--ctl-ico); min-width:var(--ctl-ico)}
+}
+
+/* The profile's two buttons had their own 14.5px with 10px of side padding,
+   which is why "Share my year" broke onto a second line inside its pill
+   while "Invite card" beside it did not. `nowrap` stays — a button's
+   label should never wrap — but the size comes from the system now, and
+   at 13.5px it fits on one line with room to spare. */
+.pinebtns .btn{white-space:nowrap; font-size:var(--ctl-t-md); padding:0 14px}
+
+/* ---- DARK SURFACES ----
+   Joe spotted it on the profile: a rust-filled button on the pine card
+   "looks very out of place". He was right, and the reason is that rust and
+   pine are BOTH dark. The accent that means "do this" on cream paper turns
+   into a heavy blob on a dark card, and it shouts next to an outlined
+   button of equal importance.
+
+   The rule, both ways round:
+     on cream  — outlined is secondary, RUST filled is the primary
+     on pine   — outlined cream is secondary, CREAM filled is the primary
+   and never rust on a dark surface, ever.
+
+   I walked every screen looking for others. There was exactly one: the
+   button he pointed at. The rest of the app already did this. */
+.prof .btn, .win .btn, .pinebtns .btn{
+  background:transparent; border:1.5px solid rgba(243,239,230,.72); color:#F3EFE6; box-shadow:none}
+.prof .btn.key, .win .btn.key{background:#F3EFE6; border-color:#F3EFE6; color:#14332D}
+.prof .btn:active, .win .btn:active{background:rgba(243,239,230,.12)}
+/* Edit profile was a translucent fill with a blur — a third weight on a
+   card that now has only one. Same outline as the two below it. */
+.prof.pv3 .pinetop .pedit{background:transparent; color:#F3EFE6;
+  border:1.5px solid rgba(243,239,230,.72); -webkit-backdrop-filter:none; backdrop-filter:none}
+
+/* the walk status: a line that says where you stand, not a third button */
+.pstate{display:inline-flex; align-items:center; gap:8px; min-height:var(--ctl-md);
+  padding:0 4px; margin:2px 0 0; background:none; border:0; cursor:pointer;
+  color:rgba(246,239,228,.74); font:500 13.5px/1.2 var(--font-ui); text-align:left}
+.pstate i{width:7px; height:7px; border-radius:99px; flex:none; background:rgba(246,239,228,.38)}
+.pstate.on i{background:#E58B4E}
+.pstate.on{color:#F3EFE6}
+.pstate u{text-decoration:underline; text-underline-offset:3px;
+  text-decoration-color:rgba(246,239,228,.35)}
+.pstate:active u{text-decoration-color:#F3EFE6}
 
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain and Ireland."}</script>
@@ -28933,7 +29069,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v303';
+const APP_VERSION = 'v305';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -31892,9 +32028,21 @@ function profileHeader(pp, opts){
   if (opts && opts.chips) s += '<div class="pchips">' + opts.chips + '</div>';
 
   /* the two things you would do here */
+  /* BOTH OUTLINED, NEITHER FILLED. Joe: "the share my year here is clunky
+     and looks very out of place."
+
+     It was a solid rust pill on the pine card. Rust and pine are both dark,
+     so the accent that reads as "do this" on cream paper reads as a heavy
+     blob here — and it was sitting beside an outlined button of equal
+     importance, so it was shouting for no reason. The card is already the
+     emphasis on this screen; neither of these is more important than the
+     other. Outlined, same weight, and the eye can rest.
+
+     "Invite card" did not say what it was. "Share my year" keeps its name
+     but loses the sparkles — stars are not WayMark's language. */
   if (mine && !ui.profEdit) s += '<div class="pinebtns">' +
-    '<button class="btn ghost" data-act="invitecard">' + ti('share') + 'Invite card</button>' +
-    '<button class="btn yearbtn" data-act="yearcard">' + ti('sparkles') + 'Share my year</button></div>';
+    '<button class="btn ghost" data-act="yearcard">' + ti('share') + 'Share my year</button>' +
+    '<button class="btn ghost" data-act="invitecard">' + ti('user-plus') + 'Invite a friend</button></div>';
   else if (!mine && opts && opts.actions) s += '<div class="pinebtns">' + opts.actions + '</div>';
   s += '</div>';
 
@@ -32078,7 +32226,12 @@ function renderMyProfile(){
   let s = profileHeader(pp, {mine:true,
     counts:'<button class="plink" data-act="mypeople" data-v="followers"><b>' + followers.length.toLocaleString() + '</b> followers</button> &middot; ' +
            '<button class="plink" data-act="mypeople" data-v="following"><b>' + following().length.toLocaleString() + '</b> following</button>',
-    chips: '<button class="pinechip ' + (prof.open ? 'open' : 'off') + '" data-act="toggleopen" aria-pressed="' + !!prof.open + '">' + ti('walk') + (prof.open ? 'Up for a walk' : 'Not up for a walk') + '</button>'});
+    /* A STATE, NOT A BUTTON. "Not up for a walk" in a bordered pill read as
+       a third thing to do, and as a label it was ambiguous — does tapping
+       it mean you are, or you are not? It is a line that says where you
+       stand, with one word that changes it. */
+    chips: '<button class="pstate ' + (prof.open ? 'on' : 'off') + '" data-act="toggleopen" aria-pressed="' + !!prof.open + '">' +
+           '<i></i>' + (prof.open ? 'Up for a walk' : 'Not up for a walk') + ' · <u>change</u></button>'});
   /* The editor is a sheet over the lower half of the screen, so the cover,
      the picture and the patch above stay in view and can still be dragged or
      tapped while the settings are right under the thumb. */
