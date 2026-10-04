@@ -4588,6 +4588,12 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-sky .get{flex:1; height:52px; border-radius:26px; border:none; background:#A8431A; color:#F6EFE4;
  font:700 15px/1 'Source Sans 3',system-ui,sans-serif; letter-spacing:.02em; display:none}
 .camx[data-look="skyline"]:not(.sky-ready) .cx-sky .get{display:block}
+/* no compass: the TURN bar is meaningless, so the button stands in its place.
+   Its own class, not .get, so it does not inherit .get's display rules. */
+.cx-sky .cmpbtn{flex:1; height:52px; border-radius:26px; border:none; background:#A8431A; color:#F6EFE4;
+ font:700 15px/1 'Source Sans 3',system-ui,sans-serif; letter-spacing:.02em; display:none}
+.camx[data-look="skyline"].sky-ready.nocompass .cx-sky .cmpbtn{display:block}
+.camx[data-look="skyline"].sky-ready.nocompass .cx-sky .nb{display:none}
 /* these have to out-weigh the rule above, not just follow it */
 .camx[data-look="skyline"].clean .cx-sky,
 .camx[data-look="skyline"].panel .cx-sky{display:none}
@@ -20158,6 +20164,12 @@ function onHeadEvent(e){
   d = (d + screenTilt() + 360) % 360;
   if (headDeg != null && Math.abs(((d - headDeg + 540) % 360) - 180) < 1.5) return;
   headDeg = d;
+  /* Skyline redraws itself every frame, but the "switch the compass on"
+     button is markup and has to be taken away by hand. One class test. */
+  if (cam && cam.prefs.style === 'skyline'){
+    const cx = document.getElementById('camx');
+    if (cx && cx.classList.contains('nocompass')) skyBar();
+  }
   paintRoses();
   if (gmark && guideFix) drawGuide();
   if (hereMark) paintHere();
@@ -28625,7 +28637,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v297';
+const APP_VERSION = 'v298';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -29895,7 +29907,14 @@ async function loadTalk(code, force){
     gFull[code] = out.length < TALK_PAGE;
     /* everything on screen counts as seen; the line stays where it was when
        you walked in (ui.gMark), so you can still find your place */
-    if (gJoined(code)) { gSeen[code] = Math.max(gSeen[code] || 0, ...out.map(p => (p && p.t) || 0), 0); gSaveSeen(); }
+    /* `lastT` matters as much as the posts. gReply bumps the GROUP's lastT
+       when somebody answers a question, but a reply is not a talk post, so
+       this line used to mark the group seen only as far as its newest
+       top-level post. Any group whose last activity was an answer stayed lit
+       for ever: reading it could not clear it and nor could backing out of
+       it. Joe: "every time I open hikers it shows me 8 notifications on the
+       groups icon and nothing has changed." Eight answered questions. */
+    if (gJoined(code)) { gSeen[code] = Math.max(gSeen[code] || 0, (groupMeta[code] || {}).lastT || 0, ...out.map(p => (p && p.t) || 0), 0); gSaveSeen(); }
   }catch(e){ gTalk[code] = gTalk[code] || []; gTalkAt[code] = 0; }
   delete gTalkBusy[code]; softRender();
   return gTalk[code];
@@ -31223,7 +31242,7 @@ document.addEventListener('click', async e => {
   }
   if (a === 'gxback'){
     const was = ui.gView;
-    if (was) { gSeen[was] = Math.max(gSeen[was] || 0, ...(gTalk[was] || []).map(p => p.t || 0), 0); gSaveSeen(); }
+    if (was) { gSeen[was] = Math.max(gSeen[was] || 0, (groupMeta[was] || {}).lastT || 0, ...(gTalk[was] || []).map(p => p.t || 0), 0); gSaveSeen(); }
     ui.gView = null; ui.gThread = null; ui.gFind = ui.gFrom === 'find';
     render(); window.scrollTo({top:0}); return;
   }
@@ -32926,6 +32945,30 @@ function skyTurnWatch(){
 }
 const skyHead = () => headDeg == null ? 0 : headDeg;
 const skyPitch = () => skyPitchDeg;
+/* EVERYTHING SKYLINE NEEDS SWITCHED ON, IN ONE PLACE.
+
+   This used to live inside camLook(), which only runs when you TAP the mode
+   switch. But the mode is remembered, so from the second visit onwards the
+   camera opened straight into Skyline and camLook() never ran. The compass
+   was never asked for, no orientation listener was ever added, and headDeg
+   stayed null for ever — and skyHead() reads null as 0, so the drawing sat
+   facing north and turning the phone did nothing at all. The tilt watcher and
+   the landscape resize watcher were missed in exactly the same way. Joe, on a
+   summit: "rotating didn't change the view when we were on the mountains."
+
+   It worked the first time anyone tried it and was dead every time after,
+   which is the worst shape a fault can have.
+
+   iOS only grants the compass from inside a real tap. camOpen() is called
+   straight out of the tap on the camera button, so asking from here is still
+   inside that gesture. */
+function skyEnter(){
+  if (!cam) return;
+  skyLoadPrefs(); skyWatchTilt(); askHeading(); skyTurnWatch();
+  if (cam.noCam){ const P = skyLoadPrefs(); if (P.look === 'camera'){ P.look = 'dusk'; skySavePrefs(); }
+                  const m = document.getElementById('cxMsg'); if (m) m.hidden = true; }
+  skyReady();
+}
 
 /* ---- what the walker has set by hand, and it is remembered ---- */
 const SKY_KEY = 'waymark.sky';
@@ -34034,6 +34077,7 @@ function camBuild(){
         '<div class="nb" id="cxNudge" role="slider" aria-label="Turn the names" aria-valuemin="-25" aria-valuemax="25" aria-valuenow="0">' +
           '<b>TURN</b><i><s></s></i><u>0\u00B0</u></div>' +
         '<button class="get" data-c="skyget">Get the hills around you</button>' +
+        '<button class="cmpbtn" data-c="skycompass">Switch the compass on</button>' +
       '</div></div>' +
     '<div class="cx-dock" id="cxDock">' +
       '<div class="cx-skylooks" role="radiogroup" aria-label="How Skyline is drawn">' +
@@ -34128,6 +34172,9 @@ function skyBar(){
   el.classList.toggle('sky', sky);
   el.dataset.skin = sky ? P.look : '';
   el.classList.toggle('sky-ready', skyState === 'ready');
+  /* A drawing that never moves is worse than no drawing: it looks like the
+     hills are wrong rather than like the compass is off. Say which it is. */
+  el.classList.toggle('nocompass', sky && headDeg == null);
   document.querySelectorAll('#camx [data-c="mode"]').forEach(x =>
     x.setAttribute('aria-pressed', String((x.dataset.v === 'skyline') === sky)));
   const nb = document.getElementById('cxNudge'); if (!nb) return;
@@ -34219,12 +34266,7 @@ function camLook(k){
   if (k !== 'skyline') cam.prefs.last = k;
   camKeep();
   if (k === 'skyline') document.getElementById('camx').classList.remove('clean');
-  if (k === 'skyline'){
-    skyLoadPrefs(); skyWatchTilt(); askHeading(); skyTurnWatch();
-    if (cam.noCam){ const P = skyLoadPrefs(); if (P.look === 'camera'){ P.look = 'dusk'; skySavePrefs(); }
-                    document.getElementById('cxMsg').hidden = true; }
-    skyReady();
-  }
+  if (k === 'skyline') skyEnter();
   skyBar();
   if (k !== 'skyline') camSizeView();
   camPaint(); camChrome();
@@ -34323,6 +34365,11 @@ function camClick(e){
     if (d){ P.fov = Math.max(35, Math.min(100, P.fov + d)); skySavePrefs(); camPanel(); camPaint(); }
   }
   else if (a === 'skyget'){ skyPanel(); }
+  else if (a === 'skycompass'){
+    /* a real tap, which is the only thing iOS will grant the compass from */
+    headDenied = false;
+    askHeading().then(ok => { skyBar(); if (!ok) toast('This phone will not give WayMark its compass. Check Settings › Safari › Motion & Orientation Access.'); });
+  }
   else if (a === 'skyadd'){ skyAdd(b.dataset.v); }
   else if (a === 'skydrop'){ const k = b.dataset.v; skyDrop(k).then(() => { if (skyHaveSet) skyHaveSet.delete(k); skyRefreshKept().then(skyPanel); }); }
   else if (a === 'mode'){ camMode(b.dataset.v); }
@@ -34484,7 +34531,12 @@ function camOpen(){
   const P = camPrefs(); if (!P.moment) P.moment = 'auto';
   cam = {prefs: P, fix: null, hill: null, dist: null, mode: 'walk', auto: 'walk', when: new Date(), wx: null,
          facing: 'environment', still: null, layers: null};
-  const el = camBuild(); el.classList.remove('review', 'clean');
+  /* 'panel' too. Close the camera with the settings sheet open and reopen it
+     and the sheet is hidden — but the class that hides the controls BEHIND
+     the sheet stayed on, so Skyline came back with no TURN bar and no buttons
+     and nothing on screen to say why. Found by a test that was passing for
+     the wrong reason. */
+  const el = camBuild(); el.classList.remove('review', 'clean', 'panel');
   document.getElementById('cxAfter').hidden = true; document.getElementById('cxPanel').hidden = true;
   document.getElementById('cxHint').classList.remove('gone');
   cam.video = document.getElementById('cxVid');
@@ -34493,6 +34545,8 @@ function camOpen(){
   el.classList.add('open'); document.documentElement.classList.add('camlock');
   try{ history.pushState({waymarkCam: 1}, ''); cam.pushed = true; }catch(e){}
   camLayers(); camChrome(); skyBar(); skyRefreshKept();
+  /* the remembered mode. Without this the compass was never switched on. */
+  if (cam.prefs.style === 'skyline') skyEnter();
   if (document.fonts && document.fonts.load)
     Promise.all([document.fonts.load('40px Wildkins'), document.fonts.load('600 20px "Source Code Pro"'), document.fonts.load('400 20px "Source Code Pro"')])
       .catch(() => {}).then(() => cam && camLayers());
