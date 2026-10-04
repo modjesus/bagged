@@ -10,7 +10,7 @@
 //
 // Any other version number you see in this file is prose in a comment and does
 // nothing at all.
-const CACHE = 'waymark-v299';
+const CACHE = 'waymark-v302';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
@@ -59,8 +59,62 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
     .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== SHEETS && k !== RECENT && k !== FONTS && k !== 'waymark-strips').map(k => caches.delete(k))))
-    .then(() => self.clients.claim()));
+    .then(() => self.clients.claim())
+    // Cache first means a tab that is already open is showing the OLD page,
+    // and would keep showing it until it was opened again. Tell it. The page
+    // compares this against its own APP_VERSION and only acts if they differ,
+    // so there is no way to loop.
+    .then(() => self.clients.matchAll({type:'window', includeUncontrolled:true}))
+    .then(cs => cs.forEach(c => { try{ c.postMessage({newVersion: CACHE}); }catch(e){} })));
 });
+
+// ONE BAR OF SIGNAL IS WORSE THAN NONE.
+//
+// Joe, 4 Oct: "when I have no signal and open the app it doesnt load and its
+// just white?" — and then: "this could be life or death as people might be
+// relying on this on a potentially serious hike."
+//
+// He was right and this file was wrong. Measured, three ways, same worker,
+// same origin:
+//
+//   truly offline            the page appeared in 536 ms
+//   one bar, nothing coming  NOTHING IN 25 SECONDS. A white screen.
+//
+// Because every request went to the network FIRST and only fell back to the
+// cache when the network FAILED. Offline, fetch rejects instantly and the
+// fallback is quick. But a connection that is up and delivering nothing —
+// one bar on a ridge, a hotel portal, a cell that answers and then stalls —
+// does not fail. It waits. `respondWith` never settles, and the browser has
+// nothing to paint. The app was at its worst in exactly the place it is
+// needed, and a walker could be standing in the wet watching a white screen
+// with their map sitting on the phone the whole time.
+//
+// So the page and the shell are CACHE FIRST now. If it is on the phone it is
+// drawn, immediately, and the network is not consulted at all. Opening
+// WayMark on a hill costs zero bytes and cannot hang.
+//
+// Updates still arrive: the browser re-checks this file (8 KB) on navigation,
+// a changed CACHE name installs a new worker with cache:'reload', and
+// activate() deletes every older cache. That is the update path and it always
+// was — which is why the page itself must NOT be re-fetched behind every
+// open. index.html is 3.4 MB. Doing that on a mobile signal would cost a
+// walker their data and their battery for a file that only changes when the
+// version does.
+const SHELL_URLS = new Set(SHELL.map(u => new URL(u, self.location.href).href));
+// Anything that still has to ask the network gets a short leash, so a stalled
+// connection can never hold a response open for longer than this.
+const NET_MS = 4000;
+function timedFetch(req){
+  // AbortController so the request is really dropped, not just stopped
+  // being waited on — a stalled socket left running costs battery.
+  let ac = null;
+  try{ ac = new AbortController(); }catch(e){}
+  const t = ac ? setTimeout(() => { try{ ac.abort(); }catch(e){} }, NET_MS) : null;
+  const done = r => { if (t) clearTimeout(t); return r; };
+  const fail = e => { if (t) clearTimeout(t); throw e; };
+  try{ return fetch(req, ac ? {signal: ac.signal} : undefined).then(done, fail); }
+  catch(e){ if (t) clearTimeout(t); return fetch(req); }
+}
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
@@ -75,8 +129,14 @@ self.addEventListener('fetch', e => {
   if (url.origin !== self.location.origin) return;
   // the places files: what is cached is shown at once, and refreshed behind
   if (url.pathname.includes('/places/')){ e.respondWith(placesFetch(e.request)); return; }
+  // THE APP ITSELF. Cache first, no network in the way.
+  if (e.request.mode === 'navigate' || SHELL_URLS.has(url.href)){
+    e.respondWith(shellFetch(e.request));
+    return;
+  }
+  // everything else same-origin: the network, but on a leash
   e.respondWith(
-    fetch(e.request)
+    timedFetch(e.request)
       .then(res => {
         const copy = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
@@ -86,17 +146,38 @@ self.addEventListener('fetch', e => {
   );
 });
 
+// The page, and every file it needs to draw itself. Whatever is on the phone
+// wins, at once. Only something genuinely missing goes to the network.
+async function shellFetch(req){
+  const c = await caches.open(CACHE);
+  const nav = req.mode === 'navigate';
+  let hit = await c.match(req, {ignoreSearch: nav}).catch(() => null);
+  // a navigation to /?something or /#somewhere is still the app
+  if (!hit && nav) hit = (await c.match('./index.html').catch(() => null)) ||
+                         (await c.match('./').catch(() => null));
+  if (hit) return hit;
+  try{
+    const res = await timedFetch(req);
+    if (res && res.ok) c.put(req, res.clone()).catch(() => {});
+    return res;
+  }catch(err){
+    const last = await caches.match(req).catch(() => null);
+    return last || (nav ? await caches.match('./index.html') : null) ||
+      new Response('', {status:504, statusText:'offline'});
+  }
+}
+
 async function fontFetch(req){
   const c = await caches.open(FONTS);
   const hit = await c.match(req);
-  const fresh = fetch(req).then(res => { if (res.ok || res.type === 'opaque') c.put(req, res.clone()).catch(() => {}); return res; }).catch(() => null);
+  const fresh = timedFetch(req).then(res => { if (res.ok || res.type === 'opaque') c.put(req, res.clone()).catch(() => {}); return res; }).catch(() => null);
   if (hit){ fresh.catch(() => {}); return hit; }
   return (await fresh) || new Response('', {status:504, statusText:'offline'});
 }
 async function placesFetch(req){
   const c = await caches.open(CACHE);
   const hit = await c.match(req);
-  const refresh = fetch(req).then(res => { if (res.ok) c.put(req, res.clone()).catch(() => {}); return res; }).catch(() => null);
+  const refresh = timedFetch(req).then(res => { if (res.ok) c.put(req, res.clone()).catch(() => {}); return res; }).catch(() => null);
   if (hit){ refresh.catch(() => {}); return hit; }
   const res = await refresh;
   return res || new Response('{"list":[]}', {status:404, headers:{'Content-Type':'application/json'}});
@@ -106,7 +187,10 @@ async function mapFetch(req){
   const saved = await caches.match(req, {cacheName:SHEETS}).catch(() => null);
   if (saved) return saved;
   try{
-    const res = await fetch(req);
+    // timedFetch, not fetch: a stalled tile request used to hold the map
+    // blank for as long as the network felt like it. Four seconds, then
+    // whatever came past recently, then nothing — but never a hang.
+    const res = await timedFetch(req);
     // a sheet being saved asks with cache:'reload'; the page stores that itself
     if (res.ok && req.cache !== 'reload'){
       const copy = res.clone();

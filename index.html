@@ -1014,10 +1014,43 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .tagoffer{display:block; width:100%; border-radius:12px; max-height:46vh; object-fit:cover; background:var(--ground)}
 @media (max-width:379px){ .gmlist li{flex-direction:column; align-items:stretch}
   .gmacts{justify-content:flex-start} }
-.drow{display:flex; gap:14px; margin-top:9px; flex-wrap:wrap; align-items:center}
-.drow .linkbtn{padding:0; font-size:12px}
-/* a file input dressed as one of the row's text buttons */
-.drow .aslabel{cursor:pointer; display:inline-block}
+/* THE ROW UNDER A JOURNAL DAY.
+
+   Five underlined links — Edit, Add photos, Tag photos, Share, Delete —
+   wrapped onto two lines on a phone and put Delete next to Share. Two named
+   actions and a ⋯ now: 98px to 84px, and the destructive one is behind a
+   deliberate tap. The ⋯ itself is .pmenuwrap/.pmenu/.pmenubox, the same
+   component Hikers posts use, so it closes on a tap outside or Escape
+   without a line of new code. */
+/* wrap stays: the dog page still uses .drow with plain .linkbtn children,
+   and three of those can overflow a narrow phone. */
+.drow{display:flex; gap:8px; margin-top:12px; align-items:center; flex-wrap:wrap}
+.dact{display:inline-flex; align-items:center; gap:7px; min-height:44px; padding:0 15px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+  border-radius:22px; font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap}
+.dact svg{width:16px; height:16px; flex:none}
+.dact:active{background:var(--surface-2)}
+/* one filled button per row: the thing to do on this card */
+.dact.key{border-color:var(--accent); background:var(--accent); color:var(--accent-ink)}
+.dact.key:active{background:#8E3815}
+.dmore{margin-left:auto}
+/* "Edit the write-up" wrapped onto two lines inside the 150px box, which
+   made the menu taller than the three rows in it. Let it be as wide as its
+   longest line. */
+.dmore .pmenubox{min-width:0}
+.dmore .pmenubox button{white-space:nowrap}
+/* round, like the two pills beside it. `.btn, .seg, .iconbtn{border-radius:6px}`
+   further down the sheet was flattening it into a rounded square. */
+.dmore .pmenu{width:44px; height:44px; border:1px solid var(--line);
+  background:var(--surface); border-radius:50%}
+/* a very narrow phone: let the two named buttons share the width rather than
+   pushing the ⋯ off the edge */
+@media (max-width:359px){
+  .drow .dact{padding:0 11px; font-size:12.5px; min-width:0}
+  .drow .dact span{overflow:hidden; text-overflow:ellipsis}
+}
+/* a file input dressed as one of the row's buttons */
+.drow .aslabel{cursor:pointer; display:inline-flex}
 .dentry .dshots{margin-top:10px}
 
 .dday .shots{margin-top:12px}
@@ -1607,9 +1640,15 @@ button.tagb::after{content:""; position:absolute; top:-7px; bottom:-7px; left:-3
 .banner b{color:var(--warn); display:block; margin-bottom:2px}
 /* was 19x18 — under the 24x24 floor on both axes, and the hardest control on
    the screen to hit */
+/* 44, not 32. Every banner in the app carries this × and every one of
+   them was under the guideline — the layout sweep only caught it once a
+   banner was on screen in the state it walks. It is the control somebody
+   jabs at one-handed to get a bar out of the way. */
 .banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1;
-  min-width:32px; min-height:32px; display:inline-flex; align-items:center; justify-content:center;
-  padding:0; align-self:center}
+  min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center;
+  padding:0; align-self:center; margin:-4px -6px -4px 0}
+/* the Add it / Open button beside it is a target too */
+.banner .btn.sm{min-height:40px}
 /* ---- Routes: day strip, search results, mode bar ---- */
 .rstep{margin:14px 0 7px; font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
@@ -5450,8 +5489,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .drow{display:flex; flex-wrap:wrap; align-items:center; gap:6px}
 .drow .linkbtn{text-decoration:none; color:var(--ink-2); background:var(--tint); border-radius:99px; padding:6px 12px; font-size:13px; font-weight:600; line-height:1.2; transition:background .2s var(--ease)}
 .drow .linkbtn:hover{background:var(--tint-2); color:var(--ink)}
-.drow .linkbtn.ddel{margin-left:auto; background:transparent; color:var(--ink-3); font-weight:500}
-.drow .linkbtn.ddel:hover{color:#B3261E; background:transparent}
+/* .drow .linkbtn.ddel — Delete is in the ⋯ menu now, not in the row. */
 .dsummits .linkbtn{text-decoration:none}
 .dentry h3{font-size:19px; line-height:1.25; margin:14px 0 4px}
 
@@ -7398,7 +7436,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .privline b{color:var(--ink); font-weight:700}
 /* the bin makes Delete read as Delete without shouting: still the quietest
    thing on the row, still last, but now recognisable at a glance */
-.drow .linkbtn.ddel{display:inline-flex; align-items:center; gap:5px}
+/* .drow .linkbtn.ddel — Delete is in the ⋯ menu now, not in the row. */
 /* the share sheet: one group per question, the same fields the composer has */
 .soHead{touch-action:none; user-select:none; -webkit-user-select:none}
 .soHead b{font:700 17px var(--font-ui); color:var(--ink)}
@@ -7414,16 +7452,13 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .sosum b{color:var(--ink)}
 
 
-/* ---- v244: route posts. Map with the paper side, a row of photos, the
-   summits sheet, and the links on one line ---- */
-.pv2 .pmedia.pthumbs:not(.mstrip):not(.art){margin-top:3px; background:none}
-.pthumbs{display:grid; grid-template-columns:repeat(var(--c), minmax(0, 1fr)); gap:3px; border-radius:0 0 10px 10px; background:none}
-.pthumb{padding:0; margin:0; border:0; border-radius:0; aspect-ratio:1/1; overflow:hidden; background:var(--surface-2); cursor:pointer; display:block}
-.pthumb img{width:100%; height:100%; object-fit:cover; display:block; font-size:0; color:transparent}
-.pthumb:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+/* ---- v244: route posts. Map with the paper side, the summits sheet, and
+   the links on one line ---- */
+/* .pthumbs / .pthumb were the row of little squares a post with a GPX got
+   instead of a carousel. Gone with the branch that drew them: every post
+   with photos now uses .pcar, route or no route. */
 .trackstrip.multi .msc{left:max(80px, 26%)}
 .trackstrip.paperside:not(.multi) .msc{left:max(70px, 24%)}
-.pthumb img:not([src]){visibility:hidden}
 .pmore{background:none; border:0; padding:0; margin:0; font:400 14px var(--font-ui); color:var(--ink-3); cursor:pointer; text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:3px}
 .pmore:hover{color:var(--ink)}
 .mslist li.more .pmore{font:600 12px var(--font-ui); color:inherit; pointer-events:auto}
@@ -13962,6 +13997,95 @@ function noteShown(n){ const k = NOTE_KIND[n.type]; return !(k && notifyPrefs &&
 
 const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = () => { try{ return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }catch(e){ return false; } };
+
+/* ---------- ADDING WAYMARK TO THE HOME SCREEN ----------
+
+   Joe: "Not really sure offline mode works for WayMark as you can only
+   access the website if you have an internet signal, so the offline section
+   doesn't really matter."
+
+   It is a fair thing to think and it is not true, which is the problem. The
+   service worker caches the whole shell on the first visit, so the site
+   opens with no signal from then on — in the browser as well as on the
+   Home Screen. The hill data is inside index.html, the saved map sheets and
+   the Skyline grids are in the device's own stores.
+
+   What is missing is anybody BEING TOLD. There was exactly one string about
+   the Home Screen in the whole app and it was inside the notifications flow,
+   which you only reach if you went looking for notifications.
+
+   So: a dismissed-once nudge on Home, and a permanent row in Settings.
+
+   Chrome and Edge hand us a real install prompt through beforeinstallprompt,
+   which has to be stashed when it fires and can only be used once. Safari
+   gives us nothing, so iPhones get the three steps written out — the same
+   three the notifications sheet already uses. */
+let deferredInstall = null;
+const INSTALL_KEY = 'waymark.installnudge';
+addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();                    /* or Chrome shows its own mini-bar */
+  deferredInstall = e;
+  /* it can arrive after Home has been drawn, so draw the nudge in */
+  try{ if (tab === 'd' && !isStandalone() && !installHidden()) render(); }catch(err){}
+});
+addEventListener('appinstalled', () => {
+  deferredInstall = null;
+  try{ localStorage.setItem(INSTALL_KEY, 'done'); }catch(e){}
+  toast('WayMark is on your Home Screen. It opens with no signal now.');
+});
+function installHidden(){ try{ return !!localStorage.getItem(INSTALL_KEY); }catch(e){ return false; } }
+/* Worth offering at all? Not if it is already installed, and not if this
+   browser cannot do it (no service worker means no offline either). */
+function installOffer(){
+  if (isStandalone()) return 'installed';
+  /* `'serviceWorker' in navigator` is not the test. Chrome omits the
+     property entirely on an insecure origin, but other engines leave it
+     present and undefined — and `in` is true for that. No worker means no
+     offline, and offering a Home Screen that cannot work without a signal
+     would be a lie. */
+  if (!navigator.serviceWorker) return 'no';
+  if (deferredInstall) return 'prompt';
+  if (isIOS()) return 'ios';
+  return 'how';
+}
+async function doInstall(){
+  if (deferredInstall){
+    const e = deferredInstall; deferredInstall = null;   /* one use only */
+    try{ e.prompt(); const r = await e.userChoice;
+         if (r && r.outcome === 'accepted') return; }catch(err){}
+    render(); return;
+  }
+  installSheet();
+}
+function installSheet(){
+  const step = (n, icon, t) => '<li><span class="iosn">' + n + '</span><span class="iosic">' +
+    ti(icon) + '</span><span>' + t + '</span></li>';
+  const ios = isIOS();
+  bcSheet('<h3 class="bcsheettitle">WayMark with no signal</h3>' +
+    '<p class="bclede">On your Home Screen it opens like an app, with no bars and no waiting — ' +
+    'and it opens when you have no signal at all. Your hills, your log and any map sheets you have ' +
+    'saved are already on the phone.</p>' +
+    '<ol class="iossteps">' +
+      (ios
+        ? step(1, 'share-ios', 'Tap <b>Share</b> in Safari’s toolbar') +
+          step(2, 'square-plus', 'Choose <b>Add to Home Screen</b>, then <b>Add</b>') +
+          step(3, 'device-mobile', 'Open WayMark from your <b>Home Screen</b>')
+        : step(1, 'dots', 'Open your browser’s <b>menu</b>') +
+          step(2, 'square-plus', 'Choose <b>Install</b> or <b>Add to Home Screen</b>') +
+          step(3, 'device-mobile', 'Open WayMark from your <b>Home Screen</b>')) +
+    '</ol>' +
+    '<button class="btn bcgo" data-act="bcsheetclose">Got it</button>',
+    'Add WayMark to your Home Screen');
+}
+/* the nudge on Home. One line about what it buys you, one button, one x. */
+function installBanner(){
+  const st = installOffer();
+  if (st === 'installed' || st === 'no' || installHidden()) return '';
+  return '<div class="banner soft"><div><b>Keep WayMark on your phone</b>' +
+    'It opens with no signal at all. Your hills and your log are already on the phone.</div>' +
+    '<button class="btn sm" data-act="install">' + (st === 'prompt' ? 'Add it' : 'How') + '</button>' +
+    '<button data-act="installno" aria-label="Dismiss">×</button></div>';
+}
 function pushSupport(){
   if (!('serviceWorker' in navigator)) return 'no';
   if (isIOS() && !isStandalone()) return 'homescreen';
@@ -14091,7 +14215,31 @@ function openFromPush(h){
   if (dm){ setTimeout(() => dogInviteOpen(dm[1]), 600); return true; }
   return false;
 }
-if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { const d = e.data || {}; if (d.open) openFromPush(d.open); });
+/* A NEWER WAYMARK HAS LANDED WHILE THIS TAB WAS OPEN.
+
+   The worker serves the app from the phone now, which is what stops a weak
+   signal showing a white screen — but it also means a tab that is already
+   open keeps showing the version it loaded with. The new worker says so on
+   activate, and this decides what to do about it.
+
+   It only acts when the version really differs, so it cannot loop. And it
+   does not yank the page out from under somebody: if they are typing, or a
+   sheet or the camera is open, it offers instead of taking. */
+let swNewer = false;
+if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
+  const d = e.data || {};
+  if (d.open) openFromPush(d.open);
+  if (d.newVersion && d.newVersion !== 'waymark-' + APP_VERSION && !swNewer){
+    swNewer = true;
+    const el = document.activeElement;
+    const busy = (el && (el.tagName === 'TEXTAREA' || el.isContentEditable ||
+                  (el.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|file|color|date)$/i.test(el.type || '')))) ||
+                 !!document.querySelector('.sheet.open, .camx.open') ||
+                 document.visibilityState !== 'visible';
+    if (!busy){ location.reload(); return; }
+    try{ toastAct('A newer WayMark is ready.', 'Load it', () => location.reload()); }catch(err){}
+  }
+});
 (function(){ const h = location.hash || ''; if (/^#(chat=|notes$|dog=)/.test(h)){ history.replaceState(null, '', location.pathname + location.search); setTimeout(() => openFromPush(h), 800); } })();
 
 /* ================= the pack: dogs (v248) =================
@@ -15856,6 +16004,12 @@ function render(){
      swallowed by having closed the last one. */
   } else if (cloudOn() && syncState === 'error' && ui.errHidden !== syncErr){
     banner = '<div class="banner"><div><b>Could not save to the cloud</b>' + esc(syncErr) + '. Everything is still safe on this device and it will keep retrying.</div><button data-act="hidebanner" data-v="err" aria-label="Dismiss">×</button></div>';
+  /* LAST in the chain on purpose. An invite expires, a failed save is
+     urgent, signing in is the bigger ask — the Home Screen nudge waits its
+     turn behind all three, and once it is waved away it does not come back.
+     Settings keeps a permanent way in. */
+  } else if (tab === 'd'){
+    banner = installBanner();
   }
 
   /* Nothing chosen yet, or the sign-in offer still pending: onboarding owns the
@@ -18539,28 +18693,50 @@ function renderDiary(){
          walk. dayPhotos() already merges and de-dupes the two; one strip for
          the whole day is drawn below. */
 
+      /* TWO NAMED ACTIONS AND A ⋯, not five underlined links wrapping onto
+         two lines. The ⋯ is the SAME component Hikers posts use — same
+         markup, same `ui.postMenu` state, so the tap-outside and Escape
+         handlers that already exist close it with no new code. Delete also
+         stops sitting next to Share, which is a good place for it not to be. */
+      const mk = 'e:' + e.id, mOpen = ui.postMenu === mk;
       html += '<div class="drow">' +
-        '<button class="linkbtn" data-act="editdiary" data-id="' + esc(e.id) + '">Edit</button>' +
-        '<label class="linkbtn aslabel">Add photos<input type="file" accept="image/*" multiple ' +
-          'data-act="diaryphoto" data-id="' + esc(e.id) + '" class="filein"></label>' +
-        (eps.length ? '<button class="linkbtn" data-act="tagagain" data-id="' + esc(e.id) + '">Tag photos</button>' : '') +
-        '<button class="linkbtn" data-act="sharediary" data-id="' + esc(e.id) + '">' +
-          (e.shared ? 'Share again' : 'Share') + '</button>' +
-        '<button class="linkbtn ddel" data-act="deldiary" data-id="' + esc(e.id) + '">' +
-          ti('trash', 'width="14" height="14"') + 'Delete</button>' +
-        '</div></div>';
+        '<label class="dact aslabel">' + ti('camera', 'width="16" height="16"') + 'Add photos' +
+          '<input type="file" accept="image/*" multiple data-act="diaryphoto" data-id="' + esc(e.id) + '" class="filein"></label>' +
+        '<button class="dact key" data-act="sharediary" data-id="' + esc(e.id) + '">' +
+          ti('share', 'width="16" height="16"') + (e.shared ? 'Share again' : 'Share') + '</button>' +
+        '<div class="pmenuwrap dmore">' +
+          '<button class="iconbtn pmenu" data-act="postmenu" data-id="' + esc(mk) + '" ' +
+            'aria-label="More for this day" aria-expanded="' + mOpen + '">' + ti('dots') + '</button>' +
+          (mOpen ? '<div class="pmenubox" role="menu">' +
+            '<button role="menuitem" data-act="editdiary" data-id="' + esc(e.id) + '">' + ti('pencil') + 'Edit the write-up</button>' +
+            (eps.length ? '<button role="menuitem" data-act="tagagain" data-id="' + esc(e.id) + '">' + ti('photo') + 'Tag photos</button>' : '') +
+            '<button role="menuitem" class="danger" data-act="deldiary" data-id="' + esc(e.id) + '">' + ti('trash') + 'Delete</button>' +
+          '</div>' : '') +
+        '</div></div></div>';
     }
 
     /* A day that exists only because you marked summits on it can still be
        written up and have photos added — the entry is made for you when you
        do, so the day never needs a form first. */
     if (!d.entries.length){
+      /* Same shape, different pair. On a day nobody has written up yet the
+         thing to do is write it up, so that is the filled one — not Share,
+         which on a blank day only shares the bare summits. */
+      const dk = 'd:' + d.date, dOpen = ui.postMenu === dk;
+      const dExtra = (d.photos.length ? 1 : 0) + (d.hills.length ? 1 : 0);
       html += '<div class="drow">' +
-        '<button class="linkbtn" data-act="writeday" data-d="' + esc(d.date) + '">Write it up</button>' +
-        '<label class="linkbtn aslabel">Add photos<input type="file" accept="image/*" multiple ' +
-          'data-act="dayphoto" data-d="' + esc(d.date) + '" class="filein"></label>' +
-        (d.photos.length ? '<button class="linkbtn" data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(d.photos[0].id) + '">Open the day</button>' : '') +
-        (d.hills.length ? '<button class="linkbtn" data-act="shareday" data-d="' + esc(d.date) + '">Share</button>' : '') +
+        '<button class="dact key" data-act="writeday" data-d="' + esc(d.date) + '">' +
+          ti('notebook', 'width="16" height="16"') + 'Write it up</button>' +
+        '<label class="dact aslabel">' + ti('camera', 'width="16" height="16"') + 'Add photos' +
+          '<input type="file" accept="image/*" multiple data-act="dayphoto" data-d="' + esc(d.date) + '" class="filein"></label>' +
+        (dExtra ? '<div class="pmenuwrap dmore">' +
+          '<button class="iconbtn pmenu" data-act="postmenu" data-id="' + esc(dk) + '" ' +
+            'aria-label="More for this day" aria-expanded="' + dOpen + '">' + ti('dots') + '</button>' +
+          (dOpen ? '<div class="pmenubox" role="menu">' +
+            (d.hills.length ? '<button role="menuitem" data-act="shareday" data-d="' + esc(d.date) + '">' + ti('share') + 'Share the day</button>' : '') +
+            (d.photos.length ? '<button role="menuitem" data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(d.photos[0].id) + '">' + ti('eye') + 'Open the day</button>' : '') +
+          '</div>' : '') +
+        '</div>' : '') +
         '</div>';
     }
 
@@ -22572,7 +22748,7 @@ document.addEventListener('click', async e => {
     try{
       let sent = [];
       if (kind === 'moment'){
-        for (const ph of (d.shots || []).slice(0, 6)){
+        for (const ph of (d.shots || []).slice(0, POST_SHOTS)){
           try{ const b64 = await blobToB64(ph.blob); if (b64.length > 950000) continue; shotQueue.push({pid: ph.id, post:{d:b64, owner:fbUser.uid, cap:'', t:Date.now()}}); sent.push(ph.id); }catch(e){}
         }
       }
@@ -23039,9 +23215,15 @@ document.addEventListener('click', async e => {
   else if (a === 'opensettings'){ openSheet(); }
   else if (a === 'setpane'){
     if (el.dataset.v === 'notify'){ ui.nsFrom = 'settings'; closeSheetNow(); openNotes(); openNotifySettings(); }
+    else if (el.dataset.v === 'install'){
+      if (isStandalone()){ toast('WayMark is already on your Home Screen.'); return; }
+      closeSheetNow(); doInstall();
+    }
     else showSetPane(el.dataset.v);
   }
   else if (a === 'setback'){ showSetPane(''); }
+  else if (a === 'install'){ doInstall(); }
+  else if (a === 'installno'){ try{ localStorage.setItem(INSTALL_KEY, 'no'); }catch(err){} render(); }
   else if (a === 'bkpaste'){
     const w = document.getElementById('bkwrap');
     if (w){ w.hidden = false; const t = document.getElementById('backupText');
@@ -23795,7 +23977,7 @@ document.addEventListener('change', e => {
     if (!files.length){ toast('No photos came through. If they are in iCloud, open them in Photos first.'); return; }
     (async () => {
       let added = 0; const bad = [], stalled = [], full = [];
-      for (const f of files.slice(0, 6 - (d.shots || []).length)){
+      for (const f of files.slice(0, POST_SHOTS - (d.shots || []).length)){
         if (f && f.size === 0){ stalled.push(f.name || 'a photo'); continue; }
         if (!looksLikeImage(f)){ bad.push((f && f.name) || 'a file'); continue; }
         try{
@@ -24409,6 +24591,10 @@ const SET_PANES = [
    val: () => 'Bring in older photos'},
   {id:'plog',   pane:'pn-plog',   title:'Photo log', icon:'info',
    val: () => plogOn() ? 'On' : 'Off'},
+  /* Permanent, because the nudge on Home can be waved away and then there is
+     no way back to the one thing that makes the app work on a hill. */
+  {id:'install', pane:'', title:'Add to Home Screen', icon:'download',
+   val: () => isStandalone() ? 'Already on your Home Screen' : 'Opens with no signal'},
   {id:'back',   pane:'pn-back',  title:'Backup', icon:'download',
    val: () => 'Copy or restore'},
   {id:'about',  pane:'pn-about', title:'About WayMark', icon:'info',
@@ -26415,25 +26601,41 @@ function postVerb(p, hs){
        : p.kind === 'route' ? 'shared a route' : p.kind === 'goal' ? 'set a goal'
        : p.kind === 'rec' ? 'recommends a hill' : p.kind === 'moment' ? 'shared a moment' : 'posted';
 }
+/* HOW MANY PHOTOS A POST HOLDS.
+
+   It was 6, written out as the digit in six different places, and nothing in
+   the Firestore rules required it — it was a number somebody chose. Joe:
+   "why the 6 image limit on hikers can we expand that?" Ten.
+
+   One constant, so the compose screen, the add-more button, what gets written
+   to Firestore and what gets drawn can never disagree about it again. */
+const POST_SHOTS = 10;
+
 function mediaHTML(p, hs, adventure){
-  const shots = p.shots || [];
+  const shots = (p.shots || []).slice(0, POST_SHOTS);
   /* a walk shared with its own GPX: the route on the map, under any photos */
   const wtrk = p.kind !== 'route' ? postTrk(p) : [];
   const route = wtrk.length > 1 ? trackStrip(wtrk, hs, p) : '';
-  /* v244: a route and photos together. The map leads; every photo sits in one
-     row under it, full size a tap away. This used to be a square of photos
-     with the route strip under it, well over a screen tall. */
-  if (shots.length && route){
-    const n = Math.min(shots.length, 6);
-    return route + '<div class="pmedia pthumbs" style="--c:' + Math.max(n, 4) + '">' + shots.slice(0, 6).map((pid, i) =>
-      '<button class="pthumb" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '" aria-label="Photo ' + (i + 1) + ' of ' + n + '">' +
-      '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="' + esc(p.text ? p.text.slice(0, 80) : 'Photo from ' + (p.name || 'a walker') + '’s day out') + '"></button>').join('') + '</div>';
-  }
+  /* ONE WAY OF SHOWING PHOTOS, WHETHER OR NOT THERE IS A ROUTE.
+
+     A post with a GPX used to get a row of little square thumbnails instead
+     of the carousel every other post gets — so swiping did nothing, the
+     counter and the dots were not there, and the only way through was to tap
+     a square and land in the full-screen viewer. Joe: "when uploading photos
+     to a post that has a GPX attached make it act like a carousel when
+     clicking through, at the moment it's a little janky."
+
+     It is the same carousel now, with the route under it. That is shorter
+     than six squares as well as better to use.
+
+     `data-n` is the number of slides actually drawn. It used to be the number
+     of photos the post HAS, so a seven-photo post counted "1/7" through six
+     slides and stopped. */
   if (shots.length){
-    return '<div class="pmedia" data-n="' + shots.length + '"><div class="pcar">' + shots.slice(0, 6).map((pid, i) =>
+    return '<div class="pmedia" data-n="' + shots.length + '"><div class="pcar">' + shots.map((pid, i) =>
       '<button class="shot" data-act="viewpostphoto" data-id="' + esc(p.id) + '" data-p="' + esc(pid) + '" aria-label="Photo ' + (i + 1) + ' of ' + shots.length + '">' +
       '<img data-post="' + esc(p.id) + '" data-shot="' + esc(pid) + '" alt="' + esc(p.text ? p.text.slice(0, 80) : 'Photo from ' + (p.name || 'a walker') + '’s day out') + '"></button>').join('') + '</div>' +
-      (shots.length > 1 ? '<span class="pcount">1/' + shots.length + '</span><div class="pdots">' + shots.slice(0, 6).map((_, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>' : '') +
+      (shots.length > 1 ? '<span class="pcount">1/' + shots.length + '</span><div class="pdots">' + shots.map((_, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>' : '') +
       '</div>' + (route ? '<div class="pwroute">' + route + '</div>' : '');
   }
   if (route) return route;
@@ -27579,7 +27781,7 @@ function openShareDay(hs, d){
   if (winComing || winOpen()){ shareAfterWin = {hs, d}; return; }
   const day = diaryDays().find(x => x.date === d) || {photos:[], entries:[]};
   const entry = (day.entries || []).find(e => e.title || e.text) || null;
-  const photos = (day.photos || []).concat(...(day.entries || []).map(e => e.photos || [])).filter((p, i, a) => p && a.findIndex(q => q.id === p.id) === i).slice(0, 6);
+  const photos = (day.photos || []).concat(...(day.entries || []).map(e => e.photos || [])).filter((p, i, a) => p && a.findIndex(q => q.id === p.id) === i).slice(0, POST_SHOTS);
   ui.shareDay = {hills:hs.map(h => h.k), date:d, text:entry ? [entry.title, entry.text].filter(Boolean).join('\n\n').slice(0, 600) : '', photos, withPhotos:photos.length > 0, vis:prof.pvis || 'public'};
   paintShareDay();
 }
@@ -27630,7 +27832,7 @@ async function shareDayAddFiles(files){
   const before = new Set(((state.bagged[key] || {}).photos || []).map(p => p.id));
   await addPhotos(key, files);
   const fresh = ((state.bagged[key] || {}).photos || []).filter(p => !before.has(p.id));
-  sd.photos = sd.photos.concat(fresh.map(p => ({id:p.id, cap:''}))).slice(0, 6);
+  sd.photos = sd.photos.concat(fresh.map(p => ({id:p.id, cap:''}))).slice(0, POST_SHOTS);
   sd.withPhotos = true;
   paintShareDay();
 }
@@ -27639,7 +27841,7 @@ async function addShotsToPost(postId, files){
   const p = feed.find(x => x.id === postId); if (!p || !fbUser || p.uid !== fbUser.uid) return;
   const key = (p.hills || []).find(k => BY_KEY[k]);
   const have = (p.shots || []).slice();
-  const room = 6 - have.length; if (room <= 0){ toast('A post holds six photos.'); return; }
+  const room = POST_SHOTS - have.length; if (room <= 0){ toast('A post holds ' + POST_SHOTS + ' photos.'); return; }
   const list = [...files].slice(0, room);
   toast('Adding ' + list.length + (list.length === 1 ? ' photo…' : ' photos…'));
   let added = 0;
@@ -28647,7 +28849,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v299';
+const APP_VERSION = 'v302';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -28855,7 +29057,7 @@ async function createPost({kind, text, hills, date, tags, shots, patch, conds, t
     hills: (hills || []).slice(0, 12), date: date || '',
     /* Ids only. The pictures themselves go in a subcollection under the post,
        readable by exactly the people the post is addressed to. */
-    shots: (shots || []).slice(0, 6),
+    shots: (shots || []).slice(0, POST_SHOTS),
     tags: (tags || []).slice(0, 8), aud, t: Date.now(),
     patch: patch || '', conds: (conds || []).slice(0, 4), vis, goal: goal || null,
     /* public posts carry their time twice: `pt` is what Discover orders by, and
