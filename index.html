@@ -918,8 +918,29 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .dsummits{margin-top:10px}
 .dcount{font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
-.dsummits ul{list-style:none; margin:6px 0 0; padding:0}
-.dsummits li{display:flex; align-items:baseline; gap:10px; padding:4px 0}
+/* the count and the lists the day moved, on one line. They wrap together
+   rather than stacking into a block of their own. */
+.dsline{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px}
+/* 44px, not the 26 the drawing had. This is the same job as the chip it
+   replaced — a tap through to that list — so it does not get harder
+   to hit in the name of a shorter card. The layout sweep catches anything
+   under 44 and it caught this at 34. The row gap comes down to pay for it. */
+.dgain{display:inline-flex; align-items:center; gap:6px; padding:10px 13px;
+  border:0; border-radius:99px; background:var(--accent-soft); color:var(--accent-text);
+  font:600 12.5px/1.25 var(--font-ui); text-align:left; min-height:44px}
+.dgain:active{background:var(--surface-2)}
+.dgain b{font-weight:700}
+.dgain em{font-style:normal; font-family:var(--font-data); font-weight:600}
+.dgain s{text-decoration:none; font-family:var(--font-data); font-weight:400;
+  font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+/* TWO COLUMNS. A seven-summit day ran 463px tall, of which the names were
+   254 and the list bars another 80. Side by side it is 270. The names stay
+   in the display face at a readable size — they are the point of the
+   page — they just stop being a column of one-line paragraphs. */
+.dsummits ul{list-style:none; margin:6px 0 0; padding:0;
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); column-gap:18px}
+.dsummits li{display:flex; align-items:baseline; gap:10px; padding:4px 0; min-width:0;
+  align-self:start}
 /* these three were 20-23px tall: wide enough, short enough to miss */
 /* These were 20-23px tall: wide enough to see, a pixel or two short to hit.
    min-height only, no extra padding — padding each summit row by 10px to gain
@@ -928,8 +949,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .hbrand{min-height:24px}
 /* padding:0 must stay — dropping it let the base .linkbtn's 9px back in and
    put 1,000px on the Journal */
+/* A WRAPPED NAME, NEVER A CUT ONE. The first go at two columns clipped to an
+   ellipsis and turned Dollywaggon Pike into "Dollywaggon P…". A hill name
+   you cannot read is worse than a card two lines taller, so it wraps. */
 .dsummits li .linkbtn{padding:0; min-height:24px; font-family:var(--font-display); font-size:15px;
-  color:var(--ink); text-align:left}
+  color:var(--ink); text-align:left; min-width:0; white-space:normal; overflow-wrap:break-word;
+  line-height:1.25}
 .dsummits li i{ margin-left:auto; font-style:normal; font-family:var(--font-ui); color:var(--ink-3); white-space:nowrap }
 .dnote{margin:10px 0 0; font-size:14px; line-height:1.6; color:var(--ink-2)}
 .dnote b{display:block; font-family:var(--font-ui); font-size:10px;
@@ -3030,28 +3055,9 @@ button.bstriprow{cursor:pointer}
    taking up the slack, the figures on the right — and two to a row once there
    is width for them. minmax(0,1fr) so a long list name cannot push a track
    wider than its share. */
-.dprog{display:grid; grid-template-columns:minmax(0,1fr); gap:6px; margin:10px 0 2px}
-.dpchip{display:grid; grid-template-columns:auto minmax(40px,1fr) auto;
-  align-items:center; gap:10px; width:100%;
-  text-align:left; font:inherit; color:inherit; padding:7px 11px;
-  background:var(--surface); border:1px solid var(--line-soft); border-radius:10px}
-.dpchip:active{background:var(--surface-2)}
-.dpt{display:flex; align-items:baseline; gap:6px; min-width:0}
-.dpt b{font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.dpt em{font-style:normal; font-family:var(--font-data); font-size:12px;
-  font-weight:600; color:var(--accent); background:var(--accent-soft);
-  border-radius:20px; padding:1px 6px; flex:none}
-.dpbar{display:block; height:5px; border-radius:4px; background:var(--surface-2);
-  border:1px solid var(--line-soft); overflow:hidden; min-width:0}
-/* the same fill as every other progress bar in the app (.bar > i) */
-.dpbar i{display:block; height:100%; border-radius:4px;
-  background:linear-gradient(90deg, var(--done), var(--accent))}
-.dpn{font-family:var(--font-data); font-size:12px; color:var(--ink-2);
-  font-variant-numeric:tabular-nums; display:flex; gap:7px; white-space:nowrap}
-/* --sage is 3.9:1 on the light card and 3.71:1 on the dark one — it fails in
-   BOTH, at the 12px this layout uses. --ink-2 is the token that is contrast-
-   checked for small text. */
-.dpn small{font-size:12px; color:var(--ink-2)}
+/* .dprog / .dpchip / .dpt / .dpbar / .dpn were the list-gain block below the
+   summits. Merged into .dsline / .dgain above and deleted rather than left
+   lying about, so nothing can quietly start using them again. */
 
 /* ---- focus rings on wrapper-bordered fields ----
    The global :focus-visible ring (line ~118) covers everything EXCEPT these:
@@ -3068,20 +3074,16 @@ button.bstriprow{cursor:pointer}
    around a pill */
 .cvfield:focus-within{border-radius:21px}
 .ibsearch:focus-within{border-radius:12px}
-/* rust on the dark chip ground is 2.42:1; the dark accent text is 6.6:1 */
-:root[data-theme="dark"] .dpt em, :root:not([data-theme="light"]) .dpt em{color:var(--accent-text)}
-/* Two to a row once the column can hold them. No viewport breakpoint: the
-   journal column is 606px inside a 768px tablet and 720px inside a 1280px
-   desktop, so a min-width query asks the wrong question — auto-fit measures
-   the container it is actually in and decides for itself. auto-fit (not
-   auto-fill) so a single list fills the width instead of sitting in a
-   half-width box with a hole beside it. */
-.dprog{grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:6px 8px}
-/* A narrow phone cannot hold name + bar + figures on one line, so the bar
-   drops under them rather than being squeezed to nothing. */
-@media (max-width:379px){
-  .dpchip{grid-template-columns:auto minmax(0,1fr); padding:8px 11px}
-  .dpbar{grid-column:1 / -1; order:3}
+/* --accent-text is already the theme-aware token (rust on cream, #EE9A62 on
+   the dark card), so the tag needs no dark override of its own. The small
+   running total beside it uses --ink-3, which is contrast-checked for small
+   text in both themes — measured below, not assumed. */
+/* A narrow phone cannot hold two summits across. auto-fit already drops to
+   one column at minmax(150px), but a very long name beside a four-figure
+   height is tight even at 393 — below 340 take the second column away
+   outright rather than truncating every name on the page. */
+@media (max-width:339px){
+  .dsummits ul{grid-template-columns:minmax(0,1fr)}
 }
 
 /* the route carried into a walk invite */
@@ -18511,13 +18513,12 @@ function renderDiary(){
 
     if (d.hills.length){
       d.hills.sort((a, b) => b.h - a.h);
-      html += '<div class="dsummits"><span class="dcount">' + d.hills.length +
-        (d.hills.length === 1 ? ' summit' : ' summits') + '</span>' +
+      html += '<div class="dsummits"><div class="dsline"><span class="dcount">' + d.hills.length +
+        (d.hills.length === 1 ? ' summit' : ' summits') + '</span>' + dayGainHTML(d) + '</div>' +
         '<ul>' + d.hills.map(h =>
           '<li><button class="linkbtn" data-act="golist" data-v="' + esc(h.l.find(x => state.enabled.includes(x)) || h.l[0]) +
-          '">' + esc(hillName(h)) + '</button><i>' + feet(h).toLocaleString() + ' ft</i></li>').join('') +
+          '">' + esc(hillName(h)) + '</button><i>' + feet(h).toLocaleString() + '</i></li>').join('') +
         '</ul></div>';
-      html += dayProgHTML(d);
       /* tag the dogs who were out that day: one tap puts every summit on that
          day onto their page, which beats opening each hill in turn */
       html += dogDayHTML(d);
@@ -28527,17 +28528,26 @@ function dayProgress(dy){
   }).filter(x => x.that && x.total)
     .sort((a, b) => b.that - a.that || a.name.localeCompare(b.name));
 }
-function dayProgHTML(dy){
+/* WHICH LISTS THE DAY MOVED.
+
+   This used to be a block of its own below the summits: one chip per list,
+   each with a progress bar and "98 of 214  46%". Joe: "a completed journal
+   entry post with 7 summits — the main list and then the bit below that
+   says which lists gained hills — could this not be merged?" He was
+   right. It was the same fact twice in two shapes, and on a seven-summit day
+   the two blocks together were 73% of the card.
+
+   Now they are tags on the summits line. The running total stays, because
+   that is the bit nobody can work out for themselves. The bar goes: at 22 of
+   1,550 it drew a sliver that said less than the number beside it. */
+function dayGainHTML(dy){
   const ps = dayProgress(dy);
   if (!ps.length) return '';
-  return '<div class="dprog">' + ps.map(x => {
-    const pc = Math.round(x.by / x.total * 100);
-    return '<button class="dpchip" data-act="golist" data-v="' + esc(x.id) + '">' +
-      '<span class="dpt"><b>' + esc(x.name) + '</b><em>+' + x.that + '</em></span>' +
-      '<span class="dpbar"><i style="width:' + Math.max(1.5, pc) + '%"></i></span>' +
-      '<span class="dpn">' + x.by.toLocaleString() + ' of ' + x.total.toLocaleString() +
-        '<small>' + pc + '%</small></span></button>';
-  }).join('') + '</div>';
+  return ps.map(x =>
+    '<button class="dgain" data-act="golist" data-v="' + esc(x.id) + '">' +
+      '<b>' + esc(x.name) + '</b><em>+' + x.that + '</em>' +
+      '<s>' + x.by.toLocaleString() + ' of ' + x.total.toLocaleString() + '</s>' +
+    '</button>').join('');
 }
 
 function stravaDayHTML(s, eid){
@@ -28637,7 +28647,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v298';
+const APP_VERSION = 'v299';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
