@@ -6174,6 +6174,55 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcgbadge.on{background:var(--ink); color:var(--ground); border-color:var(--ink)}
 
 /* ---- bringing in photos from before WayMark ---- */
+/* THE SHARE PICKER. Two cards side by side, swipe between them, one Share.
+   The previews are the real thing, drawn at 1080x1350 and scaled down, so
+   what you pick is exactly what goes out. */
+.shrow{display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch; margin:0 -14px 14px; padding:2px 14px 6px}
+.shrow::-webkit-scrollbar{display:none}
+.shcard{flex:0 0 68%; max-width:230px; scroll-snap-align:center; text-align:left;
+  padding:0; border:0; background:none}
+.shprev{display:block; width:100%; aspect-ratio:1080/1350; border-radius:12px;
+  background:var(--surface-2) center/cover no-repeat;
+  border:1px solid var(--line); box-shadow:var(--shadow);
+  transition:box-shadow .16s, transform .16s}
+.shcard[aria-pressed="true"] .shprev{box-shadow:0 0 0 3px var(--accent); transform:translateY(-2px)}
+.shlab{display:block; padding:9px 2px 0}
+.shlab b{display:block; font:400 15px/1.2 var(--font-display); color:var(--ink)}
+.shlab i{display:block; margin-top:2px; font-style:normal;
+  font:400 12px/1.35 var(--font-ui); color:var(--sage)}
+.shcard[aria-pressed="true"] .shlab b{color:var(--accent-text)}
+.shbox .btnrow{margin-top:2px}
+
+/* THE FOLDED BOOKS. The dots stand in for the six that are shut, so the
+   row reads as "there are more of these" rather than as another book. */
+.bookfold .bookmore .rn{color:var(--ink-2); font-weight:600}
+.bookfold .bookmore > svg{flex:none; width:16px; height:16px; color:var(--sage);
+  transition:transform .18s}
+.bookfold .bookmore[aria-expanded="true"] > svg{transform:rotate(180deg)}
+.bookdots{background:none !important; position:relative}
+.bookdots::before{content:""; position:absolute; inset:0; border-radius:50%;
+  border:1.5px dashed var(--sage); opacity:.8}
+
+/* THE PRIVACY LINE, SMALL. Joe asked for it smaller rather than gone: a
+   walker only writes honestly if they are certain nobody is reading, so it
+   stays on every visit. Four lines at 97px became one at about 34, with
+   the rest of the sentence a tap away. */
+/* 44px, not 36. It opens out, so it is a control, and a control is 44
+   however much the row around it is trying to save — t/lay.js caught this
+   one on me within the hour. 97px down to 44 is still most of the saving. */
+.privline.small{display:flex; align-items:center; gap:9px; width:100%; text-align:left;
+  min-height:44px; margin:0 0 10px; padding:6px 11px; background:var(--surface-2);
+  border:1px solid var(--line-soft); border-radius:10px; color:var(--ink-2);
+  font:400 13px/1.35 var(--font-ui)}
+.privline.small > svg:first-child{flex:none; color:var(--sage)}
+.privline.small span{flex:1; min-width:0}
+.privline.small b{color:var(--ink); font-weight:700}
+.privline.small > svg:last-child{flex:none; width:15px; height:15px; color:var(--sage);
+  transition:transform .18s}
+.privline.small[aria-expanded="true"] > svg:last-child{transform:rotate(180deg)}
+.privmore{margin:-4px 0 12px; padding:0 11px; font:400 13px/1.5 var(--font-ui); color:var(--ink-2)}
+
 .impoffer{display:flex; align-items:center; gap:12px; width:100%; margin:0 0 14px; padding:13px 14px;
   background:var(--surface); border:1px solid var(--line); border-radius:12px; cursor:pointer; text-align:left}
 .impoffer:focus-within{outline:2px solid var(--accent); outline-offset:2px}
@@ -6201,7 +6250,14 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .imphomex:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
 /* at 320 the sentence is what gives, never the tap target */
 @media (max-width:359px){ .imphometx{font-size:12.5px} .imphomecta{padding:6px 9px} }
-.impoffer.slim{margin:10px 0 0; padding:10px 12px}
+/* Shrinking the slim row, WITHOUT shrinking what you tap. The first go
+   took the Choose button to 38px and t/rust.js caught it: a tap target is
+   a tap target whatever the row around it is doing. The saving comes from
+   the padding and the glyph instead. */
+.impoffer.slim{margin:10px 0 0; padding:5px 8px 5px 12px}
+.impoffer.slim > svg{width:20px; height:20px}
+.impoffer.slim b{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.impoffer.slim .impcta{padding:0 14px; font-size:13px}
 .impoffer.slim b{font-size:14px}
 .impoffer.slim i{display:none}
 @media (max-width:420px){ .impoffer{flex-wrap:wrap} .impcta{width:100%; text-align:center} .impoffer.slim{flex-wrap:nowrap} .impoffer.slim .impcta{width:auto} }
@@ -6489,6 +6545,44 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bctile .bcplus{position:absolute; right:8px; bottom:8px}
 .bctile .bcplus.up{bottom:30px}
 .bcheart[aria-pressed="true"]{color:#A8431A}
+/* 36px circles against a 44px guideline. The circle stays 36 so nothing
+   looks any different; the TAP grows around it.
+
+   First attempt pulled an ::after outwards with inset:-4px and measured
+   44px to the left and top but not to the right or bottom — clipped. So
+   the BUTTON is 44 and the circle is drawn inside it instead, which cannot
+   be clipped because there is nothing hanging outside the box. The offsets
+   drop from 8 to 4 so the circle lands exactly where it always did. */
+.bctile .bcround{width:44px; height:44px; background:none; border:0;
+  box-shadow:none; position:absolute}
+.bctile .bcround::before{content:""; position:absolute; inset:4px; border-radius:50%;
+  background:rgba(243,240,232,.96); border:1px solid rgba(20,51,45,.12);
+  /* the original carried this and nulling it flattened the circle onto the
+     tile — the drawn circle has to keep every property it had */
+  box-shadow:0 1px 3px rgba(20,51,45,.13)}
+.bctile .bcround svg{position:relative}
+.bctile .bcheart{right:4px; top:4px}
+.bctile .bcplus{right:4px; bottom:4px}
+.bctile .bcplus.up{bottom:26px}
+
+/* MADE FROM YOUR LOG, as one line on every section. The 307px block it
+   replaces is behind it in a sheet. */
+.bclogline{display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  margin:0 0 12px; padding:9px 12px; border:0; border-radius:13px;
+  background:var(--pine, #14332D); color:#F3EFE6; box-shadow:var(--shadow)}
+.bclogline:active{transform:scale(.99)}
+.bcloglicon{flex:none; display:grid; place-items:center; width:34px; height:34px;
+  border-radius:9px; background:rgba(243,239,230,.12)}
+.bcloglicon svg{width:19px; height:19px; color:#F3EFE6; stroke-width:1.6}
+.bcloglt{flex:1; min-width:0}
+.bcloglt i{display:block; font-style:normal; font:600 9.5px/1.3 var(--font-data);
+  letter-spacing:.14em; text-transform:uppercase; opacity:.66}
+.bcloglt b{display:block; margin-top:2px; font:400 15px/1.2 var(--font-display)}
+.bclogline > svg{flex:none; width:17px; height:17px; opacity:.6}
+/* and the full band inside the sheet */
+.bclogsay{margin:0 0 12px; font:400 18px/1.25 var(--font-display); color:var(--ink)}
+.bclogall{display:flex; flex-direction:column; gap:9px}
+.bclogall .bclogitem{width:100%}
 .bcmeta{display:flex; align-items:baseline; gap:8px}
 .bcmeta h3{margin:0; flex:1; min-width:0}
 .bcmeta h3 button{border:0; background:none; padding:0; text-align:left; font:600 14.5px/1.25 var(--font-ui); color:var(--ink)}
@@ -8892,6 +8986,15 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
              shown as a SHEET, which is how you reach it from a hill. Three
              different things, three names, all grepped before naming. */
           kitItem:null, gearEdit:null,
+          /* the journal's privacy line, opened out. Small by default — it is
+             reassurance on every visit, not a page of onboarding. */
+          privOpen:false,
+          /* the By book fold on Home. bookOpen: null = not chosen, so show
+             the book your newest hill was in; '' = you shut it; a name =
+             that one. bookAll = the other six are unfolded. */
+          bookOpen:null, bookAll:false,
+          /* which share card is chosen in the picker */
+          shCard:null,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'welcome'};
 
@@ -10573,49 +10676,399 @@ function patchDateLine(p){
   const d = dates[dates.length - 1];
   return d ? 'Earned ' + prettyDate(d) : 'Earned';
 }
-async function shareCard(p){
-  const W = 1080, H = 1350, cx = W / 2, cy = 560, R = 300;
+/* ---------- SHARE CARDS ----------
+   Joe, 5 Oct: "Redesign share to social posts make them topographic and
+   more branding can you give people options?" He picked two:
+   A, the sheet — a page torn out of a field log.
+   B, your photo, stamped — the picture with a plate laid on it.
+   Both on the REAL contours the app already carries, and a row to swipe
+   between them before anything is shared.
+
+   The old card drew concentric circles and called them contours. These use
+   WEB_CONTOURS, which is real surveyed line work and is already in the
+   file, so the cards cost no new bytes. */
+let SH_PATHS = null;
+function shareContours(){
+  if (SH_PATHS) return SH_PATHS;
+  /* the viewBox the path data was authored against */
+  const vb = (WEB_CONTOURS.match(/viewBox="([^"]+)"/) || [])[1] || '0 0 520 300';
+  const [, , vw, vh] = vb.split(/\s+/).map(Number);
+  const ds = [];
+  const re = /\sd="([^"]+)"/g; let m;
+  while ((m = re.exec(WEB_CONTOURS))) ds.push(m[1]);
+  SH_PATHS = {w: vw || 520, h: vh || 300, ds};
+  return SH_PATHS;
+}
+/* Stroke the real contours across a canvas, COVERING it the way
+   preserveAspectRatio="slice" does — a card is portrait and the line work
+   is landscape, so fitting it would leave the top and bottom bare. */
+function drawContours(x, W, H, col, alpha, lw){
+  const c = shareContours(); if (!c.ds.length) return;
+  const k = Math.max(W / c.w, H / c.h);
+  x.save();
+  x.globalAlpha = alpha; x.strokeStyle = col;
+  x.lineWidth = (lw || 1.6) / k; x.lineCap = 'round'; x.lineJoin = 'round';
+  x.translate((W - c.w * k) / 2, (H - c.h * k) / 2); x.scale(k, k);
+  for (const d of c.ds){
+    try{ x.stroke(new Path2D(d)); }catch(e){}
+  }
+  x.restore();
+}
+/* One line of letter-spaced caps, the way the app sets an eyebrow.
+
+   This places each character at a left edge it works out itself, so it has
+   to SET textAlign rather than inherit it. Called with 'center' still on
+   the context, every character was centred on its own left edge and the
+   whole line sat half a character to the left — 7px on the strapline, on
+   every card, on every tracked line. Measured in the pixels, not the
+   arithmetic, which is the only reason it was caught. */
+function shTracked(x, text, cx, y, px, gap){
+  const chars = [...String(text)];
+  const was = x.textAlign;
+  x.textAlign = 'left';
+  const w = chars.reduce((a, ch) => a + x.measureText(ch).width, 0) + gap * (chars.length - 1);
+  let at = cx - w / 2;
+  for (const ch of chars){ x.fillText(ch, at, y); at += x.measureText(ch).width + gap; }
+  x.textAlign = was;
+}
+/* wrap a display-face title to at most `lines` lines, shrinking to fit */
+function shTitle(x, text, cx, top, maxW, size, lines, lh){
+  let px = size, out = null;
+  for (; px > size * 0.52; px -= 4){
+    x.font = '400 ' + px + 'px Wildkins, Georgia, serif';
+    const words = String(text).split(/\s+/), rows = []; let line = '';
+    for (const w of words){
+      const t = line ? line + ' ' + w : w;
+      if (x.measureText(t).width > maxW && line){ rows.push(line); line = w; }
+      else line = t;
+    }
+    if (line) rows.push(line);
+    if (rows.length <= lines){ out = rows; break; }
+  }
+  if (!out){ out = [String(text)]; x.font = '400 ' + px + 'px Wildkins, Georgia, serif'; }
+  const step = px * (lh || 1.06);
+  out.forEach((r, i) => x.fillText(r, cx, top + i * step));
+  return top + (out.length - 1) * step;
+}
+function shFoot(x, W, y, light){
+  /* WAY and MARK are two colours, so they are two fillText calls — and I
+     centred EACH of them on a hand-picked offset, which centres neither the
+     pair nor anything else. Measure both, lay the pair out from its own
+     middle. */
+  x.font = '400 46px Wildkins, Georgia, serif';
+  x.textAlign = 'left';
+  const wayW = x.measureText('WAY').width;
+  const markW = x.measureText('MARK').width;
+  const gap = 13;
+  let at = W / 2 - (wayW + gap + markW) / 2;
+  x.fillStyle = light ? '#F3EFE6' : '#14332D';
+  x.fillText('WAY', at, y);
+  at += wayW + gap;
+  x.fillStyle = '#A8431A';
+  x.fillText('MARK', at, y);
+  x.textAlign = 'center';
+  x.font = '400 21px "Source Code Pro", ui-monospace, monospace';
+  x.fillStyle = light ? 'rgba(243,239,230,.62)' : 'rgba(20,51,45,.52)';
+  shTracked(x, 'MARK YOUR JOURNEYS', W / 2, y + 40, 21, 5.5);
+}
+/* The rubber stamp the app already uses on a journal date, drawn. It fills
+   the lower half of the sheet, which was otherwise a third of a card of
+   nothing, and it is the branding Joe asked for without another wordmark. */
+function shStamp(x, cx, cy, text, col){
+  x.save(); x.translate(cx, cy); x.rotate(-0.055);
+  x.font = '400 40px "Source Code Pro", ui-monospace, monospace';
+  const chars = [...text], gap = 9;
+  const w = chars.reduce((a, c) => a + x.measureText(c).width, 0) + gap * (chars.length - 1);
+  const padX = 34, padY = 26, bw = w + padX * 2, bh = 40 + padY * 2;
+  x.strokeStyle = col; x.lineWidth = 4; x.globalAlpha = 0.72;
+  const r = 8;
+  x.beginPath();
+  x.moveTo(-bw/2 + r, -bh/2); x.lineTo(bw/2 - r, -bh/2); x.quadraticCurveTo(bw/2, -bh/2, bw/2, -bh/2 + r);
+  x.lineTo(bw/2, bh/2 - r); x.quadraticCurveTo(bw/2, bh/2, bw/2 - r, bh/2);
+  x.lineTo(-bw/2 + r, bh/2); x.quadraticCurveTo(-bw/2, bh/2, -bw/2, bh/2 - r);
+  x.lineTo(-bw/2, -bh/2 + r); x.quadraticCurveTo(-bw/2, -bh/2, -bw/2 + r, -bh/2);
+  x.closePath(); x.stroke();
+  x.fillStyle = col; x.textAlign = 'left'; x.textBaseline = 'middle';
+  let at = -w / 2;
+  for (const c of chars){ x.fillText(c, at, 2); at += x.measureText(c).width + gap; }
+  x.textBaseline = 'alphabetic'; x.textAlign = 'center';
+  x.restore();
+}
+async function shFonts(){
+  try{
+    if (document.fonts && document.fonts.load)
+      await Promise.all([document.fonts.load('64px Wildkins'),
+                         document.fonts.load('32px "Source Code Pro"')]);
+  }catch(e){}
+}
+/* A — THE SHEET. A page out of a field log: paper, a rule down the margin,
+   the contours showing faintly through, and a stamp. */
+function shDrawSheet(x, W, H, o){
+  x.fillStyle = '#F3EFE6'; x.fillRect(0, 0, W, H);
+  drawContours(x, W, H, '#14332D', 0.11, 2.2);
+  /* the margin rule, as on the notebook pages in the app */
+  x.strokeStyle = 'rgba(168,67,26,.30)'; x.lineWidth = 3;
+  x.beginPath(); x.moveTo(96, 0); x.lineTo(96, H); x.stroke();
+  x.textAlign = 'center';
+  x.fillStyle = '#5A7268';
+  x.font = '400 24px "Source Code Pro", ui-monospace, monospace';
+  shTracked(x, String(o.eyebrow || 'Marked').toUpperCase(), W / 2, 300, 24, 7);
+  x.fillStyle = '#14332D';
+  const endY = shTitle(x, o.title || '', W / 2, 470, W - 220, 130, 3, 1.02);
+  let y = endY;
+  if (o.sub){
+    x.font = '400 34px "Source Code Pro", ui-monospace, monospace';
+    x.fillStyle = '#5A7268';
+    shTracked(x, String(o.sub).toUpperCase(), W / 2, y + 92, 34, 3.5);
+    y += 92;
+  }
+  if (o.note){
+    x.font = '400 38px Wildkins, Georgia, serif'; x.fillStyle = '#2C4A41';
+    y = shTitle(x, '\u201c' + o.note + '\u201d', W / 2, y + 108, W - 260, 38, 3, 1.22);
+  }
+  /* the stamp sits in what was a third of a card of nothing */
+  shStamp(x, W / 2, Math.min(Math.max(y + 190, 1000), 1090),
+    String(o.stamp || 'WAYMARK ' + new Date().getFullYear()), '#A8431A');
+  shFoot(x, W, H - 110, false);
+}
+/* How many lines a title will take, without drawing it. The photo card has
+   to know BEFORE it places the plate: a two-line name ran straight through
+   the wordmark. */
+function shTitleLines(x, text, maxW, size, lines){
+  for (let px = size; px > size * 0.52; px -= 4){
+    x.font = '400 ' + px + 'px Wildkins, Georgia, serif';
+    const words = String(text).split(/\s+/), rows = []; let line = '';
+    for (const w of words){
+      const t = line ? line + ' ' + w : w;
+      if (x.measureText(t).width > maxW && line){ rows.push(line); line = w; }
+      else line = t;
+    }
+    if (line) rows.push(line);
+    if (rows.length <= lines) return {px, rows: rows.length};
+  }
+  return {px: size * 0.52, rows: lines};
+}
+/* B — YOUR PHOTO, STAMPED. The picture fills it; a plate sits on the
+   bottom with the contours running through it. */
+function shDrawPhoto(x, W, H, o, img){
+  x.fillStyle = '#14332D'; x.fillRect(0, 0, W, H);
+  if (img && img.naturalWidth){
+    const k = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const w = img.naturalWidth * k, h = img.naturalHeight * k;
+    x.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+  } else {
+    drawContours(x, W, H, '#F3EFE6', 0.14, 2.4);
+  }
+  /* THE DARK PANEL IS SIZED TO ITS CONTENTS, NOT TO A FRACTION OF THE CARD.
+     At a flat 0.60 a two-line name — "Bidein a' Ghlas Thuill" — ran through
+     the wordmark. Work out what has to fit, then put the plate above it. */
+  const tl = shTitleLines(x, o.title || '', W - 160, 112, 2);
+  const need = 82                                  /* eyebrow */
+    + 114 + (tl.rows - 1) * tl.px * 1.04           /* the title */
+    + (o.sub ? 78 + 32 : 0)                        /* the date line */
+    + 150;                                         /* the wordmark and its strapline */
+  const top = Math.min(H * 0.62, Math.max(H * 0.40, H - need - 40));
+  const g = x.createLinearGradient(0, top - 120, 0, H);
+  g.addColorStop(0, 'rgba(20,51,45,0)');
+  g.addColorStop(0.45, 'rgba(20,51,45,.86)');
+  g.addColorStop(1, 'rgba(20,51,45,.97)');
+  x.fillStyle = g; x.fillRect(0, top - 120, W, H - top + 120);
+  x.save(); x.beginPath(); x.rect(0, top, W, H - top); x.clip();
+  drawContours(x, W, H, '#F3EFE6', 0.10, 2.2);
+  x.restore();
+  x.textAlign = 'center';
+  x.fillStyle = 'rgba(243,239,230,.70)';
+  x.font = '400 24px "Source Code Pro", ui-monospace, monospace';
+  shTracked(x, String(o.eyebrow || 'Marked').toUpperCase(), W / 2, top + 82, 24, 7);
+  x.fillStyle = '#F3EFE6';
+  const endY = shTitle(x, o.title || '', W / 2, top + 196, W - 160, 112, 2, 1.04);
+  if (o.sub){
+    x.font = '400 32px "Source Code Pro", ui-monospace, monospace';
+    x.fillStyle = 'rgba(243,239,230,.74)';
+    shTracked(x, String(o.sub).toUpperCase(), W / 2, endY + 78, 32, 3.5);
+  }
+  shFoot(x, W, H - 96, true);
+}
+/* THE PATCH — the card this app has always made, kept.
+
+   I replaced it with the two new ones and said nothing, which quietly took
+   the patch's own artwork off its own share card: the thing a walker
+   actually wants to show. It is back as the first option whenever there is
+   a patch to draw, and it has the same upgrade as the others — the rings it
+   used to draw in place of contours are the real line work now. */
+function shDrawPatch(x, W, H, o, img){
+  const cx = W / 2, cy = 560, R = 300;
+  x.fillStyle = '#14332D'; x.fillRect(0, 0, W, H);
+  drawContours(x, W, H, '#F3EFE6', 0.13, 2.4);
+  x.save();
+  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.closePath(); x.clip();
+  x.fillStyle = '#A8431A'; x.fill();
+  if (img && img.naturalWidth) x.drawImage(img, cx - R, cy - R, R * 2, R * 2);
+  x.restore();
+  x.strokeStyle = '#A8431A'; x.lineWidth = 10;
+  x.beginPath(); x.arc(cx, cy, R + 8, 0, Math.PI * 2); x.stroke();
+  x.textAlign = 'center'; x.fillStyle = '#F3EFE6';
+  const endY = shTitle(x, String(o.title || '').toUpperCase(), cx, 990, W - 120, 66, 2, 1.08);
+  x.fillStyle = '#CAD9D3';
+  x.font = '400 32px "Source Code Pro", ui-monospace, monospace';
+  shTracked(x, String(o.sub || '').toUpperCase(), cx, endY + 60, 32, 3);
+  shFoot(x, W, H - 120, true);
+}
+const SH_ALL = [
+  {id:'patch', label:'The patch', note:'Your badge, as it is'},
+  {id:'sheet', label:'The sheet', note:'A page from your log'},
+  {id:'photo', label:'Your photo', note:'Stamped with the hill'}
+];
+/* only offer what this particular thing can actually draw */
+function shKinds(o){
+  return SH_ALL.filter(k => k.id !== 'patch' || (o && o.art));
+}
+async function shareRender(kind, o){
+  const W = 1080, H = 1350;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
-  x.fillStyle = '#14332D'; x.fillRect(0, 0, W, H);
-  /* contour rings, faint, like the Patches page */
-  x.strokeStyle = 'rgba(243,239,230,.06)'; x.lineWidth = 2;
-  for (let r = R + 60; r < 1500; r += 64){ x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke(); }
-  /* the patch */
-  const img = new Image();
-  await new Promise(res => { img.onload = res; img.onerror = res; img.src = 'patches/' + p.id + '.png'; });
-  x.save(); x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.closePath(); x.clip();
-  x.fillStyle = '#A8431A'; x.fill();
-  if (img.naturalWidth) x.drawImage(img, cx - R, cy - R, R * 2, R * 2);
-  x.restore();
-  x.strokeStyle = '#A8431A'; x.lineWidth = 10; x.beginPath(); x.arc(cx, cy, R + 8, 0, Math.PI * 2); x.stroke();
-  /* the words */
-  try{ if (document.fonts && document.fonts.load) await Promise.all([document.fonts.load('64px Wildkins'), document.fonts.load('32px "Source Code Pro"')]); }catch(e){}
-  const label = String(p.label).replace(/&middot;/g, '·').replace(/&amp;/g, '&');
-  x.textAlign = 'center'; x.fillStyle = '#F3EFE6';
-  x.font = '400 66px Wildkins, Georgia, serif';
-  x.fillText(label.toUpperCase(), cx, 990, W - 120);
-  x.font = '400 32px "Source Code Pro", ui-monospace, monospace'; x.fillStyle = '#CAD9D3';
-  x.fillText(patchDateLine(p).toUpperCase(), cx, 1050);
-  x.font = '400 44px Wildkins, Georgia, serif'; x.fillStyle = '#A8431A';
-  x.fillText('WAYMARK', cx, 1230);
-  x.font = '400 22px "Source Code Pro", ui-monospace, monospace'; x.fillStyle = '#8FB0A6';
-  x.fillText('M A R K   Y O U R   J O U R N E Y S', cx, 1268);
-  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
-  if (!blob){ toast('Could not draw the card.'); return; }
-  const file = new File([blob], 'waymark-' + p.id + '.png', {type:'image/png'});
-  try{
-    if (navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file], title: label + '. WayMark'});
-      return;
-    }
-  }catch(e){ if (e && e.name === 'AbortError') return; }
+  await shFonts();
+  const src = kind === 'photo' ? o.photo : kind === 'patch' ? o.art : '';
+  let img = null;
+  if (src){
+    img = new Image();
+    try{ img.crossOrigin = 'anonymous'; }catch(e){}
+    await new Promise(res => { img.onload = res; img.onerror = () => { img = null; res(); };
+      img.src = src; });
+  }
+  if (kind === 'photo') shDrawPhoto(x, W, H, o, img);
+  else if (kind === 'patch') shDrawPatch(x, W, H, o, img);
+  else shDrawSheet(x, W, H, o);
+  return c;
+}
+/* THE PICKER. A row to swipe between the two, then one Share. */
+function shareSheetEl(){
+  let el = document.getElementById('shsheet');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'shsheet'; el.className = 'sheet bottom';
+    el.addEventListener('click', e => { if (e.target === el) shareSheetClose(); });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function shareSheetClose(){
+  ui.shCard = null;
+  const el = document.getElementById('shsheet');
+  if (el) el.classList.remove('open');
+}
+let shJob = null;
+/* THE PICTURE HAS TO BE READY BEFORE THE TAP.
+
+   iOS only lets navigator.share() run inside the gesture that triggered
+   it, and drawing a 1080x1350 card and turning it into a PNG takes long
+   enough to spend that. Awaiting them first means the share sheet never
+   opens and the card quietly downloads instead — which looks like the
+   Share button doing nothing.
+
+   The previews are already drawn when the sheet opens, so the blob is
+   kept from that. By the time there is a button to press, there is a file
+   to hand straight over. */
+let shBlobs = new Map();
+async function shareSheetOpen(o){
+  shJob = o || {};
+  const kinds = shKinds(shJob);
+  /* default to the first one this thing can draw — the patch when there is
+     one, so sharing a patch still offers the patch first, as it always did */
+  if (!kinds.some(k => k.id === ui.shCard)) ui.shCard = kinds[0].id;
+  const el = shareSheetEl();
+  el.innerHTML = '<div class="sheetbox shbox"><div class="cmgrab"></div>' +
+    '<div class="ntop"><h3>Share it</h3>' +
+    '<button class="xbtn" data-act="shclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    '<div class="shrow">' + kinds.map(k =>
+      '<button class="shcard" data-act="shpick" data-v="' + k.id + '" aria-pressed="' +
+        (ui.shCard === k.id) + '">' +
+      '<span class="shprev" id="shprev-' + k.id + '"></span>' +
+      '<span class="shlab"><b>' + esc(k.label) + '</b><i>' + esc(k.note) + '</i></span></button>').join('') +
+    '</div>' +
+    '<div class="btnrow"><button class="btn" data-act="shgo">' + ti('share') + 'Share</button>' +
+      '<button class="btn ghost" data-act="shsave">Save the picture</button></div></div>';
+  el.classList.add('open');
+  if (typeof wire === 'function') wire();
+  /* Draw the previews once the sheet is up, so it opens instantly — and
+     keep each one as a finished PNG, so Share has nothing left to wait for. */
+  shBlobs = new Map();
+  for (const k of kinds){
+    try{
+      const c = await shareRender(k.id, shJob);
+      const slot = document.getElementById('shprev-' + k.id);
+      if (slot) slot.style.backgroundImage = 'url(' + c.toDataURL('image/png') + ')';
+      const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+      if (blob) shBlobs.set(k.id, blob);
+    }catch(e){}
+  }
+}
+function shareDrop(blob, name){
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = file.name;
+  const a = document.createElement('a'); a.href = url; a.download = name;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 8000);
-  toast('Saved a picture of your patch.');
+  toast('Saved the picture.');
 }
+/* NOT async as far as the share call is concerned: the file is already
+   made, so navigator.share is reached inside the tap that asked for it. */
+function shareSend(save){
+  if (!shJob) return Promise.resolve();
+  const kind = ui.shCard || 'sheet';
+  const name = 'waymark-' + (shJob.id || 'card') + '.png';
+  const ready = shBlobs.get(kind);
+  if (ready){
+    const file = new File([ready], name, {type:'image/png'});
+    if (!save && navigator.canShare && navigator.canShare({files:[file]})){
+      /* straight in, no await before it */
+      return navigator.share({files:[file], title: (shJob.title || 'WayMark') + '. WayMark'})
+        .catch(e => { if (!e || e.name !== 'AbortError') shareDrop(ready, name); });
+    }
+    shareDrop(ready, name);
+    return Promise.resolve();
+  }
+  /* the previews have not finished yet — draw it now and save it, rather
+     than reaching for a share sheet the phone will refuse by then */
+  return (async () => {
+    let c;
+    try{ c = await shareRender(kind, shJob); }
+    catch(e){ toast('Could not draw the card.'); return; }
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    if (!blob){ toast('Could not draw the card.'); return; }
+    shBlobs.set(kind, blob);
+    shareDrop(blob, name);
+  })();
+}
+/* a patch, as a card */
+async function shareCard(p){
+  await shareSheetOpen({
+    id: p.id,
+    eyebrow: p.got ? 'Earned' : 'Working towards',
+    title: String(p.label).replace(/&middot;/g, '\u00b7').replace(/&amp;/g, '&'),
+    sub: patchDateLine(p),
+    art: 'patches/' + p.id + '.png',
+    photo: ''
+  });
+}
+/* a hill you have marked, as a card — the same two designs */
+async function shareHill(key){
+  const h = BY_KEY[key]; if (!h) return;
+  const r = rec(key) || {};
+  const ph = (r.photos || []).find(x => x && x.id);
+  let photo = '';
+  /* photoSrc, not photoURL — grepped: photoURL does not exist. This is the
+     one the app uses everywhere, including hydratePhotos. */
+  if (ph){ try{ photo = await photoSrc(ph) || ''; }catch(e){ photo = ''; } }
+  await shareSheetOpen({
+    id: key,
+    eyebrow: 'Marked',
+    title: hillName(h),
+    sub: feet(h).toLocaleString() + ' ft' + (r.date ? '  \u00b7  ' + prettyDate(r.date) : ''),
+    note: (r.notes || '').slice(0, 120),
+    photo: photo
+  });
+}
+
 function winOpen(){ return document.getElementById('win').classList.contains('open'); }
 /* a marked summit is hard-won — never let one tap undo it silently */
 async function okToUnmark(key){
@@ -12731,7 +13184,9 @@ function bcGroup(g){
    hills was shown two Scafell tees and none of the plates or map tiles made
    for the hills they had actually climbed. It now draws from both, newest
    ascent first, because the thing that earned the entry is the walk. */
-function bcLogBand(sale){
+/* ONE SET OF WORKINGS, TWO PLACES TO SHOW THEM. The band itself is now a
+   single line on every section; the whole thing lives in a sheet behind it. */
+function bcLogPick(sale){
   const entry = (ref, img, name, act) => {
     const h = BY_KEY[ref];
     if (!h) return null;
@@ -12749,7 +13204,7 @@ function bcLogBand(sale){
                             'data-act="kitopen" data-k="' + esc(k) + '"'));
   const all = tees.concat(kit).filter(Boolean)
     .sort((a, b) => (b.when || '').localeCompare(a.when || ''));
-  if (!all.length) return '';
+  if (!all.length) return null;
   const hills = [...new Set(all.map(e => e.ref))];
   /* Sorted by date alone, one recent hill with a tee, a plate, a map tile and
      a triangle filled every slot, so the heading said four hills and the row
@@ -12763,9 +13218,35 @@ function bcLogBand(sale){
       if (q[round]){ mine.push(q[round]); moved = true; } }
     if (!moved) break;
   }
-  const shown = mine.slice(0, 4), more = mine.length - shown.length;
+  return {all: mine, hills: hills};
+}
+function bcLogSaying(hills){
+  return 'You\u2019ve stood on ' +
+    (hills === 1 ? 'a hill' : NUMWORD(hills).toLowerCase() + ' hills') + ' we print';
+}
+/* THE LINE. Joe, 5 Oct: "it drops the page down and its very abrupt and
+   jarring, this is due to the addition of the 'made from your log' header."
+
+   The band was already moved below the tab row once, so the navigation
+   itself stopped moving. What it did NOT fix: the band is 307px and only
+   appears off the Summit tab, so the first product sat at 282px on Summit
+   and 625px on Tees. Measured: a 343px drop, every single switch.
+
+   So the band is one line, and the line is on EVERY section — there is
+   nothing left to appear and disappear. The whole thing is a tap away. */
+function bcLogLine(sale){
+  const d = bcLogPick(sale); if (!d) return '';
+  return '<button class="bclogline" data-act="bclogopen">' +
+    '<span class="bcloglicon">' + ti('mountain') + '</span>' +
+    '<span class="bcloglt"><i>Made from your log</i><b>' +
+      esc(bcLogSaying(d.hills.length)) + '.</b></span>' +
+    ti('chevron-right') + '</button>';
+}
+function bcLogBand(sale){
+  const d = bcLogPick(sale); if (!d) return '';
+  const shown = d.all.slice(0, 4), more = d.all.length - shown.length;
   return '<section class="bclog"><p class="bceyebrow">Made from your log</p>' +
-    '<h2>You’ve stood on ' + (hills.length === 1 ? 'a hill' : NUMWORD(hills.length).toLowerCase() + ' hills') + ' we print.</h2>' +
+    '<h2>' + esc(bcLogSaying(d.hills.length)) + '.</h2>' +
     '<div class="bclogrow">' + shown.map(e =>
       '<button class="bclogitem" ' + e.act + '><span class="bctile"><img alt="" loading="lazy" src="' + esc(e.img) + '"></span>' +
       '<span><b>' + esc(e.name) + '</b><i>' + esc(e.sub) + '</i></span></button>'
@@ -12773,6 +13254,40 @@ function bcLogBand(sale){
     (more > 0 ? '<p class="bclogmore">' + more + ' more made for hills in your log.</p>' : '') +
   '</section>';
 }
+/* the whole band, in a sheet, from the line */
+function bcLogSheetEl(){
+  let el = document.getElementById('logsheet');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'logsheet'; el.className = 'sheet bottom';
+    el.addEventListener('click', e => { if (e.target === el) bcLogSheetClose(); });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function bcLogSheetClose(){
+  ui.logSheet = false;
+  const el = document.getElementById('logsheet');
+  if (el) el.classList.remove('open');
+}
+function bcLogSheetOpen(){
+  const sale = (typeof bcSale === 'function' ? bcSale() : []) || [];
+  const d = bcLogPick(sale); if (!d) return;
+  ui.logSheet = true;
+  const el = bcLogSheetEl();
+  el.innerHTML = '<div class="sheetbox"><div class="cmgrab"></div>' +
+    '<div class="ntop"><h3>Made from your log</h3>' +
+    '<button class="xbtn" data-act="bclogclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    '<p class="bclogsay">' + esc(bcLogSaying(d.hills.length)) + '.</p>' +
+    '<div class="bclogall">' + d.all.map(e =>
+      '<button class="bclogitem" ' + e.act + '><span class="bctile">' +
+      '<img alt="" loading="lazy" src="' + esc(e.img) + '"></span>' +
+      '<span><b>' + esc(e.name) + '</b><i>' + esc(e.sub) + '</i></span></button>'
+    ).join('') + '</div></div>';
+  el.classList.add('open');
+  if (typeof wire === 'function') wire();
+}
+
 function lastAscent(k){
   const a = (typeof ascents === 'function' ? ascents(k) : []) || [];
   const ds = a.map(x => x && (x.date || x)).filter(x => typeof x === 'string').sort();
@@ -12876,15 +13391,17 @@ function renderShop(){
      drops the page down and its very abrupt and jarring, this is due to the
      addition of the 'made from your log' header."
 
-     Exactly that. The band sat ABOVE the tab row and only appears off the
-     Summit tab, so tapping Tees pushed the tab row you had just tapped down
-     the screen by the whole height of the band. Navigation must not move
-     when you use it, so the band is now part of the tab's content, under the
-     tabs, where everything else that changes between tabs already is.
+     First pass moved the band from ABOVE the tab row to below it, so the
+     navigation stopped moving under the finger. That was real, and it was
+     not enough: the band is 307px and only appeared off the Summit tab, so
+     the first product sat at 282px on Summit and 625px on Tees. Measured —
+     a 343px drop, on every switch.
 
-     The band and the Summit tab say the same thing - here is what we print
-     for the hills in your log - so only one of them is ever on screen. */
-  if (!ui.shopSaved && shopTabNow() !== 'summit') s += bcLogBand(sale);
+     Now it is ONE LINE and it is on every section, so there is nothing left
+     that appears and disappears. The whole band is a tap away in a sheet.
+     What is left moving between sections is the filter row, which is a real
+     difference between them: 42px. */
+  if (!ui.shopSaved) s += bcLogLine(sale);
   if (ui.shopSaved){
     const sv = bcSaved();
     const list = sale.filter(d => sv.includes(String(d.n)));
@@ -17171,17 +17688,50 @@ function renderHills(){
   /* h2, not h3: this is a section of the page, directly under its h1. It was
      an h3 sitting above h2s, so the list outranked its own heading. .sect is a
      class rule, so nothing about how it looks changes. */
-  html += '<h2 class="sect">By ' + (isW ? 'book' : 'area') + '</h2>';
-  html += '<div class="regionlist">';
-  for (const b of s.regions){
+  /* FOLDED. Seven Pictorial Guides came to 416px of Home with the heading,
+     and six of them are not the one you are walking. It folds to a single
+     row, and it opens itself on the book your newest hill was in — so the
+     one you are working through is showing without a tap, and the other six
+     are one tap away rather than permanently in the road.
+
+     ui.bookOpen: null = not chosen, so pick the live one; '' = closed by
+     hand; otherwise the name of the open book. Three states, because
+     "closed" and "not yet decided" are not the same thing. */
+  const liveBook = (() => {
+    let best = null, bestDate = '';
+    for (const [k, r] of Object.entries(state.bagged || {})){
+      if (!r || !r.done || !BY_KEY[k]) continue;
+      const d = r.date || '';
+      if (d && d > bestDate){ bestDate = d; best = BY_KEY[k]; }
+    }
+    if (!best) return (s.regions[0] || {}).g || '';
+    const rg = (best.r || {})[id] || '';
+    return s.regions.some(b => b.g === rg) ? rg : ((s.regions[0] || {}).g || '');
+  })();
+  const openBook = ui.bookOpen === null ? liveBook : ui.bookOpen;
+  const bookRow = b => {
     const p = b.total ? Math.round(b.done / b.total * 100) : 0;
     const sw = isW && BOOK_VAR[b.g] ? 'var(' + BOOK_VAR[b.g] + ')' : 'var(--sage)';
-    html += '<button class="rrow" data-act="region" data-v="' + esc(b.g) + '" aria-pressed="' + (ui.region === b.g) + '">' +
+    return '<button class="rrow" data-act="region" data-v="' + esc(b.g) + '" aria-pressed="' + (ui.region === b.g) + '">' +
       '<i class="dot" style="background:' + sw + '"></i>' +
       '<span class="rn">' + esc(b.g.replace('The ','')) + '<i class="rbar"><s style="width:' + p + '%"></s></i></span>' +
       '<span class="rc">' + b.done + ' / ' + b.total + '</span>' +
       '<span class="chev">&rsaquo;</span></button>';
-  }
+  };
+  const shut = s.regions.filter(b => b.g !== openBook);
+  const open = s.regions.filter(b => b.g === openBook);
+  const totDone = s.regions.reduce((a, b) => a + b.done, 0);
+  const totAll = s.regions.reduce((a, b) => a + b.total, 0);
+  html += '<h2 class="sect">By ' + (isW ? 'book' : 'area') + '</h2>';
+  html += '<div class="regionlist bookfold">';
+  html += open.map(bookRow).join('');
+  html += '<button class="rrow bookmore" data-act="bookmore" aria-expanded="' + (!!ui.bookAll) + '">' +
+    '<i class="dot bookdots"></i>' +
+    '<span class="rn">' + (ui.bookAll ? 'Hide the other ' : 'The other ') + shut.length +
+      ' ' + (isW ? (shut.length === 1 ? 'book' : 'books') : (shut.length === 1 ? 'area' : 'areas')) + '</span>' +
+    '<span class="rc">' + totDone + ' / ' + totAll + '</span>' +
+    ti('chevron-down') + '</button>';
+  if (ui.bookAll) html += shut.map(bookRow).join('');
   html += '</div>';
 
   html += '<div class="controls"><div class="field">';
@@ -17344,7 +17894,12 @@ function hillRow(h, listId){
         }
         s += '</div>';
         s += '<div class="ascfoot">' +
-             '<button class="btn ghost sm" data-act="ascadd" data-k="' + esc(h.k) + '">Add an ascent</button>';
+             '<button class="btn ghost sm" data-act="ascadd" data-k="' + esc(h.k) + '">Add an ascent</button>' +
+             /* Joe, 5 Oct: "Redesign share to social posts make them
+                topographic and more branding can you give people options?"
+                This is where a marked hill reaches the two cards. */
+             '<button class="btn ghost sm" data-act="sharehill" data-k="' + esc(h.k) + '">' +
+               ti('share', 'width="15" height="15"') + 'Share it</button>';
         if (list.length > 3)
           s += '<button class="linkbtn" data-act="ascall" data-k="' + esc(h.k) + '">' +
                (all ? 'Show fewer' : 'All ' + list.length + ' ascents') + '</button>';
@@ -19745,16 +20300,32 @@ function renderDiary(){
     '');
   /* the full explanation is for somebody who has never seen this page; once
      there are entries on it, it is four lines in the way */
-  html += days.length
-    ? '<div class="planintro">Every day you have been out, newest first.</div>'
-    : '<div class="planintro">Every day you have been out, newest first. A walk with four fells reads as one day. You can write up a day with no summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
+  /* Joe, 5 Oct: the first day sat at 433px. The heading and "Write an entry"
+     earn their place; the three things between them did not.
+
+     This caption goes once there are days on the page — "11 DAYS OUT" is
+     already directly above it and the order is self-evident. The long
+     version stays for somebody who has never written one, which is who it
+     was written for. */
+  if (!days.length)
+    html += '<div class="planintro">Every day you have been out, newest first. ' +
+      'A walk with four fells reads as one day. You can write up a day with no ' +
+      'summit on it too: a reccy, a washout, a walk that is not on any list.</div>';
   /* A journal only gets honest writing if the walker is certain nobody else is
      reading it. Said on every visit rather than once: it is reassurance, not
      onboarding, and it is the answer to "is this going to get shared?" */
-  html += '<div class="privline">' + ti('lock', 'width="16" height="16"') +
-    '<p><b>This is yours.</b> Nobody sees your journal. Photos, words, the lot \u2014 it stays ' +
-    'on this device and in your own account. An entry only reaches the feed when you press ' +
-    'Share on it, and it asks you first.</p></div>';
+  /* Joe asked for this SMALLER, not gone: it is reassurance, and a walker
+     writes honestly only if they are certain. Four lines at 97px becomes one
+     at 34px, saying the thing that actually reassures; the rest is a tap
+     away rather than read-every-visit. */
+  html += '<button class="privline small" data-act="privmore" aria-expanded="' +
+      (ui.privOpen ? 'true' : 'false') + '">' +
+    ti('lock', 'width="15" height="15"') +
+    '<span><b>This is yours.</b> Nobody sees your journal.</span>' +
+    ti('chevron-down') + '</button>' +
+    (ui.privOpen ? '<p class="privmore">Photos, words, the lot \u2014 it stays on this ' +
+      'device and in your own account. An entry only reaches the feed when you press ' +
+      'Share on it, and it asks you first.</p>' : '');
   /* Offered where somebody is already looking at the gaps in their own log,
      and only while there are gaps to fill: a walker with plenty of hills and
      hardly any pictures. Once the log has pictures it stops asking. */
@@ -23617,6 +24188,8 @@ document.addEventListener('click', async e => {
     if (ui.gearv) gearSheetClose();
     if (ui.gearshelf) gearShelfClose();
     if (ui.gearEdit) gearEditClose();
+    if (ui.logSheet) bcLogSheetClose();
+    if (ui.shCard) shareSheetClose();
     render(); window.scrollTo({top:0}); return;
   }
   let el = e.target.closest('[data-act]');
@@ -24590,6 +25163,23 @@ document.addEventListener('click', async e => {
     else { ui.kitItem = el.dataset.v; render(); window.scrollTo(0, 0); }
   }
   else if (a === 'kitback'){ ui.kitItem = null; render(); }
+  else if (a === 'privmore'){ ui.privOpen = !ui.privOpen; render(); }
+  else if (a === 'shpick'){
+    ui.shCard = el.dataset.v;
+    for (const b of document.querySelectorAll('[data-act="shpick"]'))
+      b.setAttribute('aria-pressed', b.dataset.v === ui.shCard);
+  }
+  else if (a === 'shgo'){ await shareSend(false); }
+  else if (a === 'shsave'){ await shareSend(true); }
+  else if (a === 'shclose'){ shareSheetClose(); }
+  else if (a === 'sharehill'){ await shareHill(el.dataset.k); }
+  else if (a === 'bookmore'){
+    ui.bookAll = !ui.bookAll; render();
+    /* opening seven rows under your thumb should not throw the page about:
+       keep the row you pressed where it was */
+    const b = document.querySelector('[data-act="bookmore"]');
+    if (b && b.getBoundingClientRect().top < 0) b.scrollIntoView({block:'start'});
+  }
   else if (a === 'gotokit'){
     tab = 'a'; ui.patchView = 'kit'; ui.kitItem = null; ui.patch = null;
     render(); window.scrollTo(0, 0);
@@ -24934,6 +25524,8 @@ document.addEventListener('click', async e => {
   else if (a === 'imphomehide') impRetire('');
   else if (a === 'impmark') impMark();
   else if (a === 'impopen'){ try{ closeSheetNow(); }catch(e){} const i = document.querySelector('#pn-photos [data-act="impfiles"]'); if (i) i.click(); }
+  else if (a === 'bclogopen'){ bcLogSheetOpen(); }
+  else if (a === 'bclogclose'){ bcLogSheetClose(); }
   else if (a === 'bcshoptab'){
     const v = el.dataset.v;
     ui.shopSaved = v === 'saved';
@@ -29707,7 +30299,11 @@ function showBoardSheet(code, name){
   const el = inviteSheetEl();
   el.innerHTML = '<div class="sheetbox invbox">' +
     '<p class="eyebrow" style="margin:0">You have been invited to</p>' +
-    '<div class="invwho"><span class="invdisc">' + ti('medal') + '</span>' +
+    /* Joe, 5 Oct: the medal reads as a shooting star — and it was saying the
+       wrong thing anyway. You are being asked to join PEOPLE, not handed a
+       prize. 'users' is already the app's glyph for people, on the camera's
+       tagging bar. */
+    '<div class="invwho"><span class="invdisc">' + ti('users') + '</span>' +
       '<div><b>' + esc(name || 'A group') + '</b>' +
       '<span>Private group &middot; code ' + esc(code) + '</span></div></div>' +
     '<p class="invnote">Everyone on it sees your name and how many hills you have marked. Your dates, ' +
@@ -30316,7 +30912,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v316';
+const APP_VERSION = 'v317';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -36915,10 +37511,14 @@ function impRetire(lead){
 }
 /* the card that offers it, used in the journal and on a hill with no pictures */
 function impOfferHTML(where){
-  return '<label class="impoffer' + (where === 'slim' ? ' slim' : '') + '">' + ti('photo') +
-    '<span><b>Mark off hills from your photos</b>' +
+  /* The slim one already hid its explanation, but the title still wrapped to
+     two lines and the whole row came to 66px on the journal, above the first
+     day. Shorter words on the slim one, so it is one line. */
+  const slim = where === 'slim';
+  return '<label class="impoffer' + (slim ? ' slim' : '') + '">' + ti('photo') +
+    '<span><b>' + (slim ? 'Hills from your photos' : 'Mark off hills from your photos') + '</b>' +
     '<i>Pick them and we’ll work out which hills they were taken on — from the location saved in each one, or from the date and your own log.</i></span>' +
-    '<span class="impcta">Choose photos</span>' +
+    '<span class="impcta">' + (slim ? 'Choose' : 'Choose photos') + '</span>' +
     '<input type="file" accept="image/*" multiple data-act="impfiles" class="filein"></label>';
 }
 
