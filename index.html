@@ -1062,7 +1062,10 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .vtagbar{position:relative; z-index:3; display:flex; justify-content:center; padding:0 16px 10px}
 .vtagbtn{display:inline-flex; align-items:center; gap:7px; border:1px solid #4A5148; background:rgba(20,26,22,.72);
   color:#D8DCD0; border-radius:99px; padding:8px 14px; font:600 13.5px var(--font-ui); cursor:pointer;
-  max-width:100%; min-height:38px}
+  max-width:100%; min-height:44px}
+/* answered, and nobody was in it. It goes quiet rather than away: the
+   question is settled, but adding somebody later must still be possible. */
+.vtagbtn.quiet{border-color:rgba(216,220,208,.18); color:rgba(216,220,208,.55); font-weight:400}
 .vtagbtn span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .viewer.readonly .vtagbar{display:none}
 .tagwrap{display:flex; flex-wrap:wrap; gap:8px}
@@ -4749,6 +4752,25 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-note.ok{color:#F6EFE4}
 .cx-link{background:none; border:none; color:#E0784F; font-weight:700; font-size:15px; padding:8px}
 .cx-info{margin:0; font-size:14px; line-height:1.4; color:#C9D6CE}
+/* Who was with you, asked on the shot — the only moment anybody remembers.
+   A mutual who posted this same hill on this same date is almost certainly
+   who you were with, so those faces come first and say so. */
+.cx-whoq{margin:0 0 2px; font-family:var(--font-data); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#A9BBAF}
+.cx-whorow{display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  padding:2px 0 2px; scroll-snap-type:x proximity}
+.cx-whorow::-webkit-scrollbar{display:none}
+.cx-who{flex:0 0 auto; width:56px; min-height:68px; background:none; border:0; padding:0; color:#F6EFE4;
+  display:flex; flex-direction:column; align-items:center; gap:3px; scroll-snap-align:start; cursor:pointer}
+.cx-av{width:44px; height:44px; border-radius:50%; position:relative; display:grid; place-items:center;
+  border:2px solid transparent; box-sizing:content-box}
+.cx-av .avatar{width:44px; height:44px; border-color:rgba(246,239,228,.3)}
+.cx-who.dog .cx-av{background:#6C4F3D; border-radius:50%}
+.cx-who.dog .cx-av svg{width:22px; height:22px; color:#F6EFE4}
+.cx-who.on .cx-av{border-color:#6FC0AC}
+.cx-who.on .cx-av::after{content:"\2713"; position:absolute; right:-3px; bottom:-3px; width:19px; height:19px;
+  border-radius:50%; background:#6FC0AC; color:#0F2420; font:800 12px/1 var(--font-ui); display:grid; place-items:center}
+.cx-who b{font-weight:400; font-size:11px; max-width:56px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.cx-who i{font-style:normal; font-family:var(--font-data); font-size:8.5px; letter-spacing:.05em; color:#6FC0AC}
 .cx-retake{color:#A9BBAF; align-self:center}
 .cx-panel{position:absolute; left:0; right:0; bottom:0; z-index:2; background:#14332D; border-radius:24px 24px 0 0; padding:10px 18px calc(env(safe-area-inset-bottom) + 16px); box-shadow:0 -12px 32px rgba(0,0,0,.45)}
 .cx-panel[hidden]{display:none}
@@ -25677,6 +25699,9 @@ document.addEventListener('click', async e => {
   else if (a === 'tagsend'){
     const t = taggableNow(); if (!t){ gSheetClose(); return; }
     const tg = photoTags(t.ph), dg = photoDogTags(t.ph);
+    /* Done with nobody picked is an answer, and the only way the bar ever
+       stops asking. Nothing else writes `tgd` on a photo nobody is in. */
+    setPhotoTags(t, tg, dg);
     gSheetClose();
     /* anybody taken back off the photo has their offer withdrawn, so long as
        they have not already kept it */
@@ -30981,7 +31006,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v318';
+const APP_VERSION = 'v319';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -32656,10 +32681,14 @@ function paintTagBar(){
     ...dg.map(id => { const d = (state.dogs || []).find(x => x.id === id); return d ? dogName(d) : 'a dog'; })
   ];
   bar.hidden = false;
+  const settled = !!(t.ph && t.ph.tgd);
+  btn.classList.toggle('quiet', !names.length && settled);
   btn.innerHTML = names.length
     ? ti('users', 'width="15" height="15"') + '<span>' + esc(names.slice(0, 3).join(', ')) +
       (names.length > 3 ? ' and ' + (names.length - 3) + ' more' : '') + '</span>'
-    : ti('users', 'width="15" height="15"') + '<span>Who is in it?</span>';
+    : settled
+      ? ti('plus', 'width="15" height="15"') + '<span>Add someone</span>'
+      : ti('users', 'width="15" height="15"') + '<span>Who was with you?</span>';
 }
 
 /* the people you may tag: mutuals only */
@@ -32695,8 +32724,11 @@ function photoTags(ph){ return Array.isArray(ph && ph.tg) ? ph.tg : []; }
 function photoDogTags(ph){ return Array.isArray(ph && ph.dg) ? ph.dg : []; }
 
 /* write the tag onto my own copy of the photo */
+/* `tgd` is the whole fix for the nag: it says the question was PUT and
+   answered, which an empty tag list cannot. Without it "nobody was in it"
+   and "never asked" are the same photo, so the bar asked for ever. */
 function setPhotoTags(t, tg, dg){
-  const put = (arr) => arr.map(x => x && x.id === t.ph.id ? {...x, tg: tg.length ? tg : undefined, dg: dg.length ? dg : undefined} : x);
+  const put = (arr) => arr.map(x => x && x.id === t.ph.id ? {...x, tg: tg.length ? tg : undefined, dg: dg.length ? dg : undefined, tgd: 1} : x);
   if (t.where === 'diary'){
     state.diary = (state.diary || []).map(e => e.id === t.id ? {...e, photos: put(e.photos || []), t: now()} : e);
   } else {
@@ -32713,7 +32745,7 @@ function tagSheet(){
   if (tagSendBefore === null) tagSendBefore = photoTags(t.ph).slice();
   const tg = new Set(photoTags(t.ph)), dg = new Set(photoDogTags(t.ph));
   const ppl = tagPeople(), dogs = tagDogs();
-  let s = '<div class="ntop"><h3>Who is in it?</h3>' +
+  let s = '<div class="ntop"><h3>Who was with you?</h3>' +
     '<button class="xbtn" data-act="gxclose" aria-label="Close">' + ti('x') + '</button></div>';
   s += '<p style="margin:0 0 12px;font-size:13px;color:var(--ink-3)">' +
     esc(t.hn) + (t.date ? ' · ' + esc(prettyDate(t.date)) : '') +
@@ -37011,6 +37043,21 @@ function camClick(e){
   else if (a === 'mark') camMark();
   else if (a === 'notnow'){ cam.asked = true; camAfter(); }
   else if (a === 'undo') camUndo();
+  else if (a === 'addlog') camAdd();
+  else if (a === 'twho' || a === 'tdog'){
+    if (!cam.filed) return;
+    cam.tgAsked = 1;
+    if (a === 'twho'){ const u = b.dataset.u; cam.tg.has(u) ? cam.tg.delete(u) : cam.tg.add(u); }
+    else { const v = b.dataset.v; cam.dg.has(v) ? cam.dg.delete(v) : cam.dg.add(v); }
+    camTagSave(); camAfter();
+  }
+  /* Just me is an ANSWER, not a dismissal: it settles the photo so nothing
+     ever asks about it again. */
+  else if (a === 'tjustme'){
+    if (!cam.filed) return;
+    cam.tgAsked = 1; cam.tg = new Set(); cam.dg = new Set();
+    camTagSave(); camAfter();
+  }
   else if (a === 'save') camSaveOut();
   else if (a === 'share') camShareOut();
 }
@@ -37020,6 +37067,7 @@ function camFreeze(src, when, live){
   const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH;
   camCover(c.getContext('2d'), src, CAM_W, CAM_FH);
   cam.still = c; cam.when = when; cam.live = live; cam.saved = false; cam.asked = false; cam.marked = null; cam.verified = false;
+  cam.filed = null; cam.tg = new Set(); cam.dg = new Set(); cam.tgAsked = 0; cam.tgSent = new Set();
   /* the names stop moving when the shutter goes */
   cam.skyHold = (cam.prefs.style === 'skyline' && skyView)
     ? {head: ((skyHead() + (skyPrefs.turn || 0)) % 360 + 360) % 360, pitch: skyPitch()} : null;
@@ -37047,6 +37095,7 @@ async function camPick(file){
   }catch(err){ toast('That photo would not open. If it came from iCloud, open it in Photos first.'); }
 }
 function camRetake(){
+  camTagFlush(cam);   /* the shot you are leaving is in the log; send its offers */
   if (cam.photoFix || cam.photoNoPlace){ cam.photoFix = null; cam.photoNoPlace = false; cam.wx = null;
     cam.fix = cam.liveFix || null; if (cam.fix) camJudge();
     if (cam.prefs.style === 'skyline') skyReady(true); }
@@ -37058,6 +37107,104 @@ function camRetake(){
   document.getElementById('cxAfter').hidden = true;
   camLayers(); if (cam.stream) camLoop(); else camStart();
 }
+/* ============ who was with you, asked on the shot ============
+   The app has always been able to tag a photo, but only by opening it
+   full-screen afterwards and noticing a thin bar — which is to say, never.
+   The moment anybody can answer "who was that?" is the moment the shutter
+   goes, so that is where it is asked.
+
+   One thing the app already knew and had never used: a mutual who posted
+   THIS hill on THIS date was almost certainly stood next to you. Those
+   faces come first and say UP TODAY. The rest follow by name.
+
+   Nothing is asked until the photo has a home. Tagging a picture that is
+   not in the log is tagging nothing. */
+function camTagWho(){
+  const ppl = tagPeople();
+  const key = cam && cam.filed && cam.filed.key;
+  const d = key ? (rec(key).date || '') : '';
+  const up = new Set();
+  if (key && d && typeof feed !== 'undefined' && Array.isArray(feed))
+    for (const po of feed)
+      if (po && po.uid && po.date === d && (po.hills || []).indexOf(key) >= 0) up.add(po.uid);
+  /* stable: the up-today faces move to the front, the rest keep their order */
+  return ppl.map(x => ({...x, up: up.has(x.uid)})).sort((a, b) => (b.up ? 1 : 0) - (a.up ? 1 : 0));
+}
+/* The picks live on the photo itself, written the instant they are tapped, so
+   closing the camera cannot lose them. `tgd` is what stops the viewer asking
+   again. */
+function camTagSave(){
+  if (!cam || !cam.filed) return;
+  const key = cam.filed.key, r = rec(key);
+  const ph = (r.photos || []).find(x => x && x.id === cam.filed.id);
+  if (!ph) return;
+  setPhotoTags({ph, where:'hill', id:key}, [...(cam.tg || [])], [...(cam.dg || [])]);
+}
+/* The offers go out when you leave the shot, not on every tap: a row of six
+   faces would otherwise be six round trips. `tgSent` is what stops anybody
+   being offered the same photo twice. */
+async function camTagFlush(st){
+  if (!st || !st.filed || !FB || !fbUser) return;
+  const r = rec(st.filed.key);
+  const ph = (r.photos || []).find(x => x && x.id === st.filed.id);
+  if (!ph) return;
+  const tg = photoTags(ph), dg = photoDogTags(ph);
+  if (!tg.length && !dg.length) return;
+  const h = BY_KEY[st.filed.key];
+  const t = {ph, where:'hill', id:st.filed.key, date:(r.date || ''),
+             hill:st.filed.key, hn: h ? hillName(h) : ''};
+  try{
+    const n = await sendTagOffers(t, tg, dg, st.tgSent || new Set());
+    for (const u of tg) (st.tgSent = st.tgSent || new Set()).add(u);
+    if (n) toast(n === 1 ? 'Offered to 1 person. They choose whether to keep it.'
+                         : 'Offered to ' + n + ' people. They choose whether to keep it.');
+  }catch(e){}
+}
+function camWhoRow(){
+  if (!cam || !cam.filed || !FB || !fbUser) return '';
+  const who = camTagWho(), dogs = tagDogs();
+  if (!who.length && !dogs.length) return '';
+  cam.tg = cam.tg || new Set(); cam.dg = cam.dg || new Set();
+  const alone = cam.tgAsked && !cam.tg.size && !cam.dg.size;
+  let s = '<div><p class="cx-whoq">Who was with you?</p><div class="cx-whorow">' +
+    '<button class="cx-who me' + (alone ? ' on' : '') + '" data-c="tjustme" aria-pressed="' + !!alone + '">' +
+      '<span class="cx-av">' + avatarHTML(myAvatar(), myName(), 'md', fbUser.uid) + '</span><b>Just me</b></button>';
+  for (const x of who)
+    s += '<button class="cx-who' + (cam.tg.has(x.uid) ? ' on' : '') + '" data-c="twho" data-u="' + esc(x.uid) + '"' +
+      ' aria-pressed="' + cam.tg.has(x.uid) + '"><span class="cx-av">' +
+      avatarHTML(x.av, x.name, 'md', x.uid) + '</span><b>' + esc(firstName(x.name)) + '</b>' +
+      (x.up ? '<i>UP TODAY</i>' : '') + '</button>';
+  for (const d of dogs)
+    s += '<button class="cx-who dog' + (cam.dg.has(d.id) ? ' on' : '') + '" data-c="tdog" data-v="' + esc(d.id) + '"' +
+      ' aria-pressed="' + cam.dg.has(d.id) + '"><span class="cx-av">' + ti('paw') + '</span><b>' +
+      esc(d.name) + '</b></button>';
+  return s + '</div></div>';
+}
+/* A photo taken on a hill you have ALREADY marked never reached the log at
+   all — it went to your phone and nowhere else. It is offered a home rather
+   than given one: your log grows when you say so. */
+function camFileLine(h){
+  if (!cam || !cam.still || cam.filed || cam.marked || !h || !isBagged(h.k)) return '';
+  return '<p class="cx-info">Not in your log yet.</p>' +
+    '<button class="cx-btn ghost big" data-c="addlog">' + ti('plus', 'width="20" height="20"') +
+    ' Add to ' + esc(hillName(h)) + '</button>';
+}
+async function camAdd(){
+  const h = cam && cam.hill; if (!h || !cam.still) return;
+  const key = h.k;
+  const btn = document.querySelector('#cxAfter [data-c="addlog"]');
+  if (btn){ btn.disabled = true; btn.textContent = 'Adding…'; }
+  try{
+    const b = await camStillBlob();
+    await addPhotos(key, [new File([b], camFileName('jpg'), {type:'image/jpeg'})], true);
+    if (!cam) return;
+    const ps = rec(key).photos || [], last = ps[ps.length - 1];
+    if (last && last.id){ cam.filed = {key, id: last.id}; toast('Added to ' + hillName(h) + '.'); }
+    else toast('Could not add that photo.');
+  }catch(e){ toast('Could not add that photo.'); }
+  render(); if (cam) camAfter();
+}
+
 /* After the shot. A live photo taken on a summit you have not marked asks first;
    then Save is the main action; once saved, Share stays up front beside Close. */
 function camAfter(){
@@ -37076,7 +37223,10 @@ function camAfter(){
   if (cam.verified) s += '<div class="cx-note ok"><span>✓ ' + esc(hillName(h)) + ' is now <b>GPS verified</b></span></div>';
   if (cam.marked) s += '<div class="cx-note ok"><span>✓ ' + esc(hillName(h)) + ' marked and <b>GPS verified</b> · ' + esc(prettyDate(cam.marked.date)) + '</span>' +
     ' <button class="cx-link" data-c="undo">Undo</button></div>';
-  if (onTop && !cam.asked && !cam.marked && !isBagged(h.k)){
+  const asking = onTop && !cam.asked && !cam.marked && !isBagged(h.k);
+  /* Never two questions at once: the hill comes before the company. */
+  if (!asking){ s += camFileLine(h); s += camWhoRow(); }
+  if (asking){
     s += '<div class="cx-ask"><p>You’re on the summit of <b>' + esc(hillName(h)) + '</b></p><span>Mark it as climbed today? Your location proves it, so it will be GPS verified.</span>' +
          '<div class="cx-two"><button class="cx-btn" data-c="mark">Mark as climbed</button><button class="cx-btn ghost light" data-c="notnow">Not now</button></div></div>';
   } else if (!cam.saved){
@@ -37102,7 +37252,13 @@ async function camMark(){
   cam.marked = {key, prev, date: state.bagged[key].date};
   camAfter();
   /* the summit photo belongs with the hill */
-  camStillBlob().then(b => addPhotos(key, [new File([b], camFileName('jpg'), {type: 'image/jpeg'})])).catch(() => {});
+  camStillBlob().then(b => addPhotos(key, [new File([b], camFileName('jpg'), {type: 'image/jpeg'})]))
+    .then(() => {
+      /* the id it landed under, so the who-row has something to write on */
+      if (!cam) return;
+      const ps = rec(key).photos || [], last = ps[ps.length - 1];
+      if (last && last.id){ cam.filed = {key, id: last.id}; camAfter(); }
+    }).catch(() => {});
   if (typeof mapReady !== 'undefined' && mapReady) drawMarkers();
 }
 function camUndo(){
@@ -37176,6 +37332,7 @@ function camClose(fromHistory){
   const cv = document.getElementById('cxClip'); if (cv){ cv.pause(); cv.removeAttribute('src'); cv.hidden = true; }
   camStop();
   if (cam.watch != null) navigator.geolocation.clearWatch(cam.watch);
+  camTagFlush(cam);
   const pushed = cam.pushed; cam = null;
   const el = document.getElementById('camx'); if (el) el.classList.remove('open');
   document.documentElement.classList.remove('camlock');
