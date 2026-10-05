@@ -1954,6 +1954,29 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .pcall b{font-family:var(--font-display); font-size:34px; line-height:1; letter-spacing:.01em; color:var(--ink)}
 .pcall i{font-family:var(--font-ui); font-style:normal; font-size:13.5px; color:var(--ink-3)}
 .pcall[aria-pressed="true"]{border-bottom-color:var(--accent)}
+/* ---- the patches heading, after the 429px pass ----
+   (named .bcview, not .bcmini: .bcmini is already a shop tile further down,
+   a column 112px wide, and the switch silently went vertical.)
+   The heading, the view switch and Shuffle share one row; the three counters
+   are chips in the row the map already uses. .pkinds below is now unused and
+   left alone, so this is one block to take back out. */
+.bchead{display:flex; align-items:center; gap:10px; margin-top:12px}
+.bchead .eyebrow{margin:0; flex:1; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.bcswitch.bcview{flex:none; flex-direction:row; margin:0; padding:3px; gap:2px; border-radius:999px}
+/* without nowrap "Collection" broke onto two lines and the row went to 76px -
+   taller than the thing it replaced */
+/* 44px, not 34. The layout sweep caught this one: Board and Collection are a
+   view switch, not chips, and the control system says only chips go under 44.
+   Shrinking them to make the row fit was the exact habit v304 was for. */
+.bcswitch.bcview button{flex:none; white-space:nowrap; min-height:44px; padding:0 14px;
+  border-radius:999px; font:600 13px var(--font-ui)}
+.shufb{flex:none; color:var(--ink-3)}
+.shufb svg{width:17px; height:17px}
+.listbar.pfilter{padding:10px 0 2px}
+.pcall.pstat{cursor:default; border-bottom-color:var(--accent); min-height:0; padding:2px 0 4px}
+@media (max-width:359px){ .bcswitch.bcview button{padding:0 10px; font-size:12px} }
+
 .pkinds{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin-top:12px}
 .pkinds button{display:grid; gap:1px; justify-items:start; padding:9px 10px 8px; cursor:pointer;
   background:var(--surface); border:1px solid var(--line); border-radius:12px; color:inherit; text-align:left}
@@ -15286,10 +15309,9 @@ function renderPatchesPage(){
   if (pack) return s + (ui.dog ? renderDogPage(ui.dog) : renderDogsPane());
   if (jour) return s + renderJourney(ps);
 
+  /* Board / Collection moved up onto the heading row - two navigations one
+     under the other was the other half of the 429px. */
   s += patchesHead(ps, got);
-  const VIEWS = {cork:'Board', collection:'Collection'};
-  s += '<div class="bcsub3 bcsub2" role="group" aria-label="Patches">' +
-    Object.keys(VIEWS).map(v => '<button data-act="patchview" data-v="' + v + '" aria-pressed="' + (ui.patchView === v) + '">' + VIEWS[v] + '</button>').join('') + '</div>';
   return s + (ui.patchView === 'collection' ? renderChallenges(ps) : renderCorkboard(ps));
 }
 
@@ -15304,17 +15326,34 @@ function patchesHead(ps, got){
     const inG = ps.filter(x => x.group === k);
     N[k] = {got: inG.filter(x => x.got).length, all: inG.length};
   }
+  /* The board used to start 429px down - half the phone - behind two
+     navigations, three stat cards and a sentence. The three cards said
+     6 + 0 + 5 above a line that already said 11, and 30 + 16 + 14 above one
+     that said 60. They are the FILTER though, not decoration, so they stay:
+     as chips, in the row the app already uses for exactly this on the map. */
+  const VIEWS = {cork: 'Board', collection: 'Collection'};
   let s = '<section class="mypatches">' +
-    '<p class="eyebrow">My patches</p>' +
-    '<button class="pcall" data-act="pgroup" data-v="" aria-pressed="' + (g === '') + '">' +
-      '<b>' + got + '</b><i>of ' + ps.length + ' earned</i></button>' +
-    '<div class="pkinds" role="group" aria-label="Kinds of patch">';
+    '<div class="bchead"><p class="eyebrow">My patches</p>' +
+      '<div class="bcswitch bcview" role="group" aria-label="How to see them">' +
+      Object.keys(VIEWS).map(v => '<button data-act="patchview" data-v="' + v +
+        '" aria-pressed="' + (ui.patchView === v) + '">' + VIEWS[v] + '</button>').join('') +
+      '</div>' +
+      /* Shuffle used to live inside the sentence that has gone. */
+      (ui.patchView !== 'collection' && got > 1
+        ? '<button class="iconbtn shufb" data-act="corkshuffle" aria-label="Shuffle the board" title="Shuffle">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v3.3h-3.3"/></svg></button>'
+        : '') +
+    '</div>' +
+    /* a statement, not a control - the All chip below is the control, and two
+       things doing one job is what this pass is for */
+    '<div class="pcall pstat"><b>' + got + '</b><i>of ' + ps.length + ' earned</i></div>' +
+    '<div class="listbar pfilter" role="group" aria-label="Kinds of patch">' +
+    '<button class="lchip" data-act="pgroup" data-v="" aria-pressed="' + (g === '') + '">All<b>' +
+      got + '/' + ps.length + '</b></button>';
   for (const k of ['summit', 'challenge', 'milestone']){
-    s += '<button data-act="pgroup" data-v="' + k + '" aria-pressed="' + (g === k) + '"' +
-      ' class="' + (PATCH_SHAPES ? 'sh-' + GROUP_SHAPE[k] : 'noshape') + '">' +
-      (PATCH_SHAPES ? '<span class="shglyph" aria-hidden="true"></span>' : '') +
-      '<b>' + N[k].got + '</b><i>' + GROUP_NAME[k] + '</i>' +
-      '<em>of ' + N[k].all + '</em></button>';
+    s += '<button class="lchip" data-act="pgroup" data-v="' + k + '" aria-pressed="' + (g === k) + '">' +
+      GROUP_NAME[k] + '<b>' + N[k].got + '/' + N[k].all + '</b></button>';
   }
   return s + '</div></section>';
 }
@@ -15530,11 +15569,14 @@ function renderCorkboard(ps){
   let W = 360;
   if (main){ const cs = getComputedStyle(main); W = main.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0) - 12; }
   W = Math.max(240, W);
-  const FILT = {all:'Everything', summit:'Summits', challenge:'Challenges', milestone:'Milestones'};
-  let s = f === 'all' ? '' : '<p class="eyebrow">' + FILT[f] + ' &middot; ' +
-       B.got.length + (B.got.length === 1 ? ' patch' : ' patches') + '</p>';
-  if (got.length) s += '<div class="planintro">Everything you have earned, pinned up together.' +
-       (got.length > 1 ? ' <button class="linkbtn" style="padding:0" data-act="corkshuffle">Shuffle</button>' : '') + '</div>';
+  /* The chip above now says "Summits 6/30" in the colour of a thing that is
+     switched on, so an eyebrow underneath saying "Summits . 6 patches" was
+     the same fact twice, 27px apart. */
+  let s = '';
+  /* "Everything you have earned, pinned up together" was 48px telling you
+     what you were already looking at. The empty board below still explains
+     itself, which is the one time it is worth saying. Shuffle moved to the
+     heading row. */
   if (!got.length){
     return s + '<div class="corkboard empty" style="height:216px"><div class="note pinned" style="left:50%;top:50%;--rot:-2deg"><i class="pin"></i>' +
       '<b>Nothing pinned yet</b><span>Your patches go up here as you earn them. Mark a summit and the first one is yours.</span></div></div>' +
@@ -29255,7 +29297,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v307';
+const APP_VERSION = 'v308';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
