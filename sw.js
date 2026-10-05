@@ -10,7 +10,7 @@
 //
 // Any other version number you see in this file is prose in a comment and does
 // nothing at all.
-const CACHE = 'waymark-v311';
+const CACHE = 'waymark-v313';
 
 const SHELL = ['./', './index.html', './legal.html', './cork.jpg', './hikers-welcome.jpg', './stamp-field-log-light.webp', './stamp-field-log-dark.webp', './firebase-config.js', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png', './icon-32.png',
@@ -101,6 +101,16 @@ self.addEventListener('activate', e => {
 // walker their data and their battery for a file that only changes when the
 // version does.
 const SHELL_URLS = new Set(SHELL.map(u => new URL(u, self.location.href).href));
+/* THE APP'S OWN ADDRESS, and nothing else.
+   Joe, 5 Oct: "first sign up screen 'browse the hills list' does nothing."
+   It did something: it loaded /hills/, and this worker answered with the app.
+   A navigation that misses the cache used to fall back to index.html for ANY
+   path, so once the app was installed every real page on the site - the hill
+   lists, every page I have ever written for search - was unreachable. You
+   tapped the link, the app booted again, and from the welcome screen that
+   looks exactly like nothing happening. */
+const APP_PATH = new URL('./', self.location.href).pathname;
+const APP_PATHS = new Set([APP_PATH, APP_PATH + 'index.html']);
 // Anything that still has to ask the network gets a short leash, so a stalled
 // connection can never hold a response open for longer than this.
 const NET_MS = 4000;
@@ -130,10 +140,13 @@ self.addEventListener('fetch', e => {
   // the places files: what is cached is shown at once, and refreshed behind
   if (url.pathname.includes('/places/')){ e.respondWith(placesFetch(e.request)); return; }
   // THE APP ITSELF. Cache first, no network in the way.
-  if (e.request.mode === 'navigate' || SHELL_URLS.has(url.href)){
+  const nav = e.request.mode === 'navigate';
+  if ((nav && APP_PATHS.has(url.pathname)) || SHELL_URLS.has(url.href)){
     e.respondWith(shellFetch(e.request));
     return;
   }
+  // A navigation anywhere ELSE on the site is a real page, not the app.
+  if (nav){ e.respondWith(pageFetch(e.request)); return; }
   // everything else same-origin: the network, but on a leash
   e.respondWith(
     timedFetch(e.request)
@@ -142,9 +155,33 @@ self.addEventListener('fetch', e => {
         caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
         return res;
       })
-      .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+      /* No index.html fallback here. This branch answers scripts, styles and
+         data, and handing a page of HTML to something expecting JavaScript
+         fails in a way that is far harder to read than a plain 504. */
+      .catch(() => caches.match(e.request).then(r => r ||
+        new Response('', {status:504, statusText:'offline'})))
   );
 });
+
+/* A REAL PAGE ON THE SITE — /hills/ and everything under it.
+   The network first: these pages carry no version number, so a cached copy
+   has no way of knowing it is stale. Then whatever was kept last time. The
+   app stands in only when there is nothing at all, because a walker with no
+   signal is better off in the app than on a browser error page. */
+async function pageFetch(req){
+  try{
+    const res = await timedFetch(req);
+    if (res && res.ok){
+      const copy = res.clone();
+      caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+    }
+    return res;
+  }catch(err){
+    const last = await caches.match(req, {ignoreSearch:true}).catch(() => null);
+    return last || (await caches.match('./index.html').catch(() => null)) ||
+      new Response('', {status:504, statusText:'offline'});
+  }
+}
 
 // The page, and every file it needs to draw itself. Whatever is on the phone
 // wins, at once. Only something genuinely missing goes to the network.

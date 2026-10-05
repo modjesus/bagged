@@ -489,6 +489,19 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   padding-left:max(22px, env(safe-area-inset-left, 0px) + 22px);
   padding-right:max(22px, env(safe-area-inset-right, 0px) + 22px);
 }
+/* 18px below 380. At 360px - a Galaxy A, and a lot of budget Androids - the
+   wordmark and the five icons came to 363px against a 360px window and the
+   WHOLE PAGE rubber-banded sideways by 3px. Measured, and measured again
+   after: 320, 360 and 393 all sit still now.
+   Not the obvious fixes: clipping the buttons would have cut the invisible
+   ::after that makes each 44px icon a 52px tap target, and closing the gap
+   made it worse, not better. 22px stays everywhere it fits. */
+@media (max-width:380px){
+  .top .wrap{
+    padding-left:max(18px, env(safe-area-inset-left, 0px) + 18px);
+    padding-right:max(18px, env(safe-area-inset-right, 0px) + 18px);
+  }
+}
 /* sized from the viewport rather than from breakpoints, so it can never run off
    the edge on a narrow phone or at a large system text size */
 .brand{
@@ -920,6 +933,36 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .ddate{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   padding-bottom:10px; border-bottom:1px solid var(--line-soft)}
 
+/* ---- a folded day ----
+   Joe, 5 Oct: the journal is still a two-screen scroll on a big day. A day
+   that is not open shows a cover: one photograph, the title, and what the
+   day was. 735px becomes about 300. */
+.dday.fold{padding-bottom:6px}
+.dday.fold .ddate{border-bottom:0; padding-bottom:8px}
+.dcover{display:block; position:relative; width:100%; padding:0; border:0;
+  margin:0 0 10px; border-radius:8px; overflow:hidden; background:var(--surface-2);
+  aspect-ratio:16/10; cursor:pointer}
+.dcover img{width:100%; height:100%; object-fit:cover; display:block}
+.dcover em{position:absolute; right:8px; bottom:8px; font-style:normal;
+  background:rgba(11,21,18,.68); color:#F6EFE4; font:600 11px var(--font-data);
+  padding:3px 9px; border-radius:99px}
+.dcovh{margin:0 0 4px; font:400 18px/1.18 var(--font-display); color:var(--ink);
+  overflow-wrap:anywhere}
+.dcovline{margin:0; font:400 13px/1.4 var(--font-ui); color:var(--ink-2)}
+.dcovline b{font-weight:700; color:var(--ink)}
+/* the whole row is the target, so it is the full 44px without looking like a
+   button sitting in the card */
+.dcovopen{display:flex; align-items:center; justify-content:center; gap:5px;
+  width:100%; min-height:44px; margin:6px 0 0; padding:0; background:none;
+  border:0; border-top:1px dashed var(--line-soft);
+  font:700 12.5px var(--font-ui); color:var(--accent-text); cursor:pointer}
+.dcovopen svg{color:var(--accent-text)}
+/* shutting it again costs no height: the date row is the handle */
+.ddate.shut{cursor:pointer; -webkit-tap-highlight-color:transparent}
+.dchev{margin-left:auto; display:flex; align-items:center; color:var(--ink-3);
+  transform:rotate(180deg)}
+.ddate.shut:active .dchev{color:var(--accent-text)}
+
 .dsummits{margin-top:8px}
 .dcount{font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-3)}
@@ -1238,10 +1281,19 @@ li.hill.s-planned{background:linear-gradient(90deg, var(--plan-soft), transparen
 li.hill.s-progress{background:linear-gradient(90deg, var(--prog-soft), transparent 70%)}
 li.hill.bk::before{content:none}
 li.hill.bk .hrow{padding-left:12px}
-.lead{flex:1; min-width:14px; border-bottom:1.5px dotted var(--line); margin:0 8px 5px; align-self:flex-end}
+/* .leadline, not .lead. This is the dotted leader between a hill's name and
+   its height; `.lead` is ALSO the big card on Home that shows your last walk,
+   and this rule's `margin:0 8px` was landing on that card. It pushed the card
+   8px in on each side while the hero inside it kept its own width, so at
+   320px the whole PAGE scrolled sideways by 7px and at 360px by 3px. 393px
+   was fine, which is why it sat here unnoticed.
+
+   Fourth name collision found in two days: .bcmini, .wksym, .invdisc, this.
+   Grep the stylesheet before naming a class. */
+.leadline{flex:1; min-width:14px; border-bottom:1.5px dotted var(--line); margin:0 8px 5px; align-self:flex-end}
 /* the leader is for a bare row: beside a stamp and a date it was a stray
    two-centimetre dash floating mid-row */
-.hrow:has(.hsub) .lead{border-bottom:0}
+.hrow:has(.hsub) .leadline{border-bottom:0}
 .hrow{display:flex; align-items:center; gap:10px; padding:9px 12px 9px 10px}
 .tick{
   position:relative;
@@ -3665,7 +3717,7 @@ li.hill.on .tick{background:transparent; border-color:var(--ink-2); color:var(--
 li.hill.on .tick svg{width:20px; height:20px; transform:translate(1px,-2px) rotate(-6deg)}
 .hname{font-family:var(--font-ui); font-weight:700; font-size:16px; letter-spacing:-.01em}
 .hh{font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
-.lead{border-bottom:1.5px dotted color-mix(in srgb, var(--line) 80%, transparent)}
+.leadline{border-bottom:1.5px dotted color-mix(in srgb, var(--line) 80%, transparent)}
 
 /* the annotation in the margin: date in handwriting */
 .hsub .stampdate{font-family:var(--font-hand); font-size:17px; font-style:italic; font-weight:600; color:var(--accent-text); letter-spacing:0; display:inline-block; transform:rotate(-2deg); line-height:1}
@@ -3904,6 +3956,11 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 .leadadj{position:absolute; top:10px; right:10px; z-index:2; font-family:var(--font-ui); font-size:12px; padding:5px 10px; border-radius:99px;
   background:rgba(20,51,45,.72); color:#F3EFE6; border:1px solid rgba(243,239,230,.35); cursor:pointer; backdrop-filter:blur(4px)}
 .leadadj.on{background:#A8431A; border-color:#A8431A}
+/* 60x30 on the photograph, which is under the 44px this app insists on
+   everywhere else. An invisible hit area rather than a bigger pill: the
+   same trick .hbrand and .eyelink already use, so the button still looks
+   like a small tag on a picture and still takes a thumb. */
+.leadadj::after{content:""; position:absolute; inset:-7px -6px}
 .leadhint{position:absolute; top:12px; left:12px; z-index:2; font-family:var(--font-ui); font-size:12px; color:#F3EFE6; background:rgba(20,51,45,.72); padding:4px 9px; border-radius:99px}
 .leadwrap.adjusting .leadshot{cursor:ns-resize}
 .leadwrap.adjusting .leadshot img{cursor:ns-resize; user-select:none; -webkit-user-drag:none}
@@ -5618,7 +5675,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 /* ---- calmer eyebrows ---- */
 .coverline, .npeyebrow, .dcount, .sect{letter-spacing:.12em}
 
-/* ---- hill rows: name, the lists it is also on, height. No ruled margin, no dot leader ---- */.hrow i.lead{display:none}
+/* ---- hill rows: name, the lists it is also on, height. No ruled margin, no dot leader ---- */.hrow i.leadline{display:none}
 .hrow .hmain{flex:1 1 auto; min-width:0}
 .hrow .tags{display:block; margin-top:2px}
 .hrow .tags .tag{border:0; background:none; padding:0; font-family:var(--font-ui); font-size:12px; color:var(--ink-3); letter-spacing:0; text-transform:none; box-shadow:none}
@@ -5996,7 +6053,13 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .doglinkbox{margin-top:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r); padding:10px}
 .doglinkbox code{display:block; font-family:var(--font-data); font-size:11.5px; word-break:break-all; margin-bottom:8px; color:var(--ink-2)}
 .sublabel{font:700 11px var(--font-ui); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin:0 0 8px}
-.dogstrip{display:flex; gap:14px; overflow-x:auto; padding:2px 0 6px; margin-bottom:10px}
+/* Joe, 5 Oct: "dog icons on profile are slightly cut off at the top."
+   One pixel of it. overflow-x:auto forces overflow-y to auto as well - CSS
+   will not let one axis scroll while the other overflows visibly - so this
+   strip clips vertically whether it means to or not, and the 3px outline
+   round each face only had 2px of padding to live in. 6px clears the
+   outline and most of the drop shadow under it. */
+.dogstrip{display:flex; gap:14px; overflow-x:auto; padding:6px 0 7px; margin-bottom:8px}
 .dogstripitem{background:none; border:0; padding:0; cursor:pointer; text-align:center; width:84px; flex:none}
 .dogstripitem .dogface{width:64px; height:64px; margin:0 auto; outline:3px solid var(--dogc, var(--accent))}
 .dogstripitem b{display:block; font-family:var(--font-ui); font-weight:700; font-size:13px; margin-top:6px;
@@ -8597,6 +8660,11 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'collection', pGroup:'', corkSeed:0, supSide:'', supTodo:false, ascAll:null, ascEdit:null, editDate:null,
           postMenu:null, joinCode:'', peopleView:null, openPost:null, dayOpen:false,
+          /* which journal day is unfolded. 0 means "not chosen yet", and the
+             first render turns it into the newest day. NOT dayOpen - that is
+             already the map screen's day picker, and NOT jday - that is the
+             data attribute on the article. Grepped before naming. */
+          jopen:0,
           supSort:'sheet', supOpen:null,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'welcome'};
@@ -12519,14 +12587,24 @@ function renderShop(){
     return s + '<header class="suphead"><span class="nosale">Not for sale yet</span><h2>Which of these should we actually print?</h2>' +
       '<p>Every one is drawn and ready for a printer. Vote on the ones you would wear.</p></header>' + bcBoardBanner() + '</div>';
   }
-  /* The band and the summit tab say the same thing - here is what we print
-     for the hills in your log - so only one of them is ever on screen. */
-  if (!ui.shopSaved && shopTabNow() !== 'summit') s += bcLogBand(sale);
   /* Said at the front door. Stripe only accepts a UK address, so somebody
      ordering from abroad used to find that out at the payment page, with a
      basket already filled. */
   s += '<p class="ukonly">' + ti('map-pin') + 'We post within the UK only.</p>';
   s += bcShopTabs(sale);
+  /* Joe, 5 Oct: "when I go from summit series on shop to tee/stickers it
+     drops the page down and its very abrupt and jarring, this is due to the
+     addition of the 'made from your log' header."
+
+     Exactly that. The band sat ABOVE the tab row and only appears off the
+     Summit tab, so tapping Tees pushed the tab row you had just tapped down
+     the screen by the whole height of the band. Navigation must not move
+     when you use it, so the band is now part of the tab's content, under the
+     tabs, where everything else that changes between tabs already is.
+
+     The band and the Summit tab say the same thing - here is what we print
+     for the hills in your log - so only one of them is ever on screen. */
+  if (!ui.shopSaved && shopTabNow() !== 'summit') s += bcLogBand(sale);
   if (ui.shopSaved){
     const sv = bcSaved();
     const list = sale.filter(d => sv.includes(String(d.n)));
@@ -16463,6 +16541,8 @@ function render(){
       try{ el.focus({preventScroll:true}); if (keep.s != null) el.setSelectionRange(keep.s, keep.e); }catch(e){}
     }
   }
+  /* before anything is painted, so there is no flick back to the first photo */
+  restoreCarousels();
   paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell(); paintBag();
   if (tab === 'u') hydratePostPhotos();
   if (tab === 'd') setTimeout(tuneStamp, 0);
@@ -16646,7 +16726,7 @@ function hillRow(h, listId){
   const others = h.l.filter(x => x !== listId);
   if (others.length) s += '<span class="tags">' + others.map(x => '<span class="tag">' + esc(listTag(x)) + '</span>').join('') + '</span>';
   s += '</button>';
-  s += '<i class="lead"></i>';
+  s += '<i class="leadline"></i>';
   if (r.photos.length){
     const p = r.photos[0];
     s += '<img class="thumb" data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt="Photo of ' + esc(hillName(h)) + '">';
@@ -19018,6 +19098,10 @@ function diaryDays(){
    journal is newest first, so an entry written up weeks later lands well down
    the page: without this it looks as though nothing was saved. */
 function showJournalDay(date){
+  /* the day you just wrote up opens itself — folded shut is the right default
+     for reading back, and the wrong one for the entry you have this second
+     finished. Set before the paint, so it is never seen shut. */
+  if (date && ui.jopen !== date){ ui.jopen = date; render(); }
   requestAnimationFrame(() => {
     const el = document.querySelector('.dday[data-jday="' + CSS.escape(date) + '"]');
     if (!el) return;
@@ -19128,7 +19212,13 @@ function renderDiary(){
   /* Permanent here, by design. Home is where it shouts and then stops; the
      journal is where it lives, so a walker who dismissed it on Home still
      knows exactly where to find it. */
-  if (!ui.diaryForm) html += impOfferHTML();
+  /* Joe, 5 Oct, on the journal being long: folding the days saved 426px and
+     then 431px of this was still sitting above the first one, 195 of it this
+     offer. Full size on an empty journal, where it IS the content; the slim
+     row once there are days to read. Same offer either way - the slim one is
+     the same label, the same input, and it is what a hill with no photos
+     already uses. */
+  if (!ui.diaryForm) html += impOfferHTML(days.length ? 'slim' : '');
   html += '<div class="btnrow"><button class="btn' + (ui.diaryForm ? ' quiet' : '') + '" data-act="newdiary">' +
     (ui.diaryForm ? 'Cancel' : '+ Write an entry') + '</button>' +
     (stravaCfg() && !ui.diaryForm && stravaOn() ? '<button class="btn ghost" data-act="stopen">' + ti('download') + 'Bring in from Strava</button>' + stravaPowered() : '') +
@@ -19154,11 +19244,33 @@ function renderDiary(){
     return html + '<p class="empty">Nothing in the journal yet. Mark a summit with a date, or write up a day above.</p>';
   }
 
+  /* Joe, 5 Oct: "Journal is better but still feels very long, especially when
+     a gpx is added, the map is visible you have images, text and a title. On
+     a big day with lots of mountains this is at least a two page scroll."
+
+     Measured before changing anything: a seven-summit day with five photos
+     and a proper write-up is 735px, and there is another 431px above it
+     before you reach it. 1,215px for ONE day on an 852px screen.
+
+     So a day is a COVER until you open it — the date, one photograph, the
+     title, and the shape of the day in one line. The newest day is open to
+     start with, because that is the one you just wrote. Opening another
+     folds this one, the same way the route rows work. */
+  if (ui.jopen === 0) ui.jopen = null;
+
   for (const d of days){
     const where = dayWhere(d);
-    html += '<article class="dday" data-jday="' + esc(d.date) + '">';
-    html += '<div class="ddate"><b>' + esc(prettyDate(d.date)) + '</b>' +
-      (where ? '<span>' + esc(where) + '</span>' : '') + '</div>';
+    const dayPics = (typeof dayPhotos === 'function' ? dayPhotos(d.date) : d.photos) || [];
+    const open = ui.jopen === d.date;
+    html += '<article class="dday' + (open ? '' : ' fold') + '" data-jday="' + esc(d.date) + '">';
+    html += '<div class="ddate' + (open ? ' shut' : '') + '"' +
+      (open ? ' data-act="jfold" data-d="' + esc(d.date) + '" role="button" aria-expanded="true"' : '') +
+      '><b>' + esc(prettyDate(d.date)) + '</b>' +
+      (where ? '<span>' + esc(where) + '</span>' : '') +
+      (open ? '<i class="dchev">' + ti('chevron-down', 'width="17" height="17"') + '</i>' : '') +
+      '</div>';
+
+    if (!open){ html += dayCoverHTML(d, dayPics) + '</article>'; continue; }
 
     if (d.hills.length){
       d.hills.sort((a, b) => b.h - a.h);
@@ -19251,7 +19363,7 @@ function renderDiary(){
        `.pcar` and `.pcount` on purpose: the scroll listener that keeps a
        Hikers carousel's counter honest then keeps this one honest too, and
        it marks the strip in the same pass. One handler, both. */
-    const allPics = (typeof dayPhotos === 'function' ? dayPhotos(d.date) : d.photos);
+    const allPics = dayPics;
     if (allPics.length){
       const pics = allPics.slice(0, 12);
       html += '<div class="dpics" data-n="' + pics.length + '"><div class="pcar">' + pics.map((ph, i) =>
@@ -19274,6 +19386,32 @@ function renderDiary(){
     html += '</article>';
   }
   return html;
+}
+
+/* A folded day: one photograph, the title, and what the day was. Everything
+   on it opens the day, so there is no small target to find. */
+function dayCoverHTML(d, pics){
+  const hs = d.hills.slice().sort((a, b) => b.h - a.h);
+  const names = hs.slice(0, 2).map(hillName);
+  const more = hs.length - names.length;
+  const ttl = (d.entries.find(e => e.title) || {}).title || '';
+  let s = '';
+  if (pics.length){
+    s += '<button class="dcover" data-act="jfold" data-d="' + esc(d.date) + '" ' +
+      'aria-label="Open ' + esc(prettyDate(d.date)) + '">' +
+      '<img data-pid="' + esc(pics[0].id) + '" data-up="' + (pics[0].up ? 1 : 0) + '" alt="">' +
+      (pics.length > 1 ? '<em>' + pics.length + ' photos</em>' : '') + '</button>';
+  }
+  if (ttl) s += '<h3 class="dcovh">' + esc(ttl) + '</h3>';
+  const bits = [];
+  if (hs.length) bits.push('<b>' + hs.length + (hs.length === 1 ? ' summit' : ' summits') + '</b>');
+  if (names.length) bits.push(esc(names.join(', ')) + (more > 0 ? ' +' + more : ''));
+  /* a day with no summits and no title still has to say something */
+  if (!bits.length && !ttl && pics.length) bits.push(pics.length + (pics.length === 1 ? ' photo' : ' photos'));
+  if (bits.length) s += '<p class="dcovline">' + bits.join(' \u00b7 ') + '</p>';
+  s += '<button class="dcovopen" data-act="jfold" data-d="' + esc(d.date) + '">' +
+    'Open the day' + ti('chevron-down', 'width="15" height="15"') + '</button>';
+  return s;
 }
 
 /* ---------- hikers ---------- */
@@ -23489,6 +23627,19 @@ document.addEventListener('click', async e => {
     }, 60);
   }
   else if (a === 'dayfold'){ ui.dayOpen = !ui.dayOpen; if (ui.dayOpen) ui.listOpen = false; render(); }
+  /* one day open at a time, like the route rows. Nothing half-open is left
+     behind in it either. */
+  else if (a === 'jfold'){
+    const d = el.dataset.d;
+    const was = ui.jopen === d;
+    ui.jopen = was ? null : d;
+    ui.postMenu = null;
+    render();
+    if (!was){
+      const art = document.querySelector('.dday[data-jday="' + CSS.escape(d) + '"]');
+      if (art && art.getBoundingClientRect().top < 0) art.scrollIntoView({block:'start'});
+    }
+  }
   else if (a === 'postmenu'){
     ui.postMenu = ui.postMenu === el.dataset.id ? null : el.dataset.id;
     render();
@@ -24159,8 +24310,19 @@ document.addEventListener('click', async e => {
     ui.shopSaved = v === 'saved';
     if (!ui.shopSaved) ui.shopTab = v;
     ui.shopColl = '';
+    /* Hold the tab row exactly where it is. It used to scroll the whole shop
+       to the top on every tap, which is a jump of its own if you were
+       anywhere down the grid. If the tabs are off the top of the screen there
+       is nothing to hold, so then - and only then - bring them back. */
+    const tabsEl = () => document.querySelector('.bcshoptabs');
+    const before = tabsEl() ? tabsEl().getBoundingClientRect().top : null;
     render();
-    const sh = document.querySelector('.bcshop'); if (sh) sh.scrollIntoView({block:'start'});
+    const now = tabsEl();
+    if (now){
+      if (before !== null && before >= 0 && before < window.innerHeight)
+        window.scrollBy(0, now.getBoundingClientRect().top - before);
+      else now.scrollIntoView({block:'start'});
+    }
   }
   else if (a === 'bcsaved'){ ui.shopSaved = !ui.shopSaved; ui.shopColl = ''; render(); }
   else if (a === 'bksaved'){ closeBasket(); tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = true; ui.shopColl = ''; supGo(null, true); }
@@ -28334,7 +28496,7 @@ function renderFriend(){
       html += '<ul class="hills">' + [...hillSet.entries()].map(([k, d]) => [BY_KEY[k], d]).sort((a, b) => (b[1] || '').localeCompare(a[1] || '') || b[0].h - a[0].h).map(([hh, d]) =>
         '<li class="hill on"><div class="hrow"><button class="tick st-done" disabled>' + ST_ICON.done + '</button>' +
         '<span class="hmain"><span class="hname">' + esc(hillName(hh)) + '</span>' + (d ? '<span class="hsub"><span class="stampdate">' + esc(prettyDate(d)) + '</span></span>' : '') +
-        '</span><i class="lead"></i><span class="hh">' + ht(hh) + '</span></div></li>').join('') + '</ul>';
+        '</span><i class="leadline"></i><span class="hh">' + ht(hh) + '</span></div></li>').join('') + '</ul>';
     } else html += '<div class="nobody"><b>' + (pp.hills ? esc(nm) + ' has marked ' + pp.hills.toLocaleString() + ' summits' : 'No summits shared yet') + '</b>' +
       '<span>' + (pp.hills ? 'Their full list stays private. Hills they share in their days out show here.' : 'Hills ' + esc(nm) + ' shares will show here.') + '</span></div>';
   } else {
@@ -28540,10 +28702,43 @@ function toastAct(msg, label, fn){
   t.classList.add('show', 'act');
   clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show', 'act'), 6500);
 }
+/* ---- a carousel keeps its place across a re-render ----
+   Joe, 5 Oct: "hikers carousels, keep going back to the previous photo when
+   scrolling, like it's lagging."
+
+   Not lag. The feed re-renders whenever anything lands - a post's photos, its
+   comment count, a refresh - and render() rewrites #main wholesale, so every
+   carousel in it is built again from scratch at scrollLeft 0. Swipe from the
+   first photo to the second while one of those lands and you are put back on
+   the first: "the previous photo". Twelve posts loading their bits means
+   twelve chances for it.
+
+   So the position is remembered as you scroll and put back in the same frame
+   the HTML is written, before anything is painted. The key carries the slide
+   count as well as the id, so a carousel whose contents actually changed
+   starts at the beginning rather than at a stale index. */
+const carAt = new Map();
+function carKey(car){
+  const s = car.querySelector('.shot, .dpic');
+  if (!s) return '';
+  return (s.dataset.id || s.dataset.d || '') + '|' + car.children.length;
+}
+function restoreCarousels(){
+  for (const car of document.querySelectorAll('.pcar')){
+    const k = carKey(car); if (!k) continue;
+    const i = carAt.get(k);
+    if (!i || i >= car.children.length) continue;
+    /* clientWidth is 0 if this is off-screen or not laid out yet; the slide's
+       own offset is right either way */
+    const slide = car.children[i];
+    car.scrollLeft = slide.offsetLeft - car.offsetLeft || i * car.clientWidth;
+  }
+}
 /* the carousel's counter and dots follow the swipe */
 document.addEventListener('scroll', e => {
   const c = e.target; if (!(c instanceof Element) || !c.classList.contains('pcar')) return;
   const i = Math.round(c.scrollLeft / Math.max(1, c.clientWidth)), m = c.parentElement;
+  const key = carKey(c); if (key) carAt.set(key, i);
   const n = m.querySelector('.pcount'); if (n) n.textContent = (i + 1) + '/' + m.dataset.n;
   m.querySelectorAll('.pdots i').forEach((d, j) => d.classList.toggle('on', j === i));
   /* A journal day keeps its thumbnails under the carousel rather than dots,
@@ -29486,7 +29681,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v311';
+const APP_VERSION = 'v313';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
