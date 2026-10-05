@@ -6174,6 +6174,18 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcgbadge.on{background:var(--ink); color:var(--ground); border-color:var(--ink)}
 
 /* ---- bringing in photos from before WayMark ---- */
+/* Share, on a marked hill and on every summit in an open journal day.
+   Joe, 5 Oct: "You should be able to share a summit from the home list and
+   journal (not just patches)." */
+.hillshare{margin:12px 0 0}
+.hillshare .btn svg{margin-right:6px; vertical-align:-2px}
+.dsline{display:flex; align-items:center; gap:10px}
+.dsline .dcount{flex:none}
+.dshare{flex:none; margin-left:auto; display:grid; place-items:center;
+  width:44px; height:44px; margin-top:-10px; margin-bottom:-10px; margin-right:-10px;
+  border:0; background:none; color:var(--sage); border-radius:50%}
+.dshare:active{background:var(--surface-2); color:var(--accent-text)}
+
 /* THE SHARE PICKER. Two cards side by side, swipe between them, one Share.
    The previews are the real thing, drawn at 1080x1350 and scaled down, so
    what you pick is exactly what goes out. */
@@ -10903,16 +10915,28 @@ function shDrawPatch(x, W, H, o, img){
   x.save();
   x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.closePath(); x.clip();
   x.fillStyle = '#A8431A'; x.fill();
-  if (img && img.naturalWidth) x.drawImage(img, cx - R, cy - R, R * 2, R * 2);
+  shSizeSvg(img);
+  if (img && (img.naturalWidth || img.width)) x.drawImage(img, cx - R, cy - R, R * 2, R * 2);
   x.restore();
   x.strokeStyle = '#A8431A'; x.lineWidth = 10;
   x.beginPath(); x.arc(cx, cy, R + 8, 0, Math.PI * 2); x.stroke();
-  x.textAlign = 'center'; x.fillStyle = '#F3EFE6';
-  const endY = shTitle(x, String(o.title || '').toUpperCase(), cx, 990, W - 120, 66, 2, 1.08);
-  x.fillStyle = '#CAD9D3';
-  x.font = '400 32px "Source Code Pro", ui-monospace, monospace';
-  shTracked(x, String(o.sub || '').toUpperCase(), cx, endY + 60, 32, 3);
-  shFoot(x, W, H - 120, true);
+  /* THE BADGE ALREADY SAYS THE NAME. Printing it again underneath is the
+     same fact twice on one card — the shop learned this and so does this.
+     What the badge does NOT carry is when it was earned, so that is what
+     goes below it. */
+  x.textAlign = 'center';
+  x.fillStyle = '#F3EFE6';
+  x.font = '400 34px "Source Code Pro", ui-monospace, monospace';
+  shTracked(x, String(o.sub || '').toUpperCase(), cx, 1010, 34, 4);
+  shFoot(x, W, H - 150, true);
+}
+/* An SVG data URL has no intrinsic size in some engines, so give the image
+   one before it is drawn, or naturalWidth comes back 0 and the badge is
+   dropped for a bare disc — the very thing being fixed. */
+function shSizeSvg(img){
+  if (!img) return img;
+  if (!img.naturalWidth && !img.width) { img.width = 600; img.height = 600; }
+  return img;
 }
 const SH_ALL = [
   {id:'patch', label:'The patch', note:'Your badge, as it is'},
@@ -11040,13 +11064,38 @@ function shareSend(save){
   })();
 }
 /* a patch, as a card */
+/* THE PATCH ARTWORK IS THE BADGE, NOT A PNG.
+
+   Joe, 5 Oct: "none of the patch images are pulling through, they are all
+   the defualt ones."
+
+   He is right, and the reason is that there is no artwork to pull. I took
+   `patches/<id>.png` straight off the old card without checking it. Every
+   one of those is a 404 on the live site — there is no patches/ folder at
+   all — so the old card quietly drew a bare rust disc too, and so did
+   mine. The brief says it plainly: the shapes are still waiting on Joe's
+   artwork.
+
+   What a walker actually sees is patchBadge(), an inline SVG. So that is
+   what goes on the card. An SVG loaded as an image gets no stylesheet, so
+   currentColor and the font variable have to be baked in first. */
+function shPatchArt(p){
+  let svg = '';
+  try{ svg = patchBadge(p) || ''; }catch(e){ return ''; }
+  if (!svg) return '';
+  svg = svg
+    .replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" ')
+    .replace(/currentColor/g, '#F3EFE6')
+    .replace(/var\(--font-data\)/g, "'Source Code Pro',ui-monospace,monospace");
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
 async function shareCard(p){
   await shareSheetOpen({
     id: p.id,
     eyebrow: p.got ? 'Earned' : 'Working towards',
     title: String(p.label).replace(/&middot;/g, '\u00b7').replace(/&amp;/g, '&'),
     sub: patchDateLine(p),
-    art: 'patches/' + p.id + '.png',
+    art: shPatchArt(p),
     photo: ''
   });
 }
@@ -17898,8 +17947,7 @@ function hillRow(h, listId){
              /* Joe, 5 Oct: "Redesign share to social posts make them
                 topographic and more branding can you give people options?"
                 This is where a marked hill reaches the two cards. */
-             '<button class="btn ghost sm" data-act="sharehill" data-k="' + esc(h.k) + '">' +
-               ti('share', 'width="15" height="15"') + 'Share it</button>';
+             '';
         if (list.length > 3)
           s += '<button class="linkbtn" data-act="ascall" data-k="' + esc(h.k) + '">' +
                (all ? 'Show fewer' : 'All ' + list.length + ' ascents') + '</button>';
@@ -17910,6 +17958,15 @@ function hillRow(h, listId){
         s += '<div><label>Been back?</label>' +
              '<button class="btn ghost sm" data-act="ascadd" data-k="' + esc(h.k) + '">Log another ascent</button></div>';
       }
+      /* Joe, 5 Oct: "You should be able to share a summit from the home list
+         and journal (not just patches)."
+
+         It was here already — buried inside the block that only draws when a
+         hill has MORE THAN ONE ascent, which most marked hills do not. So
+         from the Home list it was invisible. It belongs to the marked hill
+         itself, which is what this is. */
+      s += '<div class="hillshare"><button class="btn ghost sm" data-act="sharehill" data-k="' +
+           esc(h.k) + '">' + ti('share', 'width="15" height="15"') + 'Share this summit</button></div>';
     }
     s += '</div>';
     s += '<div><label for="nt-' + esc(h.k) + '">Notes &amp; photos</label><textarea id="nt-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes||'') + '</textarea></div>';
@@ -20394,8 +20451,20 @@ function renderDiary(){
 
     if (d.hills.length){
       d.hills.sort((a, b) => b.h - a.h);
+      /* ONE Share on the day, on the line that is already there.
+
+         Joe, 5 Oct: "You should be able to share a summit from the home list
+         and journal." First go put one on every summit — 44px a row, so a
+         day with eight of them grew by 350px and t/journal.js caught it. The
+         journal had just been shortened; lengthening it to add a button is
+         not a trade worth making. It shares the day's highest, which is the
+         one anybody would pick. */
+      const topHill = d.hills[0];
       html += '<div class="dsummits"><div class="dsline"><span class="dcount">' + d.hills.length +
-        (d.hills.length === 1 ? ' summit' : ' summits') + '</span>' + dayGainHTML(d) + '</div>' +
+        (d.hills.length === 1 ? ' summit' : ' summits') + '</span>' + dayGainHTML(d) +
+        '<button class="dshare" data-act="sharehill" data-k="' + esc(topHill.k) + '" ' +
+          'aria-label="Share ' + esc(hillName(topHill)) + '">' +
+          ti('share', 'width="15" height="15"') + '</button>' + '</div>' +
         '<ul>' + d.hills.map(h =>
           '<li><button class="linkbtn" data-act="golist" data-v="' + esc(h.l.find(x => state.enabled.includes(x)) || h.l[0]) +
           '">' + esc(hillName(h)) + '</button><i>' + feet(h).toLocaleString() + '</i></li>').join('') +
@@ -30912,7 +30981,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v317';
+const APP_VERSION = 'v318';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
