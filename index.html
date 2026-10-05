@@ -7871,6 +7871,35 @@ html.kbopen .cvcompose{padding-bottom:8px}
   text-decoration-color:rgba(246,239,228,.35)}
 .pstate:active u{text-decoration-color:#F3EFE6}
 
+/* ---------- ONE LOUD VOICE PER SCREEN ----------
+   The stylesheet has said "one primary per screen" since the beginning and
+   nothing enforced it. Counted on 5 Oct with t/rustcount.js: the Journal had
+   EIGHT rust fills with only four days in it - one on every day card, so it
+   grew with the log. Discover had three, Groups two.
+
+   The tiers, now that there are four and they are written down:
+
+     .btn            FILLED rust    the screen's one action
+     .btn.key        OUTLINED rust  the main action inside something that
+                                    REPEATS, or a nudge. Still obviously the
+                                    action; it just does not shout across a
+                                    page of identical cards.
+     .btn.ghost      outlined ink   secondary
+     .btn.quiet      faint          tertiary
+
+   Last in the sheet, so it out-ranks the rules above, and one block to take
+   out if it is wrong. */
+.btn.key, .dact.key, .impcta, .imphomecta{
+  background:transparent; border:1.5px solid var(--accent);
+  color:var(--accent-text); box-shadow:none}
+.btn.key svg, .dact.key svg{color:var(--accent-text)}
+.btn.key:active, .dact.key:active, .impcta:active, .imphomecta:active{
+  background:var(--accent-soft)}
+/* the two offers are spans inside a label, so they need the shape as well */
+.impcta, .imphomecta{display:inline-flex; align-items:center; justify-content:center;
+  border-radius:999px; min-height:var(--ctl-md); padding:0 16px}
+.imphomecta{min-height:var(--ctl-sm); padding:0 13px}
+
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain and Ireland."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
@@ -27841,7 +27870,7 @@ function renderDiscover(){
   if (!prof.open && inDirectory()){
     s += '<div class="invitecard partnercta"><span class="pcic">' + ti('walk') + '</span><div><b>Looking for people to walk with?</b>' +
       '<span>Say you’re up for company and you’ll show under “Up for a walk”.</span></div>' +
-      '<button class="btn sm" data-act="partneron">I’m up for it</button></div>';
+      '<button class="btn sm key" data-act="partneron">I’m up for it</button></div>';
   }
   if (dirWhy === 'rules'){
     try{ console.warn('WayMark: publish the "directory" section of firestore.rules to switch on Discover rows and search.'); }catch(e){}
@@ -27861,7 +27890,7 @@ function renderDiscover(){
     s += '<div class="invitecard"><div><b>Bring your walking friends</b><span>Send your link and they can follow you in one tap: ' + esc(profileLink(fbHandle).replace(/^https?:\/\//, '')) + '</span></div>' +
       '<button class="btn sm" data-act="shareme">' + ti('share') + 'Send link</button></div>';
   } else {
-    s += '<div class="invitecard"><div><b>Claim your @handle</b><span>It’s how friends find you.</span></div><button class="btn sm" data-act="peoplego" data-v="discover">Claim one</button></div>';
+    s += '<div class="invitecard"><div><b>Claim your @handle</b><span>It’s how friends find you.</span></div><button class="btn sm key" data-act="peoplego" data-v="discover">Claim one</button></div>';
   }
   s += '<div class="dhead"><div><h3>' + ti('binoculars') + 'Out on the hills</h3><p>The latest days shared with everyone</p></div>' + refreshBtn() + '</div>';
   if (discoverWhy) s += '<p class="empty">' + esc(discoverWhy).replace(/(https?:\S+)/, '<a href="$1" target="_blank" rel="noopener">open Firebase</a>') + '</p>';
@@ -29226,7 +29255,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v306';
+const APP_VERSION = 'v307';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -31263,7 +31292,7 @@ function gBoardsList(){
       'Your dates, notes and photos stay off it unless you switch them on afterwards, ' +
       'and you can leave whenever you like.</p>' +
       '<div class="btnrow" style="margin-top:12px">' +
-      '<button class="btn" data-act="joinglobal">Join the open board</button></div>' +
+      '<button class="btn key" data-act="joinglobal">Join the open board</button></div>' +
       '<p id="globalmsg" style="font-size:13px;margin:8px 0 0"></p></article>';
   return s;
 }
