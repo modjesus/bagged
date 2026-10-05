@@ -1455,7 +1455,7 @@ li.hill.on .info-btn{border-color:var(--done-line); color:var(--done)}
 
 .detail{border-top:1px solid var(--line-soft); padding:10px 12px 12px; display:flex; flex-direction:column; gap:10px}
 .detail label, .form label{font-family:var(--font-ui); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); display:block; margin-bottom:4px}
-.detail textarea, .form input, .form textarea{width:100%; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 10px; outline:none; font-size:15px}
+.detail textarea, .form input, .form textarea{width:100%; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:9px 10px; outline:none; font-size:16px}
 .detail textarea, .form textarea{resize:vertical; min-height:56px}
 .form .field input{border:none; background:none; padding:11px 0}
 .detail textarea:focus, .form input:focus, .form textarea:focus{border-color:var(--accent)}
@@ -3309,7 +3309,7 @@ button.bstriprow{cursor:pointer}
 .sheetbox h2{font-family:var(--font-display); margin:0 0 4px; font-size:20px}
 .sheetbox h3{font-family:var(--font-display); margin:20px 0 4px; font-size:15px}
 .sheetbox p{font-size:14px; color:var(--ink-2); margin:6px 0}
-.sheetbox textarea{width:100%; min-height:100px; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-family:var(--font-ui); font-size:12px; outline:none; resize:vertical}
+.sheetbox textarea{width:100%; min-height:100px; background:var(--raise); border:1px solid var(--line); border-radius:10px; padding:10px; font-family:var(--font-ui); font-size:16px; outline:none; resize:vertical}
 .togglerow{display:flex; align-items:center; gap:11px; padding:10px 0; border-top:1px solid var(--line-soft)}
 .togglerow:first-child{border-top:none}
 .togglerow .tinfo{flex:1; min-width:0}
@@ -5925,6 +5925,22 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .bcswitch.bc4 button{font-size:13.5px; gap:5px; padding:0 4px}
 .bcswitch.bc4 button svg{width:16px; height:16px}
 @media (max-width:380px){ .bcswitch.bc4 button{font-size:12px} .bcswitch.bc4 button svg{display:none} }
+/* Five across. The four words give up their glyphs so they fit; Shop keeps
+   its backpack, which is half of what makes it the louder one. */
+.bcswitch.bc5 button{font-size:12px; gap:4px; padding:0 4px}
+.bcswitch.bc5 button svg{width:15px; height:15px}
+.bcswitch.bc5 button:not(.bcsell) svg{display:none}
+@media (min-width:431px){ .bcswitch.bc5 button{font-size:13px} }
+/* SHOP, a little louder than the rest of them: a warm tint while you are
+   somewhere else, and the full accent when you are on it.
+   NOT .bcshop — that is already the shop section's wrapper and this button
+   would have quietly inherited its padding. Grepped, then named. */
+.bcswitch .bcsell{color:var(--accent-text); font-weight:800;
+  background:var(--accent-soft, rgba(179,77,38,.10));
+  box-shadow:inset 0 0 0 1px var(--accent-line, rgba(179,77,38,.22))}
+.bcswitch .bcsell[aria-pressed="true"]{background:var(--accent, #B34D26); color:#FBF7EE;
+  box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.bcswitch .bcsell:active{transform:scale(.97)}
 
 .dogcard{border:1px solid var(--line); border-radius:var(--r); overflow:hidden; margin:0 0 12px;
   background:var(--raise); width:100%; padding:0; text-align:left; display:block; cursor:pointer}
@@ -8115,9 +8131,15 @@ span.vbadge{color:var(--surface)}
 
 /* one item */
 .gearbox{max-height:86vh; overflow:auto}
-.kitshot{display:block; width:100%; aspect-ratio:16/10; border-radius:10px;
+/* 16/10 of the full width was 245px of empty grey at the top of the form,
+   which is most of a phone screen asking for a photograph that is optional.
+   The picture is shown properly on the item's own page; here it only has to
+   be reachable. With a photo in it there is something to look at, so it
+   earns the room back. */
+.kitshot{display:block; width:100%; height:112px; border-radius:10px;
   overflow:hidden; background:var(--surface-2); border:1px dashed var(--line);
-  margin:0 0 10px; cursor:pointer}
+  margin:0 0 12px; cursor:pointer}
+.kitshot:has(img){height:auto; aspect-ratio:16/10; border-style:solid}
 .kitshot img{width:100%; height:100%; object-fit:cover; display:block}
 .kitshotempty{display:flex; height:100%; align-items:center; justify-content:center; gap:8px;
   font:700 13px var(--font-ui); color:var(--ink-3)}
@@ -8134,8 +8156,26 @@ span.vbadge{color:var(--surface)}
 /* stacked, not inline: "Name[box] Kind[box]" ran the label into the field */
 .gearbox .gearedit label{display:flex; flex-direction:column; gap:4px;
   font:700 12px var(--font-ui); color:var(--ink-3)}
-.gearbox .gearedit label.kitck{flex-direction:row; align-items:center; gap:9px;
-  font:400 14px var(--font-ui); color:var(--ink-2)}
+.gearbox .gearedit label.kitck{flex-direction:row; align-items:center; gap:11px;
+  font:400 14px var(--font-ui); color:var(--ink-2); min-height:46px;
+  padding:0 2px; border-top:1px solid var(--line-soft)}
+/* The fields had no clothes at all — browser defaults, 25px tall, which the
+   layout sweep flagged as untappable and which is most of why Joe called
+   this "very utilitarian". 16px text is set globally; this is the box. */
+.gearedit input:not([type=checkbox]), .gearedit select, .gearedit textarea{
+  width:100%; min-height:46px; padding:11px 12px; background:var(--raise);
+  border:1px solid var(--line); border-radius:11px; color:var(--ink);
+  font-family:var(--font-ui); outline:none;
+  transition:border-color .15s, box-shadow .15s}
+.gearedit textarea{min-height:86px; line-height:1.5; resize:vertical}
+.gearedit input:focus, .gearedit select:focus, .gearedit textarea:focus{
+  border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft, rgba(179,77,38,.12))}
+.gearedit select{appearance:none; -webkit-appearance:none; padding-right:38px;
+  background-image:linear-gradient(45deg, transparent 50%, var(--sage) 50%),
+    linear-gradient(135deg, var(--sage) 50%, transparent 50%);
+  background-position:calc(100% - 19px) 21px, calc(100% - 13px) 21px;
+  background-size:6px 6px, 6px 6px; background-repeat:no-repeat}
+.gearedit input[type=checkbox]{flex:none; width:23px; height:23px; accent-color:var(--accent)}
 /* .xbtn is position:absolute at top:10 right:10 in every sheet, so Save
    has to keep out of its way rather than sit beside it in the flex row. */
 .kittop{display:flex; align-items:center; gap:8px; padding-right:40px}
@@ -8167,6 +8207,103 @@ span.vbadge{color:var(--surface)}
   text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;
   text-decoration-color:var(--line)}
 .dworn .linkbtn:active{color:var(--accent-text)}
+
+/* ---------- THE KIT, AS A SHELF ----------
+   Joe, 5 Oct: "the function needs beatifying, its currently very
+   utilitarian." It was a list of grey squares in a bordered box.
+
+   Every class below is the pack's vocabulary at half the size — a photo
+   band, a hills pill floating on it, a ring cut-out breaking the edge, the
+   name in the display face. Two to a row, because there can be twenty-four
+   bits of kit and only ever two or three dogs. */
+.kitgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 10px}
+.kitcard{display:block; text-align:left; padding:0; border:1px solid var(--line);
+  border-radius:14px; overflow:hidden; background:var(--surface);
+  box-shadow:var(--shadow); transition:transform .14s, box-shadow .14s}
+.kitcard:active{transform:scale(.985); box-shadow:none}
+.kitcap{display:block; position:relative; height:94px; background:var(--surface-2)}
+.kitcap img{width:100%; height:100%; object-fit:cover; display:block}
+.kitcapi{position:absolute; inset:0; display:grid; place-items:center}
+.kitcapi svg{width:34px; height:34px; color:var(--sage); opacity:.6; stroke-width:1.5}
+.kitpill{position:absolute; top:7px; right:7px; padding:2px 8px; border-radius:99px;
+  background:var(--surface); color:var(--accent-text);
+  font:700 11px var(--font-data); box-shadow:0 1px 3px rgba(0,0,0,.16)}
+/* a retired piece keeps its number and takes a stamp, rather than being
+   exiled under a grey heading — it has earned what it did */
+.kitstamp{position:absolute; left:50%; bottom:9px; transform:translateX(-50%) rotate(-6deg);
+  padding:2px 9px; border:2px solid var(--sage); border-radius:4px; color:var(--sage);
+  font:700 10px var(--font-data); letter-spacing:.13em; text-transform:uppercase;
+  opacity:.85; background:var(--surface-2)}
+.kitcb{display:block; padding:9px 11px 12px}
+.kitcb b{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  font:400 15px/1.18 var(--font-display); color:var(--ink); overflow:hidden;
+  min-height:2.36em}
+.kitcb i{display:block; margin-top:3px; font-style:normal;
+  font:600 9.5px/1.3 var(--font-data); letter-spacing:.09em; text-transform:uppercase;
+  color:var(--sage); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.kitcard.off{opacity:.74}
+@media (max-width:340px){ .kitgrid{grid-template-columns:1fr} .kitcap{height:110px} }
+
+.kitjump{display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:11px 13px; background:var(--surface); border:1px solid var(--line);
+  border-radius:13px; box-shadow:var(--shadow)}
+.kitjump:active{transform:scale(.99)}
+.kitjicon{flex:none; display:grid; place-items:center; width:40px; height:40px;
+  border-radius:10px; background:var(--surface-2)}
+.kitjicon svg{width:21px; height:21px; color:var(--sage); stroke-width:1.5}
+.kitjt{flex:1; min-width:0}
+.kitjt b{display:block; font:400 16px/1.15 var(--font-display); color:var(--ink)}
+.kitjt i{display:block; margin-top:2px; font-style:normal;
+  font:400 12.5px/1.35 var(--font-ui); color:var(--sage);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.kitjump > svg{flex:none; width:17px; height:17px; color:var(--sage)}
+
+/* ---------- ONE BIT OF KIT ----------
+   What it has done first. The form it used to open as is behind the pencil:
+   a name and a date are wanted twice in the life of a pair of boots, the
+   number of hills every single time. A card, so the same markup sits on the
+   Kit tab and inside a sheet without either one needing to know. */
+.kititem{background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  overflow:hidden; box-shadow:var(--shadow)}
+.kithero{position:relative; height:150px; background:var(--surface-2)}
+.kithero img{width:100%; height:100%; object-fit:cover; display:block}
+.kitheroi{position:absolute; inset:0; display:grid; place-items:center}
+.kitheroi svg{width:46px; height:46px; color:var(--sage); opacity:.5; stroke-width:1.4}
+.kitpen{position:absolute; top:10px; right:10px; width:40px; height:40px; border-radius:99px;
+  background:var(--surface); display:grid; place-items:center; border:0;
+  box-shadow:0 1px 5px rgba(0,0,0,.2)}
+.kitpen svg{width:17px; height:17px; color:var(--ink-2)}
+.kitpen:active{transform:scale(.94)}
+.kitring{position:relative; display:grid; place-items:center; width:64px; height:64px;
+  margin:-32px 0 0 14px; border-radius:99px; background:var(--surface);
+  border:3px solid var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.kitring svg{width:29px; height:29px; color:var(--ink-2); stroke-width:1.5}
+.kitpg{padding:8px 14px 16px}
+.kitpg h3{margin:0; font:400 23px/1.14 var(--font-display); color:var(--ink)}
+.kitnote{margin:12px 0 0; padding:10px 13px; background:var(--surface-2);
+  border-left:3px solid var(--line); border-radius:0 10px 10px 0;
+  font:400 14px/1.5 var(--font-ui); color:var(--ink-2)}
+.kitfine{margin:-4px 0 9px; font:400 12px/1.4 var(--font-ui); color:var(--sage)}
+.kitpage .kititem{box-shadow:none}
+
+/* NOTHING YOU CAN TYPE INTO MAY BE SMALLER THAN 16px.
+
+   Joe, 5 Oct: "when I go into the edit, the screen zooms right in."
+
+   iOS Safari zooms the whole page whenever a field it can put a caret in
+   has text under 16px — and it does not zoom back out afterwards. The kit
+   sheet was the worst of it at 12px, because `.gearedit label` sets the
+   little grey caption and the field inside it simply INHERITED that size.
+
+   One field is never the whole bug. Sweeping every screen and every sheet
+   found four more that were already doing it: the date on a hill and in the
+   journal editor at 14px, the note on a hill at 15px, and the route search
+   at 15px. Every other field in the app is already exactly 16px and not one
+   is above it, so this is the size the app had settled on anyway.
+
+   t/zoom.js walks the whole app and fails if anything drops below it again. */
+input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=reset]):not([type=range]):not([type=color]),
+textarea, select{font-size:16px}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain and Ireland."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
@@ -8750,6 +8887,11 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
              data attribute on the article. Grepped before naming. */
           jopen:0,
           supSort:'sheet', supOpen:null,
+          /* which bit of kit is open as a PAGE on the Basecamp Kit tab, and
+             which one the form is open on. Not gearv — that is the same item
+             shown as a SHEET, which is how you reach it from a hill. Three
+             different things, three names, all grepped before naming. */
+          kitItem:null, gearEdit:null,
           /* first run: which lists are ticked so far, and which step we are on */
           pick:[], onboard:'welcome'};
 
@@ -9136,6 +9278,9 @@ function normalise(s){
         deleted:!!g.deleted, t:+g.t || 0
       })).slice(0, 24)
     : [];
+  /* The "we have already done the one-off seed" marker. Left off this list
+     it is wiped on every reload and the seed runs for ever. */
+  out.kitSeeded = (s && s.kitSeeded) ? 1 : 0;
   /* The challenge. Same lesson as the dogs and the GPS badge: leave it off
      this list and it is quietly deleted on the next reload and the next sync. */
   /* Checked against a written-out list, NOT against CHAL_KIND. normalise()
@@ -9363,6 +9508,9 @@ function merge(a, b){
     if (!cur || (g.t || 0) > (cur.t || 0)) km.set(g.id, g);
   }
   out.kit = [...km.values()];
+  /* seeded once, seeded everywhere — a device that has never seen the marker
+     must not start the one-off seed again */
+  out.kitSeeded = (a.kitSeeded || b.kitSeeded) ? 1 : 0;
   /* one challenge at a time, newest edit wins - and giving one up is an edit,
      so a null with a later stamp has to beat an older live one */
   out.chal = ((b.chal && (b.chal.t || 0)) >= ((a.chal && a.chal.t) || 0)) ? (b.chal || null) : (a.chal || null);
@@ -14982,13 +15130,89 @@ function kitSyncPublic(){
 }
 /* The kit people already typed into their profile becomes real kit, once.
    Nothing is thrown away: prof.gear is rewritten from the kit afterwards. */
+/* WHAT MAKES TWO ENTRIES THE SAME PAIR OF BOOTS.
+
+   Joe, 5 Oct: "I keep getting three versions of the same boots, and then
+   once i delete they keep coming back."
+
+   He had three because kitSeed() ran at BOOT, before the log came down from
+   the cloud, and minted a brand new id each time. The real item arrived a
+   moment later with its own id, merge() keys on id, and both survived. Once
+   per device. And because kitSyncPublic() keeps prof.gear stocked from the
+   live kit, the next empty device seeded from it all over again — which is
+   also why deleting never stuck: the tombstone sat on an id the next seed
+   did not use.
+
+   An id cannot answer "is this the same boots?". A person can, and they
+   answer by the name. So that is the key, and three things hang off it. */
+function kitKey(n, c){
+  return String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '') +
+    '|' + String(c || 'other');
+}
+/* the same name on any device gives the same id, so two seeds collapse */
+function kitSeedId(n, c){
+  const k = kitKey(n, c);
+  let h = 5381;
+  for (let i = 0; i < k.length; i++) h = ((h * 33) ^ k.charCodeAt(i)) >>> 0;
+  return 'ks' + h.toString(36);
+}
+/* ONE ENTRY PER PAIR OF BOOTS. Runs after anything that can bring kit in —
+   the cloud, a restored backup, the seed. The earliest one is the original
+   and survives; anything the original is missing is taken from the copies,
+   so nothing anybody typed is thrown away; the rest get a tombstone.
+   The hills are counted from DATES, not from stored ids, so collapsing
+   copies cannot cost an item a single hill. */
+function kitDedupe(){
+  const live = (state.kit || []).filter(g => g && g.id && !g.deleted);
+  const by = new Map();
+  for (const g of live){
+    const k = kitKey(g.n, g.c);
+    if (!by.has(k)) by.set(k, []);
+    by.get(k).push(g);
+  }
+  let folded = 0;
+  for (const group of by.values()){
+    if (group.length < 2) continue;
+    group.sort((x, y) => (x.made || x.t || 0) - (y.made || y.t || 0));
+    const keep = group[0];
+    for (const g of group.slice(1)){
+      for (const f of ['img', 'note', 'since', 'until'])
+        if (!keep[f] && g[f]) keep[f] = g[f];
+      if (g.usual === false) keep.usual = false;
+      g.deleted = true; g.img = ''; g.t = now();
+      folded++;
+    }
+    keep.t = now();
+  }
+  if (folded){ kitSyncPublic(); touched(); }
+  return folded;
+}
+/* The kit people typed into their profile becomes real kit, ONCE per account
+   — `state.kitSeeded` rides with the log, so a device that has never seen it
+   does not start again. Belt and braces, because the marker cannot reach an
+   account that was already in this mess: an entry is skipped if that name is
+   already there, and skipped if that name has been DELETED, which is what
+   makes a deletion stick. */
 function kitSeed(){
-  if ((state.kit || []).length) return;
+  if (state.kitSeeded) return;
   const old = (prof.gear || []).filter(g => g && g.n);
-  if (!old.length) return;
-  state.kit = old.map(g => ({id:'g' + uid(), made:now(), n:String(g.n).slice(0, 60),
-    c:GEAR_BY[g.c] ? g.c : 'other', note:String(g.note || '').slice(0, 400),
-    img:'', since:'', off:false, usual:true, deleted:false, t:now()}));
+  if (!old.length) return;              // nothing to seed from, and no marker
+  const seen = new Set(), gone = new Set();
+  for (const g of (state.kit || [])){
+    if (!g || !g.id) continue;
+    (g.deleted ? gone : seen).add(kitKey(g.n, g.c));
+  }
+  const add = [];
+  for (const g of old){
+    const c = GEAR_BY[g.c] ? g.c : 'other', k = kitKey(g.n, c);
+    if (seen.has(k) || gone.has(k)) continue;
+    seen.add(k);
+    add.push({id:kitSeedId(g.n, c), made:now(), n:String(g.n).slice(0, 60), c:c,
+      note:String(g.note || '').slice(0, 400), img:'', since:'', until:'',
+      off:false, usual:true, deleted:false, t:now()});
+  }
+  if (add.length) state.kit = [...(state.kit || []), ...add].slice(0, 24);
+  state.kitSeeded = 1;
   touched();
 }
 function dogById(id){ return (state.dogs || []).find(d => d && d.id === id && !d.deleted) || null; }
@@ -15780,14 +16004,32 @@ function renderPatchesPage(){
   const shop = ui.patchView === 'supplies', jour = ui.patchView === 'journey';
   let pack = ui.patchView === 'dogs';
   if (pack && !dogTabOn()){ pack = false; ui.patchView = 'cork'; }
-  let s = '<div class="bcswitch ' + (dogTabOn() ? 'bc4' : 'bc3') + '" role="group" aria-label="Basecamp">' +
-    '<button data-act="patchview" data-v="' + esc(ui.patchSub === 'collection' ? 'collection' : 'cork') + '" aria-pressed="' + (!shop && !jour && !pack) + '">' + ti('circle-dashed') + 'Patches</button>' +
-    (dogTabOn() ? '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') +
-      (dogList().length === 1 ? 'Dog' : 'Dogs') + '</button>' : '') +
+  const kitv = ui.patchView === 'kit';
+  const dogs = dogTabOn();
+  /* FIVE SLOTS, AND SHOP IN THE MIDDLE OF THEM.
+
+     Joe, 5 Oct: "put shop in the middle slightly more prominent then the
+     others."
+
+     Shop is only dead centre if the count is fixed, so Kit and Dogs are
+     always here whether or not you own any — an empty one is how anybody
+     finds the feature at all, and the bar never changes shape underneath a
+     thumb. The one exception is somebody who has deliberately turned the
+     Dogs tab off in Settings; that is a choice, not an absence.
+
+     Shop keeps its glyph when the others drop theirs, and carries a warm
+     tint when it is not the one you are on. Measured at eight widths from
+     430 down to 320: nothing is cut or wrapped, 7px to spare at the worst. */
+  let s = '<div class="bcswitch ' + (dogs ? 'bc5' : 'bc4') + '" role="group" aria-label="Basecamp">' +
+    '<button data-act="patchview" data-v="' + esc(ui.patchSub === 'collection' ? 'collection' : 'cork') + '" aria-pressed="' + (!shop && !jour && !pack && !kitv) + '">' + ti('circle-dashed') + 'Patches</button>' +
     '<button data-act="patchview" data-v="journey" aria-pressed="' + jour + '">' + ti('trekking') + 'Journey</button>' +
-    '<button data-act="patchview" data-v="supplies" aria-pressed="' + shop + '">' + ti('backpack') + 'Shop</button></div>';
+    '<button class="bcsell" data-act="patchview" data-v="supplies" aria-pressed="' + shop + '">' + ti('backpack') + 'Shop</button>' +
+    (dogs ? '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') +
+      (dogList().length === 1 ? 'Dog' : 'Dogs') + '</button>' : '') +
+    '<button data-act="patchview" data-v="kit" aria-pressed="' + kitv + '">' + ti('shoe') + 'Kit</button></div>';
   if (shop){ supWatch(); shopLoad(); return (ui.supOpen || ui.kitOpen ? '' : s) + renderShop(); }
   if (pack) return s + (ui.dog ? renderDogPage(ui.dog) : renderDogsPane());
+  if (kitv) return s + (ui.kitItem ? renderKitPage(ui.kitItem) : renderKitPane());
   if (jour) return s + renderJourney(ps);
 
   /* Board / Collection moved up onto the heading row - two navigations one
@@ -23374,6 +23616,7 @@ document.addEventListener('click', async e => {
        would hang over whatever screen you went to */
     if (ui.gearv) gearSheetClose();
     if (ui.gearshelf) gearShelfClose();
+    if (ui.gearEdit) gearEditClose();
     render(); window.scrollTo({top:0}); return;
   }
   let el = e.target.closest('[data-act]');
@@ -24338,10 +24581,24 @@ document.addEventListener('click', async e => {
   else if (a === 'dogtick'){ toggleDogOnHill(el.dataset.k, el.dataset.v); }
   /* ---- the kit ---- */
   else if (a === 'geartick'){ toggleKitOnHill(el.dataset.k, el.dataset.v); }
-  else if (a === 'gearopen'){ gearSheetOpen(el.dataset.v); }
+  else if (a === 'gearopen'){
+    /* On the Kit tab a bit of kit is a PAGE, the way a dog is. Opened from
+       the shelf sheet — which is how you reach it from a hill, with no
+       account — it stays a sheet, because walking you off the hill you were
+       in the middle of marking would lose your place. */
+    if (ui.gearshelf) gearSheetOpen(el.dataset.v);
+    else { ui.kitItem = el.dataset.v; render(); window.scrollTo(0, 0); }
+  }
+  else if (a === 'kitback'){ ui.kitItem = null; render(); }
+  else if (a === 'gotokit'){
+    tab = 'a'; ui.patchView = 'kit'; ui.kitItem = null; ui.patch = null;
+    render(); window.scrollTo(0, 0);
+  }
   else if (a === 'gearshelf'){ gearShelfOpen(); }
   else if (a === 'gearshelfclose'){ gearShelfClose(); }
   else if (a === 'gearclose'){ gearSheetClose(); }
+  else if (a === 'gearedit'){ gearEditOpen(el.dataset.v); }
+  else if (a === 'geareditclose'){ gearEditClose(); }
   else if (a === 'gearsave'){ gearSheetSave(el.dataset.v); }
   else if (a === 'gearadd'){
     if (kitList().length >= 24){ toast('Twenty-four pieces is plenty.'); return true; }
@@ -24351,7 +24608,8 @@ document.addEventListener('click', async e => {
     const g = {id:'g' + uid(), made:now(), n:'', c:'boots', note:'', img:'',
                since:today(), until:'', off:false, usual:true, deleted:false, t:now()};
     state.kit = [...(state.kit || []), g];
-    touched(); gearShelfClose(); render(); gearSheetOpen(g.id);
+    /* straight into the form: a brand new item has no hills to admire yet */
+    touched(); gearShelfClose(); gearSheetClose(); render(); gearEditOpen(g.id);
     const f = document.getElementById('gkn'); if (f) f.focus();
   }
   else if (a === 'geardel'){
@@ -24362,7 +24620,10 @@ document.addEventListener('click', async e => {
       ) + '?', body:'It comes off your profile. The hills you marked stay exactly as they are.',
       yes:'Delete it', no:'Keep it'})) return true;
     g.deleted = true; g.img = ''; g.t = now();
-    kitSyncPublic(); touched(); gearSheetClose(); render();
+    kitSyncPublic(); touched();
+    gearEditClose(); gearSheetClose();
+    if (ui.kitItem === g.id) ui.kitItem = null;
+    render();
   }
   else if (a === 'gearpic' && el.files && !el.files.length){ el.value = '';
     toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
@@ -24374,7 +24635,9 @@ document.addEventListener('click', async e => {
     openCropper(URL.createObjectURL(f), {title:'Frame your kit', w:520, h:520, out:360, q:0.72,
       save:pic => {
         const g = kitById(id); if (!g) return;
-        g.img = pic; g.t = now(); touched(); render(); gearSheetPaint();
+        g.img = pic; g.t = now(); touched(); render();
+        if (ui.gearEdit) gearEditPaint();
+        if (ui.gearv) gearSheetPaint();
       }});
   }
   else if (a === 'dogday'){ dogDay(el.dataset.d, el.dataset.v); }
@@ -26023,11 +26286,12 @@ document.getElementById('restoreBtn').onclick = () => {
        code dropped both on the floor — a walker with no account lost every
        diary entry permanently, from a backup that contained them. */
     state = {bagged:m.bagged, plans:m.plans, diary:m.diary || [], dogs:m.dogs || state.dogs || [],
-             kit:m.kit || state.kit || [],
+             kit:m.kit || state.kit || [], kitSeeded:m.kitSeeded || state.kitSeeded || 0,
              groups:(Array.isArray(m.groups) && m.groups.length) ? m.groups : myGroups(),
              enabled:(Array.isArray(m.enabled) && m.enabled.length) ? m.enabled : state.enabled,
              enabledT:m.enabledT || state.enabledT || 0};
     seedSeen();
+    try{ kitDedupe(); }catch(e){}
     touched(); render(); sheet.classList.remove('open'); toast('Log restored.');
   }catch(err){ toast('That does not look like a WayMark backup.'); }
 };
@@ -26208,7 +26472,7 @@ async function fbPull(){
   }catch(e){ return null; }
 }
 async function fbPush(){
-  const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || [], own:state.own || [], dogs:state.dogs || [], kit:state.kit || [], chal:state.chal || null});
+  const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || [], own:state.own || [], dogs:state.dogs || [], kit:state.kit || [], kitSeeded:state.kitSeeded || 0, chal:state.chal || null});
   /* Firestore's limit is on the WHOLE document, and the log is not the whole
      document: the picture, the groups and the Strava record go in the same
      one. Measuring only the log let a push through at 880 KB and then have
@@ -26747,7 +27011,11 @@ async function fbSync(initial){
   try{
     const remote = await fbPull();
     if (!stillMe()){ fbSyncing = false; return; }
-    if (remote){ state = merge(state, remote); seedSeen(); registerOwn(); }
+    if (remote){ state = merge(state, remote); seedSeen(); registerOwn();
+      /* The copies Joe already has were made before any of this existed, so
+         they carry unrelated ids and no marker can reach them. They are
+         folded together here, the first time the log comes down. */
+      try{ kitDedupe(); }catch(e){} }
 
     const pending = [];
     for (const r of Object.values(state.bagged))
@@ -30048,7 +30316,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v315';
+const APP_VERSION = 'v316';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -33194,7 +33462,26 @@ function openShowPick(){
    Your own gets the real thing, out of state.kit. */
 function gearHTML(pp, mine){
   if (!mine) return gearTheirsHTML(pp);
-  return gearShelfHTML();
+  /* THE SHELF LIVES IN BASECAMP NOW, next to the pack. Two homes for one
+     thing is how the profile editor came to be silently overwriting the
+     shelf, so this is a way through, not a second copy. */
+  const list = kitList();
+  if (!list.length)
+    return '<p class="eyebrow">Your kit</p>' +
+      '<p class="pquote empty">Nothing listed yet: ' +
+      '<button class="linkbtn" style="padding:0" data-act="gotokit">add the kit you walk in</button>, ' +
+      'and WayMark counts the hills each piece has done.</p>';
+  const top = list.filter(g => !g.off)
+    .map(g => ({g, n: kitHills(g.id).length}))
+    .sort((a, b) => b.n - a.n)[0];
+  return '<p class="eyebrow">Your kit</p>' +
+    '<button class="kitjump" data-act="gotokit">' +
+      '<span class="kitjicon">' + ti(top ? kitCat(top.g).icon : 'shoe') + '</span>' +
+      '<span class="kitjt"><b>' + list.length + (list.length === 1 ? ' thing' : ' things') + '</b>' +
+        '<i>' + (top && top.n
+          ? esc(kitName(top.g)) + ' has walked ' + top.n + (top.n === 1 ? ' hill' : ' hills')
+          : 'Nothing counted yet') + '</i></span>' +
+      ti('chev') + '</button>';
 }
 function gearTheirsHTML(pp){
   const list = (pp.gear || []).filter(g => g && g.n);
@@ -33220,27 +33507,106 @@ function gearPicHTML(g){
   return '<span class="kitpic">' +
     (g.img ? '<img src="' + esc(g.img) + '" alt="">' : ti(kitCat(g).icon)) + '</span>';
 }
+/* THE SHELF. Joe, 5 Oct: "the function needs beatifying, its currently very
+   utilitarian." It was: four grey squares in a bordered list.
+
+   The pack had already solved this — a photo band, a hills pill floating on
+   it, a ring cut-out, the name in the display face. The kit is built on the
+   dogs' model, so it should LOOK like the dogs, at half the size: there can
+   be two dogs and there can be twenty-four bits of kit, so these go two to a
+   row and stay browsable. */
+function kitCardLine(g){
+  /* A half-width card has room for about twenty characters of tracked caps,
+     so the full date does not fit — "BOOTS · SINCE 1 MAR 2023" came back as
+     "BOOTS · SINCE 1 MAR 20…". The year is the part anybody reads anyway;
+     the full date is on the item's own page. */
+  if (g.off) return g.until ? 'Retired ' + g.until.slice(0, 4) : 'Retired';
+  if (g.usual === false) return 'Not in usual kit';
+  const c = kitCat(g).label;
+  /* no "since" either: "WATCH & GPS · SINCE 2022" was still 4px too wide on
+     a 360px phone, and the word earns nothing next to a bare year */
+  return g.since ? c + ' · ' + g.since.slice(0, 4) : c;
+}
+function kitCardHTML(g){
+  const n = kitHills(g.id).length;
+  return '<button class="kitcard' + (g.off ? ' off' : '') + '" data-act="gearopen" data-v="' + esc(g.id) + '">' +
+    '<span class="kitcap">' +
+      (g.img ? '<img src="' + esc(g.img) + '" alt="">'
+             : '<span class="kitcapi">' + ti(kitCat(g).icon) + '</span>') +
+      '<span class="kitpill">' + n + '</span>' +
+      (g.off ? '<span class="kitstamp">Retired</span>' : '') +
+    '</span>' +
+    '<span class="kitcb"><b>' + esc(kitName(g)) + '</b><i>' + esc(kitCardLine(g)) + '</i></span>' +
+    '</button>';
+}
+/* The way in when there is nothing yet. It has to say what the thing DOES,
+   because the name alone does not tell you it counts hills for you. */
+function kitEmptyHTML(){
+  return '<section class="dogempty">' + ti('shoe') +
+    '<h3>What do you walk in?</h3>' +
+    '<p>Add your boots, your pack, your waterproof — and every hill you mark ' +
+    'from now on counts towards them. Put in the day you got them and the ' +
+    'hills you have already walked count too.</p>' +
+    '<button class="dogadd" data-act="gearadd">+ Add a bit of kit</button></section>';
+}
 function gearShelfHTML(){
   const list = kitList();
-  if (!list.length)
-    return '<p class="eyebrow">Your kit</p>' +
-      '<p class="pquote empty">Nothing listed yet: ' +
-      '<button class="linkbtn" style="padding:0" data-act="gearadd">add the kit you walk in</button>, ' +
-      'and WayMark will count the hills each piece has done.</p>';
+  if (!list.length) return kitEmptyHTML();
+  /* retired pieces stay in the grid wearing a stamp, rather than being
+     exiled under a grey heading — they have earned their numbers */
   const live = list.filter(g => !g.off), gone = list.filter(g => g.off);
-  const row = g => {
-    const n = kitHills(g.id).length;
-    return '<button class="kitrow' + (g.off ? ' off' : '') + '" data-act="gearopen" data-v="' + esc(g.id) + '">' +
-      gearPicHTML(g) +
-      '<span class="kitmid"><b>' + esc(kitName(g)) + '</b><i>' + esc(gearSinceLine(g)) + '</i></span>' +
-      '<span class="kitnum"><b>' + n + '</b><i>' + (n === 1 ? 'hill' : 'hills') + '</i></span>' +
-      '</button>';
-  };
-  return '<p class="eyebrow">Your kit</p><div class="kitshelf">' +
-    live.map(row).join('') +
-    (gone.length ? '<p class="kitoffhead">Retired</p>' + gone.map(row).join('') : '') +
-    '<button class="dogadd" data-act="gearadd">+ Add a bit of kit</button>' +
-    '</div>';
+  return '<div class="kitgrid">' + live.concat(gone).map(kitCardHTML).join('') + '</div>' +
+    '<button class="dogadd" data-act="gearadd">+ Add a bit of kit</button>';
+}
+
+/* ---------- THE KIT TAB ---------- */
+function renderKitPane(){
+  if (!kitList().length) return kitEmptyHTML();
+  return '<section class="mypatches" style="padding-bottom:2px">' +
+    '<p class="eyebrow">Your kit</p></section>' + gearShelfHTML();
+}
+
+/* ONE BIT OF KIT — what it has done, which is the whole reason it exists.
+   The form it used to open as lives behind the pencil now: a name and a date
+   are wanted about twice in the life of a pair of boots, and the number of
+   hills they have walked is wanted every time. */
+function kitBodyHTML(g){
+  const st = kitStats(g.id);
+  const stat = (b, l) => '<div><b>' + b + '</b><span>' + l + '</span></div>';
+  return '<div class="kititem"><div class="kithero">' +
+      (g.img ? '<img src="' + esc(g.img) + '" alt="">'
+             : '<span class="kitheroi">' + ti(kitCat(g).icon) + '</span>') +
+      '<button class="kitpen" data-act="gearedit" data-v="' + esc(g.id) + '" ' +
+        'aria-label="Edit ' + esc(kitName(g)) + '">' + ti('pencil') + '</button>' +
+    '</div>' +
+    '<span class="kitring">' + ti(kitCat(g).icon) + '</span>' +
+    '<div class="kitpg">' +
+      '<h3>' + esc(kitName(g)) + '</h3>' +
+      '<p class="kitsub">' + esc(gearSinceLine(g)) + '</p>' +
+      '<div class="kitstats">' +
+        stat(st.hills, st.hills === 1 ? 'hill' : 'hills') +
+        stat(st.days, st.days === 1 ? 'day out' : 'days out') +
+        stat(st.top ? feet(st.top).toLocaleString() : '—', 'highest ft') +
+      '</div>' +
+      (st.top ? '<p class="kitsub">Highest: <b>' + esc(hillName(st.top)) + '</b>' +
+        (st.first ? ' · first hill ' + esc(prettyDate(st.first)) : '') + '</p>' : '') +
+      (g.note ? '<p class="kitnote">' + esc(g.note) + '</p>' : '') +
+      (st.rows.length
+        ? '<p class="eyebrow" style="margin-top:16px">Every hill it has walked</p>' +
+          '<div class="kithills">' +
+          st.rows.slice(0, 60).map(r => '<div><span>' + esc(hillName(r.h)) + '</span>' +
+            '<i>' + (r.date ? esc(prettyDate(r.date)) : 'no date') + '</i></div>').join('') +
+          (st.rows.length > 60 ? '<p class="kitsub">and ' + (st.rows.length - 60) + ' more</p>' : '') +
+          '</div>'
+        : '<p class="kitsub" style="margin-top:12px">Nothing on it yet. Mark a hill with ' +
+          'this in your usual kit and it starts counting.</p>') +
+    '</div></div>';
+}
+function renderKitPage(id){
+  const g = kitById(id);
+  if (!g){ ui.kitItem = null; return renderKitPane(); }
+  return '<div class="pdnav"><button class="backbtn" data-act="kitback">&larr; Your kit</button></div>' +
+    '<section class="kitpage">' + kitBodyHTML(g) + '</section>';
 }
 
 /* ---------- ONE ITEM ----------
@@ -33263,31 +33629,57 @@ function gearSheetClose(){
 function gearSheetPaint(){
   const g = kitById(ui.gearv); if (!g) return gearSheetClose();
   const el = gearSheetEl();
-  const st = kitStats(g.id);
+  /* The same body the Kit tab draws. ONE source: the last time this app had
+     two renderings of the same thing (the kit editor on the profile and the
+     kit editor in the sheet) one of them silently ate the other's work. */
+  el.innerHTML = '<div class="sheetbox gearbox kitpage">' +
+    '<div class="cmgrab"></div>' +
+    '<div class="ntop"><h3 class="vh">' + esc(kitName(g)) + '</h3>' +
+      '<button class="xbtn" data-act="gearclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    kitBodyHTML(g) + '</div>';
+  el.classList.add('open');
+  hydratePhotos();
+  if (typeof wire === 'function') wire();
+}
 
-  const stat = (b, l) => '<div><b>' + b + '</b><span>' + l + '</span></div>';
+/* ---------- THE FORM, behind the pencil ----------
+   Everything you type rather than earn. Delete lives in here too, away from
+   a thumb that is only scrolling. */
+function gearEditEl(){
+  let el = document.getElementById('geareditsheet');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'geareditsheet'; el.className = 'sheet bottom';
+    el.addEventListener('click', e => { if (e.target === el) gearEditClose(); });
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function gearEditClose(){
+  ui.gearEdit = null;
+  const el = document.getElementById('geareditsheet');
+  if (el) el.classList.remove('open');
+}
+function gearEditOpen(id){ ui.gearEdit = id; gearEditPaint(); }
+function gearEditPaint(){
+  const g = kitById(ui.gearEdit); if (!g) return gearEditClose();
+  const el = gearEditEl();
   el.innerHTML = '<div class="sheetbox gearbox">' +
     '<div class="cmgrab"></div>' +
-    '<div class="ntop"><h3>' + esc(kitName(g)) + '</h3>' +
-      '<span class="kittop"><button class="btn sm" data-act="gearsave" data-v="' + esc(g.id) + '">Save</button>' +
-      '<button class="xbtn" data-act="gearclose" aria-label="Close">' + ti('x') + '</button></span></div>' +
+    '<div class="ntop"><h3>' + (g.n ? 'Edit' : 'Add a bit of kit') + '</h3>' +
+      '<button class="xbtn" data-act="geareditclose" aria-label="Close">' + ti('x') + '</button></div>' +
     '<label class="kitshot aslabel">' +
       (g.img ? '<img src="' + esc(g.img) + '" alt="">'
              : '<span class="kitshotempty">' + ti('camera') + 'Add a photo</span>') +
       '<input type="file" accept="image/*" data-act="gearpic" data-v="' + esc(g.id) + '" class="filein"></label>' +
-    '<p class="kitsub">' + esc(gearSinceLine(g)) + '</p>' +
-    '<div class="kitstats">' +
-      stat(st.hills, st.hills === 1 ? 'hill' : 'hills') +
-      stat(st.days, st.days === 1 ? 'day out' : 'days out') +
-      stat(st.top ? feet(st.top).toLocaleString() : '—', 'highest ft') +
-    '</div>' +
-    (st.top ? '<p class="kitsub">Highest: <b>' + esc(hillName(st.top)) + '</b>' +
-      (st.first ? ' · first hill ' + esc(prettyDate(st.first)) : '') + '</p>' : '') +
     '<div class="gearedit">' +
-      '<label>Name<input id="gkn" value="' + esc(g.n || '') + '" maxlength="60"></label>' +
+      '<label>Name<input id="gkn" value="' + esc(g.n || '') + '" maxlength="60" ' +
+        'placeholder="Scarpa Ranger II"></label>' +
       '<label>Kind<select id="gkc">' + GEAR_CATS.map(c =>
         '<option value="' + c.id + '"' + (c.id === (g.c || 'other') ? ' selected' : '') + '>' + esc(c.label) + '</option>').join('') + '</select></label>' +
       '<label>Got it<input id="gks" type="date" value="' + esc(g.since || '') + '"></label>' +
+      '<p class="kitfine">The hills you walked after this date count towards it, ' +
+        'so the log fills itself in.</p>' +
       '<label>Notes<textarea id="gkx" rows="3" maxlength="400" placeholder="Resoled in April. The left one rubs on a long descent.">' + esc(g.note || '') + '</textarea></label>' +
       '<label class="kitck"><input type="checkbox" id="gku"' + (g.usual === false ? '' : ' checked') + '>' +
         'In my usual kit — goes on every hill I mark</label>' +
@@ -33296,13 +33688,6 @@ function gearSheetPaint(){
     '</div>' +
     '<div class="btnrow"><button class="btn" data-act="gearsave" data-v="' + esc(g.id) + '">Save</button>' +
       '<button class="linkbtn danger kitdel" data-act="geardel" data-v="' + esc(g.id) + '">Delete</button></div>' +
-    (st.rows.length
-      ? '<p class="eyebrow" style="margin-top:14px">Every hill it has walked</p><div class="kithills">' +
-        st.rows.slice(0, 60).map(r => '<div><span>' + esc(hillName(r.h)) + '</span>' +
-          '<i>' + (r.date ? esc(prettyDate(r.date)) : 'no date') + '</i></div>').join('') +
-        (st.rows.length > 60 ? '<p class="kitsub">and ' + (st.rows.length - 60) + ' more</p>' : '') +
-        '</div>'
-      : '<p class="kitsub" style="margin-top:12px">Nothing on it yet. Mark a hill with this in your usual kit and it starts counting.</p>') +
     '</div>';
   el.classList.add('open');
   if (typeof wire === 'function') wire();
@@ -33324,7 +33709,10 @@ function gearSheetSave(id){
   if (g.off && !wasOff) g.until = today();
   if (!g.off) g.until = '';
   g.t = now();
-  kitSyncPublic(); touched(); render(); gearSheetPaint();
+  kitSyncPublic(); touched();
+  gearEditClose();
+  render();
+  if (ui.gearv) gearSheetPaint();
   if (ui.gearshelf) gearShelfOpen();
   toast('Saved.');
 }
@@ -34014,8 +34402,10 @@ else if (seenOnboard()) ui.onboard = 'lists';
    deep link would be overwritten by both */
 try{ takeDeepLink(); }catch(e){}
 seedSeen();
-/* the kit people already typed into their profile becomes real kit, once */
-try{ kitSeed(); }catch(e){}
+/* the kit people already typed into their profile becomes real kit, once —
+   and any copies an earlier version made are folded together before the
+   first paint, so a walker with no account is repaired too */
+try{ kitSeed(); kitDedupe(); }catch(e){}
 render();
 introEverest();
 cloudReady = true;
