@@ -7894,6 +7894,28 @@ html.kbopen .cvcompose{padding-bottom:8px}
   text-decoration-color:rgba(246,239,228,.35)}
 .pstate:active u{text-decoration-color:#F3EFE6}
 
+/* ---------- ONE BLOCK FOR THE LIST ----------
+   Replaces .lstrip + .journey on Home. The friend's-log .journey.friend is
+   untouched. Last in the sheet, one block to take out. */
+.listcard{position:relative; overflow:hidden; margin-top:12px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  padding:14px 15px 12px}
+.listcard{isolation:isolate}
+.listcard > *{position:relative; z-index:2}
+/* the ridge sits BEHIND the words. In flow it was 110px and made the block
+   taller than the two it replaced. */
+.listcard .ridge{position:absolute; left:0; right:0; bottom:0;
+  width:100%; height:78%; margin:0; z-index:0; opacity:.9}
+.listcard .jbar{height:6px}
+.lsrow2{display:flex; align-items:center; gap:12px}
+.lsrow2 b{flex:1; min-width:0; font:400 17px/1.2 var(--font-display); color:var(--ink)}
+.lsrow2 .btn{flex:none}
+.listcard .lswhere{display:block; margin-top:4px;
+  font:400 12px/1.45 var(--font-ui); color:var(--ink-3)}
+.listcard .jbar{margin-top:11px}
+.lspct{margin:9px 0 0; font:400 12.5px var(--font-ui); color:var(--ink-3)}
+.lspct b{font-family:var(--font-display); font-weight:400; font-size:17px; color:var(--ink)}
+
 /* ---------- ONE LOUD VOICE PER SCREEN ----------
    The stylesheet has said "one primary per screen" since the beginning and
    nothing enforced it. Counted on 5 Oct with t/rustcount.js: the Journal had
@@ -16416,26 +16438,28 @@ function renderHills(){
   const pProg = Math.round(s.progress / s.total * 100);
   const pPlan = Math.round(s.planned / s.total * 100);
 
-  /* Who this list is and why it exists, right where you land in it. Collapsed
-     to a line with a way in, so it teaches without getting in the way. */
-  const ab = LIST_ABOUT[id];
-  html += '<div class="lstrip"><div><b>' + esc(L.name) + '</b>' +
-          '<span>' + esc(L.where) + ', ' + L.count.toLocaleString() + ' summits' +
-          (ab ? ' &middot; ' + ab.rule : '') + '</span></div>' +
-          '<button class="btn quiet sm" data-act="listinfo" data-v="' + esc(id) + '">About this list</button></div>';
+  /* ONE block for the list: who it is, and how far through it you are.
+     It was two - .lstrip then .journey - and counted on 5 Oct, between them
+     and the chip above and the hero above that, Home said "25" three times,
+     "214" three times and "189 to go" twice inside 590px.
 
-  html += '<section class="journey">';
-  html += '<div class="jtop"><div><div class="jpct">' + pct + '<sup>%</sup></div>' +
-          '<div class="jsub">' + esc(L.name) + ' marked</div></div>' +
-          '<div class="jcount"><b>' + s.done + '</b> / ' + s.total.toLocaleString() + ' summits<br>' +
-          '<b>' + s.remaining.toLocaleString() + '</b> still to go' +
-          (s.planned ? '<br>' + s.planned + ' planned' : '') +
-          (s.progress ? '<br>' + s.progress + ' attempted' : '') + '</div></div>';
-  html += '<div class="jbar">' +
-          '<i class="b-done" style="width:' + pDone + '%"></i>' +
-          '<i class="b-prog" style="width:' + pProg + '%"></i>' +
-          '<i class="b-plan" style="width:' + pPlan + '%"></i></div>';
-  html += RIDGE.replace('xMidYMax slice', 'none') + '</section>';   // stretched, never cropped: a wide card kept slicing the tops off
+     The chip already says 25/214. The hero already says 25 marked and 189 to
+     go. What only this block can say is the SHAPE of the list: how much of
+     it is marked, attempted and planned, and the one number for that. So it
+     says that, and stops repeating the rest. */
+  const ab = LIST_ABOUT[id];
+  html += '<section class="listcard">' +
+    '<div class="lsrow2"><b>' + esc(L.name) + '</b>' +
+      '<button class="btn quiet sm" data-act="listinfo" data-v="' + esc(id) + '">About this list</button></div>' +
+    '<span class="lswhere">' + esc(L.where) + (ab ? ' \u00b7 ' + ab.rule : '') + '</span>' +
+    '<div class="jbar">' +
+      '<i class="b-done" style="width:' + pDone + '%"></i>' +
+      '<i class="b-prog" style="width:' + pProg + '%"></i>' +
+      '<i class="b-plan" style="width:' + pPlan + '%"></i></div>' +
+    '<p class="lspct"><b>' + pct + '%</b> marked' +
+      (s.progress ? ' \u00b7 ' + s.progress + ' attempted' : '') +
+      (s.planned ? ' \u00b7 ' + s.planned + ' planned' : '') + '</p>' +
+    RIDGE.replace('xMidYMax slice', 'none') + '</section>';
   if (s.highest)
     html += '<p class="mapnote" style="margin:8px 2px 0">Highest marked: <b>' + esc(s.highest.n) + '</b>, ' + htFlat(s.highest) + '</p>';
 
@@ -29297,7 +29321,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v308';
+const APP_VERSION = 'v309';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
