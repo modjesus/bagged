@@ -1099,7 +1099,12 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 /* ---- route weather ---- */
 .wx{margin-top:12px; background:var(--surface-2); border:1px solid var(--line);
   border-radius:var(--r); padding:12px 13px}
-.wxwait{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--ink-3)}
+/* Waiting for a forecast, or not getting one, is a line - not the dark panel
+   a real forecast earns. A failed fetch used to take 65px and look like news. */
+.wxnote{display:flex; align-items:center; gap:9px; margin:0;
+  font-family:var(--font-ui); font-size:12.5px; line-height:1.4; color:var(--ink-3)}
+.wxnote .wxi svg{width:17px; height:17px}
+.wxnote .linkbtn{font-size:12.5px}
 .wxtop{display:flex; align-items:center; gap:12px}
 .wxi{ display:grid; place-items:center; flex:none }
 .wxi svg{width:22px; height:22px}
@@ -4322,6 +4327,63 @@ body.guiding{overflow:hidden}
 .routeshead{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:22px}
 .routeshead .sect{margin:0}
 .routeshead .linkbtn{cursor:pointer}
+
+/* ---------- Your routes: a row that opens where it sits ----------
+   Replaces the 983px route card. The old .plan* rules below are left alone so
+   this is one block to take out if it is wrong. Reuses .planhills, .tick,
+   .btn, .pmenubox and .pathnote rather than inventing more vocabulary. */
+.rtsec{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  margin:18px 0 8px; font-family:var(--font-data); font-size:10.5px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.rtlist{display:flex; flex-direction:column; gap:1px;
+  background:var(--line-soft); border:1px solid var(--line-soft); border-radius:var(--r)}
+/* no overflow:hidden - the row's own menu has to be able to escape the list */
+.rtlist > :first-child{border-radius:var(--r) var(--r) 0 0}
+.rtlist > :last-child{border-radius:0 0 var(--r) var(--r)}
+.rtlist > :only-child{border-radius:var(--r)}
+.rtrow{display:grid; grid-template-columns:30px 1fr auto; align-items:center; gap:11px;
+  width:100%; min-height:70px; padding:12px 13px; background:var(--surface); border:0;
+  text-align:left; cursor:pointer; font-family:var(--font-ui); color:var(--ink)}
+.rtrow.open{background:var(--raise)}
+.rtrow:active{background:var(--surface-2)}
+.rtring{width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+  border:2px solid var(--line); background:var(--raise); color:var(--ink-3);
+  font-family:var(--font-data); font-size:10px; font-weight:700; letter-spacing:-.02em}
+.rtring svg{width:15px; height:15px}
+.rtrow.done .rtring{background:var(--done); border-color:var(--done); color:var(--cream)}
+.rtmid{min-width:0}
+.rtnm{display:block; font-family:var(--font-display); font-size:17px; line-height:1.2;
+  color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rtrow.done .rtnm{color:var(--ink-2)}
+.rtmeta{display:block; margin-top:3px; font-size:12.5px; line-height:1.3; color:var(--ink-3)}
+.rtwhen{font-family:var(--font-data); font-size:11.5px; font-weight:600; color:var(--ink-3);
+  text-align:right; white-space:nowrap}
+.rtwhen s{display:block; margin-top:4px; text-decoration:none;
+  font-family:var(--font-ui); font-weight:400; font-size:11px; color:var(--sage)}
+.rtwhen.nodate{font-family:var(--font-ui); font-weight:600; color:var(--accent-text)}
+.rtopen{background:var(--raise); padding:0 13px 14px;
+  display:flex; flex-direction:column; gap:11px}
+.rtopen > *{margin:0}
+.rtopen .planhills{margin:0}
+.rtopen .wx{margin:0}
+.rtname{display:flex; gap:8px; align-items:center}
+.rtname .planname{flex:1; min-width:0}
+.rtnotes{font-size:13px; line-height:1.5; color:var(--ink-2)}
+.rtdate > label{display:block; font-size:12px; color:var(--ink-3); margin-bottom:6px}
+.rtbtns{display:flex; flex-wrap:wrap; gap:7px; align-items:center}
+.rtmore{margin-left:auto}
+/* The dots sit at the FOOT of an open route, so the menu opens upward. A menu
+   that drops off the bottom of the phone is a menu nobody reaches. */
+.rtmore .pmenubox{top:auto; bottom:48px; max-height:40vh; overflow:auto;
+  overscroll-behavior:contain; min-width:214px}
+.msep{display:block; height:1px; margin:4px 8px; background:var(--line-soft)}
+/* a file picker that has to sit in a menu and look like the items around it */
+.menufile{display:flex; align-items:center; gap:9px; width:100%; min-height:44px;
+  padding:0 12px; border-radius:8px; cursor:pointer; white-space:nowrap;
+  font-family:var(--font-ui); font-size:14px; color:var(--ink)}
+.menufile:hover{background:var(--surface-2)}
+.menufile svg{width:17px; height:17px; color:var(--ink-3)}
+.rtopen .pathnote{margin:0}
 :root[data-theme="dark"] .misle, :root[data-theme="dark"] .mmenu, :root[data-theme="dark"] .mresults .rqres{background:rgba(21,42,38,.86); box-shadow:0 0 0 1px rgba(243,239,230,.1), 0 18px 40px -22px rgba(0,0,0,.7)}
 :root[data-theme="dark"] .mlayers.on, :root[data-theme="dark"] .mmode button[aria-pressed="true"], :root[data-theme="dark"] .mrow.on{background:#F3EFE6; color:#14332D}
 
@@ -8382,7 +8444,7 @@ let syncTimer = null, syncErr = '';
 let tab = 'd';
 let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null, breakdown:false,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
-          mapScope:'one', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null,
+          mapScope:'one', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null, planOpen:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'collection', pGroup:'', corkSeed:0, supSide:'', supTodo:false, ascAll:null, ascEdit:null, editDate:null,
           postMenu:null, joinCode:'', peopleView:null, openPost:null, dayOpen:false,
@@ -21927,7 +21989,7 @@ function mapWeatherHTML(){
   let c = null;
   if (rmap){ const g = rmap.getCenter(); c = {la:+g.lat.toFixed(2), lo:+g.lng.toFixed(2)}; }
   else if (ui.rview) c = {la:+ui.rview.c.lat.toFixed(2), lo:+ui.rview.c.lng.toFixed(2)};
-  if (!c) return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+  if (!c) return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
                  '<span>Loading the map\u2026</span></div>';
   const wx = wxCached(c);
   if (!wx){
@@ -21936,17 +21998,17 @@ function mapWeatherHTML(){
       wxPainting[k] = true;
       fetchWeather(c).then(() => { delete wxPainting[k]; if (tab === 'p') paintMapWeather(); });
     }
-    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+    return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
            '<span>Checking the forecast\u2026</span></div>';
   }
   if (!wx.days.length)
-    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+    return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
            '<span>No forecast right now. <button class="linkbtn" style="padding:0" ' +
            'data-act="wxretry" data-id="">Try again</button></span></div>';
 
   const day = wx.days.find(d => d.date === ui.rday);
   if (!day)
-    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+    return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
            '<span>No forecast for ' + esc(prettyDate(ui.rday)) +
            '. It only reaches seven days out. Come back nearer the time.</span></div>';
 
@@ -22050,13 +22112,20 @@ function renderPlans(){
   html += '<div class="routeshead"><h3 class="sect">Your routes</h3>' +
     '<label class="linkbtn">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label></div>';
   if (!plans.length) return html + '<p class="empty">No routes yet. Switch to <b>Plot a route</b> on the map and tap to draw, or import a GPX.</p>';
-  const sorted = [...plans].sort((a,b) => {
-    const ad = Boolean(a.hills.length && a.hills.every(k => isBagged(k)));
-    const bd = Boolean(b.hills.length && b.hills.every(k => isBagged(k)));
-    if (ad !== bd) return ad ? 1 : -1;
-    return (a.date || '9999').localeCompare(b.date || '9999');
-  });
-  for (const p of sorted) html += planCardHTML(p);
+  /* Coming up first, then the ones you have walked. A route you have finished
+     is a record, not a plan, and it should not be competing with Saturday. */
+  const soon = plans.filter(p => !routeWalked(p))
+    .sort((a,b) => (a.date || '9999').localeCompare(b.date || '9999'));
+  const been = plans.filter(routeWalked)
+    .sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+  const sec = (label, list) => !list.length ? '' :
+    '<div class="rtsec"><span>' + label + '</span><b>' + list.length + '</b></div>' +
+    '<div class="rtlist">' + list.map(routeRowHTML).join('') + '</div>';
+  html += sec('Coming up', soon) + sec('Walked', been);
+  /* Said once, under the lot. It used to be printed inside every card - 104px
+     each, three times the height of the row it was warning about. */
+  if (plans.some(p => (p.trk || []).length || (p.hills || []).length > 1))
+    html += '<p class="pathnote">The map is Ordnance Survey; the path-following is OpenStreetMap, which carries England and Wales rights of way from the definitive maps. OS sells mapping, not routing, so there is no OS equivalent. Usually right: check the map before relying on a right of way.</p>';
   return html;
 }
 /* The list you are working through and the day you are planning for used to
@@ -22170,67 +22239,135 @@ document.addEventListener('click', e => {
   ui.layersOpen = false; paintLayers();
 }, true);
 
-function planCardHTML(p){
-  const hs = p.hills.map(k => BY_KEY[k]).filter(Boolean);
+/* ---------- Your routes, as a list ----------
+
+   A route card was 983px - taller than the phone itself - so two saved routes
+   meant 2,527px of scrolling on a screen whose job is the map. Joe, 4 Oct:
+   "at the moment it turns them blue but they are still massive with all the
+   weather info etc."
+
+   A route is a ROW now: what it is called, what it is, and when. Tap it and
+   the detail opens underneath. Only one opens at a time, so the screen cannot
+   run away however many routes are saved. Everything that used to shout from
+   every card - the three share buttons, the GPX row, the track box, the
+   Ordnance Survey note - is either in the one menu or said once at the foot
+   of the list. */
+const routeWalked = p => {
+  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  return hs.length > 0 && hs.every(h => isBagged(h.k));
+};
+const RT_MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+/* "12 OCT" - the date at a glance, in the mono the app uses for figures */
+function rtDate(d){
+  const p = (d || '').split('-');
+  if (p.length < 3) return d || '';
+  return (+p[2]) + ' ' + (RT_MON[+p[1] - 1] || '');
+}
+/* "in 7 days" is the thing you want off a date; "2026-10-12" is not */
+function rtWhen(d){
+  if (!d) return '';
+  const days = Math.round((new Date(d + 'T12:00:00') - new Date(today() + 'T12:00:00')) / 86400000);
+  if (!isFinite(days)) return '';
+  if (days === 0) return 'today';
+  if (days === 1) return 'tomorrow';
+  if (days === -1) return 'yesterday';
+  const a = Math.abs(days);
+  if (a >= 70) return d.slice(0, 4);
+  const n = a < 14 ? a + ' days' : Math.round(a / 7) + ' weeks';
+  return days > 0 ? 'in ' + n : n + ' ago';
+}
+function routeRowHTML(p){
+  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   const done = hs.filter(h => isBagged(h.k)).length;
-  const allDone = hs.length > 0 && done === hs.length;
-  const climbM = hs.reduce((a,h) => a + h.h, 0), climbF = hs.reduce((a,h) => a + h.f, 0);
-  let html = '<article class="plan' + (allDone ? ' done' : '') + '">';
-  const renaming = ui.planEdit === p.id;
-  html += '<div class="planhead">' +
-    (renaming
-      ? '<input class="planname" data-act="planname" data-id="' + esc(p.id) + '" value="' + esc(p.name || '') +
-        '" placeholder="Name this route" maxlength="60">'
-      : '<h3>' + esc(p.name || 'Untitled route') + '</h3>') +
-    '<button class="linkbtn" data-act="planrename" data-id="' + esc(p.id) + '">' +
-      (renaming ? 'Done' : 'Rename') + '</button>' +
-    '<button class="linkbtn" data-act="delplan" data-id="' + esc(p.id) + '">Delete</button></div>';
-  if (coarsePointer() && p.trk && p.trk.length > 1)
-    html += '<div class="followrow"><button class="btn sm" data-act="guide" data-id="' + esc(p.id) + '">' + ti('current-location') + 'Follow on the hill</button>' +
-            '<span>Your position on the OS map against this route.</span></div>';
-  /* Three different destinations, so three buttons rather than one word that
-     means all of them: POST puts it on Activity for everybody who follows you;
-     SEND drops it into a chat as something to look at; INVITE opens the walk
-     plan with the route already on it, so it comes back with a date and a yes
-     or no. Post used to be a "Share" link up in the header beside Rename and
-     Delete, which is the wrong company for the only one of the three that is
-     public. All need an account, so none shows without one. */
-  if (fbUser)
-    html += '<div class="rtshare">' +
-      '<button class="btn quiet sm" data-act="shareroute" data-id="' + esc(p.id) + '">' + ti('share') + 'Post to Activity</button>' +
-      '<button class="btn quiet sm" data-act="rtsend" data-id="' + esc(p.id) + '">' + ti('send') + 'Send to a chat</button>' +
-      '<button class="btn sm" data-act="rtinvite" data-id="' + esc(p.id) + '">' + ti('walk') + 'Invite to walk it</button></div>';
-  html += '<div class="planmeta">';
-  if (p.date) html += '<span>' + esc(prettyDate(p.date)) + '</span>';
-  html += '<span>' + hs.length + ' hill' + (hs.length===1?'':'s') + '</span>';
-  if (hs.length) html += '<span>' + climbF.toLocaleString() + ' ft (' + climbM.toLocaleString() + ' m) of summits</span>';
-  if (p.trk && p.trk.length > 1) html += '<span>' + prettyDist(trackLength(p.trk)) + '</span>';
-  html += '</div>';
-  const dOpen = ui.planDate === p.id || !p.date;
-  html += '<div class="plandate">' +
-    (dOpen
-      ? '<label>Date of the walk</label>' + dateFields(p.date, 'data-planid="' + esc(p.id) + '"') +
-        (p.date ? '' : '<p class="dhint">Set a date and the forecast is for that day.</p>')
-      : '<button class="linkbtn" data-act="plandate" data-id="' + esc(p.id) + '">Change the date</button>') +
-    '</div>';
-  if (p.notes && !renaming) html += '<p class="plannotes">' + esc(p.notes) + '</p>';
-  html += weatherHTML(p);
-  html += gpxControls(p, p.id);
+  const walked = routeWalked(p);
+  const open = ui.planOpen === p.id;
+  const pts = (p.trk || []).length;
+  /* ONE line, whatever the route is. The ring already says how many are
+     marked, so saying it again in words wrapped the row onto two lines and
+     put 30px back on every one of them. Miles only here; the kilometres are
+     inside, where there is room. */
+  const bits = [];
+  if (pts > 1) bits.push((trackLength(p.trk) / 1609.344).toFixed(1) + ' mi');
+  if (hs.length) bits.push(hs.length + ' summit' + (hs.length === 1 ? '' : 's'));
+  const ring = walked ? ICON_CHECK : hs.length ? done + '/' + hs.length : ti('route');
+  let s = '<button class="rtrow' + (walked ? ' done' : '') + (open ? ' open' : '') +
+    '" data-act="planopen" data-id="' + esc(p.id) + '" aria-expanded="' + open + '">' +
+    '<span class="rtring">' + ring + '</span>' +
+    '<span class="rtmid"><span class="rtnm">' + esc(p.name || 'Untitled route') + '</span>' +
+      '<span class="rtmeta">' + esc(bits.join(' · ') || 'Nothing on it yet') + '</span></span>' +
+    (p.date
+      ? '<span class="rtwhen">' + esc(rtDate(p.date)) + '<s>' + esc(rtWhen(p.date)) + '</s></span>'
+      : '<span class="rtwhen nodate">No date</span>') +
+    '</button>';
+  return s + (open ? routeOpenHTML(p, hs, done, walked, pts) : '');
+}
+function routeOpenHTML(p, hs, done, walked, pts){
+  const id = p.id, mk = 'r:' + id, mOpen = ui.postMenu === mk;
+  let s = '<div class="rtopen">';
+  if (ui.planEdit === id)
+    s += '<div class="rtname"><input class="planname" data-act="planname" data-id="' + esc(id) + '" value="' +
+      esc(p.name || '') + '" placeholder="Name this route" maxlength="60">' +
+      '<button class="btn sm" data-act="planrename" data-id="' + esc(id) + '">Done</button></div>';
   if (hs.length){
-    html += '<ul class="planhills">';
+    s += '<ul class="planhills">';
     for (const h of hs){
       const on = isBagged(h.k);
-      html += '<li class="' + (on ? 'on' : '') + '"><button class="tick" data-act="tick" data-k="' + esc(h.k) + '" data-date="' + esc(p.date||'') + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' + ICON_CHECK + '</button>';
-      const pr = rec(h.k), ps = pr.photos && pr.photos[0];
-      if (ps) html += '<img class="thumb sm" data-pid="' + esc(ps.id) + '" data-up="' + (ps.up?1:0) + '" alt="">';
-      html += '<span class="nm">' + esc(hillName(h)) + (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + repBadge(h.k) + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
+      s += '<li class="' + (on ? 'on' : '') + '"><button class="tick" data-act="tick" data-k="' + esc(h.k) +
+        '" data-date="' + esc(p.date || '') + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' +
+        ICON_CHECK + '</button><span class="nm">' + esc(hillName(h)) +
+        (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') +
+        repBadge(h.k) + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
     }
-    html += '</ul><div class="planstat"><i style="width:' + Math.round(done/hs.length*100) + '%"></i></div><div class="btnrow">';
-    html += allDone ? '<span class="planmeta" style="align-self:center">Route complete</span>'
-                    : '<button class="btn ghost" data-act="bagall" data-id="' + esc(p.id) + '">Mark all ' + hs.length + '</button>';
-    html += '</div>';
+    s += '</ul>';
   }
-  return html + '</article>';
+  if (p.notes && ui.planEdit !== id) s += '<p class="rtnotes">' + esc(p.notes) + '</p>';
+  /* No date, no forecast - so the date is asked for here rather than hidden in
+     the menu. Once it has one, changing it lives with the rest. */
+  if (!p.date || ui.planDate === id)
+    s += '<div class="rtdate"><label>Date of the walk</label>' + dateFields(p.date, 'data-planid="' + esc(id) + '"') +
+      (p.date ? '' : '<p class="dhint">Set a date and the forecast for the tops comes with it.</p>') + '</div>';
+  /* Joe, 5 Oct: "do not loose the weather section, but only add when a
+     date/location is allocated." weatherFor() already returns nothing without
+     a location; this is the other half. An undated route used to print a 65px
+     "No forecast right now" box and fire a request for a day nobody had
+     chosen. */
+  if (p.date) s += weatherHTML(p);
+  s += '<div class="rtbtns">';
+  s += pts > 1
+    ? '<button class="btn" data-act="viewroute" data-id="' + esc(id) + '">' + ti('map-2') + 'View on the map</button>'
+    : '<button class="btn" data-act="editroute" data-id="' + esc(id) + '">' + ti('route') + 'Draw on the map</button>';
+  if (hs.length && !walked)
+    s += '<button class="btn ghost" data-act="bagall" data-id="' + esc(id) + '">Mark all ' + hs.length + '</button>';
+  if (coarsePointer() && pts > 1)
+    s += '<button class="btn ghost" data-act="guide" data-id="' + esc(id) + '">' + ti('current-location') + 'Follow on the hill</button>';
+  s += '<div class="pmenuwrap rtmore">' +
+    '<button class="iconbtn pmenu" data-act="postmenu" data-id="' + esc(mk) + '" aria-haspopup="menu" aria-expanded="' + mOpen +
+      '" aria-label="More for this route">' + ti('dots') + '</button>' +
+    (mOpen ? '<div class="pmenubox" role="menu">' + routeMenuHTML(p, hs, pts) + '</div>' : '') +
+    '</div>';
+  return s + '</div></div>';
+}
+/* Everything a route can do that is not the thing you came to do. */
+function routeMenuHTML(p, hs, pts){
+  const id = esc(p.id);
+  let s = '<button role="menuitem" data-act="planrename" data-id="' + id + '">' + ti('pencil') + 'Rename</button>';
+  if (p.date) s += '<button role="menuitem" data-act="plandate" data-id="' + id + '">' + ti('cloud') + 'Change the date</button>';
+  if (pts > 1) s += '<button role="menuitem" data-act="editroute" data-id="' + id + '">' + ti('route') + 'Edit on the map</button>';
+  if (hs.length > 1)
+    s += '<button role="menuitem" data-act="autoroute" data-id="' + id + '"' + (routingBusy ? ' disabled' : '') + '>' +
+      ti('navigation') + (routingBusy ? 'Finding paths…' : 'Follow paths between these hills') + '</button>';
+  if (fbUser)
+    s += '<i class="msep"></i>' +
+         '<button role="menuitem" data-act="shareroute" data-id="' + id + '">' + ti('share') + 'Post to Activity</button>' +
+         '<button role="menuitem" data-act="rtsend" data-id="' + id + '">' + ti('send') + 'Send to a chat</button>' +
+         '<button role="menuitem" data-act="rtinvite" data-id="' + id + '">' + ti('walk') + 'Invite to walk it</button>';
+  s += '<i class="msep"></i>' +
+    '<label class="menufile">' + ti('file-upload') + (pts ? 'Replace with a GPX' : 'Import a GPX') +
+    '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + id + '" class="filein"></label>';
+  if (pts || hs.length) s += '<button role="menuitem" data-act="gpxout" data-id="' + id + '">' + ti('download') + 'Download GPX</button>';
+  if (pts) s += '<button role="menuitem" data-act="cleartrk" data-id="' + id + '">' + ti('mountain-off') + 'Remove the track</button>';
+  return s + '<i class="msep"></i><button role="menuitem" class="danger" data-act="delplan" data-id="' + id +
+    '">' + ti('trash') + 'Delete</button>';
 }
 
 /* Search: the app's own hills first, because that is instant and works with no
@@ -22293,11 +22430,11 @@ function weatherFor(at, p, topM){
         if (p && p.id === '__map') paintMapWeather(); else render();
       });
     }
-    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+    return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
            '<span>Checking the forecast for this route…</span></div>';
   }
   if (!wx.days.length){
-    return '<div class="wx wxwait"><span class="wxi">' + wxSvg('cloud') + '</span>' +
+    return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
            '<span>No forecast right now' + (wx.err ? ': ' + esc(wx.err) : '') + '. ' +
            '<button class="linkbtn" style="padding:0" data-act="wxretry" data-id="' + esc((p && p.id) || '') + '">Try again</button></span></div>';
   }
@@ -23096,7 +23233,20 @@ document.addEventListener('click', async e => {
     }, 60);
   }
   else if (a === 'dayfold'){ ui.dayOpen = !ui.dayOpen; if (ui.dayOpen) ui.listOpen = false; render(); }
-  else if (a === 'postmenu'){ ui.postMenu = ui.postMenu === el.dataset.id ? null : el.dataset.id; render(); }
+  else if (a === 'postmenu'){
+    ui.postMenu = ui.postMenu === el.dataset.id ? null : el.dataset.id;
+    render();
+    /* A menu is no use where you cannot see it. A route's dots sit at the foot
+       of the open body, so the menu opens upward; if the top of it has gone
+       off the screen, bring it back. */
+    requestAnimationFrame(() => {
+      const box = document.querySelector('.pmenubox');
+      if (!box) return;
+      const r = box.getBoundingClientRect();
+      if (r.top < 8 || r.bottom > innerHeight - 8)
+        box.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+    });
+  }
   else if (a === 'profmenu'){ ui.profMenu = !ui.profMenu; render(); }
   else if (a === 'fbopen'){ openFeedback(el.dataset.v); }
   else if (a === 'fbcancel'){ ui.fb = null; paintFeedback(); }
@@ -24067,6 +24217,13 @@ document.addEventListener('click', async e => {
     editor.dirty = true;
     rmRecompute();
     toast((a === 'poistart' ? 'Starting at ' : 'Added ') + poiName(p) + '.');
+  }
+  else if (a === 'planopen'){
+    /* One at a time. Two open routes and the screen is back where it was. */
+    const id = el.dataset.id;
+    ui.planOpen = ui.planOpen === id ? null : id;
+    ui.postMenu = null; ui.planEdit = null; ui.planDate = null;
+    render();
   }
   else if (a === 'plandate'){ ui.planDate = el.dataset.id; render(); }
   else if (a === 'planrename'){
@@ -29069,7 +29226,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v305';
+const APP_VERSION = 'v306';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
