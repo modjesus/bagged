@@ -9631,12 +9631,35 @@ function merge(a, b){
     if (!cur || (p.t||0) > (cur.t||0)) om.set(p.k, p);
   }
   out.own = [...om.values()];
-  /* dogs: newest edit wins, tombstones respected — same rule as your peaks */
+  /* dogs: newest edit wins, tombstones respected — same rule as your peaks.
+
+     EXCEPT THE PICTURES, which are unioned, for the same reason a hill's
+     photographs are. Wholesale last-write-wins is right for a name or a
+     collar colour: somebody typed it. It is wrong for a portrait, because
+     nobody ever typed "remove the photograph" — a side may be missing one
+     because the bytes had not arrived there yet, and the newest edit then
+     wipes a picture that exists on the other device and in the cloud.
+
+     A side that HAS a portrait beats a side that does not, whichever is
+     newer. Removing one on purpose goes through the editor, which replaces
+     it rather than emptying it. */
   const gm = new Map();
+  const keepPic = (win, lose) => {
+    if (!lose) return win;
+    const has = x => !!(x && ((x.avp && x.avp.id) || (typeof x.av === 'string' && x.av)));
+    const hasCov = x => !!(x && x.cov && x.cov.id);
+    let out = win;
+    if (!has(win) && has(lose)) out = {...out, avp:lose.avp || null, av:lose.av || '', afy:lose.afy};
+    if (!hasCov(win) && hasCov(lose)) out = {...out, cov:{...lose.cov}, cfy:lose.cfy};
+    return out;
+  };
   for (const d of [...(a.dogs||[]), ...(b.dogs||[])]){
     if (!d || !d.id) continue;
     const cur = gm.get(d.id);
-    if (!cur || (d.t||0) > (cur.t||0)) gm.set(d.id, d);
+    if (!cur){ gm.set(d.id, d); continue; }
+    /* a dog removed on purpose keeps its own emptiness, pictures and all */
+    const win = (d.t||0) > (cur.t||0) ? d : cur, lose = win === d ? cur : d;
+    gm.set(d.id, win.deleted ? win : keepPic(win, lose));
   }
   out.dogs = [...gm.values()];
   /* kit: newest edit wins, tombstones respected — same rule as the dogs */
@@ -10387,7 +10410,13 @@ async function photoSrc(p){
   }
   if (blobUrls.has(p.id)) return blobUrls.get(p.id);
   let b = await getBlob(p.id);
-  if (!(b instanceof Blob) && p.up){
+  /* `up` is this device's note to itself that it has sent the bytes up. It
+     is NOT a statement about whether they are in the cloud: a picture added
+     on the phone arrives here as a record with up:0 long before the phone's
+     next sweep marks it 1. Gating the cloud read on it meant the other
+     device showed a blank and never once asked. Ask anyway — a miss costs
+     one failed read. */
+  if (!(b instanceof Blob)){
     if (fbUser) b = await fbGetPhoto(p.id);
     if (b instanceof Blob){ try{ await putBlob(p.id, b); }catch(e){} }
   }
@@ -16231,7 +16260,22 @@ async function dogFaceMigrate(){
     try{
       const blob = await (await fetch(d.av)).blob();
       if (!(blob instanceof Blob) || !blob.size) continue;
-      const id = uid();
+      /* THE ID IS DERIVED FROM THE DOG, NOT INVENTED. Joe, 6 Oct: "the dog
+         profile pictures have vanished."
+
+         The first version called uid(). Every device ran this move on the
+         same two photographs and minted a DIFFERENT id for each — so the
+         newest record won the merge and the other device was left pointing
+         at bytes it had never had. Blank portraits on the phone, correct
+         ones on the laptop.
+
+         This is the duplicate boots again, exactly. v316 fixed those by
+         giving a thing an identity a person would recognise instead of a
+         generated number, and the rule went in the backlog: an identity a
+         human would recognise beats a generated id for anything that can be
+         created twice. A portrait migrated on two devices IS created twice.
+         Three weeks later I called uid() anyway. */
+      const id = 'dav' + d.id;
       await putBlob(id, blob);
       const back = await getBlob(id);
       if (!(back instanceof Blob) || !back.size) continue;
@@ -27868,8 +27912,28 @@ async function fbSync(initial){
          a photo that never uploaded lives here and nowhere else, so if the
          bytes have gone the picture has gone with it, and a record pointing
          at nothing shows as a blank tile in the log and on leaderboards. */
-      if (blob === undefined){ lost.add(p.id); continue; }
-      if (!(blob instanceof Blob)){ lost.add(p.id); continue; }
+      /* AND NOT ON THIS DEVICE IS NOT GONE EITHER.
+
+         The comment above is right about a read failure and wrong about
+         everything else: it assumes the only device that ever had these
+         bytes is this one. It is not. A photo added on the phone reaches
+         the laptop as a record minutes before the bytes do, and the laptop
+         then declared it lost and DELETED it — a deletion that syncs back
+         and takes the picture off the phone too.
+
+         So before anything is called lost, the cloud is asked. Bytes there
+         means it was never lost: they are brought down and the record is
+         marked as safely up. Only a photo that is in neither place has
+         really gone. */
+      if (blob === undefined || !(blob instanceof Blob)){
+        let up = null;
+        if (fbUser){ try{ up = await fbGetPhoto(p.id); }catch(e){ continue; } }
+        if (up instanceof Blob){
+          try{ await putBlob(p.id, up); }catch(e){}
+          p.up = 1; continue;
+        }
+        lost.add(p.id); continue;
+      }
       try{ await fbPutPhoto(p.id, blob); p.up = 1; }
       catch(e){ /* leave for next pass */ }
     }
@@ -27890,7 +27954,9 @@ async function fbSync(initial){
          the four upload slots gone for good. */
       for (const g of (state.dogs || [])){
         if (g && g.cov && lost.has(g.cov.id)){ g.cov = null; g.t = now(); }
-        if (g && g.avp && lost.has(g.avp.id)){ g.avp = null; g.t = now(); }
+        /* A portrait is one picture with no second copy anywhere, so the
+           cost of binning it wrongly is total and the cost of leaving a
+           blank circle is nothing. It stays. */
       }
     }
 
@@ -31145,7 +31211,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v319';
+const APP_VERSION = 'v320';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
