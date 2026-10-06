@@ -8402,11 +8402,12 @@ span.vbadge{color:var(--surface)}
   box-shadow:0 1px 5px rgba(0,0,0,.2)}
 .kitpen svg{width:17px; height:17px; color:var(--ink-2)}
 .kitpen:active{transform:scale(.94)}
-.kitring{position:relative; display:grid; place-items:center; width:64px; height:64px;
-  margin:-32px 0 0 14px; border-radius:99px; background:var(--surface);
-  border:3px solid var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.kitring svg{width:29px; height:29px; color:var(--ink-2); stroke-width:1.5}
-.kitpg{padding:8px 14px 16px}
+/* The rust disc is gone. It was the dogs' vocabulary borrowed wholesale, and
+   on a dog it earns its place — the cover is a scene, the disc is the dog's
+   face. A bit of kit has one photograph, so the disc was the same picture
+   twice, or, with no photograph, the same icon twice. Joe: "remove profile
+   picture just need the hero." */
+.kitpg{padding:14px 14px 16px}
 .kitpg h3{margin:0; font:400 23px/1.14 var(--font-display); color:var(--ink)}
 .kitnote{margin:12px 0 0; padding:10px 13px; background:var(--surface-2);
   border-left:3px solid var(--line); border-radius:0 10px 10px 0;
@@ -25306,21 +25307,6 @@ document.addEventListener('click', async e => {
     if (ui.kitItem === g.id) ui.kitItem = null;
     render();
   }
-  else if (a === 'gearpic' && el.files && !el.files.length){ el.value = '';
-    toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
-  else if (a === 'gearpic' && el.files && el.files.length){
-    const f = el.files[0]; el.value = '';
-    const id = el.dataset.v;
-    /* 360 square at 0.72 — a dozen of these ride in the log beside the dogs'
-       portraits, so they have to stay small */
-    openCropper(URL.createObjectURL(f), {title:'Frame your kit', w:520, h:520, out:360, q:0.72,
-      save:pic => {
-        const g = kitById(id); if (!g) return;
-        g.img = pic; g.t = now(); touched(); render();
-        if (ui.gearEdit) gearEditPaint();
-        if (ui.gearv) gearSheetPaint();
-      }});
-  }
   else if (a === 'dogday'){ dogDay(el.dataset.d, el.dataset.v); }
   else if (a === 'dogsharepick'){ dogSharePick(el.dataset.v); }
   else if (a === 'dogshareto'){ await dogShareTo((ui.dogShare && ui.dogShare.sel) || [], el.dataset.v); }
@@ -26054,6 +26040,33 @@ document.addEventListener('change', e => {
     const url = URL.createObjectURL(f);
     const job = avJob;
     (job ? openCropper(url, job) : openAvatarEditor(url)).then(() => setTimeout(() => URL.revokeObjectURL(url), 4000));
+  }
+  /* THE KIT PHOTO WAS ON THE WRONG EVENT. Joe, 6 Oct: "Cant upload photos
+     to kit."
+
+     Every one of the app's fifteen file inputs is handled here, on `change`,
+     because `change` is the event that carries the chosen file. This one
+     alone sat in the click handler. So tapping the label fired it with an
+     empty file list and showed "No photo came through" BEFORE the picker had
+     even opened, and then choosing a photo fired `change`, which nothing was
+     listening for. Measured, both halves: a false error on the way in and
+     silence on the way out.
+
+     Found by comparing all fifteen rather than by reading this one. */
+  else if (a === 'gearpic' && el.files && !el.files.length){ el.value = '';
+    toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
+  else if (a === 'gearpic' && el.files && el.files.length){
+    const f = el.files[0]; el.value = '';
+    const id = el.dataset.v;
+    /* 360 square at 0.72 — a dozen of these ride in the log beside the dogs'
+       portraits, so they have to stay small */
+    openCropper(URL.createObjectURL(f), {title:'Frame your kit', w:520, h:520, out:360, q:0.72,
+      save:pic => {
+        const g = kitById(id); if (!g) return;
+        g.img = pic; g.t = now(); touched(); render();
+        if (ui.gearEdit) gearEditPaint();
+        if (ui.gearv) gearSheetPaint();
+      }});
   }
   else if (a === 'dogphoto' && el.files && !el.files.length){ el.value = ''; toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
   else if (a === 'dogphoto' && el.files && el.files.length){
@@ -34276,7 +34289,6 @@ function kitBodyHTML(g){
       '<button class="kitpen" data-act="gearedit" data-v="' + esc(g.id) + '" ' +
         'aria-label="Edit ' + esc(kitName(g)) + '">' + ti('pencil') + '</button>' +
     '</div>' +
-    '<span class="kitring">' + ti(kitCat(g).icon) + '</span>' +
     '<div class="kitpg">' +
       '<h3>' + esc(kitName(g)) + '</h3>' +
       '<p class="kitsub">' + esc(gearSinceLine(g)) + '</p>' +
