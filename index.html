@@ -9387,6 +9387,7 @@ function normalise(s){
         collar:String(d.collar || '').slice(0, 12),
         best:String(d.best || '').slice(0, 80), nope:String(d.nope || '').slice(0, 80),
         av:typeof d.av === 'string' ? d.av : '',
+        avp:(d.avp && d.avp.id) ? {id:String(d.avp.id), up:d.avp.up ? 1 : 0} : null,
         /* the round portrait rides in the log as a small picture; the wide
            cover is a proper photo in the photo store, so only its id does */
         afy:isFinite(+d.afy) ? Math.max(0, Math.min(100, +d.afy)) : 50,
@@ -15824,17 +15825,40 @@ function dogFacts(d){
   const a = dogAge(d.dob); if (a) bits.push(a);
   return bits.join(' · ');
 }
+/* ONE PORTRAIT, ONE COPY. Joe, 6 Oct: "Could not save to the cloud."
+
+   Measured on his own log rather than guessed at: two dog portraits were
+   218 kB of an 864 kB cloud record — a quarter of it — while all 65 marked
+   hills came to 15 kB. The dog's COVER picture was already kept as a blob
+   with nothing but {id} in the log. The FACE, three lines away in the same
+   file, was kept inline as a base64 data URL and went to the cloud in full
+   every single save.
+
+   `avp` is the blob, which is how a portrait is stored from v319 on. `av`
+   is the old inline copy: still read, because a co-keeper is still sent one
+   when a dog is shared, and migrated away by dogFaceMigrate() the moment it
+   is seen. Everything goes through here so there is one shape to change. */
+function dogFaceImg(d, cls, alt){
+  const fy = (d && isFinite(+d.afy)) ? +d.afy : 50;
+  const tail = ' alt="' + esc(alt || '') + '" style="object-position:50% ' + fy + '%">';
+  const c = cls ? ' class="' + esc(cls) + '"' : '';
+  if (d && d.avp && d.avp.id)
+    return '<img' + c + ' data-pid="' + esc(d.avp.id) + '" data-up="' + (d.avp.up ? 1 : 0) + '"' + tail;
+  if (d && typeof d.av === 'string' && d.av)
+    return '<img' + c + ' src="' + esc(d.av) + '"' + tail;
+  return '';
+}
+const dogHasFace = d => !!(d && ((d.avp && d.avp.id) || (typeof d.av === 'string' && d.av)));
 function dogFaceHTML(d, cls){
   return '<span class="dogface' + (cls ? ' ' + cls : '') + '" style="--dogc:' + collarOf(d) + '">' +
-    (d.av ? '<img src="' + esc(d.av) + '" alt="" style="object-position:50% ' + (isFinite(+d.afy) ? +d.afy : 50) + '%">' : ti('paw')) + '</span>';
+    (dogHasFace(d) ? dogFaceImg(d) : ti('paw')) + '</span>';
 }
 /* the wide picture at the top of their page, and on their card */
 function dogCoverHTML(d, cls){
   const fy = isFinite(+d.cfy) ? +d.cfy : 50;
   if (d.cov && d.cov.id) return '<img class="' + (cls || '') + '" data-pid="' + esc(d.cov.id) + '" data-up="' + (d.cov.up ? 1 : 0) +
     '" alt="' + esc(dogName(d)) + '" style="object-position:50% ' + fy + '%">';
-  if (d.av) return '<img class="' + (cls || '') + '" src="' + esc(d.av) + '" alt="' + esc(dogName(d)) +
-    '" style="object-position:50% ' + fy + '%">';
+  if (dogHasFace(d)) return dogFaceImg(d, cls || '', dogName(d));
   return '';
 }
 /* every hill you have marked with this dog, newest first */
@@ -16070,7 +16094,8 @@ function renderDogPage(id){
 function dogDraftFrom(d){
   return {id:(d && d.id) || '', name:(d && d.name) || '', sex:(d && d.sex) || '', breed:(d && d.breed) || '',
           dob:(d && d.dob) || '', collar:(d && d.collar) || 'teal', best:(d && d.best) || '',
-          nope:(d && d.nope) || '', av:(d && d.av) || '', afy:(d && isFinite(+d.afy)) ? +d.afy : 50,
+          nope:(d && d.nope) || '', av:(d && d.av) || '',
+          avp:(d && d.avp && d.avp.id) ? {...d.avp} : null, afy:(d && isFinite(+d.afy)) ? +d.afy : 50,
           cov:(d && d.cov) ? {...d.cov} : null, cfy:(d && isFinite(+d.cfy)) ? +d.cfy : 50,
           noph:(d && Array.isArray(d.noph)) ? d.noph.slice() : []};
 }
@@ -16084,9 +16109,9 @@ function paintDogEdit(){
     '<div class="form dogform" style="margin:0">' +
     '<div style="text-align:center" class="dogeditav">' + dogFaceHTML(d, '') +
       '<div class="btnrow" style="justify-content:center; margin-top:8px">' +
-        '<label class="btn ghost sm">' + ti('camera') + (d.av ? 'Change their face' : 'Add their face') +
+        '<label class="btn ghost sm">' + ti('camera') + (dogHasFace(d) ? 'Change their face' : 'Add their face') +
         '<input type="file" accept="image/*" data-act="dogphoto" class="filein"></label>' +
-        (d.av ? '<button class="btn quiet sm" data-act="dogfaceadjust">Adjust</button>' : '') + '</div>' +
+        (dogHasFace(d) ? '<button class="btn quiet sm" data-act="dogfaceadjust">Adjust</button>' : '') + '</div>' +
       '<p class="pdfine" style="margin-top:4px">Drag and pinch to frame them.</p>' +
     '</div>' +
     '<label>Cover picture <span class="opt">the wide one at the top of their page</span></label>' +
@@ -16127,12 +16152,25 @@ function paintDogEdit(){
    different screen shape. */
 function dogCropFace(src){
   openCropper(src, {title:'Frame their face', w:560, h:560, out:400, q:0.78,
-    save:pic => {
+    save:async pic => {
       if (!ui.dogDraft) return;
-      ui.dogDraft.av = pic; ui.dogDraft.afy = 50;
+      /* the same path the cover has always taken: the bytes go in the photo
+         store and the log carries nothing but an id */
+      let saved = null;
+      try{
+        const blob = await (await fetch(pic)).blob();
+        if (blob instanceof Blob && blob.size){
+          const id = uid();
+          await putBlob(id, blob);
+          const back = await getBlob(id);
+          if (back instanceof Blob && back.size) saved = {id, up:0};
+        }
+      }catch(e){}
+      if (!saved){ toast('Could not save that picture. Nothing else changed.'); return; }
+      ui.dogDraft.avp = saved; ui.dogDraft.av = ''; ui.dogDraft.afy = 50;
       /* keep it straight away: leaving the sheet without pressing Save used to
          throw the picture away, which is not what choosing a picture means */
-      dogKeepPic({av:pic, afy:50});
+      dogKeepPic({avp:saved, av:'', afy:50});
       paintDogEdit();
     }});
 }
@@ -16159,12 +16197,59 @@ function dogKeepPic(fields){
   Object.assign(cur, fields, {t:now()});
   touched(); render();
 }
+/* The one-off move of a portrait that is already inline. It runs after the
+   cloud merge, so a picture arriving from another device or from a shared
+   dog is caught too.
+
+   The inline copy is cleared ONLY after the bytes are read back out of the
+   store. putBlob answers null on failure, and clearing first would destroy
+   the picture on a phone that happened to be out of room — the same trap the
+   photo sweep already has a comment about. */
+/* A shared dog is one Firestore document that both keepers read, and the
+   co-keeper's browser cannot reach the owner's photo store — so the picture
+   still travels inline, read back out of the blob at the moment of sharing.
+   It is the one place the big string is still right: that document holds one
+   dog, not the whole log. */
+async function dogShareAv(d){
+  if (d && typeof d.av === 'string' && d.av) return d.av;
+  if (d && d.avp && d.avp.id){
+    try{
+      const b = await getBlob(d.avp.id);
+      if (b instanceof Blob) return await blobToB64(b);
+    }catch(e){}
+  }
+  return '';
+}
+async function dogFaceMigrate(){
+  if (!Array.isArray(state.dogs) || !state.dogs.length) return 0;
+  let moved = 0;
+  for (const d of state.dogs){
+    if (!d || d.deleted) continue;
+    /* already moved, with a stale inline copy still riding along */
+    if (d.avp && d.avp.id){ if (d.av){ d.av = ''; d.t = now(); moved++; } continue; }
+    if (typeof d.av !== 'string' || !/^data:image\//.test(d.av)) continue;
+    try{
+      const blob = await (await fetch(d.av)).blob();
+      if (!(blob instanceof Blob) || !blob.size) continue;
+      const id = uid();
+      await putBlob(id, blob);
+      const back = await getBlob(id);
+      if (!(back instanceof Blob) || !back.size) continue;
+      d.avp = {id, up:0}; d.av = ''; d.t = now(); moved++;
+    }catch(e){ /* leave it inline and try again next time */ }
+  }
+  if (moved){ touched(); render(); }
+  return moved;
+}
 /* re-framing an existing picture: the cropper needs the picture itself back */
 async function dogAdjust(which){
   const d = ui.dogDraft; if (!d) return;
   if (which === 'face'){
-    if (!d.av) return;
-    dogCropFace(d.av);
+    if (!dogHasFace(d)) return;
+    let src = (typeof d.av === 'string' && d.av) ? d.av : '';
+    if (!src && d.avp && d.avp.id) src = await photoSrc({id:d.avp.id, up:d.avp.up});
+    if (!src){ toast('That picture is not on this device any more.'); return; }
+    dogCropFace(src);
   } else {
     if (!d.cov || !d.cov.id) return;
     const src = await photoSrc({id:d.cov.id, up:d.cov.up});
@@ -16200,7 +16285,9 @@ function saveDog(){
   const d = ui.dogDraft; if (!d || !d.name.trim()) return;
   const clean = {name:d.name.trim().slice(0, 40), sex:d.sex, breed:d.breed.trim().slice(0, 40),
     dob:d.dob || '', collar:d.collar || 'teal', best:d.best.trim().slice(0, 80),
-    nope:d.nope.trim().slice(0, 80), av:d.av || '', afy:isFinite(+d.afy) ? +d.afy : 50,
+    nope:d.nope.trim().slice(0, 80), av:d.av || '',
+    avp:d.avp && d.avp.id ? {id:d.avp.id, up:d.avp.up ? 1 : 0} : null,
+    afy:isFinite(+d.afy) ? +d.afy : 50,
     cov:d.cov && d.cov.id ? {id:d.cov.id, up:d.cov.up ? 1 : 0} : null,
     cfy:isFinite(+d.cfy) ? +d.cfy : 50, noph:Array.isArray(d.noph) ? d.noph : [], deleted:false, t:now()};
   if (d.id){
@@ -16466,7 +16553,7 @@ async function dogMakeLink(){
       if (!dogCloud[id]){
         const nm = {}; nm[fbUser.uid] = myName();
         await FB.setDoc(dogRef(id), {name:dogName(d), breed:d.breed || '', sex:d.sex || '', dob:d.dob || '',
-          collar:d.collar || '', av:d.av || '', owners:[fbUser.uid], pending:[], names:nm, t:Date.now()}, {merge:true});
+          collar:d.collar || '', av:await dogShareAv(d), owners:[fbUser.uid], pending:[], names:nm, t:Date.now()}, {merge:true});
         dogCloud[id] = {owners:[fbUser.uid], pending:[], names:nm, marks:[]};
       }
       await dogPushMarks(id);
@@ -16541,7 +16628,7 @@ async function dogShareTo(ids, uid){
       const owners = [...new Set([...(cur.owners || []), fbUser.uid])];
       const pending = [...new Set([...(cur.pending || []), uid])].filter(u => owners.indexOf(u) < 0);
       await FB.setDoc(dogRef(id), {name:dogName(d), breed:d.breed || '', sex:d.sex || '', dob:d.dob || '',
-        collar:d.collar || '', av:d.av || '', owners, pending, names, t:Date.now()}, {merge:true});
+        collar:d.collar || '', av:await dogShareAv(d), owners, pending, names, t:Date.now()}, {merge:true});
       dogCloud[id] = {owners, pending, names, marks:(cur.marks || [])};
       await dogPushMarks(id);
       done.push(dogName(d));
@@ -17625,7 +17712,10 @@ function render(){
      error is re-raised when the message changes, so a new failure is never
      swallowed by having closed the last one. */
   } else if (cloudOn() && syncState === 'error' && ui.errHidden !== syncErr){
-    banner = '<div class="banner"><div><b>Could not save to the cloud</b>' + esc(syncErr) + '. Everything is still safe on this device and it will keep retrying.</div><button data-act="hidebanner" data-v="err" aria-label="Dismiss">×</button></div>';
+    /* the message already ends in a full stop, and this added a second one:
+       "...come off it.. Everything is still safe". Seen in a screenshot, not
+       in the code. */
+    banner = '<div class="banner"><div><b>Could not save to the cloud</b>' + esc(String(syncErr).replace(/[.\s]+$/, '')) + '. Everything is still safe on this device and it will keep retrying.</div><button data-act="hidebanner" data-v="err" aria-label="Dismiss">×</button></div>';
   /* LAST in the chain on purpose. An invite expires, a failed save is
      urgent, signing in is the bigger ask — the Home Screen nudge waits its
      turn behind all three, and once it is waved away it does not come back.
@@ -26991,6 +27081,7 @@ document.getElementById('restoreBtn').onclick = () => {
              enabledT:m.enabledT || state.enabledT || 0};
     seedSeen();
     try{ kitDedupe(); }catch(e){}
+    try{ dogFaceMigrate(); }catch(e){}
     touched(); render(); sheet.classList.remove('open'); toast('Log restored.');
   }catch(err){ toast('That does not look like a WayMark backup.'); }
 };
@@ -27170,6 +27261,26 @@ async function fbPull(){
     return parsed;
   }catch(e){ return null; }
 }
+/* The parts of the cloud record, heaviest first, in the walker's words.
+   Sizes only — it never looks at what anything says. */
+function cloudParts(){
+  const B = o => { try{ return JSON.stringify(o === undefined ? null : o).length; }catch(e){ return 0; } };
+  const rows = [
+    ['your planned walks', B(state.plans || [])],
+    ['your journal', B(state.diary || [])],
+    ['your dogs', B(state.dogs || [])],
+    ['your hills', B(state.bagged || {})],
+    ['your kit', B(state.kit || [])],
+    ['your own peaks', B(state.own || [])]
+  ];
+  return rows.filter(r => r[1] > 0).sort((a, b) => b[1] - a[1]);
+}
+function cloudHeavy(){
+  const kb = n => n >= 1024 * 10 ? Math.round(n / 1024) + ' kB' : (n / 1024).toFixed(1) + ' kB';
+  const top = cloudParts().slice(0, 2);
+  if (!top.length) return 'it is too big to save in one piece';
+  return 'most of it is ' + top.map(r => r[0] + ' at ' + kb(r[1])).join(' and ');
+}
 async function fbPush(){
   const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || [], own:state.own || [], dogs:state.dogs || [], kit:state.kit || [], kitSeeded:state.kitSeeded || 0, chal:state.chal || null});
   /* Firestore's limit is on the WHOLE document, and the log is not the whole
@@ -27180,7 +27291,16 @@ async function fbPush(){
   const extra = (fbAvatar || '').length + JSON.stringify(myGroups() || []).length +
                 JSON.stringify(stravaRec() || null).length + JSON.stringify(state.enabled || []).length + 400;
   if (payload.length + extra > 950000)
-    throw new Error('Your log has outgrown one cloud record. Nothing is lost — it is all still on this device — but it cannot be saved to the cloud until some routes or photos come off it.');
+    /* WHAT IS BIG IS A MEASUREMENT, NOT A GUESS.
+
+       The old wording named "routes or photos". On Joe's own log, 6 Oct, the
+       photos came to 5 kB — they are already stored outside this record —
+       and the hills themselves to 15 kB of 864. Naming the wrong thing sends
+       a walker off deleting pictures that were never the problem. So the
+       message weighs the record and names the two heaviest parts by what
+       they are and how big they actually are. */
+    throw new Error('Your log has outgrown one cloud record — ' + cloudHeavy() +
+      '. Nothing is lost: it is all still on this device.');
   /* setDoc replaces the whole record, so writing before ever having read it
      would push empty defaults over a name and picture already saved. Belt to
      the per-field braces above: read first if for any reason we have not. */
@@ -27715,6 +27835,9 @@ async function fbSync(initial){
          they carry unrelated ids and no marker can reach them. They are
          folded together here, the first time the log comes down. */
       try{ kitDedupe(); }catch(e){} }
+    /* and a portrait that came down inline from another device, or with a
+       dog somebody shared, is moved out of the record the same way */
+    try{ dogFaceMigrate(); }catch(e){}
 
     const pending = [];
     for (const r of Object.values(state.bagged))
@@ -27726,6 +27849,8 @@ async function fbSync(initial){
     /* a dog's cover is a photo like any other: left out of this sweep it would
        live in one browser and vanish with it */
     for (const g of (state.dogs || [])) if (g && g.cov && !g.cov.up) pending.push(g.cov);
+    /* and the portrait, which from v319 is a photo like any other */
+    for (const g of (state.dogs || [])) if (g && g.avp && !g.avp.up) pending.push(g.avp);
     const lost = new Set();
     for (const p of pending.slice(0, 4)){
       /* THE DIFFERENCE BETWEEN "GONE" AND "COULD NOT READ IT" IS A PHOTO.
@@ -27765,6 +27890,7 @@ async function fbSync(initial){
          the four upload slots gone for good. */
       for (const g of (state.dogs || [])){
         if (g && g.cov && lost.has(g.cov.id)){ g.cov = null; g.t = now(); }
+        if (g && g.avp && lost.has(g.avp.id)){ g.avp = null; g.t = now(); }
       }
     }
 
@@ -35115,6 +35241,7 @@ seedSeen();
    and any copies an earlier version made are folded together before the
    first paint, so a walker with no account is repaired too */
 try{ kitSeed(); kitDedupe(); }catch(e){}
+try{ dogFaceMigrate(); }catch(e){}
 render();
 introEverest();
 cloudReady = true;
