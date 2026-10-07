@@ -31351,7 +31351,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v321';
+const APP_VERSION = 'v322';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -35585,18 +35585,84 @@ const SKY_NEAR = 300, SKY_FAR = 140000;
 const SKY_LOOKS = [['camera', 'Camera'], ['paper', 'Paper'], ['dusk', 'Dusk'], ['night', 'Night']];
 const SKY_SKIN = {
   camera: {ink: '#F6EFE4', edge: '#FFFFFF', wash: '14,35,30', deep: 0.58, text: '#F6EFE4',
-           sub: 'rgba(246,239,228,.80)', lead: 'rgba(246,239,228,.55)', dot: '#E0784F', bg: null},
+           sub: 'rgba(246,239,228,.80)', lead: 'rgba(246,239,228,.55)', dot: '#E0784F', bg: null,
+           plate: '#F6EFE4', pInk: '#14332D', pSub: '#A8431A', pEdge: 'rgba(20,51,45,.22)'},
   /* the map-sheet look: dark ink on warm paper */
   paper:  {ink: '#2C5F55', edge: '#14332D', wash: '255,255,255', deep: 0.0, text: '#14332D',
-           sub: 'rgba(20,51,45,.66)', lead: 'rgba(20,51,45,.42)', dot: '#A8431A', bg: '#F3EFE6'},
+           sub: 'rgba(20,51,45,.66)', lead: 'rgba(20,51,45,.42)', dot: '#A8431A', bg: '#F3EFE6',
+           /* the plate is cream on every look. On Paper the background is
+              cream too, so this one gets a firm edge instead of a shadow. */
+           plate: '#FBF7EF', pInk: '#14332D', pSub: '#A8431A', pEdge: 'rgba(44,95,85,.85)'},
   /* a moss ground, well clear of the near-black the first version used */
   dusk:   {ink: '#F3EFE6', edge: '#FFFFFF', wash: '28,70,61', deep: 0.42, text: '#F6EFE4',
-           sub: 'rgba(246,239,228,.80)', lead: 'rgba(246,239,228,.55)', dot: '#E0784F', bg: '#2C5F55'},
+           sub: 'rgba(246,239,228,.80)', lead: 'rgba(246,239,228,.55)', dot: '#E0784F', bg: '#2C5F55',
+           plate: '#F6EFE4', pInk: '#14332D', pSub: '#A8431A', pEdge: 'rgba(20,51,45,.22)'},
+  /* Night is the one exception to the cream plate. Night exists to keep your
+     eyes dark-adapted; a cream card the size of a stamp undoes that. Same
+     plate, dark. */
   night:  {ink: '#C9BFA8', edge: '#E8DFC8', wash: '0,0,0', deep: 0.5, text: '#E6DCC4',
-           sub: 'rgba(230,220,196,.62)', lead: 'rgba(230,220,196,.38)', dot: '#C2612C', bg: '#0A0F0D'}
+           sub: 'rgba(230,220,196,.62)', lead: 'rgba(230,220,196,.38)', dot: '#C2612C', bg: '#0A0F0D',
+           plate: 'rgba(10,15,13,.92)', pInk: '#E6DCC4', pSub: '#C2612C', pEdge: 'rgba(230,220,196,.45)'}
 };
 const skySkin = () => SKY_SKIN[skyLoadPrefs().look] || SKY_SKIN.camera;
+/* ONE HILL, ONE NAME.
+
+   Standing on Blencathra looking west-north-west, Skyline printed four
+   cards: Skiddaw South Top, Skiddaw Middle Top, Skiddaw, Skiddaw North Top.
+   All 6.4 km away, all the same mountain. It is one of the reasons the view
+   reads as noise — and it was there before the new labels; nearest-first
+   just made it impossible to miss.
+
+   The hill lists use a plain convention for a subsidiary bump: the parent's
+   name, a compass word, and the word Top. Strip that and you have the
+   family. The card goes to the parent itself if it is in sight, otherwise
+   to the highest of the family.
+
+   Lower Man and Little Man are the Lakeland spelling of the same idea, so
+   they fold too: Helvellyn Lower Man was taking the card off Helvellyn.
+
+   AND THE FOLD ONLY HAPPENS IF THE PARENT IS ITSELF A HILL. Calf Top,
+   Chapelfell Top and Randygill Top are summits in their own right; stripping
+   them would file them under a "Calf" that does not exist. Checked against
+   all 3,440 names: 75 subsidiary tops fold onto a real parent, and the 51
+   hills that merely end in the word keep their own name. */
+const SKY_TOP_RE = /\s+(?:(?:Far\s+)?(?:North|South|East|West|North\s+West|North\s+East|South\s+West|South\s+East|Mid|Middle|Upper|Lower|Little|Far)\s+)?Top$|\s+(?:Lower|Little|Upper|Far|Middle|North|South|East|West)\s+Man$/i;
+let SKY_NAMES = null;
+function skyFamily(n){
+  const s = String(n), m = s.replace(SKY_TOP_RE, '').trim();
+  if (!m || m === s) return s;
+  if (!SKY_NAMES){ SKY_NAMES = new Set(); for (const h of DATA.hills) SKY_NAMES.add(h.n); }
+  return SKY_NAMES.has(m) ? m : s;
+}
 const SKY_PXDEG = 14;                  /* the strip's scale */
+/* VERTICAL EXAGGERATION — the whole reason Skyline was unreadable.
+
+   Joe, 7 Oct, with a side-by-side against PeakFinder: "skyline is basically
+   unusable... unreadable." Measured off his own frame at 291°: the drawn
+   skyline rose and fell by 31px across the entire width — 3.9% of the view —
+   while PeakFinder's spanned 185px of the same horizon.
+
+   It was not a bug. It was true. The Blorenge is 561 m and 54 km away, which
+   after the curve of the earth is about 0.3° above the eye. At a faithful
+   14 px per degree that is four pixels. Every distant hill is four pixels,
+   so they all merge into one flat band and there is nothing to recognise.
+
+   Every panorama app stretches the vertical, and this is how: a gain near
+   the eye, easing off higher up, so a hill 50 km away becomes a shape while
+   a slope you are stood under does not fill the sky. tanh does both with one
+   line and no special cases.
+
+   It MUST be used everywhere an angle becomes a y, or the names come adrift
+   from the peaks they belong to. There are exactly two such places:
+   skyStrip's Y() and skyLabels' row building. */
+/* The gain is a let, not a const, so t/probe-skyread.js can turn it back to
+   1 — which IS v321's geometry — and measure a true before and after rather
+   than a remembered one. Nothing in the app writes it. */
+let SKY_GAIN = 8;   /* MY recommendation, not Joe's choice — he asked to see
+                       options rather than pick a number. Drawn at 4, 6 and 8
+                       on 7 Oct; this is the one to change if he picks another. */
+const SKY_CAP = 26;
+const skyLift = a => SKY_CAP * Math.tanh(a * SKY_GAIN / SKY_CAP);
 /* Held upright the picture is about 70 degrees tall and the strip has to
    reach well past half of that both ways, or the drawing stops partway down
    the screen. It is drawn once and used in both orientations. */
@@ -35834,7 +35900,11 @@ function skyNames(V, hereKey){
     const c = Math.round(b / 360 * V.cols) % V.cols;
     const near = Math.max(V.hor[(c + V.cols - 1) % V.cols], V.hor[c], V.hor[(c + 1) % V.cols]);
     if (a < near - 0.02) continue;                 /* the ground is in the way */
-    out.push({k: h.k, n: h.n, h: h.h, b, a, d: d / 1000, t: skyTier(h)});
+    /* mine: on a list this walker has switched on. A hill they could walk
+       up and mark keeps its own name even if it is a top of something — see
+       the fold in skyLabels. */
+    out.push({k: h.k, n: h.n, h: h.h, b, a, d: d / 1000, t: skyTier(h),
+              mine: (h.l || []).some(l => state.enabled.includes(l)) ? 1 : 0});
   }
   /* one name per degree and a bit, the most striking winning the slot */
   out.sort((p, q) => (p.t - q.t) || (q.a - p.a));
@@ -35854,7 +35924,7 @@ function skyStrip(V, skin){
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
   const eyeY = SKY_UP * SKY_PXDEG;
-  const Y = a => eyeY - a * SKY_PXDEG;
+  const Y = a => eyeY - skyLift(a) * SKY_PXDEG;
   const run = new Float32Array(V.cols).fill(-90);
   const colX = i => i / V.cols * W;
   /* A pale line over a bright sky or a snowfield is no line at all. The
@@ -36019,22 +36089,41 @@ async function skyReady(force){
     return;
   }
   skyState = 'loading'; skyPct = 0; skyTick();
+  /* THE NATIONAL GRID IS THE REQUIREMENT. Without it there is no ground to
+     draw and nothing honest to show. */
   try{
     if (!skyHeld.base){
       if (!(await skyHave('base')) && !navigator.onLine) throw new Error('offline');
       skyHeld.base = await skyGetGrid(idx.base, f => { skyPct = f * (want ? 0.6 : 1); skyTick(); });
-    }
-    if (want && (!skyHeld.pack || skyHeld.pack.key !== want.key)){
-      if (await skyHave(want.key) || navigator.onLine){
-        const g = await skyGetGrid(want, f => { skyPct = 0.6 + f * 0.4; skyTick(); });
-        g.key = want.key; skyHeld.pack = g;
-      }
     }
   }catch(e){
     skyState = 'none';
     skyMsg = /exactly/.test(e.message) ? 'This phone cannot read the hill data.'
                                       : 'Skyline needs the hills first. One download, then it works with no signal.';
     skyTick(); return;
+  }
+  /* THE LOCAL 50 m PACK IS AN UPGRADE, NOT A REQUIREMENT, and it used to be
+     treated as one: both downloads sat in the same try, so a pack that would
+     not come down took the whole of Skyline with it and the screen said
+     "Skyline needs the hills first" while the national grid sat on the phone
+     ready to use.
+
+     That is precisely the one-bar-on-a-hill case. The fine pack fails far
+     more often than the base, because it is only ever fetched when you are
+     standing inside its square — on a hill, on a weak signal. Now a pack
+     that will not come makes the ground coarser, not absent.
+
+     It is cleared rather than kept, because a pack for somewhere else is
+     worse than no pack: it would draw another valley's ground under this
+     one's sky. */
+  if (want && (!skyHeld.pack || skyHeld.pack.key !== want.key)){
+    skyHeld.pack = null;
+    try{
+      if (await skyHave(want.key) || navigator.onLine){
+        const g = await skyGetGrid(want, f => { skyPct = 0.6 + f * 0.4; skyTick(); });
+        g.key = want.key; skyHeld.pack = g;
+      }
+    }catch(e){ skyHeld.pack = null; }
   }
   if (!skyGround()){ skyState = 'none'; skyMsg = 'No hills saved for this area yet.'; skyTick(); return; }
   skyState = 'scanning'; skyTick();
@@ -36184,9 +36273,14 @@ function skyLabels(ctx, W, H, head, pitch, fov, eyeY, pxd, opt){
   const V = skyView; if (!V || !V.peaks) return;
   const half = fov / 2 + 2, hit = [];
   const near = V.peaks.filter(p => Math.abs(((p.b - head + 540) % 360) - 180) < half);
-  const rows = near.map(p => ({p,
-    x: W / 2 + (((p.b - head + 540) % 360) - 180) * pxd,
-    y: eyeY - p.a * pxd}));
+  const rows = near.map(p => {
+    const y = eyeY - skyLift(p.a) * pxd;
+    return {p, y, x: W / 2 + (((p.b - head + 540) % 360) - 180) * pxd,
+            /* IN VIEW means the peak itself is on the screen, not merely
+               somewhere in the compass sweep. A hill below the bottom edge
+               because the phone is tipped at the sky is not in view. */
+            vis: y > -40 && y < H ? 1 : 0};
+  });
   /* everything below is in screen pixels, and the screen is anything from a
      small phone held upright to a big one held sideways, so one scale runs
      through the lot */
@@ -36198,73 +36292,133 @@ function skyLabels(ctx, W, H, head, pitch, fov, eyeY, pxd, opt){
     ctx.fillStyle = r.p.t === 0 ? S.dot : S.sub;
     ctx.beginPath(); ctx.arc(r.x, r.y, (r.p.t === 0 ? 8 : 5) * u, 0, 7); ctx.fill();
   }
-  /* the names stack above the skyline rather than sitting on each hill,
-     because from a summit everything is within a degree or two of your eye */
-  /* Shelves above the skyline, as many as the screen has room for. Held
-     upright there are four; turned sideways there may be only one, and
-     pretending otherwise stacked every name on the same line. */
-  /* The Camera / Skyline switch sits at the head of the picture, so the top
-     shelf starts below it rather than under it. Measured, not guessed, so it
-     stays right whichever way the phone is held. */
+  /* WHERE THE CARD GOES.
+
+     It used to go on one of four shelves across the top of the picture, with
+     a long leader line running down to the hill — which is why Joe had to
+     trace a wire with his finger to find out what he was looking at.
+
+     He asked for PeakFinder's way instead, on 7 Oct: the name sits ON its
+     own peak. So each card is placed directly above its summit and only
+     lifted higher when another card is already there. The leader is a short
+     stub, usually straight down, and often there is nothing to trace at all.
+
+     The Camera / Skyline switch sits at the head of the picture, so nothing
+     is placed under it. Measured, not guessed, so it holds whichever way the
+     phone is held. */
   let ceiling = 56 * u;
   const B2 = skyMeasure();
   if (B2 && B2.modeBottom != null && B2.vh)
     ceiling = Math.max(ceiling, B2.modeBottom * (H / B2.vh) + 34 * u);
-  const step = 104 * u;
-  const LY = [];
-  for (let i = 0; i < 4; i++){
-    const y = eyeY - 180 * u - i * step;
-    if (y < ceiling) break;
-    LY.push(y);
-  }
-  /* Held sideways, or tipped down at the valley, there can be no room above
-     the skyline at all. Rather than stacking every name on one line, they
-     hang BELOW it instead, with the leader running up to the hill. */
-  let below = false;
-  if (LY.length < 2){
-    const floorY = H - 150 * u;
-    const down = [];
-    for (let i = 0; i < 4; i++){
-      const y = eyeY + 96 * u + i * step;
-      if (y > floorY) break;
-      down.push(y);
-    }
-    if (down.length > LY.length){ LY.length = 0; LY.push(...down); below = true; }
-  }
-  if (!LY.length) LY.push(Math.max(ceiling, Math.min(eyeY - 60 * u, H - 60 * u)));
-  const lanes = LY.map(() => []);
-  const order = rows.slice().sort((a, b) => (a.p.t - b.p.t) || (b.p.a - a.p.a));
-  let named = 0;
+  const floorY = H - 24 * u;
+  /* Joe, 7 Oct: "prioritise the peaks closest and in view."
+     It used to sort by tier then apparent height, so a Munro eighty
+     kilometres off beat the ridge you are stood on. Now: on the screen
+     first, then nearest. Nothing else. */
+  const order = rows.slice().sort((a, b) => (b.vis - a.vis) || (a.p.d - b.p.d));
+  /* one card per family — see skyFamily */
+  /* one card per family — see skyFamily — EXCEPT for a hill on a list the
+     walker has switched on. Skiddaw Little Man is a Wainwright: somebody
+     working through the Wainwrights walks up it on purpose and marks it, so
+     it is not "a bump on Skiddaw" to them. Skiddaw North Top is a Birkett
+     and nothing else, so unless Birketts are on, it folds. */
+  const bestOf = new Map();
   for (const r of order){
+    if (r.p.mine && r.p.n !== skyFamily(r.p.n)){ bestOf.set(r.p.k, {r, sc: Infinity}); continue; }
+    const fam = skyFamily(r.p.n), sc = (r.p.n === fam ? 1e6 : 0) + r.p.h;
+    const had = bestOf.get(fam);
+    if (!had || sc > had.sc) bestOf.set(fam, {r, sc});
+  }
+  const oneEach = new Set([...bestOf.values()].map(x => x.r));
+  const placed = [], cards = [];
+  const clash = (L, T, R, Bm) => placed.some(q =>
+    L < q.R + 7 * u && q.L - 7 * u < R && T < q.B + 7 * u && q.T - 7 * u < Bm);
+  let named = 0;
+  /* No names at all until the face is loaded — see camFontsReady. Measuring
+     against the fallback mono is how a label ends up half off the screen. */
+  const fontOK = camFontsReady();
+  for (const r of order){
+    if (!fontOK) break;
     if (named >= (opt.max || 11)) break;
-    const NP = Math.round(38 * u), SP = Math.round(26 * u);
-    cMono(ctx, NP, 700);
-    const sub = r.p.h + ' M  ·  ' + (r.p.d < 10 ? r.p.d.toFixed(1) : Math.round(r.p.d)) + ' KM';
-    const w = Math.max(cMeasure(ctx, r.p.n.toUpperCase(), 2.4), (cMono(ctx, SP, 400), cMeasure(ctx, sub, 2.4)), 160 * u) + 30 * u;
+    if (!oneEach.has(r)) continue;
+    /* PLATED. Joe picked this on 7 Oct over tilted type and over a tinted
+       bar: a cream card with the name on it, because the card carries its
+       own contrast and does not care what is behind it. Mixed case, no
+       tracking, because ALL CAPS AT 2.4 TRACKING was most of why the old
+       ones were hard to read. Height underneath in rust. The distance has
+       gone — he is looking at a hill, not planning a route. */
+    const NP = Math.round(42 * u), SP = Math.round(28 * u);
+    const name = r.p.n, sub = r.p.h + ' m';
+    cMono(ctx, NP, 700); const nw = cMeasure(ctx, name, 0);
+    cMono(ctx, SP, 500); const sw2 = cMeasure(ctx, sub, 0);
+    const padX = 18 * u, padY = 11 * u, gap = 7 * u;
+    const w = Math.max(nw, sw2) + padX * 2;
+    const ch = padY + NP * 0.80 + gap + SP + SP * 0.28 + padY;
     if (r.x < 16 || r.x > W - 16) continue;
-    /* The label is nudged in off the edge so it is not clipped. The old code
-       tested the lane against where the peak IS and then stored where the
-       label ENDED UP, so anything pushed inwards sat on top of its
-       neighbour — two names printed over each other. Work out the resting
-       place first, then test THAT. */
-    const lx = Math.min(Math.max(r.x, w / 2 + 12 * u), W - w / 2 - 12 * u);
-    /* and if the nudge is so big the leader line would point somewhere the
-       hill is not, say nothing rather than something misleading */
-    if (Math.abs(lx - r.x) > 90 * u) continue;
-    let put = -1;
-    for (let L = 0; L < lanes.length; L++)
-      if (lanes[L].every(([a, b]) => lx + w / 2 < a || lx - w / 2 > b)){ put = L; break; }
-    if (put < 0) continue;
-    lanes[put].push([lx - w / 2, lx + w / 2]); named++;
-    const ly = LY[put];
-    ctx.strokeStyle = S.lead; ctx.lineWidth = 2.2 * u;
+    /* A NAME IS NEVER CLIPPED. If the card will not fit inside the picture
+       there is nowhere honest to put it, so it is not drawn. Half a word is
+       worse than no word — Joe caught exactly this in a drawing of mine. */
+    if (w > W - 20 * u || ch > floorY - ceiling) continue;
+    /* SIDEWAYS BEFORE UPWARDS.
+
+       Eighty kilometres off, the whole of the Brecon Beacons sits inside a
+       third of a degree, so every card wanted the same spot and they piled
+       into a tower six high with long wires hanging off it — the ladder Joe
+       complained about, rebuilt by accident.
+
+       So each card tries its own peak first, then a nudge left or right, and
+       only climbs a storey when the row it is on is genuinely full. Three
+       storeys is the limit; past that the hill keeps its dot and loses its
+       name, because a name four storeys up is pointing at nothing you can
+       follow. */
+    const stub = 16 * u, storey = ch + 9 * u;
+    const nudges = [0, -0.55, 0.55, -1.1, 1.1];
+    let spot = null;
+    for (let lev = 0; lev < 3 && !spot; lev++){
+      for (const f of nudges){
+        const want = r.x + f * w;
+        const lx = Math.min(Math.max(want, w / 2 + 10 * u), W - w / 2 - 10 * u);
+        /* if the nudge is so big the stub would point somewhere the hill is
+           not, say nothing rather than something misleading */
+        if (Math.abs(lx - r.x) > 118 * u) continue;
+        const L = lx - w / 2, R2 = lx + w / 2;
+        let bot = r.y - stub - lev * storey, below = false;
+        if (bot - ch < ceiling){
+          /* no room above — hang it below the peak, same rule downwards */
+          below = true; bot = r.y + stub + ch + lev * storey;
+          if (bot > floorY) continue;
+        }
+        if (bot - ch < 2 || bot > H - 2) continue;
+        if (clash(L, bot - ch, R2, bot)) continue;
+        spot = {lx, L, R: R2, top: bot - ch, bot, below};
+        break;
+      }
+    }
+    if (!spot) continue;
+    placed.push({L: spot.L, R: spot.R, T: spot.top, B: spot.bot}); named++;
+    const ly = spot.top + padY + NP * 0.80;        /* the name's baseline */
+    cards.push({r, name, sub, NP, SP, gap, w, ch, ly, ...spot});
+    hit.push({p: r.p, x: spot.lx, y: ly, w, h: ch, top: spot.top, bot: spot.bot,
+              px: r.x, py: r.y});
+  }
+  /* Every stub first, then every card on top of them, so a late card's wire
+     never crosses an earlier card's face. */
+  ctx.strokeStyle = S.lead; ctx.lineWidth = 2.2 * u;
+  for (const c of cards){
     ctx.beginPath();
-    ctx.moveTo(r.x, r.y + (below ? 12 : -10) * u);
-    ctx.lineTo(lx, ly + (below ? -30 : 16) * u);
+    ctx.moveTo(c.r.x, c.r.y + (c.below ? 10 : -8) * u);
+    ctx.lineTo(c.lx, c.below ? c.top : c.bot);
     ctx.stroke();
-    cText(ctx, r.p.n.toUpperCase(), lx, ly, NP, 2.4, S.text, {align: 'center'});
-    cText(ctx, sub, lx, ly + 36 * u, SP, 2.4, S.sub, {align: 'center', w: 400});
-    hit.push({p: r.p, x: lx, y: ly, w, px: r.x, py: r.y});
+  }
+  for (const c of cards){
+    cShadow(ctx, S.bg === '#0A0F0D' ? false : true);   /* every look but Night */
+    cPlate(ctx, c.L, c.top, c.w, c.ch, 11 * u);
+    ctx.fillStyle = S.plate || S.text; ctx.fill();
+    cShadow(ctx, false);
+    ctx.strokeStyle = S.pEdge || 'transparent'; ctx.lineWidth = 1.5 * u; ctx.stroke();
+    cText(ctx, c.name, c.lx, c.ly, c.NP, 0, S.pInk || '#14332D', {align: 'center', w: 700});
+    cText(ctx, c.sub, c.lx, c.ly + c.gap + c.SP, c.SP, 0, S.pSub || '#A8431A',
+          {align: 'center', w: 500});
   }
   cShadow(ctx, false);
   V.hit = hit;
@@ -36459,6 +36613,36 @@ function cFade(ctx, y, h, stops, alpha){
   if (CAM_B && y + h >= CAM_H - 0.5){ ctx.fillStyle = tint(stops[stops.length - 1][1]); ctx.fillRect(0, y + h, CAM_W, CAM_B + CAM_H - y - h); }
 }
 const FADE = [[0, 0], [0.4, 0.62], [1, 0.9]], FTOP = [[0, 0.7], [1, 0]], FBOT = [[0, 0], [1, 0.55]];
+/* ctx.measureText LIES until the face is actually loaded: it answers with the
+   fallback mono, every width comes back short, and labels laid out on those
+   widths overlap or run off the edge. It cost a clipped name in a drawing
+   Joe caught on 7 Oct, and the same trap is in every label on this canvas.
+   So: no names until the face is here. The dots and leaders still draw, and
+   the loop is already running, so they appear a frame later.
+   If the face never arrives — no signal, blocked — a system mono after two
+   seconds beats no names at all. */
+let CAM_FONT_OK = 0, CAM_FONT_T = 0;
+function camFontsReady(){
+  if (CAM_FONT_OK) return 1;
+  try{
+    if (!document.fonts || !document.fonts.check) return (CAM_FONT_OK = 1);
+    if (document.fonts.check('600 30px "Source Code Pro"')) return (CAM_FONT_OK = 1);
+  }catch(e){ return (CAM_FONT_OK = 1); }
+  if (!CAM_FONT_T) CAM_FONT_T = performance.now();
+  if (performance.now() - CAM_FONT_T > 2000) return (CAM_FONT_OK = 1);
+  return 0;
+}
+/* a rounded box, written out rather than ctx.roundRect, which iOS 15 has not got */
+function cPlate(ctx, x, y, w, h, r){
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y,     x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x,     y + h, r);
+  ctx.arcTo(x,     y + h, x,     y,     r);
+  ctx.arcTo(x,     y,     x + w, y,     r);
+  ctx.closePath();
+}
 function cShadow(ctx, on){
   ctx.shadowColor = on ? 'rgba(8,20,15,.6)' : 'transparent'; ctx.shadowBlur = on ? 8 : 0; ctx.shadowOffsetY = on ? 2 : 0;
 }
