@@ -2143,8 +2143,9 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
   background:none; border:0; border-bottom:1px solid var(--line-soft); color:inherit; text-align:left; cursor:pointer}
 .reclist li:last-child button{border-bottom:0}
 .patch.recdisc{width:auto; flex:none}
-.patch.recdisc .disc{width:52px; height:52px; margin:0}
-.patch.recdisc .disc svg{width:20px; height:20px}
+/* 52 -> 64: at 52 the name rendered at 10.4px. See the words-always note. */
+.patch.recdisc .disc{width:68px; height:68px; margin:0}
+.patch.recdisc .disc svg{width:100%; height:100%}
 .rectext{flex:1; min-width:0; display:grid; gap:1px}
 .rectext b{font-family:var(--font-display); font-size:15px; line-height:1.2}
 .rectext i{font-family:var(--font-data); font-style:normal; font-size:11.5px; color:var(--ink-3)}
@@ -2156,8 +2157,10 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
   padding:4px 0; background:none; border:0}
 button.bstriprow{cursor:pointer}
 .patch.bsdisc{width:auto; flex:none; opacity:1; filter:none}
-.patch.bsdisc .disc{width:40px; height:40px; margin:0; border-width:2px}
-.patch.bsdisc .disc svg{width:16px; height:16px}
+/* 40 -> 60. The smallest disc in the app, and the one where a bare shape
+   said least. See the words-always note. */
+.patch.bsdisc .disc{width:64px; height:64px; margin:0; border-width:2px}
+.patch.bsdisc .disc svg{width:100%; height:100%}
 .bsmore{font-family:var(--font-data); font-size:12px; color:var(--ink-3); padding-left:2px}
 .bsfoot{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:6px}
 .bsfoot b{font-family:var(--font-display); font-size:15px}
@@ -2502,8 +2505,9 @@ button.bstriprow{cursor:pointer}
 }
 .chalrow:first-child{border-top:0}
 .chalrow .patch{flex:none; width:auto; margin:0}
-.chalrow .disc{width:52px; height:52px; margin:0}
-.chalrow .disc svg{width:22px; height:22px}
+/* 52 -> 64, so the name inside it can be read. The row is tall enough. */
+.chalrow .disc{width:68px; height:68px; margin:0}
+.chalrow .disc svg{width:100%; height:100%}
 .chalrow .disc::after{inset:6px}
 .chtext{flex:1; min-width:0; display:block}
 .chtext b{
@@ -6927,8 +6931,19 @@ img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
 .patch.recdisc .pbadge .pbfeed,
 .pchip .pbadge .pbfeed,
 .disc.tiny .pbadge .pbfeed{display:block}
-/* the shape alone when the disc is far too small for any words at all */
-.disc.tiny .pbadge .pbfeed text{display:none}
+/* THE WORDS ARE ALWAYS SHOWN.
+
+   Joe, 7 Oct: "I only ever want the words shown, you should never use just
+   the outline, it means nothing to people."
+
+   A shape on its own is an abstraction. A stranger scrolling past a squiggle
+   learns nothing from it; the name is what makes a patch a thing you
+   collect. So no surface hides the name, and a disc too small to carry one
+   is made bigger rather than emptied.
+
+   v323 hid the words on `.tiny` and v324 made the bare shape fill the disc.
+   Both were wrong in the same way — solving the layout instead of the
+   point. The discs below grew instead. */
 .disc.sh-hex, .disc.sh-sq{border-radius:0; border:0 !important}
 .disc.sh-hex{clip-path:polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)}
 .disc.sh-sq{clip-path:inset(0 round 17%)}
@@ -11811,6 +11826,34 @@ function patchSplit(n, lines){
   walk(1, []);
   return best || [n];
 }
+/* The ladder is GENERATED, not hand-listed.
+
+   It used to be a literal array and it had holes: 20 then 18, so 19 was
+   never tried and SCAFELL PIKE came out a size smaller than it could be.
+   A test that proves "one size up genuinely does not fit" caught it.
+
+   Every whole size from max down to min, for one, two and three lines,
+   with the block sitting where that many lines fit best in a circle. The
+   first that fits is by construction the biggest that fits. */
+function patchLadder(max, min, maxLines, top, foot){
+  /* Every whole size from max down to min; for each, one, two and three
+     lines; and for each of those, several positions down the disc.
+
+     SIZE is what matters, so the list is ordered by size and the first fit
+     wins. Within a size any position that fits is as good as another, so it
+     walks down from just under the shape to the lowest the height line can
+     sit. Two earlier attempts each used ONE position per size and each hurt
+     a different case: centred on a midpoint pushed two-line names into the
+     narrow bottom of the circle, and anchoring to the foot pushed one-line
+     names down there instead. A circle is widest in the middle; let the
+     fitter find that for itself. */
+  const out = [];
+  for (let fs = max; fs >= min; fs--)
+    for (let lines = 1; lines <= maxLines; lines++)
+      for (let ny = top; ny <= foot - (fs + 3.5) - (lines - 1) * (fs + 1.5) + 0.1; ny += 3)
+        out.push([fs, Math.round(ny), lines]);
+  return out;
+}
 function patchFit(name, metres, cands, hfs){
   const n = String(name).toUpperCase();
   for (const [fs, ny, lines] of cands){
@@ -11824,7 +11867,8 @@ function patchFit(name, metres, cands, hfs){
     if (!ok) continue;
     const hy = ny + parts.length * (fs + 1.5) + 2;
     const hs = metres + ' M';
-    if (hy > 96 || hs.length * (hfs * 0.60 + 0.8) / 2 > Math.min(patchChord(hy - hfs * 0.3), patchChord(hy))) continue;
+    if (hy > 96 || ny - fs < 2) continue;
+    if (metres != null && hs.length * (hfs * 0.60 + 0.8) / 2 > Math.min(patchChord(hy - hfs * 0.3), patchChord(hy))) continue;
     return {fs, ny, parts, hy};
   }
   return null;
@@ -11882,12 +11926,14 @@ function patchBadge(p){
   const ridge = patchRidge(raw);
   const m = metres == null ? null : Math.round(metres);
   /* BIG — 100px and up. SUMMIT, the shape, the name, the height. */
-  const bigFit = patchFit(name, m, [[13,70,1],[12,62,2],[12,70,1],[11,62,2],[11,70,1],
-    [10,62,2],[10,70,1],[9,56,3],[9,70,1],[8,56,3],[8,70,1]], 7);
+  const bigFit = patchFit(name, m, patchLadder(13, 6, 3, 56, 92), 7);
   /* FEED — under 100px. No SUMMIT, a third-size shape, the name given the room. */
-  const feedFit = patchFit(name, m, [[20,62,1],[18,56,2],[18,62,1],[17,56,2],[16,62,1],
-    [16,56,2],[15,56,2],[15,62,1],[14,52,2],[14,62,1],[13,50,3],[13,62,1],
-    [12,48,3],[12,64,1],[11,64,1],[10,64,1]], 11);
+  /* Two lines start HIGHER than they used to. At ny 56 the second line
+     landed at y 75, where the circle has narrowed to almost nothing, so a
+     two-word name like SCAFELL PIKE fell all the way down the ladder to
+     14 units and rendered at 9 CSS px. Starting at 50 keeps both lines in
+     the wide part of the disc and the height clear of the rim. */
+  const feedFit = patchFit(name, m, patchLadder(22, 8, 3, 46, 88), 11);
   const block = (fit, hfs) => {
     if (!fit) return '';
     let t = '';
@@ -31547,7 +31593,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v323';
+const APP_VERSION = 'v325';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
