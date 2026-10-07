@@ -628,11 +628,41 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .pstrip div{min-width:0}
 .pstrip b{display:block; font-family:var(--font-display); font-weight:400; color:var(--accent-text); font-size:22px; line-height:1.1; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pstrip i{display:block; font-style:normal; font-family:var(--font-ui); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-top:1px}
-.ppatch{display:flex; align-items:center; gap:14px; margin-top:10px; padding:10px 12px; background:var(--pine); color:#F6EFE4; border-radius:12px}
+/* the one-line patch. The badge is the only strong colour, the way it is on
+   your own shelf. */
+.ppline{display:flex; align-items:center; gap:11px; padding:8px 11px}
+.pplart{background:none; border:0; padding:0; flex:none; width:54px; min-height:54px; display:grid; place-items:center}
+/* `.patch .disc{width:112px}` is the same specificity as `.pplart .disc`
+   and sits later in the sheet, so it won and the badge came out 112px in a
+   72px row. Measured by asking the browser which rule won, not by reading.
+   Three classes deep beats two. */
+.ppline .pplart .patch{width:54px; height:54px; opacity:1; filter:none; margin:0}
+.ppline .pplart .disc{width:54px; height:54px; margin:0; border-width:3px;
+  box-shadow:inset 0 0 0 1px var(--surface)}
+.ppline .pplart .disc svg{width:20px; height:20px}
+/* the name inside a 40px badge cannot be read, and the line beside it says
+   it anyway */
+.ppline .pplart .disc text, .ppline .pplart .disc .plabel{display:none}
+.ppltx{flex:1; min-width:0; background:none; border:0; padding:4px 0; text-align:left;
+  font:400 13.5px/1.35 var(--font-ui); color:var(--ink); min-height:44px}
+.ppltx b{font-weight:700}
+.ppltx i{display:block; font-style:normal; font-size:11.5px; color:var(--ink-3); margin-top:1px}
+.ppline .pact{flex:none; min-width:44px; min-height:44px}
+/* a patch post that somebody wrote about keeps the full card, and the block
+   inside it is paper now rather than a slab of pine */
+.ppatch{display:flex; align-items:center; gap:14px; margin-top:10px; padding:10px 12px; background:var(--surface-2); color:var(--ink); border:1px solid var(--line); border-radius:12px}
 .ppatch .patch{width:auto; opacity:1; filter:none}
 .ppatch .patch .disc{width:72px; height:72px; margin:0}
 .ppatch b{display:block; font-family:var(--font-display); font-size:16px; letter-spacing:.03em}
-.ppatch span{display:block; font-family:var(--font-ui); font-size:12px; opacity:.8; margin-top:2px}
+.ppatch span{display:block; font-family:var(--font-ui); font-size:12px; color:var(--ink-3); margin-top:2px}
+/* what you are looking at: everything, days out, or patches. Yours, and it
+   sticks. Joe asked for the option as well as the tidy-up. */
+.pfbar{display:flex; gap:7px; margin:0 0 11px; overflow-x:auto; scrollbar-width:none; padding-bottom:1px}
+.pfbar::-webkit-scrollbar{display:none}
+.pfchip{flex:0 0 auto; border:1px solid var(--line); background:var(--raise); border-radius:99px;
+  padding:0 15px; min-height:44px; display:inline-flex; align-items:center;
+  font:400 13px var(--font-ui); color:var(--ink-2); cursor:pointer}
+.pfchip[aria-pressed="true"]{background:var(--pine); color:#F6EFE4; border-color:var(--pine); font-weight:600}
 /* profile pages */
 .prof{margin-top:8px}
 .pbanner{position:relative; width:100%; height:clamp(112px, 25vw, 200px); border-radius:var(--r) var(--r) 0 0; overflow:hidden; background:var(--pine)}
@@ -939,9 +969,16 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    day was. 735px becomes about 300. */
 .dday.fold{padding-bottom:6px}
 .dday.fold .ddate{border-bottom:0; padding-bottom:8px}
+/* the folded card's cover, now a row you can swipe */
+.dcovcar{position:relative; margin:0 0 10px; border-radius:8px; overflow:hidden; background:var(--surface-2)}
+.dcovcar .pcar{aspect-ratio:16/10; max-height:none}
+.dcovcar .pcount{top:8px; right:8px; font-size:11px; padding:3px 9px; pointer-events:none}
+.dcovcar .pdots{bottom:7px}
+.dcovcar .pdots i{width:5px; height:5px}
 .dcover{display:block; position:relative; width:100%; padding:0; border:0;
   margin:0 0 10px; border-radius:8px; overflow:hidden; background:var(--surface-2);
   aspect-ratio:16/10; cursor:pointer}
+.dcovcar .dcover{flex:0 0 100%; width:100%; height:100%; margin:0; border-radius:0; scroll-snap-align:start}
 .dcover img{width:100%; height:100%; object-fit:cover; display:block}
 .dcover em{position:absolute; right:8px; bottom:8px; font-style:normal;
   background:rgba(11,21,18,.68); color:#F6EFE4; font:600 11px var(--font-data);
@@ -1754,10 +1791,19 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
    them was under the guideline — the layout sweep only caught it once a
    banner was on screen in the state it walks. It is the control somebody
    jabs at one-handed to get a bar out of the way. */
-.banner button{flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1;
+/* :not(.btn) — THIS RULE IS FOR THE ×, AND IT WAS EATING THE BUTTON NEXT
+   TO IT. Joe, 7 Oct: the "How" button "looks unfinished". It was: written
+   as `.banner button`, this stripped the background, the border and the
+   colour off EVERY button in a banner, so "How" and "Add it" rendered as
+   bare grey text beside a proper ×. `.banner .btn.sm` below only ever set
+   the height back, so nothing put the button back.
+
+   Same family as `.opt::before` and `.bcshop`: a selector written for one
+   element that quietly owns every element like it. */
+.banner button:not(.btn){flex:none; background:none; border:none; color:var(--ink-3); font-size:18px; line-height:1;
   min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center;
   padding:0; align-self:center; margin:-4px -6px -4px 0}
-/* the Add it / Open button beside it is a target too */
+/* the Add it / How button beside it is a target too */
 .banner .btn.sm{min-height:40px}
 /* ---- Routes: day strip, search results, mode bar ---- */
 .rstep{margin:14px 0 7px; font-family:var(--font-ui); font-size:10px; letter-spacing:.12em;
@@ -20757,10 +20803,29 @@ function dayCoverHTML(d, pics){
   const ttl = (d.entries.find(e => e.title) || {}).title || '';
   let s = '';
   if (pics.length){
-    s += '<button class="dcover" data-act="jfold" data-d="' + esc(d.date) + '" ' +
-      'aria-label="Open ' + esc(prettyDate(d.date)) + '">' +
-      '<img data-pid="' + esc(pics[0].id) + '" data-up="' + (pics[0].up ? 1 : 0) + '" alt="">' +
-      (pics.length > 1 ? '<em>' + pics.length + ' photos</em>' : '') + '</button>';
+    /* THE COVER IS THE CAROUSEL NOW. Joe, 7 Oct: "on the updated journal, you
+       should be able to scroll across photos, like a carousel."
+
+       There already was one — it just lived behind "Open the day", which is
+       to say nowhere. The same scroll-snap row the open day uses goes on the
+       folded card, at the size the cover already was, so it costs nothing in
+       height. Tapping still opens the day; only a sideways drag browses. */
+    const few = pics.slice(0, 10);
+    /* .pcount and .pdots on purpose, and data-n with them: the one scroll
+       handler that keeps every other carousel honest then keeps this one
+       honest too, with nothing new listening. */
+    s += '<div class="dcovcar" data-n="' + few.length + '">' +
+      '<div class="pcar">' + few.map((ph, i) =>
+        '<button class="dcover" data-act="jfold" data-d="' + esc(d.date) + '" ' +
+          'aria-label="Photo ' + (i + 1) + ' of ' + few.length + ', open ' + esc(prettyDate(d.date)) + '">' +
+        '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt=""></button>').join('') +
+      '</div>' +
+      (few.length > 1
+        ? '<span class="pcount">1/' + few.length + '</span>' +
+          '<span class="pdots" aria-hidden="true">' + few.map((_, i) =>
+            '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</span>'
+        : '') +
+      '</div>';
   }
   if (ttl) s += '<h3 class="dcovh">' + esc(ttl) + '</h3>';
   const bits = [];
@@ -25807,6 +25872,7 @@ document.addEventListener('click', async e => {
   else if (a === 'pcat'){ ui.pCat = el.dataset.v; render(); }
   else if (a === 'corkshuffle'){ ui.corkSeed = (Math.random() * 1e9) | 0; render(); }
   /* a "joined your leaderboard" note lands on that board */
+  else if (a === 'feedfilt'){ setFeedFilt(el.dataset.v); }
   else if (a === 'tagopen'){ tagSheet(); }
   else if (a === 'tagtoggle' || a === 'tagdog'){
     const t = taggableNow(); if (!t) return;
@@ -29285,7 +29351,37 @@ function dogNamesHTML(p, mine){
   if (names.length < 2) return names.length ? one(names[0]) : '';
   return names.slice(0, -1).map(one).join(', ') + ' and ' + one(names[names.length - 1]);
 }
+/* A PATCH IS A SENTENCE, NOT A PHOTOGRAPH. Joe, 7 Oct: "the main view is
+   filled with people earning patches, the dark green strip feels very
+   jarring."
+
+   He was right and the numbers were worse than they look: measured on the
+   real feed, a patch post is 214px and nearly all of it was a slab of pine
+   in an app made of paper. Five in a row is 1,070px of near-black.
+
+   Earning one is a line: who, which, when. A day out with photographs still
+   gets the whole card, so the feed has shape again — which is the real point.
+   214px becomes about 62, and the badge does the colour on its own. */
+function patchLineHTML(p){
+  const pd = patches().find(x => x.id === p.patch) || {id:p.patch, label:p.text || 'Patch', icon:'star'};
+  const mine = fbUser && p.uid === fbUser.uid;
+  const who = mine ? 'You' : (firstName(niceName(p.name) || 'Walker') || 'Walker');
+  const n = likeCount(p.id), on = iLike(p.id);
+  const whoAct = mine ? 'data-act="hikertab" data-v="me"' : 'data-act="openfriend" data-uid="' + esc(p.uid) + '"';
+  return '<article class="post ppline k-patch" data-post-id="' + esc(p.id) + '">' +
+    '<button class="pplart" ' + whoAct + ' aria-label="' + esc(who) + '">' +
+      '<span class="patch got">' + patchDisc({id:pd.id, label:pd.label, icon:pd.icon}) + '</span></button>' +
+    '<button class="ppltx" ' + whoAct + '>' +
+      '<b>' + esc(who) + '</b> earned <b>' + esc(String(pd.label).replace(/&middot;/g, '\u00b7')) + '</b>' +
+      '<i>' + esc(p.date ? prettyDate(p.date) : ago(p.t)) + '</i></button>' +
+    '<button class="pact like' + (on ? ' on' : '') + '" data-act="react" data-id="' + esc(p.id) + '" data-like="' + esc(p.id) + '"' +
+      ' aria-pressed="' + on + '" aria-label="' + (on ? 'Unlike' : 'Like') + '">' + ti('heart') + '<b>' + (n || '') + '</b></button>' +
+    '</article>';
+}
 function postHTML(p){
+  /* one line, unless somebody wrote something about it */
+  if (p.kind === 'patch' && p.patch && !(p.text || '').trim() && !(p.shots || []).length)
+    return patchLineHTML(p);
   const mine = fbUser && p.uid === fbUser.uid;
   const hs = uniqHills(p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   const cs = commentsBy[p.id] || [];
@@ -29516,6 +29612,42 @@ function dedupeFeed(list){
   const keep = new Set([...best.values()].map(p => p.id));
   return list.filter(p => keep.has(p.id));
 }
+/* WHAT YOU ARE LOOKING AT. Joe, 7 Oct, asked for the option as well as the
+   tidy-up: "can these be toned down or have an option to filter out?"
+
+   Three chips, yours, remembered. Everything is the default, so nobody has
+   to find this — it is there for the day the feed is all badges. */
+const FEED_FILT = 'waymark.feedfilt';
+const FEED_FILTS = [['all', 'Everything'], ['days', 'Days out'], ['patch', 'Patches']];
+function feedFilt(){
+  if (ui.feedFilt == null){
+    let v = ''; try{ v = localStorage.getItem(FEED_FILT) || ''; }catch(e){}
+    ui.feedFilt = FEED_FILTS.some(f => f[0] === v) ? v : 'all';
+  }
+  return ui.feedFilt;
+}
+function setFeedFilt(v){
+  ui.feedFilt = FEED_FILTS.some(f => f[0] === v) ? v : 'all';
+  try{ localStorage.setItem(FEED_FILT, ui.feedFilt); }catch(e){}
+  render(); window.scrollTo({top:0});
+}
+const isPatchPost = p => p && p.kind === 'patch' && !!p.patch;
+function feedShown(list){
+  const f = feedFilt();
+  if (f === 'patch') return list.filter(isPatchPost);
+  if (f === 'days') return list.filter(p => !isPatchPost(p));
+  return list;
+}
+function feedFiltBar(){
+  /* only once there is something to sort through — a bar over an empty feed
+     is furniture */
+  const n = feed.filter(p => p && p.uid !== (fbUser || {}).uid).length;
+  if (n < 4 || !feed.some(isPatchPost)) return '';
+  const cur = feedFilt();
+  return '<div class="pfbar" role="group" aria-label="What to show">' + FEED_FILTS.map(([v, label]) =>
+    '<button class="pfchip" data-act="feedfilt" data-v="' + v + '" aria-pressed="' + (cur === v) + '">' +
+    esc(label) + '</button>').join('') + '</div>';
+}
 function renderFeed(){
   let s = '';
   const fr = allFriends();
@@ -29526,6 +29658,7 @@ function renderFeed(){
       '<button class="pprompt" data-act="newpost">Share a day on the hills…</button>' + refreshBtn() + '</div>';
   } else if (ui.postForm && ui.postForm !== 'menu') s += '<div class="btnrow sharerow"><button class="btn quiet" data-act="closepost">Cancel</button></div>';
   s += strip;
+  if (!ui.postForm) s += feedFiltBar();
   if (!ui.postForm) s += crewRecap();
   if (ui.postForm && ui.postForm !== 'menu') s += composeFormHTML(fr);
 
@@ -29540,14 +29673,21 @@ function renderFeed(){
       '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="hikertab" data-v="discover">Find hikers</button></div></div>' + suggestRow();
   } else if (!feed.some(p => p.uid !== fbUser.uid)){
     const names = following().slice(0, 3).map(f => firstName(f.name));
-    s += (feed.length ? dedupeFeed(feed).map(postHTML).join('') : '') +
+    s += (feed.length ? feedShown(dedupeFeed(feed)).map(postHTML).join('') : '') +
       '<div class="nobody"><b>Quiet on the hills</b>' +
       '<span>' + esc(names.join(', ')) + (following().length > 3 ? ' and others' : '') + (following().length === 1 ? ' hasn’t' : ' haven’t') +
       ' shared a day out yet. Their walks land here as soon as they do.</span>' +
       '<div class="btnrow" style="justify-content:center"><button class="btn" data-act="hikertab" data-v="discover">Find more hikers</button>' +
       '<button class="btn ghost" data-act="newpost">Share yours</button></div></div>';
   } else {
-    const shown = dedupeFeed(feed);
+    const shown = feedShown(dedupeFeed(feed));
+    /* a filter that hides everything has to say so, not look broken */
+    if (!shown.length){
+      s += '<div class="nobody"><b>Nothing here yet</b><span>' +
+        (feedFilt() === 'patch' ? 'No patches in your feed at the moment.' : 'No days out in your feed at the moment.') +
+        '</span><div class="btnrow" style="justify-content:center">' +
+        '<button class="btn" data-act="feedfilt" data-v="all">Show everything</button></div></div>';
+    }
     shown.forEach((p, i) => { s += postHTML(p); if (i === 1) s += suggestRow(); });
     if (shown.length < 2) s += suggestRow();
     s += '<p class="feedend">' + ti('waymark-mountain') + 'You’re up to date' + refreshBtn() + '</p>';
@@ -30245,7 +30385,7 @@ function toastAct(msg, label, fn){
    starts at the beginning rather than at a stale index. */
 const carAt = new Map();
 function carKey(car){
-  const s = car.querySelector('.shot, .dpic');
+  const s = car.querySelector('.shot, .dpic, .dcover');
   if (!s) return '';
   return (s.dataset.id || s.dataset.d || '') + '|' + car.children.length;
 }
@@ -31211,7 +31351,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v320';
+const APP_VERSION = 'v321';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -35949,6 +36089,7 @@ async function skyPanelDraw(){
   let idx = null;
   try{ idx = await skyCatalogue(); }catch(e){}
   if (!idx){
+    camPanelStamp();
     el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>The hills</h4>' +
       '<p class="cx-info">The first download needs a connection. Everything after that works without one.</p>' +
       '<button class="cx-btn ghost" data-c="opts">Done</button>';
@@ -35969,6 +36110,7 @@ async function skyPanelDraw(){
           (busy ? ' disabled' : '') + '>' + (busy ? Math.round(skyPct * 100) + '%' : 'Get') + '</button>') +
       '</div>';
   };
+  camPanelStamp();
   el.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Skyline — the hills</h4>' +
     '<p class="cx-info">Great Britain at 200 metres makes the names work anywhere. Add the fine ground for ' +
     'wherever you are walking and the hills are drawn properly. It stays on the phone, so it works with no ' +
@@ -36681,15 +36823,58 @@ function camLayer(style, F){
   cShadow(ctx, false);
   return c;
 }
-function camLayers(){
+/* THE SIGNATURE WAS BUILT AND NEVER READ. Joe, 7 Oct: "going back and forth
+   to camera and skyline takes ages and multiple unresponsive button clicks."
+
+   camLayers() draws SIX full-size caption overlays and then six thumbnails
+   on top of that. Measured at 6x CPU, which is roughly a mid-range phone:
+   **1,440 ms**. And it is called from the geolocation watch callback, which
+   on a hill with high accuracy on fires about once a second. One and a half
+   seconds of work, once a second. The main thread can never catch up, so a
+   tap has nowhere to land — in Skyline and out of it alike.
+
+   `cam.sig` was already written here, rounded so that GPS wobble does not
+   change it: the same minute, the same hill, the same height to ten metres.
+   It was stored and nothing ever read it. Reading it is the whole fix.
+
+   v297 turned this off inside camLoop for Skyline and I stopped there. The
+   watch callback was calling it every tick the entire time. Half a fix. */
+function camSigNow(){
+  if (!cam) return '';
+  const w = cam.still ? cam.when : new Date();
+  return cam.prefs.format + '|' + cam.mode + '|' + (cam.hill && cam.hill.k) + '|' +
+    w.getHours() + ':' + w.getMinutes() + '|' + !!cam.wx + '|' +
+    (cam.fix ? Math.round((cam.fix.alt || 0) / 10) + '|' + Math.round((cam.dist || 0) / 100) : '') +
+    '|' + JSON.stringify(cam.prefs);
+}
+function camLayers(force){
   if (!cam) return;
+  const sig = camSigNow();
+  if (!force && cam.layers && cam.sig === sig){ camChrome(); return; }
   if (!cam.still) cam.when = new Date();
   const F = camFacts();
   cam.skyF = F;
-  cam.layers = {}; for (const [k] of CAM_CAPS()) cam.layers[k] = camLayer(k, F);
-  cam.sig = cam.prefs.format + '|' + cam.mode + '|' + (cam.hill && cam.hill.k) + '|' + cam.when.getHours() + ':' + cam.when.getMinutes() + '|' + !!cam.wx +
-            '|' + (cam.fix ? Math.round((cam.fix.alt || 0) / 10) + '|' + Math.round((cam.dist || 0) / 100) : '') + '|' + JSON.stringify(cam.prefs);
-  camPaint(); camThumbs(); camChrome();
+  /* The look on screen first, and alone. camPaint only ever draws the active
+     one; the other five exist for the thumbnail strip, which is not on
+     screen yet and can wait for an idle moment. A rebuild that has to happen
+     costs a sixth of what it did. */
+  /* Skyline has no caption layer at all — CAM_CAPS() has always excluded it,
+     and asking camLayer() for one throws. Caught by a page error in the
+     measurement, not by reading. */
+  const style = cam.prefs.style;
+  cam.layers = {};
+  if (style !== 'skyline') cam.layers[style] = camLayer(style, F);
+  cam.sig = sig;
+  camPaint(); camChrome();
+  if (cam.lazyT) { clearTimeout(cam.lazyT); cam.lazyT = 0; }
+  if (style === 'skyline') return;        /* no strip in Skyline, nothing to fill */
+  const fill = () => {
+    if (!cam || cam.sig !== sig) return;
+    for (const [k] of CAM_CAPS()) if (!cam.layers[k]) cam.layers[k] = camLayer(k, F);
+    camThumbs();
+  };
+  /* one at a time, after the frame, so the strip fills without a freeze */
+  cam.lazyT = setTimeout(fill, 120);
 }
 /* the frame source: the live video, or the photo just taken / picked */
 function camSource(){
@@ -36728,7 +36913,16 @@ function camPaint(){
   }
   ctx.fillStyle = '#0B1512'; ctx.fillRect(0, 0, CAM_W, CAM_FH);
   if (src) camCover(ctx, src, CAM_W, CAM_FH);
-  if (cam.layers) ctx.drawImage(cam.layers[cam.prefs.style], 0, 0);
+  /* `cam.layers` is sparse now — the active look is drawn first and the rest
+     follow on an idle tick — so `if (cam.layers)` is not enough: the object
+     exists and the one wanted may not be in it. Draw it on demand. */
+  if (cam.layers){
+    let lay = cam.layers[cam.prefs.style];
+    if (!lay && cam.prefs.style !== 'skyline'){
+      lay = cam.layers[cam.prefs.style] = camLayer(cam.prefs.style, cam.skyF || camFacts());
+    }
+    if (lay) ctx.drawImage(lay, 0, 0);
+  }
   if (cam.rec && cam.recCtx){ cam.recCtx.drawImage(cv, 0, 0); }
 }
 function camLoop(){
@@ -36750,7 +36944,7 @@ function camThumbs(){
     const c = document.querySelector('#camx .cx-lens[data-v="' + k + '"] canvas'); if (!c) continue;
     const ctx = c.getContext('2d'); ctx.fillStyle = '#1D2B27'; ctx.fillRect(0, 0, c.width, c.height);
     if (src) camCover(ctx, src, c.width, c.height);
-    if (cam.layers) ctx.drawImage(cam.layers[k], 0, 0, c.width, c.height);
+    if (cam.layers && cam.layers[k]) ctx.drawImage(cam.layers[k], 0, 0, c.width, c.height);
   }
 }
 
@@ -36831,7 +37025,10 @@ function camWatch(){
        is not one yet, and without this it waits for ever for a fix that has
        already arrived. */
     if (cam.prefs.style === 'skyline') skyReady();
-    if (!cam.still) camLayers(); else camChrome();
+    /* Skyline draws no caption, so there is nothing here for it to rebuild.
+       camLoop already knew that; this callback did not. */
+    if (cam.prefs.style === 'skyline') camChrome();
+    else if (!cam.still) camLayers(); else camChrome();
   }, e => { if (!cam) return; cam.locErr = e.code === 1 ? 'off' : 'wait'; camChrome(); },
   {enableHighAccuracy: true, maximumAge: 5000, timeout: 30000});
 }
@@ -37123,7 +37320,10 @@ function camLook(k){
   if (k === 'skyline') skyEnter();
   skyBar();
   if (k !== 'skyline') camSizeView();
-  camPaint(); camChrome();
+  /* Leaving Skyline, no caption layer is built: camLayers() makes the one
+     the look needs (and the signature stops it doing anything when nothing
+     has changed). */
+  if (k === 'skyline'){ camPaint(); camChrome(); } else camLayers();
   const h = document.getElementById('cxHint'); if (h) h.classList.add('gone');
   if (navigator.vibrate) navigator.vibrate(8);
 }
@@ -37144,6 +37344,35 @@ function camChrome(){
   if (!document.getElementById('cxPanel').hidden) camPanel();
 }
 /* anything that puts a sheet over the picture also puts away the turn bar */
+/* THE ELEMENT UNDER THE FINGER HAS TO SURVIVE THE PRESS.
+
+   Joe, 7 Oct: "when I go into the section to download areas it closes the
+   menu, without letting me do anything."
+
+   camPanel() and skyPanelDraw() each rewrite the WHOLE sheet, and the last
+   button in both of them is Done (`data-c="opts"`), which toggles the sheet
+   shut. Tap Manage, the sheet is rebuilt between the finger going down and
+   the click being delivered, and the click lands on whatever is now at that
+   point — on a phone, often Done. The sheet shuts and nothing was chosen.
+
+   v297 wrote this rule down for the download progress ticks and I fixed it
+   there only: "never rebuild a sheet's innerHTML on a progress callback."
+   It is not about progress callbacks. It is about any rebuild.
+
+   So: a click is ignored if the sheet was rebuilt after the press began. */
+/* performance.now(), not Date.now(): a press and the rebuild it triggers
+   land in the same millisecond, so a whole-millisecond clock says they
+   happened at the same time and the guard never fires. Found by writing the
+   test and watching it not catch the thing it reproduces. */
+let camPanelBuilt = 0, camPressAt = 0;
+function camPanelStamp(){ camPanelBuilt = performance.now(); }
+document.addEventListener('pointerdown', e => {
+  if (e.target instanceof Element && e.target.closest('#cxPanel')) camPressAt = performance.now();
+}, true);
+function camStaleClick(b){
+  if (!b || !b.closest || !b.closest('#cxPanel')) return false;
+  return camPressAt > 0 && camPanelBuilt > camPressAt;
+}
 function camSheet(){
   const el = document.getElementById('camx'), pn = document.getElementById('cxPanel');
   if (el && pn) el.classList.toggle('panel', !pn.hidden);
@@ -37160,6 +37389,7 @@ function camPanel(){
     '<button data-c="moment" data-v="' + v + '" aria-pressed="' + (P.moment === v) + '">' + t + '</button>').join('');
   const sw = (k, t, sub) => '<div class="cx-row"><span>' + t + '<i>' + sub + '</i></span>' +
     '<button class="cx-sw" data-c="' + k + '" role="switch" aria-checked="' + !!P[k] + '" aria-label="' + t + '"></button></div>';
+  camPanelStamp();
   document.getElementById('cxPanel').innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h4>Caption</h4>' +
     '<div class="cx-row"><span>Moment<i>Right now: ' + auto + '</i></span><div class="cx-seg">' + seg + '</div></div>' +
     sw('weather', 'Weather', 'Temperature, sky and wind') + sw('coords', 'Coordinates', 'Latitude and longitude') +
@@ -37205,6 +37435,10 @@ function skyTap(ev){
 function camClick(e){
   const b = e.target.closest('[data-c]'); if (!b || b.tagName === 'INPUT') return;
   const a = b.dataset.c, panel = document.getElementById('cxPanel');
+  /* the sheet moved under the finger: this click belongs to something that
+     is no longer there */
+  if (camStaleClick(b)){ camPressAt = 0; return; }
+  camPressAt = 0;
   if (a === 'close' || a === 'done') camClose();
   else if (a === 'import'){
     /* out of the camera first: the importer is an ordinary sheet and the
@@ -37213,7 +37447,8 @@ function camClick(e){
     setTimeout(() => { const i = document.querySelector('#pn-photos [data-act="impfiles"]'); if (i) i.click(); }, 60);
   }
   else if (a === 'opts'){ panel.hidden = !panel.hidden; if (!panel.hidden) camPanel(); document.querySelector('#camx [data-c="opts"]').setAttribute('aria-expanded', String(!panel.hidden)); camSheet(); }
-  else if (a === 'moment'){ cam.prefs.moment = b.dataset.v; camKeep(); camJudge(); camLayers(); camPanel(); }
+  else if (a === 'moment'){ cam.prefs.moment = b.dataset.v; camKeep(); camJudge();
+    if (cam.prefs.style !== 'skyline') camLayers(); camPanel(); }
   else if (a === 'skyfov'){
     const P = skyLoadPrefs(), d = +b.dataset.v;
     if (d){ P.fov = Math.max(35, Math.min(100, P.fov + d)); skySavePrefs(); camPanel(); camPaint(); }
@@ -37239,7 +37474,9 @@ function camClick(e){
     }
     if (navigator.vibrate) navigator.vibrate(8);
   }
-  else if (a === 'weather' || a === 'coords'){ cam.prefs[a] = !cam.prefs[a]; camKeep(); if (a === 'weather') camWeather(); camLayers(); camPanel(); }
+  else if (a === 'weather' || a === 'coords'){ cam.prefs[a] = !cam.prefs[a]; camKeep();
+    if (a === 'weather') camWeather();
+    if (cam.prefs.style !== 'skyline') camLayers(); camPanel(); }
   else if (a === 'look') camLook(b.dataset.v);
   else if (a === 'fmt') camFormat(b.dataset.v);
   else if (a === 'shoot'){ if (cam.prefs.format === 'video') (cam.rec ? camRecStop() : camRecStart()); else camShoot(); }
@@ -37479,7 +37716,11 @@ function camBlob(){
 }
 function camStillBlob(){
   const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH; const ctx = c.getContext('2d');
-  ctx.drawImage(cam.still, 0, 0); ctx.drawImage(cam.layers[cam.prefs.style], 0, 0);
+  ctx.drawImage(cam.still, 0, 0);
+  /* the picture that gets saved is never a thumbnail short: if the active
+     layer is not built for any reason, build it here rather than throw */
+  const lay = (cam.layers && cam.layers[cam.prefs.style]) || camLayer(cam.prefs.style, cam.skyF || camFacts());
+  ctx.drawImage(lay, 0, 0);
   return new Promise(res => c.toBlob(res, 'image/jpeg', 0.92));
 }
 function camFileName(ext){ const h = cam.hill; return 'waymark-' + (h ? String(h.n).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' : '') + cam.when.toISOString().slice(0, 10) + '.' + (ext || (cam.clip ? cam.clip.ext : 'jpg')); }
