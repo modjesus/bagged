@@ -5244,8 +5244,14 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .fhead span{font:600 11px var(--font-data); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
 .fhead .refreshbtn{width:36px; height:36px}
 .fstrip{position:relative}
-.fchip.frefresh{position:sticky; right:0; margin-left:auto; padding-left:10px; width:70px; flex:none;
-  background:radial-gradient(closest-side, var(--ground) 72%, transparent)}
+/* IT WAS SITTING ON TOP OF SOMEBODY. A radial gradient with closest-side on a
+   70px box makes the solid part a small ellipse in the middle, so the label
+   row had no backing at all and "Refresh" printed straight across the next
+   walker's name -- 47px over at four walkers, 187px at six. Measured in
+   t/fstrip.js. A pinned chip has to carry its own ground, all of it, with a
+   fade on the leading edge so it reads as pinned rather than pasted. */
+.fchip.frefresh{position:sticky; right:0; margin-left:auto; padding-left:24px; padding-right:2px;
+  width:94px; flex:none; background:linear-gradient(to right, transparent 0, var(--ground) 22px, var(--ground) 100%)}
 .fchip.frefresh .fplus{border:1.5px solid var(--line); color:var(--ink-2); background:var(--raise)}
 .fchip.frefresh span:not(.fplus){color:var(--ink-2)}
 .fchip.frefresh.spinning .fplus svg{animation:ptrspin .8s linear infinite}
@@ -5403,8 +5409,16 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 span.pshow{cursor:default}
 .pshow .disc{width:84px; height:84px; display:grid; place-items:center}
 .pshow .disc img{width:100%; height:100%; object-fit:contain}
-.pshowpen{position:absolute; right:-2px; bottom:4px; width:24px; height:24px; border-radius:50%; background:#FFFDF8; color:#14332D; display:grid; place-items:center; transform:rotate(10deg); box-shadow:0 2px 6px rgba(0,0,0,.35)}
-.pshowpen svg{width:13px; height:13px}
+/* the showcase row in Edit profile, which is where changing it lives now */
+.spsrow{display:flex; align-items:center; gap:12px}
+.spsrow .spsdisc{flex:none; width:56px; height:56px; display:grid; place-items:center; text-align:initial}
+.spsrow .spsdisc .disc{width:56px; height:56px; margin:0; border-width:2px}
+.spsrow .spsdisc .disc::after{inset:6px}
+.spstext{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px}
+.spstext b{font-size:14px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.spstext i{font-style:normal; font-size:12px; color:var(--ink-3); line-height:1.35}
+.spsrow .btn{flex:none}
+.spsgrid{display:flex; flex-wrap:wrap; gap:10px 8px; margin-top:12px}
 .pshow.empty{width:56px; height:56px; border-radius:50%; border:1.5px dashed rgba(243,239,230,.6); color:#F3EFE6; display:grid; place-items:center; transform:none; filter:none}
 .pshow.empty svg{width:22px; height:22px}
 .prof.pv3 > .pine > .phead2{position:relative; display:block; text-align:center; padding-top:0}
@@ -25787,8 +25801,10 @@ document.addEventListener('click', async e => {
   else if (a === 'setshow'){
     prof.show = el.dataset.v || ''; saveProf(); touched(); scheduleSync(400);
     const sh = document.getElementById('showsheet'); if (sh) sh.classList.remove('open');
+    ui.spsOpen = false;   /* picked from the row in Edit profile: fold it back up */
     render(); toast(prof.show ? 'Showcase patch set.' : 'Showcase patch removed.');
   }
+  else if (a === 'spstoggle'){ ui.spsOpen = !ui.spsOpen; render(); }
   else if (a === 'showclose'){ const sh = document.getElementById('showsheet'); if (sh) sh.classList.remove('open'); }
   else if (a === 'pickshow'){
     ui.profEdit = true; ui.profMin = false; render();
@@ -31593,7 +31609,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v325';
+const APP_VERSION = 'v326';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -34517,7 +34533,13 @@ function profileHeader(pp, opts){
   const spDef = spId ? patches().find(x => x.id === spId) : null;
   if (spDef && (!mine || spDef.got)){
     s += mine
-      ? '<button class="pshow" data-act="showpick" aria-label="Change your showcase patch: ' + esc(String(spDef.label).replace(/&middot;/g, '·')) + '">' + patchDisc(spDef) + '<b class="pshowpen">' + ti('pencil') + '</b></button>'
+      /* NO PENCIL ON THE ARTWORK. A patch carries its words right round the
+         rim, so there is no quiet corner to put a badge in: the 24px pencil
+         that used to sit bottom-right covered the end of the patch's own
+         line -- Everest read "29,031.7FT &middot; 8,84" and stopped. Changing
+         it is a profile edit, so it lives in Edit profile now, with the name
+         and the bio. The patch itself is still the quick way in. */
+      ? '<button class="pshow" data-act="showpick" aria-label="Change your showcase patch: ' + esc(String(spDef.label).replace(/&middot;/g, '·')) + '">' + patchDisc(spDef) + '</button>'
       : '<span class="pshow' + (opts && opts.back ? ' low' : '') + '" title="' + esc(String(spDef.label).replace(/&middot;/g, '·')) + '">' + patchDisc(spDef) + '</span>';
   } else if (mine && patches().some(x => x.got)){
     s += '<button class="pshow empty" data-act="showpick" aria-label="Choose a showcase patch">' + ti('plus') + '</button>';
@@ -35085,6 +35107,27 @@ function profileEditor(){
     '</fieldset>';
   s += '<div class="togglerow" style="margin:0"><div class="tinfo"><b>Keep route shapes private</b><span>Shared routes show distance and summits but never the line of the walk.</span></div>' +
     '<button class="sw" data-act="pfhideroute" aria-pressed="' + !!d.hideRoute + '" aria-label="Keep route shapes private"></button></div>';
+  /* THE SHOWCASE PATCH LIVES HERE NOW, not behind a pencil stuck on the
+     artwork. It is the first thing anybody sees when they open your profile,
+     so it goes above the order it used to be implied by. */
+  const spNow = (prof.show ? earned.find(x => x.id === prof.show) : null) || orderedPatches(earned, d.porder)[0] || null;
+  const spName = x => esc(String(x.label).replace(/&middot;/g, '\u00b7').replace(/\s+(fully\s+)?marked$/i, ''));
+  s += '<div><label>Showcase patch</label>' + (earned.length
+    ? '<div class="spsrow">' +
+        /* .patch is what carries the disc's colours and its knockout; without
+           it the disc renders as an empty box. Same reason the grids below
+           wrap each one in a .patch button. */
+        (spNow ? '<span class="patch got spsdisc">' + patchDisc(spNow) + '</span>' : '') +
+        '<span class="spstext"><b>' + (spNow ? spName(spNow) : 'None yet') + '</b>' +
+        '<i>' + (prof.show ? 'On the corner of your profile.' : 'First in your patch order, until you pick one.') + '</i></span>' +
+        '<button class="btn ghost sm" data-act="spstoggle" aria-expanded="' + !!ui.spsOpen + '">' + (ui.spsOpen ? 'Done' : 'Change') + '</button></div>' +
+      (ui.spsOpen
+        ? '<div class="showpick spsgrid">' + orderedPatches(earned, d.porder).map(x =>
+            '<button class="patch got' + (spNow && x.id === spNow.id ? ' picked' : '') + '" data-act="setshow" data-v="' + esc(x.id) + '"' +
+            ' aria-pressed="' + !!(spNow && x.id === spNow.id) + '">' + patchDisc(x) +
+            '<i class="spl">' + spName(x) + '</i></button>').join('') + '</div>'
+        : '')
+    : '<p class="mapnote" style="margin:0">Earn a patch and it can sit on the corner of your profile.</p>') + '</div>';
   const ord = Array.isArray(d.porder) ? d.porder : (d.porder = patchOrder().slice());
   s += '<div><label>Patch order</label>' + (earned.length > 1
     ? '<p class="mapnote" style="margin:0 0 9px">Tap them in the order you want them to sit on your profile. Anything you leave alone follows on behind.</p>' +
