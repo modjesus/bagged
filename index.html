@@ -10,7 +10,7 @@ catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</scrip
      link. That, not a stylesheet, is where the blue date text came from. -->
 <meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
 <title>WayMark — Free UK Hill Bagging Log: Wainwrights, Munros &amp; More</title>
-<meta name="description" content="Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists. Keep a journal, earn patches.">
+<meta name="description" content="Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 21 lists. Keep a journal, earn patches.">
 <link rel="canonical" href="https://waymark.it.com/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <meta property="og:type" content="website">
@@ -3184,6 +3184,7 @@ button.bstriprow{cursor:pointer}
 /* three tiers: primary (filled), secondary (outlined in ink), tertiary (quiet). One primary per screen. */
 .btn.ghost{background:transparent; border-color:var(--ink-2); color:var(--ink-2)}
 .btn.quiet{background:transparent; border-color:var(--line); color:var(--ink-2); font-weight:500}
+.wgo .btn.quiet{background:var(--surface); color:var(--ink); font-weight:600}
 .btn.danger{background:transparent; border-color:var(--warn); color:var(--warn)}
 .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center}
 .form{background:var(--surface); border:1px solid var(--accent); border-radius:var(--r); padding:14px; margin-top:12px; display:flex; flex-direction:column; gap:10px}
@@ -5578,7 +5579,20 @@ span.pshow{cursor:default}
 
 
 /* ---- v191: the shop, a basket, discount codes ---- */
+/* THE BAG IS NOT A DOOR, IT IS A RECEIPT. An outside reviewer on 7 Oct read
+   the top bar first and asked "is that like an add to cart? is this why I am
+   here? or am I here to check off mountains?" -- a free hill log that opens
+   with a shop icon reads as a shop with a log attached. Joe, 8 Oct: take it
+   off the toolbar, the Shop tab in Basecamp is the way in (it has carried the
+   backpack glyph since v284).
+   It still appears the moment the basket has something in it, badged with the
+   count, because somebody mid-order needs it from wherever they are -- and
+   then it is reporting a fact rather than selling. paintBag() toggles .has.
+   A plain `.bagbtn{display:none}` loses: `.top .iconbtn` sets display:grid at
+   (0,2,0) further down the sheet, so the selector has to carry the same
+   ancestor to win on specificity rather than on !important. */
 .bagbtn{position:relative}
+.bagbtn:not(.has), .top .bagbtn:not(.has){display:none}
 .bagbtn i{position:absolute; top:-5px; right:-6px; min-width:17px; height:17px; padding:0 4px; border-radius:99px; background:var(--accent); color:#F6EFE4;
   font:700 10.5px/17px var(--font-ui); font-style:normal; text-align:center; display:none}
 .bagbtn.has i{display:block}
@@ -6350,8 +6364,13 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 
 /* the slim row on Home. 46px: a button's height, and two clear of the 44px a
    finger needs. Anything shorter stops being tappable. */
+/* THE RUST OUTLINE SHOUTED. Reviewer, 7 Oct: "this should look like a button
+   not a banner - the outline red shouts - there's a problem." A red-edged bar
+   across the page means an error everywhere else on the web. The rust belongs
+   on the Choose button inside it, which is the thing you press; the bar itself
+   is ordinary furniture, the same edge as .impoffer beside it. */
 .imphome{display:flex; align-items:stretch; gap:0; height:46px; margin:10px 0 9px;
-  border:1.5px solid var(--accent); border-radius:10px; overflow:hidden; background:var(--raise)}
+  border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface)}
 .imphomego{flex:1; min-width:0; display:flex; align-items:center; gap:9px; padding:0 4px 0 11px; cursor:pointer}
 .imphomego:focus-within{outline:2px solid var(--accent); outline-offset:-3px}
 .imphomego > svg{flex:none; color:var(--accent)}
@@ -6995,6 +7014,47 @@ h2.shhead{font-size:18.7px; font-weight:700}
 .sh-hex  .shglyph{clip-path:polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)}
 .sh-sq   .shglyph{clip-path:inset(0 round 17%)}
 
+/* ---- the first run: four hills, ticked ---- */
+.frhead{margin:22px 0 8px}
+.frpop{background:var(--raise); border-radius:var(--r-card); box-shadow:var(--shadow); overflow:hidden}
+.frrow{display:flex; align-items:center; gap:12px; width:100%; min-height:58px;
+  padding:10px 14px; border:0; background:none; text-align:left; cursor:pointer}
+.frrow + .frrow{border-top:1px solid var(--line-soft)}
+.frrow.on{background:var(--accent-soft)}
+.frbox{width:22px; height:22px; flex:none; border-radius:6px; border:1.5px solid var(--line);
+  background:var(--surface); display:grid; place-items:center; color:var(--accent-ink)}
+.frrow.on .frbox{background:var(--accent); border-color:var(--accent)}
+.frbox svg{width:14px; height:14px}
+.frn{flex:1; min-width:0; font:400 17px var(--font-display); color:var(--ink)}
+.frn i{display:block; font:400 12.5px var(--font-ui); font-style:normal; color:var(--ink-3)}
+.frh{font:400 13px var(--font-data); color:var(--ink-3); white-space:nowrap}
+.frgo{margin-top:12px}
+.frgo .btn, .frdone .btn{width:100%; min-height:48px; justify-content:center; font-size:15px}
+.frdone{margin-top:16px}
+.frlists{margin:22px 0 0}
+.frlists .btn.frlistbtn{width:100%; min-height:48px; display:flex; align-items:center;
+  justify-content:space-between; font-weight:600}
+/* .btn svg carries a 6px right margin for icons that lead a label; this one
+   trails it, so it keeps its own company. */
+.frlistbtn svg{margin:0; transition:transform .2s var(--ease)}
+.frlistbtn.open svg{transform:rotate(180deg)}
+.frlistnote{margin:12px 0 10px}
+.frlists .regionlist{margin-top:10px}
+/* THE hidden ATTRIBUTE IS NOT ENOUGH. `.bnav{display:flex}` is an author
+   rule and it beats the browser's own [hidden]{display:none}, so setting
+   b.hidden left the bar exactly where it was -- and a test that asked
+   `!n.hidden` passed while the bar sat there in the screenshot. */
+.bnav[hidden]{display:none}
+/* with the bar gone there is nothing to reserve room for */
+body.nonav{padding-bottom:24px}
+
+.wshopline{margin:16px 0 4px; padding-top:14px; border-top:1px solid var(--line)}
+/* NOT an inline link in a sentence: a 44px inline-flex inside a <p> underlines
+   the BOX, not the words, and the sentence wraps around it. v327 shipped that
+   and it looked broken. One quiet button, the full width of the column. */
+.wshopline .btn.wshopbtn{width:100%; min-height:44px; display:flex; align-items:center;
+  justify-content:space-between; gap:10px; font-size:13.5px}
+.wshopbtn i{font:400 13px var(--font-data); font-style:normal; color:var(--ink-3)}
 .wshoprow{display:flex; align-items:center; gap:12px; width:100%; margin:14px 0 4px; padding:12px 14px;
   min-height:60px; text-align:left; border:1px solid var(--line); border-radius:14px;
   background:var(--surface); color:var(--ink); cursor:pointer}
@@ -8212,6 +8272,8 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .prof .btn, .win .btn, .pinebtns .btn{
   background:transparent; border:1.5px solid rgba(243,239,230,.72); color:#F3EFE6; box-shadow:none}
 .prof .btn.key, .win .btn.key{background:#F3EFE6; border-color:#F3EFE6; color:#14332D}
+/* rust, the same primary as the patch screen signed off on 8 Oct */
+.win .btn.key{background:var(--accent); border-color:var(--accent); color:#fff}
 .prof .btn:active, .win .btn:active{background:rgba(243,239,230,.12)}
 /* Edit profile was a translucent fill with a blur — a third weight on a
    card that now has only one. Same outline as the two below it. */
@@ -8556,15 +8618,15 @@ input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button])
 textarea, select{font-size:16px}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain and Ireland."}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 16 lists."}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "@id": "https://waymark.it.com/#app", "name": "WayMark", "url": "https://waymark.it.com/", "applicationCategory": "HealthApplication", "applicationSubCategory": "Hiking and hill walking log", "operatingSystem": "Any (web browser, installable as a PWA)", "browserRequirements": "Requires JavaScript", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP", "availability": "https://schema.org/InStock"}, "description": "A free walking log for the hills of Britain and Ireland. Mark the summits you have reached across 20 hill lists and 2,531 hills, keep a journal with photographs, earn patches and follow other walkers.", "featureList": ["Mark off 16 British hill lists including the Wainwrights, Munros, Corbetts, Grahams, Nuttalls, Hewitts, Birketts, Marilyns and Peak District Ethels", "2,531 summits with heights, grid references and regions", "Offline map with saveable sheets", "Walk journal with photographs and notes", "Patches earned for summits, challenges and milestones", "Follow other walkers and share completed walks", "Works offline and installs to the home screen"]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 21 lists."}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "@id": "https://waymark.it.com/#app", "name": "WayMark", "url": "https://waymark.it.com/", "applicationCategory": "HealthApplication", "applicationSubCategory": "Hiking and hill walking log", "operatingSystem": "Any (web browser, installable as a PWA)", "browserRequirements": "Requires JavaScript", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP", "availability": "https://schema.org/InStock"}, "description": "A free walking log for the hills of Britain and Ireland. Mark the summits you have reached across 21 hill lists and 3,554 hills, keep a journal with photographs, earn patches and follow other walkers.", "featureList": ["Mark off 21 British hill lists including the Wainwrights, Munros, Corbetts, Grahams, Nuttalls, Hewitts, Birketts, Marilyns and Peak District Ethels", "3,554 summits with heights, grid references and regions", "Offline map with saveable sheets", "Walk journal with photographs and notes", "Patches earned for summits, challenges and milestones", "Follow other walkers and share completed walks", "Works offline and installs to the home screen"]}</script>
 </head>
 <body>
 <noscript>
 <div style="max-width:720px;margin:0 auto;padding:24px 20px;font:400 17px/1.6 system-ui,sans-serif;color:#14332D">
 <h1 style="font-size:32px;line-height:1.15;margin:.2em 0">WayMark — a walking log for the hills of Britain and Ireland</h1>
 <p>WayMark needs JavaScript to run. The hill lists below are plain pages and work without it.</p>
-<p>Mark the summits you have reached across 16 British hill lists and 2,531 hills, keep a journal, earn patches and follow other walkers. It is free.</p>
+<p>Mark the summits you have reached across 21 British hill lists and 3,554 hills, keep a journal, earn patches and follow other walkers. It is free.</p>
 <h2 style="font-size:22px;margin:1.4em 0 .3em">Browse the hill lists</h2>
 <ul>
 <li><a href="/hills/">British hill lists</a></li>
@@ -8763,11 +8825,11 @@ textarea, select{font-size:16px}
   <div class="sheetbox winbox">
     <div id="winBody"></div>
     <div class="btnrow wingo2">
-      <button class="btn" id="winGo">Add to board</button>
+      <button class="btn key" id="winShare">Share the patch</button>
       <button class="btn ghost" id="winJour">View journey</button>
     </div>
     <div class="btnrow winrow2">
-      <button class="btn quiet" id="winShare">Share the patch</button>
+      <button class="btn quiet" id="winGo">Add to board</button>
       <button class="btn quiet" id="winClose">Keep walking</button>
     </div>
   </div>
@@ -9142,6 +9204,10 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
              shown as a SHEET, which is how you reach it from a hill. Three
              different things, three names, all grepped before naming. */
           kitItem:null, gearEdit:null,
+          /* first run: which of the four suggested hills are ticked, and
+             whether the list picker is unfolded. frPick holds grid-ref
+             keys, NOT list ids -- ui.pick is the list one. */
+          frPick:[], listsOpen:false,
           /* the journal's privacy line, opened out. Small by default — it is
              reassurance on every visit, not a page of onboarding. */
           privOpen:false,
@@ -10840,6 +10906,21 @@ function celebrate(list){
      no form afterwards, and the button must not promise one. */
   const cl = document.getElementById('winClose');
   if (cl) cl.textContent = shareAfterWin ? 'Share your day' : 'Keep walking';
+  /* ONE PRIMARY, ONE SECONDARY, THE REST QUIET. Reviewer, 7 Oct: all four
+     buttons were the same weight -- inside .win every .btn is a cream outline,
+     so the panel offered four equal choices and no answer.
+     Which one leads depends on what is behind it: when a day is waiting to be
+     posted, "Share your day" is the thing to do and it moves up into the first
+     row; otherwise the patch itself is what there is to share. */
+  const r1 = document.querySelector('#win .wingo2'), r2 = document.querySelector('#win .winrow2');
+  if (sh && cl && r1 && r2){
+    const lead = shareAfterWin ? cl : sh, second = shareAfterWin ? sh : jr;
+    for (const b of [sh, cl, jr]) b.classList.remove('key', 'ghost', 'quiet');
+    lead.classList.add('key'); second.classList.add('ghost');
+    for (const b of [sh, cl, jr]) if (b !== lead && b !== second) b.classList.add('quiet');
+    r1.append(lead, second);
+    for (const b of [sh, cl, jr]) if (b !== lead && b !== second) r2.prepend(b);
+  }
   hydratePhotos();
 }
 function closeWin(){
@@ -17819,6 +17900,15 @@ function paintNav(){
   const b = document.getElementById('bnav');
   // Friends lives inside Profile on a phone, so the bar keeps to five
   if (b){
+    /* ONBOARDING OWNS THE WHOLE SCREEN, so four of these five tabs did
+       nothing: tapping one set `tab` and re-rendered the same welcome. A
+       button that cannot be pressed is worse than no button, so the bar goes
+       until there is somewhere for it to take you. The shop peek is not
+       onboarding() -- somebody buying a tee keeps the nav. */
+    const hide = onboarding();
+    b.hidden = hide;
+    document.body.classList.toggle('nonav', hide);
+    if (hide){ navHtml.b = ''; return; }
     /* Same tabs, re-ordered so Home lands dead centre with three either side. */
     const phone = usable.filter(n => n.short);
     const home = phone.filter(n => n.id === 'd'), rest = phone.filter(n => n.id !== 'd');
@@ -19231,10 +19321,16 @@ function renderWelcome(){
   s += wkeyRow('mountain', 'One walk, every list',
     deep > 2 ? 'some summits count on ' + (USP_WORD[deep] || deep) + ' lists'
              : 'marked once, counted everywhere');
+  /* The dog is second, not fifth, and the row says the part no competitor
+     has: a dog's log that more than one person can add to. That is already
+     built -- dogShareOf(), dogInviteHTML(), "Shared with X and Y" -- and it
+     was left out of the one page strangers read.
+     "Opens with no signal" and "A forecast for the tops" come off: both are
+     already in the What is WayMark panel, and neither is why a stranger
+     picks WayMark over anything else. */
+  s += wkeyRow('paw', 'Your dog gets their own hill list',
+    'and whoever walks them can add to it');
   s += wkeyRow('photo', 'Fill your log from your photos');
-  s += wkeyRow('cloud', 'Opens with no signal');
-  s += wkeyRow('wind', 'A forecast for the tops');
-  s += wkeyRow('paw', 'Your dog gets their own hill list');
   s += wkeyRow('patch', 'Patches to earn',
     (pg.summit || 0) + ' summits, ' + (pg.milestone || 0) + ' milestones, one per list');
   s += '</div>';
@@ -19244,6 +19340,10 @@ function renderWelcome(){
        '<span class="wbar"><i></i><i></i><i></i><i></i><i></i><i></i></span>' +
        '<span>' + HILLS.length.toLocaleString('en-GB') + ' hills</span></div>';
 
+  /* "I already have one" is a .btn.quiet, which is transparent -- on the
+     welcome cover that means the contour ground runs straight through it.
+     Reviewer, 7 Oct: "button is hard to read because of background." Scoped to
+     this row: every other quiet button in the app sits on a plain surface. */
   s += '<div class="btnrow wgo">' +
     '<button class="btn lg" data-act="wstart">Start your log</button>' +
     (fbConfigured() && !fbUser
@@ -19251,11 +19351,13 @@ function renderWelcome(){
     '</div>';
   /* Joe, 5 Oct: "there is a account though... you sign into google so remove
      this." He is right - "no account needed" was a half-truth. */
-  s += '<p class="wfree">Free, and no ads. Nothing to install \u2014 it is a web page. ' +
-       'Start without an account and your log lives in this browser; ' +
-       'sign in with Google whenever you want it to follow you.</p>';
+  /* Three sentences under the buttons, where the feature rows above have
+     already said it. The account line stays -- Joe, 5 Oct: "there is a account
+     though... you sign into google so remove this", and leaving it out would
+     put the half-truth back. */
+  s += '<p class="wfree">Free, and no ads. Start without an account and your log ' +
+       'lives in this browser; sign in with Google whenever you want it to follow you.</p>';
   s += welcomeShopRow();
-  s += welcomeHills();
   /* the OS credit went with the contour drawing - there is no OS data on this
      screen any more. The map still carries it where it belongs. */
   return s;
@@ -19273,10 +19375,12 @@ function welcomeShopRow(){
   if (!sale.length && !kit.length) return '';
   const prices = sale.map(d => shopItem(d.n).price).concat(kit.map(([k, it]) => it.price).filter(x => x > 0));
   const from = prices.length ? Math.min(...prices) : 0;
-  return '<button class="wshoprow" data-act="shoppeek">' + ti('backpack') +
-    '<span><b>Just here for the shop?</b>Tees, stickers and patches' +
-      (from ? ' \u00b7 from ' + gbp(from) : '') + '. No account needed.</span>' +
-    ti('chevron-right') + '</button>';
+  /* A CARD WAS A SECOND SHOP DOOR on a page that already had one in the top
+     bar. One line under the setup instead: still findable by anybody who came
+     for a tee, no longer the second thing on the page. */
+  return '<div class="wshopline"><button class="btn quiet wshopbtn" data-act="shoppeek">' +
+    '<span>Shop \u00b7 tees, stickers and patches</span>' +
+    (from ? '<i>from ' + gbp(from) + '</i>' : '') + '</button></div>';
 }
 
 function welcomeShop(){
@@ -19318,6 +19422,64 @@ function welcomeHills(){
       ti('chevron-right') + '</a>';
 }
 
+/* ---- the first run: four hills a newcomer has probably already walked ----
+
+   Keyed by grid reference rather than by name, so renaming a hill cannot
+   quietly empty this list. These four are the most walked in Britain by a
+   long way: Yr Wyddfa 543,541 on foot in 2022, Ben Nevis around 150,000 a
+   year, Scafell Pike around 100,000, Pen y Fan hundreds of thousands.
+
+   A TICK LIST, not four links. Joe: "what if people have done multiple?" --
+   somebody who has walked the Three Peaks marks all three in one go, and it
+   gives the screen a primary action rather than only an empty search box.
+
+   Heights are read from the data; nothing here is typed in. */
+const FIRSTRUN = [
+  {k:'SH609543', n:'Yr Wyddfa',    sub:'Snowdon \u00b7 Wales'},
+  {k:'NN166712', n:'Ben Nevis',    sub:'Scotland'},
+  {k:'NY215072', n:'Scafell Pike', sub:'England'},
+  {k:'SO012215', n:'Pen y Fan',    sub:'Wales'},
+];
+function firstRunHills(){
+  /* one already marked is not a question any more */
+  return FIRSTRUN.filter(x => BY_KEY[x.k] && !isBagged(x.k));
+}
+function firstRunHTML(){
+  const rows = firstRunHills();
+  if (!rows.length) return '';
+  const n = ui.frPick.filter(k => rows.some(r => r.k === k)).length;
+  let s = '<p class="sect frhead">Have you climbed any of these?</p><div class="frpop">';
+  for (const r of rows){
+    const on = ui.frPick.includes(r.k);
+    s += '<button class="frrow' + (on ? ' on' : '') + '" data-act="frpick" data-v="' + esc(r.k) + '"' +
+      ' aria-pressed="' + on + '">' +
+      '<span class="frbox">' + (on ? ICON_CHECK : '') + '</span>' +
+      '<span class="frn">' + esc(r.n) + '<i>' + esc(r.sub) + '</i></span>' +
+      '<span class="frh">' + BY_KEY[r.k].h + ' m</span></button>';
+  }
+  s += '</div>';
+  if (n) s += '<div class="btnrow frgo"><button class="btn" data-act="frmark">Mark ' +
+    n + (n === 1 ? ' hill' : ' hills') + '</button></div>';
+  return s;
+}
+
+/* The far side of the list picker. Pulled out of the pickdone action so the
+   first-run hill ticks can finish the same way, without a second tap. */
+function finishPicking(){
+  if (!ui.pick.length) return;
+  /* keep them in the order the app lists them, not the order they were tapped */
+  state.enabled = LISTS.filter(l => ui.pick.includes(l.id)).map(l => l.id);
+  state.enabledT = now();
+  ui.list = state.enabled[0];
+  /* The sign-in offer is a first-run thing, and only worth showing if there is
+     an account to make and they have not made one. */
+  const askSignin = !seenOnboard() && fbConfigured() && !fbUser;
+  ui.onboard = askSignin ? 'signin' : 'done';
+  if (!askSignin) markOnboarded();
+  touched(); render();
+  if (!askSignin && fbUser) openInvite();
+}
+
 function renderPickLists(){
   const n = ui.pick.length;
   const yr = new Date().getFullYear();
@@ -19333,20 +19495,28 @@ function renderPickLists(){
   s += '<header class="cover cover-welcome">' +
     '<span class="rstamp rs-green rs-tr" aria-hidden="true">WayMark<b>' + yr + '</b></span>' +
     '<p class="coverline"><i></i>WayMark field guide</p>' +
-    '<h1>Which hills have you climbed?</h1>' +
-    '<p class="coversub">Type one, any one, and mark it. WayMark works out <b>which list it belongs to</b>.</p>' +
+    '<h1>Mark your first hill</h1>' +
+    '<p class="coversub">Any one you\u2019ve climbed \u2014 <b>WayMark does the lists</b>.</p>' +
     '</header>';
-  s += markBar();
-  /* Before the shop row: somebody who already has an account has a more urgent
-     errand than either buying a tee or picking lists over again. */
-  s += welcomeSigninHTML();
-  /* Somebody who came for a tee should not have to read a page about hill
-     lists first. This sits straight under the search, above the setup, and is
-     the one thing on the screen that is not about lists. */
-  s += welcomeShopRow();
-  s += '<p class="eyebrow">Or pick the lists you are working through</p>';
-  s += '<p class="planintro" style="margin-bottom:12px">Tick as many as you like. You can change this any time under Settings, ' +
-       'and switching one off never loses anything you have marked.</p>';
+  s += markBar('Search a hill\u2026');
+  /* THE SEARCH NOW TOUCHES THE LISTS. Reviewer, 7 Oct: "search should be closer
+     to the list of mountains", and "overwhelming amount of text" about this
+     screen as a whole. Two blocks of furniture -- the sign-in row and the shop
+     row -- sat between the search box and the thing it searches. Both have
+     moved under the setup, which is where the comment above welcomeShopRow
+     always said they belonged.
+     AND THE 21 LISTS ARE NO LONGER THE PAGE. Measured at 390px, this screen
+     was 2,290px -- two and a half screens of hill lists to scroll past before
+     anything had been marked. They now sit behind one button, with four hills
+     a newcomer has probably already walked where the wall used to be. */
+  s += firstRunHTML();
+  s += '<div class="frlists">';
+  s += '<button class="btn quiet frlistbtn' + (ui.listsOpen ? ' open' : '') + '"' +
+       ' data-act="listsopen" aria-expanded="' + (ui.listsOpen ? 'true' : 'false') + '">' +
+       '<span>Pick your lists</span>' + ti('chevron-down') + '</button>';
+  if (ui.listsOpen){
+  s += '<p class="planintro frlistnote">Tick as many as you like. ' +
+       'Nothing you have marked is ever lost by switching one off.</p>';
   s += '<div class="regionlist">';
   for (const l of LISTS){
     /* Out of bounds is not a list you work through — it fills itself as you
@@ -19364,12 +19534,21 @@ function renderPickLists(){
       infoBtn(l.id) + '</div>';
   }
   s += '</div>';
-  s += '<div class="btnrow onboardbar">' +
-       '<button class="btn" data-act="pickdone"' + (n ? '' : ' disabled') + '>' +
-       (n ? 'Continue with ' + n + ' list' + (n === 1 ? '' : 's') : 'Mark a hill or pick a list') +
-       '</button></div>';
+  }
+  s += '</div>';
+  /* The sticky bar is gone. It floated over the list -- a row was always
+     behind it -- and it spent its life reading "Mark a hill or pick a list",
+     which is a disabled button telling you what you already know. One
+     ordinary button, only once there is something to continue with. */
+  if (n) s += '<div class="btnrow frdone"><button class="btn" data-act="pickdone">' +
+       'Continue with ' + n + ' list' + (n === 1 ? '' : 's') + '</button></div>';
+  /* Somebody who already has a log has a more urgent errand than picking lists
+     again -- but not more urgent than the question at the top of the screen. */
+  s += welcomeSigninHTML();
+  /* And somebody who came for a tee should not have to read a page about hill
+     lists first -- so it is here, under the setup, not above it. */
+  s += welcomeShopRow();
   s += welcomeShop();
-  s += welcomeHills();
   return s;
 }
 
@@ -19679,10 +19858,15 @@ function nearestPatch(){
   return pool.sort((a, b) => (b.have / b.target) - (a.have / a.target) ||
     (a.target - a.have) - (b.target - b.have))[0] || null;
 }
-/* "Nearest milestone" / "Nearest challenge" — the word the patch itself uses */
+/* "Nearest milestone" / "Nearest challenge" — the word the patch itself uses,
+   and "to earn" because the card never said what happens when you get there.
+   Reviewer, 7 Oct, looking at this card: "had to think what happens after 10
+   peaks, maybe call out that you'll get a badge." The badge was drawn on the
+   card the whole time; nothing in the words said it was a prize. */
 function nearLabel(p){
   const g = p && PATCH_GROUP[p.kind];
-  return g === 'milestone' ? 'Nearest milestone' : g === 'challenge' ? 'Nearest challenge' : 'Nearest patch';
+  return g === 'milestone' ? 'Next milestone to earn'
+       : g === 'challenge' ? 'Next challenge to earn' : 'Next patch to earn';
 }
 
 /* Desktop only: the column beside the Home photo. The nearest patch, the two
@@ -19792,13 +19976,19 @@ function gBtnHTML(){
    you straight back in your log, past this screen. */
 function welcomeSigninHTML(){
   if (!fbConfigured() || fbUser) return '';
-  return '<div class="wsignin"><div class="wsrow"><b>Welcome back</b>' +
+  /* IT SAID "WELCOME BACK" TO STRANGERS. An outside reviewer on 7 Oct, who had
+     never opened WayMark before: "Welcome back? but I haven't logged in." The
+     row is for somebody who already has a log, but it is shown to everybody
+     who is not signed in, which on this screen is everybody. The words have to
+     be true for a first visit and still catch a returning walker. */
+  return '<div class="wsignin"><div class="wsrow"><b>Already have a log?</b>' +
     gBtnHTML() + '</div></div>';
 }
-function markBar(){
+function markBar(ph){
+  const lab = ph || 'Mark a hill\u2026';
   return '<div class="markbar"><div class="field">' +
     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['search'] + '</svg>' +
-    '<input type="search" id="mq" placeholder="Mark a hill…" value="' + esc(ui.mq || '') + '" autocomplete="off" aria-label="Mark a hill"></div>' +
+    '<input type="search" id="mq" placeholder="' + esc(lab) + '" value="' + esc(ui.mq || '') + '" autocomplete="off" aria-label="' + esc(lab.replace(/\u2026$/, '')) + '"></div>' +
     '<div id="mres">' + markResults() + '</div></div>';
 }
 /* Marking from the search: switch the hill's list on if it is not, land on
@@ -26232,22 +26422,30 @@ document.addEventListener('click', async e => {
     ui.pick = ui.pick.includes(id) ? ui.pick.filter(x => x !== id) : [...ui.pick, id];
     render();
   }
-  else if (a === 'pickdone'){
-    if (!ui.pick.length) return;
-    /* keep them in the order the app lists them, not the order they were tapped */
-    state.enabled = LISTS.filter(l => ui.pick.includes(l.id)).map(l => l.id);
-    state.enabledT = now();
-    ui.list = state.enabled[0];
-    /* The sign-in offer is a first-run thing, and only worth showing if there is
-       an account to make and they have not made one. Somebody who switched every
-       list off in Settings and is picking again has already been asked. */
-    const askSignin = !seenOnboard() && fbConfigured() && !fbUser;
-    ui.onboard = askSignin ? 'signin' : 'done';
-    if (!askSignin) markOnboarded();
-    touched(); render();
-    /* somebody who arrived on a link and was already signed in gets it here,
-       on the far side of the list picker */
-    if (!askSignin && fbUser) openInvite();
+  else if (a === 'pickdone'){ finishPicking(); }
+  else if (a === 'listsopen'){ ui.listsOpen = !ui.listsOpen; render(); }
+  else if (a === 'frpick'){
+    const k = el.dataset.v;
+    ui.frPick = ui.frPick.includes(k) ? ui.frPick.filter(x => x !== k) : [...ui.frPick, k];
+    render();
+  }
+  else if (a === 'frmark'){
+    /* Mark everything ticked in one go and go straight on into the app. The
+       hill's list is added to ui.pick exactly as markFromSearch does it, so
+       finishPicking() switches on whatever the marks implied -- the walker
+       never has to know what a Wainwright is to get their first mark in. */
+    const keys = ui.frPick.filter(k => BY_KEY[k] && !isBagged(k));
+    if (!keys.length) return;
+    for (const k of keys){
+      const h = BY_KEY[k];
+      const lid = h.l.find(x => ui.pick.includes(x)) || h.l[0];
+      if (lid && !ui.pick.includes(lid)) ui.pick = [...ui.pick, lid];
+    }
+    ui.frPick = [];
+    /* ONE celebration for the set, not one per hill: marking() posts the
+       whole batch as a single day out and shows the patches once. */
+    await marking(() => { for (const k of keys) setBagged(k, true, ''); });
+    finishPicking();
   }
   else if (a === 'wstart'){ ui.onboard = 'lists'; render(); window.scrollTo({top:0}); }
   else if (a === 'wsignin'){ ui.onboard = 'signin'; render(); window.scrollTo({top:0}); }
@@ -31609,7 +31807,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v326';
+const APP_VERSION = 'v328';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
