@@ -3198,7 +3198,10 @@ button.bstriprow{cursor:pointer}
 .winfacts b{color:#F3EFE6}
 .win .btn.winshare{display:block; width:100%; background:var(--accent); color:#fff;
   border:0; border-radius:11px; padding:11px; font:700 14.5px var(--font-ui); min-height:46px}
-.winlnk{display:flex; justify-content:center; margin-top:10px}
+.winlnk{display:flex; justify-content:center; align-items:center; gap:11px; margin-top:10px}
+.winlnkdot{width:3px; height:3px; border-radius:50%; background:rgba(169,189,180,.45); flex:none}
+/* Close is the quieter of the two -- the way on is what most people want */
+.winlnk .linkbtn.winclose{color:#8FA79D; text-decoration-color:rgba(143,167,157,.45)}
 /* .linkbtn already carries text-decoration:underline, so a border-bottom as
    well drew the line twice -- once under the words and once under the whole
    44px box. The drawing has one line, under the words. */
@@ -8564,7 +8567,7 @@ span.vbadge{color:var(--surface)}
 .kitshot{display:block; width:100%; height:112px; border-radius:10px;
   overflow:hidden; background:var(--surface-2); border:1px dashed var(--line);
   margin:0 0 12px; cursor:pointer}
-.kitshot:has(img){height:auto; aspect-ratio:16/10; border-style:solid}
+.kitshot:has(img){height:auto; aspect-ratio:1/1; border-style:solid}
 .kitshot img{width:100%; height:100%; object-fit:cover; display:block}
 .kitshotempty{display:flex; height:100%; align-items:center; justify-content:center; gap:8px;
   font:700 13px var(--font-ui); color:var(--ink-3)}
@@ -8646,7 +8649,12 @@ span.vbadge{color:var(--surface)}
   border-radius:14px; overflow:hidden; background:var(--surface);
   box-shadow:var(--shadow); transition:transform .14s, box-shadow .14s}
 .kitcard:active{transform:scale(.985); box-shadow:none}
-.kitcap{display:block; position:relative; height:94px; background:var(--surface-2)}
+/* SQUARE, not a letterbox. Joe, 8 Oct: "kit images too thin (not
+   practical)". 94px tall on a 176px card is nearly 2:1, and object-fit:cover
+   took the top and bottom off every boot. A square holds a boot, a pack and
+   a jacket equally badly-or-well, and it is the shape the patches already
+   use, so the app does not grow a second idea of what a thumbnail is. */
+.kitcap{display:block; position:relative; aspect-ratio:1/1; background:var(--surface-2)}
 .kitcap img{width:100%; height:100%; object-fit:cover; display:block}
 .kitcapi{position:absolute; inset:0; display:grid; place-items:center}
 .kitcapi svg{width:34px; height:34px; color:var(--sage); opacity:.6; stroke-width:1.5}
@@ -8666,8 +8674,62 @@ span.vbadge{color:var(--surface)}
 .kitcb i{display:block; margin-top:3px; font-style:normal;
   font:600 9.5px/1.3 var(--font-data); letter-spacing:.09em; text-transform:uppercase;
   color:var(--sage); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* the way out of the shop when the shop is a destination. Full width and
+   named, because a chevron alone in a corner is a guess -- and because the
+   bottom bar it replaces was five words wide. */
+.shopback{display:flex; align-items:center; gap:7px; width:100%; min-height:46px;
+  margin:11px 0 4px; padding:0 13px; background:var(--surface);
+  border:1px solid var(--line); border-radius:11px;
+  font:800 14.5px var(--font-ui); color:var(--ink); text-align:left}
+.shopback svg{width:17px; height:17px; flex:none; color:var(--accent-text)}
+.shopback:active{transform:scale(.99)}
+.kithead{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin:22px 0 10px}
+.kithead h3{margin:0; font:900 16px var(--font-ui); color:var(--ink)}
+.kithead span{font:600 10px var(--font-data); letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.kitmoney{display:block; margin-top:7px; padding-top:7px;
+  border-top:1px dashed var(--line)}
+.kitmoney b{display:inline; font:800 17px var(--font-ui); color:var(--accent-text);
+  line-height:1; -webkit-line-clamp:none}
+.kitmoney u{display:inline; font:800 15px var(--font-ui); color:var(--ink-2);
+  text-decoration:none}
+/* .kitcb i is display:block -- that is the category line. Without putting
+   this one back to inline, "A SUMMIT" dropped onto its own row under the
+   price. Same shape of trap as the bag button: a one-class rule inheriting
+   from a sibling rule written for a different element. */
+.kitmoney i{display:inline; font:700 9px var(--font-data); letter-spacing:.07em;
+  color:var(--ink-3); font-style:normal; margin-left:4px; text-transform:uppercase}
+.kitmoney s{display:block; margin-top:3px; text-decoration:none;
+  font:600 9.5px var(--font-data); letter-spacing:.03em; color:var(--ink-3)}
+/* the receipt mark sits opposite the hills pill, both clear of the middle
+   of the photo where the gear actually is */
+/* ---- the form's money and receipt blocks, v332 ---- */
+.gearedit label{position:relative}
+.kitquid{position:absolute; left:11px; bottom:0; height:44px; display:grid;
+  align-items:center; font:700 14px var(--font-ui); color:var(--ink-3);
+  pointer-events:none}
+.gearedit input.haspre{padding-left:24px}
+.kitrcp{margin-top:16px; padding:12px 12px 4px; border:1px solid var(--line);
+  border-radius:12px; background:var(--surface-2)}
+.kitrcph{margin:0 0 9px; font:800 12px var(--font-data); letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-2)}
+.kitrcph em{font-style:normal; margin-left:7px; padding:2px 7px; border-radius:99px;
+  background:var(--accent-soft); color:var(--accent-text);
+  font-size:10px; letter-spacing:.06em}
+/* a receipt is a tall strip, not a square -- the order number is usually
+   near the bottom and a square crop cuts it off */
+.kitshot.kitshotr:has(img){aspect-ratio:3/4}
+.kitrdrop{display:block; margin:7px auto 0; font:600 12px var(--font-ui);
+  color:var(--ink-3); text-decoration:underline; text-underline-offset:3px;
+  min-height:40px; border:0; background:none}
+.kitrec{position:absolute; top:7px; left:7px; width:23px; height:23px;
+  border-radius:50%; display:grid; place-items:center;
+  background:rgba(15,42,36,.82); color:#F3EFE6;
+  font:700 11px var(--font-ui); line-height:1}
 .kitcard.off{opacity:.74}
-@media (max-width:340px){ .kitgrid{grid-template-columns:1fr} .kitcap{height:110px} }
+/* one to a row under 340px: the square would be 300px tall two-up and the
+   card would be taller than the phone */
+@media (max-width:340px){ .kitgrid{grid-template-columns:1fr} .kitcap{aspect-ratio:2/1} }
 
 .kitjump{display:flex; align-items:center; gap:12px; width:100%; text-align:left;
   padding:11px 13px; background:var(--surface); border:1px solid var(--line);
@@ -8991,9 +9053,16 @@ textarea, select{font-size:16px}
            screen, in turn, and the dots say how many are coming. -->
       <div class="winpager" id="winPager" aria-hidden="true"></div>
       <button class="btn winshare" id="winShare">Share this</button>
+      <!-- Joe, 8 Oct: "add a close button under share patch." There is an X
+           top-right, but an icon in a corner is not the same as a word that
+           says what it does -- and the whole screen was rebuilt once already
+           because people could not get out of it. Close sits in the same row
+           as the way-on link, so it costs no height on a 667px phone. -->
       <div class="winlnk">
         <button class="linkbtn" id="winNext" hidden>Next patch &rarr;</button>
         <button class="linkbtn" id="winJour">Write it up</button>
+        <span class="winlnkdot" aria-hidden="true"></span>
+        <button class="linkbtn winclose" id="winClose">Close</button>
       </div>
     </div>
   </div>
@@ -9765,6 +9834,16 @@ function normalise(s){
         until:String(g.until || '').slice(0, 10),   /* the day it was retired */
         off:!!g.off,                 /* retired: keeps its numbers, stops counting */
         usual:g.usual === false ? false : true,
+        /* v332 -- ALL FIVE OF THESE MUST STAY ON THIS LIST. The comment above
+           is not decoration: a field left off here is wiped on the next
+           reload and on the next sync, silently. */
+        paid:(+g.paid > 0) ? Math.min(Math.round(+g.paid), 99999999) : 0,
+        rimg:typeof g.rimg === 'string' ? g.rimg : '',   /* the receipt photo */
+        rshop:String(g.rshop || '').slice(0, 60),
+        rord:String(g.rord || '').slice(0, 40),
+        /* whose kit: '' is yours, a dog id is that dog's, 'shared' is the
+           gear that goes out with whichever dog is coming */
+        dog:String(g.dog || '').slice(0, 40),
         deleted:!!g.deleted, t:+g.t || 0
       })).slice(0, 24)
     : [];
@@ -13011,6 +13090,19 @@ let supOff = null;          /* unsubscribe from the live tally                  
 let supBusy = false;
 let supFlipped = {};        /* n -> the side a card is currently showing             */
 let supRoute = false;       /* arrived on /supplies rather than through the app      */
+/* THE SHOP OPENED FROM HOME. Joe, 8 Oct: "if you open shop from home screen
+   remove all of the bottom bar and add a clear back button to get back to
+   the homepage."
+   The shop lives inside Basecamp, so reaching it from Home drops you into
+   somebody else's furniture: five tabs along the bottom highlighting
+   Basecamp, which is not where you think you are, and five Basecamp
+   sub-tabs along the top, which you did not ask for. Arriving from Home
+   makes the shop a DESTINATION, not a tab -- one screen, one way out.
+   The same idea as shopPeek, which already does this for the welcome. */
+let shopHome = false;
+function shopFromHome(){
+  return shopHome && tab === 'a' && ui.patchView === 'supplies';
+}
 
 const supUp   = n => supTally['u' + n] || 0;
 const supDown = n => supTally['d' + n] || 0;
@@ -16357,7 +16449,39 @@ function kitList(){
     .sort((a, b) => (a.made || a.t || 0) - (b.made || b.t || 0));
 }
 function kitById(id){ return (state.kit || []).find(g => g && g.id === id && !g.deleted) || null; }
+/* ---- whose kit is it, v332 ----
+   '' (or missing) is yours. A dog's id is that dog's own gear and lives on
+   that dog's page. 'shared' is the towel and the water bowl: dog gear that
+   belongs to no one dog, so it sits in your Kit under its own heading
+   rather than being duplicated on every dog's page.
+   An item pinned to a dog that has since been removed falls back to shared
+   rather than vanishing -- the gear still exists in the hall. */
+function kitOwner(g){
+  const o = String((g && g.dog) || '');
+  if (!o) return '';
+  if (o === 'shared') return 'shared';
+  return dogById(o) ? o : 'shared';
+}
+function kitMine(){ return kitList().filter(g => !kitOwner(g)); }
+function kitShared(){ return kitList().filter(g => kitOwner(g) === 'shared'); }
+function kitForDog(id){ return kitList().filter(g => kitOwner(g) === id); }
 function kitName(g){ return (g && g.n) || 'A bit of kit'; }
+/* ---- money and the receipt, added v332 ----
+   Prices live in PENCE everywhere in this app (gbp() divides by 100), so the
+   kit does the same rather than inventing a second unit. */
+function kitParsePaid(txt){
+  const t = String(txt == null ? '' : txt).replace(/[\s\u00a3,]/g, '');
+  if (!t) return 0;
+  const n = Number(t);
+  if (!isFinite(n) || n <= 0) return 0;
+  return Math.min(Math.round(n * 100), 99999999);   /* \u00a3999,999.99 is plenty */
+}
+function kitPaidStr(g){
+  const n = numOr(g && g.paid, NaN);
+  if (!isFinite(n) || n <= 0) return '';
+  return (n / 100).toFixed(n % 100 ? 2 : 0);
+}
+function kitHasRec(g){ return !!(g && (g.rimg || g.rord || g.rshop)); }
 function kitCat(g){ return GEAR_BY[(g && g.c) || 'other'] || GEAR_BY.other; }
 function kitOn(key){ const r = rec(key); return Array.isArray(r.kit) ? r.kit : []; }
 
@@ -16433,7 +16557,9 @@ function kitWorn(key){
 }
 /* the public list other people see stays in step with the real one */
 function kitSyncPublic(){
-  prof.gear = kitList().filter(g => !g.off)
+  /* YOUR kit, not the dogs'. prof.gear is the "what I walk in" line other
+     people see; Evie's harness is not an answer to that question. */
+  prof.gear = kitMine().filter(g => !g.off)
     .map(g => ({c:g.c || 'other', n:g.n, note:String(g.note || '').split('\n')[0].slice(0, 80)}))
     .slice(0, 12);
   prof.t = now();
@@ -16782,6 +16908,24 @@ function renderDogPage(id){
   s += '</section>';
 
   /* about */
+  /* THEIR OWN KIT. Joe, 8 Oct: "add dog kit per dog and shared gear."
+     Evie's harness is Evie's, so it sits with her hills and her album, not
+     in a list of your boots. The same card as yours: the hill count is the
+     hills SHE walked, because kitHills counts the hills the item was out
+     on and her gear only goes out when she does. */
+  {
+    const dk = kitForDog(d.id);
+    s += '<section class="dogsec"><div class="dogsectop"><h3>' +
+      esc(dogName(d)) + '\u2019s kit</h3></div>';
+    const her = d.sex === 'm' ? 'His' : d.sex === 'f' ? 'Her' : 'Their';
+    const hers = her.toLowerCase();
+    s += dk.length ? kitGridHTML(dk)
+      : '<p class="pdfine">' + her + ' harness, ' + hers + ' coat, ' + hers +
+        ' lead \u2014 and what each hill costs you in dog gear.</p>';
+    s += '<button class="dogadd" data-act="gearadd" data-v="' + esc(d.id) + '">+ Add ' +
+      esc(dogName(d)) + '\u2019s kit</button>';
+    s += '</section>';
+  }
   s += '<section class="dogsec"><div class="dogsectop"><h3>About ' + esc(dogName(d)) + '</h3>' +
     '<button class="dogpill" data-act="dogedit" data-v="' + esc(d.id) + '">Edit</button></div>' +
     '<div class="dogkv"><b>Breed</b><span>' + (esc(d.breed) || 'Not said') + '</span></div>' +
@@ -17438,7 +17582,16 @@ function renderPatchesPage(){
     (dogs ? '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') +
       (dogList().length === 1 ? 'Dog' : 'Dogs') + '</button>' : '') +
     '<button data-act="patchview" data-v="kit" aria-pressed="' + kitv + '">' + ti('shoe') + 'Kit</button></div>';
-  if (shop){ supWatch(); shopLoad(); return (ui.supOpen || ui.kitOpen ? '' : s) + renderShop(); }
+  if (shop){
+    supWatch(); shopLoad();
+    /* From Home: no Basecamp bar along the top either. One button, naming
+       where it goes -- not a bare chevron, which on a phone is a guess. */
+    if (shopFromHome()){
+      return '<button class="shopback" data-act="shophomeback">' +
+        ti('chevron-left') + 'Back to Home</button>' + renderShop();
+    }
+    return (ui.supOpen || ui.kitOpen ? '' : s) + renderShop();
+  }
   if (pack) return s + (ui.dog ? renderDogPage(ui.dog) : renderDogsPane());
   if (kitv) return s + (ui.kitItem ? renderKitPage(ui.kitItem) : renderKitPane());
   if (jour) return s + renderJourney(ps);
@@ -18213,7 +18366,10 @@ function paintNav(){
        button that cannot be pressed is worse than no button, so the bar goes
        until there is somewhere for it to take you. The shop peek is not
        onboarding() -- somebody buying a tee keeps the nav. */
-    const hide = onboarding();
+    /* onboarding() hides it because nothing on it works yet. shopFromHome()
+       hides it for the opposite reason: everything works, but you came here
+       for one thing and the bar says you are somewhere you are not. */
+    const hide = onboarding() || shopFromHome();
     b.hidden = hide;
     document.body.classList.toggle('nonav', hide);
     if (hide){ navHtml.b = ''; return; }
@@ -25226,6 +25382,9 @@ document.addEventListener('click', async e => {
        same welcome. Basecamp at least has somewhere to go that does not need a
        list or an account — the shop — so it goes there properly. */
     if (tabBtn.dataset.tab === 'a' && onboarding()){ ui.shopPeek = true; ui.patchView = 'supplies'; }
+    /* the bar is hidden while the shop is a destination, so reaching this
+       line at all means you are navigating normally again */
+    shopHome = false;
     tab = tabBtn.dataset.tab;
     ui.q=''; ui.rq=''; ui.region=''; ui.open=null; ui.patch=null; ui.patchFrom=null;
     /* Leave nothing half-open behind you: a composer, a search result or a
@@ -26244,8 +26403,16 @@ document.addEventListener('click', async e => {
     /* `since` is today by default, so a new item starts from now rather than
        claiming every hill you have ever walked. Change it to the day you
        actually got them and the whole log counts itself. */
-    const g = {id:'g' + uid(), made:now(), n:'', c:'boots', note:'', img:'',
-               since:today(), until:'', off:false, usual:true, deleted:false, t:now()};
+    /* WHOSE KIT. Joe, 8 Oct: "add dog kit per dog and shared gear."
+       data-v carries the owner: a dog's id for that dog's harness, 'shared'
+       for the towel that goes out with whichever dog is coming, and nothing
+       at all for your own boots. A dog's gear defaults to 'other' rather
+       than 'boots', because a dog does not wear boots. */
+    const own = String(el.dataset.v || '');
+    const mine = !own;
+    const g = {id:'g' + uid(), made:now(), n:'', c:mine ? 'boots' : 'other', note:'', img:'',
+               since:today(), until:'', off:false, usual:true, deleted:false,
+               dog:own, t:now()};
     state.kit = [...(state.kit || []), g];
     /* straight into the form: a brand new item has no hills to admire yet */
     touched(); gearShelfClose(); gearSheetClose(); render(); gearEditOpen(g.id);
@@ -26284,7 +26451,7 @@ document.addEventListener('click', async e => {
   else if (a === 'dogphback'){ dogPhotosBack(el.dataset.v); }
   else if (a === 'dogsex'){ if (ui.dogDraft){ ui.dogDraft.sex = el.dataset.v; paintDogEdit(); } }
   else if (a === 'dogcollar'){ if (ui.dogDraft){ ui.dogDraft.collar = el.dataset.v; paintDogEdit(); } }
-  else if (a === 'patchview'){ ui.patch = null; ui.patchFrom = null; ui.dog = null; ui.dogAll = false; ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
+  else if (a === 'patchview'){ shopHome = false; ui.patch = null; ui.patchFrom = null; ui.dog = null; ui.dogAll = false; ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
   else if (a === 'cert'){ certOpen(el.dataset.k); }
   else if (a === 'certclose'){ certClose(); }
   else if (a === 'certkind'){
@@ -26375,7 +26542,7 @@ document.addEventListener('click', async e => {
   else if (a === 'suptodo'){ ui.supTodo = !ui.supTodo; render(); }
   else if (a === 'supclear'){ ui.supSide = ''; ui.supTodo = false; ui.supSort = ''; render(); }
   else if (a === 'supflip'){ supFlip(+el.dataset.v); }
-  else if (a === 'supopen'){ bcSheetClose(); closeBasket(); ui.patch = null; if (tab !== 'a' || ui.patchView !== 'supplies'){ tab = 'a'; ui.patchView = 'supplies'; } supGo(+el.dataset.v, true); }
+  else if (a === 'supopen'){ bcSheetClose(); closeBasket(); ui.patch = null; if (tab !== 'a' || ui.patchView !== 'supplies'){ shopHome = (tab === 'd'); tab = 'a'; ui.patchView = 'supplies'; } supGo(+el.dataset.v, true); }
   /* was wired to 'change' with the file inputs, so the Remove button never fired */
   else if (a === 'stgpxoff'){
     const e = diaryEntry(el.dataset.id); if (!e || !e.strava || !e.strava.gpx) return;
@@ -26597,7 +26764,7 @@ document.addEventListener('click', async e => {
     if (v){ bcTellDefault = v; await supSetTell(n, v); toast('We’ll tell you when it’s printed.'); }
     if (bcDeck && bcDeck.i >= bcDeck.list.length) paintDeck();
   }
-  else if (a === 'bcnews'){ const t = bcRead('waymark.told'); t.push(el.dataset.v); bcWrite('waymark.told', t); tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
+  else if (a === 'bcnews'){ const t = bcRead('waymark.told'); t.push(el.dataset.v); bcWrite('waymark.told', t); shopHome = (tab === 'd'); tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
   else if (a === 'bcwintee'){ dropShareAfterWin(); closeWin(); ui.patch = null; ui.patchFrom = null; tab = 'a'; ui.patchView = 'supplies'; supGo(+el.dataset.v, true); }
   else if (a === 'bcpatchtell'){ await patchTellMe(); toast('We’ll tell you when the real patches are ready.'); }
   else if (a === 'bklater'){
@@ -26609,7 +26776,11 @@ document.addEventListener('click', async e => {
   else if (a === 'shoppeek'){ ui.shopPeek = true; tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; ui.shopColl = ''; supGo(null, true); window.scrollTo({top:0}); }
   else if (a === 'shopretry'){ shopFailed = ''; shopCat = null; render(); shopLoad(true); }
   else if (a === 'shoppeekback'){ shopClose(); bcSheetClose(); ui.shopPeek = false; ui.kitOpen = null; ui.supOpen = null; render(); window.scrollTo({top:0}); }
-  else if (a === 'shopgo'){ tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; ui.shopColl = ''; supGo(null, true); window.scrollTo({top:0}); }
+  else if (a === 'shopgo'){ shopHome = (tab === 'd'); tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; ui.shopColl = ''; supGo(null, true); window.scrollTo({top:0}); }
+  /* the one way out, and it clears the flag so the shop is a tab again next
+     time somebody reaches it through Basecamp */
+  else if (a === 'shophomeback'){ shopHome = false; shopClose(); bcSheetClose();
+    ui.kitOpen = null; ui.supOpen = null; tab = 'd'; render(); window.scrollTo({top:0}); }
   else if (a === 'bkclose'){ closeBasket(); }
   else if (a === 'bkshop'){ closeBasket(); tab = 'a'; ui.patchView = 'supplies'; ui.shopSaved = false; supGo(null, true); window.scrollTo({top:0}); }
   else if (a === 'bkqty'){
@@ -27042,6 +27213,30 @@ document.addEventListener('change', e => {
         if (ui.gearEdit) gearEditPaint();
         if (ui.gearv) gearSheetPaint();
       }});
+  }
+  /* THE RECEIPT PHOTO. Portrait, not square: a receipt is a long strip and
+     the order number is usually near the bottom. 560 wide at 0.68 keeps it
+     readable while staying in the same weight class as the kit photo, which
+     matters because all of this rides inside the log. */
+  else if (a === 'gearrec' && el.files && !el.files.length){ el.value = '';
+    toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
+  else if (a === 'gearrec' && el.files && el.files.length){
+    const f = el.files[0]; el.value = '';
+    const id = el.dataset.v;
+    openCropper(URL.createObjectURL(f), {title:'The receipt', w:460, h:640, out:560, q:0.68,
+      save:pic => {
+        const g = kitById(id); if (!g) return;
+        g.rimg = pic; g.t = now(); touched(); render();
+        if (ui.gearEdit) gearEditPaint();
+        if (ui.gearv) gearSheetPaint();
+        toast('Receipt saved.');
+      }});
+  }
+  else if (a === 'gearrecdrop'){
+    const g = kitById(el.dataset.v); if (!g) return;
+    delete g.rimg; g.t = now(); touched(); render();
+    if (ui.gearEdit) gearEditPaint();
+    if (ui.gearv) gearSheetPaint();
   }
   else if (a === 'dogphoto' && el.files && !el.files.length){ el.value = ''; toast('No photo came through. If it is in iCloud, open it in Photos first.'); }
   else if (a === 'dogphoto' && el.files && el.files.length){
@@ -27887,6 +28082,9 @@ dqEl().onclick = e => {
 };
 
 document.getElementById('winX').onclick = closeWin;
+/* the named Close does exactly what the X does, share form and all -- two
+   doors out of one room, not two different rooms */
+document.getElementById('winClose').onclick = closeWin;
 document.getElementById('winNext').onclick = () => winStep(1);
 /* AND YOU CAN SWIPE. The dots and the link are there for anybody who does
    not, but a run of cards on a phone should move the way a phone moves.
@@ -32158,7 +32356,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v331';
+const APP_VERSION = 'v332';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -35382,6 +35580,35 @@ function kitCardLine(g){
      a 360px phone, and the word earns nothing next to a bare year */
   return g.since ? c + ' · ' + g.since.slice(0, 4) : c;
 }
+/* WHAT EACH SUMMIT COST. Joe, 8 Oct: "add price paid for the gear and cost
+   per summit."
+   The second number is the one worth leading with. £149 for boots is a price
+   tag; £3.10 a summit is the thing that makes a walker feel better about the
+   £149, and it falls every time they mark a hill -- which is the whole point
+   of the kit page. So the per-summit figure is the big number and the price
+   paid sits quietly under it with the hill count that produced it.
+   No price, or no hills yet, and the row is simply not drawn: an empty
+   "£— a summit" on a new boot is worse than nothing. */
+function kitPer(g){
+  const paid = numOr(g && g.paid, NaN);
+  if (!isFinite(paid) || paid <= 0) return null;
+  const n = kitHills(g.id).length;
+  if (!n) return {paid, n:0, per:null};
+  return {paid, n, per: Math.round(paid / n)};
+}
+function kitMoneyHTML(g){
+  const m = kitPer(g); if (!m) return '';
+  if (!m.per) return '<span class="kitmoney"><u>' + gbp(m.paid) + '</u>' +
+    '<s>paid \u00b7 no hills on it yet</s></span>';
+  return '<span class="kitmoney"><b>' + gbp(m.per) + '</b><i>a summit</i>' +
+    '<s>' + gbp(m.paid) + ' paid \u00b7 ' + m.n + ' hill' + (m.n === 1 ? '' : 's') + '</s></span>';
+}
+/* the receipt mark: a quiet disc on the photo, so you can see at a glance
+   which of your kit you could actually claim on */
+function kitRecHTML(g){
+  return kitHasRec(g)
+    ? '<span class="kitrec" aria-label="Receipt saved">\u00a3</span>' : '';
+}
 function kitCardHTML(g){
   const n = kitHills(g.id).length;
   return '<button class="kitcard' + (g.off ? ' off' : '') + '" data-act="gearopen" data-v="' + esc(g.id) + '">' +
@@ -35389,9 +35616,11 @@ function kitCardHTML(g){
       (g.img ? '<img src="' + esc(g.img) + '" alt="">'
              : '<span class="kitcapi">' + ti(kitCat(g).icon) + '</span>') +
       '<span class="kitpill">' + n + '</span>' +
+      kitRecHTML(g) +
       (g.off ? '<span class="kitstamp">Retired</span>' : '') +
     '</span>' +
-    '<span class="kitcb"><b>' + esc(kitName(g)) + '</b><i>' + esc(kitCardLine(g)) + '</i></span>' +
+    '<span class="kitcb"><b>' + esc(kitName(g)) + '</b><i>' + esc(kitCardLine(g)) + '</i>' +
+      kitMoneyHTML(g) + '</span>' +
     '</button>';
 }
 /* The way in when there is nothing yet. It has to say what the thing DOES,
@@ -35404,14 +35633,29 @@ function kitEmptyHTML(){
     'hills you have already walked count too.</p>' +
     '<button class="dogadd" data-act="gearadd">+ Add a bit of kit</button></section>';
 }
-function gearShelfHTML(){
-  const list = kitList();
-  if (!list.length) return kitEmptyHTML();
-  /* retired pieces stay in the grid wearing a stamp, rather than being
-     exiled under a grey heading — they have earned their numbers */
+/* retired pieces stay in the grid wearing a stamp, rather than being
+   exiled under a grey heading — they have earned their numbers */
+function kitGridHTML(list){
   const live = list.filter(g => !g.off), gone = list.filter(g => g.off);
-  return '<div class="kitgrid">' + live.concat(gone).map(kitCardHTML).join('') + '</div>' +
-    '<button class="dogadd" data-act="gearadd">+ Add a bit of kit</button>';
+  return '<div class="kitgrid">' + live.concat(gone).map(kitCardHTML).join('') + '</div>';
+}
+function gearShelfHTML(){
+  const mine = kitMine(), shared = kitShared();
+  if (!mine.length && !shared.length) return kitEmptyHTML();
+  let s = mine.length ? kitGridHTML(mine) : '';
+  s += '<button class="dogadd" data-act="gearadd">+ Add a bit of kit</button>';
+  /* SHARED DOG GEAR. Joe, 8 Oct: each dog's own harness lives on that dog's
+     page; the towel and the water bowl belong to no one dog, so they sit
+     here under their own heading instead of being copied onto every dog. */
+  if (dogList().length){
+    s += '<div class="kithead"><h3>Shared with the dogs</h3>' +
+      '<span>Goes out with whoever is coming</span></div>';
+    s += shared.length ? kitGridHTML(shared)
+      : '<p class="pdfine">The towel, the water bowl, the spare lead \u2014 gear that ' +
+        'is not any one dog\u2019s.</p>';
+    s += '<button class="dogadd" data-act="gearadd" data-v="shared">+ Add shared gear</button>';
+  }
+  return s;
 }
 
 /* ---------- THE KIT TAB ---------- */
@@ -35534,11 +35778,43 @@ function gearEditPaint(){
       '<label>Got it<input id="gks" type="date" value="' + esc(g.since || '') + '"></label>' +
       '<p class="kitfine">The hills you walked after this date count towards it, ' +
         'so the log fills itself in.</p>' +
+      /* PRICE PAID. Stored in pence like every other price in the app, typed
+         in pounds like a human. Left blank it is simply absent -- the card
+         draws no money row at all rather than a £0 or a dash. */
+      '<label>What you paid<span class="kitquid">\u00a3</span>' +
+        '<input id="gkp" class="haspre" type="text" inputmode="decimal" maxlength="9" ' +
+        'value="' + esc(kitPaidStr(g)) + '" placeholder="149"></label>' +
+      '<p class="kitfine">Every hill you mark brings the cost per summit down. ' +
+        'Only you ever see this.</p>' +
       '<label>Notes<textarea id="gkx" rows="3" maxlength="400" placeholder="Resoled in April. The left one rubs on a long descent.">' + esc(g.note || '') + '</textarea></label>' +
       '<label class="kitck"><input type="checkbox" id="gku"' + (g.usual === false ? '' : ' checked') + '>' +
         'In my usual kit — goes on every hill I mark</label>' +
       '<label class="kitck"><input type="checkbox" id="gko"' + (g.off ? ' checked' : '') + '>' +
         'Retired — keeps its numbers, stops counting</label>' +
+    '</div>' +
+    /* THE RECEIPT. Joe, 8 Oct: "be able to add receipt if you have it so that
+       if you have any warranty claims you can easily get the receipt (this
+       can be online screenshot or physcal receipt)."
+       A photo is the whole thing for a paper receipt and for a screenshot
+       alike. The shop and the order number are typed because that is what a
+       warranty form asks for and because you cannot copy text out of a
+       photograph. All three are optional; any one of them earns the £ mark
+       on the card. */
+    '<div class="kitrcp">' +
+      '<p class="kitrcph">Receipt' + (kitHasRec(g) ? '<em>saved</em>' : '') + '</p>' +
+      '<label class="kitshot kitshotr aslabel">' +
+        (g.rimg ? '<img src="' + esc(g.rimg) + '" alt="">'
+                : '<span class="kitshotempty">' + ti('camera') + 'Photo or screenshot</span>') +
+        '<input type="file" accept="image/*" data-act="gearrec" data-v="' + esc(g.id) + '" class="filein"></label>' +
+      (g.rimg ? '<button class="linkbtn kitrdrop" data-act="gearrecdrop" data-v="' + esc(g.id) + '">Remove the photo</button>' : '') +
+      '<div class="gearedit">' +
+        '<label>Where from<input id="gkrs" value="' + esc(g.rshop || '') + '" maxlength="60" ' +
+          'placeholder="Cotswold Outdoor"></label>' +
+        '<label>Order number<input id="gkro" value="' + esc(g.rord || '') + '" maxlength="40" ' +
+          'placeholder="CO-4471902"></label>' +
+      '</div>' +
+      '<p class="kitfine">Kept on your device and in your own log, like your ' +
+        'photos. Nobody else sees it.</p>' +
     '</div>' +
     '<div class="btnrow"><button class="btn" data-act="gearsave" data-v="' + esc(g.id) + '">Save</button>' +
       '<button class="linkbtn danger kitdel" data-act="geardel" data-v="' + esc(g.id) + '">Delete</button></div>' +
@@ -35555,6 +35831,15 @@ function gearSheetSave(id){
   g.c = GEAR_BY[v('gkc')] ? v('gkc') : 'other';
   g.since = String(v('gks') || '').slice(0, 10);
   g.note = String(v('gkx') || '').slice(0, 400);
+  /* pounds in, pence stored. "149", "149.99", "\u00a3149.99" and "1,499" all
+     work; anything that is not a number clears the field rather than
+     silently storing NaN, which is how gbp() printed "\u00a3NaN" once before. */
+  g.paid = kitParsePaid(v('gkp'));
+  if (!g.paid) delete g.paid;
+  g.rshop = String(v('gkrs') || '').trim().slice(0, 60);
+  g.rord  = String(v('gkro') || '').trim().slice(0, 40);
+  if (!g.rshop) delete g.rshop;
+  if (!g.rord) delete g.rord;
   g.usual = ck('gku');
   const wasOff = !!g.off;
   g.off = ck('gko');
