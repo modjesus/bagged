@@ -3791,6 +3791,73 @@ button.bstriprow{cursor:pointer}
 
 .homelist{margin-top:22px}
 .homelist .listbar{margin-top:0}
+
+/* ---- HOME, v334: your log, not a hill list ----
+   Every size and colour here is a token. No new palette. */
+.homesec{margin:22px 15px 0}
+.homesech{display:flex; align-items:baseline; justify-content:space-between;
+  gap:10px; margin:0 0 10px}
+/* a 39-character dog name made this 398px wide and put horizontal scroll on
+   the whole page at 320 AND 390. A flex child's default min-width is auto,
+   so it would not shrink; min-width:0 plus an ellipsis is the fix. */
+.homesech h2{margin:0; min-width:0; font:900 17px var(--font-ui); color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.homesech{min-width:0}
+.homesecgo{display:inline-flex; align-items:center; gap:3px; min-height:var(--tap);
+  padding:0 2px; border:0; background:none; color:var(--accent-text);
+  font:700 11.5px var(--font-data); letter-spacing:.05em; white-space:nowrap}
+.homesecgo svg{width:var(--i-sm); height:var(--i-sm)}
+
+/* EIGHT DOGS MADE EVERY CELL 33px WIDE and clipped every name to "R..".
+   flex:1 1 0 divides the row however many there are, so the row has to stop
+   dividing and start scrolling. 100px is the narrowest cell that still holds
+   a face, a short name and a count, and it keeps every one tappable. */
+.dogrow{display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch; padding-bottom:2px}
+.dogrow::-webkit-scrollbar{display:none}
+.dogcell{flex:1 0 100px; max-width:180px; scroll-snap-align:start;
+  min-width:100px; display:flex; flex-direction:column;
+  align-items:center; gap:6px; min-height:var(--tap); padding:11px 6px;
+  background:var(--surface); border:1px solid var(--line); border-radius:13px;
+  box-shadow:var(--shadow)}
+/* one line clipped all eight of "Rosencrantz0".."7" to an ellipsis. A dog's
+   name is the whole point of the cell, so it gets two lines before it gives
+   up any of them. */
+.dogcell b{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden; max-width:100%; text-align:center;
+  font:800 13.5px/1.2 var(--font-ui); color:var(--ink); overflow-wrap:anywhere}
+.dogcell i{font:600 10px var(--font-data); font-style:normal; color:var(--ink-3)}
+.dogcell:active{transform:scale(.985)}
+
+.hlcard{display:flex; align-items:center; gap:11px; width:100%;
+  min-height:58px; padding:0 11px 0 13px; margin-bottom:8px; text-align:left;
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow)}
+.hlcard:active{transform:scale(.99); box-shadow:none}
+.hlcard > svg{width:var(--i-md); height:var(--i-md); flex:none; color:var(--ink-3)}
+.hlt{flex:1; min-width:0}
+/* "Hewitts of the Republic" came back as "Hewitts of the R…" because the
+   name got 155px of a 332px card. Two lines instead of one, and a narrower
+   bar below, so the part of the name that tells lists apart survives. */
+.hlt b{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden; font:800 15px/1.2 var(--font-ui); color:var(--ink)}
+.hlt i{font:600 10.5px var(--font-data); font-style:normal; color:var(--ink-3)}
+.hlbar{flex:0 0 52px; height:6px; border-radius:99px;
+  background:var(--surface-2); overflow:hidden}
+.hlbar u{display:block; height:100%; background:var(--done); border-radius:99px}
+.hlpc{flex:none; width:36px; text-align:right;
+  font:800 12.5px var(--font-data); color:var(--accent-text)}
+/* hiding the bar at 320px was the lazy answer: the bar is the whole point of
+   the card. It narrows instead. */
+@media (max-width:359px){ .hlbar{flex:0 0 34px} .hlpc{width:32px} .hlcard{gap:8px} }
+
+/* the list, opened from Home, as its own screen */
+.hlback{display:inline-flex; align-items:center; gap:7px; min-height:var(--tap);
+  margin:11px 0 2px; padding:0 13px 0 9px; background:var(--surface);
+  border:1px solid var(--line); border-radius:11px;
+  font:800 14.5px var(--font-ui); color:var(--ink)}
+.hlback svg{width:var(--i-md); height:var(--i-md); flex:none; color:var(--accent-text)}
+.hlhead{margin:10px 0 2px; font:900 26px/1.1 var(--font-display); color:var(--ink)}
 /* ---- hills on the map ---- */
 .hpin{position:relative; border-radius:99px; background:var(--surface); border:2px solid; display:grid; place-items:center;
   box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer; transition:transform .12s}
@@ -4108,7 +4175,8 @@ li.hill:last-child{border-bottom:1px solid var(--line-soft)}
 /* section titles: the name of the thing, in the display face, no tracking */
 .eyebrow{font-family:var(--font-display); font-size:18px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--ink); margin:28px 0 8px}
 .eyebrow::after{content:none}
-.eyebrow.eyelink, .sect.eyelink{background:none; border:0; padding:0; cursor:pointer; text-align:left}
+.eyebrow.eyelink, .sect.eyelink{background:none; border:0; padding:0; cursor:pointer; text-align:left;
+  min-height:var(--tap); display:flex; align-items:center}
 .sect{font-family:var(--font-display); font-size:18px; font-weight:400; color:var(--ink); margin:28px 0 8px; display:flex; align-items:baseline; gap:10px}
 .sect span{font-family:var(--font-ui); font-size:13px; color:var(--accent-text)}
 .sumlabel{font-family:var(--font-ui); font-size:12px; letter-spacing:.04em; text-transform:none; font-weight:600; color:var(--ink-3)}
@@ -4698,7 +4766,16 @@ body.guiding{overflow:hidden}
 :root[data-theme="dark"] .mlayers.on, :root[data-theme="dark"] .mmode button[aria-pressed="true"], :root[data-theme="dark"] .mrow.on{background:#F3EFE6; color:#14332D}
 
 /* ---- the journey ---- */
-.nextpatch{display:flex; align-items:center; gap:16px; margin-top:12px; padding:14px 16px 14px 14px; background:var(--surface); border:1px solid var(--line); border-radius:5px; border-left:3px solid var(--accent)}
+/* 316px wide on a 320px phone, so the whole page scrolled sideways and every
+   vertical swipe rubber-banded. A flex row sized by its 120px disc plus text
+   that would not shrink; box-sizing and min-width:0 are what stop it. */
+.nextpatch{display:flex; align-items:center; gap:16px; margin-top:12px; padding:14px 16px 14px 14px; background:var(--surface); border:1px solid var(--line); border-radius:5px; border-left:3px solid var(--accent); max-width:100%; box-sizing:border-box}
+/* max-width:100% was not enough: .lead is a grid, and a grid item's default
+   min-width is auto, so the card was free to grow past its own track. The
+   min-width:0 goes on the ITEM, not only on its children. */
+.nextpatch{min-width:0}
+.nextpatch > *{min-width:0}
+@media (max-width:359px){ .nextpatch{gap:11px; padding:12px} .nextpatch .npdisc{width:92px; height:92px} .nextpatch .npdisc .patch .disc{width:76px; height:76px; margin:8px} }
 .nextpatch.done{display:block}
 .nextpatch.done h2{margin:6px 0 0; font-family:var(--font-display); font-weight:400; text-transform:uppercase; color:var(--accent-text); font-size:28px}
 .npdisc{position:relative; flex:none; width:120px; height:120px; border:0; background:none; padding:0; cursor:pointer}
@@ -18460,13 +18537,17 @@ function restoreView(){
   if (v.peopleView) ui.peopleView = v.peopleView;
   if (v.profTab) ui.profTab = v.profTab;
   if (v.patchView) ui.patchView = v.patchView === 'challenges' ? 'collection' : v.patchView;
+  /* a reload half way down 214 rows used to land you back on Home at the
+     top with no sign of where you had got to. `v.y` below does the rest. */
+  if (v.homeList && onList(v.homeList)){ ui.homeList = v.homeList; ui.list = v.homeList; }
   if (v.friend) setTimeout(() => { try{ friendOpen = {code: v.friendCode || '', uid: v.friend}; render(); }catch(e){} }, 0);
   if (v.y) setTimeout(() => window.scrollTo(0, v.y), 350);
 }
 function saveView(){
   let fo = null; try{ fo = friendOpen; }catch(e){}
   try{ sessionStorage.setItem(VIEW_KEY, JSON.stringify({tab, hikerTab: ui.hikerTab || '', peopleView: ui.peopleView || '', profTab: ui.profTab || '',
-    patchView: ui.patchView || '', friend: fo && fo.uid || '', friendCode: fo && fo.code || '', y: Math.round(window.scrollY || 0), at: Date.now()})); }catch(e){}
+    patchView: ui.patchView || '', homeList: ui.homeList || '',
+    friend: fo && fo.uid || '', friendCode: fo && fo.code || '', y: Math.round(window.scrollY || 0), at: Date.now()})); }catch(e){}
 }
 addEventListener('pagehide', saveView);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveView(); });
@@ -21301,6 +21382,8 @@ async function chalGSave(drop){
 
 
 function renderDashboard(){
+  /* a list opened from Home owns the screen until you come back */
+  if (ui.homeList && onList(ui.homeList)) return homeListPage();
   const a = allStats();
   let s = pendingInviteCard() + requestsCard() + markBar();
 
@@ -21310,6 +21393,10 @@ function renderDashboard(){
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI.h + '</svg>' +
       '<h2 class="pagehead">Mark your first fell</h2>' +
       '<p>Every hill you walk goes in the log, earns you patches, and draws your journey on the map. Search for one above, or tick one below that you have already done.</p></div>';
+    /* BEFORE THE FIRST HILL THE LIST STAYS INLINE. "tick one below" is the
+       only instruction on the screen, and a card that opens somewhere else
+       is not "below". Once there is one hill marked, Home has something of
+       its own to show and the list moves to its own screen. */
     return s + renderHills();
   }
 
@@ -21394,9 +21481,81 @@ function renderDashboard(){
   if (shot) s += homeRailExtras(np) + '</aside>';
   s += '</div>';
 
-  /* a quiet row from the shop, then the list you are working through */
+  /* a quiet row from the shop, then what is YOURS -- patches, dogs, lists */
   s += homeShopRail();
-  return s + '<div class="homelist">' + renderHills() + '</div>';
+  return s + homeOwn();
+}
+
+/* ---------- HOME IS YOUR LOG, NOT A HILL LIST ----------
+   Measured 8 Oct: Home was 17,801px -- 24 screenfuls on a 734px phone -- and
+   16,291px of that was the 214 Wainwright rows laid out inline. Your patches
+   were on screen two. Your dogs were not on it at all.
+
+   What replaces the rows: the patches strip, your dogs, and one card per
+   list. The rows are not deleted -- they open as their own screen.
+
+   The thing I nearly got wrong: I wrote in the plan that the fells "open on
+   their list's own page, where they already exist". They did NOT exist
+   anywhere else. Home carried 214 tick rows and Map carried zero. Deleting
+   them from Home would have deleted the only way to tick a hill off a list.
+   Hence homeListPage() below. Measure before you delete. */
+function homeOwn(){
+  let s = '<div class="homesec">' + renderPatches(ui.list) + '</div>';
+  s += homeDogsRow();
+  s += homeListCards();
+  return s;
+}
+
+function homeDogsRow(){
+  const ds = dogList();
+  if (!ds.length) return '';
+  const tot = ds.reduce((n, d) => n + dogHills(d.id).length, 0);
+  const names = ds.length === 1 ? dogName(ds[0])
+    : ds.slice(0, 2).map(dogName).join(' and ') + (ds.length > 2 ? ' and the rest' : '');
+  return '<section class="homesec homedogs">' +
+    '<div class="homesech"><h2>' + esc(names) + '</h2>' +
+      '<button class="homesecgo" data-act="patchview" data-v="dogs">' +
+        tot + (tot === 1 ? ' hill' : ' hills') + ' together' + ti('chevron-right') + '</button></div>' +
+    '<div class="dogrow">' + ds.map(d =>
+      '<button class="dogcell" data-act="dogfromprof" data-v="' + esc(d.id) + '">' +
+        dogFaceHTML(d) + '<b>' + esc(dogName(d)) + '</b>' +
+        '<i>' + dogHills(d.id).length + (dogHills(d.id).length === 1 ? ' hill' : ' hills') + '</i>' +
+      '</button>').join('') + '</div></section>';
+}
+
+/* one card a list: the name, how far through, and the way in to its hills */
+function homeListCards(){
+  const on = enabled();
+  if (!on.length) return '';
+  return '<section class="homesec">' +
+    '<div class="homesech"><h2>Your lists</h2>' +
+      /* `listsopen` flips a flag only the FIRST-RUN accordion reads, and that
+         accordion is not on Home -- the button did nothing at all. `open-lists`
+         is what the list page's own chip uses, and it opens the Hill lists
+         sheet. Found by the verifier, not by me. */
+      '<button class="homesecgo" data-act="open-lists">Add or remove' + ti('chevron-right') + '</button></div>' +
+    on.map(L => {
+      const st = statsFor(L.id);
+      const pc = st.total ? Math.round(st.done / st.total * 100) : 0;
+      return '<button class="hlcard" data-act="homelist" data-v="' + esc(L.id) + '">' +
+        '<span class="hlt"><b>' + esc(L.name) + '</b>' +
+          '<i>' + st.done + ' of ' + st.total + '</i></span>' +
+        '<span class="hlbar"><u style="width:' + pc + '%"></u></span>' +
+        '<span class="hlpc">' + pc + '%</span>' + ti('chevron-right') + '</button>';
+    }).join('') + '</section>';
+}
+
+/* THE LIST, as its own screen. Same renderHills() as before -- the rows were
+   never the problem, their being pinned under everything else was. */
+function homeListPage(){
+  /* ui.list, not ui.homeList: the chips at the top of this page switch
+     ui.list, so titling from ui.homeList left "Wainwrights" standing over
+     282 Munro rows. The page shows whatever list is current. */
+  const L = LIST_BY[ui.list] || LIST_BY[ui.homeList];
+  return '<button class="hlback" data-act="homelistback">' + ti('arrow-left') +
+    'Back to Home</button>' +
+    '<h1 class="hlhead">' + esc((L && L.name) || 'Your hills') + '</h1>' +
+    renderHills();
 }
 
 /* ---------- the diary ---------- */
@@ -25435,6 +25594,9 @@ document.addEventListener('click', async e => {
     /* the bar is hidden while the shop is a destination, so reaching this
        line at all means you are navigating normally again */
     shopHome = false;
+    /* and a list opened from Home does not survive going somewhere else --
+       coming back to Home should give you Home */
+    ui.homeList = null;
     tab = tabBtn.dataset.tab;
     ui.q=''; ui.rq=''; ui.region=''; ui.open=null; ui.patch=null; ui.patchFrom=null;
     /* Leave nothing half-open behind you: a composer, a search result or a
@@ -25462,6 +25624,13 @@ document.addEventListener('click', async e => {
   if (/^(chat|msg|pick|plan|pd|live|walkwith|inbox|poll|push|ns[a-z]|sendpost|sttoggle|stsend)/.test(a) && fbUser && FB){ try{ if (await chatAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
 
   if (a === 'tick'){
+    /* THE LIST MUST NOT VANISH UNDER YOUR THUMB. Before the first hill, Home
+       shows the list inline and says "tick one below". The moment that first
+       tick lands, Home becomes your log -- and the list the walker was half
+       way down would disappear mid-session. So a tick made from Home's own
+       inline list pins the list open as its own page, with its back button.
+       Found by t/firstmark.js section 5: marks 2 and 3 had nothing to tick. */
+    if (tab === 'd' && !ui.homeList && onList(ui.list)) ui.homeList = ui.list;
     const k = el.dataset.k, turningOff = isBagged(k);
     if (turningOff && !await okToUnmark(k)) return;
     await marking(() => {
@@ -26501,6 +26670,23 @@ document.addEventListener('click', async e => {
   else if (a === 'dogphback'){ dogPhotosBack(el.dataset.v); }
   else if (a === 'dogsex'){ if (ui.dogDraft){ ui.dogDraft.sex = el.dataset.v; paintDogEdit(); } }
   else if (a === 'dogcollar'){ if (ui.dogDraft){ ui.dogDraft.collar = el.dataset.v; paintDogEdit(); } }
+  else if (a === 'homelist'){ ui.homeList = el.dataset.v; ui.list = el.dataset.v;
+    ui.q = ''; ui.region = ''; ui.status = 'all';
+    /* a push, so Android's back button and iOS's edge swipe come back to
+       Home instead of leaving WayMark. The inbox and the chat already do
+       this; a list opened from Home is the same kind of step. */
+    try{ history.pushState({homeList: ui.homeList}, ''); }catch(e){}
+    render(); window.scrollTo({top:0}); }
+  else if (a === 'homelistback'){
+    /* go back THROUGH our own push when it is still there, so the history
+       does not grow a dead entry every time somebody opens a list */
+    let popped = false;
+    try{ if (history.state && history.state.homeList){ history.back(); popped = true; } }catch(e){}
+    /* if we went back through our own push, LEAVE THE STATE ALONE -- popstate
+       does the closing. Nulling it here first made the popstate handler see
+       nothing to close and return without repainting, so the button looked
+       dead and the list stayed on screen. */
+    if (!popped){ ui.homeList = null; render(); window.scrollTo({top:0}); } }
   else if (a === 'patchview'){ shopHome = false; ui.patch = null; ui.patchFrom = null; ui.dog = null; ui.dogAll = false; ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
   else if (a === 'cert'){ certOpen(el.dataset.k); }
   else if (a === 'certclose'){ certClose(); }
@@ -32408,7 +32594,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v333';
+const APP_VERSION = 'v334';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -39140,6 +39326,11 @@ function camClose(fromHistory){
   if (pushed && !fromHistory) try{ history.back(); }catch(e){}
 }
 window.addEventListener('popstate', () => { if (cam) camClose(true); });
+/* a list opened from Home is a screen you can come back from */
+window.addEventListener('popstate', () => {
+  if (!ui.homeList) return;
+  ui.homeList = null; render(); window.scrollTo({top:0});
+});
 document.addEventListener('visibilitychange', () => {
   if (!cam) return;
   if (document.hidden) camStop(); else if (!cam.still) camStart();
