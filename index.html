@@ -10000,14 +10000,32 @@ function loadLocal(){
     try{
       const raw = localStorage.getItem(k);
       if (!raw) continue;
+      /* THE WHOLE of what normalise() produced -- never a second, hand-typed
+         copy of its field list.
+
+         Joe, 9 Oct: "I had added two peices of gear with costs attached, all
+         images are gone and one peice of gear has vanished, all costs have
+         gone."
+
+         This line used to name the fields one at a time, and the list had
+         fallen three behind normalise(): `kit`, `kitSeeded` and `groups` were
+         carefully validated upstairs and then dropped on the floor right here.
+         So EVERY RELOAD wiped the walker's kit off the device -- names,
+         prices, photos, receipts, the lot -- and whatever reappeared
+         afterwards was only what the cloud happened to be holding from the
+         last push that fitted. A device-only item simply ceased to exist.
+
+         The comment on the kit whitelist in normalise() says "a field left off
+         here is wiped on the next reload". It was true, and it was guarding
+         the wrong list. There is now ONE list, and this is not it. */
       const s = normalise(JSON.parse(raw));
-      return {bagged:s.bagged, plans:s.plans, diary:s.diary || [],
-              own:s.own || [], dogs:s.dogs || [], chal:s.chal || null,
-              enabled:s.enabled || [], enabledT:s.enabledT || 0};
+      s.enabled = s.enabled || []; s.enabledT = s.enabledT || 0;
+      s.chal = s.chal || null;
+      return s;
     }catch(e){}
   }
   /* a brand new walker starts with nothing on and picks their own lists */
-  return {bagged:{}, plans:[], diary:[], own:[], dogs:[], chal:null, enabled:[], enabledT:0};
+  return {...normalise(null), enabled:[], enabledT:0, chal:null};
 }
 function saveLocal(){
   try{ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -12566,14 +12584,55 @@ function patchBadge(p){
    service worker is network-first, so every one of those went out to the
    network. Remembered per session AND across sessions, so a patch with no
    artwork costs one request ever, not one per render. */
-const NO_ART = new Set();
-try{ (JSON.parse(localStorage.getItem('waymark.noart') || '[]') || []).forEach(id => NO_ART.add(id)); }catch(e){}
+/* IT HAS TO FORGET. Joe, 9 Oct: "updated patches arent pulling through on
+   homescreen."
+
+   This was a permanent blacklist. A patch whose PNG was missing ONCE had its
+   id written to localStorage for ever, and from then on the <img> was never
+   rendered at all -- so the artwork Joe drew and uploaded afterwards was
+   never requested by any phone that had already looked. The artwork was on
+   the server the whole time. The phone had stopped asking.
+
+   So it now records WHEN, not merely THAT, and it is thrown away whole when
+   the app version changes -- which is exactly when new artwork arrives. A day
+   is the backstop for art added without a version behind it.
+
+   LOADED LAZILY, ON PURPOSE. APP_VERSION is declared far below this line, so
+   reading it while the page is still evaluating would throw in the temporal
+   dead zone -- the same trap that once emptied a walker's whole log out of
+   normalise(). The first render is long past that point. */
+const NO_ART_TTL = 864e5;                     /* one day */
+const NO_ART = new Map();
+let noArtLoaded = false;
+function noArtLoad(){
+  if (noArtLoaded) return;
+  noArtLoaded = true;
+  try{
+    const raw = JSON.parse(localStorage.getItem('waymark.noart') || 'null');
+    /* anything written by an older version, including the old plain array, is
+       simply not read -- a new version gets a clean look at every patch */
+    if (!raw || raw.v !== APP_VERSION || !raw.m) return;
+    const cut = Date.now() - NO_ART_TTL;
+    for (const id of Object.keys(raw.m)) if (+raw.m[id] > cut) NO_ART.set(id, +raw.m[id]);
+  }catch(e){}
+}
+function noArtHas(id){
+  noArtLoad();
+  const t = NO_ART.get(id);
+  if (!t) return false;
+  if (Date.now() - t >= NO_ART_TTL){ NO_ART.delete(id); return false; }
+  return true;
+}
+function noArtSave(){
+  try{
+    const m = {};
+    for (const id of [...NO_ART.keys()].slice(-400)) m[id] = NO_ART.get(id);
+    localStorage.setItem('waymark.noart', JSON.stringify({v: APP_VERSION, m}));
+  }catch(e){}
+}
 function patchArtGone(img, id){
   img.remove();
-  if (id && !NO_ART.has(id)){
-    NO_ART.add(id);
-    try{ localStorage.setItem('waymark.noart', JSON.stringify([...NO_ART].slice(-400))); }catch(e){}
-  }
+  if (id && !noArtHas(id)){ NO_ART.set(id, Date.now()); noArtSave(); }
 }
 /* The four places that draw somebody else's patch build a cut-down copy of
    it, and every one of them dropped `group` and `metres` — so the badge could
@@ -12590,7 +12649,7 @@ function patchDisc(p, cls){
      square PNG is clipped to its shape here and nothing has to be redrawn to
      move between groups. */
   return '<span class="disc sh-' + (p.shape || 'circ') + (cls || '') + '">' +
-    (NO_ART.has(p.id) ? '' :
+    (noArtHas(p.id) ? '' :
       '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
       'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" ' +
       'onerror="patchArtGone(this, &quot;' + esc(p.id) + '&quot;)">') +
@@ -13766,12 +13825,10 @@ function takeDeepLink(){
     fromWeb = true;
     const lid = homeListFor(rec0);
     if (onList(lid)){
-      ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.open = key;
-      tab = 'd';
-      setTimeout(() => {
-        const row = document.querySelector('.hrow[data-row="' + CSS.escape(key) + '"]');
-        if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72});
-      }, 80);
+      /* no render() here: the caller is still setting the page up and renders
+         once at the end. No history push either -- arriving IS the first page,
+         and pushing would make the back button a no-op. */
+      openHillRow(key, {render:false, push:false, delay:80, smooth:false});
     } else {
       tab = 'd';
       setTimeout(() => { try{ openInfo(key); }catch(e){} }, 160);
@@ -20529,6 +20586,44 @@ function markSearch(q){
 const onList = lid => lid === 'own' || state.enabled.includes(lid);
 /* The list a hill should be filed under: one you have on, else its first. */
 const homeListFor = h => h.l.find(x => onList(x)) || h.l[0];
+/* GO TO A HILL'S ROW -- one helper, because five places were doing it by hand.
+
+   Joe, 9 Oct: "if i search 'snowdon' for example and click on it nothing
+   happens, this would be in a scenario where I want to view it but not mark
+   it."
+   
+   All five set `ui.list`, set `tab='d'` and then went looking for `.hrow` on
+   Home. Until v334 the rows WERE on Home. They are not any more -- Home is
+   your log and the rows live on the list's own page -- so every one of them
+   quietly did nothing at all: the search result, a map popup's "see it on the
+   list", a hill link arriving from the website, marking a hill from the search
+   box, and switching a list on from a hill's own page.
+   
+   It sets `ui.homeList` as well, which is what opens that page, and it pushes
+   a history entry so the back button and the edge swipe come Home rather than
+   leaving WayMark. A sixth call site cannot now make the same mistake. */
+function openHillRow(k, o){
+  o = o || {};
+  const h = BY_KEY[k]; if (!h) return false;
+  const lid = homeListFor(h);
+  /* a hill on a list you do not follow has no row anywhere to scroll to, so
+     it gets its own page instead of dumping you on somebody else's list */
+  if (!onList(lid)){ if (o.infoIfOff !== false) openInfo(k); return false; }
+  ui.list = lid; ui.homeList = lid;
+  ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
+  ui.open = k;
+  tab = 'd';
+  if (o.push !== false){ try{ history.pushState({homeList: lid}, ''); }catch(e){} }
+  if (o.render !== false) render();
+  const go = () => {
+    const row = document.querySelector('.hrow[data-row="' + CSS.escape(k) + '"]');
+    if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72,
+                              behavior: o.smooth === false ? 'auto' : 'smooth'});
+    else window.scrollTo({top: 0});
+  };
+  if (o.delay) setTimeout(go, o.delay); else go();
+  return true;
+}
 function markResults(){
   const found = markSearch(ui.mq);
   /* A search that finds nothing used to be the end of the road. It is now the
@@ -20615,7 +20710,11 @@ async function markFromSearch(k){
   const lid = homeListFor(h);
   let switched = '';
   if (!onList(lid)){ state.enabled.push(lid); state.enabledT = now(); switched = LIST_BY[lid].name; }
-  ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
+  /* `homeList` as well as `list`: since v334 the rows are on the list's own
+     page, so without it the scroll below had nothing to scroll to and marking
+     a hill from the search box appeared to do nothing at all. */
+  ui.list = lid; ui.homeList = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = '';
+  try{ history.pushState({homeList: lid}, ''); }catch(e){}
   await marking(() => { ui.open = k; setBagged(k, true, ''); });
   renderListToggles();
   if (mapReady){ drawMarkers(); closePopups(map); }
@@ -20623,6 +20722,7 @@ async function markFromSearch(k){
   toast('Marked ' + hillName(h) + (switched ? ' · ' + switched + ' switched on' : ''));
   const row = document.querySelector('.hrow[data-row="' + CSS.escape(k) + '"]');
   if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
+  else window.scrollTo({top:0});
 }
 
 /* Somebody wants to be your friend: the card sits at the top of Home until
@@ -25678,14 +25778,7 @@ document.addEventListener('click', async e => {
     closePopups(map); closePopups(rmap);
     /* a hill on a list you do not follow has no row to open, so it gets its
        page instead rather than dumping you on somebody else's list */
-    if (!onList(lid)){ openInfo(h.k); return; }
-    ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = ''; ui.open = h.k;
-    tab = 'd'; render();
-    setTimeout(() => {
-      const row = document.querySelector('.hrow[data-row="' + CSS.escape(h.k) + '"]');
-      if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
-      else window.scrollTo({top:0});
-    }, 60);
+    openHillRow(h.k, {delay: 60});
   }
   else if (a === 'ascall'){ ui.ascAll = ui.ascAll === el.dataset.k ? null : el.dataset.k; render(); }
   else if (a === 'ascedit'){ ui.ascEdit = ui.ascEdit === el.dataset.k ? null : el.dataset.k; render(); }
@@ -25699,13 +25792,18 @@ document.addEventListener('click', async e => {
   else if (a === 'open'){ ui.open = ui.open === el.dataset.k ? null : el.dataset.k; render(); }
   else if (a === 'mmark'){ await markFromSearch(el.dataset.k); }
   else if (a === 'mopen'){
-    /* the row itself if its list is on; the hill's page if not */
-    const h = BY_KEY[el.dataset.k]; if (!h) return;
-    const lid = homeListFor(h);
-    if (!onList(lid)){ openInfo(h.k); return; }
-    ui.list = lid; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.mq = ''; ui.open = h.k; tab = 'd'; render();
-    const row = document.querySelector('.hrow[data-row="' + CSS.escape(h.k) + '"]');
-    if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
+    /* THE HILL'S OWN PAGE, ALWAYS. Joe, 9 Oct, with a screen recording:
+       "if i search 'snowdon' for example and click on it nothing happens,
+       this would be in a scenario where I want to view it but not mark it."
+
+       It used to open the hill's ROW -- on the list, if you followed that
+       list -- and since v334 moved the rows off Home that was a tap that did
+       nothing at all. But the row was the wrong answer even when it worked:
+       you searched for one hill by name, so you get that hill, not a hundred
+       and thirty-six of them with yours somewhere in the middle. Height,
+       map, your ascents, photos and notes, and nothing on the screen asking
+       you to mark it. */
+    openInfo(el.dataset.k);
   }
   else if (a === 'pdmap'){
     const hs = String(el.dataset.v || '').split(',').map(k => BY_KEY[k]).filter(Boolean);
@@ -25847,11 +25945,16 @@ document.addEventListener('click', async e => {
     }
     const k = wikiOpen && wikiOpen.k;
     document.getElementById('info').classList.remove('open'); wikiOpen = null;
-    ui.list = id; ui.region = ''; ui.q = ''; ui.status = 'all'; ui.open = k || null;
-    tab = 'd'; render();
+    /* the list you just switched on, opened at the hill you switched it on
+       from -- and opened as its own page, because that is where rows live */
+    ui.list = id; ui.homeList = id; ui.region = ''; ui.q = ''; ui.status = 'all';
+    ui.open = k || null; tab = 'd';
+    try{ history.pushState({homeList: id}, ''); }catch(e){}
+    render();
     if (k) setTimeout(() => {
       const row = document.querySelector('.hrow[data-row="' + CSS.escape(k) + '"]');
       if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
+      else window.scrollTo({top:0});
     }, 60);
   }
   else if (a === 'editavatar'){ openAvatarEditor(); }
@@ -32594,7 +32697,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v334';
+const APP_VERSION = 'v335';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
