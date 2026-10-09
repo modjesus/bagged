@@ -3356,6 +3356,54 @@ button.bstriprow{cursor:pointer}
 .plan h3{margin:0; font-family:var(--font-display); font-size:18px; letter-spacing:-.01em; flex:1}
 .planmeta{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); letter-spacing:.04em; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
 .plannotes{font-size:14px; color:var(--ink-2); margin:10px 0 0; white-space:pre-wrap}
+/* ---- WHERE I AM -------------------------------------------------------
+   Under the search box, not instead of it: the search is what you use in the
+   pub and on the sofa; this is for the one moment the phone knows better. */
+.herebtn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  min-height:var(--tap); margin-top:8px; background:var(--raise);
+  border:1.5px solid var(--accent); border-radius:12px; color:var(--accent-text);
+  font:700 14.5px var(--font-ui); cursor:pointer}
+.herebtn svg{width:17px; height:17px; flex:none}
+.herebtn:disabled{opacity:.7}
+.herebtn:disabled svg{animation:spin 1.1s linear infinite}
+@media (prefers-reduced-motion: reduce){ .herebtn:disabled svg{animation:none} }
+.herebox{margin-top:9px; background:var(--raise); border:1px solid var(--line);
+  border-radius:13px; overflow:hidden}
+.hereh{margin:0; padding:11px 14px 7px; font:600 9.5px var(--font-data); letter-spacing:.2em;
+  color:var(--ink-3); text-transform:uppercase}
+.hereh2{border-top:1px solid var(--line-soft); margin-top:2px}
+.hereme{display:flex; align-items:center; gap:10px; padding:4px 14px 12px}
+.herem{flex:1; min-width:0}
+.herem b{display:block; font:800 18px/1.2 var(--font-ui)}
+.herem span{display:block; font:400 12.5px var(--font-ui); color:var(--ink-3); margin-top:2px}
+.hereft{flex:none; font:700 13px var(--font-data); color:var(--ink-2)}
+.herenear{display:flex; align-items:center; gap:2px; padding:0 14px 0 6px; min-height:52px;
+  border-top:1px solid var(--line-soft)}
+.herenm{flex:1; min-width:0; padding-left:2px; font:600 15.5px var(--font-ui);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.hereaway{flex:none; font:400 11px var(--font-data); color:var(--ink-3); margin-right:9px}
+.herenear.done .herenm{color:var(--ink-3)}
+/* the same pencilled box as the list, so marking looks like marking wherever
+   you do it */
+.herebox-tick{width:var(--tap); height:var(--tap); flex:none; position:relative; border:0;
+  background:none; padding:0; display:grid; place-items:center; color:var(--accent-text);
+  cursor:pointer}
+.herebox-tick::before{content:''; position:absolute; width:26px; height:26px;
+  border:1.9px solid var(--ink-3); border-radius:3px 6px 4px 7px; transform:rotate(-1.3deg)}
+.herebox-tick.sm::before{width:24px; height:24px}
+.hereme .herebox-tick::before, .herenear.on .herebox-tick::before{border-color:var(--accent-text)}
+.herebox-tick svg{width:18px; height:18px; position:relative; transform:rotate(-5deg)}
+.herebox-tick svg path{stroke-dasharray:28; animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
+.herebox-tick:disabled{opacity:.55}
+@media (prefers-reduced-motion: reduce){ .herebox-tick svg path{animation:none} }
+.herego{padding:11px 14px 13px; border-top:1px solid var(--line-soft)}
+.herego .btn{width:100%; min-height:48px}
+.herenote{display:flex; align-items:flex-start; gap:7px; margin:0; padding:10px 14px 4px;
+  border-top:1px solid var(--line-soft); font:400 12px/1.45 var(--font-ui); color:var(--ink-3)}
+.herenote svg{width:14px; height:14px; flex:none; margin-top:2px}
+.herenote.warn{color:var(--warn)}
+.hereclose{display:block; width:100%; padding:8px 14px 12px; min-height:var(--tap)}
+
 /* ======================================================================
    MARKING OFF  --  the centre of the app. claude/30-SPEC-marking-off
    ====================================================================== */
@@ -4049,6 +4097,120 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
   font:800 14.5px var(--font-ui); color:var(--ink)}
 .hlback svg{width:var(--i-md); height:var(--i-md); flex:none; color:var(--accent-text)}
 .hlhead{margin:10px 0 2px; font:900 26px/1.1 var(--font-display); color:var(--ink)}
+
+/* ================= YOUR SUMMITS =================
+   Everything marked, across every list. Joe, 9 Oct. The entries are
+   doneEntry() -- the v338 album -- so almost nothing here is new paint:
+   the head, the chips, the pencil, and the two sheets. */
+.sumhead{margin:10px 0 4px}
+.sumhead h1{margin:0 0 3px; font:900 27px/1.08 var(--font-display); color:var(--ink);
+  letter-spacing:-.01em}
+.sumhead p{margin:0; font:500 13.5px var(--font-ui); color:var(--ink-2)}
+
+.sumtools{display:flex; align-items:center; gap:8px; margin:12px 0 4px}
+.sumchips{display:flex; gap:6px; flex:1; min-width:0; overflow-x:auto;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch}
+.sumchips::-webkit-scrollbar{display:none}
+.sumchip{flex:none; min-height:var(--tap); padding:0 13px; border-radius:21px;
+  border:1px solid var(--line); background:var(--raise);
+  font:700 13px var(--font-ui); color:var(--ink-2); cursor:pointer;
+  display:inline-flex; align-items:center; white-space:nowrap}
+.sumchip.on{background:var(--done); border-color:var(--done); color:var(--surface)}
+/* the add is dashed, because it makes something that is not there yet */
+.sumadd{flex:none; min-height:var(--tap); padding:0 14px 0 10px; border-radius:21px;
+  border:1.4px dashed var(--accent); background:none; color:var(--accent-text);
+  font:800 13.5px var(--font-ui); cursor:pointer;
+  display:inline-flex; align-items:center; gap:3px}
+.sumadd svg{width:16px; height:16px; flex:none}
+
+.sumgh{margin-top:18px}
+.sumlist{margin-bottom:2px}
+.sumempty{margin-top:22px}
+
+/* THE PENCIL. A 44px target in the entry's own corner. doneEntry() already
+   leaves 36px of padding on the right of .dmain, so this sits in the gutter
+   rather than over the words. */
+li.done{position:relative}
+/* THE PENCIL MUST NOT SIT ON THE HEIGHT. It did: .dft is margin-left:auto and
+   runs to the edge of the row, so "3,209 ft" had a pencil drawn through it.
+   The entry gives up the width instead -- the pencil has its own gutter. */
+.sumlist .dmain{padding-right:40px}
+.sumlist .dnote, .sumlist .dstrip, .sumlist .ddogs{padding-right:4px}
+.sumpen{position:absolute; top:4px; right:-4px; width:var(--tap); height:var(--tap);
+  border:0; background:none; padding:0; display:grid; place-items:center;
+  color:var(--ink-3); cursor:pointer; border-radius:50%}
+.sumpen svg{width:20px; height:20px}
+.sumpen::after{content:''; position:absolute; width:30px; height:30px; border-radius:50%;
+  background:transparent; transition:background .12s}
+.sumpen:hover::after, .sumpen:focus-visible::after{background:var(--surface-2)}
+
+/* ---- the two sheets ---- */
+/* ABOVE THE BOTTOM BAR. .bnav is z-index 850; at 70 the sheet opened behind
+   it -- the screen dimmed and nothing appeared. Caught by looking at a
+   screenshot, not by a test: every selector it asserted on was present. */
+.sheetwrap{position:fixed; inset:0; z-index:2150; background:rgba(20,51,45,.44);
+  display:flex; align-items:flex-end; justify-content:center;
+  animation:sumfade .16s ease both; padding:0}
+@keyframes sumfade{from{opacity:0}to{opacity:1}}
+.sumsheet{width:100%; max-width:520px; background:var(--raise);
+  border-radius:18px 18px 0 0; border:1px solid var(--line); border-bottom:0;
+  box-shadow:0 -8px 30px rgba(20,51,45,.26); overflow:hidden;
+  padding-bottom:max(10px, env(safe-area-inset-bottom));
+  animation:sumup .2s cubic-bezier(.3,0,.2,1) both}
+@keyframes sumup{from{transform:translateY(22px)}to{transform:translateY(0)}}
+/* NOT .shhead / .shsub / .sheet -- all three already exist elsewhere in this
+   file, and `.sheet` is `position:fixed; inset:0; display:none`, which is why
+   the first build of this sheet dimmed the screen and showed nothing at all.
+   The same mistake as v337's `.rtsec`. Check the name before you use it. */
+.sumtop{display:flex; align-items:center; gap:10px; padding:14px 15px 3px}
+.sumtop h3{margin:0; font:800 17.5px var(--font-display); color:var(--ink);
+  min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.sumtop .xbtn{margin-left:auto; flex:none}
+/* clear of the close button, which is taller than the title row it sits in
+   -- "Back-filling years of walking, or something off the lis..." ran under
+   it and was cut off mid-word */
+.sumsub{margin:0 58px 10px 15px; font:500 12.5px/1.4 var(--font-ui); color:var(--ink-3)}
+
+.sumerow{display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 15px; min-height:56px; background:none; border:0;
+  border-top:1px solid var(--line-soft); font:inherit; color:var(--ink); cursor:pointer}
+.sumerow:active{background:var(--ground)}
+.sumeic{width:30px; height:30px; border-radius:9px; background:var(--ground);
+  color:var(--ink-2); display:grid; place-items:center; flex:none}
+.sumeic svg{width:16px; height:16px}
+.sumetx{min-width:0}
+.sumetx b{display:block; font:700 14.5px var(--font-ui)}
+.sumetx i{display:block; font-style:normal; font:500 12.5px var(--font-ui);
+  color:var(--ink-3); margin-top:1px; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap}
+.sumego{margin-left:auto; color:var(--ink-3); display:grid; place-items:center}
+.sumego svg{width:16px; height:16px}
+/* the only one that loses you something */
+.sumerow.danger .sumeic{background:var(--accent-soft, #F3E2DC); color:var(--accent-text)}
+.sumerow.danger .sumetx b{color:var(--accent-text)}
+
+.sumaddwrap{padding:2px 15px 14px}
+.sumaddopt{display:flex; align-items:flex-start; gap:11px; width:100%; text-align:left;
+  padding:13px; margin-top:9px; background:var(--surface); border:1px solid var(--line);
+  border-radius:13px; font:inherit; color:var(--ink); cursor:pointer}
+.sumaddopt:active{background:var(--ground)}
+.sumaddopt .sumeic{background:var(--raise); margin-top:1px}
+.sumaddopt b{display:block; font:700 14.5px var(--font-ui)}
+.sumaddopt i{display:block; font-style:normal; font:500 12.5px/1.42 var(--font-ui);
+  color:var(--ink-2); margin-top:3px}
+
+/* ---- the cover number, now a door ---- */
+.coverdoor{display:block; width:100%; text-align:left; background:none; border:0;
+  padding:0; font:inherit; color:inherit; cursor:pointer}
+.coverdoor h1{margin:0}
+.coverall{display:inline-flex; align-items:center; gap:2px; margin-top:7px;
+  font:800 12.5px var(--font-ui); letter-spacing:.02em; color:var(--accent-text)}
+.coverall svg{width:16px; height:16px; flex:none; transition:transform .14s}
+.coverdoor:hover .coverall svg, .coverdoor:focus-visible .coverall svg{transform:translateX(2px)}
+@media (prefers-reduced-motion: reduce){
+  .sheetwrap, .sumsheet{animation:none}
+  .coverall svg{transition:none}
+}
 /* ---- hills on the map ---- */
 .hpin{position:relative; border-radius:99px; background:var(--surface); border:2px solid; display:grid; place-items:center;
   box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer; transition:transform .12s}
@@ -9486,6 +9648,11 @@ textarea, select{font-size:16px}
   </div>
 </div>
 
+<!-- Your summits' sheets live HERE, at the body level, beside #ask -- not
+     inside the rendered page. main.wrap is position:relative z-index:1, a
+     stacking context, so a sheet rendered inside it was capped at z-index 1
+     and opened UNDER the bottom bar however high its own z-index went. -->
+<div id="sumhost"></div>
 <div class="sheet ask" id="ask" role="dialog" aria-modal="true" aria-labelledby="askTitle">
   <div class="sheetbox askbox">
     <button class="xbtn" id="askX" aria-label="Cancel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/> <path d="M6 6l12 12"/></svg></button>
@@ -9561,7 +9728,7 @@ const OLD_KEYS = ['bagged.v2', 'bagged.v1'];
    compass). Paths are baked in from @tabler/icons 3.31 rather than drawn by
    hand, so every glyph in the app is from the same hand.
    https://tabler.io/icons */
-const TI = {"dots":"<path d=\"M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/>","circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","navigation":"<path d=\"M12 18.5l7.5 3.5l-7.5 -18l-7.5 18l7.5 -3.5\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","paw":"<path d=\"M8.5 5.5m-2 0a2 2.5 0 1 0 4 0a2 2.5 0 1 0 -4 0\"/><path d=\"M15.5 5.5m-2 0a2 2.5 0 1 0 4 0a2 2.5 0 1 0 -4 0\"/><path d=\"M4.5 10.5m-1.8 0a1.8 2.2 0 1 0 3.6 0a1.8 2.2 0 1 0 -3.6 0\"/><path d=\"M19.5 10.5m-1.8 0a1.8 2.2 0 1 0 3.6 0a1.8 2.2 0 1 0 -3.6 0\"/><path d=\"M12 12c2.4 0 4.5 1.9 5.2 3.6c.7 1.8 -.5 3.4 -2.3 3.4c-1 0 -1.9 -.5 -2.9 -.5s-1.9 .5 -2.9 .5c-1.8 0 -3 -1.6 -2.3 -3.4c.7 -1.7 2.8 -3.6 5.2 -3.6z\"/>","patch":"<path d=\"M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0 -18\"/><path stroke-dasharray=\"1.3 2.4\" d=\"M12 5.4a6.6 6.6 0 1 0 0 13.2a6.6 6.6 0 0 0 0 -13.2\"/><path d=\"M9 14.3l3 -4.3l3 4.3z\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
+const TI = {"dots":"<path d=\"M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/>","circle-dashed":"<path d=\"M8.56 3.69a9 9 0 0 0 -2.92 1.95\"/><path d=\"M3.69 8.56a9 9 0 0 0 -.69 3.44\"/><path d=\"M3.69 15.44a9 9 0 0 0 1.95 2.92\"/><path d=\"M8.56 20.31a9 9 0 0 0 3.44 .69\"/><path d=\"M15.44 20.31a9 9 0 0 0 2.92 -1.95\"/><path d=\"M20.31 15.44a9 9 0 0 0 .69 -3.44\"/><path d=\"M20.31 8.56a9 9 0 0 0 -1.95 -2.92\"/><path d=\"M15.44 3.69a9 9 0 0 0 -3.44 -.69\"/>","rosette":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","tent":"<path d=\"M11 14l4 6h6l-9 -16l-9 16h6l4 -6\"/>","settings":"<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z\"/><path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","plus":"<path d=\"M12 5l0 14\"/><path d=\"M5 12l14 0\"/>","rosette-discount-check":"<path d=\"M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1\"/><path d=\"M9 12l2 2l4 -4\"/>","trash":"<path d=\"M4 7l16 0\"/><path d=\"M10 11l0 6\"/><path d=\"M14 11l0 6\"/><path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\"/><path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","book-2":"<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z\"/><path d=\"M19 16h-12a2 2 0 0 0 -2 2\"/><path d=\"M9 8h6\"/>","list-check":"<path d=\"M3.5 5.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 11.5l1.5 1.5l2.5 -2.5\"/><path d=\"M3.5 17.5l1.5 1.5l2.5 -2.5\"/><path d=\"M11 6l9 0\"/><path d=\"M11 12l9 0\"/><path d=\"M11 18l9 0\"/>","star":"<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","sun":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\"/>","home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","mountain":"<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z\"/><path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\"/>","camera":"<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\"/><path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/>","share":"<path d=\"M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M8.7 10.7l6.6 -3.4\"/><path d=\"M8.7 13.3l6.6 3.4\"/>","moon":"<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z\"/>","alert-triangle":"<path d=\"M12 9v4\"/><path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z\"/><path d=\"M12 16h.01\"/>","parking":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M10 16v-8h2.667c.736 0 1.333 .895 1.333 2s-.597 2 -1.333 2h-2.667\"/>","medal":"<path d=\"M12 4v3m-4 -3v6m8 -6v6\"/><path d=\"M12 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5z\"/>","cloud":"<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\"/>","beer":"<path d=\"M9 21h6a1 1 0 0 0 1 -1v-3.625c0 -1.397 .29 -2.775 .845 -4.025l.31 -.7c.556 -1.25 .845 -2.253 .845 -3.65v-4a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v4c0 1.397 .29 2.4 .845 3.65l.31 .7a9.931 9.931 0 0 1 .845 4.025v3.625a1 1 0 0 0 1 1z\"/><path d=\"M6 8h12\"/>","wind":"<path d=\"M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24\"/><path d=\"M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24\"/><path d=\"M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24\"/>","flag":"<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9z\"/><path d=\"M5 21v-7\"/>","compass":"<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 3l0 2\"/><path d=\"M12 19l0 2\"/><path d=\"M3 12l2 0\"/><path d=\"M19 12l2 0\"/>","file-upload":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z\"/><path d=\"M12 11v6\"/><path d=\"M9.5 13.5l2.5 -2.5l2.5 2.5\"/>","map-pin":"<path d=\"M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\"/><path d=\"M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z\"/>","info-circle":"<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/><path d=\"M12 9h.01\"/><path d=\"M11 12h1v4h1\"/>","photo":"<path d=\"M15 8h.01\"/><path d=\"M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z\"/><path d=\"M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5\"/><path d=\"M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","cloud-storm":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1\"/><path d=\"M13 14l-2 4l3 0l-2 4\"/>","award":"<path d=\"M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0\"/><path d=\"M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889\"/><path d=\"M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889\"/>","pencil-plus":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/><path d=\"M16 19h6\"/><path d=\"M19 16v6\"/>","arrow-left":"<path d=\"M5 12l14 0\"/><path d=\"M5 12l6 6\"/><path d=\"M5 12l6 -6\"/>","haze":"<path d=\"M3 12h1\"/><path d=\"M12 3v1\"/><path d=\"M20 12h1\"/><path d=\"M5.6 5.6l.7 .7\"/><path d=\"M18.4 5.6l-.7 .7\"/><path d=\"M8 12a4 4 0 1 1 8 0\"/><path d=\"M3 16h18\"/><path d=\"M3 20h18\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","trekking":"<path d=\"M12 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l2 -4\"/><path d=\"M13 21v-4l-3 -3l1 -6l3 4l3 2\"/><path d=\"M10 14l-1.827 -1.218a2 2 0 0 1 -.831 -2.15l.28 -1.117a2 2 0 0 1 1.939 -1.515h1.439l4 1l3 -2\"/><path d=\"M17 12v9\"/><path d=\"M16 20h2\"/>","map-2":"<path d=\"M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5\"/><path d=\"M9 4v13\"/><path d=\"M15 7v5.5\"/><path d=\"M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879z\"/><path d=\"M19 18v.01\"/>","cloud-rain":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\"/>","cloud-fog":"<path d=\"M7 16a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12\"/><path d=\"M5 20l14 0\"/>","sun-low":"<path d=\"M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M4 12h.01\"/><path d=\"M12 4v.01\"/><path d=\"M20 12h.01\"/><path d=\"M12 20v.01\"/><path d=\"M6.31 6.31l-.01 -.01\"/><path d=\"M17.71 6.31l-.01 -.01\"/><path d=\"M17.7 17.7l.01 .01\"/><path d=\"M6.3 17.7l.01 .01\"/>","user-circle":"<path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/><path d=\"M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855\"/>","stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","navigation":"<path d=\"M12 18.5l7.5 3.5l-7.5 -18l-7.5 18l7.5 -3.5\"/>","chevron-down":"<path d=\"M6 9l6 6l6 -6\"/>","calendar":"<path d=\"M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z\"/><path d=\"M16 3v4\"/><path d=\"M8 3v4\"/><path d=\"M4 11h16\"/><path d=\"M8 15h2v2h-2z\"/>","download":"<path d=\"M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2\"/><path d=\"M7 11l5 5l5 -5\"/><path d=\"M12 4l0 12\"/>","current-location":"<path d=\"M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0\"/><path d=\"M12 2l0 2\"/><path d=\"M12 20l0 2\"/><path d=\"M20 12l2 0\"/><path d=\"M2 12l2 0\"/>","notebook":"<path d=\"M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1m3 0v18\"/><path d=\"M13 8l2 0\"/><path d=\"M13 12l2 0\"/>","binoculars":"<path d=\"M7 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M17 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M16.346 9.17l-.729 -1.261c-.16 -.248 -1.056 -.203 -1.117 .091l-.177 1.38\"/><path d=\"M19.761 14.813l-2.84 -5.133c-.189 -.31 -.592 -.68 -1.421 -.68c-.828 0 -1.5 .448 -1.5 1v6\"/><path d=\"M7.654 9.17l.729 -1.261c.16 -.249 1.056 -.203 1.117 .091l.177 1.38\"/><path d=\"M4.239 14.813l2.84 -5.133c.189 -.31 .592 -.68 1.421 -.68c.828 0 1.5 .448 1.5 1v6\"/><rect width=\"4\" height=\"2\" x=\"10\" y=\"12\"/>","sun-wind":"<path d=\"M14.468 10a4 4 0 1 0 -5.466 5.46\"/><path d=\"M2 12h1\"/><path d=\"M11 3v1\"/><path d=\"M11 20v1\"/><path d=\"M4.6 5.6l.7 .7\"/><path d=\"M17.4 5.6l-.7 .7\"/><path d=\"M5.3 17.7l-.7 .7\"/><path d=\"M15 13h5a2 2 0 1 0 0 -4\"/><path d=\"M12 16h5.714l.253 0a2 2 0 0 1 2.033 2a2 2 0 0 1 -2 2h-.286\"/>","cloud-snow":"<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\"/><path d=\"M11 15v.01m0 3v.01m0 3v.01m4 -4v.01m0 3v.01\"/>","bus":"<path d=\"M6 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M18 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M4 17h-2v-11a1 1 0 0 1 1 -1h14a5 7 0 0 1 5 7v5h-2m-4 0h-8\"/><path d=\"M16 5l1.5 7l4.5 0\"/><path d=\"M2 10l15 0\"/><path d=\"M7 5l0 5\"/><path d=\"M12 5l0 5\"/>","paw":"<path d=\"M8.5 5.5m-2 0a2 2.5 0 1 0 4 0a2 2.5 0 1 0 -4 0\"/><path d=\"M15.5 5.5m-2 0a2 2.5 0 1 0 4 0a2 2.5 0 1 0 -4 0\"/><path d=\"M4.5 10.5m-1.8 0a1.8 2.2 0 1 0 3.6 0a1.8 2.2 0 1 0 -3.6 0\"/><path d=\"M19.5 10.5m-1.8 0a1.8 2.2 0 1 0 3.6 0a1.8 2.2 0 1 0 -3.6 0\"/><path d=\"M12 12c2.4 0 4.5 1.9 5.2 3.6c.7 1.8 -.5 3.4 -2.3 3.4c-1 0 -1.9 -.5 -2.9 -.5s-1.9 .5 -2.9 .5c-1.8 0 -3 -1.6 -2.3 -3.4c.7 -1.7 2.8 -3.6 5.2 -3.6z\"/>","patch":"<path d=\"M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0 -18\"/><path stroke-dasharray=\"1.3 2.4\" d=\"M12 5.4a6.6 6.6 0 1 0 0 13.2a6.6 6.6 0 0 0 0 -13.2\"/><path d=\"M9 14.3l3 -4.3l3 4.3z\"/>","mountain-off":"<path d=\"M18.281 14.26l-4.201 -8.872a2.3 2.3 0 0 0 -4.158 0l-.165 .349m-1.289 2.719l-5.468 11.544h17\"/><path d=\"M7.5 11l2 2.5l2 -2\"/><path d=\"M3 3l18 18\"/>"};
 Object.assign(TI, {"backpack": "<path d=\"M6 9a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z\"/><path d=\"M9.5 5v-1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v1\"/><path d=\"M6 10.5h12\"/><path d=\"M9 14h6v4h-6z\"/>", "shirt": "<path d=\"M15 4l6 2v5h-3v8a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-8h-3v-5l6 -2a3 3 0 0 0 6 0\"/>", "device-watch": "<path d=\"M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-6a3 3 0 0 1 -3 -3v-6z\"/> <path d=\"M9 18v3h6v-3\"/> <path d=\"M9 6v-3h6v3\"/>", "flame": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.621 -2.333 5.588c0 3.704 3.134 6.706 7 6.706s7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\"/>", "quote": "<path d=\"M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/> <path d=\"M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5\"/>", "sparkles": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z\"/>", "clock": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M12 7v5l3 3\"/>", "trending-up": "<path d=\"M3 17l6 -6l4 4l8 -8\"/> <path d=\"M14 7l7 0l0 7\"/>"});
 Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path d=\"M11.5 4l-.5 2\"/> <path d=\"M18 5h2\"/> <path d=\"M19 4v2\"/> <path d=\"M15 9l-1 1\"/> <path d=\"M18 13l2 -.5\"/> <path d=\"M18 19h2\"/> <path d=\"M19 18v2\"/> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39z\"/>", "dog": "<path d=\"M11 5h2\"/> <path d=\"M19 12c-.667 5.333 -2.333 8 -5 8h-4c-2.667 0 -4.333 -2.667 -5 -8\"/> <path d=\"M11 16c0 .667 .333 1 1 1s1 -.333 1 -1h-2z\"/> <path d=\"M12 18v2\"/> <path d=\"M10 11v.01\"/> <path d=\"M14 11v.01\"/> <path d=\"M5 4l6 .97l-6.238 6.688a1.021 1.021 0 0 1 -1.41 .111a.953 .953 0 0 1 -.327 -.954l1.975 -6.815z\"/> <path d=\"M19 4l-6 .97l6.238 6.688c.358 .408 .989 .458 1.41 .111a.953 .953 0 0 0 .327 -.954l-1.975 -6.815z\"/>", "sunrise": "<path d=\"M3 17h1m16 0h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7m-9.7 5.7a4 4 0 0 1 8 0\"/> <path d=\"M3 21l18 0\"/> <path d=\"M12 9v-6l3 3m-6 0l3 -3\"/>", "thumb-up": "<path d=\"M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3\"/>", "bookmark": "<path d=\"M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z\"/>", "bell": "<path d=\"M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/>", "bell-ringing": "<path d=\"M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6\"/> <path d=\"M9 17v1a3 3 0 0 0 6 0v-1\"/> <path d=\"M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727\"/> <path d=\"M3 6.727a11.05 11.05 0 0 1 2.792 -3.727\"/>", "lock": "<path d=\"M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z\"/> <path d=\"M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0\"/> <path d=\"M8 11v-4a4 4 0 1 1 8 0v4\"/>", "world": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\"/> <path d=\"M3.6 9h16.8\"/> <path d=\"M3.6 15h16.8\"/> <path d=\"M11.5 3a17 17 0 0 0 0 18\"/> <path d=\"M12.5 3a17 17 0 0 1 0 18\"/>", "users-group": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\"/> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\"/> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\"/>", "user-plus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M16 19h6\"/> <path d=\"M19 16v6\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/>", "user-check": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4\"/> <path d=\"M15 19l2 2l4 -4\"/>", "user-minus": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\"/> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4c.348 0 .686 .045 1.009 .128\"/> <path d=\"M16 19h6\"/>", "eye": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\"/>", "arrows-shuffle": "<path d=\"M18 4l3 3l-3 3\"/> <path d=\"M18 20l3 -3l-3 -3\"/> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\"/> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\"/>", "target": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0\"/> <path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>", "target-arrow": "<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/> <path d=\"M12 7a5 5 0 1 0 5 5\"/> <path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/> <path d=\"M15 6v3h3l3 -3h-3v-3z\"/> <path d=\"M15 9l-3 3\"/>", "bulb": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\"/> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\"/> <path d=\"M9.7 17l4.6 0\"/>", "message-circle": "<path d=\"M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1\"/>", "eye-off": "<path d=\"M10.585 10.587a2 2 0 0 0 2.829 2.828\"/> <path d=\"M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87\"/> <path d=\"M3 3l18 18\"/>"});
 TI['trophy'] = '<path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>';
@@ -9825,7 +9992,7 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
              was carrying both a box to tick AND the record of the day you
              ticked it. 'climb' is the notebook page, 'done' is the record.
              See claude/30-SPEC-marking-off. */
-          view:'climb', groupBy:'region', groupOpen:false,
+          view:'climb', groupBy:'region', groupOpen:false, here:null,
           /* THE ROW YOU JUST TICKED DOES NOT VANISH UNDER YOUR THUMB.
              To climb is "hills you have not done", so a hill leaves it the
              moment you mark it -- and the list shuts up by one row while your
@@ -9833,6 +10000,13 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
              upward. These keys stay visible until you leave the view, so you
              see the check land on the row you pressed. */
           justTicked:[],
+          /* ---- YOUR SUMMITS. Joe, 9 Oct: "no edit or add feature" -- on this
+             screen. Everything climbed across all 21 lists, reached by tapping
+             his own number on Home. Its grouping is its OWN key, not groupBy:
+             these are two screens asking two questions, and sharing one key
+             means changing the chapters on a list silently rechapters the
+             album too. See claude/32-SPEC-quick-mark-and-your-summits. */
+          summits:false, sumGroup:'region', sumEdit:null, sumAdd:false, sumNote:null,
           /* Joe, 9 Oct: "on maps I have multiple routes showing on the map,
              add a quick toggle to turn off/on the gpx on the live map." On by
              default -- a route you drew should be there when you go looking
@@ -19117,6 +19291,11 @@ function render(){
      the Map tab still lands on Plan a walk. */
   supSyncUrl();
   paintNav();
+  /* the summits sheets, painted into their body-level host every render */
+  try{
+    const sh = document.getElementById('sumhost');
+    if (sh) sh.innerHTML = (ui.summits ? sumEditHTML() + sumAddHTML() : '');
+  }catch(e){}
   document.documentElement.dataset.screen = tab;   /* not data-tab: clicks look for [data-tab] */
   document.documentElement.dataset.shop = tab === 'a' && ui.patchView === 'supplies' ? '1' : '';
   if (viewRestored) setTimeout(saveView, 0);
@@ -19437,8 +19616,12 @@ function listEmptyHTML(id){
 /* ONE GROUPER, THREE WAYS. Joe picked region, list and height; he did not
    want by date. Each returns the same shape so the renderer below does not
    care which it was. */
-function hillGroups(items, id){
-  if (ui.groupBy === 'height'){
+function hillGroups(items, id, gid, o){
+  /* ONE GROUPER, not two. Your summits asks the same three questions of a
+     different set of hills, so it passes its own `gid` and `allLists` rather
+     than growing a second copy that drifts. See claude/27-RULE-one-list-only. */
+  gid = gid || ui.groupBy; o = o || {};
+  if (gid === 'height'){
     const bands = [[914, 'Over 3,000 ft'], [762, '2,500 to 3,000 ft'], [610, '2,000 to 2,500 ft'],
                    [305, '1,000 to 2,000 ft'], [0, 'Under 1,000 ft']];
     return bands.map(([lo, label]) => ({
@@ -19446,21 +19629,40 @@ function hillGroups(items, id){
       hs: items.filter(h => h.h >= lo && !bands.some(([l2]) => l2 > lo && h.h >= l2))
     })).filter(x => x.hs.length);
   }
-  if (ui.groupBy === 'list'){
+  if (gid === 'list'){
     const seen = new Map();
-    for (const h of items)
+    for (const h of items){
+      /* ONE HILL, ONE CHAPTER. Scafell Pike is a Wainwright, a Birkett, a
+         Hewitt, a Marilyn, a Nuttall and a Three Peak -- on a LIST page that
+         is fine, you are inside one list. On Your summits it printed the same
+         summit seven times under seven headings and called it 13 hills.
+         So here each hill goes to its home list only, and the chapters are a
+         partition of your log rather than a cross-product of it. */
+      if (o.one){
+        const lid = homeListFor(h);
+        if (!lid) continue;
+        if (!seen.has(lid)) seen.set(lid, []);
+        seen.get(lid).push(h);
+        continue;
+      }
       for (const lid of (h.l || [])){
-        if (!onList(lid)) continue;
+        if (!onList(lid) && !o.allLists) continue;
         if (!seen.has(lid)) seen.set(lid, []);
         seen.get(lid).push(h);
       }
+    }
+    /* FILTER BEFORE THE SORT. The sort reads LIST_BY[id].name, so an id with
+       no list behind it threw inside the comparator -- and a throw in a
+       comparator takes the whole screen, not one row. */
     return [...seen.entries()]
+      .filter(([lid]) => LIST_BY[lid])
       .sort((a, b) => (LIST_BY[a[0]].name || '').localeCompare(LIST_BY[b[0]].name || ''))
       .map(([lid, hs]) => ({g: LIST_BY[lid].name, bk: '', hs}));
   }
   const by = new Map();
   for (const h of items){
-    const g = regionOf(h, id) || 'Elsewhere';
+    /* no single list id on Your summits -- each hill names its own */
+    const g = regionOf(h, id || homeListFor(h)) || 'Elsewhere';
     if (!by.has(g)) by.set(g, []);
     by.get(g).push(h);
   }
@@ -21186,7 +21388,130 @@ function markBar(ph){
   return '<div class="markbar"><div class="field">' +
     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + TI['search'] + '</svg>' +
     '<input type="search" id="mq" placeholder="' + esc(lab) + '" value="' + esc(ui.mq || '') + '" autocomplete="off" aria-label="' + esc(lab.replace(/\u2026$/, '')) + '"></div>' +
-    '<div id="mres">' + markResults() + '</div></div>';
+    hereBtnHTML() +
+    '<div id="mres">' + markResults() + '</div>' +
+    '<div id="hereres">' + hereResultsHTML() + '</div></div>';
+}
+
+/* ====================================================================
+   WHERE I AM.  Joe, 9 Oct: "we need to add a quick mark section to the
+   homepage something that you can click when you on a summit (to verify gps)
+   or when you want to mark off something, this imediently obvious."
+
+   Asked when he actually marks things off, he said ALL FOUR: on the summit,
+   at the car, that evening, and days later catching up. Asked whether it is
+   one hill or several, he said BOTH, roughly evenly.
+
+   That second answer is what shapes this. A round is eight fells in a day,
+   so finding one hill and stopping would be the wrong shape. Standing on a
+   summit the phone knows the hill underfoot AND the ones just walked over,
+   so it offers both: the one you are on, and the round, already ticked.
+
+   The search box stays the main way in -- Joe's call, and the right one: it
+   is what he uses in the pub and on the sofa, two of the four moments.
+
+   It needs no network. GPS is the satellites, and the summit is exactly
+   where there are no bars. See claude/32-SPEC-quick-mark-and-your-summits. */
+const HERE_ON = 250;      /* within this, you are standing on it */
+const HERE_NEAR = 1610;   /* a mile -- the rest of a round */
+function hereBtnHTML(){
+  if (ui.here && ui.here.hills) return '';
+  const busy = ui.here && ui.here.busy;
+  return '<button class="herebtn" data-act="here"' + (busy ? ' disabled' : '') + '>' +
+    ti(busy ? 'current-location' : 'current-location') +
+    (busy ? 'Finding you\u2026' : 'Where I am') + '</button>';
+}
+/* every summit within a mile, nearest first, with the one underfoot marked */
+function hillsAround(lat, lon){
+  const out = [];
+  for (const h of HILLS){
+    if (!isFinite(h.a) || !isFinite(h.o)) continue;
+    if (Math.abs(h.a - lat) > 0.03 || Math.abs(h.o - lon) > 0.05) continue;   /* cheap box first */
+    const d = metresBetween(lat, lon, h.a, h.o);
+    if (d <= HERE_NEAR) out.push({h, d});
+  }
+  return out.sort((x, y) => x.d - y.d);
+}
+/* A HILL YOU ARE STANDING ON COUNTS, WHETHER OR NOT YOU FOLLOW ITS LIST.
+   GPS offers every summit within a mile, not only the ones on your lists --
+   you climbed it, so it is yours. But marking a hill whose list is switched
+   off would put it nowhere you could ever see it, so the list comes on with
+   it and the toast says so. Exactly what markFromSearch already does. */
+function hereSwitchOn(k){
+  const h = BY_KEY[k]; if (!h) return '';
+  const lid = (h.l || []).find(x => onList(x));
+  if (lid) return '';
+  const add = (h.l || [])[0];
+  if (!add || !LIST_BY[add]) return '';
+  state.enabled.push(add); state.enabledT = now();
+  return LIST_BY[add].name;
+}
+async function hereGo(){
+  if (ui.here && ui.here.busy) return;
+  ui.here = {busy: true}; render();
+  try{
+    const fix = await getFix();
+    const near = hillsAround(fix.lat, fix.lon);
+    if (!near.length){
+      ui.here = {none: true, acc: Math.round(fix.acc)};
+    } else {
+      const on = near[0].d <= HERE_ON ? near[0] : null;
+      /* the ones you have just walked over start ticked; the one you have
+         not been up is offered unticked -- the app offers, you decide */
+      const pick = near.filter(x => x !== on && !isBagged(x.h.k)).slice(0, 6).map(x => x.h.k);
+      ui.here = {hills: near.slice(0, 7), on: on ? on.h.k : null,
+                 pick: pick.slice(0, 3), acc: Math.round(fix.acc), fix};
+    }
+  }catch(err){ ui.here = {err: err.message || 'Could not find you.'}; }
+  render();
+}
+function hereResultsHTML(){
+  const st = ui.here;
+  if (!st || st.busy) return '';
+  if (st.err) return '<div class="herebox"><p class="herenote warn">' + esc(st.err) +
+    '</p><button class="linkbtn" data-act="hereclose">Close</button></div>';
+  if (st.none) return '<div class="herebox"><p class="herenote">No summit within a mile of you' +
+    (st.acc ? ' (fix good to ' + st.acc + ' m)' : '') + '. Search for it instead.</p>' +
+    '<button class="linkbtn" data-act="hereclose">Close</button></div>';
+  if (!st.hills) return '';
+  const onK = st.on;
+  const onRow = onK ? st.hills.find(x => x.h.k === onK) : null;
+  const rest = st.hills.filter(x => x.h.k !== onK);
+  let s = '<div class="herebox">';
+  if (onRow){
+    const done = isBagged(onK);
+    s += '<p class="hereh">You are standing on</p>' +
+      '<div class="hereme' + (done ? ' done' : '') + '">' +
+      '<button class="herebox-tick" data-act="heremark" data-k="' + esc(onK) + '"' +
+        ' aria-label="Mark off ' + esc(hillName(onRow.h)) + '">' +
+        (done ? ST_ICON.done : '') + '</button>' +
+      '<span class="herem"><b>' + esc(hillName(onRow.h)) + '</b>' +
+        '<span>' + Math.round(onRow.d) + ' m away' +
+        (done ? ' \u00b7 marked' : '') + '</span></span>' +
+      '<span class="hereft">' + ht(onRow.h) + '</span></div>';
+  } else {
+    s += '<p class="hereh">Nearest summits</p>';
+  }
+  if (rest.length){
+    s += '<p class="hereh hereh2">' + (onRow ? 'And within a mile' : 'Within a mile') + '</p>';
+    for (const x of rest){
+      const k = x.h.k, done = isBagged(k), on = done || (st.pick || []).indexOf(k) >= 0;
+      s += '<div class="herenear' + (on ? ' on' : '') + (done ? ' done' : '') + '">' +
+        '<button class="herebox-tick sm" data-act="herepick" data-k="' + esc(k) + '"' +
+          (done ? ' disabled' : '') + ' aria-pressed="' + on + '"' +
+          ' aria-label="' + (done ? 'Already marked: ' : 'Also mark ') + esc(hillName(x.h)) + '">' +
+          (on ? ST_ICON.done : '') + '</button>' +
+        '<span class="herenm">' + esc(hillName(x.h)) + '</span>' +
+        '<span class="hereaway">' + (x.d < 950 ? Math.round(x.d) + ' m' : (x.d / 1609.344).toFixed(1) + ' mi') + '</span>' +
+        '<span class="hereft">' + ht(x.h) + '</span></div>';
+    }
+  }
+  const n = (st.pick || []).length;
+  if (n) s += '<div class="herego"><button class="btn" data-act="heremany">Mark these ' + n + '</button></div>';
+  s += '<p class="herenote">' + ti('current-location') + 'Works with no signal \u2014 GPS is the ' +
+    'satellites, not the phone network.' + (st.acc ? ' Fix good to ' + st.acc + ' m.' : '') + '</p>';
+  s += '<button class="linkbtn hereclose" data-act="hereclose">Close</button>';
+  return s + '</div>';
 }
 /* Marking from the search: switch the hill's list on if it is not, land on
    that list with the row open, and say what happened. */
@@ -21986,6 +22311,8 @@ async function chalGSave(drop){
 
 
 function renderDashboard(){
+  /* Your summits owns the screen the same way a list does */
+  if (ui.summits) return summitsPage();
   /* a list opened from Home owns the screen until you come back */
   if (ui.homeList && onList(ui.homeList)) return homeListPage();
   const a = allStats();
@@ -22007,11 +22334,20 @@ function renderDashboard(){
   /* The cover line: how far the log has come, in one figure. */
   const days = diaryDays().length;
   const yr = new Date().getFullYear();
+  /* YOUR OWN NUMBER IS A DOOR. Joe, 9 Oct, drew a second card under the cover
+     saying "41 Summits marked" -- but the cover already says 41, and the same
+     figure printed twice on one screen is a figure you stop reading. The
+     number itself opens Your summits instead. */
+  const sct = summitStats();
   const coverInner =
     '<p class="coverline"><i></i>Your log, ' + yr + '</p>' +
+    '<button class="coverdoor" data-act="summits" aria-label="See all ' + a.done +
+      ' summits you have marked">' +
     '<h1>' + a.done.toLocaleString() + (a.done === 1 ? ' hill' : ' hills') + '<br>marked<em>.</em></h1>' +
+    '<span class="coverall">All your summits' + ti('chevron-right') + '</span></button>' +
     '<p class="coversub"><b>' + a.remaining.toLocaleString() + ' to go</b> across ' + enabled().length + (enabled().length === 1 ? ' list' : ' lists') +
-      (days ? ', ' + days + (days === 1 ? ' day' : ' days') + ' out' : '') + '.</p>' +
+      (days ? ', ' + days + (days === 1 ? ' day' : ' days') + ' out' : '') +
+      (sct.regions ? ' \u00b7 ' + sct.regions + (sct.regions === 1 ? ' region' : ' regions') : '') + '.</p>' +
     '<span class="flstamp" aria-hidden="true"><img class="fl-l" src="stamp-field-log-light.webp" alt="" width="116" height="90"><img class="fl-d" src="stamp-field-log-dark.webp" alt="" width="116" height="90"><b>' + yr + '</b></span>';
   /* with a photograph of the last walk, the cover prints over it */
   const shotNow = latestPhoto();
@@ -22164,6 +22500,154 @@ function homeListCards(){
         '<span class="hlbar"><u style="width:' + pc + '%"></u></span>' +
         '<span class="hlpc">' + pc + '%</span>' + ti('chevron-right') + '</button>';
     }).join('') + '</section>';
+}
+
+/* ---------- YOUR SUMMITS ----------
+   Joe, 9 Oct: "there is no option just to plainly view all the mountains you
+   have completed in one nice list." Every hill marked, across all 21 lists,
+   reached by tapping his own number on Home.
+
+   Why it is not just the Done tab: the Done tab is INSIDE a list. It can tell
+   you about your Wainwrights or your Munros, never about your walking. This
+   screen is the only place the whole log is one thing.
+
+   Entries are doneEntry() -- the same album as v338, not a second one. */
+
+function summitKeys(){
+  const out = [];
+  for (const k of Object.keys(state.bagged)){
+    if (!isBagged(k)) continue;
+    const h = BY_KEY[k];
+    if (!h) continue;                 /* a key with no hill behind it is not a summit */
+    out.push(h);
+  }
+  return out;
+}
+function summitStats(){
+  const hs = summitKeys();
+  const lists = new Set(), regions = new Set();
+  for (const h of hs){
+    /* the hill's HOME list, so this figure matches the chapters you get under
+       "By list" -- counting every list a hill appears on said "7 lists" to a
+       walker who follows two */
+    const lid = homeListFor(h);
+    if (lid && LIST_BY[lid]) lists.add(lid);
+    const r = regionOf(h, lid);
+    if (r && r !== 'Other') regions.add(r);
+  }
+  return {n: hs.length, lists: lists.size, regions: regions.size, hs};
+}
+const SUM_GROUPS = [{id:'region', label:'By region'}, {id:'list', label:'By list'},
+                    {id:'height', label:'By height'}];
+
+function summitsPage(){
+  const st = summitStats();
+  let s = '<button class="hlback" data-act="sumback">' + ti('arrow-left') + 'Back to Home</button>';
+  s += '<div class="sumhead"><h1>Your summits</h1><p>' +
+    (st.n
+      ? st.n.toLocaleString('en-GB') + ' marked · ' + st.lists +
+        (st.lists === 1 ? ' list' : ' lists') +
+        (st.regions ? ' · ' + st.regions + (st.regions === 1 ? ' region' : ' regions') : '')
+      : 'Nothing in the log yet') + '</p></div>';
+
+  /* NOTHING MARKED IS NOT AN ERROR. Say which empty it is and offer the way
+     out -- the same rule as every other empty state since v338. */
+  if (!st.n){
+    return s + '<div class="empty emptybig sumempty"><b>This is where your walking goes.</b>' +
+      '<span>Every hill you mark lands here — the date, your photographs, what you wrote, ' +
+      'and who came with you. All your lists in one place.</span>' +
+      '<button class="btn" data-act="sumback">Mark your first hill</button></div>' + COLOPHON;
+  }
+
+  s += '<div class="sumtools"><div class="sumchips" role="group" aria-label="How to group them">' +
+    SUM_GROUPS.map(g => '<button class="sumchip' + (ui.sumGroup === g.id ? ' on' : '') +
+      '" data-act="sumgroup" data-v="' + g.id + '" aria-pressed="' + (ui.sumGroup === g.id) + '">' +
+      esc(g.label) + '</button>').join('') +
+    '</div><button class="sumadd" data-act="sumaddopen">' + ti('plus') + 'Add</button></div>';
+
+  /* allLists: unfollowing the Munros does not unclimb Ben Nevis */
+  for (const grp of hillGroups(st.hs, null, ui.sumGroup, {allLists:true, one:true})){
+    const inG = grp.hs.slice().sort((x, y) => y.h - x.h);
+    const bk = grp.bk ? ' style="--bkc:var(' + grp.bk + ')"' : '';
+    s += '<div class="grouphead sumgh' + (bk ? ' hasbk' : '') + '"' + bk + '>' +
+      '<div class="gt"><h2>' + esc(grp.g) + '</h2><span>' + inG.length + '</span></div></div>';
+    s += '<ul class="hills donelist sumlist">';
+    for (const h of inG) s += summitEntry(h);
+    s += '</ul>';
+  }
+  return s + COLOPHON;
+}
+
+/* THE ALBUM ENTRY, PLUS A PENCIL. Joe chose "a pencil on each entry" over
+   tap-to-edit, so tapping the entry itself still opens the hill. The pencil is
+   a 44px target sitting over the entry's own corner; doneEntry() leaves the
+   room for it with padding-right, it is not laid on top of the words. */
+function summitEntry(h){
+  const li = doneEntry(h, homeListFor(h));
+  const pen = '<button class="sumpen" data-act="sumedit" data-k="' + esc(h.k) + '"' +
+    ' aria-label="Edit ' + esc(hillName(h)) + '">' + ti('pencil') + '</button>';
+  /* doneEntry closes with </li>; the pencil goes inside it, last */
+  return li.replace(/<\/li>$/, pen + '</li>');
+}
+
+/* ---------- the pencil's sheet ---------- */
+/* FOUR THINGS, THE WAY JOE LISTED THEM: the date, the photos, the note,
+   unmark it entirely. Photos and the note hand off to the hill's OWN editor
+   rather than a second one built for this screen. */
+function sumEditHTML(){
+  const k = ui.sumEdit; if (!k) return '';
+  const h = BY_KEY[k]; if (!h) return '';
+  const r = rec(k);
+  const pics = (r.photos || []).filter(Boolean).length;
+  const note = String(r.notes || '').trim();
+  const v = verifiedAt(k);
+  const row = (act, icon, title, sub, cls) =>
+    '<button class="sumerow' + (cls ? ' ' + cls : '') + '" data-act="' + act + '" data-k="' + esc(k) + '">' +
+      '<span class="sumeic">' + ti(icon) + '</span>' +
+      '<span class="sumetx"><b>' + title + '</b><i>' + sub + '</i></span>' +
+      '<span class="sumego">' + ti('chevron-right') + '</span></button>';
+
+  return '<div class="sheetwrap" data-act="sumeditclose">' +
+    '<div class="sumsheet" role="dialog" aria-modal="true" aria-label="Edit ' +
+      esc(hillName(h)) + '" data-act="noop">' +
+    '<div class="sumtop"><h3>' + esc(hillName(h)) + '</h3>' +
+      '<button class="xbtn" data-act="sumeditclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    '<p class="sumsub">' + (r.date ? 'Marked ' + esc(prettyDate(r.date)) : 'Marked, no date on it') +
+      (v ? ' · verified at the summit' : '') + '</p>' +
+    row('sumdate', 'calendar', 'The date',
+        r.date ? esc(prettyDate(r.date)) : 'Not set — add it') +
+    row('sumphotos', 'camera', 'Photos',
+        pics ? pics + (pics === 1 ? ' photo' : ' photos') + ' · add or remove' : 'None yet — add some') +
+    row('sumnote', 'pencil', 'The note',
+        note ? esc(note.length > 44 ? note.slice(0, 41) + '…' : note) : 'Nothing written yet') +
+    row('sumunmark', 'x', 'Unmark it entirely',
+        'Wrong hill. Photographs and note go with it', 'danger') +
+    '</div></div>';
+}
+
+/* ---------- + Add ---------- */
+/* BOTH KINDS, which is what Joe asked for. (2) is not new -- it is ownOpen(),
+   the Out of bounds flow that already exists behind the search box. This is a
+   second door to it, not a second copy of it. */
+function sumAddHTML(){
+  if (!ui.sumAdd) return '';
+  return '<div class="sheetwrap" data-act="sumaddclose">' +
+    '<div class="sumsheet" role="dialog" aria-modal="true" aria-label="Add a hill" data-act="noop">' +
+    '<div class="sumtop"><h3>Add a hill you have climbed</h3>' +
+      '<button class="xbtn" data-act="sumaddclose" aria-label="Close">' + ti('x') + '</button></div>' +
+    '<p class="sumsub">Back-filling years of walking, or something off the lists.</p>' +
+    '<div class="sumaddwrap">' +
+      '<button class="sumaddopt" data-act="sumaddsearch">' +
+        '<span class="sumeic">' + ti('search') + '</span>' +
+        '<span><b>Search WayMark’s ' + HILLS.length.toLocaleString('en-GB') + ' hills</b>' +
+        '<i>Any hill on any list. Pick it and set the date — you do not have to find the ' +
+        'list first.</i></span></button>' +
+      '<button class="sumaddopt" data-act="sumaddown">' +
+        '<span class="sumeic">' + ti('mountain') + '</span>' +
+        '<span><b>A hill WayMark does not know</b>' +
+        '<i>A local one, or a foreign peak. It goes on your Out of bounds list.</i></span>' +
+      '</button>' +
+    '</div></div></div>';
 }
 
 /* THE LIST, as its own screen. Same renderHills() as before -- the rows were
@@ -26493,12 +26977,102 @@ document.addEventListener('click', async e => {
   else if (a === 'breakdown'){ ui.breakdown = !ui.breakdown; render(); }
   else if (a === 'status'){ ui.status = el.dataset.v; render(); }
   else if (a === 'view'){
+    /* STAY WHERE YOU ARE. Joe, 9 Oct: "when I click to climb - done - all it
+       shifts me straight to the top of the page." It did -- I sent it there.
+       Switching tab is not navigating away: the tabs themselves are the fixed
+       point, so they hold their place on screen and the list changes under
+       them. Same trick as the route card's date row. */
+    const top = el.getBoundingClientRect().top;
     ui.justTicked = [];
     ui.view = el.dataset.v;
     /* a sub-filter left on under To climb would silently hide half of Done */
     if (ui.view !== 'climb') ui.status = 'all';
     ui.open = null;
+    render();
+    const again = document.querySelector('[data-act="view"][data-v="' + CSS.escape(ui.view) + '"]');
+    if (again){
+      const moved = again.getBoundingClientRect().top - top;
+      if (Math.abs(moved) > 2) window.scrollBy({top: moved, behavior:'auto'});
+    }
+  }
+  /* ---------- YOUR SUMMITS ---------- */
+  else if (a === 'summits'){
+    ui.summits = true; ui.sumEdit = null; ui.sumAdd = false;
+    ui.homeList = null; ui.open = null;
+    try{ history.pushState({summits:1}, ''); }catch(e){}
     render(); window.scrollTo({top:0});
+  }
+  else if (a === 'sumback'){
+    ui.summits = false; ui.sumEdit = null; ui.sumAdd = false;
+    render(); window.scrollTo({top:0});
+  }
+  else if (a === 'sumgroup'){
+    /* STAY WHERE YOU ARE -- the same rule as the To climb / Done / All tabs.
+       Regrouping is not navigating away, so the chips hold their place on
+       screen and the chapters rearrange under them. */
+    const top = el.getBoundingClientRect().top;
+    ui.sumGroup = el.dataset.v;
+    render();
+    const again = document.querySelector('[data-act="sumgroup"][data-v="' + CSS.escape(ui.sumGroup) + '"]');
+    if (again){
+      const moved = again.getBoundingClientRect().top - top;
+      if (Math.abs(moved) > 2) window.scrollBy({top: moved, behavior:'auto'});
+    }
+  }
+  else if (a === 'sumedit'){ ui.sumEdit = el.dataset.k; ui.sumAdd = false; render(); }
+  else if (a === 'sumeditclose'){ ui.sumEdit = null; render(); }
+  else if (a === 'sumdate'){
+    const k = el.dataset.k, h = BY_KEY[k]; if (!h) return;
+    ui.sumEdit = null; render();
+    const d = await askDate('When did you climb ' + hillName(h) + '?');
+    const r = rec(k);
+    /* '' is a real answer -- "I do not remember" -- and undated() collects it
+       so the bell can ask again later. It is not the same as cancelling. */
+    r.date = d || '';
+    if (Array.isArray(r.asc) && r.asc.length === 1) r.asc[0] = r.date;
+    touched(); render();
+    toast(d ? hillName(h) + ' · ' + prettyDate(d) : 'Date cleared on ' + hillName(h));
+  }
+  /* PHOTOS AND THE NOTE GO TO THE HILL'S OWN EDITOR, not a second one built
+     for this screen. openHillRow() is the one way into a hill row; it switches
+     to the right list, opens the row and scrolls to it. See
+     claude/27-RULE-one-list-only. */
+  else if (a === 'sumphotos' || a === 'sumnote'){
+    const k = el.dataset.k;
+    ui.sumEdit = null; ui.summits = false;
+    ui.view = 'all';
+    if (!openHillRow(k, {delay: 60})){ ui.summits = true; render(); toast('Could not open that one.'); return; }
+    const want = a === 'sumphotos' ? '.addshot' : ('#nt-' + k);
+    setTimeout(() => {
+      const t = document.querySelector(a === 'sumphotos' ? want : '[id="nt-' + CSS.escape(k) + '"]');
+      if (!t) return;
+      t.scrollIntoView({block:'center', behavior:'smooth'});
+      if (a === 'sumnote' && t.focus) t.focus();
+    }, 420);
+  }
+  else if (a === 'sumunmark'){
+    const k = el.dataset.k, h = BY_KEY[k]; if (!h) return;
+    ui.sumEdit = null; render();
+    if (!await okToUnmark(k)) return;
+    await marking(() => { ui.open = null; setBagged(k, false, ''); });
+    if (mapReady){ drawMarkers(); closePopups(map); }
+    render();
+    toast('Unmarked ' + hillName(h) + '.');
+  }
+  else if (a === 'sumaddopen'){ ui.sumAdd = true; ui.sumEdit = null; render(); }
+  else if (a === 'sumaddclose'){ ui.sumAdd = false; render(); }
+  else if (a === 'sumaddsearch'){
+    /* back-filling a hill WayMark already knows: the search box on Home is
+       exactly this, and marking from it does not need the list first */
+    ui.sumAdd = false; ui.summits = false; ui.mq = '';
+    render();
+    setTimeout(() => { const f = document.getElementById('mq'); if (f){ f.focus(); f.select && f.select(); } }, 120);
+  }
+  else if (a === 'sumaddown'){
+    /* ALREADY BUILT. ownOpen() is the Out of bounds flow behind the search
+       box; this is a second door to it, not a second copy of it. */
+    ui.sumAdd = false; ui.summits = false; render();
+    setTimeout(() => ownOpen(''), 80);
   }
   else if (a === 'groupfold'){ ui.groupOpen = !ui.groupOpen; render(); }
   else if (a === 'groupby'){ ui.groupBy = el.dataset.v; ui.groupOpen = false; ui.justTicked = []; render(); }
@@ -27280,6 +27854,48 @@ document.addEventListener('click', async e => {
     touched(); render(); toast('Route saved.');
   }
   else if (a === 'verify'){ verifyHere(el.dataset.k); }
+  else if (a === 'here'){ await hereGo(); }
+  else if (a === 'hereclose'){ ui.here = null; render(); }
+  else if (a === 'herepick'){
+    const st = ui.here; if (!st || !st.pick) return true;
+    const k = el.dataset.k, i = st.pick.indexOf(k);
+    if (i >= 0) st.pick.splice(i, 1); else st.pick.push(k);
+    render();
+  }
+  else if (a === 'heremark'){
+    /* the one underfoot: marked AND verified in the same tap, because
+       standing on it is the only moment the app can prove you were there */
+    const k = el.dataset.k;
+    if (isBagged(k)){ toast('Already marked.'); return true; }
+    const st = ui.here, fx = st && st.fix, h = BY_KEY[k];
+    const sw = hereSwitchOn(k);
+    await marking(() => {
+      const c = rec(k);
+      const d = (fx && h && isFinite(h.a)) ? Math.round(metresBetween(fx.lat, fx.lon, h.a, h.o)) : null;
+      state.bagged[k] = {...c, st:'done', done:true, date: c.date || today(),
+        v: (fx && d != null && fx.acc <= VERIFY_ACC) ? {t: Date.now(), d: d, acc: Math.round(fx.acc)} : c.v,
+        t: now()};
+      touched();
+    });
+    if (mapReady) drawMarkers();
+    renderListToggles();
+    render();
+    toast('Marked ' + hillName(BY_KEY[k]) + '.' + (sw ? ' ' + sw + ' switched on.' : ''));
+  }
+  else if (a === 'heremany'){
+    const st = ui.here; if (!st || !(st.pick || []).length) return true;
+    const ks = st.pick.filter(k => !isBagged(k));
+    if (!ks.length){ toast('Already marked.'); return true; }
+    const when = await askDate(ks.length + (ks.length === 1 ? ' summit' : ' summits'));
+    const sws = [...new Set(ks.map(hereSwitchOn).filter(Boolean))];
+    await marking(() => { for (const k of ks) setBagged(k, true, when); });
+    st.pick = [];
+    if (mapReady) drawMarkers();
+    renderListToggles();
+    render();
+    toast('Marked ' + ks.length + (ks.length === 1 ? ' summit.' : ' summits.') +
+      (sws.length ? ' ' + sws.join(' and ') + ' switched on.' : ''));
+  }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
   else if (a === 'guide'){ openGuide(el.dataset.id != null ? el.dataset.id : null); }
   else if (a === 'layers'){ ui.layersOpen = !ui.layersOpen; paintLayers(); }
@@ -33418,7 +34034,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v338';
+const APP_VERSION = 'v339';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
