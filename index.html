@@ -381,13 +381,28 @@ body::before{
 }
 
 /* ================= navigation ================= */
+/* ---- THE ICON LADDER, v333 ----
+   Measured 9 Oct: 68 icons, 179 rendered across ten screens, in 27 different
+   sizes and three stroke weights. Only 6 of 179 were at ti()'s own 24px
+   default. (The 67 "non-square" boxes in that first count were mostly the
+   bottom bar's selected-state pill, which is deliberate -- see below.)
+   The icons were never the problem -- they are one family, well drawn. The
+   sizing was. Three sizes, one weight, square boxes, and a 44px target around
+   anything you can tap however small the glyph is: the target and the picture
+   are two different measurements. */
+:root{
+  --i-sm:16px;   /* inside a line of text */
+  --i-md:20px;   /* buttons, chips, rows */
+  --i-lg:24px;   /* the bottom bar and the header */
+  --tap:44px;    /* the floor, everywhere */
+}
 .navbtn{
   display:flex; align-items:center; gap:11px; width:100%;
   background:none; border:1px solid transparent; border-radius:10px;
   padding:10px 12px; color:var(--ink-2); font-size:14.5px; text-align:left;
   font-family:var(--font-ui); letter-spacing:.02em; cursor:pointer;
 }
-.navbtn .ni{width:19px; height:19px; flex:none; opacity:.85}
+.navbtn .ni{width:var(--i-md); height:var(--i-md); flex:none; align-self:center; opacity:.85}
 .navbtn .nl{flex:1; min-width:0}
 .navbtn .nc{
   font-family:var(--font-ui); font-size:11px; color:var(--ink-3);
@@ -411,7 +426,23 @@ body::before{
   font-size:clamp(8.5px, 2.7vw, 10.5px); letter-spacing:.01em; border-radius:9px; text-align:center;
 }
 .bnav .navbtn .nl{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
-.bnav .navbtn .ni{width:20px; height:20px}
+/* the stragglers, measured 9 Oct: 13px, 14px, 15px, 17px, 18px and 19px
+   scattered across a dozen components, all of them "an icon in a line of
+   text" -- which is exactly what --i-sm is for. Snapped onto the ladder
+   rather than left at six near-identical sizes nobody chose on purpose.
+   .setback keeps its own 32px disc; only the glyph inside it moves. */
+.setback svg, .avpen svg, .vtrash svg, .railnext svg, .hksearch svg,
+.imphomego > svg, .dogheroedit svg, .btn.ghost svg,
+.field svg, .refreshbtn svg{width:var(--i-sm); height:var(--i-sm)}
+.imphomex svg{width:var(--i-sm); height:var(--i-sm)}
+.bcsell svg, .privline.small svg, .dcovopen svg{width:var(--i-sm); height:var(--i-sm)}
+/* "Show where I am" sat at 32px over a map, which is the worst place in the
+   app to miss a button: the tap lands on the map and moves it instead. */
+/* five of these exist. Sizing by the ACTION catches all five; the class I
+   first added only caught one, and the one on the map was not it. */
+[data-act="mlocate"]{min-width:var(--tap); min-height:var(--tap)}
+/* the real sizing for these lives with the pill, further down the sheet */
+.bnav .navbtn .ni{flex:none; align-self:center}
 .bnav .navbtn .nl{flex:none}
 .bnav .navbtn .nc{display:none}
 .bnav .navbtn[aria-selected="true"]{box-shadow:none; background:var(--surface-2); border-color:transparent}
@@ -527,7 +558,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
 .sync[data-s="pending"] .dot, .sync[data-s="error"] .dot, .sync[data-s="local"] .dot{background:var(--warn)}
 .sync[data-s="pending"], .sync[data-s="error"], .sync[data-s="local"]{border-color:var(--warn); color:var(--warn)}
 @keyframes pulse{50%{opacity:.3}}
-.iconbtn{background:none; border:1px solid var(--line); border-radius:10px; width:34px; height:30px; display:grid; place-items:center; color:var(--ink-2); flex:none}
+.iconbtn{background:none; border:1px solid var(--line); border-radius:10px; min-width:var(--tap); min-height:var(--tap); display:grid; place-items:center; color:var(--ink-2); flex:none}
 .tabs{display:flex; gap:4px; padding-bottom:10px}
 .tab{
   flex:1; background:transparent; border:1px solid transparent; border-radius:10px;
@@ -858,7 +889,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text)}
 .subfilter button i{font-style:normal; font-family:var(--font-data); font-size:11px; opacity:.8; margin-left:5px}
 .refreshbtn.spinning svg{animation:syncspin .8s linear infinite; color:var(--accent-text)}
-.subfilter .refreshbtn{margin-left:auto; width:38px; padding:0; display:grid; place-items:center}
+.subfilter .refreshbtn{margin-left:auto; min-width:var(--tap); min-height:var(--tap); padding:0; display:grid; place-items:center}
 .hrowp .rc{display:flex; flex-direction:column; align-items:flex-end; line-height:1.15}
 .hrowp .rc i{font-style:normal; font-family:var(--font-ui); font-size:9.5px; letter-spacing:.07em;
   text-transform:uppercase; color:var(--ink-3)}
@@ -3653,7 +3684,7 @@ button.bstriprow{cursor:pointer}
 .texttabs [role="tab"]{background:none; border:none; padding:6px 2px 10px; font-family:var(--font-display); font-weight:500; font-size:16px; letter-spacing:.02em; color:var(--ink-3); cursor:pointer; position:relative; min-height:40px}
 .texttabs [role="tab"][aria-selected="true"]{color:var(--ink)}
 .texttabs [role="tab"][aria-selected="true"]::after{content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--accent); border-radius:2px}
-.texttabs .refreshbtn{margin-left:auto; margin-bottom:6px; width:36px; height:36px}
+.texttabs .refreshbtn{margin-left:auto; margin-bottom:6px; width:var(--tap); height:var(--tap)}
 .sharerow{margin:6px 0 12px}
 .sharerow .btn svg{width:16px; height:16px; margin-right:6px; vertical-align:-3px}
 .fstrip{padding-top:2px}
@@ -4388,7 +4419,11 @@ li.hill.bk .hrow{padding-left:2px}
   content:""; position:absolute; right:4px; top:4px; width:6px; height:6px;
   border-radius:99px; background:var(--accent);
 }
+/* MapLibre builds this one itself, so it carries no WayMark class and the
+   data-act rule never reached it -- it was the last control in the app under
+   the floor, at 32px, sitting on a map where a miss drags the map instead. */
 .locatectl button, .mctl button[data-act="mlocate"]{position:relative}
+.locatectl button{width:var(--tap); height:var(--tap); display:grid; place-items:center}
 .walkpill{position:sticky; top:calc(var(--topH, 104px) + 6px); z-index:40; display:inline-flex; align-items:center; gap:8px; margin:0 0 8px; padding:8px 14px; border-radius:99px; border:1px solid var(--accent); background:var(--surface); color:var(--accent-text); font:700 13px/1 var(--font-ui); box-shadow:0 2px 8px -2px rgba(20,51,45,.35); cursor:pointer}
 .walkpill::before{content:""; width:8px; height:8px; border-radius:99px; background:var(--accent); animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
@@ -4525,7 +4560,9 @@ body.guiding{overflow:hidden}
 .mresults{position:absolute; z-index:7; left:12px; right:64px; max-width:520px; top:62px}
 .mresults .rqres{margin:0; border:0; border-radius:18px; background:rgba(251,250,246,.96); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 24px 40px -18px rgba(20,51,45,.5); max-height:46vh; overflow:auto}
 .mctl{right:calc(12px + var(--grip, 0px)); top:68px; padding:5px; display:flex; flex-direction:column; gap:2px}
-.mctl button{width:40px; height:40px; border:0; border-radius:99px; background:transparent; color:var(--ink); display:grid; place-items:center; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
+/* the map's own controls were 40px, and a miss here is worse than anywhere
+   else in the app: the tap lands on the map and drags it instead */
+.mctl button{width:var(--tap); height:var(--tap); border:0; border-radius:99px; background:transparent; color:var(--ink); display:grid; place-items:center; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mctl button svg{width:19px; height:19px; stroke-width:1.5}
 .mctl button:active{transform:scale(.92)}
 .mctl button:hover{background:rgba(20,51,45,.07)}
@@ -5123,7 +5160,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .journey .jbar{height:6px; margin-top:12px}
 
 /* ---- refresh on Hikers: one clean arc that turns ---- */
-.refreshbtn.rf2{width:36px; height:36px; padding:0; border-radius:99px; display:grid; place-items:center; color:var(--ink-2);
+.refreshbtn.rf2{width:var(--tap); height:var(--tap); padding:0; border-radius:99px; display:grid; place-items:center; color:var(--ink-2);
   background:var(--surface); border:1px solid var(--line); transition:background .15s, border-color .15s, transform .1s}
 .refreshbtn.rf2:hover{border-color:var(--ink-3)}
 .refreshbtn.rf2:active{transform:scale(.94)}
@@ -5135,7 +5172,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 /* ================= Hikers: the social side ================= */
 .hkhead{display:flex; align-items:center; gap:8px}
 .hkhead .pagehead{flex:1; margin:0}
-.hkic{width:42px; height:42px; border-radius:99px; border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+.hkic{width:var(--tap); height:var(--tap); border-radius:99px; border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
   display:grid; place-items:center; position:relative; flex:none; transition:transform .1s, border-color .15s}
 .hkic:active{transform:scale(.94)}
 .hkic svg{width:20px; height:20px}
@@ -5873,7 +5910,11 @@ span.pshow{cursor:default}
 /* ---- bottom bar: one active pill for every tab, Home included ---- */
 .bnav .navbtn, .bnav .navbtn[aria-selected="true"], .bnav .navbtn.homebtn[aria-selected="true"]{background:transparent; border-color:transparent; box-shadow:none}
 .bnav .navbtn{gap:3px}
-.bnav .navbtn .ni, .bnav .navbtn.homebtn .ni{width:22px; height:22px; padding:5px 18px; box-sizing:content-box; border:0; border-radius:99px; background:transparent; color:inherit; opacity:.85; transition:background .28s var(--ease)}
+/* THE PILL IS DELIBERATE. `padding:5px 18px` on a content-box icon is what
+   draws the rounded pill behind the selected tab -- the box measures 58x32
+   because of it, and that is the affordance, not a bug. Only the GLYPH moves
+   onto the ladder: 22 -> 24. The pill grows to 60x34 with it. */
+.bnav .navbtn .ni, .bnav .navbtn.homebtn .ni{width:var(--i-lg); height:var(--i-lg); padding:5px 18px; box-sizing:content-box; border:0; border-radius:99px; background:transparent; color:inherit; opacity:.85; transition:background .28s var(--ease)}
 .bnav .navbtn[aria-selected="true"] .ni, .bnav .navbtn.homebtn[aria-selected="true"] .ni{background:rgba(243,239,230,.14); color:#F3EFE6; opacity:1}
 .bnav .navbtn .nl{font-size:11.5px}
 .bnav .navbtn[aria-selected="true"] .nl, .bnav .navbtn.homebtn[aria-selected="true"] .nl{color:#F3EFE6; font-weight:700}
@@ -6208,7 +6249,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 
 /* one dog's page */
 .dogtabs{display:flex; gap:16px; overflow-x:auto; padding:2px 2px 0; margin-bottom:12px; border-bottom:1px solid var(--line-soft)}
-.dogtabs button{display:flex; align-items:center; gap:7px; padding:0 0 9px; border:0; background:none;
+.dogtabs button{display:flex; align-items:center; gap:7px; min-height:var(--tap); padding:0 0 9px; border:0; background:none;
   font:800 15px var(--font-ui); color:var(--ink-3); border-bottom:3px solid transparent; cursor:pointer; white-space:nowrap}
 .dogtabs button[aria-pressed="true"]{color:var(--accent-text); border-color:var(--accent)}
 .dogtabs .dogface{width:30px; height:30px; border-width:2px; box-shadow:none; outline:0}
@@ -6223,7 +6264,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .doghero img{width:100%; height:100%; object-fit:cover}
 .doghero .noph{position:absolute; inset:0; display:grid; place-items:center; color:var(--ink-3)}
 .doghero .noph svg{width:56px; height:56px}
-.dogheroedit{position:absolute; left:12px; top:12px; z-index:3; display:inline-flex; align-items:center; gap:6px;
+.dogheroedit{position:absolute; left:12px; top:12px; z-index:3; min-height:var(--tap); display:inline-flex; align-items:center; gap:6px;
   border:0; border-radius:99px; padding:7px 14px 7px 11px; font:700 13.5px var(--font-ui); cursor:pointer;
   background:color-mix(in srgb, var(--raise) 92%, transparent); color:var(--accent-text);
   box-shadow:0 1px 4px rgba(20,51,45,.25)}
@@ -6495,7 +6536,7 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .imphomecta{flex:none; font:700 12px var(--font-ui); color:var(--ground); background:var(--accent);
   border-radius:7px; padding:6px 11px; white-space:nowrap}
-.imphomex{flex:none; width:38px; border:0; border-left:1px solid var(--line); background:none;
+.imphomex{flex:none; width:var(--tap); min-height:var(--tap); border:0; border-left:1px solid var(--line); background:none;
   color:var(--ink-3); display:grid; place-items:center; cursor:pointer}
 .imphomex:hover{color:var(--ink)}
 .imphomex:focus-visible{outline:2px solid var(--accent); outline-offset:-3px}
@@ -8344,7 +8385,7 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .iconbtn, .xbtn, .top .iconbtn, .top .sync{
   width:var(--ctl-ico); height:var(--ctl-ico); min-height:var(--ctl-ico);
   border-radius:50%; padding:0; display:grid; place-items:center}
-.iconbtn svg, .xbtn svg{width:19px; height:19px}
+.iconbtn svg, .xbtn svg{width:var(--i-md); height:var(--i-md)}
 /* the top bar is five of these plus the wordmark; let them breathe without
    pushing the logo off */
 .top .brandrow{gap:2px}
@@ -8645,9 +8686,18 @@ span.vbadge{color:var(--surface)}
    name in the display face. Two to a row, because there can be twenty-four
    bits of kit and only ever two or three dogs. */
 .kitgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 10px}
-.kitcard{display:block; text-align:left; padding:0; border:1px solid var(--line);
+/* FLEX COLUMN, not block. The card is a <button>, and a button CENTRES its
+   content when the box is taller than what is in it. Two cards in a grid row
+   stretch to the taller one, so the card with no money row floated 28px down
+   from its own top edge and the photo no longer lined up with its
+   neighbour's. A block child does not fix that -- the centring happens
+   above it, in the button's own layout. */
+.kitcard{display:flex; flex-direction:column; align-items:stretch;
+  text-align:left; padding:0; border:1px solid var(--line);
   border-radius:14px; overflow:hidden; background:var(--surface);
   box-shadow:var(--shadow); transition:transform .14s, box-shadow .14s}
+.kitcard > .kitcap{flex:none}
+.kitcard > .kitcb{flex:1 1 auto}
 .kitcard:active{transform:scale(.985); box-shadow:none}
 /* SQUARE, not a letterbox. Joe, 8 Oct: "kit images too thin (not
    practical)". 94px tall on a 176px card is nearly 2:1, and object-fit:cover
@@ -29377,7 +29427,9 @@ const SYNC_I = {
   desktop: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6"/><path d="M12 16v4"/>',
   spin:  '<path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/>'
 };
-const syncIcon = k => '<svg class="si si-' + k + '" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SYNC_I[k] + '</svg>';
+/* 18px at 1.7 was the only weight in the app that was not 1.5, and a heavier
+   line at a smaller size reads as a different icon family. */
+const syncIcon = k => '<svg class="si si-' + k + '" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SYNC_I[k] + '</svg>';
 let syncTapBusy = false, syncTapDone = 0;
 /* A coarse pointer is a phone or a tablet; anything else is a computer. */
 const onDesk = () => { try{ return !matchMedia('(pointer:coarse)').matches; }catch(e){ return false; } };
@@ -32356,7 +32408,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v332';
+const APP_VERSION = 'v333';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
