@@ -3356,6 +3356,143 @@ button.bstriprow{cursor:pointer}
 .plan h3{margin:0; font-family:var(--font-display); font-size:18px; letter-spacing:-.01em; flex:1}
 .planmeta{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); letter-spacing:.04em; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap}
 .plannotes{font-size:14px; color:var(--ink-2); margin:10px 0 0; white-space:pre-wrap}
+/* ======================================================================
+   MARKING OFF  --  the centre of the app. claude/30-SPEC-marking-off
+   ====================================================================== */
+
+/* ---- To climb / Done / All ---- */
+.vtabs{display:flex; gap:3px; padding:4px; margin:10px 0 0;
+  background:var(--surface-2); border-radius:12px}
+.vtab{flex:1; min-height:40px; border:0; border-radius:9px; background:none; cursor:pointer;
+  font:700 13.5px/1.1 var(--font-ui); color:var(--ink-2); padding:5px 4px;
+  transition:background .18s ease, color .18s ease}
+.vtab i{display:block; font:400 10.5px/1 var(--font-data); font-style:normal;
+  color:var(--ink-3); margin-top:3px}
+.vtab.on{background:var(--raise); color:var(--ink); box-shadow:0 1px 3px rgba(20,51,45,.12)}
+.vtab.on i{color:var(--accent-text)}
+.vtools{display:flex; align-items:center; gap:8px; margin-top:8px}
+.vsub{display:flex; gap:6px; flex:1; min-width:0; overflow-x:auto; scrollbar-width:none}
+.vsub::-webkit-scrollbar{display:none}
+.vsub .chip{flex:none}
+.vsub .chip b{margin-left:5px; font:700 11px var(--font-data); opacity:.7}
+/* with no sub-filter beside it the menu takes the whole width rather than
+   hanging off the right of an empty line */
+.gbwrap{position:relative; margin-left:auto; flex:none}
+.vtools:not(:has(.vsub)) .gbwrap{margin-left:0; flex:1}
+.vtools:not(:has(.vsub)) .gbbtn{width:100%; justify-content:space-between}
+.gbbtn{display:inline-flex; align-items:center; gap:5px; min-height:var(--tap); padding:0 12px;
+  background:var(--raise); border:1px solid var(--line); border-radius:10px;
+  font:600 13px var(--font-ui); color:var(--ink); cursor:pointer; white-space:nowrap}
+.gbbtn svg{width:var(--i-sm); height:var(--i-sm); color:var(--ink-3)}
+.gbmenu{position:absolute; right:0; top:calc(100% + 6px); z-index:20; min-width:168px;
+  background:var(--raise); border:1px solid var(--line); border-radius:12px; padding:5px;
+  box-shadow:0 18px 40px -22px rgba(20,51,45,.6)}
+.gbmenu button{display:block; width:100%; min-height:var(--tap); padding:0 12px; border:0;
+  background:none; text-align:left; font:600 14px var(--font-ui); color:var(--ink);
+  border-radius:8px; cursor:pointer}
+.gbmenu button.on{background:var(--surface-2); color:var(--accent-text)}
+
+/* ---- the book colour on a chapter heading ---- */
+.grouphead.hasbk .gt h2{position:relative; padding-left:17px}
+.grouphead.hasbk .gt h2::before{content:''; position:absolute; left:0; top:50%;
+  transform:translateY(-50%); width:9px; height:9px; border-radius:50%; background:var(--bkc)}
+.grouphead.hasbk .gt{position:relative; padding-bottom:7px}
+.grouphead.hasbk .gt::after{content:''; position:absolute; left:0; right:0; bottom:0; height:2px;
+  border-radius:2px; background:var(--bkc); opacity:.28}
+
+/* ---- the empty states ---- */
+.emptybig{display:flex; flex-direction:column; align-items:flex-start; gap:7px; padding:22px 4px}
+.emptybig b{font:800 17px var(--font-ui); color:var(--ink)}
+.emptybig span{font:400 14px/1.5 var(--font-ui); color:var(--ink-3)}
+.emptybig .btn{margin-top:5px}
+
+/* ---- DONE: the album ---- */
+.donelist{list-style:none; margin:0; padding:0}
+li.done{background:var(--raise); border-bottom:1px solid var(--line-soft); padding:0 13px}
+li.done:last-child{border-bottom:0}
+.dmain{display:block; width:100%; background:none; border:0; text-align:left; padding:12px 0 11px;
+  cursor:pointer; min-height:var(--tap)}
+li.done.rich .dmain{padding-bottom:7px}
+.dtop{display:flex; align-items:baseline; gap:9px}
+.dnm{flex:1; min-width:0; font:800 17px/1.2 var(--font-ui); color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dft{flex:none; font:700 13px var(--font-data); color:var(--ink-2)}
+.dwhen{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:3px}
+/* the day in your own hand -- the same face the dogs are written in */
+.dwhen .hand{font-family:var(--font-hand); font-size:17px; font-weight:600; line-height:1;
+  color:var(--accent-text); display:inline-block; transform:rotate(-1.5deg); transform-origin:left}
+.dwhen .nodate{font:400 13px var(--font-ui); color:var(--ink-3); font-style:italic}
+.dtimes{font:600 11px var(--font-data); color:var(--ink-3)}
+.dnote{display:block; margin:8px 0 0; padding-left:9px; border-left:2px solid var(--line);
+  font:400 13.5px/1.45 var(--font-ui); color:var(--ink-2)}
+/* every photograph from that day, each kept as a print */
+.dstrip{display:flex; gap:9px; flex-wrap:wrap; padding:3px 0 12px}
+.dpr{width:52px; height:52px; flex:none; padding:0; border:3px solid #FFFDF8; border-radius:2px;
+  background:var(--surface-2); cursor:pointer; overflow:hidden; transform:rotate(var(--t, 1.4deg));
+  box-shadow:0 1px 2px rgba(20,51,45,.18), 0 6px 14px -9px rgba(20,51,45,.6);
+  transition:transform .18s cubic-bezier(.32,.72,0,1)}
+.dpr:active{transform:rotate(0deg) scale(.96)}
+.dpr img{width:100%; height:100%; object-fit:cover; display:block;
+  filter:contrast(1.05) saturate(.9) sepia(.06)}
+.ddogs{display:flex; align-items:center; gap:6px; padding:0 0 12px;
+  font:400 12.5px var(--font-ui); color:var(--ink-3)}
+.ddogs > svg{width:14px; height:14px; flex:none}
+/* .dogface sets its own size for the dogs' own screens, so these have to
+   out-rank it rather than sit beside it */
+.ddogs .dogface{width:24px !important; height:24px !important; min-width:0; flex:none;
+  border-radius:50%; overflow:hidden; border:2px solid var(--raise); margin:0 0 0 -8px;
+  display:grid; place-items:center; background:var(--dogc, var(--surface-2)); box-shadow:none}
+.ddogs .dogface:first-of-type{margin-left:2px}
+.ddogs .dogface img{width:100%; height:100%; object-fit:cover}
+.ddogs .dogface svg{width:12px !important; height:12px !important; color:var(--raise)}
+.ddogs span{margin-left:4px}
+@media (prefers-reduced-motion: reduce){ .dpr{transition:none} }
+
+.hillabout{display:inline-flex; align-items:center; gap:7px; min-height:var(--tap)}
+.hillabout svg{width:var(--i-sm); height:var(--i-sm); flex:none}
+/* ---- To climb: a box, a name, a height -------------------------------
+   One row height, where there used to be four (47 / 71 / 92 / 116). The
+   whole row is the tap target for opening it; the box is its own 44. */
+.hills .hrow{display:flex; align-items:center; gap:0; padding:0 13px 0 2px; min-height:56px}
+.hills .hmain{flex:1; min-width:0; align-self:stretch; display:flex; flex-direction:column;
+  justify-content:center; gap:1px; padding:6px 8px 6px 4px; background:none; border:0; text-align:left}
+.hills .hname{display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  font-family:var(--font-ui); font-weight:600; font-size:16.5px; line-height:1.2;
+  letter-spacing:-.005em; color:var(--ink)}
+.hills .hsub{display:block; font:400 12px var(--font-ui); color:var(--ink-3);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.hills .hh{flex:none; font-family:var(--font-data); font-size:12px; color:var(--ink-3)}
+
+/* THE BOX. 44px of target, a ~25px square drawn inside it, about a degree
+   and a bit off square -- like one pencilled in rather than printed. The
+   border cannot live on the button itself, or padding would grow the drawn
+   square along with the target. */
+.hills .tick{position:relative; flex:none; width:var(--tap); height:var(--tap);
+  border:0; background:none; padding:0; display:grid; place-items:center;
+  color:transparent; margin:0 -2px 0 2px; cursor:pointer}
+.hills .tick::before{content:''; position:absolute; width:25px; height:25px;
+  border:1.9px solid var(--ink-3); border-radius:4px 6px 5px 7px;
+  transform:rotate(-1.3deg); background:var(--raise);
+  transition:border-color .18s ease, background .18s ease}
+.hills .tick > *{position:relative}
+li.hill.on .tick{background:none; color:var(--accent-text)}
+li.hill.on .tick::before{border-color:var(--accent-text); background:var(--raise)}
+li.hill.s-planned .tick::before{border-color:var(--plan)}
+li.hill.s-progress .tick::before{border-color:var(--prog)}
+
+/* THE MOMENT. Joe: "I want it to really feel like you're marking the peaks
+   off in a notebook by hand." The check is DRAWN ON, not switched on: the
+   stroke writes itself across the box in 200ms, at a slight angle, the way a
+   pencil would. Everything in this app revolves around this one tap. */
+.hills .tick svg{width:19px; height:19px; transform:rotate(-5deg) translateY(-1px)}
+.hills .tick svg path{stroke-dasharray:28; stroke-dashoffset:0}
+li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
+@keyframes penstroke{from{stroke-dashoffset:28}to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){
+  li.hill.on .tick svg path{animation:none}
+  .hills .tick::before{transition:none}
+}
+
 .planhills{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:4px}
 .planhills li{display:flex; align-items:center; gap:9px; font-size:14px; padding:3px 0}
 /* THE BOX STAYS 22px, THE TARGET IS 44. Joe, 9 Oct, asked for the route card
@@ -9683,6 +9820,19 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
           mapScope:'one', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null, planOpen:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, wxOpenIds:[], doOpen:[], tagging:null,
+          /* THE LIST DOES TWO JOBS, SO IT HAS TWO MODES. Joe, 9 Oct, on the
+             old single list: "this is way too busy." It was -- because one row
+             was carrying both a box to tick AND the record of the day you
+             ticked it. 'climb' is the notebook page, 'done' is the record.
+             See claude/30-SPEC-marking-off. */
+          view:'climb', groupBy:'region', groupOpen:false,
+          /* THE ROW YOU JUST TICKED DOES NOT VANISH UNDER YOUR THUMB.
+             To climb is "hills you have not done", so a hill leaves it the
+             moment you mark it -- and the list shuts up by one row while your
+             finger is still on the screen, throwing everything below it
+             upward. These keys stay visible until you leave the view, so you
+             see the check land on the row you pressed. */
+          justTicked:[],
           /* Joe, 9 Oct: "on maps I have multiple routes showing on the map,
              add a quick toggle to turn off/on the gpx on the live map." On by
              default -- a route you drew should be there when you go looking
@@ -19179,11 +19329,13 @@ function renderHills(){
      the moment you type */
   html += '<label for="q" class="vh">Search a hill</label>' +
     '<input type="search" id="q" placeholder="Search a hill…" value="' + esc(ui.q) + '" autocomplete="off"></div>';
-  html += '<div class="chips">';
-  html += '<button class="chip" data-act="status" data-v="all" aria-pressed="' + (ui.status==='all') + '">All</button>';
-  for (const sd of STATES)
-    html += '<button class="chip c-' + sd.id + '" data-act="status" data-v="' + sd.id + '" aria-pressed="' + (ui.status===sd.id) + '">' + esc(sd.short) + '</button>';
-  html += '<button class="chip" data-act="sort" data-v="' + (ui.sort==='height'?'az':'height') + '">' + (ui.sort==='height'?'↕ Height':'↕ A-Z') + '</button>';
+  /* TO CLIMB / DONE / ALL. Five chips -- All, To do, Planned, Attempted,
+     Marked -- asked you to pick a state before you could look at anything,
+     and four of the five were states rather than intentions. These are the
+     two things anyone actually comes here to do, and the third for when you
+     want the whole list. Planned and Attempted are still reachable, under
+     To climb, where they belong: they are hills you have not done yet. */
+  html += viewTabsHTML(id, s);
   html += '</div>';
   if (ui.region) html += '<div class="chips regionbar"><button class="chip back" data-act="region" data-v="" aria-pressed="false">&larr; All areas</button>' +
     '<button class="chip" data-act="region" data-v="' + esc(ui.region) + '" aria-pressed="true">' + esc(ui.region.replace('The ','')) + '</button></div>';
@@ -19197,35 +19349,187 @@ function renderHills(){
   return html + '<div id="hres">' + hillResults(id, s) + '</div>';
 }
 
+/* the three ways to look at a list, with their own counts */
+function viewCounts(id, s){
+  let done = 0, climb = 0, plan = 0, prog = 0;
+  for (const h of s.items){
+    const st = stateOf(h.k);
+    if (st === 'done'){ done++; continue; }
+    climb++;
+    if (st === 'planned') plan++;
+    else if (st === 'progress') prog++;
+  }
+  return {done, climb, plan, prog, all: s.items.length};
+}
+function viewTabsHTML(id, s){
+  const c = viewCounts(id, s);
+  const tab = (v, label, n) =>
+    '<button class="vtab' + (ui.view === v ? ' on' : '') + '" data-act="view" data-v="' + v + '"' +
+    ' aria-pressed="' + (ui.view === v) + '">' + label + '<i>' + n.toLocaleString('en-GB') + '</i></button>';
+  let h = '<div class="vtabs" role="group" aria-label="Which hills">' +
+    tab('climb', 'To climb', c.climb) + tab('done', 'Done', c.done) + tab('all', 'All', c.all) + '</div>';
+  /* the sub-filter, only under To climb and only when there is something to
+     filter to -- an empty Planned chip teaches nobody anything */
+  h += '<div class="vtools">';
+  if (ui.view === 'climb' && (c.plan || c.prog)){
+    const sub = (v, label, n) => '<button class="chip' + (ui.status === v ? ' on' : '') +
+      '" data-act="status" data-v="' + v + '" aria-pressed="' + (ui.status === v) + '">' + label +
+      '<b>' + n + '</b></button>';
+    h += '<div class="vsub">' + sub('all', 'Any', c.climb) +
+      (c.plan ? sub('planned', 'Planned', c.plan) : '') +
+      (c.prog ? sub('progress', 'Attempted', c.prog) : '') + '</div>';
+  }
+  h += groupByHTML(id);
+  h += '</div>';
+  return h;
+}
+/* BY REGION / BY LIST / BY HEIGHT. Joe picked these three and left out by
+   date. A menu rather than three more chips: it is a setting you change
+   rarely, not a filter you flick between. */
+const GROUPS = [{id:'region', label:'By region'}, {id:'list', label:'By list'}, {id:'height', label:'By height'}];
+function groupByHTML(id){
+  const cur = GROUPS.find(g => g.id === ui.groupBy) || GROUPS[0];
+  const open = ui.groupOpen;
+  let h = '<div class="gbwrap"><button class="gbbtn" data-act="groupfold" aria-expanded="' + !!open + '">' +
+    esc(cur.label) + ti('chevron-down') + '</button>';
+  if (open) h += '<div class="gbmenu" role="menu">' + GROUPS.map(g =>
+    '<button role="menuitem" class="' + (g.id === ui.groupBy ? 'on' : '') + '" data-act="groupby" data-v="' +
+      g.id + '">' + esc(g.label) + '</button>').join('') + '</div>';
+  return h + '</div>';
+}
 function hillResults(id, s){
-  let html = '';
   const isW = id === 'wainwright';
   const q = norm(ui.q);
   const items = s.items.filter(h => {
     if (ui.region && regionOf(h, id) !== ui.region) return false;
-    if (ui.status !== 'all' && stateOf(h.k) !== ui.status) return false;
+    /* the mode comes first: To climb is everything you have not done, which
+       is a different question from "which state is it in" */
+    const st = stateOf(h.k);
+    if (ui.view === 'done' && st !== 'done') return false;
+    if (ui.view === 'climb'){
+      const held = (ui.justTicked || []).indexOf(h.k) >= 0;
+      if (st === 'done' && !held) return false;
+      if (!held && ui.status !== 'all' && st !== ui.status) return false;
+    }
     if (q && !(norm(h.n).includes(q) || norm(h.w).includes(q) || norm(h.cy).includes(q) || norm(altStr(h)).includes(q))) return false;
     return true;
   });
-  if (!items.length) return '<p class="empty">No hills match that. Try clearing the search or filters.</p>' + COLOPHON;
-
-  for (const b of s.regions){
-    const inG = items.filter(h => regionOf(h, id) === b.g);
-    if (!inG.length) continue;
-    inG.sort((x,y) => ui.sort === 'height' ? y.h - x.h : x.n.localeCompare(y.n));
+  if (!items.length) return listEmptyHTML(id) + COLOPHON;
+  return hillGroupsHTML(items, id, isW) + COLOPHON;
+}
+/* AN EMPTY LIST SHOULD SAY WHICH EMPTY IT IS. "No hills match that" was the
+   answer to a finished book, a search for nothing, and a Done tab with
+   nothing in it -- three different situations, one shrug. */
+function listEmptyHTML(id){
+  if (norm(ui.q)) return '<p class="empty">Nothing here called \u201c' + esc(ui.q) + '\u201d. ' +
+    '<button class="linkbtn" data-act="clearq">Clear the search</button></p>';
+  if (ui.view === 'done') return '<div class="empty emptybig"><b>Nothing marked here yet.</b>' +
+    '<span>Tick one off and the day you did it shows up here, with your photographs.</span>' +
+    '<button class="btn" data-act="view" data-v="climb">See what there is to climb</button></div>';
+  if (ui.view === 'climb' && ui.status !== 'all')
+    return '<p class="empty">None of them are ' + (ui.status === 'planned' ? 'planned' : 'part-done') + '. ' +
+      '<button class="linkbtn" data-act="status" data-v="all">Show all of them</button></p>';
+  if (ui.view === 'climb') return '<div class="empty emptybig"><b>Every one of them, marked.</b>' +
+    '<span>There is nothing left to climb on this list.</span>' +
+    '<button class="btn" data-act="view" data-v="done">Look back at them</button></div>';
+  return '<p class="empty">Nothing to show. <button class="linkbtn" data-act="region" data-v="">Clear the area</button></p>';
+}
+/* ONE GROUPER, THREE WAYS. Joe picked region, list and height; he did not
+   want by date. Each returns the same shape so the renderer below does not
+   care which it was. */
+function hillGroups(items, id){
+  if (ui.groupBy === 'height'){
+    const bands = [[914, 'Over 3,000 ft'], [762, '2,500 to 3,000 ft'], [610, '2,000 to 2,500 ft'],
+                   [305, '1,000 to 2,000 ft'], [0, 'Under 1,000 ft']];
+    return bands.map(([lo, label]) => ({
+      g: label, bk: '',
+      hs: items.filter(h => h.h >= lo && !bands.some(([l2]) => l2 > lo && h.h >= l2))
+    })).filter(x => x.hs.length);
+  }
+  if (ui.groupBy === 'list'){
+    const seen = new Map();
+    for (const h of items)
+      for (const lid of (h.l || [])){
+        if (!onList(lid)) continue;
+        if (!seen.has(lid)) seen.set(lid, []);
+        seen.get(lid).push(h);
+      }
+    return [...seen.entries()]
+      .sort((a, b) => (LIST_BY[a[0]].name || '').localeCompare(LIST_BY[b[0]].name || ''))
+      .map(([lid, hs]) => ({g: LIST_BY[lid].name, bk: '', hs}));
+  }
+  const by = new Map();
+  for (const h of items){
+    const g = regionOf(h, id) || 'Elsewhere';
+    if (!by.has(g)) by.set(g, []);
+    by.get(g).push(h);
+  }
+  return [...by.entries()].map(([g, hs]) => ({g, bk: BOOK_VAR[g] || '', hs}));
+}
+function hillGroupsHTML(items, id, isW){
+  let html = '';
+  for (const grp of hillGroups(items, id)){
+    const inG = grp.hs.slice();
+    inG.sort((x, y) => ui.sort === 'height' ? y.h - x.h : x.n.localeCompare(y.n));
     const d = inG.filter(h => isBagged(h.k)).length;
-    const gp = d ? Math.max(1, Math.round(d/inG.length*100)) : 0;
-    html += '<div class="grouphead"><div class="gt"><h2>' +
-      (isW && BOOK_VAR[b.g] ? '<i class="swatch" style="background:var(' + BOOK_VAR[b.g] + ')"></i>' : '') +
-      esc(b.g) + '</h2><span>' + d + '/' + inG.length + ' · ' + gp + '%</span></div>';
-    html += skyline(inG);
-    html += '</div><ul class="hills">';
-    for (const h of inG) html += hillRow(h, id);
+    const gp = d ? Math.max(1, Math.round(d / inG.length * 100)) : 0;
+    /* THE SEVEN BOOKS KEEP THEIR COLOUR. Joe, 9 Oct. A disc before the name
+       and a rule under it -- not a coloured row, because 35 green rows read
+       as a state rather than a chapter. It agrees with the map pins and the
+       books accordion, which already use these. */
+    const bk = (isW && grp.bk) ? ' style="--bkc:var(' + grp.bk + ')"' : '';
+    html += '<div class="grouphead' + (bk ? ' hasbk' : '') + '"' + bk + '><div class="gt"><h2>' +
+      esc(grp.g) + '</h2><span>' + d + '/' + inG.length + (ui.view === 'all' ? ' \u00b7 ' + gp + '%' : '') + '</span></div>';
+    if (ui.view !== 'done') html += skyline(inG);
+    html += '</div><ul class="hills' + (ui.view === 'done' ? ' donelist' : '') + '">';
+    for (const h of inG) html += ui.view === 'done' ? doneEntry(h, id) : hillRow(h, id);
     html += '</ul>';
   }
-  return html + COLOPHON;
+  return html;
 }
 
+/* THE RECORD, NOT THE LIST. Joe, 9 Oct: "you are excited to look through
+   your accomplishments... you want to be able to quickly look back at marked
+   hills and the day including your photos and notes."
+
+   No box -- this one is done. A hill with nothing but a date stays ONE LINE;
+   the entry only grows when there is something to show, so a quiet Tuesday
+   never looks like a failure beside Helvellyn. (D2, "the album", chosen from
+   a drawing. See claude/30-SPEC-marking-off.) */
+function doneEntry(h, listId){
+  const r = rec(h.k);
+  const n = ascCount(h.k);
+  const pics = (r.photos || []).filter(Boolean).slice(0, 6);
+  const note = String(r.notes || '').trim();
+  const dogs = (Array.isArray(r.dogs) ? r.dogs : []).map(dogById).filter(Boolean).slice(0, 4);
+  const rich = !!(pics.length || note || dogs.length || n > 1);
+  let s = '<li class="done' + (rich ? ' rich' : '') + '">' +
+    '<button class="dmain" data-act="open" data-k="' + esc(h.k) + '" aria-expanded="' + (ui.open === h.k) + '">' +
+    '<span class="dtop"><span class="dnm">' + esc(hillName(h)) + '</span>' +
+      '<span class="dft">' + ht(h) + '</span></span>' +
+    '<span class="dwhen">' +
+      (r.date ? '<span class="hand">' + esc(prettyDate(r.date)) + '</span>'
+              : '<span class="nodate">No date on it</span>') +
+      (n > 1 ? '<span class="dtimes">' + ordinal(n) + ' time up</span>' : '') +
+      (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') +
+    '</span>';
+  if (note) s += '<span class="dnote">' + esc(note.length > 150 ? note.slice(0, 147) + '\u2026' : note) + '</span>';
+  s += '</button>';
+  if (pics.length) s += '<div class="dstrip">' + pics.map((p, i) =>
+    '<button class="dpr" data-act="viewday" data-d="' + esc(r.date || '') + '" data-p="' + esc(p.id) + '"' +
+      ' style="--t:' + [(-2.1), 1.5, (-1.1), 2.0, (-1.6), .9][i % 6] + 'deg"' +
+      ' aria-label="Photograph from ' + esc(hillName(h)) + '">' +
+      '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt=""></button>').join('') + '</div>';
+  if (dogs.length) s += '<div class="ddogs">' + ti('paw') +
+    dogs.map(d => dogFaceHTML(d, 'ddogface')).join('') +
+    '<span>' + esc(dogs.map(dogName).join(' and ')) + '</span></div>';
+  return s + '</li>';
+}
+/* 1st, 2nd, 3rd... for "3rd time up" */
+function ordinal(n){
+  const t = n % 100, u = n % 10;
+  return n + (t >= 11 && t <= 13 ? 'th' : u === 1 ? 'st' : u === 2 ? 'nd' : u === 3 ? 'rd' : 'th');
+}
 /* The skyline of a region: its hills as an elevation profile, marked ones
    filled in. A field guide would print this at the head of each chapter. */
 function skyline(hs){
@@ -19242,33 +19546,38 @@ function skyline(hs){
     '<path class="sk-fill" d="' + line + ' L' + W + ' ' + H + ' L0 ' + H + 'Z"/>' +
     '<path class="sk-line" d="' + line + '"/>' + '<g class="sk-done">' + done + '</g></svg>';
 }
+/* A BOX AND A NAME. Joe, 9 Oct: "this is way too busy", and
+   "I want it to really feel like you're marking the peaks off in a notebook
+   by hand."
+
+   The row used to carry up to eleven things. Every one of them failed the
+   question "what does this tell me that the box does not": the MARKED stamp
+   duplicated the tick, the date and the photo belong to the record rather
+   than the to-do list, and the list tags said almost the same words on
+   nearly every row.
+
+   What is left is a box, a name, and the height -- the only other thing
+   anybody compares one hill to another by. Everything removed is in the
+   Done view and on the hill's own page, neither of which existed when this
+   row was carrying it all. See claude/30-SPEC-marking-off. */
 function hillRow(h, listId){
   const on = isBagged(h.k), r = rec(h.k), open = ui.open === h.k;
   const bookVar = listId === 'wainwright' ? BOOK_VAR[regionOf(h, 'wainwright')] : null;
-  let s = '<li class="hill s-' + stateOf(h.k) + (on ? ' on' : '') + (bookVar ? ' bk' : '') + '"' +
+  const st = stateOf(h.k);
+  let s = '<li class="hill s-' + st + (on ? ' on' : '') + (bookVar ? ' bk' : '') + '"' +
           (bookVar ? ' style="--bkc:var(' + bookVar + ')"' : '') + '>';
   s += '<div class="hrow" data-row="' + esc(h.k) + '">';
-  const st = stateOf(h.k);
-  s += '<button class="tick st-' + st + '" data-act="tick" data-k="' + esc(h.k) + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' + (st === 'none' ? '' : ST_ICON[st]) + '</button>';
+  s += '<button class="tick st-' + st + '" data-act="tick" data-k="' + esc(h.k) +
+       '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' +
+       (st === 'none' ? '' : ST_ICON[st]) + '</button>';
   s += '<button class="hmain" data-act="open" data-k="' + esc(h.k) + '" aria-expanded="' + open + '">';
-  s += '<span class="hname">' + esc(hillName(h)) + (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') + repBadge(h.k) + '</span>';
-  const bits = [];
-  if (h.w && h.w !== h.n) bits.push('<span class="wel">' + esc(h.w) + '</span>');
-  if (on) bits.push('<span class="mkchip">Marked</span>');
-  if (on && r.date) bits.push('<span class="stampdate">' + esc(prettyDate(r.date)) + '</span>');
-  if (r.notes) bits.push('<span class="hnote">note</span>');
-  if (bits.length) s += '<span class="hsub">' + bits.join('') + '</span>';
-  /* every list the hill counts on, not only the ones you follow — the hill
-     card already showed all of them and the row disagreeing read as a fault */
-  const others = h.l.filter(x => x !== listId);
-  if (others.length) s += '<span class="tags">' + others.map(x => '<span class="tag">' + esc(listTag(x)) + '</span>').join('') + '</span>';
+  s += '<span class="hname">' + esc(hillName(h)) +
+       (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') +
+       repBadge(h.k) + '</span>';
+  /* the Welsh name is the hill's other name, not a label about it, so it is
+     the one thing that still earns a second line */
+  if (h.w && h.w !== h.n) s += '<span class="hsub"><span class="wel">' + esc(h.w) + '</span></span>';
   s += '</button>';
-  s += '<i class="leadline"></i>';
-  if (r.photos.length){
-    const p = r.photos[0];
-    s += '<img class="thumb" data-pid="' + esc(p.id) + '" data-up="' + (p.up?1:0) + '" alt="Photo of ' + esc(hillName(h)) + '">';
-  }
-  s += '<button class="info-btn" data-act="info" data-k="' + esc(h.k) + '" aria-label="About ' + esc(hillName(h)) + '">i</button>';
   s += '<span class="hh">' + ht(h) + '</span></div>';
   if (open){
     s += '<div class="detail">';
@@ -19302,6 +19611,12 @@ function hillRow(h, listId){
       s += '<button class="linkbtn vlink" data-act="verify" data-k="' + esc(h.k) + '"' + (locating ? ' disabled' : '') + '>' +
            ti('current-location') + (locating ? 'Finding you…' : 'Verify with GPS') + '</button>';
     }
+    /* THE WAY TO THE HILL ITSELF. The (i) came off the row -- 214 of them at
+       24px, and a second destination off a row that already had one. It has
+       to land somewhere, and inside the row you opened is where somebody
+       asking "what IS this hill" already is. */
+    s += '<button class="linkbtn hillabout" data-act="info" data-k="' + esc(h.k) + '">' +
+         ti('info-circle') + 'About ' + esc(hillName(h)) + '</button>';
     /* Every time you have been up. A walker opens a hill they have done twelve
        times to remember it, not to prune it — so the panel leads with the count
        and when, shows the last few, and keeps the rest and the Remove links
@@ -26040,6 +26355,12 @@ document.addEventListener('click', async e => {
     if (tab === 'd' && !ui.homeList && onList(ui.list)) ui.homeList = ui.list;
     const k = el.dataset.k, turningOff = isBagged(k);
     if (turningOff && !await okToUnmark(k)) return;
+    /* hold it in the To climb list until you leave, so the check lands on the
+       row you pressed instead of the list shutting up by one under your thumb */
+    if (!turningOff && ui.view === 'climb'){
+      const held = ui.justTicked || (ui.justTicked = []);
+      if (held.indexOf(k) < 0) held.push(k);
+    }
     await marking(() => {
       /* Marking one opens its row, so the date, notes and photos are right
          there while the walk is fresh. Unmarking closes it again. */
@@ -26171,6 +26492,17 @@ document.addEventListener('click', async e => {
   else if (a === 'mlistfold'){ ui.listOpen = !ui.listOpen; if (ui.listOpen) ui.dayOpen = false; render(); }
   else if (a === 'breakdown'){ ui.breakdown = !ui.breakdown; render(); }
   else if (a === 'status'){ ui.status = el.dataset.v; render(); }
+  else if (a === 'view'){
+    ui.justTicked = [];
+    ui.view = el.dataset.v;
+    /* a sub-filter left on under To climb would silently hide half of Done */
+    if (ui.view !== 'climb') ui.status = 'all';
+    ui.open = null;
+    render(); window.scrollTo({top:0});
+  }
+  else if (a === 'groupfold'){ ui.groupOpen = !ui.groupOpen; render(); }
+  else if (a === 'groupby'){ ui.groupBy = el.dataset.v; ui.groupOpen = false; ui.justTicked = []; render(); }
+  else if (a === 'clearq'){ ui.q = ''; const f = document.getElementById('q'); if (f) f.value = ''; render(); }
   else if (a === 'sort'){ ui.sort = el.dataset.v; render(); }
   else if (a === 'listinfo'){ openListInfo(el.dataset.v); }
   else if (a === 'region'){
@@ -33086,7 +33418,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v337';
+const APP_VERSION = 'v338';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
