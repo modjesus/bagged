@@ -4582,8 +4582,14 @@ body.guiding{overflow:hidden}
 /* the two pills: a second row under the search, clear of the zoom column */
 /* above the mode bar, not under the search: at the top they had to dodge the
    zoom column and the day pill lost its last three letters to it */
+/* TWO ROWS ON A PHONE, ON PURPOSE. At 390px the two original pills already
+   filled the line to 330 of 338, so anything added -- Joe's offline button,
+   the routes switch -- was scrolled off the right-hand edge and invisible,
+   which is the opposite of "more obvious". It wraps instead. The row still
+   scrolls sideways on a narrow phone with long list names. */
 .mpills{position:absolute; z-index:5; left:12px; right:calc(12px + var(--grip, 0px)); bottom:62px;
-  display:flex; gap:6px; overflow-x:auto; scrollbar-width:none}
+  display:flex; flex-wrap:wrap; gap:6px; overflow-x:auto; scrollbar-width:none;
+  justify-content:flex-start}
 .mpills::-webkit-scrollbar{display:none}
 .mpill{display:inline-flex; align-items:center; gap:7px; flex:none; height:38px; padding:0 15px;
   border:0; border-radius:99px; color:var(--ink); cursor:pointer; white-space:nowrap;
@@ -4593,6 +4599,9 @@ body.guiding{overflow:hidden}
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 14px 30px -18px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7)}
 .mpill:active{transform:scale(.96)}
 .mpill svg{width:15px; height:15px; color:var(--ink-3)}
+/* a pill that DOES something rather than filtering something */
+.mpill.msave{color:var(--accent-text)}
+.mpill.msave svg{color:var(--accent-text)}
 .mpill b{font:400 12px/1 var(--font-data); color:var(--ink-3)}
 .mpill.on{background:var(--ink); color:#F3EFE6}
 .mpill.on svg, .mpill.on b{color:inherit; opacity:.75}
@@ -4749,6 +4758,21 @@ body.guiding{overflow:hidden}
 .rtnotes{font-size:13px; line-height:1.5; color:var(--ink-2)}
 .rtdate > label{display:block; font-size:12px; color:var(--ink-3); margin-bottom:6px}
 .rtbtns{display:flex; flex-wrap:wrap; gap:7px; align-items:center}
+/* CALLING THE WALK OFF -- its own quiet row under the doing-it buttons.
+   A line above it, so it reads as "and if you are not" rather than as two
+   more things to press. Both are at the 44px floor: Delete cannot be undone
+   and must not be a thumb's width from Postpone. */
+.rtoff{display:flex; flex-wrap:wrap; gap:4px 18px; align-items:center;
+  margin:12px -2px 0; padding-top:4px; border-top:1px solid var(--line)}
+.rtoff .linkbtn{display:inline-flex; align-items:center; gap:7px;
+  min-height:var(--tap); padding:0 2px; font-size:.92rem; color:var(--ink-2)}
+/* Delete is the only one that cannot be undone, so it is the only red one.
+   Two orange links side by side said they were the same kind of thing. */
+.rtoff .linkbtn.danger{color:var(--warn)}
+.rtoff .linkbtn svg{width:var(--i-sm); height:var(--i-sm); flex:none}
+/* the dots come down here rather than wrapping onto a line of their own at
+   the end of the doing-it buttons, where they left 70px of nothing */
+.rtoff .pmenuwrap{margin-left:auto}
 .rtmore{margin-left:auto}
 /* The dots sit at the FOOT of an open route, so the menu opens upward. A menu
    that drops off the bottom of the phone is a menu nobody reaches. */
@@ -9300,6 +9324,8 @@ Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path 
 TI['trophy'] = '<path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>';
 TI['shopping-bag'] = '<path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.965 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z"/><path d="M9 11v-5a3 3 0 0 1 6 0v5"/>';
 TI['minus'] = '<path d="M5 12l14 0"/>';
+/* for Postpone on a route card: a day you can move */
+TI['calendar'] = '<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M9 15h2v2h-2z"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
 TI['arrows-sort'] = '<path d="M3 9l4 -4l4 4"/><path d="M7 5v14"/><path d="M21 15l-4 4l-4 -4"/><path d="M17 19v-14"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
@@ -9551,6 +9577,11 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
           planForm:false, draft:null, planQ:'', list:'wainwright', bannerHidden:false, errHidden:null,
           mapScope:'one', patchFrom:null, diaryForm:false, dDraft:null, planDate:null, planEdit:null, planOpen:null,
           rday:'', rmode:'explore', rq:'', rview:null, rdayPick:false, wxOpen:false, doOpen:[], tagging:null,
+          /* Joe, 9 Oct: "on maps I have multiple routes showing on the map,
+             add a quick toggle to turn off/on the gpx on the live map." On by
+             default -- a route you drew should be there when you go looking
+             for it -- and off is one tap, on the map itself. */
+          mapRoutes:true,
           hikerTab:null, postForm:false, pDraft:null, openComments:null, found:null, mq:'', patchView:'collection', pGroup:'', corkSeed:0, supSide:'', supTodo:false, ascAll:null, ascEdit:null, editDate:null,
           postMenu:null, joinCode:'', peopleView:null, openPost:null, dayOpen:false,
           /* which journal day is unfolded. 0 means "not chosen yet", and the
@@ -18220,7 +18251,13 @@ function yourWayMark(p){
     (way.length > 6 ? ' &rarr; &hellip;' : '') + '</p>';
   else if (e.h && !title) s += '<p class="ywmway">' + esc(hillName(e.h)) + '</p>';
   if (bits.length) s += '<p class="ywmstats">' + bits.map(b => '<b>' + esc(b) + '</b>').join('<i>&middot;</i>') + '</p>';
-  const pics = (typeof dayPhotos === 'function' ? dayPhotos(e.date) : []).slice(0, 8);
+  /* A patch for ONE hill shows that hill's photographs. Only when the hill
+     has none does it fall back to the day, which is still better than an
+     empty strip -- but it is no longer the first answer. The milestone
+     patches ("100 peaks") are a day by their nature and are unchanged. */
+  const own = (key && typeof hillPhotos === 'function') ? hillPhotos(key) : [];
+  const pics = (own.length ? own
+    : (typeof dayPhotos === 'function' ? dayPhotos(e.date) : [])).slice(0, 8);
   if (pics.length) s += '<div class="shots ywmshots">' + pics.map(ph =>
     '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewday" data-d="' + esc(e.date) +
     '" data-p="' + esc(ph.id) + '"' + (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
@@ -18408,11 +18445,27 @@ function renderPatches(listId){
   }
   const got = ps.filter(p => p.got).length;
   let s = '<button class="sect eyelink" data-tab="a">Patches <span>' + got + ' of ' + ps.length + ' earned &rsaquo;</span></button><div class="patchstrip">';
+  /* patchDisc(), LIKE EVERY OTHER PLACE A PATCH IS DRAWN. Joe, 9 Oct, with
+     two screenshots: "patches on 335 are different on home and patch
+     section." Skiddaw was a bare mountain outline on Home and the real
+     badge -- SUMMIT / SKIDDAW / 931 M -- one tap later.
+
+     This built the disc by hand: the picture, then `PATCH_ICONS[p.icon]`,
+     and nothing else. So it drew the glyph INSTEAD OF the badge, which
+     breaks the oldest rule the patches have -- the words are always shown,
+     never the outline on its own -- and it dropped the shape with them, so
+     a Scottish patch was round here and the right shape everywhere else.
+
+     It also carried its own `onerror`, which quietly undid the fix two
+     sections up: artwork missing once was forgotten about by this strip and
+     by nothing else. patchDisc() is the one that remembers, and forgets
+     again on a new version.
+
+     That is the SIXTH place to have hand-rolled a patch and got it wrong.
+     There is one function. It is this one. */
   for (const p of ps.slice(0, 24))
     s += '<button class="patch' + (p.got ? ' got' : '') + '" data-act="openpatch" data-v="' + esc(p.id) + '"' +
-         ' title="' + esc(p.got ? p.label : p.need) + '">' +
-         '<div class="disc"><img class="pimg" src="patches/' + esc(p.id) + '.png" alt="" loading="lazy" ' +
-         'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" onerror="this.remove()">' + PATCH_ICONS[p.icon] + '</div>' +
+         ' title="' + esc(p.got ? p.label : p.need) + '">' + patchDisc(p) +
          '<div class="pl">' + esc(p.label) + '</div></button>';
   return s + '</div>';
 }
@@ -21714,6 +21767,16 @@ function dayWhere(d){
 
 /* Every photo from a day, wherever it was added — the summits you ticked and
    the entry you wrote — as one run. A day is one memory, not four albums. */
+/* THE PHOTOS YOU TOOK ON ONE HILL. Joe, 9 Oct: "why is skiddaw showing
+   images for binsey and latrigg?" -- because the only helper there was
+   gathered a whole DAY, and he had marked all three on 26 Nov 2020.
+   A day is the right unit for "100 peaks". A hill is the right unit for
+   Skiddaw. */
+function hillPhotos(key){
+  const r = rec(key);
+  return ((r && r.photos) || []).filter(Boolean)
+    .map(ph => ({...ph, k:key, from:BY_KEY[key] ? hillName(BY_KEY[key]) : ''}));
+}
 function dayPhotos(dateISO){
   const out = [], seen = new Set();
   for (const [k, r] of Object.entries(state.bagged)){
@@ -22908,7 +22971,8 @@ function drawSearchPin(m, arr){
 function drawMarkers(){
   if (!mapReady || !map) return;
   const lines = [];
-  for (const p of livePlans()){
+  /* the same switch as the Map tab: one toggle, both maps */
+  if (ui.mapRoutes !== false) for (const p of livePlans()){
     if (!p.trk || p.trk.length < 2) continue;
     lines.push(lineFeature(p.trk, {name:p.name || 'Route', sub:prettyDist(trackLength(p.trk)), col:p.walked ? '#2C7BE5' : '#A8431A', w:4, cw:7, dash:0}));
   }
@@ -24014,11 +24078,13 @@ function rmDraw(){
   if (editor){
     const t = editor.trk || [];
     if (t.length > 1) lines.push(lineFeature(t, {name:'', sub:'', col:'#A8431A', w:4.5, cw:8, dash: editor.snap ? 0 : 1}));
-  } else {
+  } else if (ui.mapRoutes !== false){
     /* Every saved route, the way the Hills map has always drawn them. Only the
        route being edited was ever drawn here, so an imported GPX appeared on
        NO map: not here, and not on the Hills map, which could not be opened.
-       The only way to see your own track was to open the editor. */
+       The only way to see your own track was to open the editor.
+       The editor's own line above is never hidden: you cannot draw a route
+       you cannot see. */
     for (const q of livePlans()){
       if (!q.trk || q.trk.length < 2) continue;
       lines.push(lineFeature(q.trk, {name:q.name || 'Route', sub:prettyDist(trackLength(q.trk)),
@@ -25189,6 +25255,19 @@ function mapPillsHTML(){
     ' aria-expanded="' + !!ui.listOpen + '">' + esc(pillLbl) + pillNum + '</button>';
   s += '<button class="mpill' + (ui.dayOpen ? ' on' : '') + '" data-act="dayfold"' +
     ' aria-expanded="' + !!ui.dayOpen + '">' + ti('cloud') + esc(dayLbl) + '</button>';
+  /* KEEP OFFLINE, WHERE IT CAN BE SEEN. Joe, 9 Oct: "add a more obvious save
+     offline button next to pick a day." It existed -- as a bare download
+     arrow in the corner of the map, unlabelled, which nobody reads as "keep
+     this for the hill where there is no signal". Named, and next to the day,
+     which is the other thing you set before you leave the house. */
+  if (sheetsOk())
+    s += '<button class="mpill msave" data-act="mapsave">' + ti('download') + 'Save offline</button>';
+  /* ROUTES ON OR OFF. Only offered when there is something to hide. */
+  const trks = livePlans().filter(q => q.trk && q.trk.length > 1).length;
+  if (trks)
+    s += '<button class="mpill' + (ui.mapRoutes !== false ? ' on' : '') + '" data-act="maproutes"' +
+      ' aria-pressed="' + (ui.mapRoutes !== false) + '">' + ti('route') +
+      (ui.mapRoutes !== false ? 'Routes' : 'Routes off') + '<b>' + trks + '</b></button>';
   s += '</div>';
   s += '<div class="mmenu mleft mlistmenu"' + (ui.listOpen ? '' : ' hidden') + '>' +
     '<p class="mh">Which hills</p>' + mapListBar() + '</div>';
@@ -25382,18 +25461,36 @@ function routeOpenHTML(p, hs, done, walked, pts){
     s += '<button class="btn ghost" data-act="bagall" data-id="' + esc(id) + '">Mark all ' + hs.length + '</button>';
   if (coarsePointer() && pts > 1)
     s += '<button class="btn ghost" data-act="guide" data-id="' + esc(id) + '">' + ti('current-location') + 'Follow on the hill</button>';
+  s += '</div>';
+  /* CALLING OFF A WALK. Joe, 9 Oct: "for a planned route there is no option to
+     essentially unplan the route, delete or postpone."
+
+     Both of these DID exist -- behind the dots above, at the bottom of a route
+     you had to open first. Two taps and a guess. They are named and on the
+     card now, and they have come OUT of the menu: the same thing in two places
+     is how two places end up doing different things.
+
+     Postpone only appears once there IS a date. Without one the date fields
+     are already open further up this card, so a button to reach them would
+     point at itself. */
+  s += '<div class="rtoff">';
+  if (p.date) s += '<button class="linkbtn" data-act="plandate" data-id="' + esc(id) + '">' +
+    ti('calendar') + 'Postpone</button>';
+  s += '<button class="linkbtn danger" data-act="delplan" data-id="' + esc(id) + '">' +
+    ti('trash') + 'Delete</button>';
   s += '<div class="pmenuwrap rtmore">' +
     '<button class="iconbtn pmenu" data-act="postmenu" data-id="' + esc(mk) + '" aria-haspopup="menu" aria-expanded="' + mOpen +
       '" aria-label="More for this route">' + ti('dots') + '</button>' +
     (mOpen ? '<div class="pmenubox" role="menu">' + routeMenuHTML(p, hs, pts) + '</div>' : '') +
     '</div>';
-  return s + '</div></div>';
+  s += '</div>';
+  return s + '</div>';
 }
 /* Everything a route can do that is not the thing you came to do. */
 function routeMenuHTML(p, hs, pts){
   const id = esc(p.id);
+  /* Postpone and Delete are on the card itself now, not in here. */
   let s = '<button role="menuitem" data-act="planrename" data-id="' + id + '">' + ti('pencil') + 'Rename</button>';
-  if (p.date) s += '<button role="menuitem" data-act="plandate" data-id="' + id + '">' + ti('cloud') + 'Change the date</button>';
   if (pts > 1) s += '<button role="menuitem" data-act="editroute" data-id="' + id + '">' + ti('route') + 'Edit on the map</button>';
   if (hs.length > 1)
     s += '<button role="menuitem" data-act="autoroute" data-id="' + id + '"' + (routingBusy ? ' disabled' : '') + '>' +
@@ -25408,8 +25505,7 @@ function routeMenuHTML(p, hs, pts){
     '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + id + '" class="filein"></label>';
   if (pts || hs.length) s += '<button role="menuitem" data-act="gpxout" data-id="' + id + '">' + ti('download') + 'Download GPX</button>';
   if (pts) s += '<button role="menuitem" data-act="cleartrk" data-id="' + id + '">' + ti('mountain-off') + 'Remove the track</button>';
-  return s + '<i class="msep"></i><button role="menuitem" class="danger" data-act="delplan" data-id="' + id +
-    '">' + ti('trash') + 'Delete</button>';
+  return s;
 }
 
 /* Search: the app's own hills first, because that is instant and works with no
@@ -25803,7 +25899,17 @@ document.addEventListener('click', async e => {
        and thirty-six of them with yours somewhere in the middle. Height,
        map, your ascents, photos and notes, and nothing on the screen asking
        you to mark it. */
-    openInfo(el.dataset.k);
+    /* AND THE SEARCH CLOSES BEHIND YOU. Joe, 9 Oct: "when you type 'latrigg'
+       in the search bar the letters and list stays here untill you delete the
+       words, this is jarring now how search bars normally work."
+       Picking a result is the end of the search, so the box empties and the
+       list goes, the way every other search box behaves. */
+    const k = el.dataset.k;
+    ui.mq = '';
+    const box = document.getElementById('mq');
+    if (box){ box.value = ''; box.blur(); }
+    render();
+    openInfo(k);
   }
   else if (a === 'pdmap'){
     const hs = String(el.dataset.v || '').split(',').map(k => BY_KEY[k]).filter(Boolean);
@@ -27363,6 +27469,20 @@ document.addEventListener('click', async e => {
     ui.rdayPick = false;
     render();
   }
+  else if (a === 'maproutes'){
+    ui.mapRoutes = ui.mapRoutes === false;
+    render();
+    if (rmap) rmDraw();
+    if (mapReady) drawMarkers();
+    toast(ui.mapRoutes ? 'Routes shown.' : 'Routes hidden.');
+  }
+  else if (a === 'mapsave'){
+    /* the same save the little arrow in the corner did, said out loud */
+    saveSheet();
+    ui.layersOpen = true; render();
+    const el = document.getElementById('sheets');
+    if (el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
   else if (a === 'rdayother'){ ui.rdayPick = !ui.rdayPick; render(); }
   else if (a === 'rdayclose'){ ui.rdayPick = false; render(); }
   else if (a === 'wxmore'){
@@ -27446,13 +27566,32 @@ document.addEventListener('click', async e => {
     const pts = (p.trk || []).length, hs = (p.hills || []).length;
     const what = [pts > 1 ? 'the line you drew' : '', hs ? hs + (hs === 1 ? ' hill on it' : ' hills on it') : '']
       .filter(Boolean).join(' and ');
+    /* THE UNPLAN, ASKED RATHER THAN GUESSED. Joe wanted a way to say "I am not
+       doing this walk" without it meaning "I am never doing these hills".
+       Deleting the route is one thing; the hills it put on your plans are
+       another, and they stay on your lists and your map until something takes
+       them off. So it is one question with a tick rather than a third button
+       nobody reads: on by default, because calling off the walk is usually
+       calling off the plan, and one press away from keeping them.
+
+       Only hills still sitting at `planned` are counted. A summit you have
+       already marked is a fact and nothing here touches it. */
+    const stillPlanned = (p.hills || []).filter(k => stateOf(k) === 'planned');
+    const n = stillPlanned.length;
     if (!await confirmAsk({
       title: 'Delete ' + (p.name ? '\u201c' + p.name + '\u201d' : 'this route') + '?',
       body: (what ? 'This takes ' + what + ' with it. ' : '') +
             'Any summits you have already marked stay in your log. This cannot be undone.',
-      yes: 'Delete', no: 'Keep it'})) return;
+      yes: 'Delete', no: 'Keep it',
+      tick: n ? {label: 'Also take ' + (n === 1 ? 'this hill' : 'these ' + n + ' hills') + ' off your plans',
+                 sub: n === 1 ? 'It stops showing as planned on your lists and the map.'
+                              : 'They stop showing as planned on your lists and the map.',
+                 on: true} : null})) return;
+    const unplan = n ? askTicked() : false;
     p.deleted = true; p.t = now();
-    touched(); render(); toast('Route deleted.');
+    if (unplan) for (const k of stillPlanned) setState(k, 'none');
+    touched(); render();
+    toast('Route deleted.' + (unplan ? ' ' + n + (n === 1 ? ' hill' : ' hills') + ' off your plans.' : ''));
   }
   else if (a === 'wxretry'){
     const p2 = planById(el.dataset.id); if (!p2) return;
@@ -29667,9 +29806,21 @@ function paintInfo(){
          (v.img ? '. The photograph is from Wikimedia Commons; its author and licence are on the article page.' : '') + '</p>';
   }
 
-  if (on && (r.date || r.notes)){
+  /* YOUR OWN DAY ON IT, PHOTOGRAPHS AND ALL. Joe, 9 Oct: "when you search a
+     peak that is marked in the search bar it should take you to the entry so
+     you can see the photos you have added."
+     This showed the date and your note and stopped -- so the one thing worth
+     coming back for was the one thing missing. The pictures are already on
+     the hill's own record; they were simply never drawn here. */
+  const myPics = on ? (typeof hillPhotos === 'function' ? hillPhotos(h.k) : []) : [];
+  if (on && (r.date || r.notes || myPics.length)){
     s += '<h3>Your log</h3>';
     if (r.date) s += '<p class="istats">Marked ' + esc(prettyDate(r.date)) + '</p>';
+    if (myPics.length) s += '<div class="shots ishots">' + myPics.slice(0, 8).map(ph =>
+      '<button class="shot' + (ph.cap ? ' hascap' : '') + '" data-act="viewday" data-d="' + esc(r.date || '') +
+      '" data-p="' + esc(ph.id) + '"' + (ph.cap ? ' title="' + esc(ph.cap) + '"' : '') + '>' +
+      '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' +
+      (ph.cap ? '<span class="shotcap">' + esc(ph.cap) + '</span>' : '') + '</button>').join('') + '</div>';
     if (r.notes) s += '<p class="iex">' + esc(r.notes) + '</p>';
   }
   /* Everything any group has asked about this hill. The reason to build talk
@@ -32697,7 +32848,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v335';
+const APP_VERSION = 'v336';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
