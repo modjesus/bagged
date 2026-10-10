@@ -3359,10 +3359,14 @@ button.bstriprow{cursor:pointer}
 /* ---- WHERE I AM -------------------------------------------------------
    Under the search box, not instead of it: the search is what you use in the
    pub and on the sofa; this is for the one moment the phone knows better. */
-/* the pair sits on one line at 390px; each half is still well over 44px */
+/* EACH BUTTON SIZES TO ITS OWN LABEL. At `flex:1 1 0` they were forced to
+   equal halves -- 139px of room for text -- and "I've climbed a hill" measures
+   140px. One pixel. Rather than shorten the words to fit the box, the box
+   gives way: `flex:1 1 auto` starts each from its content and shares the
+   slack, so the longer label simply gets the wider button. */
 .markrow{display:flex; gap:8px; margin-top:8px}
 .herebtn{display:flex; align-items:center; justify-content:center; gap:6px;
-  flex:1 1 0; min-width:0; min-height:var(--tap); background:var(--raise);
+  flex:1 1 auto; min-width:0; min-height:var(--tap); background:var(--raise);
   border:1.5px solid var(--accent); border-radius:12px; color:var(--accent-text);
   font:700 14px var(--font-ui); cursor:pointer; padding:0 8px}
 .herebtn span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
@@ -3371,8 +3375,10 @@ button.bstriprow{cursor:pointer}
 .herebtn.backfill{border-color:var(--line); color:var(--ink-2)}
 .herebtn.backfill svg{color:var(--ink-3)}
 .herebtn svg{width:16px; height:16px; flex:none}
-/* a very narrow phone stacks them rather than squeezing the words */
-@media (max-width:339px){ .markrow{flex-direction:column} }
+/* a narrow phone stacks them rather than squeezing the words. 359, not 339:
+   the two labels need 303px of content and a 340px screen leaves 306 -- three
+   pixels is not headroom, it is luck. */
+@media (max-width:359px){ .markrow{flex-direction:column} }
 .herebtn:disabled{opacity:.7}
 .herebtn:disabled svg{animation:spin 1.1s linear infinite}
 @media (prefers-reduced-motion: reduce){ .herebtn:disabled svg{animation:none} }
@@ -4210,12 +4216,33 @@ li.done{position:relative}
 
 /* ---- the cover number, now a door ---- */
 .coverdoor{display:block; width:100%; text-align:left; background:none; border:0;
-  padding:0; font:inherit; color:inherit; cursor:pointer}
+  padding:0; margin:0; font:inherit; color:inherit; cursor:pointer}
+/* The sub-line sets its own 14-16px top margin, which would collapse with
+   anything the button put below itself -- so the gap under the pill is set
+   HERE, where nothing can collapse it away. Joe: "half the spacing". */
+.coverdoor + .coversub{margin-top:11px}
 .coverdoor h1{margin:0}
-.coverall{display:inline-flex; align-items:center; gap:2px; margin-top:7px;
-  font:800 12.5px var(--font-ui); letter-spacing:.02em; color:var(--accent-text)}
-.coverall svg{width:16px; height:16px; flex:none; transition:transform .14s}
+/* A PILL, NOT A LINE OF TEXT. Joe, 10 Oct: '"all your summits" isnt clear
+   enough that its a button'. He was right, and over a photograph it was worse
+   than unclear -- orange text on a dark photo is exactly what the big number
+   above it is, so the one thing on the cover you can press looked like the one
+   thing you cannot. Option C of five, chosen from a drawing laid over his own
+   screenshots: a soft fill with a hairline, quiet enough not to fight the
+   number, shaped plainly enough to read as a control.
+   The air around it is his too: "more spacing above and below". */
+.coverall{display:inline-flex; align-items:center; gap:3px; margin:12px 0 0;
+  min-height:33px; padding:0 8px 0 12px; border-radius:17px;
+  background:var(--ground); border:1px solid var(--line); color:var(--ink);
+  font:700 13px var(--font-ui); letter-spacing:0}
+.coverall svg{width:16px; height:16px; flex:none; margin-right:-1px;
+  color:var(--accent-text); transition:transform .14s}
 .coverdoor:hover .coverall svg, .coverdoor:focus-visible .coverall svg{transform:translateX(2px)}
+.coverdoor:active .coverall{background:var(--surface-2)}
+/* over a photograph the pill has to be a surface, not a tint: at anything less
+   than opaque the photo reads straight through it and it stops being an object */
+.cover-hero .coverall{background:rgba(248,243,233,.96); border-color:rgba(246,239,228,.95);
+  color:var(--ink); box-shadow:0 1px 6px rgba(0,0,0,.22)}
+.cover-hero .coverall svg{color:var(--accent)}
 @media (prefers-reduced-motion: reduce){
   .sheetwrap, .sumsheet{animation:none}
   .coverall svg{transition:none}
@@ -19309,7 +19336,7 @@ function render(){
   paintNav();
   /* the summits sheets, painted into their body-level host every render */
   try{
-    /* NOT gated on ui.summits any more: "I've been up it" opens the add sheet
+    /* NOT gated on ui.summits any more: "I've climbed a hill" opens the sheet
        straight from Home. Each builder already returns '' when its own state
        is off, so the gate was doing nothing but hiding the sheet. */
     const sh = document.getElementById('sumhost');
@@ -21444,12 +21471,14 @@ const HERE_NEAR = 1610;   /* a mile -- the rest of a round */
 function hereBtnHTML(){
   if (ui.here && ui.here.hills) return '';
   const busy = ui.here && ui.here.busy;
+  /* "I'm on it now" leaned on the search box above it to make sense of "it".
+     On day one, with no context, it does not. Named plainly instead. */
   return '<div class="markrow">' +
     '<button class="herebtn" data-act="here"' + (busy ? ' disabled' : '') + '>' +
       ti('current-location') +
-      '<span>' + (busy ? 'Finding you\u2026' : 'I\u2019m on it now') + '</span></button>' +
+      '<span>' + (busy ? 'Finding you\u2026' : 'I\u2019m on a hill') + '</span></button>' +
     '<button class="herebtn backfill" data-act="sumaddopen">' +
-      ti('notebook') + '<span>I\u2019ve been up it</span></button>' +
+      ti('notebook') + '<span>I\u2019ve climbed a hill</span></button>' +
   '</div>';
 }
 /* every summit within a mile, nearest first, with the one underfoot marked */
@@ -30430,8 +30459,11 @@ function ownHTML(){
   s += '<div class="btnrow" style="margin:0">' +
     '<button class="btn" data-act="ownadd"' + (ready ? '' : ' disabled') + '>' +
       (ready ? 'Add it' : 'Pick one') + '</button>' +
+    /* NOT "I'm on a hill" -- that is Home's button, and it FINDS a hill.
+       This one SETS the position of a peak you are already naming. Same icon,
+       same GPS, different job; they must not read the same. */
     (u.here ? '' : '<button class="btn quiet" data-act="ownhere">' +
-      ti('current-location', 'width="15" height="15"') + 'I’m on it now</button>') +
+      ti('current-location', 'width="15" height="15"') + 'Use where I am</button>') +
     (u.here ? '' : '<button class="btn quiet" data-act="ownpin">' +
       ti('map-pin', 'width="15" height="15"') + 'Point to it on the map</button>') +
     '</div>';
@@ -34065,7 +34097,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v340';
+const APP_VERSION = 'v341';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
