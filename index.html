@@ -3359,11 +3359,20 @@ button.bstriprow{cursor:pointer}
 /* ---- WHERE I AM -------------------------------------------------------
    Under the search box, not instead of it: the search is what you use in the
    pub and on the sofa; this is for the one moment the phone knows better. */
-.herebtn{display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
-  min-height:var(--tap); margin-top:8px; background:var(--raise);
+/* the pair sits on one line at 390px; each half is still well over 44px */
+.markrow{display:flex; gap:8px; margin-top:8px}
+.herebtn{display:flex; align-items:center; justify-content:center; gap:6px;
+  flex:1 1 0; min-width:0; min-height:var(--tap); background:var(--raise);
   border:1.5px solid var(--accent); border-radius:12px; color:var(--accent-text);
-  font:700 14.5px var(--font-ui); cursor:pointer}
-.herebtn svg{width:17px; height:17px; flex:none}
+  font:700 14px var(--font-ui); cursor:pointer; padding:0 8px}
+.herebtn span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* the one you are NOT doing right now is the quieter of the two: standing on
+   a summit is the moment the app exists for, and it leads */
+.herebtn.backfill{border-color:var(--line); color:var(--ink-2)}
+.herebtn.backfill svg{color:var(--ink-3)}
+.herebtn svg{width:16px; height:16px; flex:none}
+/* a very narrow phone stacks them rather than squeezing the words */
+@media (max-width:339px){ .markrow{flex-direction:column} }
 .herebtn:disabled{opacity:.7}
 .herebtn:disabled svg{animation:spin 1.1s linear infinite}
 @media (prefers-reduced-motion: reduce){ .herebtn:disabled svg{animation:none} }
@@ -4709,6 +4718,13 @@ p.sumlabel{clip-path:none; padding:7px 16px 6px}
 .leadwrap.hero .leadshot::before{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,51,45,.82) 0%, rgba(20,51,45,.55) 34%, rgba(20,51,45,0) 62%, rgba(20,51,45,.55) 100%); pointer-events:none}
 .leadwrap.hero .leadshot img{filter:contrast(1.06) saturate(.92)}
 .cover-hero{position:absolute; left:0; right:0; top:0; padding:20px 18px 0; pointer-events:none; color:#F3EFE6}
+/* ...BUT THE DOOR IS A BUTTON. Joe, 10 Oct: "all your summits, doesnt work
+   when you have a photo on the homescreen." The cover over a photo is
+   pointer-events:none on purpose, so a tap anywhere on it reaches the
+   photograph underneath -- and my button inherited that and did nothing at
+   all. It takes its own taps back; everything else on the cover still passes
+   through. */
+.cover-hero .coverdoor{pointer-events:auto}
 .cover-hero .coverline{color:#F3EFE6}
 .cover-hero .coverline i{background:#F3EFE6}
 .cover-hero h1{color:#A8431A; text-shadow:0 1px 0 rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.35); font-size:clamp(40px, 11.5vw, 84px)}
@@ -19293,8 +19309,11 @@ function render(){
   paintNav();
   /* the summits sheets, painted into their body-level host every render */
   try{
+    /* NOT gated on ui.summits any more: "I've been up it" opens the add sheet
+       straight from Home. Each builder already returns '' when its own state
+       is off, so the gate was doing nothing but hiding the sheet. */
     const sh = document.getElementById('sumhost');
-    if (sh) sh.innerHTML = (ui.summits ? sumEditHTML() + sumAddHTML() : '');
+    if (sh) sh.innerHTML = sumEditHTML() + sumAddHTML();
   }catch(e){}
   document.documentElement.dataset.screen = tab;   /* not data-tab: clicks look for [data-tab] */
   document.documentElement.dataset.shop = tab === 'a' && ui.patchView === 'supplies' ? '1' : '';
@@ -21414,12 +21433,24 @@ function markBar(ph){
    where there are no bars. See claude/32-SPEC-quick-mark-and-your-summits. */
 const HERE_ON = 250;      /* within this, you are standing on it */
 const HERE_NEAR = 1610;   /* a mile -- the rest of a round */
+/* TWO BUTTONS, NOT ONE. Joe, 10 Oct: '"where am I" needs renaming to
+   something like I am on a hill - mark it' and "there needs to be a button
+   next to [it] that people can use to mark a hill when they arent on it."
+
+   "Where I am" named the MACHINE'S job -- find my position -- when the
+   walker's job is to mark a hill. Both buttons now say what the walker is
+   doing, in his own voice, and the pair makes the choice plain: are you up
+   it now, or writing up one you did before. */
 function hereBtnHTML(){
   if (ui.here && ui.here.hills) return '';
   const busy = ui.here && ui.here.busy;
-  return '<button class="herebtn" data-act="here"' + (busy ? ' disabled' : '') + '>' +
-    ti(busy ? 'current-location' : 'current-location') +
-    (busy ? 'Finding you\u2026' : 'Where I am') + '</button>';
+  return '<div class="markrow">' +
+    '<button class="herebtn" data-act="here"' + (busy ? ' disabled' : '') + '>' +
+      ti('current-location') +
+      '<span>' + (busy ? 'Finding you\u2026' : 'I\u2019m on it now') + '</span></button>' +
+    '<button class="herebtn backfill" data-act="sumaddopen">' +
+      ti('notebook') + '<span>I\u2019ve been up it</span></button>' +
+  '</div>';
 }
 /* every summit within a mile, nearest first, with the one underfoot marked */
 function hillsAround(lat, lon){
@@ -34034,7 +34065,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v339';
+const APP_VERSION = 'v340';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
