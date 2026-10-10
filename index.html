@@ -6567,6 +6567,19 @@ span.pshow{cursor:default}
 .bnav .navbtn[aria-selected="true"] .ni, .bnav .navbtn.homebtn[aria-selected="true"] .ni{background:rgba(243,239,230,.14); color:#F3EFE6; opacity:1}
 .bnav .navbtn .nl{font-size:11.5px}
 .bnav .navbtn[aria-selected="true"] .nl, .bnav .navbtn.homebtn[aria-selected="true"] .nl{color:#F3EFE6; font-weight:700}
+/* THE ONE LABEL THAT WILL NOT FIT A SMALL PHONE. Measured, not guessed:
+   "Basecamp" is 61px of word and a tab is 58px wide inside at 320px, so the
+   permanent navigation read "Basecam…". The whole row steps down together
+   rather than leaving one odd label out, and the pill narrows with it so the
+   glyphs stay centred over their words. At 360 and up nothing changes. */
+@media (max-width:359px){
+  /* and the SELECTED label is the one that has to fit: it is drawn at 700, which
+     is what put 60px of "Basecamp" in a 58px tab. 10px bold measures 57 in a
+     61px tab, so the word fits whichever tab you are standing on. */
+  .bnav{padding-left:2px; padding-right:2px; gap:0}
+  .bnav .navbtn .nl{font-size:10px; letter-spacing:0}
+  .bnav .navbtn .ni, .bnav .navbtn.homebtn .ni{padding:5px 15px}
+}
 .bnav .navbtn:active .ni{transform:scale(.94)}
 /* desktop sidebar: same idea, a soft pill rather than a boxed tile */
 .side .navbtn[aria-selected="true"]{background:rgba(243,239,230,.1); border-color:transparent; box-shadow:none}
@@ -6589,6 +6602,24 @@ span.pshow{cursor:default}
 .lchip b, .lchip[aria-pressed="true"] b,
 :root[data-theme="dark"] .lchip[aria-pressed="true"] b, :root:not([data-theme="light"]) .lchip[aria-pressed="true"] b{color:inherit; opacity:.7; font-family:var(--font-ui); font-weight:600}
 .lchip.add{background:transparent; box-shadow:inset 0 0 0 1px var(--line); border-style:solid}
+/* THE CHIPS THAT WERE NOT THERE. 463px of chips in a 362px row, so at 390px
+   "Challenges" and "Milestones" sat off the right edge with nothing to say the
+   row could be pushed. This is the treatment the app already uses for exactly
+   that -- .ract, the route card's actions: snap, and a fade at the edge it
+   scrolls from.
+
+   THE 36px HEIGHT IS LEFT ALONE ON PURPOSE. --ctl-sm says "chips and filters
+   -- never on their own", and that test holds here: every section on Basecamp
+   carries its own "See all 30 ›". Raising it means raising every chip in the
+   app, which changes how six screens look, so it is Joe's call with a picture
+   in front of him, not a fix smuggled in under a bug. */
+.listbar{-webkit-overflow-scrolling:touch; scroll-snap-type:x proximity}
+.listbar .lchip{scroll-snap-align:start}
+.listbar.pfilter{-webkit-mask-image:linear-gradient(to right, #000 calc(100% - 22px), transparent 100%);
+  mask-image:linear-gradient(to right, #000 calc(100% - 22px), transparent 100%)}
+/* the map's menu wraps its chips instead of scrolling, so there is no edge to
+   fade and nothing hidden to hint at */
+.mmenu .listbar{-webkit-mask-image:none; mask-image:none}
 
 /* ---- one card: soft, raised, no rail ---- */
 .nextpatch, .np2, .dday, section.journey, .dcard, .lead .nextpatch.big{border:0; border-left:0; border-radius:var(--r-card); background:var(--raise); box-shadow:var(--shadow-1)}
@@ -9011,7 +9042,9 @@ html.kbopen .cvcompose{padding-bottom:8px}
 :root{
   --ctl-lg:48px;   /* one per screen, the thing to do */
   --ctl-md:44px;   /* everything else, and the tap-target floor */
-  --ctl-sm:36px;   /* chips and filters — never on their own */
+  /* --ctl-sm:36px was "chips and filters — never on their own". Retired
+     10 Oct: Joe chose the 44px floor for everything a thumb presses, so
+     there is no small size to reach for. Deliberately not left defined. */
   --ctl-ico:44px;  /* icon-only: top bar, ⋯, close */
   --ctl-t-lg:15px; --ctl-t-md:13.5px; --ctl-t-sm:12.5px;
 }
@@ -9034,9 +9067,14 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .banner .btn.sm{min-height:var(--ctl-md)}
 
 /* ---- chips: the small size, and the only thing that uses it ---- */
+/* 44, NOT 36. --ctl-sm used to allow a chip under the floor on the argument
+   that a chip is "never on its own". Joe's call, 10 Oct, looking at both
+   rendered side by side: the floor applies to everything a thumb presses.
+   Nothing uses --ctl-sm as a height any more, so it is gone from the block
+   above rather than left sitting there to be picked up again. */
 .chip, .lchip, .lchip.add, .pinechip{
   display:inline-flex; align-items:center; gap:6px;
-  min-height:var(--ctl-sm); border-radius:999px; padding:0 13px;
+  min-height:var(--ctl-md); border-radius:999px; padding:0 13px;
   font-size:var(--ctl-t-sm); line-height:1.15}
 
 /* ---- icon-only: a circle, and a real target ----
@@ -9065,6 +9103,11 @@ html.kbopen .cvcompose{padding-bottom:8px}
     height:var(--ctl-ico); min-height:var(--ctl-ico);
     width:var(--ctl-ico); min-width:var(--ctl-ico)}
 }
+/* "Try again" after a lookup that could not reach Wikipedia. 38px as a plain
+   link, and unlike a chip it IS on its own -- it is the only way to ask again
+   -- so it takes the floor. Sized by the action, the way [data-act="mlocate"]
+   is, because the same link style is used in a dozen places that are not this. */
+[data-act="wikiagain"]{min-height:var(--ctl-md); display:inline-flex; align-items:center}
 
 /* The profile's two buttons had their own 14.5px with 10px of side padding,
    which is why "Share my year" broke onto a second line inside its pill
@@ -9215,7 +9258,9 @@ html.kbopen .cvcompose{padding-bottom:8px}
 /* the two offers are spans inside a label, so they need the shape as well */
 .impcta, .imphomecta{display:inline-flex; align-items:center; justify-content:center;
   border-radius:999px; min-height:var(--ctl-md); padding:0 16px}
-.imphomecta{min-height:var(--ctl-sm); padding:0 13px}
+/* "Choose" on the photo row: 36px, and it is the only way to act on that
+   row. It goes up with the chips. */
+.imphomecta{min-height:var(--ctl-md); padding:0 13px}
 
 
 /* ---------- A GUARD, NOT A FIX ----------
@@ -27565,6 +27610,14 @@ document.addEventListener('click', async e => {
       if (lab) lab.textContent = webOpen ? 'Hide the introduction' : 'What is WayMark?';
     }
   }
+  /* Ask Wikipedia again, now that there might be a signal. Forgetting the
+     failed lookup first is the whole job -- openInfo() would otherwise hand
+     back the same miss it already has. */
+  else if (a === 'wikiagain'){
+    const k = el.dataset.k;
+    delete wikiMem[k];
+    openInfo(k);
+  }
   else if (a === 'infolist'){
     const id = el.dataset.v;
     if (!LIST_BY[id]) return;
@@ -31212,6 +31265,22 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTagline
 
 /* ---------- Wikipedia lookup ---------- */
 const WIKI_TTL = 120 * 864e5;          // remember an article for ~4 months
+/* A MISS IS NOT A FACT THE WAY A HIT IS.
+
+   "No article could be matched" used to be written down for the same four
+   months as an article, and fetch cannot tell a dropped connection from a
+   server saying no -- so ONE tap in a car park with no bars blanked that
+   summit's page until February, on an app whose own front card says it opens
+   with no signal at all. Worse, it blamed its own data for the phone's
+   signal.
+
+   Two rules now. A miss is only ever written down when Wikipedia actually
+   answered (wikiReached), and even then it is asked again after a fortnight,
+   because articles get written. The shorter life also heals the misses
+   already sitting in localStorage from before this was fixed: anything older
+   than a fortnight is thrown away on the next read. */
+const WIKI_NONE_TTL = 14 * 864e5;
+let wikiReached = false;
 const wikiMem = {};
 let wikiOpen = null, wikiBusy = false;
 
@@ -31225,6 +31294,7 @@ async function wikiSummary(title){
   try{
     const r = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' +
       encodeURIComponent(title.replace(/ /g,'_')) + '?redirect=true', {headers:{'Accept':'application/json'}});
+    wikiReached = true;      // it answered. Whatever it said, this phone has signal
     if (!r.ok) return null;
     return await r.json();
   }catch(e){ return null; }
@@ -31234,6 +31304,7 @@ async function wikiSearch(term){
     const u = 'https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=5&format=json&origin=*&srsearch=' +
       encodeURIComponent(term);
     const r = await fetch(u);
+    wikiReached = true;      // same here: a reply, not a guess about the network
     if (!r.ok) return [];
     const j = await r.json();
     return ((j.query && j.query.search) || []).map(x => x.title);
@@ -31268,14 +31339,17 @@ function wikiSave(h, v){
   return v;
 }
 async function wikiLookup(h){
-  if (wikiMem[h.k]) return wikiMem[h.k];
+  /* an offline miss is NOT an answer -- ask again next time the card opens */
+  const mem = wikiMem[h.k];
+  if (mem && !mem.off) return mem;
   try{
     const raw = localStorage.getItem('bagged.wiki.' + h.k);
     if (raw){
       const v = JSON.parse(raw);
-      if (v && now() - v.t < WIKI_TTL){ wikiMem[h.k] = v; return v; }
+      if (v && now() - v.t < (v.none ? WIKI_NONE_TTL : WIKI_TTL)){ wikiMem[h.k] = v; return v; }
     }
   }catch(e){}
+  wikiReached = false;
 
   const tries = [h.n];
   if (h.w && h.w !== h.n) tries.push(h.w);
@@ -31293,6 +31367,9 @@ async function wikiLookup(h){
     const r = await wikiSummary(t);
     if (wikiMatches(r, h)) return wikiSave(h, wikiPack(r));
   }
+  /* Nothing matched. If Wikipedia never answered, that is this phone's signal
+     and not a fact about the hill: say so, write nothing down, ask again. */
+  if (!wikiReached) return (wikiMem[h.k] = {t: now(), none: true, off: true});
   return wikiSave(h, {t: now(), none: true});
 }
 
@@ -31396,6 +31473,12 @@ function paintInfo(){
          ' · <a href="' + esc(wq.s) + '" target="_blank" rel="noopener">where this is quoted</a></cite></div>';
   }
   if (wikiBusy && !v) s += '<p class="empty" style="padding:20px">Looking it up…</p>';
+  /* THE HONEST MESSAGE. Blaming the data for the network is what made one tap
+     with no bars look like a hill WayMark knows nothing about. */
+  else if (v && v.off)
+    s += '<p>Wikipedia could not be reached. That is the signal, not the hill — ' +
+         'everything above is on this phone and works with none.</p>' +
+         '<p><button class="linkbtn" data-act="wikiagain" data-k="' + esc(h.k) + '">Try again</button></p>';
   else if (!v || v.none)
     s += '<p>No Wikipedia article could be matched to this summit with confidence. Rather than risk showing you the wrong place, it shows nothing.</p>' +
          '<p><a href="https://en.wikipedia.org/w/index.php?search=' + encodeURIComponent(h.n) + '" target="_blank" rel="noopener">Search Wikipedia yourself</a></p>';
@@ -34464,7 +34547,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v346';
+const APP_VERSION = 'v347';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
