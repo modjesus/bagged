@@ -4160,18 +4160,38 @@ li.done{position:relative}
 .sumpen:hover::after, .sumpen:focus-visible::after{background:var(--surface-2)}
 
 /* ---- the two sheets ---- */
-/* ABOVE THE BOTTOM BAR. .bnav is z-index 850; at 70 the sheet opened behind
-   it -- the screen dimmed and nothing appeared. Caught by looking at a
-   screenshot, not by a test: every selector it asserted on was present. */
-.sheetwrap{position:fixed; inset:0; z-index:2150; background:rgba(20,51,45,.44);
+/* ABOVE THE BOTTOM BAR (.bnav is 850) BUT BELOW THE APP'S OWN DIALOGS.
+   `.sheet` -- the date question and the confirm -- is 2100. At 2150 this sat
+   ON TOP of them: marking a hill opened the date question UNDERNEATH this
+   sheet, where it could not be reached or dismissed. 2050 keeps it over the
+   navigation and under every dialog, so that trap cannot be set again even
+   if a close fails. */
+.sheetwrap{position:fixed; left:0; right:0; top:var(--vvt, 0px); z-index:2050;
+  height:var(--vvh, 100vh);
+  background:rgba(20,51,45,.44);
   display:flex; align-items:flex-end; justify-content:center;
   animation:sumfade .16s ease both; padding:0}
 @keyframes sumfade{from{opacity:0}to{opacity:1}}
+/* THE SHEET MUST NEVER BE TALLER THAN THE SCREEN. Joe, 10 Oct, with a
+   photograph: "the cross/exit is unresponsive and doesnt work". It was not
+   unresponsive -- it was OFF THE TOP OF THE SCREEN. Eight results plus three
+   rows made the sheet taller than the phone, and anchored to the bottom the
+   whole head scrolled out of sight. With the keyboard up there was less room
+   still. A control you cannot reach is worse than one that is missing,
+   because you keep pressing where it ought to be. He force-quit the app.
+
+   So: the sheet is capped to the VISUAL viewport (the bit not covered by the
+   keyboard), the head is pinned, and only the middle scrolls. */
 .sumsheet{width:100%; max-width:520px; background:var(--raise);
   border-radius:18px 18px 0 0; border:1px solid var(--line); border-bottom:0;
   box-shadow:0 -8px 30px rgba(20,51,45,.26); overflow:hidden;
+  display:flex; flex-direction:column;
+  max-height:calc(var(--vvh, 100vh) - 20px);
   padding-bottom:max(10px, env(safe-area-inset-bottom));
   animation:sumup .2s cubic-bezier(.3,0,.2,1) both}
+.sumsheet > .sumtop, .sumsheet > .sumsub, .sumsheet > .sumfield{flex:none}
+.sumbody{flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain}
 @keyframes sumup{from{transform:translateY(22px)}to{transform:translateY(0)}}
 /* NOT .shhead / .shsub / .sheet -- all three already exist elsewhere in this
    file, and `.sheet` is `position:fixed; inset:0; display:none`, which is why
@@ -4216,7 +4236,7 @@ li.done{position:relative}
 .sumfield input::placeholder{color:var(--ink-3)}
 .sumfield input::-webkit-search-cancel-button{-webkit-appearance:none}
 
-.sumhits{margin:2px 0 0; max-height:40vh; overflow-y:auto; -webkit-overflow-scrolling:touch}
+.sumhits{margin:2px 0 0}
 .sumhit{display:flex; align-items:center; gap:10px; width:100%; text-align:left;
   padding:10px 15px; min-height:56px; background:none; border:0;
   border-top:1px solid var(--line-soft); font:inherit; color:var(--ink); cursor:pointer}
@@ -19385,13 +19405,26 @@ function render(){
      the Map tab still lands on Plan a walk. */
   supSyncUrl();
   paintNav();
-  /* the summits sheets, painted into their body-level host every render */
+  /* ---- the summits sheets, in their body-level host ----
+     ONLY WHEN THE MARKUP HAS ACTUALLY CHANGED. Joe, 10 Oct: "app keeps
+     flickering" and "even when the X is there it is unresponsive".
+
+     Both were this one line. render() runs on its own from syncs and
+     background work, and this rebuilt the sheet's DOM every single time:
+     the whole sheet flashed, its enter animation replayed, and -- the part
+     that made it unusable -- iOS needs the press and the release to land on
+     the SAME element to make a tap. The close button was being destroyed and
+     recreated between the two, so the tap never completed and he had to
+     force-quit the app.
+
+     A button that is rebuilt underneath the finger cannot be pressed. Diff
+     first, write only on a change. */
   try{
-    /* NOT gated on ui.summits any more: "I've climbed a hill" opens the sheet
-       straight from Home. Each builder already returns '' when its own state
-       is off, so the gate was doing nothing but hiding the sheet. */
     const sh = document.getElementById('sumhost');
-    if (sh) sh.innerHTML = sumEditHTML() + sumAddHTML();
+    if (sh){
+      const html = sumEditHTML() + sumAddHTML();
+      if (html !== sumHostHTML){ sumHostHTML = html; sh.innerHTML = html; }
+    }
   }catch(e){}
   document.documentElement.dataset.screen = tab;   /* not data-tab: clicks look for [data-tab] */
   document.documentElement.dataset.shop = tab === 'a' && ui.patchView === 'supplies' ? '1' : '';
@@ -22741,6 +22774,36 @@ function sumEditHTML(){
     '</div></div>';
 }
 
+/* what #sumhost currently holds, so render() can leave it alone when nothing
+   about the sheet has changed */
+let sumHostHTML = '';
+
+/* THE KEYBOARD. Joe, 10 Oct: "when I search on add a hill youve climbed the
+   keyboard makes it shoot up."
+
+   `position:fixed` on iOS is pinned to the LAYOUT viewport, which the
+   keyboard does not change -- so a bottom-anchored sheet stays where the
+   bottom of the screen used to be, behind the keyboard, and everything above
+   it is shoved off the top. The visual viewport is the part you can actually
+   see, and it is the only honest measure of how much room there is.
+
+   One CSS variable, kept in step with it. Everything else is in the CSS. */
+function vvSync(){
+  const vv = window.visualViewport;
+  const h = vv ? Math.round(vv.height) : window.innerHeight;
+  document.documentElement.style.setProperty('--vvh', h + 'px');
+  /* when the keyboard is up the visual viewport is also OFFSET down the page;
+     without this the sheet sits that far below the fold */
+  document.documentElement.style.setProperty('--vvt',
+    (vv ? Math.round(vv.offsetTop) : 0) + 'px');
+}
+if (window.visualViewport){
+  window.visualViewport.addEventListener('resize', vvSync);
+  window.visualViewport.addEventListener('scroll', vvSync);
+}
+window.addEventListener('resize', vvSync);
+vvSync();
+
 /* REPAINT THE RESULTS, NOT THE SHEET. Typing must never re-render the sheet:
    that would rebuild the input and throw away the focus and the caret
    mid-word -- the same reason `#mq` and `#rq` patch their own results box
@@ -22750,12 +22813,16 @@ function sumHitsPaint(){
   const sheet = document.querySelector('.sumsheet'); if (!sheet) return;
   const tmp = document.createElement('div'); tmp.innerHTML = sumAddHTML();
   const next = tmp.querySelector('.sumhits') || tmp.querySelector('.sumnone');
-  const old = sheet.querySelector('.sumhits, .sumnone');
-  const anchor = sheet.querySelector('.sumor');
+  const body = sheet.querySelector('.sumbody') || sheet;
+  const old = body.querySelector('.sumhits, .sumnone');
+  const anchor = body.querySelector('.sumor');
   if (old) old.remove();
   if (next && anchor) anchor.parentNode.insertBefore(next, anchor);
   const f = sheet.querySelector('.sumfield');
   if (f) f.classList.toggle('on', !!ui.sumQ);
+  /* this patched the DOM by hand, so the next render() must not think the
+     host is stale and rebuild the lot underneath the keyboard */
+  sumHostHTML = sumEditHTML() + sumAddHTML();
 }
 
 /* ---------- + Add, and "I've climbed a hill" ----------
@@ -22793,6 +22860,7 @@ function sumAddHTML(){
       'placeholder="Search WayMark’s ' + HILLS.length.toLocaleString('en-GB') + ' hills…" ' +
       'aria-label="Search for a hill you have climbed" value="' + esc(q) + '"></div>';
 
+  s += '<div class="sumbody">';
   if (found.length){
     s += '<div class="sumhits">' + found.map(h => {
       const on = isBagged(h.k), lid = homeListFor(h), r = rec(h.k);
@@ -22818,6 +22886,10 @@ function sumAddHTML(){
       PUBLIC_LISTS() + ' lists. Add it as your own below.</p>';
   }
 
+  /* .sumbody stays OPEN here: the divider and the three rows scroll with the
+     results. Closing it before them put them outside the scroller and left
+     sumHitsPaint() with no anchor to insert results against -- the search
+     found nothing at all. */
   s += '<div class="sumor"><span>or bring the walk in</span></div>';
 
   /* the photographs. A <label> wrapping the file input, so it is the SAME
@@ -22848,7 +22920,7 @@ function sumAddHTML(){
       '<i>A local one, or a foreign peak. It goes on your Out of bounds list</i></span>' +
     '</button>';
 
-  return s + '</div></div>';
+  return s + '</div></div></div>';
 }
 
 /* THE LIST, as its own screen. Same renderHills() as before -- the rows were
@@ -34277,7 +34349,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v342';
+const APP_VERSION = 'v343';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
