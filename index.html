@@ -442,7 +442,7 @@ body::before{
 .imphomego > svg, .dogheroedit svg, .btn.ghost svg,
 .field svg, .refreshbtn svg{width:var(--i-sm); height:var(--i-sm)}
 .imphomex svg{width:var(--i-sm); height:var(--i-sm)}
-.bcsell svg, .privline.small svg, .dcovopen svg{width:var(--i-sm); height:var(--i-sm)}
+.bcsell svg, .privline.small svg{width:var(--i-sm); height:var(--i-sm)}
 /* "Show where I am" sat at 32px over a map, which is the worst place in the
    app to miss a button: the tap lands on the map and moves it instead. */
 /* five of these exist. Sizing by the ACTION catches all five; the class I
@@ -1025,7 +1025,7 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    Joe, 5 Oct: the journal is still a two-screen scroll on a big day. A day
    that is not open shows a cover: one photograph, the title, and what the
    day was. 735px becomes about 300. */
-.dday.fold{padding-bottom:6px}
+.dday.fold{padding-bottom:13px}
 .dday.fold .ddate{border-bottom:0; padding-bottom:8px}
 /* the folded card's cover, now a row you can swipe */
 .dcovcar{position:relative; margin:0 0 10px; border-radius:8px; overflow:hidden; background:var(--surface-2)}
@@ -1045,17 +1045,48 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   overflow-wrap:anywhere}
 .dcovline{margin:0; font:400 13px/1.4 var(--font-ui); color:var(--ink-2)}
 .dcovline b{font-weight:700; color:var(--ink)}
-/* the whole row is the target, so it is the full 44px without looking like a
-   button sitting in the card */
-.dcovopen{display:flex; align-items:center; justify-content:center; gap:5px;
-  width:100%; min-height:44px; margin:6px 0 0; padding:0; background:none;
-  border:0; border-top:1px dashed var(--line-soft);
-  font:700 12.5px var(--font-ui); color:var(--accent-text); cursor:pointer}
-.dcovopen svg{color:var(--accent-text)}
-/* shutting it again costs no height: the date row is the handle */
-.ddate.shut{cursor:pointer; -webkit-tap-highlight-color:transparent}
-.dchev{margin-left:auto; display:flex; align-items:center; color:var(--ink-3);
-  transform:rotate(180deg)}
+/* THE DATE ROW IS THE HANDLE, open or folded. The chevron points DOWN on a
+   folded card -- open me -- and turns up on the open one.
+
+   On a folded card it is the ONLY way in, so it is a full 44px. The height
+   comes from padding, not from centring the row: the row is baseline-aligned
+   so that the place name still sits on the date's line, and wraps under it on
+   a narrow screen. Specificity matters here -- `.dday.fold .ddate` sets this
+   row's padding eight lines up, so the folded rule has to be at least as
+   specific or it is simply ignored. */
+/* THE CHEVRON COMES OUT OF THE FLOW. The row is align-items:baseline with
+   flex-wrap:wrap, so that the place name sits on the date's line and drops
+   under it on a narrow screen. A 17px svg in that row takes its baseline
+   from the bottom of the glyph and wraps to a line of its own, which had the
+   row at 72px -- it has been doing that to the open card ever since the
+   chevron was added, and the folded card cannot afford it now that this row
+   is the only way in. Pinned to the right and centred, it costs no height at
+   all and cannot wrap. */
+/* ONE LINE, AND THE CHEVRON ALWAYS AT THE END OF IT.
+
+   This row is `flex-wrap:wrap`, and a chevron needs 27px of it. Measured at
+   390px: the date is 111px and "Southern Fells & Eastern Fells" is 193px,
+   which with the gap is 314 of the 332 available -- so adding the chevron
+   made the place name drop to a second line and the row went from 33px to
+   69px. A folded card cannot pay 36px for a chevron.
+
+   So the handle row does not wrap: the place name gives way with an ellipsis
+   instead, and the day it opens shows it in full. The date -- the thing you
+   read down the page for -- never moves. */
+.ddate.shut{cursor:pointer; -webkit-tap-highlight-color:transparent;
+  flex-wrap:nowrap; align-items:center}
+/* The date is never the thing that gives way. Without flex:none it shrank
+   instead of the place name and wrapped INSIDE its own chip -- two lines of
+   date, a 44px chip and a 56px row. */
+.ddate.shut > b{flex:none; white-space:nowrap}
+.ddate.shut > span{min-width:0; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap}
+/* 44px EXACTLY: the date chip lays out at 25px, so 6 above and 13 below.
+   Measured, not guessed -- t/fold.js holds it to >= 44. */
+.dday.fold .ddate.shut{padding-top:6px; padding-bottom:13px}
+.dchev{margin-left:auto; flex:none; display:flex; align-items:center;
+  color:var(--ink-3)}
+.dday:not(.fold) .dchev{transform:rotate(180deg)}
 .ddate.shut:active .dchev{color:var(--accent-text)}
 
 .dsummits{margin-top:8px}
@@ -2138,7 +2169,6 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .shufb{flex:none; color:var(--ink-3)}
 .shufb svg{width:17px; height:17px}
 .listbar.pfilter{padding:10px 0 2px}
-.pcall.pstat{cursor:default; border-bottom-color:var(--accent); min-height:0; padding:2px 0 4px}
 @media (max-width:359px){ .bcswitch.bcview button{padding:0 10px; font-size:12px} }
 
 .pkinds{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin-top:12px}
@@ -4559,7 +4589,7 @@ body::before{opacity:1}
 .field{border-radius:9px}
 
 /* everything you can press moves */
-.btn, .lchip, .chip, .seg button, .iconbtn, .ibtn, .linkbtn, .rbtn, .navbtn, .rqrow, .sharekind, .pstat, .info-btn{
+.btn, .lchip, .chip, .seg button, .iconbtn, .ibtn, .linkbtn, .rbtn, .navbtn, .rqrow, .sharekind, .info-btn{
   transition:background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .08s ease;
 }
 .btn{box-shadow:inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.18)}
@@ -4574,7 +4604,7 @@ body::before{opacity:1}
 .rbtn:hover{border-color:var(--accent); color:var(--accent-text)}
 .iconbtn:hover, .ibtn:hover{background:var(--surface-2)}
 @media (prefers-reduced-motion:reduce){
-  .btn, .lchip, .chip, .seg button, .iconbtn, .ibtn, .linkbtn, .rbtn, .navbtn, .rqrow, .sharekind, .pstat, .info-btn{transition:none}
+  .btn, .lchip, .chip, .seg button, .iconbtn, .ibtn, .linkbtn, .rbtn, .navbtn, .rqrow, .sharekind, .info-btn{transition:none}
   .btn:active, .lchip:active, .chip:active, .seg button:active, .iconbtn:active, .rbtn:active, .sharekind:active{transform:none}
 }
 
@@ -7781,10 +7811,7 @@ img[data-pid], img[data-post], img[data-shot]{background:var(--raise)}
    an h2 is 1.5em against the h3's 1.17em, so promoting the tag made them jump
    from 18.7px to 24px. Pin it to what it was. */
 h2.shhead{font-size:18.7px; font-weight:700}
-.shverb{display:inline-block; margin-left:6px; font:600 12px var(--font-data); font-style:normal;
-  letter-spacing:.05em; color:var(--accent); vertical-align:2px}
 .shhead p{margin:3px 0 0; font-size:13.5px; color:var(--ink-2); line-height:1.45; max-width:44ch}
-.shhead i{display:block; margin-top:5px; font-style:normal; font:600 12px var(--font-data); color:var(--ink-3); letter-spacing:.04em; text-transform:uppercase}
 .shhead .shall{flex:none; align-self:flex-start; margin-top:0; min-height:44px; font-weight:600; white-space:nowrap}
 .shglyph{flex:none; width:30px; height:30px; margin-top:3px; background:var(--ink-3); opacity:.55}
 .sh-circ .shglyph{border-radius:99px}
@@ -12934,7 +12961,8 @@ function patchCat(p){
    group, never a fourth shape. The point is that somebody can look at a
    backpack covered in these and read it without being told. */
 const GROUP_NAME  = {summit:'Summits', challenge:'Challenges', milestone:'Milestones'};
-const GROUP_VERB  = {summit:'Stand on it.', challenge:'Complete it.', milestone:'Reach it.'};
+/* GROUP_VERB went with the section heads in v345: every one of the three
+   said the same thing as the sentence printed under it. */
 const GROUP_WORD  = {summit:'SUMMIT', challenge:'CHALLENGE', milestone:'MILESTONE'};
 const GROUP_BLURB = {
   summit:'One mountain you have stood on.',
@@ -18429,9 +18457,10 @@ function patchesHead(ps, got){
           '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v3.3h-3.3"/></svg></button>'
         : '') +
     '</div>' +
-    /* a statement, not a control - the All chip below is the control, and two
-       things doing one job is what this pass is for */
-    '<div class="pcall pstat"><b>' + got + '</b><i>of ' + ps.length + ' earned</i></div>' +
+    /* THE COUNT IS GONE FROM HERE. It said "14 of 65 earned" two lines above
+       a chip that says "14/65", and that chip is the control. The comment
+       below it used to say "a statement, not a control" as if that excused
+       the repeat; it did not. v345. */
     '<div class="listbar pfilter" role="group" aria-label="Kinds of patch">' +
     '<button class="lchip" data-act="pgroup" data-v="" aria-pressed="' + (g === '') + '">All<b>' +
       got + '/' + ps.length + '</b></button>';
@@ -18452,7 +18481,7 @@ function challengeRow(p){
     '<span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(p, ' tiny') + '</span>' +
     '<span class="chtext"><b>' + esc(String(p.label).replace(/&middot;/g, '\u00b7')) + '</b>' +
     '<i>' + (p.got
-      ? 'Unlocked' + (when && when.date ? ' \u00b7 ' + esc(prettyDate(when.date)) : '')
+      ? 'Earned' + (when && when.date ? ' \u00b7 ' + esc(prettyDate(when.date)) : '')
       /* a patch you either have or have not is not 0% of anything: the
          percentage and the bar are for the ones you chip away at. And the
          separator only earns its place when there is something before it —
@@ -18499,7 +18528,7 @@ function challengeBody(p, pct){
   }
 
   s += '<p class="chstate' + (p.got ? ' on' : '') + '">' +
-    (p.got ? ti('check') + '<span>Unlocked</span>'
+    (p.got ? ti('check') + '<span>Earned</span>'
            /* "Mark 10 peaks · 0% there" — the second half only earns its place
               once there is some there to be */
            : ti('lock') + '<span>' + esc(p.need || '') +
@@ -18572,12 +18601,14 @@ function renderChallenges(ps){
   /* One group on its own: all of it, earned first, in one place. */
   if (GROUP_NAME[view]){
     const inG = ps.filter(p => p.group === view);
-    const gotN = inG.filter(p => p.got).length;
     s += '<section class="shhead ' + shCls(view) + '">' +
       (PATCH_SHAPES ? '<span class="shglyph" aria-hidden="true"></span>' : '') +
-      '<div><h2>' + GROUP_NAME[view] + ' <i class="shverb">' + GROUP_VERB[view] + '</i></h2>' +
-      '<p>' + groupBlurb(view) + '</p>' +
-      '<i>' + gotN + ' of ' + inG.length + ' earned</i></div></section>';
+      /* THE VERB AND THE COUNT ARE GONE. "Stand on it." sat above "One
+         mountain you have stood on." — the same sentence twice — and
+         "6 of 30 earned" repeated the Summits chip at the top of the screen.
+         Deleting both put a fifth patch on the first screen. v345. */
+      '<div><h2>' + GROUP_NAME[view] + '</h2>' +
+      '<p>' + groupBlurb(view) + '</p></div></section>';
     if (!inG.length) return s + '<p class="empty">Nothing in this group yet.</p>';
     /* Region, or kind of challenge, or what is being counted — a filter, not
        another badge type. Once there are two hundred summit circles this is
@@ -18601,12 +18632,10 @@ function renderChallenges(ps){
     const inG = ps.filter(p => p.group === g);
     if (!inG.length) continue;
     any = true;
-    const gotN = inG.filter(p => p.got).length;
     s += '<section class="shhead ' + shCls(g) + '">' +
       (PATCH_SHAPES ? '<span class="shglyph" aria-hidden="true"></span>' : '') +
-      '<div><h2>' + GROUP_NAME[g] + ' <i class="shverb">' + GROUP_VERB[g] + '</i></h2>' +
-      '<p>' + groupBlurb(g) + '</p>' +
-      '<i>' + gotN + ' of ' + inG.length + ' earned</i></div>' +
+      '<div><h2>' + GROUP_NAME[g] + '</h2>' +
+      '<p>' + groupBlurb(g) + '</p></div>' +
       '<button class="linkbtn shall" data-act="chalview" data-v="' + g + '">See all ' +
         inG.length + ' &rsaquo;</button></section>';
     /* earned first, then whatever is closest to being earned */
@@ -18956,7 +18985,7 @@ function renderPatchDetail(p){
     '<div class="pdt"><h2>' + esc(p.label) + '</h2>' +
     '<p>' + ((p.route || p.kind === 'climb')
       /* the body below spells out what it asks and how far along you are */
-      ? (p.got ? 'Unlocked' : 'Locked') + (p.note ? ' &middot; ' + esc(p.note.replace(/&middot;/g, '\u00b7')) : '')
+      ? (p.got ? 'Earned' : 'Locked') + (p.note ? ' &middot; ' + esc(p.note.replace(/&middot;/g, '\u00b7')) : '')
       : esc(p.got ? 'Earned' : p.need)) +
       /* `need` is already printed just above on this page, so repeating it at
          zero would say the same thing twice — here the zero line simply goes. */
@@ -23180,11 +23209,23 @@ function renderDiary(){
     const dayPics = (typeof dayPhotos === 'function' ? dayPhotos(d.date) : d.photos) || [];
     const open = ui.jopen === d.date;
     html += '<article class="dday' + (open ? '' : ' fold') + '" data-jday="' + esc(d.date) + '">';
-    html += '<div class="ddate' + (open ? ' shut' : '') + '"' +
-      (open ? ' data-act="jfold" data-d="' + esc(d.date) + '" role="button" aria-expanded="true"' : '') +
+    /* THE DATE ROW IS THE HANDLE BOTH WAYS. It already was, one way: open a
+       day and this row shuts it again. Folded, it was inert, and a separate
+       "Open the day" row sat at the foot of all twenty cards — twenty rows
+       saying what the card already is. Same handle, same place, both
+       directions. The chevron turns instead of a link appearing.
+
+       The photographs keep their own data-act: a card with no photograph had
+       nothing to press but that row, which is why it could not simply go. */
+    html += '<div class="ddate shut" data-act="jfold" data-d="' + esc(d.date) + '"' +
+      ' role="button" aria-expanded="' + (open ? 'true' : 'false') + '"' +
       '><b>' + esc(prettyDate(d.date)) + '</b>' +
       (where ? '<span>' + esc(where) + '</span>' : '') +
-      (open ? '<i class="dchev">' + ti('chevron-down', 'width="17" height="17"') + '</i>' : '') +
+      /* 16, on the ladder. At 17 it was off it, which cost nothing while one
+         card in twenty was open and carried one chevron; every card has one
+         now, and t/icons.js counted 28 off-ladder glyphs where 20 is the
+         budget. */
+      '<i class="dchev">' + ti('chevron-down', 'width="16" height="16"') + '</i>' +
       '</div>';
 
     if (!open){ html += dayCoverHTML(d, dayPics) + '</article>'; continue; }
@@ -23371,8 +23412,9 @@ function dayCoverHTML(d, pics){
   /* a day with no summits and no title still has to say something */
   if (!bits.length && !ttl && pics.length) bits.push(pics.length + (pics.length === 1 ? ' photo' : ' photos'));
   if (bits.length) s += '<p class="dcovline">' + bits.join(' \u00b7 ') + '</p>';
-  s += '<button class="dcovopen" data-act="jfold" data-d="' + esc(d.date) + '">' +
-    'Open the day' + ti('chevron-down', 'width="15" height="15"') + '</button>';
+  /* "Open the day" used to end every folded card. The date row at the top of
+     the card now carries the chevron and the tap, so this row said nothing the
+     card did not already say — twenty of them on the journal. v345. */
   return s;
 }
 
@@ -34375,7 +34417,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v344';
+const APP_VERSION = 'v345';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
