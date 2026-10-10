@@ -3147,7 +3147,7 @@ button.bstriprow{cursor:pointer}
 .dqwhat{margin:0 0 16px; font:400 14px var(--font-ui); color:var(--ink-2)}
 .dqrow{display:flex; flex-direction:column; gap:8px}
 .dqrow .btn{width:100%; min-height:48px; justify-content:center; font-size:15px}
-.dqpick{margin:14px 0 0; text-align:left}
+.dqpick{margin:14px 0 0; text-align:left; min-width:0}
 .dqpick label{display:block; font:600 12.5px var(--font-ui); color:var(--ink-2); margin:0 0 6px}
 .dqpick input{width:100%; min-height:48px; padding:0 12px; border-radius:12px;
   border:1px solid var(--line); background:var(--raise); color:var(--ink)}
@@ -8308,6 +8308,13 @@ mark{background:var(--accent-soft); color:var(--ink); border-radius:3px; padding
    selector would also catch anything added later that meant to size itself. */
 .form input[type=date], .form input[type=time],
 input.pickin[type=date], input.pickin[type=time],
+/* #dqDate was missing from this list, which is exactly the thing the note
+   above warns about. On iOS the native control will not shrink below its own
+   content width, so it pushed .dqpick wider than the sheet -- and because
+   "Use this date" is width:100% OF .dqpick, that overflowed with it. Joe,
+   10 Oct: "date bar goes off the menu." One missing selector, two controls
+   hanging off the edge. */
+#dqDate,
 .peddate, .mkdate, .dategroup .dinput{
   -webkit-appearance:none; appearance:none;
   max-width:100%; min-width:0; box-sizing:border-box}
@@ -8317,6 +8324,7 @@ input.pickin[type=date], input.pickin[type=time],
 .form input[type=date]::-webkit-date-and-time-value,
 .form input[type=time]::-webkit-date-and-time-value,
 input.pickin[type=date]::-webkit-date-and-time-value,
+#dqDate::-webkit-date-and-time-value,
 .peddate::-webkit-date-and-time-value,
 .mkdate::-webkit-date-and-time-value,
 .dategroup .dinput::-webkit-date-and-time-value{
@@ -19336,7 +19344,25 @@ document.addEventListener('click', e => {
      had no guard at all. */
   if (t && t.tagName === 'INPUT' && t.type === 'file'){ pickerStart(); return; }
   const w = t && t.closest && t.closest('label, [data-act]');
-  if (w && w.querySelector && w.querySelector('input[type=file]')) pickerStart();
+  const fi = w && w.querySelector && w.querySelector('input[type=file]');
+  /* THE INPUT MUST BELONG TO WHAT WAS PRESSED. `closest('label,[data-act]')`
+     climbs as far as it likes, so any large container carrying data-act that
+     happens to hold a file picker ANYWHERE inside it used to count -- and
+     pickerStart() freezes every render() until the picker closes.
+
+     v342's "Add a hill you have climbed" sheet is the first such container:
+     its backdrop and its own body both carry data-act, and the photo row's
+     input sits inside them. So a tap on the backdrop, or anywhere on the
+     sheet that was not a control, silently stopped the app rendering.
+
+     Joe, 10 Oct: "x still not working". The close button WAS firing. It set
+     the state and called render(), and render() returned immediately because
+     it believed a file picker was open. Same reason the sheet stayed up after
+     marking a hill, and the same reason the earned-patch screen never came.
+     One line, three symptoms, and nothing on screen to explain any of them.
+
+     The input now has to be inside the thing the finger actually landed on. */
+  if (fi && fi.parentElement && fi.parentElement.contains(t)) pickerStart();
 }, true);
 /* Coming back into view is both the moment of danger and the only signal
    iOS gives that the picker has closed — whether files were chosen or not. */
@@ -34349,7 +34375,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v343';
+const APP_VERSION = 'v344';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
