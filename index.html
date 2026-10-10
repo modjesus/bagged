@@ -4204,12 +4204,62 @@ li.done{position:relative}
 .sumerow.danger .sumeic{background:var(--accent-soft, #F3E2DC); color:var(--accent-text)}
 .sumerow.danger .sumetx b{color:var(--accent-text)}
 
+/* ---- the search, inside the sheet ---- */
+.sumfield{display:flex; align-items:center; gap:9px; margin:0 15px 2px; padding:0 13px;
+  min-height:48px; background:var(--surface); border:1.5px solid var(--line);
+  border-radius:12px}
+.sumfield.on{border-color:var(--accent); background:var(--raise)}
+.sumfield svg{width:16px; height:16px; flex:none; color:var(--ink-3)}
+.sumfield input{flex:1; min-width:0; border:0; background:none; outline:0;
+  font:400 16px var(--font-ui); color:var(--ink); padding:0}
+/* 16px, not smaller: anything under it makes iOS zoom the whole page on focus */
+.sumfield input::placeholder{color:var(--ink-3)}
+.sumfield input::-webkit-search-cancel-button{-webkit-appearance:none}
+
+.sumhits{margin:2px 0 0; max-height:40vh; overflow-y:auto; -webkit-overflow-scrolling:touch}
+.sumhit{display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:10px 15px; min-height:56px; background:none; border:0;
+  border-top:1px solid var(--line-soft); font:inherit; color:var(--ink); cursor:pointer}
+.sumhit:active{background:var(--ground)}
+.shtx{min-width:0}
+.shtx b{display:block; font:700 15px var(--font-ui)}
+.shtx i{display:block; font-style:normal; font:400 11.5px var(--font-ui);
+  color:var(--ink-3); margin-top:1px; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap}
+.shft{margin-left:auto; flex:none; font:500 12.5px var(--font-data); color:var(--ink-3)}
+/* ALREADY MARKED IS SHOWN, NOT HIDDEN. Hiding it reads as "WayMark has never
+   heard of this hill", which is the opposite of true. */
+.sumhit.done{opacity:.55; cursor:default}
+.sumhit.done .shtx i{color:var(--done); font-weight:700}
+.sumnone{margin:10px 15px 2px; font:400 13px/1.45 var(--font-ui); color:var(--ink-3)}
+
+.sumor{display:flex; align-items:center; gap:10px; margin:14px 15px 2px}
+.sumor::before, .sumor::after{content:''; height:1px; background:var(--line-soft); flex:1}
+.sumor span{font:700 10.5px var(--font-ui); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3)}
+
+/* the three ways in sit as rows, not cards: at 390px a card's second line
+   wraps and the block grows past the fold */
+.sumsheet .sumaddopt{display:flex; align-items:center; gap:11px; width:100%;
+  text-align:left; margin:0; padding:11px 15px; min-height:58px; border:0;
+  border-top:1px solid var(--line-soft); border-radius:0; background:none;
+  color:var(--ink); font:inherit; cursor:pointer; position:relative}
+.sumsheet .sumaddopt:active{background:var(--ground)}
+.sumsheet .sumaddopt .sumeic{margin:0}
+.sumsheet .sumaddopt b{display:block; font:700 14.5px var(--font-ui)}
+.sumsheet .sumaddopt i{display:block; font-style:normal; font:400 12.5px/1.35 var(--font-ui);
+  color:var(--ink-3); margin-top:2px}
+/* the file input fills its label so the whole row is the picker */
+.sumsheet .sumaddopt .filein{position:absolute; inset:0; opacity:0; cursor:pointer}
+.stjoinbtn{padding:4px 15px 2px}
+
 .sumaddwrap{padding:2px 15px 14px}
 .sumaddopt{display:flex; align-items:flex-start; gap:11px; width:100%; text-align:left;
   padding:13px; margin-top:9px; background:var(--surface); border:1px solid var(--line);
   border-radius:13px; font:inherit; color:var(--ink); cursor:pointer}
 .sumaddopt:active{background:var(--ground)}
-.sumaddopt .sumeic{background:var(--raise); margin-top:1px}
+/* --raise on a --raise sheet is an invisible chip */
+.sumaddopt .sumeic{background:var(--ground); margin-top:1px}
 .sumaddopt b{display:block; font:700 14.5px var(--font-ui)}
 .sumaddopt i{display:block; font-style:normal; font:500 12.5px/1.42 var(--font-ui);
   color:var(--ink-2); margin-top:3px}
@@ -10050,6 +10100,7 @@ let ui = {groupForm:'', q:'', region:'', status:'all', sort:'height', open:null,
              means changing the chapters on a list silently rechapters the
              album too. See claude/32-SPEC-quick-mark-and-your-summits. */
           summits:false, sumGroup:'region', sumEdit:null, sumAdd:false, sumNote:null,
+          sumQ:'',
           /* Joe, 9 Oct: "on maps I have multiple routes showing on the map,
              add a quick toggle to turn off/on the gpx on the live map." On by
              default -- a route you drew should be there when you go looking
@@ -20817,7 +20868,7 @@ function welcomeShop(){
    web address rather than a button. The counts come from the data, never
    typed in, so they cannot drift. */
 function welcomeHills(){
-  const nl = LISTS.filter(l => l.id !== 'own' && l.id !== 'route-top').length;
+  const nl = PUBLIC_LISTS();   /* was a second copy of the same filter */
   return '<p class="eyebrow">Browse the hill lists</p>' +
     '<a class="whillsrow" href="/hills/">' + ti('mountain') +
       '<span><b>Every list, as a plain page</b>' +
@@ -21335,6 +21386,11 @@ function markSearch(q){
    honest answer is yes -- you put it there. Without this they all fell through
    to the thin info card, or bounced you back to your first list. Named onList
    because `following()` further down is the Hikers one -- who you follow. */
+/* HOW MANY LISTS THERE ACTUALLY ARE. Two of the 23 in LISTS are not lists a
+   walker works through -- "Out of bounds" is the peaks you added yourself and
+   "Route tops" is scaffolding for planned routes. Typed as "16" in two places
+   it had gone stale twice; counted, it cannot. */
+const PUBLIC_LISTS = () => LISTS.filter(L => L.id !== 'own' && L.id !== 'route-top').length;
 const onList = lid => lid === 'own' || state.enabled.includes(lid);
 /* The list a hill should be filed under: one you have on, else its first. */
 const homeListFor = h => h.l.find(x => onList(x)) || h.l[0];
@@ -21382,7 +21438,7 @@ function markResults(){
      one place a peak of your own gets added — you only ever add one at the
      moment you went looking for it. */
   if (!found.length) return norm(ui.mq).length >= 2
-    ? '<p class="mnone">No hill by that name in any of the 16 lists.</p>' +
+    ? '<p class="mnone">No hill by that name in any of the ' + PUBLIC_LISTS() + ' lists.</p>' +
       '<button class="wshoprow" data-act="ownopen" data-q="' + esc(ui.mq) + '">' +
       ti('mountain', 'width="22" height="22"') +
       '<span><b>Add it as a peak of your own</b>WayMark looks up the height for you. ' +
@@ -22685,29 +22741,114 @@ function sumEditHTML(){
     '</div></div>';
 }
 
-/* ---------- + Add ---------- */
-/* BOTH KINDS, which is what Joe asked for. (2) is not new -- it is ownOpen(),
-   the Out of bounds flow that already exists behind the search box. This is a
-   second door to it, not a second copy of it. */
+/* REPAINT THE RESULTS, NOT THE SHEET. Typing must never re-render the sheet:
+   that would rebuild the input and throw away the focus and the caret
+   mid-word -- the same reason `#mq` and `#rq` patch their own results box
+   instead of calling render(). Bound in wire(), because a `data-act` on an
+   input only ever reaches the CLICK dispatcher, which typing never fires. */
+function sumHitsPaint(){
+  const sheet = document.querySelector('.sumsheet'); if (!sheet) return;
+  const tmp = document.createElement('div'); tmp.innerHTML = sumAddHTML();
+  const next = tmp.querySelector('.sumhits') || tmp.querySelector('.sumnone');
+  const old = sheet.querySelector('.sumhits, .sumnone');
+  const anchor = sheet.querySelector('.sumor');
+  if (old) old.remove();
+  if (next && anchor) anchor.parentNode.insertBefore(next, anchor);
+  const f = sheet.querySelector('.sumfield');
+  if (f) f.classList.toggle('on', !!ui.sumQ);
+}
+
+/* ---------- + Add, and "I've climbed a hill" ----------
+   Joe, 10 Oct: "add strava an images to ive been up it, redirecting to the
+   search bar above isnt good enough."
+
+   He is right on both counts. Handing somebody to a different search box is
+   not a flow, it is a shrug -- so the search lives IN the sheet. And the two
+   best ways to back-fill a walk were already built and unreachable from here:
+
+     - `impStart` reads the EXIF date and GPS out of each photograph and
+       finds the hill. Its only door was "Hills from your photos" on the
+       Journal.
+     - Strava is connected and pulls whole walks in, summits already found
+       along the track. Its only door was the Journal too.
+
+   Nothing new is built below. This is four doors onto things that exist.
+   See claude/27-RULE-one-list-only. */
 function sumAddHTML(){
   if (!ui.sumAdd) return '';
-  return '<div class="sheetwrap" data-act="sumaddclose">' +
-    '<div class="sumsheet" role="dialog" aria-modal="true" aria-label="Add a hill" data-act="noop">' +
+  const q = ui.sumQ || '';
+  const found = norm(q).length >= 2 ? markSearch(q) : [];
+  const st = stravaAuth();
+
+  let s = '<div class="sheetwrap" data-act="sumaddclose">' +
+    '<div class="sumsheet" role="dialog" aria-modal="true" aria-label="Add a hill you have climbed" data-act="noop">' +
     '<div class="sumtop"><h3>Add a hill you have climbed</h3>' +
       '<button class="xbtn" data-act="sumaddclose" aria-label="Close">' + ti('x') + '</button></div>' +
-    '<p class="sumsub">Back-filling years of walking, or something off the lists.</p>' +
-    '<div class="sumaddwrap">' +
-      '<button class="sumaddopt" data-act="sumaddsearch">' +
-        '<span class="sumeic">' + ti('search') + '</span>' +
-        '<span><b>Search WayMark’s ' + HILLS.length.toLocaleString('en-GB') + ' hills</b>' +
-        '<i>Any hill on any list. Pick it and set the date — you do not have to find the ' +
-        'list first.</i></span></button>' +
-      '<button class="sumaddopt" data-act="sumaddown">' +
-        '<span class="sumeic">' + ti('mountain') + '</span>' +
-        '<span><b>A hill WayMark does not know</b>' +
-        '<i>A local one, or a foreign peak. It goes on your Out of bounds list.</i></span>' +
-      '</button>' +
-    '</div></div></div>';
+    '<p class="sumsub">A walk from before. Nothing here needs you to be on the hill.</p>';
+
+  /* the search leads: typing a name is the fastest route and the one most
+     people take */
+  s += '<div class="sumfield' + (q ? ' on' : '') + '">' + ti('search') +
+    '<input type="search" id="saq" data-act="saq" autocomplete="off" ' +
+      'placeholder="Search WayMark’s ' + HILLS.length.toLocaleString('en-GB') + ' hills…" ' +
+      'aria-label="Search for a hill you have climbed" value="' + esc(q) + '"></div>';
+
+  if (found.length){
+    s += '<div class="sumhits">' + found.map(h => {
+      const on = isBagged(h.k), lid = homeListFor(h), r = rec(h.k);
+      /* THE LIST YOU FOLLOW LEADS. Helvellyn Lower Man is a Wainwright, a
+         Nuttall and a Birkett; `h.l` holds them in that order, so a
+         Wainwright bagger searching his own list was told "Nuttalls ·
+         Birketts". Put the one he follows first. */
+      const lists = (h.l || []).filter(x => LIST_BY[x] && x !== 'route-top')
+        .sort((x, y) => (onList(y) ? 1 : 0) - (onList(x) ? 1 : 0))
+        .map(x => LIST_BY[x].name).slice(0, 3).join(' · ');
+      /* A hill you have ALREADY marked is shown and dimmed, never hidden --
+         hiding it reads as "WayMark has never heard of it". */
+      return '<button class="sumhit' + (on ? ' done' : '') + '" data-act="sumaddpick" data-k="' +
+        esc(h.k) + '"' + (on ? ' disabled' : '') + '>' +
+        '<span class="shtx"><b>' + esc(hillName(h)) + '</b>' +
+        '<i>' + (on
+          ? 'Already marked' + (r && r.date ? ' · ' + esc(prettyDate(r.date)) : '')
+          : esc(lists || LIST_BY[lid].name)) + '</i></span>' +
+        '<span class="shft">' + ht(h) + '</span></button>';
+    }).join('') + '</div>';
+  } else if (norm(q).length >= 2){
+    s += '<p class="sumnone">Nothing called “' + esc(q) + '” on any of the ' +
+      PUBLIC_LISTS() + ' lists. Add it as your own below.</p>';
+  }
+
+  s += '<div class="sumor"><span>or bring the walk in</span></div>';
+
+  /* the photographs. A <label> wrapping the file input, so it is the SAME
+     `impfiles` handler every other photo door uses. */
+  s += '<label class="sumaddopt">' +
+      '<span class="sumeic">' + ti('camera') + '</span>' +
+      '<span><b>From your photos</b>' +
+      '<i>Reads the day and the place out of the picture and finds the hill</i></span>' +
+      '<input type="file" accept="image/*" multiple data-act="impfiles" class="filein">' +
+    '</label>';
+
+  /* Strava. The row says on the row when it is not connected, rather than
+     taking you somewhere and failing. */
+  /* NOT a hand-drawn Strava mark. Their brand rules do not allow one, and
+     this app has always used the SVGs they supply. The row carries WayMark's
+     own route glyph and the word; the official button lives in the panel it
+     opens. */
+  s += '<button class="sumaddopt" data-act="sumstrava">' +
+      '<span class="sumeic">' + ti('route') + '</span>' +
+      '<span><b>From Strava</b><i>' +
+        (st ? 'Your walks, with the summits already found along the track'
+            : 'Bring your walks in. Takes a minute to connect') + '</i></span>' +
+    '</button>';
+
+  s += '<button class="sumaddopt" data-act="sumaddown">' +
+      '<span class="sumeic">' + ti('mountain') + '</span>' +
+      '<span><b>A hill WayMark does not know</b>' +
+      '<i>A local one, or a foreign peak. It goes on your Out of bounds list</i></span>' +
+    '</button>';
+
+  return s + '</div></div>';
 }
 
 /* THE LIST, as its own screen. Same renderHills() as before -- the rows were
@@ -26818,6 +26959,9 @@ function wire(){
     const box = document.getElementById('mres');
     if (box) box.innerHTML = markResults();
   };
+  /* "I've climbed a hill" — the same pattern: results repaint, field stays */
+  const saqi = document.getElementById('saq');
+  if (saqi) saqi.oninput = e => { ui.sumQ = e.target.value; sumHitsPaint(); };
   const tq = document.getElementById('tagq');
   if (tq) tq.oninput = e => {
     if (!ui.tagging) return;
@@ -27119,14 +27263,31 @@ document.addEventListener('click', async e => {
     render();
     toast('Unmarked ' + hillName(h) + '.');
   }
-  else if (a === 'sumaddopen'){ ui.sumAdd = true; ui.sumEdit = null; render(); }
-  else if (a === 'sumaddclose'){ ui.sumAdd = false; render(); }
-  else if (a === 'sumaddsearch'){
-    /* back-filling a hill WayMark already knows: the search box on Home is
-       exactly this, and marking from it does not need the list first */
-    ui.sumAdd = false; ui.summits = false; ui.mq = '';
+  else if (a === 'sumaddopen'){ ui.sumAdd = true; ui.sumEdit = null; ui.sumQ = ''; render(); }
+  else if (a === 'sumaddclose'){ ui.sumAdd = false; ui.sumQ = ''; render(); }
+  /* Picking one is the end of the search: the sheet closes, the app's own
+     date question asks when, and marking() earns the patch exactly as it
+     would anywhere else. */
+  else if (a === 'sumaddpick'){
+    const k = el.dataset.k, h = BY_KEY[k];
+    if (!h || isBagged(k)) return;
+    ui.sumAdd = false; ui.sumQ = ''; render();
+    const when = await askDate(hillName(h));
+    const lid = homeListFor(h);
+    let switched = '';
+    if (!onList(lid)){ state.enabled.push(lid); state.enabledT = now(); switched = LIST_BY[lid].name; }
+    await marking(() => { setBagged(k, true, when || ''); });
+    if (mapReady){ drawMarkers(); closePopups(map); }
     render();
-    setTimeout(() => { const f = document.getElementById('mq'); if (f){ f.focus(); f.select && f.select(); } }, 120);
+    toast('Marked ' + hillName(h) + (when ? ' \u00b7 ' + prettyDate(when) : '') +
+      (switched ? ' \u00b7 ' + switched + ' switched on' : ''));
+  }
+  /* Both of these are doors onto things that already exist. */
+  else if (a === 'sumstrava'){
+    ui.sumAdd = false; ui.summits = false; render();
+    ui.stravaOpen = true; ui.stravaPick = null;
+    paintStrava();
+    if (stravaAuth()) stravaLoadList();
   }
   else if (a === 'sumaddown'){
     /* ALREADY BUILT. ownOpen() is the Out of bounds flow behind the search
@@ -29025,6 +29186,10 @@ document.addEventListener('change', e => {
     })();
   }
   else if (a === 'impfiles'){
+    /* The add sheet sits at z-index 2150 and the importer's own at 2100, so
+       if this was opened from "I've climbed a hill" the importer would come
+       up BEHIND it. Close ours first. */
+    if (ui.sumAdd){ ui.sumAdd = false; ui.sumQ = ''; render(); }
     /* Never require files.length before doing ANYTHING — that was the silent
        path. An empty selection is a real outcome on iOS and it needs saying. */
     const files = el.files ? [...el.files] : []; el.value = '';
@@ -32879,7 +33044,7 @@ function renderFriend(){
     if (theirPeaks === undefined) loadPeaks(uidX).then(() => { if (friendOpen && friendOpen.uid === uidX) render(); });
     if (theirPeaks && theirPeaks.length){
       html += '<p class="eyebrow" style="margin-top:16px">Peaks ' + esc(nm) + ' added</p>' +
-        '<p class="mapnote" style="margin:0 0 8px">Summits on none of the 16 lists. Take one and it joins your Out of bounds.</p>' +
+        '<p class="mapnote" style="margin:0 0 8px">Summits on none of the ' + PUBLIC_LISTS() + ' lists. Take one and it joins your Out of bounds.</p>' +
         '<div class="opklist">' + theirPeaks.map(x => {
           const mine = (state.own || []).some(y => y.k === x.k && !y.deleted);
           return '<div class="opk' + (mine ? ' on' : '') + '">' +
@@ -33905,6 +34070,21 @@ function paintStrava(){
   let h = '<div class="repsheet stsheet" role="dialog" aria-modal="true" aria-labelledby="stTitle">' +
     '<div class="sthead"><h3 id="stTitle">' + (P && P.act ? esc(P.act.name || 'Walk') : 'Walks from Strava') + '</h3>' +
     '<button class="xbtn" data-act="stclose" aria-label="Close">' + ti('x') + '</button></div>';
+  /* NEVER CONNECTED. Without a token the list request just fails and the
+     panel showed an error, which is the wrong answer to "I have not set this
+     up yet". Strava's own Connect button, their asset, unaltered -- the only
+     thing their brand rules allow here, and the reason this app has never
+     drawn their mark itself. Reachable now from "I've climbed a hill" too. */
+  if (!stravaAuth()){
+    h += '<p class="repsub">Bring your walks and hikes in, with the summits ' +
+      'already found along the track. WayMark only ever reads them.</p>' +
+      '<div class="stjoinbtn">' + stravaConnectBtn() + '</div>' +
+      '<p class="stnote">You can disconnect it at any time in Settings.</p>' +
+      '</div>';
+    el.innerHTML = h;
+    if (typeof wire === 'function') wire();
+    return;
+  }
   if (P && P.act){
     const s = {dist: P.act.distance || 0, mins: Math.round((P.act.moving_time || 0) / 60), asc: P.act.total_elevation_gain || 0};
     h += '<p class="repsub">' + esc(prettyDate(String(P.act.start_date_local || '').slice(0, 10))) + ' · ' + stravaStats(s).map(x => x[1]).join(' · ') + '</p>' + stravaPowered();
@@ -34097,7 +34277,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v341';
+const APP_VERSION = 'v342';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
