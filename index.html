@@ -7873,15 +7873,21 @@ body.nonav{padding-bottom:24px}
    neither does a search engine. This is an <a> with a real href on purpose:
    it is what joins the app to the 104 pages under /hills/.
    Shaped from .wshoprow above so the two read as the same kind of row. */
-.whillsrow{display:flex; align-items:center; gap:12px; width:100%; margin:0; padding:12px 14px;
-  min-height:60px; text-align:left; text-decoration:none; border:1px solid var(--line);
-  border-radius:14px; background:var(--surface); color:var(--ink)}
-.whillsrow:hover{border-color:var(--ink-3)}
-.whillsrow > svg{width:22px; height:22px; flex:none; color:var(--accent)}
-.whillsrow > svg:last-child{width:16px; height:16px; color:var(--ink-3); margin-left:auto}
-.whillsrow span{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;
-  font-size:13px; color:var(--ink-2); line-height:1.35}
-.whillsrow b{font-size:14.5px; color:var(--ink); font-weight:700}
+/* THE HILL-PAGE FOOTER. Chips at the 36px the app already uses for a filter
+   chip, wrapping, under everything else on the welcome screen. A walker who
+   is here to start a log never has to reach it; a crawler always does. */
+.hillfoot{margin:26px 0 4px; padding:16px 0 0; border-top:1px solid var(--line-soft)}
+.hillfoot .eyebrow{margin:0 0 10px}
+.hillfoot ul{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:7px 8px}
+.hillfoot li{margin:0}
+.hillfoot a{display:inline-flex; align-items:center; min-height:36px; padding:0 12px;
+  border-radius:18px; background:var(--ground); border:1px solid var(--line);
+  font:600 12.5px var(--font-ui); color:var(--ink-2); text-decoration:none}
+.hillfoot a:active{background:var(--surface-2)}
+.hillfootall{margin:13px 0 0}
+.hillfootall a{display:inline-flex; align-items:center; gap:2px; min-height:var(--tap);
+  font:700 13.5px var(--font-ui); color:var(--accent-text); text-decoration:none}
+.hillfootall svg{width:16px; height:16px}
 .wshoprow b{font:700 15px var(--font-ui); color:var(--ink)}
 
 .peekbar{position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px;
@@ -20901,6 +20907,8 @@ function renderWelcome(){
   s += '<p class="wfree">Free, and no ads. Start without an account and your log ' +
        'lives in this browser; sign in with Google whenever you want it to follow you.</p>';
   s += welcomeShopRow();
+  /* the links to the hill pages, last on the page. See welcomeHills(). */
+  s += welcomeHills();
   /* the OS credit went with the contour drawing - there is no OS data on this
      screen any more. The map still carries it where it belongs. */
   return s;
@@ -20949,20 +20957,55 @@ function welcomeShop(){
     '</div></section>';
 }
 
-/* ---- the hill pages, on the welcome ----
-   It goes to the hub at /hills/, which links on to all 16 list pages and the
-   86 area pages beneath them, so one address is enough for a crawler to reach
-   the lot. Nothing about it is clever: the point is that it is an ordinary
-   web address rather than a button. The counts come from the data, never
-   typed in, so they cannot drift. */
+/* ---- THE HILL PAGES, LINKED FROM THE WELCOME ----
+
+   WHY THIS EXISTS, measured in Search Console on 10 Oct 2026:
+   104 pages in the sitemap, 22 indexed, and of the 83 that were not, 82 gave
+   one reason -- "Discovered, currently not indexed". Google had found every
+   URL and decided not to crawl it. Average position 52.6.
+
+   The cause was here. Nothing on waymark.it.com linked to /hills/ in a way
+   Google could see. The seventeen links on this page sat inside <noscript>,
+   which Googlebot throws away because it runs JavaScript; and the one in-app
+   link -- welcomeHills(), a single row to the hub -- was taken off both entry
+   screens in v328 and left in this file, defined and never called. 104 pages
+   reachable from a sitemap and from nothing else.
+
+   Google treats a sitemap as a suggestion and a link as a vote. So this is
+   real links to every list, in the rendered page, where a crawler and a
+   person both meet them. It sits under everything else: a walker who is
+   here to start a log never has to look at it.
+
+   THE SLUGS ARE THE WEBSITE'S, NOT THE APP'S. The app calls the list
+   'hewitt-ni'; the page lives at /hills/hewitts-of-northern-ireland/. The
+   mapping is seo-build/meta.py's SLUG, and it has to be written out because
+   nothing in the app's own data knows it. Checked against the built pages on
+   10 Oct -- all twenty-one exist. Add a list to the website and add it here;
+   a link to a page that is not there is worse than no link at all. */
+const PAGE_SLUG = {
+  wainwright:'wainwrights', munro:'munros', corbett:'corbetts', graham:'grahams',
+  donald:'donalds', 'hewitt-england':'hewitts-of-england',
+  'hewitt-wales':'hewitts-of-wales', 'hewitt-ni':'hewitts-of-northern-ireland',
+  nuttall:'nuttalls', ethel:'peak-district-ethels', dales30:'dales-30',
+  yorkshire3:'yorkshire-three-peaks', welsh3000:'welsh-3000s',
+  'three-peaks':'national-three-peaks', marilyn:'marilyns', birkett:'birketts',
+  dewey:'deweys', 'marilyn-ie':'marilyns-of-ireland', arderin:'arderins',
+  'vandeleur-lynam':'vandeleur-lynams', 'hewitt-roi':'hewitts-of-the-republic'
+};
+
 function welcomeHills(){
-  const nl = PUBLIC_LISTS();   /* was a second copy of the same filter */
-  return '<p class="eyebrow">Browse the hill lists</p>' +
-    '<a class="whillsrow" href="/hills/">' + ti('mountain') +
-      '<span><b>Every list, as a plain page</b>' +
-      HILLS.length.toLocaleString() + ' hills across ' + nl +
-      ' lists. Heights, grid refs and areas.</span>' +
-      ti('chevron-right') + '</a>';
+  /* LISTS decides the order and the names, so a renamed list cannot leave a
+     stale label behind; PAGE_SLUG decides which of them has a page. */
+  const rows = LISTS.filter(l => PAGE_SLUG[l.id]);
+  if (!rows.length) return '';
+  return '<nav class="hillfoot" aria-label="Hill lists as plain pages">' +
+    '<p class="eyebrow">Every list, as a plain page</p>' +
+    '<ul>' + rows.map(l =>
+      '<li><a href="/hills/' + PAGE_SLUG[l.id] + '/">' + esc(l.name) + '</a></li>'
+    ).join('') + '</ul>' +
+    '<p class="hillfootall"><a href="/hills/">All ' +
+      HILLS.length.toLocaleString('en-GB') + ' hills, by area' +
+      ti('chevron-right') + '</a></p></nav>';
 }
 
 /* ---- the first run: four hills a newcomer has probably already walked ----
@@ -31294,7 +31337,11 @@ function paintInfo(){
      lists of their own — it disappears the moment they pick one. */
   let s = ownBar;
   if (fromWeb && !state.enabled.length){
-    const nl = LISTS.filter(l => l.id !== 'route-top').length;
+    /* THE FOURTH COPY OF THIS FILTER AND THE ONLY ONE THAT WAS WRONG. It
+       dropped 'route-top' and kept 'own', so this card -- the first thing a
+       visitor from a hill page reads -- said 22 LISTS while every other
+       screen in the app said 21. PUBLIC_LISTS() is the one true count. */
+    const nl = PUBLIC_LISTS();
     s += '<div class="webhi" data-open="' + (webOpen ? '1' : '0') + '">' +
       WEB_CONTOURS +
       '<div class="webin">' +
@@ -34417,7 +34464,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v345';
+const APP_VERSION = 'v346';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
