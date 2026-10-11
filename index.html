@@ -12521,12 +12521,17 @@ function shareSend(save){
    Joe, 5 Oct: "none of the patch images are pulling through, they are all
    the defualt ones."
 
-   He is right, and the reason is that there is no artwork to pull. I took
+   He is right, and the reason was that there was no artwork to pull. I took
    `patches/<id>.png` straight off the old card without checking it. Every
-   one of those is a 404 on the live site — there is no patches/ folder at
-   all — so the old card quietly drew a bare rust disc too, and so did
-   mine. The brief says it plainly: the shapes are still waiting on Joe's
-   artwork.
+   one of those was a 404 on the live site — there was no patches/ folder at
+   all — so the old card quietly drew a bare rust disc too, and so did mine.
+
+   OUT OF DATE AS OF 11 OCT. There is a patches/ folder now, with 54 files in
+   it: the counts, the books, Everest, Three Peaks, three lists, and all
+   thirty summits. The share card still draws patchBadge() rather than the
+   photograph-quality PNG — worth revisiting, but it is a change in its own
+   right: a card is drawn into a canvas and a remote image has to load first,
+   which is a failure mode the SVG does not have.
 
    What a walker actually sees is patchBadge(), an inline SVG. So that is
    what goes on the card. An SVG loaded as an image gets no stylesheet, so
@@ -12782,6 +12787,28 @@ const THREE_PEAKS = [
   {k:'SH609543', slug:'snowdon',      country:'Wales'},
   {k:'NN166712', slug:'ben-nevis',    country:'Scotland'}
 ];
+/* THE ARTWORK IS NAMED AFTER THE HILL, NOT ITS GRID REFERENCE.
+
+   Every other patch's art file is named after the patch's own id, which is
+   readable: book-central.png, hills-250.png, list-munro.png. A summit's id is
+   its grid reference -- 'summit-NY342151' -- and nobody can name, find or
+   check thirty files called that. So the thirty summits carry an `art` name
+   of their own and everything else keeps using its id.
+
+   This is the fix for thirty patches Joe drew and uploaded that could never
+   have appeared: the files are peak-helvellyn.png and the app was asking for
+   summit-NY342151.png. Three of them -- Ben Nevis, Scafell Pike, Snowdon --
+   had been sitting there dead since September for the same reason.
+
+   Yr Wyddfa is the one exception: the file is peak-snowdon.png, and the file
+   name is not a label anybody reads. */
+const PEAK_ART = {'Yr Wyddfa (Snowdon)': 'peak-snowdon'};
+function peakArt(h){
+  const n = hillName(h);
+  if (PEAK_ART[n]) return PEAK_ART[n];
+  return 'peak-' + n.normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
+}
 function patches(){
   const total = HILLS.filter(h => isBagged(h.k)).length;
   const out = [];
@@ -12790,7 +12817,7 @@ function patches(){
       const h = BY_KEY[k]; if (!h) return;
       const on = isBagged(k);
       out.push({
-        id:'summit-' + k, got:on, icon:'summit',
+        id:'summit-' + k, got:on, icon:'summit', art: peakArt(h),
         label: hillName(h), need:'Mark ' + hillName(h),
         note: h.c + ' \u00b7 ' + feet(h).toLocaleString() + ' ft',
         /* the badge prints the height in metres under the name */
@@ -13333,18 +13360,21 @@ function patchArtGone(img, id){
 
    One helper now, so a fifth call site cannot make the same mistake. */
 function patchLite(p){
+  /* `art` belongs on this list for exactly the reason the note above gives:
+     drop it and the four screens that draw somebody else's patch go back to
+     asking for the grid reference and showing no picture. */
   return {id: p.id, label: p.label, icon: p.icon, group: p.group,
-          metres: p.metres, shape: p.shape};
+          metres: p.metres, shape: p.shape, art: p.art};
 }
 function patchDisc(p, cls){
   /* The shape is on the frame, not the picture, so a patch drawn as a plain
      square PNG is clipped to its shape here and nothing has to be redrawn to
      move between groups. */
   return '<span class="disc sh-' + (p.shape || 'circ') + (cls || '') + '">' +
-    (noArtHas(p.id) ? '' :
-      '<img class="pimg" src="patches/' + esc(p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
+    (noArtHas(p.art || p.id) ? '' :
+      '<img class="pimg" src="patches/' + esc(p.art || p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
       'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" ' +
-      'onerror="patchArtGone(this, &quot;' + esc(p.id) + '&quot;)">') +
+      'onerror="patchArtGone(this, &quot;' + esc(p.art || p.id) + '&quot;)">') +
     patchBadge(p) + '</span>';
 }
 /* What a patch you have not started should say.
@@ -34547,7 +34577,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v347';
+const APP_VERSION = 'v348';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
