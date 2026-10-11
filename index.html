@@ -2268,6 +2268,14 @@ button.bstriprow{cursor:pointer}
   position:absolute; inset:0; width:100%; height:100%; max-width:none;
   object-fit:contain; object-position:center; z-index:2; background:transparent;
 }
+/* A PICTURE IS A THING A BROWSER LETS YOU DRAG, AND THAT ATE THE SWIPE.
+
+   Found 11 Oct, the moment real artwork existed to put here: on the patch
+   screen, a swipe that started on the patch itself fired pointercancel as
+   the browser began its own image drag, so the card would go forward and
+   then refuse to come back. Nothing on this image is a target -- the disc
+   and the card around it take every press -- so it takes no pointers. */
+.pimg{-webkit-user-drag:none; user-select:none; pointer-events:none}
 /* the mount colour arrives with the artwork, not before it */
 .patch .disc.hasimg .pimg{background:var(--patch-bg)}
 .patch.got .disc{
@@ -12135,6 +12143,12 @@ function closeWin(){
    the wordmark: the thing people actually post. Drawn on this device, handed
    to the share sheet where there is one, saved as a file where there is not. */
 function patchDateLine(p){
+  /* A CARD MUST NOT SAY EARNED ABOUT A PATCH NOBODY HAS EARNED. Found while
+     fixing the doubled words, 11 Oct: sharing a patch you are working
+     towards printed "EARNED 12 JUN 2025" under it -- the date of the last
+     hill that counts towards it. The card's own eyebrow said "Working
+     towards" directly above. Where it stands is the honest line. */
+  if (p && !p.got) return (p.have > 0 && p.target) ? p.have + ' of ' + p.target : '';
   const keys = (p.keys && p.keys.length) ? p.keys : Object.keys(state.bagged).filter(isBagged);
   const dates = keys.map(k => rec(k).date).filter(Boolean).sort();
   const d = dates[dates.length - 1];
@@ -12364,14 +12378,23 @@ function shDrawPatch(x, W, H, o, img){
   const cx = W / 2, cy = 560, R = 300;
   x.fillStyle = '#14332D'; x.fillRect(0, 0, W, H);
   drawContours(x, W, H, '#F3EFE6', 0.13, 2.4);
+  /* REAL ARTWORK BRINGS ITS OWN EDGE. A drawn badge is a bare shape and
+     needs the rust disc behind it and a ring around it; one of Joe's
+     patches is already a stitched disc with a stitched border, so both
+     would be a second rim around his first. Told apart by what was loaded,
+     not by the patch: a phone that could not fetch the file falls back to
+     the badge and still gets its disc. */
+  const real = !!(img && img.naturalWidth > 2 && !/^data:image\/svg/.test(img.src || ''));
   x.save();
   x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.closePath(); x.clip();
-  x.fillStyle = '#A8431A'; x.fill();
+  if (!real){ x.fillStyle = '#A8431A'; x.fill(); }
   shSizeSvg(img);
   if (img && (img.naturalWidth || img.width)) x.drawImage(img, cx - R, cy - R, R * 2, R * 2);
   x.restore();
-  x.strokeStyle = '#A8431A'; x.lineWidth = 10;
-  x.beginPath(); x.arc(cx, cy, R + 8, 0, Math.PI * 2); x.stroke();
+  if (!real){
+    x.strokeStyle = '#A8431A'; x.lineWidth = 10;
+    x.beginPath(); x.arc(cx, cy, R + 8, 0, Math.PI * 2); x.stroke();
+  }
   /* THE BADGE ALREADY SAYS THE NAME. Printing it again underneath is the
      same fact twice on one card — the shop learned this and so does this.
      What the badge does NOT carry is when it was earned, so that is what
@@ -12404,13 +12427,21 @@ async function shareRender(kind, o){
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
   await shFonts();
-  const src = kind === 'photo' ? o.photo : kind === 'patch' ? o.art : '';
+  /* THE REAL PATCH FIRST. Joe has drawn 54 of these; a card that shows the
+     app's stand-in badge instead is the worst version of the best thing he
+     has. The drawn badge is still the fallback, for the patches with no
+     artwork yet and for any phone that cannot fetch the file. */
+  const tries = kind === 'photo' ? [o.photo]
+              : kind === 'patch' ? [o.artPng, o.art]
+              : [];
   let img = null;
-  if (src){
-    img = new Image();
-    try{ img.crossOrigin = 'anonymous'; }catch(e){}
-    await new Promise(res => { img.onload = res; img.onerror = () => { img = null; res(); };
-      img.src = src; });
+  for (const src of tries){
+    if (!src) continue;
+    const got = new Image();
+    try{ got.crossOrigin = 'anonymous'; }catch(e){}
+    const ok = await new Promise(res => { got.onload = () => res(true); got.onerror = () => res(false);
+      got.src = src; });
+    if (ok){ img = got; break; }
   }
   if (kind === 'photo') shDrawPhoto(x, W, H, o, img);
   else if (kind === 'patch') shDrawPatch(x, W, H, o, img);
@@ -12540,8 +12571,21 @@ function shPatchArt(p){
   let svg = '';
   try{ svg = patchBadge(p) || ''; }catch(e){ return ''; }
   if (!svg) return '';
+  /* THE BADGE HOLDS TWO LAYOUTS AND THE STYLESHEET PICKS ONE.
+
+     Joe, 11 Oct, with a photograph of it: the share card printed "SKIDDAW"
+     and "931 M" twice, one over the other. patchBadge() emits BOTH .pbbig
+     (one line, for a full-size disc) and .pbfeed (split over two, for a
+     chip), and `.disc .pbadge .pbfeed{display:none}` is what normally keeps
+     them apart. A card is painted into a canvas from a data URL, where no
+     stylesheet of ours exists -- so both printed, every time, for every
+     patch. Not new: true of every patch card since the second layout was
+     added. An SVG carries its own <style>, so the rule travels with it. */
   svg = svg
     .replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" ')
+    /* after the opening tag, by matching the tag itself -- not the first '>'
+       in the file, which an attribute could one day contain */
+    .replace(/^(<svg[^>]*>)/, '$1<style>.pbfeed{display:none}</style>')
     .replace(/currentColor/g, '#F3EFE6')
     .replace(/var\(--font-data\)/g, "'Source Code Pro',ui-monospace,monospace");
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
@@ -12553,6 +12597,7 @@ async function shareCard(p){
     title: String(p.label).replace(/&middot;/g, '\u00b7').replace(/&amp;/g, '&'),
     sub: patchDateLine(p),
     art: shPatchArt(p),
+    artPng: p.art ? 'patches/' + p.art + '.png' : 'patches/' + p.id + '.png',
     photo: ''
   });
 }
@@ -13350,9 +13395,25 @@ function noArtSave(){
   }catch(e){}
 }
 function patchArtGone(img, id){
+  /* and take the disc back off the picture it was promised. Without this a
+     patch whose file loaded earlier in the session and then failed would
+     keep `hasimg`, which hides the badge -- leaving an empty disc, and the
+     words on a patch are never optional. */
+  const d = img && img.parentNode;
   img.remove();
+  if (d && d.classList) d.classList.remove('hasimg');
+  if (id) ART_OK.delete(id);
   if (id && !noArtHas(id)){ NO_ART.set(id, Date.now()); noArtSave(); }
 }
+/* ARTWORK THAT HAS ALREADY LOADED ONCE IS NOT NEWS.
+
+   `hasimg` is added by the image's own onload, which means every freshly
+   built patch starts as the drawn badge and swaps when the file arrives --
+   a blink, even from cache. Once a picture has loaded in this session the
+   class goes on at build time, so a patch that is rebuilt for any reason
+   comes back as the picture it already was. */
+const ART_OK = new Set();
+function artSeen(name){ if (name) ART_OK.add(name); }
 /* The four places that draw somebody else's patch build a cut-down copy of
    it, and every one of them dropped `group` and `metres` — so the badge could
    not tell it was a summit and fell back to the glyph. The feed showed the old
@@ -13370,10 +13431,12 @@ function patchDisc(p, cls){
   /* The shape is on the frame, not the picture, so a patch drawn as a plain
      square PNG is clipped to its shape here and nothing has to be redrawn to
      move between groups. */
-  return '<span class="disc sh-' + (p.shape || 'circ') + (cls || '') + '">' +
-    (noArtHas(p.art || p.id) ? '' :
-      '<img class="pimg" src="patches/' + esc(p.art || p.id) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
-      'onload="this.parentNode.classList.add(&quot;hasimg&quot;)" ' +
+  const art = p.art || p.id;
+  return '<span class="disc sh-' + (p.shape || 'circ') + (cls || '') +
+      (ART_OK.has(art) ? ' hasimg' : '') + '">' +
+    (noArtHas(art) ? '' :
+      '<img class="pimg" src="patches/' + esc(art) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
+      'onload="artSeen(&quot;' + esc(art) + '&quot;); this.parentNode.classList.add(&quot;hasimg&quot;)" ' +
       'onerror="patchArtGone(this, &quot;' + esc(p.art || p.id) + '&quot;)">') +
     patchBadge(p) + '</span>';
 }
@@ -19600,6 +19663,10 @@ function render(){
      whole screen. No banner over the top of it either. */
   if (onboarding()){
     document.getElementById('main').innerHTML = renderOnboard();
+    /* onboarding writes the screen itself, so what render() last wrote is no
+       longer what is on it — forget it, or the first screen after onboarding
+       could be skipped for matching the one from before it. */
+    lastMainHTML = '';
     paintSync(); wire();
     return;
   }
@@ -19622,13 +19689,31 @@ function render(){
      to land on. Added here rather than in six renderers: whatever the screen
      paints, if it produced no h1 of its own it gets a visually hidden one
      naming where you are. Home and the shop detail pages keep theirs. */
-  document.getElementById('main').innerHTML = banner +
+  /* ONLY WHEN THE SCREEN HAS ACTUALLY CHANGED.
+
+     Joe, 11 Oct: "the patches constantly flashing, this needs to stop."
+     Measured: standing still on Basecamp, render() runs about twice every
+     eight seconds on its own -- syncs, watchers, background work -- and
+     this line rebuilt the whole screen each time. Every <img> was thrown
+     away and made again, so each patch dropped back to its drawn badge
+     until the picture loaded again. With 54 patches now carrying artwork,
+     that is a screen full of blinking.
+
+     The same cure as the summits sheet above, which was the same disease
+     ("app keeps flickering", 10 Oct): build the markup, compare it, and
+     write only when it differs. A screen that has not changed is left
+     alone -- which also keeps hydrated photographs, scroll position inside
+     anything, and a half-typed note exactly where they were. */
+  const mainEl = document.getElementById('main');
+  const mainHTML = banner +
     (tab === 'd' ? renderDashboard() :
      tab === 'p' ? renderPlans() :
      tab === 'm' ? renderMapTab() :
      tab === 'a' ? renderPatchesPage() :
      tab === 'j' ? renderDiary() :
      tab === 'u' ? renderHikers() : renderHills());
+  const mainSame = mainHTML === lastMainHTML && mainEl.firstChild;
+  if (!mainSame){ lastMainHTML = mainHTML; mainEl.innerHTML = mainHTML; }
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   ensureScreenHeading();
@@ -22950,6 +23035,9 @@ function sumEditHTML(){
 /* what #sumhost currently holds, so render() can leave it alone when nothing
    about the sheet has changed */
 let sumHostHTML = '';
+/* what #main was last given, so an unchanged screen is not rebuilt under the
+   walker. Cleared by anything that empties #main from outside render(). */
+let lastMainHTML = '';
 
 /* THE KEYBOARD. Joe, 10 Oct: "when I search on add a hill youve climbed the
    keyboard makes it shoot up."
@@ -34577,7 +34665,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v348';
+const APP_VERSION = 'v350';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
