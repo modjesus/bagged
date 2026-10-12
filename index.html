@@ -14071,7 +14071,11 @@ const SUPPLIES = [
   {n:23, slug:'the-fingerpost',        name:'The Fingerpost',           shirt:'cream'},
   {n:24, slug:'a-bad-day-out',         name:'A Bad Day Out',            shirt:'cream'},
   {n:25, slug:'hiking-dept',           name:'Hiking Dept.',             shirt:'cream'},
-  {n:26, slug:'rocks-in-piles',        name:'I Like My Rocks In Piles', shirt:'cream'}
+  {n:26, slug:'rocks-in-piles',        name:'I Like My Rocks In Piles', shirt:'cream'},
+  {n:28, slug:'ben-nevis-contours', name:'Ben Nevis (contours)',  shirt:'cream'},
+  {n:29, slug:'ben-nevis',          name:'Ben Nevis',             shirt:'cream'},
+  {n:30, slug:'yr-wyddfa-contours', name:'Yr Wyddfa (contours)',  shirt:'cream'},
+  {n:31, slug:'yr-wyddfa',          name:'Yr Wyddfa',             shirt:'cream'}
 ];
 /* What the garment is actually CALLED by the printer who makes it.
    "Ivory" and "Blue Spruce" were Printful's names and survived the move to
@@ -15104,16 +15108,29 @@ window.addEventListener('popstate', () => {
 
 /* collections are how a walker browses ten tees without scrolling ten screens */
 const SUP_COLL = [
-  {id:'peaks',  label:'Peak prints', ns:[1, 20, 9, 5, 4, 19]},
+  {id:'peaks',  label:'Peak prints', ns:[28, 29, 30, 31, 1, 20, 9, 5, 4, 19]},
   {id:'humour', label:'Hill humour', ns:[24, 26, 27, 10, 16, 8]},
   {id:'mark',   label:'The mark',    ns:[3, 18, 22, 25, 13, 14, 17, 6, 23, 2]}
 ];
 /* the newest drop wears a flag until the next one lands */
-const SUP_NEW = [18];
+const SUP_NEW = [28, 29, 30, 31];
 /* tees that belong to one summit: the card carries its trail tag, and a walker
    who has stood on it is told so */
-const TEE_HILL = {1:'NY215072', 20:'NY215072'};
+const TEE_HILL = {1:'NY215072', 20:'NY215072',
+                  28:'NN166712', 29:'NN166712',
+                  30:'SH609543', 31:'SH609543'};
 const teeHill = n => TEE_HILL[n] && BY_KEY[TEE_HILL[n]] || null;
+/* A summit tee you have not stood on is SOFT locked, exactly as the hill
+   stickers are: it is marked, it asks you to log the walk, and it still sells.
+   Somebody buying the Ben Nevis tee as a gift, or the week before they climb
+   it, is a real customer, and the same reasoning that keeps the plates soft
+   keeps a 25 pound shirt soft. Nothing here ever returns 'hard', so nothing
+   downstream disables a button or refuses an add. */
+const teeLock    = n => { const h = teeHill(n); return (h && !isBagged(h.k)) ? 'soft' : ''; };
+const teeLockWhy = n => (teeHill(n) ? 'Not in your log yet' : '');
+/* kit and tees answer the same question about themselves, and marking off
+   from the shop has to work from either card. */
+const prodHill = k => kitHill(k) || teeHill(+k) || null;
 
 /* Stickers that belong to one summit, the same way the two Scafell tees do.
    Every grid ref here was read back out of HILLS rather than typed from the
@@ -15318,21 +15335,26 @@ function bcCard(d, opts){
   opts = opts || {};
   const it = shopItem(d.n); if (!it) return '';
   const sides = supSides(d), lead = sides[0], h = teeHill(d.n), done = h && isBagged(h.k);
+  const lock = teeLock(d.n), why = lock ? teeLockWhy(d.n) : '';
   const flag = SUP_NEW.includes(d.n) ? '<span class="bcflag">New</span>' : '';
   /* Inside a hill group the heading already carries the hill, its height and
      whether it is marked, so the card saying all three again is three copies
      of one fact on one screen. There it shows what a tee card is actually
      useful for: the sizes. */
-  const tag = (h && !opts.bare) ? '<span class="bctag">' + feet(h).toLocaleString() + ' FT &middot; ' + esc(String(regionOf(h, h.l[0]) || '').toUpperCase()) + '</span>' : '';
+  /* Locked, the tag says what it wants rather than how high the hill is: the
+     height is already on the card twice and the lock is the new information. */
+  const tag = (lock && !opts.bare) ? '<span class="bctag">' + esc(why.toUpperCase()) + '</span>'
+    : (h && !opts.bare) ? '<span class="bctag">' + feet(h).toLocaleString() + ' FT &middot; ' + esc(String(regionOf(h, h.l[0]) || '').toUpperCase()) + '</span>' : '';
   const sizes = it.sizes.length ? '<span class="bcsizes">' + it.sizes.map(z => '<i>' + esc(z) + '</i>').join('') + '</span>' : '';
   const foot = opts.bare ? ''
     : h ? (done ? '<span class="bcdone">' + ti('check') + 'You’ve summited this</span>' : '<span class="bcsub">' + esc(hillName(h) || d.name) + ', ' + feet(h).toLocaleString() + ' ft</span>')
     : sizes;
-  return '<article class="bccard' + (opts.small ? ' small' : '') + '">' +
+  return '<article class="bccard' + (opts.small ? ' small' : '') + (lock ? ' bclocked bclock-' + lock : '') + '">' +
     '<div class="bctile">' +
-      '<button class="bcimg" data-act="supopen" data-v="' + d.n + '" aria-label="' + esc(d.name) + ', ' + gbp(it.price) + '. Open">' +
+      '<button class="bcimg" data-act="supopen" data-v="' + d.n + '" aria-label="' + esc(d.name) + ', ' + gbp(it.price) + (lock ? ', ' + esc(why) : '') + '. Open">' +
         '<img loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, lead) + '">' +
-        (sides.length > 1 ? '<img class="alt" loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, sides[1]) + '">' : '') + '</button>' +
+        (sides.length > 1 ? '<img class="alt" loading="lazy" decoding="sync" alt="" src="' + shopImg(d.n, sides[1]) + '">' : '') +
+        (lock ? '<span class="bcpad" aria-hidden="true">' + ti('lock') + '</span>' : '') + '</button>' +
       flag + tag +
       (opts.small ? '' :
         '<button class="bcround bcheart" data-act="bcsave" data-k="' + d.n + '" aria-pressed="' + isSaved(d.n) + '" aria-label="Save ' + esc(d.name) + '">' + bcHeart(isSaved(d.n)) + '</button>' +
@@ -15774,6 +15796,12 @@ function bcProduct(d){
       '<button class="bcsz" data-act="shopsize" data-v="' + esc(z) + '" aria-pressed="' + (z === size) + '">' + esc(z) + '</button>').join('') + '</div>' +
     '<button class="btn bcadd" data-act="' + (size ? 'bkadd' : 'bcfit') + '" data-k="' + d.n + '" data-o="' + esc(size) + '">' +
       ti('backpack') + (size ? 'Add to backpack &middot; ' + gbp(it.price) : 'Choose a size') + '</button>' +
+    /* Under the button, not over it: this asks for something, it does not stop
+       anything, and a block above the only control reads as a barrier. */
+    (teeLock(d.n) === 'soft' ? '<div class="softlock">' + ti('lock') +
+      '<span><b>' + esc(hillName(h) || 'This hill') + ' isn\u2019t in your log.</b>' +
+      'You can still buy it \u2014 mark the walk and it stops asking.</span>' +
+      '<button class="chip" data-act="markoff" data-k="' + d.n + '">Mark it off</button></div>' : '') +
   '</div>';
   s += '<ul class="bcfacts"><li>' + bcIcon(BC_TRUCK) + '<span><b>Arrives ' + esc(bcArrive()) + '</b> &middot; ' +
       (bcFreeOver() ? 'UK ' + gbp(shopCat.shipping || 0) + ', free over ' + gbp(bcFreeOver()) : (shopCat.shipping ? 'UK ' + gbp(shopCat.shipping) : 'free UK delivery')) + '</span></li>' +
@@ -15825,7 +15853,7 @@ function bcFit(k){
    marking() wrapper the rest of the app uses, so patches unlock and the walk
    reaches the feed exactly as if it had been marked anywhere else. */
 function bcMarkOff(k){
-  const h = kitHill(k); if (!h) return;
+  const h = prodHill(k); if (!h) return;
   const c = rec(h.k);
   bcSheet('<h3 class="bcsheettitle">Mark off ' + esc(hillName(h) || 'this hill') + '</h3>' +
     '<p class="mofline">' + feet(h).toLocaleString() + ' ft &middot; ' +
@@ -15839,7 +15867,7 @@ function bcMarkOff(k){
     'Mark off ' + (hillName(h) || 'this hill'));
 }
 async function bcMarkSave(k){
-  const h = kitHill(k); if (!h) return;
+  const h = prodHill(k); if (!h) return;
   const dEl = document.getElementById('mofdate'), nEl = document.getElementById('mofnote');
   const date = (dEl && dEl.value) || today();
   const note = (nEl && nEl.value || '').trim();
