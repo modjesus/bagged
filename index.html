@@ -5861,7 +5861,8 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .popsub{display:block; margin:3px 0 0 27px; color:var(--ink-3); font-size:11.5px}
 .popfoot{display:flex; align-items:center; gap:6px; margin:11px 2px 0; color:var(--ink-3); font-size:12.5px; line-height:1.4}
 .popfoot svg{width:14px; height:14px; stroke-width:2.6; color:var(--accent-text); flex:none}
-.popnote{margin-top:4px; color:var(--ink-2); font-size:14.5px; line-height:1.45}
+/* a line of explanation is read, not scanned: hold it to a measure */
+.popnote{margin-top:4px; color:var(--ink-2); font-size:14.5px; line-height:1.45; max-width:54ch}
 .popnote p{margin:0}
 .popnote .btnrow{margin-top:10px}
 @media (max-width:359px){
@@ -33286,7 +33287,13 @@ function renderHikers(){
   else if (t === 'discover') s += '<div class="feedgrid"><div class="feedmain">' + renderDiscover() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
   else if (t === 'friends') s += '<div class="btnrow" style="margin-top:6px"><button class="btn quiet" data-act="hikertab" data-v="me">&larr; Your profile</button></div>' + renderFriends();
   else if (t === 'me') s += renderMyProfile();
-  else if (t === 'popular') s += renderPopular();
+  /* THE SAME COLUMN DISCOVER USES.
+     On a phone this changes nothing. On a desktop the board had the whole
+     1,148px to itself, which made a bar 1,095px long with the hill's name
+     at one end and its number at the other — too far apart to read as one
+     row. Seen in a screenshot of the live site, not reasoned about. */
+  else if (t === 'popular') s += '<div class="feedgrid"><div class="feedmain">' + renderPopular() +
+    '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
   else s += renderBoard();
   return s + '</div>';
 }
@@ -35111,7 +35118,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v355';
+const APP_VERSION = 'v356';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
