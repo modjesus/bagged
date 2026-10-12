@@ -11809,6 +11809,18 @@ async function peakTally(key){
         m: {[ym]: FB.increment(1)},
         y: {['' + d.getFullYear()]: FB.increment(1)}
       }, {merge:true});
+      /* AND THE BOARD IS NOW OUT OF DATE.
+
+         Joe, 12 Oct: "the board loads, but the this month and this year
+         arent working." The writing was fine; the READING was fifteen
+         minutes stale. The board caches its rows for a quarter of an hour,
+         so marking a hill and going straight to it showed the copy taken
+         before the mark — and all-time is big enough that one more does not
+         show, while this month was the number that had just changed from
+         nothing to one. The one moment the cache must not be trusted is the
+         moment this walker adds to it. */
+      popRows = null;
+      try{ localStorage.removeItem(POP_KEY); }catch(e){}
     }
     const snap = await FB.getDoc(peakRef(key));
     const n = snap.exists() ? (+(snap.data() || {}).n || 0) : 0;
@@ -11994,6 +12006,16 @@ function renderPopular(){
     return '<p class="eyebrow">Most marked hills</p>' +
       '<div class="planintro">Sign in to see what WayMark walkers are marking off.</div>';
   const rows = popBoard(), when = popWhen();
+  /* SAY WHAT ACTUALLY COUNTS, because the first wording did not and Joe read
+     the screen as broken.
+
+     A walker is counted ONCE per hill, ever — that is what makes the number
+     mean anything — so re-marking a hill you have already marked adds
+     nothing to any of these, and a test peak marked over and over will never
+     appear. Together with the October start, that is the whole reason a new
+     window can look empty, and it is not a fault. */
+  const SINCE = 'October 2026';
+  const ONCE = ' A hill counts once per walker, so marking one you had already marked does not add to it.';
   let s = '<section class="popwrap"><p class="eyebrow">Most marked hills</p>' +
     '<div class="planintro">What WayMark walkers are marking off.</div>' + popChips();
   if (popLoading && !popRows) s += '<p class="popnote">Counting&hellip;</p>';
@@ -12001,13 +12023,13 @@ function renderPopular(){
     '<div class="btnrow"><button class="btn sm" data-act="popagain">Try again</button></div></div>';
   else if (!rows.length) s += '<div class="card popnote"><p>' +
     (when === 'all' ? 'Nothing here yet. Mark a hill and it starts.'
-     : when === 'month' ? 'Nothing marked yet this month. This one started counting when the board did, so it fills as the month goes on.'
-     : 'Nothing marked yet this year. This one started counting when the board did.') + '</p></div>';
+     : when === 'month' ? 'Nothing marked off yet this month. These two figures only started counting in ' + SINCE + '.' + ONCE
+     : 'Nothing marked off yet this year. These two figures only started counting in ' + SINCE + '.' + ONCE) + '</p></div>';
   else {
     const max = rows[0].n;
     s += '<div class="card popcard">' + rows.slice(0, 50).map((e, i) => popRow(e, i, max)).join('') + '</div>';
     s += '<p class="popfoot">' + ti('check') + 'Rust bars are hills you have marked.' +
-      (when === 'all' ? '' : ' This window started counting in October 2026.') + '</p>';
+      (when === 'all' ? '' : ' Counting since ' + SINCE + '.') + '</p>';
   }
   return s + '</section>';
 }
@@ -35089,7 +35111,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v354';
+const APP_VERSION = 'v355';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
