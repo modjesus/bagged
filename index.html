@@ -11863,6 +11863,9 @@ async function marking(fn, opts){
   watchPatches();
   const before = new Set(Object.keys(state.bagged).filter(isBagged));
   await fn();
+  /* A patch the walker has just LOST is forgotten here, before anything is
+     worked out, so winning it back later is a fresh moment again. */
+  pruneSeen();
   /* Anything newly marked goes to the feed as one post, so ten fells from a
      route read as one day out rather than ten notifications. */
   const fresh = Object.keys(state.bagged).filter(k => isBagged(k) && !before.has(k));
@@ -11901,6 +11904,37 @@ function seedSeen(){
   if (!seenWins) loadSeen();
   for (const p of patches()) if (p.got) seenWins.add(p.id);
   saveSeen();
+  pruneSeen();
+}
+/* AND WHAT IS NO LONGER HELD IS FORGOTTEN AGAIN.
+
+   Joe, 12 Oct: "if a user unmarks a hill, you should acknowledge this as if
+   the user has no data against it... I have been marking snowdon as my test
+   peak, however the patch earned popup only happened the once." Right, and
+   the cause is this set: it only ever grew. Unmark Yr Wyddfa and its patch
+   stayed filed as already-shown, so winning it back was silent.
+
+   NOT A BLANKET FORGET. The filter in marking() is load-bearing: a `climb`
+   patch hangs on a running total — Everest on 8,848 m of ascent, the
+   distance ladder on miles — and that total moves whenever ANY summit or
+   ascent anywhere changes. Everest can slip under the line and back over it
+   without a walker unmarking a thing, and it would pop every time.
+
+   A summit, a book, a list, a route and a count all hang on named hills
+   being in the log. Losing one of those is something the walker did on
+   purpose. So those are forgotten; climbs are not.
+
+   Only ids that are in the patch list RIGHT NOW and definitely not earned
+   are dropped. A patch belonging to a list that is switched off is not in
+   patches() at all, and forgetting those would make every one of them pop
+   again the day the list came back on. */
+function pruneSeen(){
+  if (!seenWins || !seenWins.size) return 0;
+  const lose = new Set(patches().filter(p => !p.got && p.kind !== 'climb').map(p => p.id));
+  let gone = 0;
+  for (const id of [...seenWins]) if (lose.has(id)){ seenWins.delete(id); gone++; }
+  if (gone) saveSeen();
+  return gone;
 }
 /* Everest arrived after the fact, which seedSeen() would file straight into
    "already seen": a walker long past 8,848 m would carry a patch they were
@@ -34795,7 +34829,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v352';
+const APP_VERSION = 'v353';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
