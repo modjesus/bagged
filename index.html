@@ -12149,6 +12149,16 @@ function patchDateLine(p){
      hill that counts towards it. The card's own eyebrow said "Working
      towards" directly above. Where it stands is the honest line. */
   if (p && !p.got) return (p.have > 0 && p.target) ? p.have + ' of ' + p.target : '';
+  /* A COUNT IS EARNED ON THE DAY THE COUNT WAS REACHED, not today. Seen on
+     the card, 11 Oct: "First peak marked · Earned 18 Sep 2025" — the date of
+     the LATEST hill in the whole log, because a count patch carries no keys
+     and the fallback took them all. The first peak was earned the day the
+     first peak was marked, and the tenth on the tenth. */
+  if (p && p.kind === 'count' && p.n){
+    const run = markedInDateOrder();
+    const at = run[p.n - 1];
+    if (at && at.r && at.r.date) return 'Earned ' + prettyDate(at.r.date);
+  }
   const keys = (p.keys && p.keys.length) ? p.keys : Object.keys(state.bagged).filter(isBagged);
   const dates = keys.map(k => rec(k).date).filter(Boolean).sort();
   const d = dates[dates.length - 1];
@@ -12281,7 +12291,7 @@ async function shFonts(){
 }
 /* A — THE SHEET. A page out of a field log: paper, a rule down the margin,
    the contours showing faintly through, and a stamp. */
-function shDrawSheet(x, W, H, o){
+function shDrawSheet(x, W, H, o, patchImg){
   x.fillStyle = '#F3EFE6'; x.fillRect(0, 0, W, H);
   drawContours(x, W, H, '#14332D', 0.11, 2.2);
   /* the margin rule, as on the notebook pages in the app */
@@ -12304,8 +12314,12 @@ function shDrawSheet(x, W, H, o){
     x.font = '400 38px Wildkins, Georgia, serif'; x.fillStyle = '#2C4A41';
     y = shTitle(x, '\u201c' + o.note + '\u201d', W / 2, y + 108, W - 260, 38, 3, 1.22);
   }
-  /* the stamp sits in what was a third of a card of nothing */
-  shStamp(x, W / 2, Math.min(Math.max(y + 190, 1000), 1090),
+  /* the stamp sits in what was a third of a card of nothing — and when the
+     thing being shared is a patch, the patch itself sits there instead. A
+     page from your log with the badge stamped on it. */
+  const stampY = Math.min(Math.max(y + 190, 1000), 1090);
+  if (patchImg) shStampPatch(x, W / 2, stampY - 20, 150, patchImg);
+  else shStamp(x, W / 2, stampY,
     String(o.stamp || 'WAYMARK ' + new Date().getFullYear()), '#A8431A');
   shFoot(x, W, H - 110, false);
 }
@@ -12328,7 +12342,7 @@ function shTitleLines(x, text, maxW, size, lines){
 }
 /* B — YOUR PHOTO, STAMPED. The picture fills it; a plate sits on the
    bottom with the contours running through it. */
-function shDrawPhoto(x, W, H, o, img){
+function shDrawPhoto(x, W, H, o, img, patchImg){
   x.fillStyle = '#14332D'; x.fillRect(0, 0, W, H);
   if (img && img.naturalWidth){
     const k = Math.max(W / img.naturalWidth, H / img.naturalHeight);
@@ -12365,6 +12379,8 @@ function shDrawPhoto(x, W, H, o, img){
     x.fillStyle = 'rgba(243,239,230,.74)';
     shTracked(x, String(o.sub).toUpperCase(), W / 2, endY + 78, 32, 3.5);
   }
+  /* the patch, stamped top right, the way one is sewn onto a pack */
+  if (patchImg) shStampPatch(x, W - 190, 190, 130, patchImg);
   shFoot(x, W, H - 96, true);
 }
 /* THE PATCH — the card this app has always made, kept.
@@ -12374,10 +12390,65 @@ function shDrawPhoto(x, W, H, o, img){
    actually wants to show. It is back as the first option whenever there is
    a patch to draw, and it has the same upgrade as the others — the rings it
    used to draw in place of contours are the real line work now. */
+/* WHAT THIS PATCH IS, AND THE FACTS BEHIND IT.
+
+   Joe, 11 Oct: "it needs to be personalised, it needs to show what
+   peak/challenge/milestone... the data, foot, m etc, the region and when."
+   Everything here is read off the patch and the hill behind it — nothing is
+   typed into the card. A milestone has no region and a challenge has no
+   height, so each kind says what it has rather than leaving a gap. */
+function patchKindWord(p){
+  return ({summit:'SUMMIT', challenge:'CHALLENGE', milestone:'MILESTONE'})[p && p.group] || 'PATCH';
+}
+function patchFacts(p){
+  const out = [];
+  if (!p) return out;
+  if (p.group === 'summit'){
+    const h = BY_KEY[(p.keys || [])[0]];
+    if (h){
+      out.push(feet(h).toLocaleString('en-GB') + ' FT');
+      out.push(Number(h.h).toLocaleString('en-GB') + ' M');
+      out.push(String(h.c).toUpperCase());
+    }
+  } else if (p.group === 'challenge'){
+    if (p.target) out.push(p.have + ' OF ' + p.target);
+    if (p.region) out.push(String(p.region).replace(/^The /, '').toUpperCase());
+  } else {
+    if (p.prog) out.push(String(p.prog).toUpperCase());
+    /* "1 PEAKS" is what counting without looking gets you */
+    else if (p.target && p.kind === 'count')
+      out.push(p.target + (p.target === 1 ? ' PEAK' : ' PEAKS'));
+  }
+  return out;
+}
+function patchWhen(p){
+  if (!p) return '';
+  return p.got ? String(patchDateLine(p)).toUpperCase() : 'WORKING TOWARDS IT';
+}
 function shDrawPatch(x, W, H, o, img){
-  const cx = W / 2, cy = 560, R = 300;
+  const cx = W / 2;
   x.fillStyle = '#14332D'; x.fillRect(0, 0, W, H);
   drawContours(x, W, H, '#F3EFE6', 0.13, 2.4);
+  /* MEASURE THE WORDS, THEN PLACE THE PATCH ABOVE THEM.
+
+     With the patch pinned at a fixed height, a two-line name — "Eastern
+     Fells marked" — pushed the date down through the WAYMARK wordmark.
+     Seen in a picture of the built card, not reasoned about. So: work out
+     what the text needs, reserve the foot, and give the patch whatever is
+     left, up to its full size. */
+  const p = o.patch;
+  const facts = patchFacts(p);
+  const when = p ? patchWhen(p) : String(o.sub || '').toUpperCase();
+  const tl = shTitleLines(x, o.title || '', W - 150, 104, 2);
+  const need = 86                                        /* kind word */
+    + 94 + (tl.rows - 1) * tl.px * 1.04                  /* the name */
+    + (facts.length ? 76 : 0)
+    + (when ? (facts.length ? 56 : 44) : 0)
+    + 40;                                                /* breathing room */
+  const foot = 150;                                      /* wordmark and strapline */
+  const textTop = H - foot - need;
+  const R = Math.max(220, Math.min(330, Math.floor((textTop - 90) / 2)));
+  const cy = Math.max(R + 60, Math.round((textTop - 40) / 2));
   /* REAL ARTWORK BRINGS ITS OWN EDGE. A drawn badge is a bare shape and
      needs the rust disc behind it and a ring around it; one of Joe's
      patches is already a stitched disc with a stitched border, so both
@@ -12395,15 +12466,49 @@ function shDrawPatch(x, W, H, o, img){
     x.strokeStyle = '#A8431A'; x.lineWidth = 10;
     x.beginPath(); x.arc(cx, cy, R + 8, 0, Math.PI * 2); x.stroke();
   }
-  /* THE BADGE ALREADY SAYS THE NAME. Printing it again underneath is the
-     same fact twice on one card — the shop learned this and so does this.
-     What the badge does NOT carry is when it was earned, so that is what
-     goes below it. */
+  /* THE CARD NOW SAYS WHOSE PATCH THIS IS AND WHAT IT TOOK.
+
+     It used to carry the date and nothing else, on the argument that the
+     artwork already says the name. True of a summit — Joe's Ben Nevis patch
+     has the name, the feet and the metres stitched into it — but not of a
+     challenge or a milestone, and a card that goes out to strangers cannot
+     rely on them reading embroidery. Chosen off three drawn options,
+     11 Oct: the patch at 60% of the card, then kind, name, facts, when. */
   x.textAlign = 'center';
+  x.fillStyle = 'rgba(243,239,230,.62)';
+  x.font = '400 24px "Source Code Pro", ui-monospace, monospace';
+  shTracked(x, patchKindWord(p), cx, textTop + 20, 24, 8);
   x.fillStyle = '#F3EFE6';
-  x.font = '400 34px "Source Code Pro", ui-monospace, monospace';
-  shTracked(x, String(o.sub || '').toUpperCase(), cx, 1010, 34, 4);
-  shFoot(x, W, H - 150, true);
+  const end = shTitle(x, o.title || '', cx, textTop + 114, W - 150, 104, 2, 1.04);
+  if (facts.length){
+    x.font = '400 30px "Source Code Pro", ui-monospace, monospace';
+    x.fillStyle = 'rgba(243,239,230,.80)';
+    shTracked(x, facts.join('  ·  '), cx, end + 76, 30, 3);
+  }
+  if (when){
+    x.font = '400 26px "Source Code Pro", ui-monospace, monospace';
+    /* #EE9A62, not the rust: #A8431A measures 1.9:1 on this green */
+    x.fillStyle = '#EE9A62';
+    shTracked(x, when, cx, end + (facts.length ? 132 : 76), 26, 4);
+  }
+  shFoot(x, W, H - 96, true);
+}
+/* The patch, small, stamped onto a card that is mostly something else — the
+   sheet and the photograph. Joe, 11 Oct: "the two additional options do not
+   show the patch." */
+function shStampPatch(x, cx, cy, R, img){
+  if (!img) return;
+  const real = !!(img.naturalWidth > 2 && !/^data:image\/svg/.test(img.src || ''));
+  x.save();
+  x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.closePath(); x.clip();
+  if (!real){ x.fillStyle = '#A8431A'; x.fill(); }
+  shSizeSvg(img);
+  if (img.naturalWidth || img.width) x.drawImage(img, cx - R, cy - R, R * 2, R * 2);
+  x.restore();
+  if (!real){
+    x.strokeStyle = '#A8431A'; x.lineWidth = 6;
+    x.beginPath(); x.arc(cx, cy, R + 5, 0, Math.PI * 2); x.stroke();
+  }
 }
 /* An SVG data URL has no intrinsic size in some engines, so give the image
    one before it is drawn, or naturalWidth comes back 0 and the badge is
@@ -12418,9 +12523,15 @@ const SH_ALL = [
   {id:'sheet', label:'The sheet', note:'A page from your log'},
   {id:'photo', label:'Your photo', note:'Stamped with the hill'}
 ];
-/* only offer what this particular thing can actually draw */
+/* only offer what this particular thing can actually draw.
+   Joe, 11 Oct: "the photo option doesnt actually show a photo." It was
+   offered whether or not there was one, and a patch has none unless it is a
+   summit you photographed — so the card came out as an empty frame. A card
+   with nothing to put in it is not a choice. */
 function shKinds(o){
-  return SH_ALL.filter(k => k.id !== 'patch' || (o && o.art));
+  return SH_ALL.filter(k =>
+    (k.id !== 'patch' || (o && (o.art || o.artPng))) &&
+    (k.id !== 'photo' || (o && o.photo)));
 }
 async function shareRender(kind, o){
   const W = 1080, H = 1350;
@@ -12431,21 +12542,27 @@ async function shareRender(kind, o){
      app's stand-in badge instead is the worst version of the best thing he
      has. The drawn badge is still the fallback, for the patches with no
      artwork yet and for any phone that cannot fetch the file. */
-  const tries = kind === 'photo' ? [o.photo]
-              : kind === 'patch' ? [o.artPng, o.art]
-              : [];
-  let img = null;
-  for (const src of tries){
-    if (!src) continue;
-    const got = new Image();
-    try{ got.crossOrigin = 'anonymous'; }catch(e){}
-    const ok = await new Promise(res => { got.onload = () => res(true); got.onerror = () => res(false);
-      got.src = src; });
-    if (ok){ img = got; break; }
-  }
-  if (kind === 'photo') shDrawPhoto(x, W, H, o, img);
-  else if (kind === 'patch') shDrawPatch(x, W, H, o, img);
-  else shDrawSheet(x, W, H, o);
+  const load = async (...srcs) => {
+    for (const src of srcs){
+      if (!src) continue;
+      const got = new Image();
+      try{ got.crossOrigin = 'anonymous'; }catch(e){}
+      const ok = await new Promise(res => { got.onload = () => res(true); got.onerror = () => res(false);
+        got.src = src; });
+      if (ok) return got;
+    }
+    return null;
+  };
+  /* The patch is wanted on ALL THREE cards now, not just its own. Keyed on
+     the PICTURE, not on o.patch: a card that has artwork to draw should draw
+     it whoever asked. (I keyed it on o.patch first, and three older checks
+     went red — they pass the artwork without the patch object, which is a
+     perfectly reasonable thing to ask for.) A hill card passes neither, so
+     it still gets no badge. */
+  const patchImg = (o.artPng || o.art) ? await load(o.artPng, o.art) : null;
+  if (kind === 'photo') shDrawPhoto(x, W, H, o, await load(o.photo), patchImg);
+  else if (kind === 'patch') shDrawPatch(x, W, H, o, patchImg);
+  else shDrawSheet(x, W, H, o, patchImg);
   return c;
 }
 /* THE PICKER. A row to swipe between the two, then one Share. */
@@ -12591,14 +12708,24 @@ function shPatchArt(p){
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 async function shareCard(p){
+  /* A SUMMIT PATCH HAS A PHOTOGRAPH IF YOU TOOK ONE. The photo card used to
+     be offered with nothing in it; now it is offered only when the hill
+     behind the patch has a picture on your own log, and it uses that. */
+  let photo = '';
+  const key = (p.keys || [])[0];
+  if (p.group === 'summit' && key){
+    const ph = ((rec(key) || {}).photos || []).find(z => z && z.id);
+    if (ph){ try{ photo = await photoSrc(ph) || ''; }catch(e){ photo = ''; } }
+  }
   await shareSheetOpen({
     id: p.id,
+    patch: p,
     eyebrow: p.got ? 'Earned' : 'Working towards',
     title: String(p.label).replace(/&middot;/g, '\u00b7').replace(/&amp;/g, '&'),
     sub: patchDateLine(p),
     art: shPatchArt(p),
     artPng: p.art ? 'patches/' + p.art + '.png' : 'patches/' + p.id + '.png',
-    photo: ''
+    photo: photo
   });
 }
 /* a hill you have marked, as a card — the same two designs */
@@ -34668,7 +34795,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v351';
+const APP_VERSION = 'v352';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
