@@ -3233,8 +3233,23 @@ button.bstriprow{cursor:pointer}
 /* 240px, not the spec's 160. Joe, 8 Oct: "make the icon bigger". At 160 the
    embroidery does not read; at 240 you can see the stitch direction, and it
    is still 77px clear of each side on a 393px phone. */
+/* NO FILTER. THE SHADOW BELONGS TO THE CIRCLE.
+
+   Joe reported a square drop shadow, I rounded the picture inside the disc
+   (v357), and he photographed it again still square. Amplifying the
+   background of that photograph about fourteen times shows a hard-edged
+   dark square around the badge, so the first fix treated a symptom.
+
+   `filter: drop-shadow` shadows the rendered alpha of the WHOLE subtree,
+   and WebKit builds that alpha without the rounded clip `.disc` applies —
+   so whatever square thing is in there, Safari shadows it. Chasing which
+   one is a guess I cannot test: there is no WebKit engine in this
+   container and Chromium clips it correctly.
+
+   So stop asking a filter to work it out. A `box-shadow` on the round
+   element follows that element's own border-radius, by definition, in
+   every engine. Nothing to clip, nothing to infer, no subtree. */
 .winhero{grid-area:1/1; width:240px; height:240px; display:block; z-index:2;
-  filter:drop-shadow(0 14px 34px rgba(0,0,0,.6));
   transform:scale(1.7); opacity:0; animation:winpress .7s cubic-bezier(.22,1,.36,1) .35s forwards}
 /* THE CUT-OFF. Joe, 8 Oct: "the ring is fine, what wasnt fine is the cut off
    on the top, sides and bottom."
@@ -3247,7 +3262,11 @@ button.bstriprow{cursor:pointer}
    top, bottom and both sides, with the mount showing through at the corners.
    It was never the ring. It was a radius that only ever worked by accident.
    50% cannot go wrong at any size. */
-.winhero .disc{width:240px; height:240px; margin:0; border-radius:50%}
+/* the shadow the hero used to get from a filter, drawn by the circle itself
+   — and `!important` because `.patch.got .disc` further down sets its own
+   box-shadow and would otherwise wipe this one off */
+.winhero .disc{width:240px; height:240px; margin:0; border-radius:50%;
+  box-shadow:0 14px 34px rgba(0,0,0,.6) !important}
 .winhero .disc::before, .winhero .disc::after{border-radius:50%}
 @keyframes winpress{55%{opacity:1} to{transform:scale(1); opacity:1}}
 .winping{grid-area:1/1; width:240px; height:240px; border-radius:50%; border:2px solid #E8B07A;
@@ -35146,7 +35165,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v357';
+const APP_VERSION = 'v358';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
