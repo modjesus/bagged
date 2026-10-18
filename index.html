@@ -3837,6 +3837,11 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
   display:grid; place-items:center; font-size:12px; font-weight:700; font-family:var(--font-ui)}
 .askbox h2{padding-right:38px}
 .askbox p{font-size:14px; color:var(--ink-2); margin:8px 0 0}
+/* `hidden` has to win. .asktick sets display:flex, which beats the browser's
+   own [hidden]{display:none}, so EVERY question without a tick — unmark,
+   delete, all of them — drew an empty grey box with a stray orange tick in
+   it. Found by screenshotting the unmark question for something else. */
+.asktick[hidden]{display:none}
 .asktick{display:flex; gap:10px; align-items:flex-start; background:var(--tint);
   border-radius:10px; padding:11px 12px; margin:14px 0 0; cursor:pointer}
 .asktick input{flex:none; width:18px; height:18px; margin:1px 0 0; accent-color:var(--accent); cursor:pointer}
@@ -12174,10 +12179,31 @@ async function marking(fn, opts){
 async function postPatches(list){
   if (!FB || !fbUser || !autoPostOn()) return;
   if (!followerUids().length && (prof.pvis || 'public') !== 'public') return;
+  /* IT HAS TO BE VISIBLE. v362. These went up with no sheet, no toast and no
+     way back — an external audit found a patch post it had never been
+     offered, and the only sign anything had happened was the feed itself.
+     One toast for the lot, with Undo, the same as a shared day gets. */
+  const made = [];
   for (const p of list.slice(0, 3)){
-    try{ await createPost({kind:'patch', text:p.label, hills:[], date: today(), tags:[], patch:p.id}); }catch(e){}
+    try{
+      const post = await createPost({kind:'patch', text:p.label, hills:[], date: today(), tags:[], patch:p.id});
+      if (post) made.push(post);
+    }catch(e){}
   }
+  if (!made.length) return;
+  /* AFTER the celebration, not under it. A six-second toast during the one
+     screen the walker is actually reading is a toast nobody sees — and this
+     one carries the only Undo there is. The patch screen hands it on when
+     it closes, the same way it hands on the share sheet. */
+  const show = () => toastAct(
+    made.length === 1 ? 'Shared your ' + made[0].text + ' patch' : 'Shared ' + made.length + ' patches',
+    'Undo',
+    async () => { for (const m of made){ try{ await deletePost(m.id); }catch(e){} }
+                  render(); toast(made.length === 1 ? 'Post taken down.' : 'Posts taken down.'); });
+  if (winOpen() || winComing) toastAfterWin = show; else show();
 }
+/* held until the patch screen closes; see closeWin */
+let toastAfterWin = null;
 
 /* Patches this device has already celebrated. Anything earned that is not
    here gets its moment the next time Home is drawn, so a patch unlocked by a
@@ -12462,6 +12488,9 @@ function closeWin(){
   /* a beat, so the celebration is gone before the form arrives rather than the
      two of them crossing over mid-animation */
   if (held) setTimeout(() => openShareDay(held.hs, held.d), 260);
+  /* and the word about what was posted for you, with its Undo */
+  const say = toastAfterWin; toastAfterWin = null;
+  if (say) setTimeout(say, held ? 900 : 300);
 }
 
 /* ---------- the share card ----------
@@ -13138,6 +13167,53 @@ async function shareHill(key){
 
 function winOpen(){ return document.getElementById('win').classList.contains('open'); }
 /* a marked summit is hard-won — never let one tap undo it silently */
+/* WHAT THE FEED STILL SAYS ABOUT A HILL YOU ARE ABOUT TO UNMARK.
+
+   v362. An external audit, 18 Oct: unmarking a hill left the post about it
+   sitting in the feed. Reproduced — marking Helvellyn posted "First peak
+   marked" and "Helvellyn" with no sheet and no toast, and unmarking removed
+   neither. The log said not visited; the feed said climbed, with a patch.
+
+   Two kinds of post count:
+     - a PATCH post for a patch this unmark will actually cost. A summit
+       patch is keys:[k] have:1 target:1, so it goes. "First peak marked"
+       counts every summit, so with ten others marked it stays, and its post
+       stays with it — the walker still holds it.
+     - any post that LISTS the hill — a day shared from the sheet, from the
+       journal, from Strava. Those are the walker's own words, which is why
+       the tick is offered rather than taken.
+
+   Compared on hillIdent, not the key, because the same summit appears under
+   several lists with different keys. */
+/* ASKED OF THE PATCHES, NOT GUESSED FROM THEIR KEYS. The first attempt
+   matched a patch post by whether the patch listed this hill, which is
+   wrong twice over: "First peak marked" carries NO keys at all, so a
+   walker could unmark their only hill and leave the post saying they had
+   marked it, and a counting patch with keys would have been read as lost
+   when it was not. So the question is put to patches() directly: hold the
+   hill back for an instant, see which patches stop being held, put it
+   back. Synchronous from first line to last, with the record restored in a
+   finally, so nothing can land in the middle of it. */
+function patchesLostByUnmarking(key){
+  const before = new Set(patches().filter(p => p.got).map(p => p.id));
+  const keep = state.bagged[key];
+  if (keep === undefined) return new Set();
+  let after;
+  try{
+    delete state.bagged[key];
+    after = new Set(patches().filter(p => p.got).map(p => p.id));
+  } finally { state.bagged[key] = keep; }
+  return new Set([...before].filter(id => !after.has(id)));
+}
+function postsAboutHill(key){
+  if (!FB || !fbUser || !BY_KEY[key]) return [];
+  const id = hillIdent(key);
+  const lost = patchesLostByUnmarking(key);
+  return (feed || []).filter(x => x && x.uid === fbUser.uid && !x.deleted &&
+    ((x.patch && lost.has(x.patch)) ||
+     (x.hills || []).some(hk => hillIdent(hk) === id)));
+}
+
 async function okToUnmark(key){
   const h = BY_KEY[key]; if (!h) return true;
   const r = rec(key), kept = [];
@@ -13154,12 +13230,33 @@ async function okToUnmark(key){
     ? 'It goes back to not visited. Your ' + listWords(kept) + (one ? ' stays' : ' stay') +
       ' saved, and ' + (one ? 'comes' : 'come') + ' back if you mark it again.'
     : 'It goes back to not visited.';
+  /* Named and counted, ticked on. Same shape as deleting a journal entry
+     that made a post — see 'deldiary'. Untick it and the post stays, which
+     is what used to happen whether you wanted it or not. */
+  const np = postsAboutHill(key).length;
+  const tick = np ? {
+    label: np === 1 ? 'Take the post down too' : 'Take the ' + np + ' posts down too',
+    sub: np === 1 ? 'Your post about it in the feed. Any words and photographs go with it.'
+                  : 'Your posts about it in the feed. Any words and photographs go with them.'
+  } : null;
   return confirmAsk({
     title: 'Unmark ' + h.n + '?',
     body: body,
     yes: 'Unmark it',
-    no: 'Keep it marked'
+    no: 'Keep it marked',
+    tick
   });
+}
+/* Called right after an unmark is confirmed, with the answer askTicked()
+   gave. Quiet when there is nothing to do, so every caller can just call
+   it. The posts are worked out BEFORE the unmark, because a patch that has
+   already gone is no longer in patches() to be recognised. */
+async function dropPostsAbout(list){
+  if (!list || !list.length) return;
+  let gone = 0;
+  for (const p of list){ try{ await deletePost(p.id); gone++; }catch(e){} }
+  if (gone) toast(gone === 1 ? 'Post taken down too.' : gone + ' posts taken down too.');
+  else toast('The posts would not go — try it from the feed.');
 }
 function listWords(a){
   return a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
@@ -27960,7 +28057,11 @@ document.addEventListener('click', async e => {
        Found by t/firstmark.js section 5: marks 2 and 3 had nothing to tick. */
     if (tab === 'd' && !ui.homeList && onList(ui.list)) ui.homeList = ui.list;
     const k = el.dataset.k, turningOff = isBagged(k);
+    /* worked out before the question, because once the hill is unmarked the
+       patch it paid for is no longer in patches() to be matched against */
+    const doomed = turningOff ? postsAboutHill(k) : [];
     if (turningOff && !await okToUnmark(k)) return;
+    const alsoPosts = turningOff && doomed.length && askTicked() ? doomed : [];
     /* hold it in the To climb list until you leave, so the check lands on the
        row you pressed instead of the list shutting up by one under your thumb */
     if (!turningOff && ui.view === 'climb'){
@@ -27983,6 +28084,7 @@ document.addEventListener('click', async e => {
       const d = rec(k).date;
       toast('Marked ' + hillName(BY_KEY[k]) + (d ? ' \u00b7 ' + prettyDate(d) : ''));
     }
+    await dropPostsAbout(alsoPosts);
   }
   else if (a === 'markmap'){ await markFromMap(el.dataset.k, el.dataset.again === '1'); }
   else if (a === 'ascadd'){
@@ -28187,11 +28289,14 @@ document.addEventListener('click', async e => {
   else if (a === 'sumunmark'){
     const k = el.dataset.k, h = BY_KEY[k]; if (!h) return;
     ui.sumEdit = null; render();
+    const doomed = postsAboutHill(k);
     if (!await okToUnmark(k)) return;
+    const alsoPosts = doomed.length && askTicked() ? doomed : [];
     await marking(() => { ui.open = null; setBagged(k, false, ''); });
     if (mapReady){ drawMarkers(); closePopups(map); }
     render();
     toast('Unmarked ' + hillName(h) + '.');
+    await dropPostsAbout(alsoPosts);
   }
   else if (a === 'sumaddopen'){ ui.sumAdd = true; ui.sumEdit = null; ui.sumQ = ''; render(); }
   else if (a === 'sumaddclose'){ ui.sumAdd = false; ui.sumQ = ''; render(); }
@@ -28287,13 +28392,17 @@ document.addEventListener('click', async e => {
     /* the state already set turns itself off, since there is no longer a
        "Not visited" button to go back to */
     const want = stateOf(k) === el.dataset.v ? 'none' : el.dataset.v;
-    if (isBagged(k) && want !== 'done' && !await okToUnmark(k)) return;
+    const losing = isBagged(k) && want !== 'done';
+    const doomed = losing ? postsAboutHill(k) : [];
+    if (losing && !await okToUnmark(k)) return;
+    const alsoPosts = losing && doomed.length && askTicked() ? doomed : [];
     await marking(() => {
       if (want === 'done') ui.open = k;
       setState(k, want);
     });
     if (mapReady) drawMarkers();
     if (wikiOpen && wikiOpen.k === k) paintInfo();
+    await dropPostsAbout(alsoPosts);
   }
   else if (a === 'info'){ openInfo(el.dataset.k); }
   else if (a === 'closeinfo'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; }
@@ -35278,7 +35387,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v361';
+const APP_VERSION = 'v362';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
