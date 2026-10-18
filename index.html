@@ -377,7 +377,12 @@ body::before{
   display:flex; flex-direction:column; align-items:center; gap:2px;
   min-width:0; overflow:visible; flex:0 1 auto; text-align:center;
 }
-.hbrand{background:none; border:none; padding:0; cursor:pointer; color:inherit}
+/* The wordmark is a button — it goes Home — and it measured 107×24, under
+   the app's own 44px floor, since before any of this. It is in a flex row
+   with align-items:center, so a minimum height grows the target without
+   moving a pixel of the wordmark itself. */
+.hbrand{background:none; border:none; padding:0; cursor:pointer; color:inherit;
+  display:flex; flex-direction:column; justify-content:center}
 /* the tagline is tracked out by script to sit exactly under the wordmark */
 .tagline{display:block}
 .pclink, .pcorder{min-height:36px; display:inline-flex; align-items:center}
@@ -1128,7 +1133,11 @@ body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
    min-height only, no extra padding — padding each summit row by 10px to gain
    ONE pixel added 600px to the Journal, which is a worse trade than the bug. */
 .planintro .linkbtn{padding:0; min-height:24px}
-.hbrand{min-height:24px}
+/* 24 was the old floor and it stuck: measured 107×24 on a phone, under the
+   app's own 44. The row centres its children, so raising the minimum grows
+   the target and moves nothing. (The ::after below adds 6px each way on top
+   of this — it was doing the same job from 24 and still fell short.) */
+.hbrand{min-height:var(--tap, 44px)}
 /* padding:0 must stay — dropping it let the base .linkbtn's 9px back in and
    put 1,000px on the Journal */
 /* A WRAPPED NAME, NEVER A CUT ONE. The first go at two columns clipped to an
@@ -5065,7 +5074,9 @@ li.hill.bk .hrow{padding-left:2px}
    has grown: the Explore/Plot/Import bar at the bottom, and now the list and
    day pills above it. 66px cleared the mode bar alone and let the pills sit
    across the rose's crown. This clears both. */
-#routemap .rosectl{margin-bottom:112px}
+/* the rose clears the credit, the mode bar AND however many rows of pills
+   there are — all three measured after they are drawn, never assumed */
+#routemap .rosectl{margin-bottom:calc(16px + var(--mcred, 0px) + var(--mfoot, 50px) + var(--mpill, 50px))}
 .maplibregl-ctrl-top-left .rosectl{margin:74px 0 0 12px}
 .rosectl{
   position:relative; width:46px; height:46px; margin:0 0 12px 12px;
@@ -5186,7 +5197,8 @@ body.guiding{overflow:hidden}
    the routes switch -- was scrolled off the right-hand edge and invisible,
    which is the opposite of "more obvious". It wraps instead. The row still
    scrolls sideways on a narrow phone with long list names. */
-.mpills{position:absolute; z-index:5; left:12px; right:calc(12px + var(--grip, 0px)); bottom:62px;
+.mpills{position:absolute; z-index:5; left:12px; right:calc(12px + var(--grip, 0px));
+  bottom:calc(12px + var(--mcred, 0px) + var(--mfoot, 50px));
   display:flex; flex-wrap:wrap; gap:6px; overflow-x:auto; scrollbar-width:none;
   justify-content:flex-start}
 .mpills::-webkit-scrollbar{display:none}
@@ -5248,7 +5260,7 @@ body.guiding{overflow:hidden}
 .mctl .mguide{background:var(--accent); color:#FFF3E9}
 .mctl .mguide svg{width:20px; height:20px; stroke-width:2.4; fill:#FFF3E9}
 .mctl .mguide:hover{background:#8E3813}
-.mmode{left:12px; right:calc(12px + var(--grip, 0px)); bottom:12px; padding:4px; display:flex; gap:2px;
+.mmode{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mcred, 0px)); padding:4px; display:flex; gap:2px;
   max-width:calc(100% - 24px); overflow-x:auto; scrollbar-width:none; justify-content:flex-start}
 .mmode::-webkit-scrollbar{display:none}
 @media (min-width:520px){ .mmode{right:auto; width:auto} }
@@ -5499,7 +5511,7 @@ body.guiding{overflow:hidden}
 .jnode.chapter span{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); background:var(--ground); padding:2px 6px; border-radius:6px}
 .jnote{font-size:13px; color:var(--ink-3); margin:6px 0 0; text-align:center}
 .disc.hasimg > svg{display:none}
-.mplot{left:12px; right:calc(12px + var(--grip, 0px)); bottom:12px; padding:5px; display:flex; align-items:center; gap:4px}
+.mplot{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mcred, 0px)); padding:5px; display:flex; align-items:center; gap:4px}
 .mplot button{height:40px; padding:0 14px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mplot button:disabled{opacity:.4; cursor:default}
 .mplot button:not(:disabled):hover{background:rgba(20,51,45,.07)}
@@ -7189,8 +7201,14 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .dogstripitem i{display:block; font-style:normal; font-family:var(--font-data); font-size:10.5px; color:var(--ink-3)}
 .dogpick{display:flex; gap:8px; flex-wrap:wrap}
-.dogpick button{display:flex; align-items:center; gap:8px; border:1.5px solid var(--line); background:var(--raise);
-  border-radius:99px; padding:4px 14px 4px 4px; font:700 14px var(--font-ui); color:var(--ink); cursor:pointer}
+/* 40px, and nobody had noticed: the face is 32 and the padding 4 top and
+   bottom. t/tap44.js sweeps six screens and an expanded journal day is not
+   one of them, so the app's own floor was being broken in the one place a
+   muddy thumb picks between two small round photographs. Found by the test
+   written for the "No dogs" answer, on the two pills that were already there. */
+.dogpick button{display:flex; align-items:center; gap:8px; min-height:44px;
+  border:1.5px solid var(--line); background:var(--raise);
+  border-radius:99px; padding:4px 15px 4px 5px; font:700 14px var(--font-ui); color:var(--ink); cursor:pointer}
 .dogpick .dogface{width:32px; height:32px; border-width:2px; box-shadow:none}
 .dogpick .dogface svg{width:16px; height:16px}
 .dogpick button[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text)}
@@ -7202,6 +7220,13 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
   text-transform:uppercase; color:var(--ink-3); margin-bottom:8px}
 .dogdaylab svg{width:14px; height:14px}
 .dogpick button.part{border-style:dashed; border-color:var(--accent); color:var(--accent-text)}
+/* "No dogs" is one of the answers, so it wears the same pill — but a plain
+   paw in a quiet disc rather than a face, so nobody reads it as a third dog */
+.dogpick .dognone .dognoneface{width:32px; height:32px; flex:none; border-radius:50%;
+  border:2px dashed var(--line); display:grid; place-items:center; color:var(--ink-3)}
+.dogpick .dognone .dognoneface svg{width:16px; height:16px}
+.dogpick .dognone[aria-pressed="true"] .dognoneface{border-style:solid;
+  border-color:var(--accent); color:var(--accent-text)}
 .dogcheer{font-family:var(--font-hand); font-size:19px; color:var(--accent-text); display:inline-block; transform:rotate(-2deg); margin:8px 0 0}
 .dogeditav .dogface{width:84px; height:84px; margin:0 auto}
 .dogslider{margin:10px 0 2px}
@@ -7359,9 +7384,14 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
    across the page means an error everywhere else on the web. The rust belongs
    on the Choose button inside it, which is the thing you press; the bar itself
    is ordinary furniture, the same edge as .impoffer beside it. */
-.imphome{display:flex; align-items:stretch; gap:0; height:46px; margin:10px 0 9px;
+/* Joe, 18 Oct: "buttons touching the container." Measured: the row was 46px
+   tall around a 44px Choose button — one pixel of air top and bottom — and
+   the button's right edge came within 4px of the divider, because the cell's
+   padding was 11px on the left and 4px on the right. Even it up and give the
+   row room to hold what is inside it. */
+.imphome{display:flex; align-items:stretch; gap:0; min-height:54px; margin:10px 0 9px;
   border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface)}
-.imphomego{flex:1; min-width:0; display:flex; align-items:center; gap:9px; padding:0 4px 0 11px; cursor:pointer}
+.imphomego{flex:1; min-width:0; display:flex; align-items:center; gap:10px; padding:0 11px 0 13px; cursor:pointer}
 .imphomego:focus-within{outline:2px solid var(--accent); outline-offset:-3px}
 .imphomego > svg{flex:none; color:var(--accent)}
 .imphometx{flex:1; min-width:0; font:600 13.5px var(--font-ui); color:var(--ink);
@@ -9236,9 +9266,19 @@ html.kbopen .cvcompose{padding-bottom:8px}
   width:var(--ctl-ico); height:var(--ctl-ico); min-height:var(--ctl-ico);
   border-radius:50%; padding:0; display:grid; place-items:center}
 .iconbtn svg, .xbtn svg{width:var(--i-md); height:var(--i-md)}
-/* the top bar is five of these plus the wordmark; let them breathe without
-   pushing the logo off */
-.top .brandrow{gap:2px}
+/* FOUR, NOT FIVE. With the bell in the cog the row is the wordmark plus
+   four icons, which at 390px leaves 30px of slack — so they get a real gap
+   instead of the 2px that was all five would allow. Measured at 320, 360,
+   390 and 430: even gaps, and the page padding holds at every one. */
+.top .brandrow{gap:8px}
+/* the count the bell used to carry, on the cog */
+.cogbtn{position:relative}
+.cogbtn > #cogN{
+  position:absolute; top:2px; right:1px; z-index:2; min-width:17px; height:17px;
+  padding:0 4px; border-radius:99px; background:var(--accent); color:#FFF3E8;
+  font:800 10.5px/17px var(--font-ui); text-align:center; font-style:normal;
+  box-shadow:0 0 0 2px var(--ground)}
+.cogbtn > #cogN[hidden]{display:none}
 
 /* ---- the journal row and the list-gain pills were built to this already,
    so they only need pointing at the tokens ---- */
@@ -9766,15 +9806,11 @@ textarea, select{font-size:16px}
 
         <button class="hbrand hideDesk" data-tab="d" aria-label="WayMark home"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></button>
         <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span></button>
-        <button class="iconbtn bell" id="bellBtn" aria-label="Hills with no date" title="Hills with no date" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H4a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg>
-          <i id="bellN"></i>
-        </button>
 <span class="headsocial" id="headSocial" hidden></span>
 <button class="iconbtn bagbtn" data-act="bagopen" aria-label="Backpack" title="Backpack"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"/><path d="M9.5 5v-1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v1"/><path d="M6 10.5h12"/><path d="M9 14h6v4h-6z"/></svg><i></i></button>
         <button class="iconbtn cambtn" data-act="cam" aria-label="Camera" title="Camera"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg></button>
         <button class="iconbtn" id="themeBtn" aria-label="Light or dark" title="Light or dark" hidden></button>
-        <button class="iconbtn" id="menuBtn" aria-label="Settings" title="Settings">
+        <button class="iconbtn cogbtn" id="menuBtn" aria-label="Settings" title="Settings"><i id="cogN" hidden></i>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
         </button>
       </div>
@@ -18951,6 +18987,7 @@ function dogPickHTML(key){
     s += '<button data-act="dogtick" data-k="' + esc(key) + '" data-v="' + esc(d.id) + '" aria-pressed="' + sel + '">' +
       dogFaceHTML(d) + '<span class="dogpickname">' + esc(dogName(d)) + '</span></button>';
   }
+  s += dogNoneHTML('dognone', 'data-k="' + esc(key) + '"', on.length === 0);
   s += '</div>';
   const first = ds.find(d => on.indexOf(d.id) >= 0);
   if (first){
@@ -18966,17 +19003,58 @@ function ordinal(n){
   const suf = (v >= 11 && v <= 13) ? 'th' : ({1:'st', 2:'nd', 3:'rd'}[n % 10] || 'th');
   return n + suf;
 }
+/* NOBODY CAME, AND THAT IS AN ANSWER.
+
+   Joe, 18 Oct, from the live app: "where it asks on journal etc which dogs
+   came with you there needs to be a none option."
+
+   Two toggles with nothing lit is the same picture as a question you have
+   not got round to yet. On a day you walked on your own there was no way to
+   say so, and no way to undo a mistaken tap except tapping it again and
+   hoping you had found the right one. "No dogs" is a third answer with its
+   own pressed state, and tapping it clears the others. */
+function dogNoneHTML(act, attrs, pressed){
+  return '<button class="dognone" data-act="' + act + '" ' + attrs +
+    ' aria-pressed="' + !!pressed + '">' +
+    '<span class="dognoneface">' + ti('paw') + '</span>' +
+    '<span class="dogpickname">No dogs</span></button>';
+}
 /* the dog row on a journal day */
 function dogDayHTML(day){
   const ds = dogList(); if (!ds.length || !day.hills.length) return '';
   const keys = day.hills.map(h => h.k);
+  const none = !ds.some(d => keys.some(k => dogsOn(k).indexOf(d.id) >= 0));
   return '<div class="dogday"><span class="dogdaylab">' + ti('paw') + 'Who came?</span><div class="dogpick">' +
     ds.map(d => {
       const on = keys.every(k => dogsOn(k).indexOf(d.id) >= 0);
       const some = !on && keys.some(k => dogsOn(k).indexOf(d.id) >= 0);
       return '<button data-act="dogday" data-d="' + esc(day.date) + '" data-v="' + esc(d.id) + '" aria-pressed="' + on + '"' +
         (some ? ' class="part" title="On some of that day"' : '') + '>' + dogFaceHTML(d) + '<span class="dogpickname">' + esc(dogName(d)) + '</span></button>';
-    }).join('') + '</div></div>';
+    }).join('') +
+    dogNoneHTML('dogdaynone', 'data-d="' + esc(day.date) + '"', none) +
+    '</div></div>';
+}
+/* one tap, every dog off — on one hill or across a whole day */
+function dogNoneOnHill(key){
+  const r = rec(key);
+  const had = Array.isArray(r.dogs) ? [...r.dogs] : [];
+  if (!had.length) return;
+  state.bagged[key] = {...r, dogs:[], t:now()};
+  touched(); render();
+  for (const id of had) dogPushMarks(id);
+}
+function dogNoneOnDay(date){
+  const day = diaryDays().find(x => x.date === date); if (!day) return;
+  const keys = day.hills.map(h => h.k); if (!keys.length) return;
+  const had = new Set();
+  for (const k of keys){
+    const r = rec(k);
+    for (const id of (Array.isArray(r.dogs) ? r.dogs : [])) had.add(id);
+    if (Array.isArray(r.dogs) && r.dogs.length) state.bagged[k] = {...r, dogs:[], t:now()};
+  }
+  if (!had.size) return;
+  touched(); render();
+  for (const id of had) dogPushMarks(id);
 }
 /* one tap: every summit on that day goes on their page, or comes off it */
 function dogDay(date, id){
@@ -20469,9 +20547,68 @@ function render(){
   if (ui.openComments && document.getElementById('cmsheet')) paintCommentSheet();
   if (tab === 'p') mountRouteMap();
   if (tab === 'm') mountMap();
+  if (tab === 'p' || tab === 'm') fitMapFurniture();
   /* anything earned but never celebrated gets its moment on Home */
   if (tab === 'd') setTimeout(settleWins, 400);
 }
+
+/* ---- the furniture at the foot of the map stacks, it does not guess ----
+
+   Joe, 18 Oct, from his phone: "on map buttons are overlapping and the
+   directional rose is completely covered."
+
+   Reproduced at 390px with four pills: the rose sat at bottom 112–158 and
+   the pills' SECOND row sat at 112–156. Dead on top of it. Every piece down
+   there was positioned at a hard-coded offset from the bottom — the mode bar
+   at 12, the pills at 62 (44 for one row of pills plus a 6px gap plus 12),
+   the rose at 112 — and the comment above `.mpill` said so out loud:
+
+     "One row at 390px, so this costs six pixels of map and nothing wraps
+      — measured before changing it."
+
+   True when it was written, with two pills. Joe has four: he has map sheets,
+   so "Save offline" shows, and he has two routes, so "Routes 2" shows. Two
+   rows, and every number below the pills was wrong by 50px.
+
+   The OS and OpenStreetMap credit was underneath the mode bar for the same
+   reason, which is worse than untidy — that credit is a condition of using
+   the maps.
+
+   So nothing down there is a fixed number any more. Each piece is measured
+   after it is drawn and the one above it is told how much room to leave. A
+   third row of pills, a longer list name, a bigger credit: it still stacks. */
+function fitMapFurniture(){
+  for (const wrap of document.querySelectorAll('.mapwrap')){
+    const h = sel => { const e = wrap.querySelector(sel);
+      if (!e) return 0;
+      const r = e.getBoundingClientRect();
+      return r.height ? Math.round(r.height) : 0; };
+    /* the credit sits at the very bottom and everything clears it */
+    const credEl = wrap.querySelector('.maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib');
+    /* The credit is compact: a 20px button until it is tapped, then a strip
+       across the foot of the map. Reserve the collapsed height at minimum so
+       the mode bar never sits on the button either, and watch it, because
+       the moment somebody taps it the strip grows under everything. */
+    const cred = credEl ? Math.max(20, Math.round(credEl.getBoundingClientRect().height)) : 0;
+    const mode = h('.misle.mmode') || h('.misle.mplot');
+    const pills = h('.mpills');
+    wrap.style.setProperty('--mcred', (cred ? cred + 6 : 0) + 'px');
+    wrap.style.setProperty('--mfoot', (mode ? mode + 8 : 0) + 'px');
+    wrap.style.setProperty('--mpill', (pills ? pills + 8 : 0) + 'px');
+    if (credEl && !credEl.__watched && 'ResizeObserver' in window){
+      credEl.__watched = true;
+      new ResizeObserver(fitMapFurnitureSoon).observe(credEl);
+    }
+  }
+}
+/* the credit folds out when tapped and the pills have to move for it, so this
+   runs again whenever the map's own chrome changes size */
+let mapFurnTimer = 0;
+function fitMapFurnitureSoon(){
+  clearTimeout(mapFurnTimer);
+  mapFurnTimer = setTimeout(fitMapFurniture, 60);
+}
+window.addEventListener('resize', fitMapFurnitureSoon);
 
 function pageHead(eyebrow, figure, sub){
   return '<header class="wmhead">' +
@@ -21253,14 +21390,27 @@ function undated(){
     .sort((a, b) => BY_KEY[b].h - BY_KEY[a].h);
 }
 
+/* THE BELL MOVED INTO THE COG.
+
+   Joe, 18 Oct: "merge notifications into settings and give it the alert
+   circle and number if there is a notification."
+
+   The top bar held six things and had room for five, so the icons sat 2px
+   apart and at 360px the page padding collapsed from 18px to 5. The bell was
+   the one that could go: it is not a place of its own, it is one job —
+   hills marked with no date on them — and that job now has a row at the top
+   of Settings with the same count on it. The cog wears the circle, so
+   nothing is hidden; there is one fewer door to it. */
 function paintBell(){
-  const b = document.getElementById('bellBtn');
-  if (!b) return;
+  const i = document.getElementById('cogN');
+  if (!i) return;
   const n = undated().length;
-  b.hidden = !n;
-  b.setAttribute('aria-label', n + (n === 1 ? ' hill has no date' : ' hills have no date'));
-  const i = document.getElementById('bellN');
-  if (i) i.textContent = n > 99 ? '99+' : String(n);
+  i.hidden = !n;
+  i.textContent = n > 99 ? '99+' : String(n);
+  const b = document.getElementById('menuBtn');
+  if (b) b.setAttribute('aria-label', n
+    ? 'Settings \u2014 ' + n + (n === 1 ? ' hill has no date' : ' hills have no date')
+    : 'Settings');
 }
 
 const ndEl = () => document.getElementById('nd');
@@ -21321,8 +21471,9 @@ function ndSet(k, date){
 }
 
 document.addEventListener('click', e => {
-  const bell = e.target.closest('#bellBtn');
-  if (bell){ ndShow(); return; }
+  /* the bell is gone from the top bar; its row in Settings opens the same
+     sheet, and Settings closes behind it so there is one thing on screen */
+  if (e.target.closest('[data-act="nddates"]')){ closeSheetNow(); ndShow(); return; }
   if (!ndOpen()) return;
   const t = e.target;
   if (t.closest('#ndX')){ ndClose(); return; }
@@ -29643,6 +29794,7 @@ document.addEventListener('click', async e => {
   else if (a === 'dogcovadjust'){ await dogAdjust('cover'); }
   else if (a === 'dogremove'){ await removeDog(el.dataset.v); }
   else if (a === 'dogtick'){ toggleDogOnHill(el.dataset.k, el.dataset.v); }
+  else if (a === 'dognone'){ dogNoneOnHill(el.dataset.k); }
   /* ---- the kit ---- */
   else if (a === 'geartick'){ toggleKitOnHill(el.dataset.k, el.dataset.v); }
   else if (a === 'gearopen'){
@@ -29715,6 +29867,7 @@ document.addEventListener('click', async e => {
     render();
   }
   else if (a === 'dogday'){ dogDay(el.dataset.d, el.dataset.v); }
+  else if (a === 'dogdaynone'){ dogNoneOnDay(el.dataset.d); }
   else if (a === 'dogsharepick'){ dogSharePick(el.dataset.v); }
   else if (a === 'dogshareto'){ await dogShareTo((ui.dogShare && ui.dogShare.sel) || [], el.dataset.v); }
   else if (a === 'dogsharetick'){ const st = ui.dogShare; if (!st) return true;
@@ -31260,7 +31413,16 @@ const SET_ICON = {
 };
 function renderSetMenu(){
   const box = document.getElementById('setMenu'); if (!box) return;
-  box.innerHTML = SET_PANES.map(r => {
+  /* the bell's job, where the bell used to point — first row, and only when
+     there is something to answer */
+  const nd = undated().length;
+  const ndRow = !nd ? '' :
+    '<button class="setrow setnd" data-act="nddates">' +
+    '<span class="seti">' + ti('bell', 'width="19" height="19"') + '</span>' +
+    '<b>' + (nd === 1 ? 'One hill has no date' : nd + ' hills have no date') + '</b>' +
+    '<span class="setval">Set them</span>' +
+    '<span class="setchev">' + ti('chevron-right', 'width="15" height="15"') + '</span></button>';
+  box.innerHTML = ndRow + SET_PANES.map(r => {
     let v = ''; try{ v = r.val() || ''; }catch(e){ v = ''; }
     return '<button class="setrow" data-act="setpane" data-v="' + r.id + '">' +
       '<span class="seti">' + ti(SET_ICON[r.icon] || 'settings', 'width="19" height="19"') + '</span>' +
@@ -35848,7 +36010,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v371';
+const APP_VERSION = 'v372';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
