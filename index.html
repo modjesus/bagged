@@ -23392,9 +23392,13 @@ function renderDashboard(){
   /* a list opened from Home owns the screen until you come back */
   if (ui.homeList && onList(ui.homeList)) return homeListPage();
   const a = allStats();
+  /* the log, not the lists — see logCount */
+  const logged = logCount();
   let s = pendingInviteCard() + requestsCard() + markBar();
 
-  if (!a.done){
+  /* "Mark your first fell" went to a walker with forty hills in the log, if
+     the lists those hills were on happened to be switched off */
+  if (!logged){
     /* Before the first hill there is one thing to say; the list is right below. */
     s += '<div class="invite">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI.h + '</svg>' +
@@ -23417,11 +23421,13 @@ function renderDashboard(){
   const sct = summitStats();
   const coverInner =
     '<p class="coverline"><i></i>Your log, ' + yr + '</p>' +
-    '<button class="coverdoor" data-act="summits" aria-label="See all ' + a.done +
+    '<button class="coverdoor" data-act="summits" aria-label="See all ' + logged +
       ' summits you have marked">' +
-    '<h1>' + a.done.toLocaleString() + (a.done === 1 ? ' hill' : ' hills') + '<br>marked<em>.</em></h1>' +
+    '<h1>' + logged.toLocaleString() + (logged === 1 ? ' hill' : ' hills') + '<br>marked<em>.</em></h1>' +
     '<span class="coverall">All your summits' + ti('chevron-right') + '</span></button>' +
-    '<p class="coversub"><b>' + a.remaining.toLocaleString() + ' to go</b> across ' + enabled().length + (enabled().length === 1 ? ' list' : ' lists') +
+    /* "to go" IS about the lists, so it says so — the figure above it no
+       longer is, and the two sat side by side with nothing to tell them apart */
+    '<p class="coversub"><b>' + a.remaining.toLocaleString() + ' to go</b> on the ' + enabled().length + (enabled().length === 1 ? ' list' : ' lists') + ' you follow' +
       (days ? ', ' + days + (days === 1 ? ' day' : ' days') + ' out' : '') +
       (sct.regions ? ' \u00b7 ' + sct.regions + (sct.regions === 1 ? ' region' : ' regions') : '') + '.</p>' +
     '<span class="flstamp" aria-hidden="true"><img class="fl-l" src="stamp-field-log-light.webp" alt="" width="116" height="90"><img class="fl-d" src="stamp-field-log-dark.webp" alt="" width="116" height="90"><b>' + yr + '</b></span>';
@@ -23599,6 +23605,22 @@ function summitKeys(){
   }
   return out;
 }
+/* HOW MANY HILLS YOU HAVE MARKED. Your whole log, whatever lists are
+   switched on today.
+
+   v363. An external audit found Home saying 56 while Account said 57. Home
+   was the odd one out: allStats() walks only the ENABLED lists, so marking
+   a hill and then switching its list off took it out of Home's figure and
+   nowhere else. Home's own link said "See all 56 summits" and opened a
+   page listing 57.
+
+   Joe, 18 Oct, picked one number everywhere. So anywhere the app says how
+   many hills you have marked, it says this. A figure that is explicitly
+   progress AGAINST a list — the nav's 26/214, the share card's percentage,
+   "188 to go" — stays scoped to those lists, because that is what is left
+   to walk and the denominator has to match the numerator. */
+function logCount(){ return summitKeys().length; }
+
 function summitStats(){
   const hs = summitKeys();
   const lists = new Set(), regions = new Set();
@@ -24430,7 +24452,8 @@ function closeShareSheet(){ const el = document.getElementById('sharesheet'); if
 function goalOptions(){
   const out = [];
   for (const l of enabled()){ const st = statsFor(l.id); out.push({id:'list:' + l.id, label:l.name, have:st.done, target:st.total}); }
-  const n = allStats().done;
+  /* a goal of "250 summits" counts summits, not list memberships */
+  const n = logCount();
   const next = [10, 25, 50, 100, 250, 500].find(x => x > n);
   if (next) out.push({id:'count:' + next, label:next + ' summits', have:n, target:next});
   return out;
@@ -24458,11 +24481,12 @@ function feedLeft(){
     '</nav>';
 }
 function feedRail(){
-  const a = allStats();
-  const next = [1, 10, 25, 50, 100, 250, 500].find(x => x > a.done);
+  /* "Your journey" is the journey, not the lists — see logCount */
+  const dn = logCount();
+  const next = [1, 10, 25, 50, 100, 250, 500].find(x => x > dn);
   let s = '<div class="railcard rjourney"><p class="sumlabel">Your journey</p>' +
-    '<div class="railstats"><div><b>' + a.done + '</b><i>summits</i></div><div><b>' + patches().filter(p => p.got).length + '</b><i>patches</i></div><div><b>' + followers.length + '</b><i>followers</i></div></div>' +
-    (next ? '<p class="railnext">' + ti('trending-up') + '<b>' + (next - a.done) + ' to go</b> to ' + next + (next === 1 ? ' summit' : ' summits') + '</p>' : '') +
+    '<div class="railstats"><div><b>' + dn + '</b><i>summits</i></div><div><b>' + patches().filter(p => p.got).length + '</b><i>patches</i></div><div><b>' + followers.length + '</b><i>followers</i></div></div>' +
+    (next ? '<p class="railnext">' + ti('trending-up') + '<b>' + (next - dn) + ' to go</b> to ' + next + (next === 1 ? ' summit' : ' summits') + '</p>' : '') +
     '<button class="linkbtn" data-act="hikertab" data-v="me">Your profile &rsaquo;</button></div>';
   const goals = goalOptions().slice(0, 4);
   if (goals.length){
@@ -35387,7 +35411,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v362';
+const APP_VERSION = 'v363';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
