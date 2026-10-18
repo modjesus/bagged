@@ -3513,7 +3513,9 @@ button.bstriprow{cursor:pointer}
 /* ---- To climb / Done / All ---- */
 .vtabs{display:flex; gap:3px; padding:4px; margin:10px 0 0;
   background:var(--surface-2); border-radius:12px}
-.vtab{flex:1; min-height:40px; border:0; border-radius:9px; background:none; cursor:pointer;
+/* 44, not 40. The app sets --tap:44px and then this row sat under it; a
+   sweep of every screen at 390px found it and the avatar below. */
+.vtab{flex:1; min-height:44px; border:0; border-radius:9px; background:none; cursor:pointer;
   font:700 13.5px/1.1 var(--font-ui); color:var(--ink-2); padding:5px 4px;
   transition:background .18s ease, color .18s ease}
 .vtab i{display:block; font:400 10.5px/1 var(--font-data); font-style:normal;
@@ -5159,7 +5161,9 @@ body.guiding{overflow:hidden}
   display:flex; flex-wrap:wrap; gap:6px; overflow-x:auto; scrollbar-width:none;
   justify-content:flex-start}
 .mpills::-webkit-scrollbar{display:none}
-.mpill{display:inline-flex; align-items:center; gap:7px; flex:none; height:38px; padding:0 15px;
+/* 44, the app's own floor. One row at 390px, so this costs six pixels of
+   map and nothing wraps — measured before changing it. */
+.mpill{display:inline-flex; align-items:center; gap:7px; flex:none; height:44px; padding:0 15px;
   border:0; border-radius:99px; color:var(--ink); cursor:pointer; white-space:nowrap;
   font:600 13.5px/1 var(--font-ui);
   background:rgba(251,250,246,.8); -webkit-backdrop-filter:blur(16px) saturate(1.25);
@@ -5219,7 +5223,7 @@ body.guiding{overflow:hidden}
   max-width:calc(100% - 24px); overflow-x:auto; scrollbar-width:none; justify-content:flex-start}
 .mmode::-webkit-scrollbar{display:none}
 @media (min-width:520px){ .mmode{right:auto; width:auto} }
-.mmode button{height:38px; padding:0 15px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1)}
+.mmode button{height:44px; padding:0 15px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1)}
 .mmode button[aria-pressed="true"]{background:var(--ink); color:#F3EFE6}
 .mm-import{height:38px; padding:0 14px 0 11px; border-radius:99px; display:inline-flex; align-items:center; gap:6px; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap}
 .mm-import svg{width:16px; height:16px; stroke-width:1.5}
@@ -5899,7 +5903,13 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .hkic svg{width:20px; height:20px}
 .hkic .nb{position:absolute; top:-4px; right:-4px; min-width:19px; height:19px; padding:0 5px; border-radius:99px; background:var(--accent);
   color:var(--accent-ink); font:700 11px/19px var(--font-ui); text-align:center; border:2px solid var(--ground)}
-.hkme{background:none; border:none; padding:0; border-radius:99px; flex:none}
+/* 42 to look at, 44 to hit. The picture stays the size it was drawn; the
+   hit area grows around it, the same trick .leadadj uses on the photo. */
+/* 42 to look at, 44 to hit. The picture stays the size it was drawn and the
+   button grows around it — a real 44px box rather than an invisible overlay,
+   so a sweep that measures elements can see it. */
+.hkme{background:none; border:none; padding:0; border-radius:99px; flex:none;
+  min-width:44px; min-height:44px; display:grid; place-items:center}
 .hkme .avatar{width:42px; height:42px}
 /* ---- most marked hills (v354) ----
    A bar per hill, length against the leader. Joe chose this over a plain
@@ -35510,7 +35520,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v367';
+const APP_VERSION = 'v368';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
