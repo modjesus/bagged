@@ -21322,16 +21322,34 @@ function parseGPX(text){
   const doc = new DOMParser().parseFromString(text, 'application/xml');
   if (doc.querySelector('parsererror')) throw new Error('That file is not readable GPX.');
   const num = (el, a) => parseFloat(el.getAttribute(a));
+  /* MEASURE BEFORE ROUNDING. v364.
+
+     Every point is rounded to 5 decimal places so a 35,000-point walk fits
+     in a synced document. 1e-5 of a degree is about 1.1 m north-south and
+     0.65 m east-west up here — and a watch recording once a second puts
+     points far closer together than that. Joe's Scafell Pike export has
+     34,925 points a MEDIAN OF 0.67 m apart: closer than the grid they get
+     snapped to. Measuring the snapped track measures a zigzag the rounding
+     invented. On that file it came out 17.54 mi against 16.27 mi at full
+     precision — 7.8% of a walk, conjured by a storage optimisation.
+
+     So the length is taken here, from the coordinates as the file wrote
+     them, and handed back with the track. The rounding is for storage and
+     is no longer allowed anywhere near the measurement. */
+  let trueLen = 0, prev = null;
   const ptsOf = sel => [...doc.getElementsByTagName(sel)].map(el => {
     const lat = num(el, 'lat'), lon = num(el, 'lon');
     if (!isFinite(lat) || !isFinite(lon)) return null;
+    if (prev) trueLen += metresBetween(prev[0], prev[1], lat, lon);
+    prev = [lat, lon];
     const e = el.getElementsByTagName('ele')[0];
     const ele = e ? parseFloat(e.textContent) : NaN;
     return isFinite(ele) ? [r5(lat), r5(lon), Math.round(ele)] : [r5(lat), r5(lon)];
   }).filter(Boolean);
 
   let pts = ptsOf('trkpt');
-  if (!pts.length) pts = ptsOf('rtept');
+  /* a second pass would carry the first one's running total over */
+  if (!pts.length){ trueLen = 0; prev = null; pts = ptsOf('rtept'); }
   const wpts = [...doc.getElementsByTagName('wpt')].map(el => {
     const lat = num(el, 'lat'), lon = num(el, 'lon');
     if (!isFinite(lat) || !isFinite(lon)) return null;
@@ -21360,7 +21378,11 @@ function parseGPX(text){
   }
   const times = [...doc.getElementsByTagName('trkpt')].map(el => { const t = el.getElementsByTagName('time')[0]; return t ? Date.parse(t.textContent.trim()) : NaN; }).filter(isFinite);
   const mins = times.length > 1 ? Math.round((Math.max(...times) - Math.min(...times)) / 60000) : 0;
-  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts, date, mins};
+  /* dist: metres, measured above at the file's own precision. A waypoints-only
+     file never went through ptsOf, so it falls back to the rounded line —
+     waypoints sit hundreds of metres apart and rounding cannot touch them. */
+  const dist = Math.round(trueLen > 0 ? trueLen : trackLength(pts));
+  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts, date, mins, dist};
 }
 
 /* Firestore documents are capped, and a phone-recorded walk can run to tens of
@@ -30332,7 +30354,8 @@ document.addEventListener('change', e => {
       render();
       const p2 = planById(id);
       const thinned = p2 && p2.trk.length < before;
-      toast('Imported ' + prettyDist(trackLength(g.pts)) +
+      /* g.dist, not the rounded line — see parseGPX */
+      toast('Imported ' + prettyDist(g.dist) +
             (thinned ? ': thinned to fit sync' : '') +
             (g.date ? ': dated ' + prettyDate(g.date) + ' from the file.' : '. Set a date for the forecast.'));
       /* a file is a route too: offer its map the same way a drawn one gets it */
@@ -30352,7 +30375,7 @@ document.addEventListener('change', e => {
       const near = st ? metresBetween(st[0], st[1], g.pts[0][0], g.pts[0][1]) < 2000 : true;
       if (g.date && g.date !== e.date && !near){ toast('That GPX looks like a different walk (' + prettyDate(g.date) + ').'); return; }
       const trk = fitTrack(g.pts);
-      e.strava.gpx = {trk, dist:Math.round(trackLength(g.pts)), asc:trackAscent(g.pts) || 0, mins:g.mins || 0, at:now()};
+      e.strava.gpx = {trk, dist:g.dist, asc:trackAscent(g.pts) || 0, mins:g.mins || 0, at:now()};
       setDiary(e.id, {strava:e.strava});
       render();
       toast('Route added. Share the day and followers will see it.');
@@ -30379,7 +30402,7 @@ document.addEventListener('change', e => {
       if (tops.length) p.hills = tops;
       if (p.trk.length < before) setTimeout(() => toast('Thinned ' + before.toLocaleString() + ' points to ' + p.trk.length.toLocaleString() + ' so it syncs.'), 1600);
       savePlanEdit(id);
-      toast('Track loaded: ' + prettyDist(trackLength(g.pts)) +
+      toast('Track loaded: ' + prettyDist(g.dist) +
             (tops.length ? ', over ' + tops.length + (tops.length === 1 ? ' summit.' : ' summits.') : '.') +
             (p.date ? '' : ' Set a date for the forecast.'));
       setTimeout(() => offerRouteSheet(planById(id)), 900);
@@ -35411,7 +35434,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v363';
+const APP_VERSION = 'v364';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
