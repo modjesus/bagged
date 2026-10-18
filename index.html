@@ -13393,10 +13393,10 @@ const ROUTES = [
    keys:['NY198225','NY185221','NY192203','NY198202','NY208206','NY218208','NY211214','NY227218']},
   {id:'newlands', name:'Newlands Horseshoe', where:'Lake District',
    note:'Out along the Catbells ridge above Derwentwater, round the head of Newlands over Dale Head, and back by Hindscarth and Robinson.',
-   keys:['NY244198','NY236181','NY234162','NY223153','NY215165','NY201168']},
+   keys:['NY244198','NY236181','NY234162','NY222153','NY215165','NY201168']},
   {id:'fairfield', name:'Fairfield Horseshoe', where:'Lake District',
    note:'The classic round from Ambleside: up the eastern arm by Low Pike and Dove Crag, across Fairfield, and down the Rydal ridge.',
-   keys:['NY373078','NY374088','NY374104','NY368112','NY358117','NY355103','NY355083','NY355072']},
+   keys:['NY373078','NY374088','NY374104','NY368112','NY358117','NY355104','NY355083','NY355072']},
   {id:'langdale-pikes', name:'Langdale Pikes', where:'Lake District',
    note:'The four tops that make the skyline above Great Langdale, from Pike of Stickle round to Pavey Ark.',
    keys:['NY273073','NY277071','NY281074','NY284079']},
@@ -35504,7 +35504,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v365';
+const APP_VERSION = 'v366';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -36030,9 +36030,34 @@ async function deletePost(id){
     const u = blobUrls.get(k); if (u){ URL.revokeObjectURL(u); blobUrls.delete(k); }
   }
   try{ await FB.deleteDoc(postRef(id)); }catch(e){}
-  delete commentsBy[id]; delete reactedBy[id];
-  feed = feed.filter(p => p.id !== id);
+  forgetPost(id);
   render();
+}
+
+/* A POST LIVES IN FOUR PLACES, AND DELETING IT HAS TO REACH ALL FOUR. v366.
+
+   An external audit, 18 Oct: a deleted post was still sitting in a
+   discovery view that happened to be open. Right, and worse than that —
+   deletePost cleared `feed` and nothing else, so the post stayed in
+   `discover`, stayed in `personPosts` under whoever wrote it, stayed as
+   `singlePost` if that was the one you were looking at, and came back out
+   of knownPosts() which merges all three. The document was gone from the
+   server; every copy the app was holding was not.
+
+   Reproduced: feed 1->0, discover 1->1, person 1->1, single still there,
+   knownPosts still 1.
+
+   Called by deletePost, and by anything else that learns a post is gone. */
+function forgetPost(id){
+  feed = feed.filter(p => p.id !== id);
+  discover = discover.filter(p => p.id !== id);
+  for (const k in personPosts){
+    const e = personPosts[k];
+    if (e && Array.isArray(e.list)) e.list = e.list.filter(p => p.id !== id);
+  }
+  /* you were reading the one you deleted: back to the feed, not a blank */
+  if (singlePost && singlePost.id === id) singlePost = null;
+  delete commentsBy[id]; delete reactedBy[id];
 }
 
 /* When you mark a summit, tell your friends — if you have asked us to. Batched
