@@ -4045,6 +4045,16 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
 .mmain{flex:1; min-width:0; text-align:left; background:none; border:none; padding:0; cursor:pointer; font-family:var(--font-ui); color:var(--ink)}
 .mmain b{display:block; font-family:var(--font-display); font-weight:500; font-size:15.5px; letter-spacing:.01em}
 .mmain span{display:block; margin-top:1px; font-size:11.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+/* the map button on a search result: a full tap target, quiet beside Mark,
+   which stays the one filled button in the row */
+.mmap{flex:none; width:var(--tap); height:var(--tap); padding:0; border-radius:9px;
+  border:1px solid var(--line); background:transparent; color:var(--ink-2);
+  display:grid; place-items:center; cursor:pointer; transition:transform .1s, border-color .15s}
+.mmap svg{width:19px; height:19px}
+.mmap:active{transform:scale(.94)}
+.mmap:hover{border-color:var(--ink-3)}
+/* at 320px the name needs every pixel, so the button tucks in */
+@media (max-width:359px){ .mrow{gap:7px; padding-right:8px} .mmap{width:40px; height:40px} }
 .mnone{margin:8px 2px 0; font-size:13px; color:var(--ink-3)}
 /* a friend request, on Home */
 .reqcard{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:6px 0 12px;
@@ -22260,6 +22270,22 @@ function markResults(){
         '<span>' + (unitsPref() === 'm' ? h.h.toLocaleString() + ' m' : feet(h) + ' ft') +
         ' &middot; ' + esc(LIST_BY[lid].name) + (off ? ' (off)' : '') +
         (regionOf(h, lid) !== 'Other' ? ' &middot; ' + esc(regionOf(h, lid).replace('The ', '')) : '') + '</span></button>' +
+      /* SEE WHERE IT IS WITHOUT OPENING IT.
+
+         Joe, 18 Oct: "when a peak is searched from the homepage add an
+         option to view on maps." The hill's own page has carried "Show it
+         on the map" for a while, but getting to it meant opening the hill
+         first — and "where is that one?" is a question you ask of the
+         SEARCH RESULT, before you have decided you care.
+
+         Same action the hill page uses (`tomap`), so there is one way this
+         works and one place to change it. A hill with no coordinates — a
+         peak of your own, typed in before the lookup lands — gets no
+         button rather than one that goes nowhere. */
+      (isFinite(h.a)
+        ? '<button class="mmap" data-act="tomap" data-k="' + esc(h.k) +
+          '" aria-label="Show ' + esc(hillName(h)) + ' on the map" title="Show it on the map">' +
+          ti('map-2') + '</button>' : '') +
       (on ? '<span class="mkchip">Marked</span>'
           : '<button class="btn sm" data-act="mmark" data-k="' + esc(h.k) + '">Mark</button>') +
       '</div>';
@@ -27943,6 +27969,15 @@ document.addEventListener('click', async e => {
      log it belongs to. */
   else if (a === 'tomap'){
     const h = BY_KEY[el.dataset.k]; if (!h || !isFinite(h.a)) return;
+    /* AND THE HOME SEARCH CLOSES BEHIND YOU, the same as picking the result
+       itself does. Joe, 9 Oct: "the letters and list stays here untill you
+       delete the words, this is jarring". Going to the map IS picking the
+       result, so it ends the search too — otherwise coming back to Home
+       lands you on a stale list of hills you have finished with. Harmless
+       from the hill page, where there is no search to close. */
+    ui.mq = '';
+    const mqBox = document.getElementById('mq');
+    if (mqBox){ mqBox.value = ''; mqBox.blur(); }
     ui.rq = ''; ui.searchPin = null;
     ui.rview = {c:{lat:h.a, lng:h.o}, z:14};
     tab = 'p'; render(); window.scrollTo({top:0});
@@ -35193,7 +35228,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v358';
+const APP_VERSION = 'v360';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
