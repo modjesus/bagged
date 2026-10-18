@@ -2190,6 +2190,8 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .ywmtitle{font-family:var(--font-ui); font-size:15px; font-weight:600; margin:6px 0 0; color:var(--ink)}
 .ywmway{font-family:var(--font-data); font-size:12.5px; line-height:1.6; margin:6px 0 0; color:var(--ink-2)}
 .ywmstats{display:flex; flex-wrap:wrap; align-items:baseline; gap:8px; margin:10px 0 0}
+.ywmsrc{margin:3px 0 0; font:700 11px var(--font-ui); letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-3)}
 .ywmstats b{font-family:var(--font-display); font-size:18px; line-height:1}
 .ywmstats i{color:var(--ink-3); font-style:normal}
 .ywmnone{font-family:var(--font-ui); font-size:13.5px; line-height:1.5; color:var(--ink-3); margin:8px 0 0}
@@ -3700,6 +3702,8 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
   background:var(--surface-2); border:1px solid var(--line-soft); border-radius:10px; padding:9px 11px}
 .trackbox .tinfo{flex:1; min-width:150px; font-size:13px; color:var(--ink-2)}
 .trackbox .tinfo b{display:block; color:var(--ink); font-size:14px}
+.trackbox .tinfo .tsrc{display:block; font:700 11px var(--font-ui); letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:1px}
 .gpxrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center}
 .filebtn{
   display:inline-flex; align-items:center; gap:6px; cursor:pointer;
@@ -6940,7 +6944,16 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
 .mstrk .o{fill:none; stroke:#A8431A; stroke-width:3; stroke-linecap:round; stroke-linejoin:round}
 .mstrk .st{fill:#14332D; stroke:#F6EFE4; stroke-width:2}
 .trackstrip .mspin .mscoin{position:absolute; left:0; top:0; transform:translate(-50%, -50%)}
+/* WHOSE FIGURES THESE ARE. Audit ticket 4: three distances for one walk and
+   nothing saying which was which. The tick marks the one the rest of the app
+   uses, so the other is plainly an alternative rather than a contradiction. */
+.dstsrc{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin:12px 0 0;
+  font:700 11.5px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.dstsrc em{display:inline-flex; align-items:center; gap:3px; font-style:normal; letter-spacing:.04em;
+  text-transform:none; font-weight:700; font-size:11.5px; color:#2E7D4F}
+.dstsrc em svg{width:13px; height:13px; stroke-width:2.6}
 .dststats{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:10px 0 4px}
+.dststats.two{grid-template-columns:repeat(2, 1fr); gap:8px 12px}
 .dststats b{display:block; font-family:var(--font-display); font-weight:400; font-size:20px; color:var(--ink); font-variant-numeric:tabular-nums}
 .dststats i{font-style:normal; font-size:11.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.08em}
 .dstfoot{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin:8px 0 0; font-size:13px}
@@ -19665,7 +19678,14 @@ function yourWayMark(p){
   if (way.length > 1) s += '<p class="ywmway">' + way.slice(0, 6).map(esc).join(' &rarr; ') +
     (way.length > 6 ? ' &rarr; &hellip;' : '') + '</p>';
   else if (e.h && !title) s += '<p class="ywmway">' + esc(hillName(e.h)) + '</p>';
-  if (bits.length) s += '<p class="ywmstats">' + bits.map(b => '<b>' + esc(b) + '</b>').join('<i>&middot;</i>') + '</p>';
+  if (bits.length){
+    s += '<p class="ywmstats">' + bits.map(b => '<b>' + esc(b) + '</b>').join('<i>&middot;</i>') + '</p>';
+    /* SAY WHOSE NUMBERS THESE ARE. Audit ticket 4: the same day reads 19.4 mi
+       in one place and 22.1 in another, and a figure with no source on it is
+       the one the reader stops believing. The choice was already made above;
+       this is it, written down. */
+    s += '<p class="ywmsrc">' + (st === (ent.strava && ent.strava.gpx) ? 'From your GPX' : 'From Strava') + '</p>';
+  }
   /* A patch for ONE hill shows that hill's photographs. Only when the hill
      has none does it fall back to the day, which is still better than an
      empty strip -- but it is no longer the first answer. The milestone
@@ -20587,6 +20607,14 @@ function groupByHTML(id){
       g.id + '">' + esc(g.label) + '</button>').join('') + '</div>';
   return h + '</div>';
 }
+/* ONE NAME TEST, used by the list and by the empty state that has to explain
+   itself. They were the same four `includes` written twice, and the day they
+   drift the empty state starts lying about what it can see. */
+function hillNameHit(h, q){
+  if (!q) return true;
+  return norm(h.n).includes(q) || norm(h.w).includes(q) ||
+         norm(h.cy).includes(q) || norm(altStr(h)).includes(q);
+}
 function hillResults(id, s){
   const isW = id === 'wainwright';
   const q = norm(ui.q);
@@ -20601,18 +20629,64 @@ function hillResults(id, s){
       if (st === 'done' && !held) return false;
       if (!held && ui.status !== 'all' && st !== ui.status) return false;
     }
-    if (q && !(norm(h.n).includes(q) || norm(h.w).includes(q) || norm(h.cy).includes(q) || norm(altStr(h)).includes(q))) return false;
+    if (!hillNameHit(h, q)) return false;
     return true;
   });
-  if (!items.length) return listEmptyHTML(id) + COLOPHON;
+  if (!items.length) return listEmptyHTML(id, s) + COLOPHON;
   return hillGroupsHTML(items, id, isW) + COLOPHON;
+}
+/* WHICH FILTER IS HIDING IT.
+
+   External UX audit, 18 Oct, ticket 30: under To climb, searching Skiddaw
+   answered "Nothing here called Skiddaw". Skiddaw is on the list. It is
+   marked, and To climb is by definition the ones that are not -- so the name
+   was found and a filter hid it. "No such name" and "it is here, behind a
+   filter you set" are different answers and the app gave the wrong one.
+
+   Returns the nearest way out, or null when the name genuinely is not on this
+   list. Narrowest filter first: a sub-filter is easier to undo than the tab,
+   and the tab is easier to undo than the area. */
+function searchWayOut(id, s){
+  const q = norm(ui.q);
+  if (!q) return null;
+  const named = (s && s.items || []).filter(h => hillNameHit(h, q));
+  if (!named.length) return null;
+  const here = ui.region ? named.filter(h => regionOf(h, id) === ui.region) : named;
+  if (!here.length) return {kind:'region', n: named.length};
+  const done = here.filter(h => stateOf(h.k) === 'done').length;
+  const left = here.length - done;
+  if (ui.view === 'climb'){
+    if (ui.status !== 'all' && left) return {kind:'status', n: left};
+    if (done) return {kind:'done', n: done};
+  }
+  if (ui.view === 'done' && left) return {kind:'climb', n: left};
+  return null;
 }
 /* AN EMPTY LIST SHOULD SAY WHICH EMPTY IT IS. "No hills match that" was the
    answer to a finished book, a search for nothing, and a Done tab with
    nothing in it -- three different situations, one shrug. */
-function listEmptyHTML(id){
-  if (norm(ui.q)) return '<p class="empty">Nothing here called \u201c' + esc(ui.q) + '\u201d. ' +
-    '<button class="linkbtn" data-act="clearq">Clear the search</button></p>';
+function listEmptyHTML(id, s){
+  if (norm(ui.q)){
+    const out = searchWayOut(id, s);
+    const name = '\u201c' + esc(ui.q) + '\u201d';
+    const n = out ? out.n : 0;
+    const hill = n === 1 ? 'hill' : 'hills';
+    if (out && out.kind === 'done')
+      return '<p class="empty">Nothing left to climb called ' + name + '. ' +
+        '<button class="linkbtn" data-act="view" data-v="done">Show ' + n + ' marked</button></p>';
+    if (out && out.kind === 'climb')
+      return '<p class="empty">Nothing marked called ' + name + '. ' +
+        '<button class="linkbtn" data-act="view" data-v="climb">Show ' + n + ' to climb</button></p>';
+    if (out && out.kind === 'status')
+      return '<p class="empty">Nothing ' + (ui.status === 'planned' ? 'planned' : 'part-done') +
+        ' called ' + name + '. ' +
+        '<button class="linkbtn" data-act="status" data-v="all">Show ' + n + ' to climb</button></p>';
+    if (out && out.kind === 'region')
+      return '<p class="empty">Nothing in this area called ' + name + '. ' +
+        '<button class="linkbtn" data-act="region" data-v="">Search the whole list (' + n + ' ' + hill + ')</button></p>';
+    return '<p class="empty">Nothing here called ' + name + '. ' +
+      '<button class="linkbtn" data-act="clearq">Clear the search</button></p>';
+  }
   if (ui.view === 'done') return '<div class="empty emptybig"><b>Nothing marked here yet.</b>' +
     '<span>Tick one off and the day you did it shows up here, with your photographs.</span>' +
     '<button class="btn" data-act="view" data-v="climb">See what there is to climb</button></div>';
@@ -27038,7 +27112,12 @@ function gpxControls(p, id){
   let s = '';
   if (pts.length){
     const asc = trackAscent(pts);
-    s += '<div class="trackbox"><div class="tinfo"><b>' + prettyDist(trackLength(pts)) + '</b>' +
+    /* PLANNED, NOT WALKED. Audit ticket 4: this figure sat beside a recorded
+       walk's figures with nothing to separate them. It is the line you drew,
+       measured corner to corner -- shorter than the walk by design. */
+    s += '<div class="trackbox"><div class="tinfo"><span class="tsrc">' +
+         (p && p.walked ? 'Route you walked' : 'Planned route') + '</span><b>' +
+         prettyDist(trackLength(pts)) + '</b>' +
          pts.length.toLocaleString() + ' points' + (asc ? ', about ' + Math.round(asc * 3.28084).toLocaleString() + ' ft (' + asc.toLocaleString() + ' m) of climbing' : ', no heights in this track') +
          '</div>' +
          '<button class="btn ghost" data-act="gpxout" data-id="' + esc(id) + '">Download GPX</button>' +
@@ -27095,6 +27174,25 @@ function routeAt(p){
   return {la: +la.toFixed(2), lo: +lo.toFixed(2)};
 }
 const wxKey = at => 'wx:' + at.la + ',' + at.lo;
+
+/* WHICH POINT THE FORECAST IS FOR.
+
+   External UX audit, 18 Oct, ticket 5: "Show the forecast reference point and
+   make it clear whether it is a summit, route midpoint or map centre."
+
+   The card printed a place name -- "Baptist Chapel, Herefordshire" -- and left
+   you to guess what it was the weather for. It is the average of the track,
+   which on a horseshoe is a field in the middle of the round and not anywhere
+   you will stand. Saying so is the difference between a figure you can use and
+   one you quietly distrust. */
+function wxPointName(p){
+  if (p && p.id === '__map') return 'the centre of the map';
+  if (p && p.trk && p.trk.length) return 'the middle of this route';
+  const hs = (p && p.hills || []).length;
+  if (hs > 1) return 'the middle of these hills';
+  if (hs === 1) return 'this hill';
+  return 'this route';
+}
 
 /* ---- where a forecast is actually for ----
 
@@ -27465,7 +27563,9 @@ function mapWeatherHTML(){
                   : wxCell('Wind', day.wind == null ? '-' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
       wxCell('Light', (day.sunrise || '-') + ' to ' + (day.sunset || '-')) +
       '</div>' +
-      '<p class="wxsrc">Forecast: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), a model estimate, not a summit reading.</p>';
+      '<p class="wxsrc">For <b>the centre of the map</b>' + (area ? ', near ' + esc(area) : '') +
+      '. <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), ' +
+      'a model estimate, not a summit reading.</p>';
     if (up != null && day.wind != null)
       s += '<p class="wxsub">Valley wind ' + Math.round(day.wind) + ' mph' +
         (day.gust != null ? ', gusting ' + Math.round(day.gust) : '') +
@@ -27970,7 +28070,10 @@ function weatherFor(at, p, topM, o){
       : wxCell('Wind', day.wind == null ? '-' : Math.round(day.wind) + ' mph', day.wind >= 35)) +
     wxCell('Light', (day.sunrise || '-') + ' - ' + (day.sunset || '-')) +
     '</div>';
-  s += '<p class="wxsrc">Forecast: <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), a model estimate, not a summit reading.</p>';
+  s += '<p class="wxsrc">For <b>' + esc(wxPointName(p)) + '</b>' +
+    (where ? ', near ' + esc(where) : '') +
+    '. <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0), ' +
+    'a model estimate, not a summit reading.</p>';
 
   /* Valley wind alongside it, so the difference is visible rather than hidden. */
   if (upWind != null && day.wind != null){
@@ -35319,7 +35422,14 @@ function stravaStats(s){
     : unitsPref() === 'm' ? (d / 1000).toFixed(1) + ' km' : (d / 1609.344).toFixed(1) + ' mi';
   const up = !isFinite(a) ? '—'
     : unitsPref() === 'm' ? Math.round(a).toLocaleString() + ' m' : Math.round(a * 3.28084).toLocaleString() + ' ft';
-  return [['Distance', km], ['Moving time', hm(s && s.mins)], ['Climbed', up]];
+  const out = [['Distance', km], ['Moving time', hm(s && s.mins)], ['Climbed', up]];
+  /* MOVING TIME IS NOT HOW LONG YOU WERE OUT. The audit found one day showing
+     7 h 27 here and 10 h 54 from the GPX of the same walk, with nothing to say
+     the first had the stops taken out of it. Strava gives us both; a gap worth
+     a cup of tea gets printed. */
+  const el = numOr(s && s.elapsed, 0), mv = numOr(s && s.mins, 0);
+  if (el && mv && el - mv >= 15) out.push(['Out for', hm(el)]);
+  return out;
 }
 function paintStrava(){
   let el = document.getElementById('stravaSheet');
@@ -35439,14 +35549,51 @@ function dayGainHTML(dy){
     '</button>').join('');
 }
 
+/* WHICH FIGURES ARE WHOSE.
+
+   External UX audit, 18 Oct, ticket 4: one day showed 19.4 mi / 7 h 27 from
+   Strava in the journal, 22.1 mi / 10 h 54 from an attached GPX, and 17.6 mi
+   from the saved route on the map. Three numbers for one walk, each printed
+   as plain fact, none of them saying where it came from.
+
+   They are three different measurements and all three can be right. The app's
+   job is to name them and to pick one. It already picks -- the GPX beats
+   Strava wherever a distance is printed (`yourWayMark`) -- it just never said
+   so out loud. Now it does, in the one place both are visible side by side. */
+function gpxDayStats(g){
+  const d = numOr(g && g.dist, NaN), a = numOr(g && g.asc, NaN);
+  const km = !isFinite(d) ? '—'
+    : unitsPref() === 'm' ? (d / 1000).toFixed(1) + ' km' : (d / 1609.344).toFixed(1) + ' mi';
+  const up = !isFinite(a) || !a ? null
+    : unitsPref() === 'm' ? Math.round(a).toLocaleString() + ' m' : Math.round(a * 3.28084).toLocaleString() + ' ft';
+  const out = [['Distance', km]];
+  if (g && g.mins) out.push(['Out for', hm(g.mins)]);
+  if (up) out.push(['Climbed', up]);
+  return out;
+}
+function srcHeadHTML(label, used){
+  return '<p class="dstsrc">' + esc(label) +
+    (used ? '<em>' + ti('check') + 'this day’s figures</em>' : '') + '</p>';
+}
+function statRowHTML(rows){
+  /* three across is right for three. A fourth drops one figure onto a row of
+     its own and the block grows a hole; four go two by two. */
+  return '<div class="dststats' + (rows.length === 4 ? ' two' : '') + '">' + rows.map(([l, v]) =>
+    '<div><b>' + esc(v) + '</b><i>' + esc(l) + '</i></div>').join('') + '</div>';
+}
 function stravaDayHTML(s, eid){
   const hs = (s.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  /* the same choice yourWayMark makes, said where you can see both */
+  const gpxWins = !!(s.gpx && s.gpx.dist);
   return '<div class="dstrava">' + trackStrip(s.trk || [], hs) +
-    '<div class="dststats">' + stravaStats(s).map(([l, v]) => '<div><b>' + esc(v) + '</b><i>' + l + '</i></div>').join('') + '</div>' +
+    srcHeadHTML('Recorded activity · Strava', !gpxWins) +
+    statRowHTML(stravaStats(s)) +
     '<p class="dstfoot"><a href="https://www.strava.com/activities/' + encodeURIComponent(s.id) + '" target="_blank" rel="noopener">View on Strava</a>' +
     stravaPowered() + '</p>' +
     (s.gpx
-      ? '<div class="dstgpx on">' + ti('check') + '<div><b>Your route is ready to share</b><span>From the GPX you added: ' + esc(prettyDist(s.gpx.dist)) + (s.gpx.mins ? ' · ' + hm(s.gpx.mins) : '') + '. Share the day and followers see it.</span>' +
+      ? srcHeadHTML('Attached GPX', gpxWins) + statRowHTML(gpxDayStats(s.gpx)) +
+        '<div class="dstgpx on">' + ti('check') + '<div><b>Your route is ready to share</b>' +
+        '<span>Share the day and followers see it. Measured from the file itself, stops and all — which is why it can differ from Strava above.</span>' +
         '<button class="linkbtn" data-act="stgpxoff" data-id="' + esc(eid || '') + '">Remove</button></div></div>'
       : '<div class="dstgpx">' + ti('route') + '<div><b>Want followers to see the route?</b>' +
         '<span>Strava’s rules, not ours: routes, times and stats from Strava can only be shown to you. Your own GPX file is yours to share. On Strava, open this walk, tap ⋯ and choose Export GPX, then add it here.</span>' +
@@ -35536,7 +35683,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v369';
+const APP_VERSION = 'v370';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
