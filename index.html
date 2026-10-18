@@ -21336,20 +21336,20 @@ function parseGPX(text){
      So the length is taken here, from the coordinates as the file wrote
      them, and handed back with the track. The rounding is for storage and
      is no longer allowed anywhere near the measurement. */
-  let trueLen = 0, prev = null;
+  let raw = [];
   const ptsOf = sel => [...doc.getElementsByTagName(sel)].map(el => {
     const lat = num(el, 'lat'), lon = num(el, 'lon');
     if (!isFinite(lat) || !isFinite(lon)) return null;
-    if (prev) trueLen += metresBetween(prev[0], prev[1], lat, lon);
-    prev = [lat, lon];
     const e = el.getElementsByTagName('ele')[0];
     const ele = e ? parseFloat(e.textContent) : NaN;
+    const t = el.getElementsByTagName('time')[0];
+    raw.push([lat, lon, t ? Date.parse(t.textContent.trim()) : NaN]);
     return isFinite(ele) ? [r5(lat), r5(lon), Math.round(ele)] : [r5(lat), r5(lon)];
   }).filter(Boolean);
 
   let pts = ptsOf('trkpt');
-  /* a second pass would carry the first one's running total over */
-  if (!pts.length){ trueLen = 0; prev = null; pts = ptsOf('rtept'); }
+  /* a second pass would carry the first one's points over */
+  if (!pts.length){ raw = []; pts = ptsOf('rtept'); }
   const wpts = [...doc.getElementsByTagName('wpt')].map(el => {
     const lat = num(el, 'lat'), lon = num(el, 'lon');
     if (!isFinite(lat) || !isFinite(lon)) return null;
@@ -21378,11 +21378,52 @@ function parseGPX(text){
   }
   const times = [...doc.getElementsByTagName('trkpt')].map(el => { const t = el.getElementsByTagName('time')[0]; return t ? Date.parse(t.textContent.trim()) : NaN; }).filter(isFinite);
   const mins = times.length > 1 ? Math.round((Math.max(...times) - Math.min(...times)) / 60000) : 0;
-  /* dist: metres, measured above at the file's own precision. A waypoints-only
-     file never went through ptsOf, so it falls back to the rounded line —
-     waypoints sit hundreds of metres apart and rounding cannot touch them. */
-  const dist = Math.round(trueLen > 0 ? trueLen : trackLength(pts));
-  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts, date, mins, dist};
+  return {name:(nameEl ? nameEl.textContent.trim() : '').slice(0, 60), pts, wpts, date, mins,
+          dist: gpxDistance(raw, pts)};
+}
+
+/* HOW FAR THE WALK ACTUALLY WENT. v365.
+
+   Joe's Scafell Pike export, against what Strava says for the same walk:
+
+     Strava                              13.4 mi
+     every point, rounded (v363)         17.54 mi   +31%
+     every point, full precision (v364)  16.27 mi   +21%
+     straight line over 12-second steps  13.36 mi   -0.3%
+
+   Adding up every hop between points does not measure a walk. The points
+   are 0.67 m apart and the satellites are good to a few metres, so most of
+   each hop is the fix wandering, not the walker moving — and it only ever
+   adds. Over eleven hours, four and a half of them standing still, that
+   wander came to nearly three miles of walking Joe never did.
+
+   So the distance is taken as the straight line between where he was and
+   where he was twelve seconds later. Wander inside those twelve seconds
+   cancels itself out instead of accumulating, and standing still covers no
+   ground at all, which is the truth of it.
+
+   WHY TWELVE SECONDS. Swept against Strava's figure: 8s +1.9%, 10s +0.7%,
+   12s -0.3%, 15s -1.3%, 20s -2.6%. Flat enough either side of 12 that the
+   exact value is not load-bearing, and 12 is the closest. Calibrated on ONE
+   walk — if another disagrees, this is the number to revisit.
+
+   NO TIMES, NO SMOOTHING. A route drawn on the map, or a GPX with no
+   clock in it, has no GPS wander to remove: its points are where somebody
+   meant them to be. Those are measured point to point as before. */
+const GPX_STEP_MS = 12000;
+function gpxDistance(raw, pts){
+  const timed = raw.filter(p => isFinite(p[2]));
+  /* a handful of stray timestamps is not a recorded walk */
+  if (raw.length < 3 || timed.length < raw.length * 0.8)
+    return Math.round(trackLength(pts));
+  let total = 0, i = 0;
+  while (i < timed.length - 1){
+    let j = i + 1;
+    while (j < timed.length - 1 && (timed[j][2] - timed[i][2]) < GPX_STEP_MS) j++;
+    total += metresBetween(timed[i][0], timed[i][1], timed[j][0], timed[j][1]);
+    i = j;
+  }
+  return Math.round(total);
 }
 
 /* Firestore documents are capped, and a phone-recorded walk can run to tens of
@@ -22003,6 +22044,36 @@ function weekendISO(){
   d.setDate(d.getDate() + add);
   return isoOf(d);
 }
+/* WHICH DAY OF THE FORECAST A DATE WANTS — or none, and why. v365.
+
+   An external audit, 18 Oct: a forecast was shown under a walk that had
+   already happened. Three places worked the day out and all three did it
+   the same way:
+
+     days.find(d => d.date === want) ||
+       (dateISO && dateISO > days[last].date ? null : days[last])
+
+   The guard only catches a date BEYOND the window. A date BEHIND it — last
+   month's walk — misses the find, fails the `>` test, and falls through to
+   `days[last]`: the furthest day the forecast reaches. So a September walk
+   was captioned with next Saturday's weather, confidently, with next
+   Saturday's own date printed beside it.
+
+   A forecast window starts today. There is no forecast for a past day and
+   there never will be, so the honest answer is nothing at all. */
+function wxDayFor(wx, dateISO){
+  const days = (wx && wx.days) || [];
+  if (!days.length) return {day:null, why:'none'};
+  if (dateISO && dateISO < days[0].date) return {day:null, why:'past'};
+  const want = dateISO || weekendISO();
+  const hit = days.find(d => d.date === want);
+  if (hit) return {day:hit, why:'exact'};
+  if (dateISO && dateISO > days[days.length - 1].date) return {day:null, why:'far'};
+  /* no date asked for, or a date inside the window the model skipped: the
+     last day it does have is the nearest honest answer */
+  return {day:days[days.length - 1], why:'near'};
+}
+
 /* One line of forecast for the top of a hill on the weekend, from the same
    cached forecast the planner uses. Asks once and repaints Home when it lands. */
 function summitLine(h, dateISO){
@@ -22018,9 +22089,9 @@ function summitLine(h, dateISO){
     return '<span class="upwx dim">Checking the weekend forecast…</span>';
   }
   if (!wx.days || !wx.days.length) return '';
-  const want = dateISO || weekendISO();
-  const day = wx.days.find(d => d.date === want) || (dateISO && dateISO > wx.days[wx.days.length - 1].date ? null : wx.days[wx.days.length - 1]);
-  if (!day) return '<span class="upwx dim">Too far out for a forecast yet.</span>';
+  const pick = wxDayFor(wx, dateISO), day = pick.day;
+  if (!day) return pick.why === 'past' ? ''
+    : '<span class="upwx dim">Too far out for a forecast yet.</span>';
   const look = wxLook(day.code);
   const lev = wxLevelFor(h.h);
   const up = lev && day.up ? day.up[lev.hPa] : null;
@@ -22159,10 +22230,9 @@ function summitStrip(h, dateISO){
     return '<span class="upwx dim">Checking the forecast for the top\u2026</span>';
   }
   if (!wx.days || !wx.days.length) return '';
-  const want = dateISO || weekendISO();
-  const day = wx.days.find(d => d.date === want) ||
-    (dateISO && dateISO > wx.days[wx.days.length - 1].date ? null : wx.days[wx.days.length - 1]);
-  if (!day) return '<span class="upwx dim">Too far out for a forecast yet.</span>';
+  const pick = wxDayFor(wx, dateISO), day = pick.day;
+  if (!day) return pick.why === 'past' ? ''
+    : '<span class="upwx dim">Too far out for a forecast yet.</span>';
   const look = wxLook(day.code);
   const lev = wxLevelFor(h.h);
   const up = lev && day.up ? day.up[lev.hPa] : null;
@@ -23481,9 +23551,9 @@ function renderDashboard(){
   const wxDay = (() => {
     const h0 = hs[0]; if (!h0 || !isFinite(h0.a)) return null;
     const wx = wxCached({la:h0.a, lo:h0.o}); if (!wx || !wx.days || !wx.days.length) return null;
-    const want = nr.date || weekendISO();
-    return wx.days.find(d => d.date === want) ||
-      (nr.date && nr.date > wx.days[wx.days.length - 1].date ? null : wx.days[wx.days.length - 1]);
+    /* a route still sitting there from last month gets no packing advice —
+       see wxDayFor */
+    return wxDayFor(wx, nr.date || '').day;
   })();
   return '<button class="dcard upnext" data-tab="p">' +
     /* a DIV, not a span: a <span> may not contain a <p>, and the parser would
@@ -35434,7 +35504,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v364';
+const APP_VERSION = 'v365';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
