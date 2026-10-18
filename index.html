@@ -13500,7 +13500,13 @@ function patches(){
     const done = tops.filter(h => isBagged(h.k)).length;
     out.push({
       id:'route-' + rt.id, got: done === tops.length, icon:'summit',
-      label: rt.name, need:'Walk all ' + tops.length + ' summits',
+      /* SAY THE RULE. v367. An external audit: "route-challenge completion
+         rules undefined". The rule is real — every summit on the route
+         marked, whenever — but the words said "Walk all 6 summits" beside a
+         description of one continuous round, so they read as a day's walk.
+         Six summits marked across fifteen years earns it, and did. Joe, 18
+         Oct, kept the rule and asked for the words to match it. */
+      label: rt.name, need:'All ' + tops.length + ' summits, in your own time',
       note: rt.where, blurb: rt.note, grade: rt.grade || '',
       /* the row wants progress, not the region: note alone would say
          "Bannau Brycheiniog" where "2 of 10 summits" belongs */
@@ -35504,7 +35510,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v366';
+const APP_VERSION = 'v367';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
