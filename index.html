@@ -1868,6 +1868,31 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .maplegend i.plan{background:var(--plan); border:1.5px solid var(--plan); padding:0; margin-top:0; border-radius:99px}
 .maplegend i.prog{background:var(--prog); border-color:var(--prog)}
 .mapnote{font-size:13px; color:var(--ink-3); margin:10px 0 0}
+/* ---- the challenge you arrived from, carried onto the map (audit 31) ----
+   It sits ABOVE the map, not on it: a panel floating over a map is a panel
+   covering the hills you came to look at. Everything in it is 44px. */
+.mapctx{margin:10px 0 0; padding:10px 12px 8px; border-radius:14px;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow-1)}
+.mcxtop{display:flex; align-items:center; gap:8px}
+.mcxback{flex:1; min-width:0; min-height:44px; display:flex; align-items:center; gap:7px;
+  background:none; border:0; padding:0; cursor:pointer; color:var(--ink); text-align:left}
+.mcxback svg{width:18px; height:18px; flex:none; color:var(--accent)}
+.mcxback span{font-family:var(--font-display); font-weight:400; font-size:18px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* its own button, not .xbtn — that one is position:absolute and floated
+   itself off the top corner of this panel */
+.mcxx{width:44px; height:44px; flex:none; padding:0; border-radius:50%;
+  border:1px solid var(--line); background:var(--ground); color:var(--ink-3);
+  display:grid; place-items:center; line-height:0; cursor:pointer}
+.mcxx svg{width:18px; height:18px; stroke-width:2.2}
+.mcxn{margin:2px 0 8px; font:700 11.5px var(--font-ui); letter-spacing:.07em;
+  text-transform:uppercase; color:var(--ink-3)}
+.mcxrow{display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.mcxh{min-height:44px; padding:0 13px; border-radius:99px; border:1px solid var(--line);
+  background:var(--ground); color:var(--ink); font:600 14px var(--font-ui); cursor:pointer}
+.mcxh:hover{background:var(--surface-2, var(--ground)); border-color:var(--ink-3)}
+.mcxmore{font:600 13px var(--font-ui); color:var(--ink-3); padding:0 4px}
+.mcxall{display:block; margin:8px 0 0; padding:0; min-height:44px; font-size:13.5px}
 
 /* banners / plans / sheet */
 .banner.soft{border-color:var(--line); border-left-color:var(--sage)}
@@ -9355,6 +9380,21 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .listcard .lswhere{display:block; margin-top:4px;
   font:400 12px/1.45 var(--font-ui); color:var(--ink-3)}
 .listcard .jbar{margin-top:11px}
+/* the short card: the bar, one line of shape, one line of place (audit 14) */
+.listcard.tight{padding:12px 15px 11px}
+.listcard.tight .jbar{margin-top:0}
+.listcard.tight .lswhere{margin-top:6px}
+.lsrow3{display:flex; align-items:center; gap:10px}
+.lsrow3 .lspct{flex:1; min-width:0; margin:0}
+.lsabout{flex:none; min-height:44px; white-space:nowrap}
+.patchline{margin-top:14px}
+/* the chapter heading is now the way into that book (audit 14) */
+.grouphead .gt.gtpick{display:flex; align-items:center; gap:8px; width:100%;
+  min-height:44px; padding:0; background:none; border:0; cursor:pointer;
+  color:inherit; text-align:left}
+.grouphead .gt.gtpick h2{flex:none}
+.grouphead .gt.gtpick > span{flex:1}
+.grouphead .gt.gtpick > svg{width:18px; height:18px; flex:none; color:var(--ink-3)}
 .lspct{margin:9px 0 0; font:400 12.5px var(--font-ui); color:var(--ink-3)}
 .lspct b{font-family:var(--font-display); font-weight:400; font-size:17px; color:var(--ink)}
 
@@ -19788,7 +19828,7 @@ function patchWant(p){
     '<p class="wantbig">' + (p.have || 0) + ' <i>of ' + (p.target || 1) + '</i></p>' +
     '<p class="wantline">' + esc(line) + '</p>';
   if (keys.length) s += '<div class="btnrow"><button class="btn ghost" data-act="pdmap" data-v="' +
-    esc(keys.slice(0, 40).join(',')) + '">' + ti('map-2') +
+    esc(keys.slice(0, 40).join(',')) + '" data-p="' + esc(p.id) + '">' + ti('map-2') +
     (keys.length === 1 ? 'See it on the map' : 'See the ' + keys.length + ' left on the map') + '</button></div>';
   return s + '</section>';
 }
@@ -19870,6 +19910,22 @@ function renderPatchDetail(p){
 /* On the Peaks screen you are looking at one list, so show that list's patches
    and the general milestones — not every book from a list you are not on.
    The dashboard passes nothing and gets the lot for every list you have on. */
+/* the same count the strip carried, without the strip. One row, one tap to
+   Basecamp, where the patches actually live. */
+function patchesForList(listId){
+  let ps = patches();
+  if (!listId) return ps;
+  return ps.filter(p =>
+    p.kind === 'count' || p.kind === 'climb' || p.kind === 'peak' || p.kind === 'set' ||
+    (p.kind === 'book' && listId === 'wainwright') ||
+    (p.kind === 'list' && p.listId === listId));
+}
+function listPatchLink(listId){
+  const ps = patchesForList(listId);
+  const got = ps.filter(p => p.got).length;
+  return '<button class="sect eyelink patchline" data-tab="a">Patches ' +
+    '<span>' + got + ' of ' + ps.length + ' earned &rsaquo;</span></button>';
+}
 function renderPatches(listId){
   let ps = patches();
   if (listId){
@@ -20452,7 +20508,16 @@ function renderHills(){
   const pct = s.done ? Math.max(1, Math.round(s.done/s.total*100)) : 0;
   const isW = id === 'wainwright';
 
-  let html = listBar() + impHomeRow();
+  /* SHORTER, BY MEASUREMENT. External UX audit, 18 Oct, ticket 14: "The
+     Wainwrights page repeats the long general patch strip before the
+     searchable list." Measured at 390px with 56 marked, the first hill was
+     1,290px down — a screen and a half of furniture before the thing the
+     page is for.
+
+     The photo-import row goes from here. It is on Home and in the Journal,
+     which is where someone who has just come back from a walk is. On a list
+     page it is in the way of browsing a list. */
+  let html = listBar();
   const pDone = Math.round(s.done / s.total * 100);
   const pProg = Math.round(s.progress / s.total * 100);
   const pPlan = Math.round(s.planned / s.total * 100);
@@ -20466,23 +20531,34 @@ function renderHills(){
      go. What only this block can say is the SHAPE of the list: how much of
      it is marked, attempted and planned, and the one number for that. So it
      says that, and stops repeating the rest. */
+  /* The name was printed three times inside 360px \u2014 the heading above says
+     "56 of 214 Wainwrights", the chip beside it says 56/214, and the card
+     said Wainwrights again. The card now says only what nothing else can:
+     the SHAPE of the list, and where it is. */
   const ab = LIST_ABOUT[id];
-  html += '<section class="listcard">' +
-    '<div class="lsrow2"><b>' + esc(L.name) + '</b>' +
-      '<button class="btn quiet sm" data-act="listinfo" data-v="' + esc(id) + '">About this list</button></div>' +
-    '<span class="lswhere">' + esc(L.where) + (ab ? ' \u00b7 ' + ab.rule : '') + '</span>' +
+  html += '<section class="listcard tight">' +
     '<div class="jbar">' +
       '<i class="b-done" style="width:' + pDone + '%"></i>' +
       '<i class="b-prog" style="width:' + pProg + '%"></i>' +
       '<i class="b-plan" style="width:' + pPlan + '%"></i></div>' +
-    '<p class="lspct"><b>' + pct + '%</b> marked' +
-      (s.progress ? ' \u00b7 ' + s.progress + ' attempted' : '') +
-      (s.planned ? ' \u00b7 ' + s.planned + ' planned' : '') + '</p>' +
+    /* the About button gets its own place on the row rather than sitting
+       inline in a sentence: inline, it measured 83\u00d717 and broke the app's
+       own 44px floor, which t/tap44.js caught the moment it was built */
+    '<div class="lsrow3">' +
+      '<p class="lspct"><b>' + pct + '%</b> marked' +
+        (s.progress ? ' \u00b7 ' + s.progress + ' attempted' : '') +
+        (s.planned ? ' \u00b7 ' + s.planned + ' planned' : '') +
+        (s.highest ? ' \u00b7 highest ' + esc(s.highest.n) : '') + '</p>' +
+      '<button class="btn quiet sm lsabout" data-act="listinfo" data-v="' + esc(id) + '">About</button>' +
+    '</div>' +
+    '<p class="lswhere">' + esc(L.where) + (ab ? ' \u00b7 ' + ab.rule : '') + '</p>' +
     RIDGE.replace('xMidYMax slice', 'none') + '</section>';
-  if (s.highest)
-    html += '<p class="mapnote" style="margin:8px 2px 0">Highest marked: <b>' + esc(s.highest.n) + '</b>, ' + htFlat(s.highest) + '</p>';
 
-  html += '<div style="margin-top:18px">' + renderPatches(id) + '</div>';
+  /* THE PATCHES KEEP THEIR DOOR, NOT THEIR AISLE. Twenty-four badges, most
+     of them nothing to do with this list, sat between the walker and the
+     hills. The row that says how many you have earned is the useful part and
+     it is one tap from the whole wall of them in Basecamp. */
+  html += listPatchLink(id);
 
   /* h2, not h3: this is a section of the page, directly under its h1. It was
      an h3 sitting above h2s, so the list outranked its own heading. .sect is a
@@ -20507,6 +20583,13 @@ function renderHills(){
     const rg = (best.r || {})[id] || '';
     return s.regions.some(b => b.g === rg) ? rg : ((s.regions[0] || {}).g || '');
   })();
+  /* THE BOOK PANEL IS GONE (audit 14). It listed the seven books above the
+     search; the list below already heads every book with its own name and
+     count, and that heading now filters. Two lists of the same seven names
+     on one page, 126px apart, and the walker had to pass both to reach a
+     hill. `liveBook` and the fold state stay unused rather than deleted
+     blind — nothing else reads them, and the regions themselves are
+     untouched. */
   const openBook = ui.bookOpen === null ? liveBook : ui.bookOpen;
   const bookRow = b => {
     const p = b.total ? Math.round(b.done / b.total * 100) : 0;
@@ -20521,17 +20604,7 @@ function renderHills(){
   const open = s.regions.filter(b => b.g === openBook);
   const totDone = s.regions.reduce((a, b) => a + b.done, 0);
   const totAll = s.regions.reduce((a, b) => a + b.total, 0);
-  html += '<h2 class="sect">By ' + (isW ? 'book' : 'area') + '</h2>';
-  html += '<div class="regionlist bookfold">';
-  html += open.map(bookRow).join('');
-  html += '<button class="rrow bookmore" data-act="bookmore" aria-expanded="' + (!!ui.bookAll) + '">' +
-    '<i class="dot bookdots"></i>' +
-    '<span class="rn">' + (ui.bookAll ? 'Hide the other ' : 'The other ') + shut.length +
-      ' ' + (isW ? (shut.length === 1 ? 'book' : 'books') : (shut.length === 1 ? 'area' : 'areas')) + '</span>' +
-    '<span class="rc">' + totDone + ' / ' + totAll + '</span>' +
-    ti('chevron-down') + '</button>';
-  if (ui.bookAll) html += shut.map(bookRow).join('');
-  html += '</div>';
+  void [bookRow, shut, open, totDone, totAll];   // the panel they built is gone
 
   html += '<div class="controls"><div class="field">';
   html += '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>';
@@ -20765,8 +20838,20 @@ function hillGroupsHTML(items, id, isW){
        as a state rather than a chapter. It agrees with the map pins and the
        books accordion, which already use these. */
     const bk = (isW && grp.bk) ? ' style="--bkc:var(' + grp.bk + ')"' : '';
-    html += '<div class="grouphead' + (bk ? ' hasbk' : '') + '"' + bk + '><div class="gt"><h2>' +
-      esc(grp.g) + '</h2><span>' + d + '/' + inG.length + (ui.view === 'all' ? ' \u00b7 ' + gp + '%' : '') + '</span></div>';
+    /* THE HEADING IS THE FILTER (audit 14). The books had a panel of their
+       own above the search \u2014 a second list of the same seven names, 126px
+       of it, between the walker and the hills. The chapter heading was
+       already there and already said "Eastern Fells 15 / 35"; now tapping it
+       shows that book on its own. One place the books live, and it is the
+       place they were already printed. */
+    const canPick = !ui.region && (!ui.groupBy || ui.groupBy === 'region') && grp.g && grp.g !== 'Elsewhere';
+    const gt = '<h2>' + esc(grp.g) + '</h2><span>' + d + '/' + inG.length +
+      (ui.view === 'all' ? ' \u00b7 ' + gp + '%' : '') + '</span>';
+    html += '<div class="grouphead' + (bk ? ' hasbk' : '') + '"' + bk + '>' +
+      (canPick
+        ? '<button class="gt gtpick" data-act="region" data-v="' + esc(grp.g) + '" ' +
+          'aria-label="Show only ' + esc(grp.g) + '">' + gt + ti('chevron-right') + '</button>'
+        : '<div class="gt">' + gt + '</div>');
     if (ui.view !== 'done') html += skyline(inG);
     html += '</div><ul class="hills' + (ui.view === 'done' ? ' donelist' : '') + '">';
     for (const h of inG) html += ui.view === 'done' ? doneEntry(h, id) : hillRow(h, id);
@@ -23576,7 +23661,12 @@ function renderDashboard(){
   const a = allStats();
   /* the log, not the lists — see logCount */
   const logged = logCount();
-  let s = pendingInviteCard() + requestsCard() + markBar();
+  /* THE PHOTO PROMPT MOVED HERE (audit 14). It used to sit on every list
+     page, between the walker and the list. Its only call site was that one,
+     so taking it off the list page would have removed the whole doorway.
+     Home is where someone who has just got back lands, and it belongs with
+     the other two ways of marking a hill, not in the middle of browsing. */
+  let s = pendingInviteCard() + requestsCard() + markBar() + impHomeRow();
 
   /* "Mark your first fell" went to a walker with forty hills in the log, if
      the lists those hills were on happened to be switched off */
@@ -24871,6 +24961,45 @@ const COLOPHON =
 
 /* ---------- map ---------- */
 let map = null, mapReady = false;
+/* THE CHALLENGE YOU ARRIVED FROM, STILL ON SCREEN.
+
+   External UX audit, 18 Oct, ticket 31:
+
+     "Newlands Horseshoe → See the 4 left on the map. This opens a Hills map
+      with All hills selected and numerous unrelated markers... There is no
+      visible Newlands challenge name or four-item remaining-hill panel."
+
+   The rings were already there. Rings are not context: on a map of every
+   hill in Britain the walker has to find them first, and nothing on the
+   screen says what they are or how to get back. So the challenge comes with
+   you — named, with its remaining summits listed and tappable, a way back to
+   it, and a visible way out that does not involve guessing.
+
+   It is temporary by design. It changes nothing saved: not the route, not
+   the lists you follow, not the map scope you had before. */
+function mapCtxHTML(){
+  if (!ui.mapCtx) return '';
+  const p = (typeof patches === 'function' ? patches() : []).find(x => x.id === ui.mapCtx);
+  if (!p) return '';
+  const left = (ui.mapHi || []).map(k => BY_KEY[k]).filter(Boolean);
+  if (!left.length) return '';
+  return '<div class="mapctx">' +
+    '<div class="mcxtop">' +
+      '<button class="mcxback" data-act="openpatch" data-v="' + esc(p.id) + '">' +
+        ti('arrow-left') + '<span>' + esc(p.label) + '</span></button>' +
+      '<button class="mcxx" data-act="mapctxoff" aria-label="Show all hills, without the challenge">' +
+        ti('x') + '</button>' +
+    '</div>' +
+    '<p class="mcxn">' + left.length + (left.length === 1 ? ' summit left' : ' summits left') +
+      ' · ringed on the map</p>' +
+    '<div class="mcxrow">' + left.slice(0, 12).map(h =>
+      '<button class="mcxh" data-act="mcxhill" data-k="' + esc(h.k) + '">' +
+        esc(hillName(h)) + '</button>').join('') +
+      (left.length > 12 ? '<span class="mcxmore">+' + (left.length - 12) + '</span>' : '') +
+    '</div>' +
+    '<button class="linkbtn mcxall" data-act="mapctxoff">Show all hills</button>' +
+    '</div>';
+}
 function renderMapTab(){
   /* With nothing switched on there is no map to draw and no list to name, so
      send the walker to the same picker the other screens show. */
@@ -24890,6 +25019,9 @@ function renderMapTab(){
     '<input type="search" id="rq" placeholder="Find a hill or a place\u2026" value="' + esc(ui.rq || '') +
     '" autocomplete="off"></div></div>';
   html += '<div id="rqres">' + searchResultsHTML() + '</div>';
+  /* directly above the map, not at the top of the screen: the strip and the
+     rings it describes have to be visible at the same time */
+  html += mapCtxHTML();
   html += '<div class="mapwrap"><div id="mapbox"></div>' +
     '<div class="scrollgrip" aria-hidden="true"><span></span><span></span><span></span></div></div>';
   html += '<div class="maplegend"><span><i class="mk"></i>Marked</span><span><i class="prog"></i>Attempted</span><span><i class="plan"></i>Planned</span><span><i></i>To do</span><span>Size follows height</span></div>';
@@ -28278,7 +28410,7 @@ document.addEventListener('click', async e => {
     /* Leave nothing half-open behind you: a composer, a search result or a
        comment thread from another screen has no business reappearing. */
     ui.openComments=null; ui.groupForm=''; ui.found=null; ui.mq='';
-    ui.mapHi = null;
+    ui.mapHi = null; ui.mapCtx = null;
     /* a sheet lives outside #main, so re-rendering does not close it and it
        would hang over whatever screen you went to */
     if (ui.gearv) gearSheetClose();
@@ -28422,8 +28554,19 @@ document.addEventListener('click', async e => {
        behind you. Widen the scope to every hill WayMark holds, and ring the
        ones the patch is actually waiting on so they are not just two more
        markers in a field of them. */
+    /* the widened scope is part of the temporary context, so remember what
+       the walker had. Clearing the challenge must put it back — the audit's
+       acceptance is "clear the temporary context WITHOUT changing saved
+       routes or list preferences", and a scope left on All is a preference
+       changed behind their back. */
+    if (ui.mapScope !== 'all') ui.mapScopeWas = ui.mapScope;
     ui.mapScope = 'all';
     ui.mapHi = hs.map(h => h.k);
+    /* CARRY THE CHALLENGE WITH YOU. External UX audit, 18 Oct, ticket 31:
+       "See the 4 left on the map" opened a map of every hill in Britain with
+       no mention of Newlands Horseshoe on it, no list of the four, and no way
+       back. Rings round four markers in a field of 1,300 is not context. */
+    ui.mapCtx = el.dataset.p || null;
     if (hs.length === 1) ui.open = hs[0].k;
     render(); window.scrollTo({top:0});
     /* the map builds itself on the tab it belongs to, so wait for it */
@@ -28432,6 +28575,25 @@ document.addEventListener('click', async e => {
       if (!mapReady || !map){ setTimeout(go, 150); return; }
       fitTo(map, hs.map(h => [h.a, h.o]), hs.length > 1 ? 40 : 24, hs.length > 1 ? 11 : 13); };
     setTimeout(go, 240);
+  }
+  /* a summit in the challenge strip flies THIS map to it. `tomap` goes to the
+     planner, which is a different screen and would drop the very context the
+     strip exists to keep. */
+  else if (a === 'mcxhill'){
+    const h = BY_KEY[el.dataset.k]; if (!h || !isFinite(h.a)) return true;
+    tab = 'm'; ui.open = h.k; render();
+    let tries = 0;
+    const go = () => { if (tries++ > 40) return;
+      if (!mapReady || !map){ setTimeout(go, 150); return; }
+      goTo(map, h.a, h.o, 13); openPopup(null, h, map); };
+    setTimeout(go, 200);
+  }
+  /* the way out the audit asked for: the hills stay, the challenge goes.
+     Nothing saved changes — not the route, not the lists you follow. */
+  else if (a === 'mapctxoff'){
+    ui.mapCtx = null; ui.mapHi = null;
+    if (ui.mapScopeWas){ ui.mapScope = ui.mapScopeWas; ui.mapScopeWas = null; }
+    render();
   }
   else if (a === 'runall'){ ui.runAll = !ui.runAll; render(); }
   else if (a === 'pdday'){ ui.pdDraft = null; patchDaySheet(el.dataset.d, false); }
@@ -28596,7 +28758,10 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'pick-list'){ ui.list = el.dataset.v; ui.listOpen = false; ui.region=''; ui.q=''; ui.status='all'; render(); if (mapReady && ui.mapScope==='one') drawMarkers(true); }
   else if (a === 'open-lists'){ openSheet(); showSetPane('lists'); }
-  else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; ui.listOpen = false; render(); if (mapReady) drawMarkers(true); }
+  /* choosing a scope yourself is you taking charge of it: the challenge no
+     longer owes you the one you had before */
+  else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; ui.mapScopeWas = null;
+    ui.listOpen = false; render(); if (mapReady) drawMarkers(true); }
   /* picking one list from the map also puts the map on that list, which is
      what tapping a list on a map obviously means */
   else if (a === 'mappicklist'){ ui.list = el.dataset.v; ui.mapScope = 'one'; ui.listOpen = false;
@@ -35683,7 +35848,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v370';
+const APP_VERSION = 'v371';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
