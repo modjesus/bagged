@@ -9436,6 +9436,17 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .grouphead .gt.gtpick > span{flex:1}
 .grouphead .gt.gtpick > svg{width:18px; height:18px; flex:none; color:var(--ink-3)}
 .lspct{margin:9px 0 0; font:400 12.5px var(--font-ui); color:var(--ink-3)}
+/* ---- who can see what (audit 9) ----
+   One row per kind of thing, the answer for THIS log beside it, and the
+   switch behind it one tap away. */
+.privlist{display:grid; gap:10px; margin-top:12px}
+.privrow{padding:12px 14px; border-radius:12px; background:var(--surface); border:1px solid var(--line)}
+.privt{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.privt b{flex:1; min-width:120px; font:700 14px var(--font-ui); color:var(--ink)}
+.privw{flex:none; font:700 12px var(--font-ui); letter-spacing:.04em; color:var(--accent-text);
+  background:var(--accent-soft); border-radius:99px; padding:3px 10px; white-space:nowrap}
+.privn{margin:6px 0 0; font:400 13px/1.45 var(--font-ui); color:var(--ink-2)}
+.privgo{padding:0; min-height:44px; font-size:13px}
 .lspct b{font-family:var(--font-display); font-weight:400; font-size:17px; color:var(--ink)}
 
 /* ---------- ONE LOUD VOICE PER SCREEN ----------
@@ -9855,6 +9866,10 @@ textarea, select{font-size:16px}
       <div class="accountBox"></div>
       <div id="shareBox"></div>
       <div id="connBox"></div>
+    </div>
+
+    <div class="setpane" id="pn-priv" hidden>
+      <div id="privBox"></div>
     </div>
 
     <div class="setpane" id="pn-photos" hidden>
@@ -16507,9 +16522,13 @@ function paintHeadIcons(){
   box.hidden = !on; if (!on) return;
   const m = msgBadge(), n = (typeof unreadNotes === 'function' ? unreadNotes() : 0) + (typeof friendReqs !== 'undefined' ? friendReqs.length : 0);
   const b = (x) => x ? '<i class="hsb">' + (x > 9 ? '9+' : x) + '</i>' : '';
-  const html = '<button class="iconbtn hsbtn" data-act="msgopen" aria-label="Messages' + (m ? ', ' + m + ' new' : '') + '" title="Messages">' + ti('message-circle') + b(m) + '</button>' +
-    '<button class="iconbtn hsbtn" data-act="notesopen" aria-label="Notifications' + (n ? ', ' + n + ' new' : '') + '" title="Notifications">' + ti('bell') + b(n) + '</button>';
+  /* THE NOTIFICATIONS BELL IS IN THE COG NOW (Joe, 18 Oct). Messages stays:
+     a conversation is a place you go, not a thing to be told about. `n` is
+     still counted here because paintBell puts it on the cog. */
+  const html = '<button class="iconbtn hsbtn" data-act="msgopen" aria-label="Messages' + (m ? ', ' + m + ' new' : '') + '" title="Messages">' + ti('message-circle') + b(m) + '</button>';
+  void n;
   if (box.innerHTML !== html) box.innerHTML = html;
+  paintBell();
 }
 function whenShort(t){
   if (!t) return '';
@@ -21401,15 +21420,37 @@ function undated(){
    hills marked with no date on them — and that job now has a row at the top
    of Settings with the same count on it. The cog wears the circle, so
    nothing is hidden; there is one fewer door to it. */
+/* EVERYTHING WAITING, ON ONE CIRCLE.
+
+   v372 moved the wrong bell. There are two: `#bellBtn`, hills marked with
+   no date, which only appears when there are some; and the notifications
+   bell inside `.headsocial`, which is the one Joe photographed and the one
+   he meant. I measured the bar with a hand-written stand-in for
+   `.headsocial` that drew ONE button where the real thing draws TWO, so the
+   count came out one short and the fix looked like it fitted. Measuring a
+   stand-in is not measuring the thing.
+
+   Both now live behind the cog, each with its own row in Settings and its
+   own count, and the circle carries the total — because a circle that
+   counted one of the two would be lying about the other. */
+function cogWaiting(){
+  let n = 0;
+  try{ n += undated().length; }catch(e){}
+  try{ if (fbConfigured() && fbUser){
+    n += (typeof unreadNotes === 'function' ? unreadNotes() : 0);
+    n += (typeof friendReqs !== 'undefined' ? friendReqs.length : 0);
+  } }catch(e){}
+  return n;
+}
 function paintBell(){
   const i = document.getElementById('cogN');
   if (!i) return;
-  const n = undated().length;
+  const n = cogWaiting();
   i.hidden = !n;
   i.textContent = n > 99 ? '99+' : String(n);
   const b = document.getElementById('menuBtn');
   if (b) b.setAttribute('aria-label', n
-    ? 'Settings \u2014 ' + n + (n === 1 ? ' hill has no date' : ' hills have no date')
+    ? 'Settings \u2014 ' + n + (n === 1 ? ' thing waiting' : ' things waiting')
     : 'Settings');
 }
 
@@ -21474,6 +21515,19 @@ document.addEventListener('click', e => {
   /* the bell is gone from the top bar; its row in Settings opens the same
      sheet, and Settings closes behind it so there is one thing on screen */
   if (e.target.closest('[data-act="nddates"]')){ closeSheetNow(); ndShow(); return; }
+  if (e.target.closest('#setMenu [data-act="notesopen"]')){ closeSheetNow(); openNotes(); return; }
+  /* every line of the summary carries the way to the switch behind it —
+     a summary you cannot act on is a leaflet */
+  const pg = e.target.closest('[data-act="privgo"]');
+  if (pg){
+    if (pg.dataset.v === 'prof'){
+      closeSheetNow();
+      tab = 'u'; ui.hikerTab = 'me'; friendOpen = null; singlePost = null;
+      ui.profEdit = true; ui.profMin = false;
+      render(); window.scrollTo({top:0});
+    } else showSetPane('acct');
+    return;
+  }
   if (!ndOpen()) return;
   const t = e.target;
   if (t.closest('#ndX')){ ndClose(); return; }
@@ -24487,7 +24541,11 @@ function renderDiary(){
     ti('chevron-down') + '</button>' +
     (ui.privOpen ? '<p class="privmore">Photos, words, the lot \u2014 it stays on this ' +
       'device and in your own account. An entry only reaches the feed when you press ' +
-      'Share on it, and it asks you first.</p>' : '');
+      'Share on it, and it asks you first. ' +
+      /* the journal is one of six switches in three places. This is where a
+         walker asks the question, so this is where the whole answer is
+         offered (audit 9). */
+      '<button class="linkbtn" data-act="privall">What about everything else?</button></p>' : '');
   /* Offered where somebody is already looking at the gaps in their own log,
      and only while there are gaps to fill: a walker with plenty of hills and
      hardly any pictures. Once the log has pictures it stops asking. */
@@ -29807,6 +29865,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'kitback'){ ui.kitItem = null; render(); }
   else if (a === 'privmore'){ ui.privOpen = !ui.privOpen; render(); }
+  else if (a === 'privall'){ openSheet(); showSetPane('priv'); }
   else if (a === 'shpick'){
     ui.shCard = el.dataset.v;
     for (const b of document.querySelectorAll('[data-act="shpick"]'))
@@ -31391,6 +31450,8 @@ const SET_PANES = [
   {id:'acct',   pane:'pn-acct',  title:'Account', icon:'user',
    val: () => !fbConfigured() ? 'Not switched on'
         : fbUser ? (fbName || fbUser.name || 'Signed in') : 'Not signed in'},
+  {id:'priv',   pane:'pn-priv',  title:'Who can see what', icon:'lock',
+   val: () => { try{ return privShort(); }catch(e){ return 'Your sharing, in one place'; } }},
   {id:'notify', pane:'', title:'Notifications', icon:'bell',
    val: () => { try{ return pushOnHere() ? 'On this phone' : 'In the app only'; }
                 catch(e){ return 'In the app only'; } }},
@@ -31409,12 +31470,102 @@ const SET_PANES = [
 ];
 const SET_ICON = {
   sun:'sun', mountain:'mountain', user:'user-circle', bell:'bell',
-  download:'download', info:'info-circle', photo:'photo'
+  download:'download', info:'info-circle', photo:'photo', lock:'lock'
 };
+/* ---- WHO CAN SEE WHAT ----
+
+   External UX audit, 18 Oct, ticket 9:
+
+     "Journal says 'Nobody sees your journal' and explains that sharing asks
+      first. Account can auto-post summits, and profile has separate profile
+      visibility, default adventure audience, discovery visibility and
+      route-shape privacy. These can all be legitimate distinctions, but
+      users must understand them together."
+
+   Six switches in three places, each one truthful on its own and none of
+   them answering the question anybody actually has. So this answers that
+   question instead, and it does not explain the switches — it READS them.
+   Every line says what is true of this log right now, and every line has
+   the way to change it beside it. A static page of prose would go out of
+   date the first time a switch moved. */
+function privRows(){
+  const d = prof || {};
+  const pv  = visBy(PVIS, d.vis || 'public');
+  const av  = visBy(VIS,  d.pvis || 'public');
+  const auto = (() => { try{ return autoPostOn(); }catch(e){ return false; } })();
+  const signedIn = (() => { try{ return !!(fbConfigured() && fbUser); }catch(e){ return false; } })();
+  /* Signed out there is no feed, no profile and no followers: saying
+     "Everyone" to somebody whose log has never left the phone would be a
+     lie in the frightening direction. */
+  if (!signedIn) return [
+    {t:'Everything', w:'Only you',
+     n:'Your log lives on this phone. Nothing is shared with anybody until you sign in.',
+     go:'acct', goLbl:'Account'}
+  ];
+  return [
+    {t:'Your journal \u2014 what you wrote, your photographs', w:'Only you',
+     n:'Never shared on its own. Sharing a day asks you first, every time.',
+     go:'', goLbl:''},
+    {t:'A hill you mark', w: auto ? av.label : 'Only you',
+     n: auto ? 'Marking a hill posts it. ' + av.note + '.'
+             : 'Marking a hill posts nothing. You share a day deliberately or not at all.',
+     go:'acct', goLbl:'Account'},
+    {t:'A patch you earn', w: auto ? av.label : 'Only you',
+     n: auto ? 'Follows the same switch as your summits, with Undo on the toast.'
+             : 'Stays in your own collection.',
+     go:'acct', goLbl:'Account'},
+    {t:'The line of a route you share', w: d.hideRoute ? 'Nobody' : av.label,
+     n: d.hideRoute ? 'Shared walks show the distance and the summits, never the line.'
+                    : 'The shape of the walk is shown with it.',
+     go:'prof', goLbl:'Your profile'},
+    {t:'Your profile', w: pv.label, n: pv.note + '.',
+     go:'prof', goLbl:'Your profile'},
+    {t:'Being found by name in Discover',
+     w: (typeof inDirectory === 'function' && inDirectory()) ? 'Everyone' : 'Nobody',
+     n: (d.vis || 'public') !== 'public'
+          ? 'Only public profiles can be found this way.'
+          : (d.disc !== false ? 'Other hikers can find you by name, where you walk and the hills you have marked.'
+                              : 'You are off the directory. People you give your link to can still open it.'),
+     go:'prof', goLbl:'Your profile'},
+    {t:'What a group sees of your log',
+     w: (() => { try{ return fbDetail ? 'The detail' : 'The totals'; }catch(e){ return 'The totals'; } })(),
+     n:'That is how a NEW group starts. Each group has its own switch under Hikers, and that is the one that counts.',
+     go:'acct', goLbl:'Account'}
+  ];
+}
+/* the one line the Settings row carries, so the menu says something true
+   without being opened */
+function privShort(){
+  const d = prof || {};
+  try{ if (!(fbConfigured() && fbUser)) return 'Nothing leaves this phone'; }catch(e){ return ''; }
+  const auto = (() => { try{ return autoPostOn(); }catch(e){ return false; } })();
+  return visBy(PVIS, d.vis || 'public').label + ' \u00b7 summits ' + (auto ? 'posted' : 'private');
+}
+function renderPrivBox(){
+  const box = document.getElementById('privBox'); if (!box) return;
+  box.innerHTML = '<p class="setnote">Six switches live in three places. This is what they add up to, ' +
+    'right now, for your log.</p>' +
+    '<div class="privlist">' + privRows().map(r =>
+      '<div class="privrow"><div class="privt"><b>' + r.t + '</b>' +
+        '<span class="privw">' + esc(r.w) + '</span></div>' +
+        '<p class="privn">' + esc(r.n) + '</p>' +
+        (r.go ? '<button class="linkbtn privgo" data-act="privgo" data-v="' + esc(r.go) + '">' +
+                esc(r.goLbl) + ' \u203a</button>' : '') +
+      '</div>').join('') + '</div>';
+}
 function renderSetMenu(){
   const box = document.getElementById('setMenu'); if (!box) return;
   /* the bell's job, where the bell used to point — first row, and only when
      there is something to answer */
+  let notes0 = 0;
+  try{ if (fbConfigured() && fbUser) notes0 = (typeof unreadNotes === 'function' ? unreadNotes() : 0) +
+    (typeof friendReqs !== 'undefined' ? friendReqs.length : 0); }catch(e){}
+  const noteRow = !notes0 ? '' :
+    '<button class="setrow setnd" data-act="notesopen">' +
+    '<span class="seti">' + ti('bell', 'width="19" height="19"') + '</span>' +
+    '<b>' + (notes0 === 1 ? 'One new notification' : notes0 + ' new notifications') + '</b>' +
+    '<span class="setval">Read them</span>' +
+    '<span class="setchev">' + ti('chevron-right', 'width="15" height="15"') + '</span></button>';
   const nd = undated().length;
   const ndRow = !nd ? '' :
     '<button class="setrow setnd" data-act="nddates">' +
@@ -31422,7 +31573,7 @@ function renderSetMenu(){
     '<b>' + (nd === 1 ? 'One hill has no date' : nd + ' hills have no date') + '</b>' +
     '<span class="setval">Set them</span>' +
     '<span class="setchev">' + ti('chevron-right', 'width="15" height="15"') + '</span></button>';
-  box.innerHTML = ndRow + SET_PANES.map(r => {
+  box.innerHTML = noteRow + ndRow + SET_PANES.map(r => {
     let v = ''; try{ v = r.val() || ''; }catch(e){ v = ''; }
     return '<button class="setrow" data-act="setpane" data-v="' + r.id + '">' +
       '<span class="seti">' + ti(SET_ICON[r.icon] || 'settings', 'width="19" height="19"') + '</span>' +
@@ -31461,6 +31612,7 @@ function openSheet(){
   document.getElementById('backupText').value = JSON.stringify(state);
   paintCloudNote();
   renderThemeBox(); renderListToggles(); renderAccountBox(); renderHelpBox(); renderConnBox();
+  renderPrivBox();
   const v = document.getElementById('setVer');
   if (v) v.textContent = 'WayMark ' + APP_VERSION;
   const si = document.querySelector('#sheet .supicon');
@@ -36010,7 +36162,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v372';
+const APP_VERSION = 'v373';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
