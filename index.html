@@ -5403,7 +5403,7 @@ body.guiding{overflow:hidden}
   background:rgba(21,42,38,.82);
   box-shadow:0 0 0 1px rgba(243,239,230,.16), 0 14px 30px -18px rgba(0,0,0,.6),
              inset 0 1px 0 rgba(243,239,230,.08)}
-.mmenu.mleft{left:12px; right:auto; top:auto; bottom:110px; width:min(340px, calc(100% - 24px - var(--grip, 0px)))}
+.mmenu.mleft{left:12px; right:auto; top:auto; bottom:var(--mmenufloor, 110px); width:min(340px, calc(100% - 24px - var(--grip, 0px)))}
 .mmenu .listbar{padding:2px 0 6px; flex-wrap:wrap; overflow:visible}
 .mmenu .daystrip{margin:0}
 .mmenu .wxtop{margin-top:8px}
@@ -5752,15 +5752,32 @@ body.guiding{overflow:hidden}
 .mplot::-webkit-scrollbar{display:none}
 .mplot .mp-snap{flex:none; font-weight:600}
 .mplot .mp-snap.on{background:var(--ink); color:#F3EFE6}
+.mplot .mp-day{flex:none; font-weight:600; display:flex; align-items:center; gap:6px; padding:0 12px; box-shadow:inset 0 0 0 1px var(--line)}
+.mplot .mp-day:not(.on){width:40px; padding:0; justify-content:center}
+.mplot .mp-day svg{width:18px; height:18px; stroke-width:1.5; flex:none}
+.mplot .mp-day.on{box-shadow:inset 0 0 0 1px var(--accent); color:var(--accent)}
 .mplot button{height:40px; padding:0 14px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mplot button:disabled{opacity:.4; cursor:default}
 .mplot button:not(:disabled):hover{background:rgba(20,51,45,.07)}
+/* flex:none on every one of them. The bar is a flex scroller, so once the
+   tools no longer fit they were shrunk instead of scrolled: the back arrow
+   measured 18px wide at 320 and at 390 with a day set. A scroller that
+   squashes its contents is not scrolling. */
+.mplot button{flex:none}
 .mplot .mp-exit{width:40px; padding:0; display:grid; place-items:center}
 .mplot .mp-exit svg{width:18px; height:18px; stroke-width:1.5}
-.mplot .mp-save{margin-left:auto; background:var(--accent); color:#FFF3E9; padding:0 18px}
+/* SAVE CANNOT BE SCROLLED OFF THE END. The toolbar scrolls sideways when
+   it runs out of room, and before this the one button you must be able to
+   reach was the one that went over the edge first — 25px of it cut off at
+   390px the moment a sixth button arrived, and more at 320. Pinned to the
+   right of the scroller, it stays put and the tools slide under it. */
+.mplot .mp-save{margin-left:auto; position:sticky; right:0; background:var(--accent); color:#FFF3E9; padding:0 18px}
 .mplot .mp-save:not(:disabled):hover{background:#8E3813}
 .mplot .mp-save:disabled{background:var(--accent); opacity:.35}
-@media (max-width:420px){ .mplot button{padding:0 11px; font-size:13px} .mplot .mp-save{padding:0 14px} }
+/* Six tools, 390px, a day picked: 383px of bar in 366px of room. Two pixels
+   off each side of each word and one off the gaps buys the 17 it needed. */
+@media (max-width:420px){ .mplot{gap:3px} .mplot button{padding:0 9px; font-size:13px}
+  .mplot .mp-save{padding:0 13px} .mplot .mp-day.on{padding:0 10px} }
 :root[data-theme="dark"] .mplot .mp-save{background:#F3EFE6; color:#14332D}
 .daytop{margin-top:10px}
 .bklegend{display:grid; grid-template-columns:1fr 1fr; gap:5px 12px; padding:4px 2px 2px}
@@ -21217,6 +21234,19 @@ function fitMapFurniture(){
       floor = Math.max(floor, Math.round(wb0.bottom - eb.top) + 8);
     }
     wrap.style.setProperty('--mfloor', floor + 'px');
+    /* WHERE A DROP-DOWN FROM THE TOP ROW HAS TO STOP.
+       It was bottom:110px — a number written down once, when the only
+       thing below it was the credit. Pick a day while you are plotting
+       and the panel came down on top of the plotting toolbar, covering
+       Save. Measured off whatever is actually standing at the foot of
+       the map, so the next thing that goes there is cleared too. */
+    const lowEl = wrap.querySelector('.misle.mplot') || wrap.querySelector('.misle.mmode');
+    let mfl = 110;
+    if (lowEl){
+      const wb1 = wrap.getBoundingClientRect(), lb = lowEl.getBoundingClientRect();
+      if (lb.height > 0) mfl = Math.max(mfl, Math.round(wb1.bottom - lb.top) + 8);
+    }
+    wrap.style.setProperty('--mmenufloor', mfl + 'px');
     /* the way back is a child of the shell, not of the map box, so it
        cannot read a variable set on the box */
     if (shell) shell.style.setProperty('--mcred', (cred ? cred + 6 : 0) + 'px');
@@ -26363,6 +26393,7 @@ function demTrouble(m, e){
   demDown = true;
   for (const mm of terrainMaps()) dropTerrain(mm);
   paintLayers();
+  paintTerrainBtn();     /* it has just turned itself off; say so */
   if (demSaid) return;
   demSaid = true;
   toast(navigator.onLine
@@ -26392,6 +26423,29 @@ function setTerrain3D(on){
     } else dropTerrain(m);
   }
   paintLayers();
+  paintTerrainBtn();
+}
+/* THE BUTTON HAS TO CHANGE ITS MIND TOO.
+
+   Joe, 23 Oct: "pressing 3d once makes it 3d tapping it again should turn
+   it off." It did not, and for the same reason the full-map button did
+   not a few hours earlier: the button carries the state it was DRAWN
+   with, and nothing redrew it. setTerrain3D repainted the Layers panel
+   and left the rail's 3D button still saying data-v="1" — press it again
+   and it set 3D to on, which it already was.
+
+   Repainted in place rather than through render(), because a rail button
+   must not cost a rebuild of the whole screen. The same mistake twice in
+   one day is a pattern: a control that sets a value must be redrawn by
+   whatever changes that value. */
+function paintTerrainBtn(){
+  const on = terrainOn();
+  for (const b of document.querySelectorAll('.m3d')){
+    b.dataset.v = on ? '0' : '1';
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', on ? 'Turn 3D off' : 'Turn 3D on');
+  }
 }
 
 /* ---- the base map under it all ---- */
@@ -27223,21 +27277,34 @@ function openPoi(id){
    The same Photon service that names the weather's area also searches by name,
    biased to Britain so a Langdale pub beats one in Ohio. */
 let geoRes = [], geoBusy = false, geoQ = '', geoTimer = null, geoErr = '';
+/* Bumped by anything that ends a search. A request already on the wire
+   cannot be recalled, so it carries the number it was sent under and drops
+   its answer on the floor if that number has moved on. Without this, a
+   place search you closed comes back 1.2s later, writes geoQ and geoRes,
+   and the next time you type those same words you are shown a list you
+   already dismissed. */
+let geoGen = 0;
 
 function geoSearch(q){
   clearTimeout(geoTimer);
   const term = (q || '').trim();
   if (term.length < 3){ geoRes = []; geoQ = ''; geoErr = ''; paintSearch(); return; }
+  const gen = geoGen;
   geoTimer = setTimeout(async () => {
-    if (geoBusy) return;
+    if (geoBusy || gen !== geoGen) return;
     geoBusy = true; geoErr = ''; paintSearch();
+    /* Everything the answer produces is held locally until the very end.
+       A reply from a closed search must not write ONE field of the shared
+       state -- not geoBusy either, or it would clear the flag belonging to
+       the search the user has since started. */
+    let res = [], err = '';
     try{
       const url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(term) +
                   '&limit=8&lang=en&lat=54.5&lon=-3.2&zoom=6';
       const r = await fetch(url);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
-      geoRes = (j.features || []).map(f => {
+      res = (j.features || []).map(f => {
         const pr = f.properties || {}, c = (f.geometry || {}).coordinates || [];
         return {
           name: pr.name || pr.street || '',
@@ -27247,8 +27314,9 @@ function geoSearch(q){
           osm: (pr.osm_type === 'W' ? 'way' : pr.osm_type === 'R' ? 'relation' : 'node') + pr.osm_id
         };
       }).filter(x => x.name && isFinite(x.la) && isFinite(x.lo));
-      geoQ = term;
-    }catch(e){ geoRes = []; geoErr = 'Could not reach the place search.'; }
+    }catch(e){ res = []; err = 'Could not reach the place search.'; }
+    if (gen !== geoGen) return;
+    geoRes = res; geoErr = err; geoQ = err ? '' : term;
     geoBusy = false;
     paintSearch();
   }, 450);
@@ -27268,8 +27336,44 @@ function prettyOsmKind(key, val){
   return String(val || key || '').replace(/_/g, ' ');
 }
 function paintSearch(){
-  const box = document.getElementById('rqres');
-  if (box) box.innerHTML = searchResultsHTML();
+  /* querySelectorAll, not getElementById: the map stage and the old Map tab
+     each emit an #rqres, so getElementById only ever repainted the first of
+     them and the other kept whatever it last had. */
+  document.querySelectorAll('#rqres').forEach(box => { box.innerHTML = searchResultsHTML(); });
+}
+
+/* PICKING A RESULT ENDS THE SEARCH.
+
+   Joe, 23 Oct: "when searching a place and clicking on it, the search lists
+   stay there". Exactly the fault he reported on 9 Oct for the Home search
+   -- "the letters and list stays here untill you delete the words, this is
+   jarring" -- which was fixed there and nowhere else.
+
+   Clearing ui.rq is not enough. render() preserves the map node rather than
+   rebuilding the stage around it, so the typed text and the list of results
+   are both live DOM that nothing repaints. The box has to be emptied by
+   hand, and the pending geocoder cancelled with it, or a request fired
+   450ms before the tap lands can come back and refill the list.
+
+   It shuts the Home search too. Those three lines -- clear the state,
+   clear the box, blur it -- were written out by hand at both of the places
+   that end the Home search, and the map search got neither copy. One
+   function, called by all of them, is the only version of this that stays
+   fixed.
+
+   The hills-list filter (#q) is deliberately NOT touched: that is a filter
+   you are browsing behind, not a search you have finished with. */
+function shutSearch(){
+  ui.rq = '';
+  clearTimeout(geoTimer); geoTimer = null;
+  geoGen++;
+  geoRes = []; geoQ = ''; geoErr = ''; geoBusy = false;
+  ui.mq = '';
+  document.querySelectorAll('#rq, #mq').forEach(inp => {
+    inp.value = '';
+    try{ inp.blur(); }catch(e){}
+  });
+  paintSearch();
 }
 
 /* ---------- interactive route editor ---------- */
@@ -29331,6 +29435,16 @@ function mapStageHTML(){
            every tap does was behind a panel. */
         '<button class="mp-snap' + (editor && editor.snap ? ' on' : '') + '" data-act="rmsnap" aria-pressed="' +
           !!(editor && editor.snap) + '">' + (editor && editor.snap ? 'Paths' : 'Straight') + '</button>' +
+        /* PICK A DAY, WHILE YOU ARE DRAWING THE DAY. Joe, 23 Oct. It was
+           only in Map settings, which is two taps away and behind the
+           panel you have just left to start drawing — and the day is what
+           the forecast on the route hangs off. Shows the day once it is
+           set, so it is the readout as well as the way in. */
+        '<button class="mp-day' + (ui.rday ? ' on' : '') + '" data-act="dayfold"' +
+          ' aria-expanded="' + !!ui.dayOpen + '" aria-label="' +
+          (ui.rday ? 'Change the day' : 'Pick a day') + '">' +
+          (ui.rday ? esc(ui.rday === today() ? 'Today'
+              : prettyDate(ui.rday).replace(/ \d{4}$/, '')) : ti('calendar')) + '</button>' +
         '<button data-act="rmundo"' + (editor && editor.wp.length ? '' : ' disabled') + '>Undo</button>' +
         '<button data-act="rmclear"' + (editor && editor.wp.length ? '' : ' disabled') + '>Clear</button>' +
         '<button class="mp-save" data-act="rmsave"' + (editor && editor.wp.length ? '' : ' disabled') + '>Save</button></div>'
@@ -30028,10 +30142,7 @@ document.addEventListener('click', async e => {
        result, so it ends the search too — otherwise coming back to Home
        lands you on a stale list of hills you have finished with. Harmless
        from the hill page, where there is no search to close. */
-    ui.mq = '';
-    const mqBox = document.getElementById('mq');
-    if (mqBox){ mqBox.value = ''; mqBox.blur(); }
-    ui.rq = ''; ui.searchPin = null;
+    shutSearch(); ui.searchPin = null;
     ui.rview = {c:{lat:h.a, lng:h.o}, z:14};
     /* A STANDING INSTRUCTION, NOT A RACE.
 
@@ -30082,9 +30193,7 @@ document.addEventListener('click', async e => {
        Picking a result is the end of the search, so the box empties and the
        list goes, the way every other search box behaves. */
     const k = el.dataset.k;
-    ui.mq = '';
-    const box = document.getElementById('mq');
-    if (box){ box.value = ''; box.blur(); }
+    shutSearch();
     render();
     openInfo(k);
   }
@@ -31951,7 +32060,7 @@ document.addEventListener('click', async e => {
   else if (a === 'gomap'){
     const la = +el.dataset.la, lo = +el.dataset.lo;
     if (!isFinite(la)) return;
-    ui.rq = '';
+    shutSearch();
     /* a pin where you searched, on whichever map, until the next search */
     ui.searchPin = el.dataset.p ? null : {la, lo, name: el.dataset.name || ''};
     /* whichever map is on screen — the planner's or the Map tab's */
@@ -37534,7 +37643,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v378';
+const APP_VERSION = 'v379';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
