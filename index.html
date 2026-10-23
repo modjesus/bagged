@@ -5316,6 +5316,18 @@ body.guiding{overflow:hidden}
 @media (max-width:719px){
   .mapstage{margin-left:0; margin-right:0; margin-top:6px}
 }
+/* EDGE TO EDGE. The map tab is the map; the reading column's side padding,
+   its top gap and the card's rounded corners are all furniture around the
+   one thing you came to look at. Only in the tall layout — the desktop
+   fieldbook is a column beside a panel and wants its margins. Full map is
+   unchanged: it still takes the header and the bottom bar away too. */
+/* :not(.full) — full map is already position:fixed inset:0, and a negative
+   margin on top of that pushed it 28px wider than the screen */
+.mapshell.tall:not(.full){margin-left:calc(-1 * var(--mainpad, 0px));
+  margin-right:calc(-1 * var(--mainpad, 0px))}
+.mapshell.tall .mapstage{margin-top:0}
+.mapshell.tall .mapwrap{border-radius:0; border-left:0; border-right:0; border-top:0}
+.mapshell.tall .mapslot, .mapshell.tall #routemap{border-radius:0}
 /* the two pills: a second row under the search, clear of the zoom column */
 /* above the mode bar, not under the search: at the top they had to dodge the
    zoom column and the day pill lost its last three letters to it */
@@ -21046,6 +21058,18 @@ function mapShellVars(){
   const n = document.querySelector('.bnav');
   if (h) r.style.setProperty('--wm-head', Math.round(h.getBoundingClientRect().height) + 'px');
   if (n) r.style.setProperty('--wm-nav', Math.round(n.getBoundingClientRect().height) + 'px');
+  /* THE PAGE'S OWN SIDE MARGIN, SO THE MAP CAN CANCEL IT.
+     Joe, 23 Oct: "Make standard map fullscreen with the tabs etc so its
+     edge to edge." The map lives inside the reading column, which keeps
+     14px down each side and a rounded card around everything in it. For a
+     map that is 28px of cream doing nothing. Measured, not written down:
+     the column's padding is 14 on a phone and 22 on a desktop, and a hard
+     -14px would tear a hole in the wrong one. A negative margin of exactly
+     the measured padding cannot overflow; 100vw can, the moment there is a
+     scrollbar. */
+  const m = document.getElementById('main');
+  if (m){ const cs = getComputedStyle(m);
+    r.style.setProperty('--mainpad', Math.round(parseFloat(cs.paddingLeft) || 0) + 'px'); }
   r.classList.toggle('mapfull', !!ui.mapFull && (tab === 'p' || tab === 'm'));
 }
 function fitMapFurniture(){
@@ -26132,8 +26156,22 @@ const DEM_CREDIT = 'Heights: Europe terrain data produced using Copernicus data 
   'data © Environment Agency copyright and/or database right 2015. All rights ' +
   'reserved; SRTM terrain data courtesy of the U.S. Geological Survey.';
 const DEM_MAXZOOM = 14;
-/* 1, so a hill is the height it is. Nothing is dramatised. */
-const DEM_EXAG = 1;
+/* 1, so a hill is the height it is. Nothing is dramatised.
+
+   Joe, 23 Oct: "it worked on OS it was just subtle." It is — and it is not
+   wrong. A Lakeland fell is 900m over four kilometres; at true scale that
+   is a gentle thing, and every dramatic 3D map you have ever seen is
+   exaggerated without saying so.
+
+   So the drama is a choice, and a labelled one. True keeps 1. Lifted is
+   1.8 and the panel says out loud that the hills are taller than they
+   are, because a walker judging a slope off a lie is the one thing this
+   must never do. */
+const DEM_EXAG = 1, DEM_EXAG_TALL = 1.8;
+const TALL_KEY = 'waymark.terrain3dTall';
+let want3dTall = false;
+try{ want3dTall = localStorage.getItem(TALL_KEY) === '1'; }catch(e){}
+const demExag = () => want3dTall ? DEM_EXAG_TALL : DEM_EXAG;
 /* enough tilt to read a ridge, not so much that the map becomes a landscape
    painting you cannot plan on */
 const DEM_PITCH = 55, DEM_MAXPITCH = 70;
@@ -26154,7 +26192,7 @@ function addTerrain(m){
     if (!m.getSource(DEM_SRC)) m.addSource(DEM_SRC, {type:'raster-dem', tiles:DEM_TILES,
       encoding:'terrarium', tileSize:256, maxzoom:DEM_MAXZOOM, attribution:DEM_CREDIT});
     m.setMaxPitch(DEM_MAXPITCH);
-    m.setTerrain({source:DEM_SRC, exaggeration:DEM_EXAG});
+    m.setTerrain({source:DEM_SRC, exaggeration:demExag()});
     if (m.dragRotate) m.dragRotate.enable();
     if (m.touchZoomRotate) m.touchZoomRotate.enableRotation();
     if (m.touchPitch) m.touchPitch.enable();
@@ -26189,6 +26227,17 @@ function demTrouble(m, e){
   toast(navigator.onLine
     ? 'The 3D heights are not loading: showing the map flat.'
     : 'No connection, so no 3D heights: showing the map flat.');
+}
+/* changing the lift does not rebuild anything: the mesh is already there,
+   it is only asked for a different vertical scale */
+function setTerrainTall(on){
+  want3dTall = !!on;
+  try{ localStorage.setItem(TALL_KEY, want3dTall ? '1' : '0'); }catch(e){}
+  for (const m of terrainMaps()){
+    if (!terrainOn()) continue;
+    try{ m.setTerrain({source:DEM_SRC, exaggeration:demExag()}); }catch(e){}
+  }
+  paintLayers();
 }
 function setTerrain3D(on){
   want3d = !!on;
@@ -26529,11 +26578,17 @@ const OS_ATTR = 'Contains OS data &copy; Crown copyright and database rights ' +
 const BASEMAPS = {
   outdoor: {name:'Outdoor', os:true, attr:OS_ATTR},
   road:    {name:'Road',    os:true, attr:OS_ATTR},
-  /* Not offered as a choice any more — OS is the map. This is the stand-in for
-     the two places OS cannot serve: Northern Ireland, which Ordnance Survey does
-     not map (that is OSNI, a separate body outside the Data Hub), and an OS
-     outage or a spent monthly allowance. */
-  topo:    {name:'Terrain', os:false, fallbackOnly:true,
+  /* A CHOICE AGAIN, 23 Oct. Joe: "the map is OS however the other open maps
+     looked better as they had marked walking routes on them". OpenTopoMap
+     draws contours and footpaths heavily at every zoom; OS Outdoor draws
+     rights of way too, but only once you are well zoomed in, and he was
+     looking at a whole lake.
+
+     It is STILL the stand-in for the two places OS cannot serve — Northern
+     Ireland, which Ordnance Survey does not map (that is OSNI, outside the
+     Data Hub), and an OS outage or a spent allowance — and OS is still what
+     the app opens on. This only means you can pick it on purpose. */
+  topo:    {name:'Terrain', os:false,
     url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', maxZoom:17,
     attribution:null,
     attr:'Map data: &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'}
@@ -26572,7 +26627,7 @@ function baseStyle(at){
   if (at && outsideOs(at.la, at.lo)) return 'topo';
   let s;
   try{ s = localStorage.getItem(STYLE_KEY); }catch(e){}
-  if (!s || !BASEMAPS[s] || BASEMAPS[s].fallbackOnly) s = 'outdoor';
+  if (!s || !BASEMAPS[s]) s = 'outdoor';
   if (BASEMAPS[s].os && !osUsable()) s = 'topo';
   return s;
 }
@@ -26584,9 +26639,10 @@ function setBaseStyle(s){
 }
 function styleSwitcher(){
   const cur = baseStyle();
-  /* Only the OS styles are offered. OpenTopoMap is still in BASEMAPS but it is
-     a fallback, not a choice — nobody picks their way off OS by accident. */
-  const keys = baseChoices().filter(k => !BASEMAPS[k].os || osUsable());
+  /* The two OS styles only. Terrain is a choice now, but it is a choice you
+     make in Layers, where there is room to say what it is — a third button
+     reading "Terrain" in a three-up segment says nothing. */
+  const keys = baseChoices().filter(k => BASEMAPS[k].os && osUsable());
   if (keys.length < 2) return '';
   let s = '<div class="seg" role="group">';
   for (const k of keys)
@@ -29093,9 +29149,10 @@ function layersHTML(){
   const cur = baseStyle();
   const osOk = osUsable();
   let s = '<div class="mh">Map</div>';
-  if (osOk) for (const k of baseChoices())
+  if (osOk) for (const k of baseChoices().filter(k => BASEMAPS[k].os))
     s += '<button class="mrow' + (cur === k ? ' on' : '') + '" data-act="basemap" data-v="' + k + '">' + BASEMAPS[k].name + '<small>Ordnance Survey</small></button>';
-  else s += '<div class="mrow"><span>OpenTopoMap</span><small>OS unavailable</small></div>';
+  s += '<button class="mrow' + (cur === 'topo' ? ' on' : '') + '" data-act="basemap" data-v="topo">Terrain<small>' +
+    (osOk ? 'contours and paths, OpenTopoMap' : 'OpenTopoMap \u2014 OS is not answering') + '</small></button>';
   /* FLAT OR 3D, SAID PLAINLY, AND WHAT 3D COSTS YOU.
      Not a toggle labelled "terrain": two choices, one of them on. The note
      under 3D is the honest part — the heights come down the wire every time
@@ -29109,6 +29166,14 @@ function layersHTML(){
   /* the catch, said once under the pair, rather than as four ragged lines
      squeezed down the right-hand side of the button */
   s += '<p class="bknote">3D needs a signal. It is not included when you keep an area offline.</p>';
+  /* only while 3D is actually on: a lift control over a flat map is furniture */
+  if (terrainOn()){
+    s += '<button class="mrow" data-act="terraintall" data-v="' + (want3dTall ? '0' : '1') +
+      '" aria-pressed="' + want3dTall + '">Lift the hills<small>' +
+      (want3dTall ? 'on \u2014 taller than they really are' : 'off \u2014 true heights') +
+      '</small></button>';
+    if (want3dTall) s += '<p class="bknote">The hills are drawn almost twice their height. Good for seeing the shape of a round, not for judging a slope.</p>';
+  }
   s += '<div class="mh">Show</div>';
   s += '<button class="mrow' + (poiShow ? ' on' : '') + '" data-act="places" aria-pressed="' + poiShow + '">Places<small>pubs, parking, toilets</small></button>';
   s += '<div class="mh">Which hills</div>';
@@ -30882,6 +30947,7 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
   else if (a === 'terrain'){ setTerrain3D(el.dataset.v === '1'); }
+  else if (a === 'terraintall'){ setTerrainTall(el.dataset.v === '1'); }
   else if (a === 'guide'){ openGuide(el.dataset.id != null ? el.dataset.id : null); }
   else if (a === 'layers'){ ui.layersOpen = !ui.layersOpen; paintLayers(); }
   else if (a === 'mzoom'){ if (rmap) rmap.easeTo({zoom: rmap.getZoom() + (+el.dataset.v), duration:260, easing:t => 1 - Math.pow(1 - t, 3)}); }
@@ -37253,7 +37319,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v376';
+const APP_VERSION = 'v377';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
