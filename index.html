@@ -1877,6 +1877,111 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .maplegend i.plan{background:var(--plan); border:1.5px solid var(--plan); padding:0; margin-top:0; border-radius:99px}
 .maplegend i.prog{background:var(--prog); border-color:var(--prog)}
 .mapnote{font-size:13px; color:var(--ink-3); margin:10px 0 0}
+
+/* ================= THE MAP SHELL =================================
+   Two layouts of one feature. Phone: the map fills what is left between
+   the header and the bottom bar, with a drawer over its foot. Desktop:
+   the routes stand beside the map. Same markup inside both. */
+.mapshell{position:relative}
+/* --- phone: map & drawer --- */
+.mapshell.tall{display:block}
+.mapshell.tall .mapmain{position:relative}
+/* the map takes the usable viewport: 100dvh less the header, the bottom
+   bar and the collapsed drawer. dvh, not vh, because a phone's address bar
+   slides away and vh would leave a strip of nothing under the map. */
+.mapshell.tall .mapwrap{height:calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px) - 108px);
+  min-height:300px}
+.mapshell.tall .mapslot, .mapshell.tall #routemap{height:100%}
+.mapdrawer{position:fixed; left:0; right:0; bottom:var(--wm-nav, 64px); z-index:40;
+  display:flex; flex-direction:column;
+  background:var(--surface); border-top:1px solid var(--line);
+  border-radius:18px 18px 0 0; box-shadow:0 -14px 34px -22px rgba(20,51,45,.55);
+  max-height:calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px));
+  transition:height .22s cubic-bezier(.32,.72,0,1)}
+@media (prefers-reduced-motion:reduce){ .mapdrawer{transition:none} }
+/* 44 handle + 52 of peek + 8 padding: the next walk on one line, and a
+   target you can hit without looking. */
+.mapdrawer[data-state="collapsed"]{height:108px}
+.mapdrawer[data-state="mid"]{height:46dvh}
+.mapdrawer[data-state="open"]{height:calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px))}
+/* the handle is a real 44px button, not a decorative bar */
+/* 44, not 28 with an invisible ::after doing the rest. A sweep measures the
+   element; so does a thumb that misses. The grip inside stays 5px — it is
+   the picture, the button is the target. */
+.dwhandle{flex:none; height:44px; padding:0; border:0; background:none; cursor:pointer;
+  display:grid; place-items:center; position:relative}
+.dwgrip{display:block; width:42px; height:5px; border-radius:99px; background:var(--line)}
+.dwhandle:focus-visible{outline:2px solid var(--accent); outline-offset:-4px}
+.dwpeek{flex:none; display:flex; align-items:center; gap:12px; padding:0 16px 8px}
+.dwpeek.tap{cursor:pointer}
+.dpk-t, .dpk-none{flex:1; min-width:0; display:block}
+.dpk-t b, .dpk-none b{display:block; font:400 18px/1.15 var(--font-display); color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.dpk-eye{display:block; font:700 10.5px var(--font-ui); letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3); font-style:normal; margin-bottom:1px}
+.dpk-sub, .dpk-none i{display:block; font:400 13px var(--font-ui); color:var(--ink-2); font-style:normal}
+.dwmore{flex:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
+  background:var(--ground); color:var(--ink); display:grid; place-items:center; cursor:pointer}
+.dwmore svg{width:20px; height:20px}
+/* the panel scrolls on its own, and never hands the scroll to the map */
+.dwbody{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch; padding:0 16px calc(16px + env(safe-area-inset-bottom))}
+.mapdrawer[data-state="collapsed"] .dwbody{display:none}
+/* THE DRAWER RISES OVER THE MAP, SO THE MAP'S OWN CONTROLS RISE WITH IT.
+   Collapsed, the drawer sits under the map and nothing moves. Pulled up,
+   it covers the foot of the map — and the compass, the pills, the mode bar
+   and the credit were still sitting down there underneath it. How far it
+   covers is measured in fitMapFurniture, not guessed from 46dvh, because
+   the drawer's height is a percentage of a viewport nobody can predict.
+   Opened to the top there is no map left to label, so the furniture goes
+   rather than fighting for the same pixels. */
+.mapshell.tall .mapwrap{--mdraw:0px}
+.mapshell.tall .maplibregl-ctrl-bottom-right, .mapshell.tall .maplibregl-ctrl-bottom-left{
+  transform:translateY(calc(-1 * var(--mdraw, 0px)))}
+.mapshell.drawerup .mpills{flex-wrap:nowrap}
+.mapshell.drawerdeep .misle, .mapshell.drawerdeep .mpills, .mapshell.drawerdeep .mapzoom,
+.mapshell.drawerdeep .rosectl, .mapshell.drawerdeep .maplibregl-ctrl-bottom-right,
+.mapshell.drawerdeep .mmenu, .mapshell.drawerdeep .mresults{display:none}
+/* --- desktop: open fieldbook --- */
+/* 340, not 300: at 300 the sidebar clipped "Catbells & the Newlands ridge"
+   to "Catbells & the Ne…", which is the one thing a route list must not do.
+   Measured against the longest route name in the app's own sample set. */
+.mapshell.wide{display:grid; grid-template-columns:minmax(340px, 26%) 1fr; gap:0;
+  align-items:stretch; height:calc(100dvh - var(--wm-head, 59px))}
+.mapshell.wide .mapside{border-right:1px solid var(--line); background:var(--surface);
+  height:100%; display:flex; flex-direction:column}
+/* in a narrow column a route name wraps rather than losing its end */
+.mapshell.wide .rtnm{white-space:normal; overflow:visible; text-overflow:clip}
+.mapshell.wide .rtrow{align-items:start}
+.mapshell.wide .rtwhen{padding-top:2px}
+.mapshell.wide .mapsidein{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+  padding:4px 16px 20px}
+.mapshell.wide .mapmain{min-width:0; display:flex; flex-direction:column}
+.mapshell.wide .mapwrap{flex:1; min-height:420px}
+.mapshell.wide .mapslot, .mapshell.wide #routemap{height:100%}
+/* --- full map --- */
+/* FULL MAP IS THE MAP AND NOTHING ELSE.
+   .mapmain had no size of its own, so the wrap inside it sat at its
+   natural width and the pills fell out of the bottom — the picture showed
+   a map in the top two thirds and the furniture stacked under it. Both
+   boxes are pinned to the viewport now, so the map fills it and its own
+   controls float on top of it where they belong. */
+.mapshell.full{position:fixed; inset:0; z-index:60; background:var(--ground)}
+.mapshell.full .mapmain{position:absolute; inset:0; display:flex}
+.mapshell.full .mapwrap{flex:1; height:100%; border-radius:0}
+.mapshell.full .mapslot, .mapshell.full #routemap{height:100%; border-radius:0; border:0}
+/* FULL MAP ADDS ONE MORE THING TO THE BOTTOM OF THE STACK.
+   The way back sits above the credit, and everything else — mode bar,
+   pills, compass — has to move up by the height of it. That height is
+   measured in fitMapFurniture and handed round as --mexit, because the
+   button is a line of text in a pill and a bigger type size makes it
+   taller. Lifting one of the three and not the others is how the pills
+   ended up printed on top of the mode bar. */
+.mapexit{position:fixed; z-index:61; left:50%; transform:translateX(-50%);
+  bottom:calc(12px + var(--mcred, 0px) + env(safe-area-inset-bottom)); min-height:44px;
+  display:inline-flex; align-items:center; gap:7px; box-shadow:var(--shadow)}
+.mapexit svg{width:18px; height:18px}
+html.mapfull .bnav, html.mapfull .top{display:none}
 /* ---- the challenge you arrived from, carried onto the map (audit 31) ----
    It sits ABOVE the map, not on it: a panel floating over a map is a panel
    covering the hills you came to look at. Everything in it is 44px. */
@@ -1960,7 +2065,18 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .mapwrap.nomap #mapbox, .mapwrap.nomap #routemap{display:grid; place-items:center; padding:24px 18px}
 .mapwrap.nomap .empty{margin:0; max-width:30ch; text-align:center}
 .mapwrap{position:relative; display:flex; gap:0; align-items:stretch}
-.mapwrap > #routemap, .mapwrap > #mapbox{flex:1; min-width:0}
+/* THE SLOT TAKES THE WIDTH THE MAP USED TO TAKE.
+
+   .mapwrap is a flex row, and #routemap was a flex child with flex:1. The
+   slot went in between them and inherited nothing, so it collapsed to 2px
+   wide while MapLibre's canvas stayed 400 — the container the map measures
+   itself against was two pixels across. Everything the map computed from
+   it was wrong: "show Scafell Pike on the map" landed a kilometre east,
+   which is half a screen at that zoom. Measured, not guessed: slot 2px,
+   canvas 400px, in the same breath. */
+.mapwrap > #routemap, .mapwrap > #mapbox, .mapwrap > .mapslot{flex:1; min-width:0}
+.mapslot{position:relative; display:flex}
+.mapslot > #routemap{flex:1; min-width:0}
 .scrollgrip{
   flex:0 0 30px; display:none; align-items:center; justify-content:center;
   flex-direction:column; gap:5px; touch-action:pan-y;
@@ -5076,7 +5192,10 @@ li.hill.bk .hrow{padding-left:2px}
    across the rose's crown. This clears both. */
 /* the rose clears the credit, the mode bar AND however many rows of pills
    there are — all three measured after they are drawn, never assumed */
-#routemap .rosectl{margin-bottom:calc(16px + var(--mcred, 0px) + var(--mfoot, 50px) + var(--mpill, 50px))}
+/* no --mdraw here: the rose rides in MapLibre's own bottom-left box, and
+   that box is already moved up by the drawer. Counting the drawer twice
+   lifted the rose clean off the top of the map. */
+#routemap .rosectl{margin-bottom:calc(16px + var(--mcred, 0px) + var(--mexit, 0px) + var(--mfoot, 50px) + var(--mpill, 50px))}
 .maplibregl-ctrl-top-left .rosectl{margin:74px 0 0 12px}
 .rosectl{
   position:relative; width:46px; height:46px; margin:0 0 12px 12px;
@@ -5197,8 +5316,11 @@ body.guiding{overflow:hidden}
    the routes switch -- was scrolled off the right-hand edge and invisible,
    which is the opposite of "more obvious". It wraps instead. The row still
    scrolls sideways on a narrow phone with long list names. */
-.mpills{position:absolute; z-index:5; left:12px; right:calc(12px + var(--grip, 0px));
-  bottom:calc(12px + var(--mcred, 0px) + var(--mfoot, 50px));
+.mpills{position:absolute; z-index:5; left:12px; right:calc(12px + var(--grip, 0px) + var(--mrail, 0px));
+  bottom:calc(12px + var(--mdraw, 0px) + var(--mcred, 0px) + var(--mexit, 0px) + var(--mfoot, 50px));
+  /* lifted by the drawer, the pills reach the zoom rail's band, so they
+     stop short of it; sitting at the foot of the map they do not, and
+     they keep the full width. The rail's width is measured. */
   display:flex; flex-wrap:wrap; gap:6px; overflow-x:auto; scrollbar-width:none;
   justify-content:flex-start}
 .mpills::-webkit-scrollbar{display:none}
@@ -5238,13 +5360,23 @@ body.guiding{overflow:hidden}
 @media (min-width:1024px){ .mapstage #routemap{height:min(63vh, 650px); min-height:440px} }
 .misle{position:absolute; z-index:5; background:rgba(251,250,246,.8); -webkit-backdrop-filter:blur(16px) saturate(1.25); backdrop-filter:blur(16px) saturate(1.25);
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 14px 30px -18px rgba(20,51,45,.45), inset 0 1px 0 rgba(255,255,255,.7); border-radius:99px; color:var(--ink)}
-.msearch{left:12px; right:calc(64px + var(--grip, 0px)); max-width:520px; top:12px; height:44px; display:flex; align-items:center; gap:9px; padding:0 8px 0 14px}
+/* two buttons in that corner now — Layers and Full map — so the search
+   field stops 116px from the edge instead of 64. It was sitting under the
+   new one, which the picture showed and the numbers confirmed. */
+.msearch{left:12px; right:calc(116px + var(--grip, 0px)); max-width:520px; top:12px; height:44px; display:flex; align-items:center; gap:9px; padding:0 8px 0 14px}
 .msearch svg{width:16px; height:16px; color:var(--ink-3); flex:none}
 .msearch input{flex:1; min-width:0; height:100%; border:0; background:transparent; font:inherit; font-size:15px; color:var(--ink); outline:none; -webkit-appearance:none}
 .msearch input::placeholder{color:var(--ink-3)}
 .msearch:focus-within{box-shadow:0 0 0 1.5px var(--accent), 0 14px 30px -18px rgba(20,51,45,.45)}
 .mlayers{right:calc(12px + var(--grip, 0px)); top:12px; width:44px; height:44px; border:0; display:grid; place-items:center; cursor:pointer; transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mlayers svg{width:20px; height:20px; stroke-width:1.5}
+/* full map sits under Layers in the same corner, same shape, same 44px */
+/* under Layers, and clear of the zoom stack below it — measured, not
+   guessed: .mlayers is 44px at top:12, so 12+44+8 = 64 would have put this
+   where .mctl starts. It goes on the LEFT of Layers instead. */
+.mfull{right:calc(64px + var(--grip, 0px)); top:12px; width:44px; height:44px; border:0;
+  display:grid; place-items:center; cursor:pointer}
+.mfull svg{width:19px; height:19px; stroke-width:1.6}
 .mlayers.on{background:var(--ink); color:#F3EFE6}
 .mlayers:active{transform:scale(.94)}
 .mresults{position:absolute; z-index:7; left:12px; right:64px; max-width:520px; top:62px}
@@ -5260,7 +5392,7 @@ body.guiding{overflow:hidden}
 .mctl .mguide{background:var(--accent); color:#FFF3E9}
 .mctl .mguide svg{width:20px; height:20px; stroke-width:2.4; fill:#FFF3E9}
 .mctl .mguide:hover{background:#8E3813}
-.mmode{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mcred, 0px)); padding:4px; display:flex; gap:2px;
+.mmode{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mdraw, 0px) + var(--mcred, 0px) + var(--mexit, 0px)); padding:4px; display:flex; gap:2px;
   max-width:calc(100% - 24px); overflow-x:auto; scrollbar-width:none; justify-content:flex-start}
 .mmode::-webkit-scrollbar{display:none}
 @media (min-width:520px){ .mmode{right:auto; width:auto} }
@@ -5511,7 +5643,7 @@ body.guiding{overflow:hidden}
 .jnode.chapter span{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); background:var(--ground); padding:2px 6px; border-radius:6px}
 .jnote{font-size:13px; color:var(--ink-3); margin:6px 0 0; text-align:center}
 .disc.hasimg > svg{display:none}
-.mplot{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mcred, 0px)); padding:5px; display:flex; align-items:center; gap:4px}
+.mplot{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mdraw, 0px) + var(--mcred, 0px) + var(--mexit, 0px)); padding:5px; display:flex; align-items:center; gap:4px}
 .mplot button{height:40px; padding:0 14px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mplot button:disabled{opacity:.4; cursor:default}
 .mplot button:not(:disabled):hover{background:rgba(20,51,45,.07)}
@@ -5871,7 +6003,7 @@ html.camlock, html.camlock body{overflow:hidden}
 /* messages from the rest of the app drop in at the top, clear of the camera buttons */
 html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 /* the camera is for phones: no button where there is a mouse */
-@media (hover:hover) and (pointer:fine){ .cambtn{display:none !important} }
+/* v374: the summit camera remains available with mouse, touch or keyboard. */
 @media (prefers-reduced-motion:reduce){ .camx *{transition:none !important} }
 
 /* ---- sync button ---- */
@@ -9769,6 +9901,65 @@ textarea, select{font-size:16px}
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "@id": "https://waymark.it.com/#org", "name": "WayMark", "url": "https://waymark.it.com/", "logo": "https://waymark.it.com/icon-512.png", "email": "contact@waymark.it.com", "description": "WayMark is a free walking log for the hills of Britain and Ireland."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://waymark.it.com/#website", "name": "WayMark", "url": "https://waymark.it.com/", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "description": "Free walking log for the hills of Britain and Ireland. Mark off Wainwrights, Munros, Corbetts, Nuttalls, Birketts and more across 21 lists."}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "@id": "https://waymark.it.com/#app", "name": "WayMark", "url": "https://waymark.it.com/", "applicationCategory": "HealthApplication", "applicationSubCategory": "Hiking and hill walking log", "operatingSystem": "Any (web browser, installable as a PWA)", "browserRequirements": "Requires JavaScript", "inLanguage": "en-GB", "publisher": {"@id": "https://waymark.it.com/#org"}, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP", "availability": "https://schema.org/InStock"}, "description": "A free walking log for the hills of Britain and Ireland. Mark the summits you have reached across 21 hill lists and 3,554 hills, keep a journal with photographs, earn patches and follow other walkers.", "featureList": ["Mark off 21 British hill lists including the Wainwrights, Munros, Corbetts, Grahams, Nuttalls, Hewitts, Birketts, Marilyns and Peak District Ethels", "3,554 summits with heights, grid references and regions", "Offline map with saveable sheets", "Walk journal with photographs and notes", "Patches earned for summits, challenges and milestones", "Follow other walkers and share completed walks", "Works offline and installs to the home screen"]}</script>
+<style>
+
+/* v374: reuse the app's pill controls, colours and font roles. */
+.wmsections{display:flex;gap:3px;padding:3px;margin:12px 0 16px;background:color-mix(in srgb,var(--surface) 80%,var(--surface-2));border:1px solid var(--line-soft);border-radius:999px;max-width:560px}
+.wmsections button{flex:1;min-width:0;min-height:44px;padding:8px 10px;border:0;border-radius:999px;background:transparent;color:var(--ink);font:600 15px var(--font-ui);cursor:pointer}
+.wmsections button[aria-current="page"]{background:var(--crew);color:var(--cream)}
+.wmsections button:focus-visible,.wmutilities button:focus-visible{outline:2px solid var(--burnt);outline-offset:3px}
+.top .wmutilities{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:0;padding-bottom:0;border-top:1px solid var(--line-soft)}
+.wmutilities button{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 2px;border:0;background:none;color:var(--ink-2);font:600 14px var(--font-ui);text-decoration:none;cursor:pointer}
+.wmutilities button[data-act="wmshop"]{color:var(--accent-text)}
+.wmutilities button svg{width:15px;height:15px}
+.wmutilities button:hover{color:var(--ink)}
+.top .brandrow{gap:6px;padding-top:7px;padding-bottom:7px}
+.wmshop-inline{margin-left:auto;min-height:44px;min-width:44px;padding:0 4px;border:0;background:none;color:var(--accent-text);font:600 14px var(--font-ui);cursor:pointer}
+.wmsettings-tools{margin-bottom:12px;border-bottom:1px solid var(--line-soft)}
+.wmprofile-link{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:48px;padding:8px 2px;border:0;background:none;color:var(--ink);font:600 16px var(--font-ui);cursor:pointer}
+.wmsync-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;font:600 14px var(--font-ui);color:var(--ink-2)}
+.wmsync-row .sync{min-height:44px;min-width:44px;margin:0}
+.wmshop-inline:focus-visible,.wmprofile-link:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px}
+.wmunread{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:5px;padding:0 4px;border-radius:20px;background:var(--accent);color:var(--accent-ink);font:600 11px var(--font-data)}
+.wmsync-dot{position:absolute;left:3px;bottom:5px;width:8px;height:8px;border:1px solid var(--surface);border-radius:50%;background:var(--accent)}
+.wmsync-dot[hidden]{display:none}.wmsync-dot[data-state="saving"]{background:var(--sage)}
+.wmsync-row>span{font-weight:400;font-size:13px;line-height:1.4}
+.wmcommunityprofile{min-width:44px;min-height:44px;flex:none}
+.hkhead{flex-wrap:wrap}.hkhead .hksearch{min-width:120px;flex:1 1 140px}
+.wmupcoming{max-width:560px;margin:16px 0 20px}.wmupcoming h3{font:400 22px var(--font-display);margin:0 0 10px}.wmupcoming .ibtix{display:grid;gap:10px}.wmupcoming .ibtk{width:100%;min-height:64px}.wmupcoming .ibtk>svg{width:18px;height:18px;flex:none}
+@media(max-width:339px){.top .hbrand{display:inline-flex;flex:0 1 auto}.brandrow .brand{font-size:18px;letter-spacing:.5px}.top .brandrow{gap:3px}}
+@media(max-width:400px){.top .brandrow{gap:4px;padding-left:14px;padding-right:14px}.brandrow .brand{font-size:24px;letter-spacing:1px}.wmshop-inline{font-size:13px}}
+.wmutilities button:active,.wmhistorycontrol:active{opacity:.7}
+.wm-patchhead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;margin-top:8px}
+.wm-patchhead .eyebrow{grid-column:1;grid-row:1}
+.wmhistorycontrol{grid-column:2;grid-row:1;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 2px;border:0;background:none;color:var(--ink-2);font:600 13px var(--font-ui);cursor:pointer;white-space:nowrap}
+.wmhistorycontrol svg{width:16px;height:16px}
+.wm-patchhead .bcview{grid-column:1;grid-row:2;justify-self:start}
+.wm-patchhead .shufb{grid-column:2;grid-row:2;justify-self:end}
+.wm-patchhead .bcview button{min-width:88px}
+.wmhistorycontrol:focus-visible{outline:2px solid var(--accent-text);outline-offset:3px}
+.wmhistory{display:flex;justify-content:flex-end;margin:-6px 0 10px}.wmhistory button{min-height:44px}
+.wmphotos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.wmphotos button{min-width:0;border:1px solid var(--stone);padding:6px;border-radius:12px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer}
+.wmphotos img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;background:var(--stone)}
+.wmphotos span{display:block;font:600 14px var(--font-ui);padding:7px 2px;overflow-wrap:anywhere}
+.wmphotos small{display:block;padding:0 2px 5px;font:400 11px var(--font-data);color:var(--ink-3)}
+.wmphotos button:focus-visible,.wmtextrow:focus-visible,.wmroute-link:focus-visible{outline:2px solid var(--accent-text);outline-offset:3px}
+.wmwelcome{max-width:560px;margin:16px 0 20px;padding:20px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow)}
+.wmwelcome-mark{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin-bottom:10px;color:var(--ink-2);border:1px dashed var(--line);border-radius:50%}
+.wmwelcome-mark svg{width:23px;height:23px}
+.wmwelcome h3{margin:0 0 8px;font:400 24px/1.2 var(--font-display);color:var(--ink)}
+.wmwelcome p{margin:0 0 18px;color:var(--ink-2);font:400 16px/1.5 var(--font-ui);max-width:45ch}
+.wmwelcome>.btn{min-height:44px}
+.wmtextrow{display:flex;align-items:center;gap:9px;width:100%;min-height:48px;margin-top:18px;padding:12px 0 0;border:0;border-top:1px solid var(--line-soft);background:none;color:var(--ink-2);font:600 14px var(--font-ui);text-align:left;cursor:pointer}
+.wmtextrow span{flex:1}.wmtextrow svg,.wmroute-link>svg{width:18px;height:18px;flex:none}
+.wmroute-link{display:flex;align-items:center;gap:12px;width:100%;max-width:560px;min-height:64px;margin:0 0 16px;padding:10px 2px;border:0;border-bottom:1px solid var(--line-soft);background:none;text-align:left;color:var(--ink-2);font:400 15px var(--font-ui);cursor:pointer}
+.wmroute-link span{flex:1}.wmroute-link b{display:block;color:var(--ink);font-weight:600}.wmroute-link small{display:block;margin-top:3px;font-size:13px}
+@media(min-width:1024px){.top{display:flex;align-items:center;gap:16px}.top .brandrow{flex:1}.top .wmutilities{flex:none;gap:20px;width:auto;border-top:0;border-left:1px solid var(--line-soft);padding-left:18px}.top .wmutilities button{white-space:nowrap}}
+@media(min-width:760px){.wm-patchhead{grid-template-columns:minmax(0,1fr) auto auto auto}.wm-patchhead .bcview{grid-column:2;grid-row:1}.wm-patchhead .shufb{grid-column:3;grid-row:1}.wmhistorycontrol{grid-column:4;grid-row:1;margin-left:8px;padding-left:16px;border-left:1px solid var(--line-soft)}}
+@media(max-width:420px){.wmphotos{grid-template-columns:repeat(2,minmax(0,1fr))}.wmsections button{padding:8px 5px;font-size:14px}.navbtn .nl{font-size:10px}}
+
+</style>
 </head>
 <body>
 <noscript>
@@ -9816,15 +10007,16 @@ textarea, select{font-size:16px}
       <div class="wrap brandrow">
 
         <button class="hbrand hideDesk" data-tab="d" aria-label="WayMark home"><b class="brand">WAY<em>MARK</em></b><i class="tagline">Mark Your Journeys</i></button>
-        <button class="sync" id="syncBtn" data-s="local"><span class="dot"></span></button>
+        <button class="wmshop-inline" data-act="wmshop">Shop</button>
 <span class="headsocial" id="headSocial" hidden></span>
 <button class="iconbtn bagbtn" data-act="bagopen" aria-label="Backpack" title="Backpack"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"/><path d="M9.5 5v-1a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v1"/><path d="M6 10.5h12"/><path d="M9 14h6v4h-6z"/></svg><i></i></button>
         <button class="iconbtn cambtn" data-act="cam" aria-label="Camera" title="Camera"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg></button>
         <button class="iconbtn" id="themeBtn" aria-label="Light or dark" title="Light or dark" hidden></button>
-        <button class="iconbtn cogbtn" id="menuBtn" aria-label="Settings" title="Settings"><i id="cogN" hidden></i>
+        <button class="iconbtn cogbtn" id="menuBtn" aria-label="Settings" title="Settings"><i id="cogN" hidden></i><span id="wmSyncDot" class="wmsync-dot" hidden aria-hidden="true"></span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
         </button>
       </div>
+
     </header>
 
     <main class="wrap" id="main"></main>
@@ -9849,7 +10041,7 @@ textarea, select{font-size:16px}
       <h2 id="setTitle">Settings</h2>
     </div>
 
-    <div class="setmenu" id="setMenu"></div>
+    <div class="wmsettings-tools"><button class="wmprofile-link" data-act="wmprofile">Your profile <span aria-hidden="true">→</span></button><div class="wmsync-row"><span id="wmSyncStatus">Cloud sync</span><button class="sync" id="syncBtn" data-s="local"><span class="dot"></span></button></div></div><div class="setmenu" id="setMenu"></div>
 
     <div class="setpane" id="pn-look" hidden>
       <div id="themeBox"></div>
@@ -10159,6 +10351,7 @@ TI['shopping-bag'] = '<path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.15
 TI['minus'] = '<path d="M5 12l14 0"/>';
 /* for Postpone on a route card: a day you can move */
 TI['calendar'] = '<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M9 15h2v2h-2z"/>';
+TI['arrows-maximize'] = '<path d="M16 4h4v4"/><path d="M14 10l6 -6"/><path d="M8 20h-4v-4"/><path d="M4 20l6 -6"/><path d="M16 20h4v-4"/><path d="M14 14l6 6"/><path d="M8 4h-4v4"/><path d="M4 4l6 6"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
 TI['arrows-sort'] = '<path d="M3 9l4 -4l4 4"/><path d="M7 5v14"/><path d="M21 15l-4 4l-4 -4"/><path d="M17 19v-14"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
@@ -16502,9 +16695,9 @@ function watchChats(){
         if (inboxOpen && !ui.inboxQ) paintMsgInbox();
         paintHeadIcons();
         try{ paintNav(); }catch(e){}
-        setAppBadge();
+        setAppBadge(); if(tab === 'u' && hikerTab() === 'plans') softRender();
       },
-      () => { chatsFailed = true; chatsUnsub = null; if (inboxOpen) paintMsgInbox(); });
+      () => { chatsFailed = true; chatsUnsub = null; if (inboxOpen) paintMsgInbox(); if(tab === 'u' && hikerTab() === 'plans') softRender(); });
   }catch(e){ chatsFailed = true; }
   startPresence();
   loadNotifyPrefs();
@@ -19321,6 +19514,151 @@ async function dogUnshare(id){
   }catch(e){ toast('That did not work. ' + fbWhy(e)); }
 }
 
+
+/* v374: navigation only. Existing records, editors and sharing remain the source of truth. */
+function wmSectionBar(area, selected, items){
+  return '<nav class="wmsections" aria-label="' + area + '">' + items.map(x =>
+    '<button data-act="wmsection" data-area="' + area + '" data-v="' + x[0] +
+    '" aria-current="' + (selected === x[0] ? 'page' : 'false') + '"' + (x[2] ? ' aria-label="' + esc(x[1] + ', ' + x[2] + ' unread') + '"' : '') + '>' + x[1] + (x[2] ? '<span class="wmunread">' + Math.min(99,x[2]) + '</span>' : '') + '</button>').join('') + '</nav>';
+}
+function wmJournalBar(v){
+  return wmSectionBar('Journal', v, [['days','Days'],['photos','Photos'],
+    ...(dogTabOn() ? [['dogs','Dogs']] : []),['kit','Kit']]);
+}
+function wmProgressBar(v){
+  return wmSectionBar('Progress', v, [['lists','Lists'],['patches','Patches'],['goals','Goals']]);
+}
+function wmArea(){
+  if (tab === 'a' && ['dogs','kit'].includes(ui.patchView)) return 'j';
+  return tab;
+}
+function wmJournal(){
+  if (['dogs','kit'].includes(ui.wmJournal)){
+    const dogs = ui.wmJournal === 'dogs';
+    return wmJournalBar(ui.wmJournal) + (dogs ? (ui.dog ? renderDogPage(ui.dog) : renderDogsPane()) : (ui.kitItem ? renderKitPage(ui.kitItem) : renderKitPane()));
+  }
+  const photos = ui.wmJournal === 'photos';
+  return wmJournalBar(photos ? 'photos' : 'days') + (photos ? wmPhotos() : renderDiary());
+}
+function wmPhotos(){
+  const shots = [], seen = new Set();
+  const add = (p, a, k, date, title) => {
+    if (!p.id || seen.has(p.id)) return;
+    seen.add(p.id); shots.push({p, a, k, date:date || '', title});
+  };
+  for (const [k,r] of Object.entries(state.bagged)){
+    if (!BY_KEY[k]) continue;
+    for (const p of r.photos || []) add(p,'viewphoto',k,r.date,hillName(BY_KEY[k]));
+  }
+  for (const e of liveDiary()) for (const p of e.photos || [])
+    add(p,'viewdiaryphoto',e.id,e.date,e.title || 'Journal');
+  shots.sort((a,b) => b.date.localeCompare(a.date));
+  const limit = ui.wmPhotoLimit || 48;
+  return pageHead('Your photographs', shots.length + ' <em>in your log</em>', '') +
+    '<p class="setnote">Your summit and journal photographs, together. Open a photograph to view it or edit its caption.</p>' +
+    (!shots.length ? '<p class="empty">No photographs yet. Add one to a hill or a journal entry and it appears here.</p>' :
+    '<div class="wmphotos">' + shots.slice(0,limit).map(x =>
+      '<button data-act="' + x.a + '" ' + (x.a === 'viewphoto' ? 'data-k' : 'data-id') + '="' + esc(x.k) +
+      '" data-p="' + esc(x.p.id) + '" aria-label="' + esc(x.title + (x.date ? ', ' + prettyDate(x.date) : '')) + '">' +
+      '<img data-pid="' + esc(x.p.id) + '" data-up="' + (x.p.up ? '1' : '0') + '" alt="">' +
+      '<span>' + esc(x.title) + '</span>' + (x.date ? '<small>' + esc(prettyDate(x.date)) + '</small>' : '') + '</button>').join('') + '</div>' +
+      (shots.length > limit ? '<button class="btn ghost" data-act="wmmorephotos">Show more photographs</button>' : ''));
+}
+function wmProgress(){
+  const v = ui.patchView;
+  if (v === 'lists'){
+    if (ui.wmProgressList && state.enabled.length) return wmProgressBar('lists') +
+      '<button class="hlback" data-act="wmlistback">' + ti('arrow-left') + 'Back to your lists</button>' +
+      '<h1 class="hlhead">' + esc((LIST_BY[ui.list] || {}).name || 'Your hills') + '</h1>' + renderHills();
+    return wmProgressBar('lists') + pageHead('Your progress','Your hill lists','') +
+      (homeListCards().replaceAll('data-act="homelist"','data-act="wmlist"').replace('<h2>Your lists</h2>','') ||
+      '<p class="empty">Choose the hill lists you want to follow.</p><button class="btn" data-act="open-lists">Choose hill lists</button>');
+  }
+  if (v === 'goals') return wmProgressBar('goals') + pageHead('Your progress','Your goals','') +
+    (chalOf() ? chalCardHTML() : '<section class="wmwelcome"><span class="wmwelcome-mark" aria-hidden="true">' + ti('waymark-mountain') + '</span>' +
+      '<h3>What are you working towards?</h3><p>A summit total, more days out, a height to reach or a hill list to finish. Choose your target and a date to work towards.</p>' +
+      '<button class="btn" data-act="chalnew">Set a goal</button></section>');
+  return null;
+}
+function wmCommunityBar(){
+  const t = hikerTab();
+  if (['me','friends','popular'].includes(t)) return '';
+  return wmSectionBar('Community', t === 'discover' || t === 'friends' ? 'people' : t === 'boards' ? 'groups' : t,
+    [['feed','Feed'],['people','People'],['groups','Groups',gTalkUnread()],['plans','Plans']]);
+}
+function wmCommunityPlans(){
+  return pageHead('Community','Walk plans','') +
+    wmUpcomingWalks() +
+    '<section class="wmwelcome"><span class="wmwelcome-mark" aria-hidden="true">' + ti('map-2') + '</span>' +
+    '<h3>Who are you walking with?</h3><p>Choose your company, a day and a meeting place. Plans and replies stay together in your conversation.</p>' +
+    '<button class="btn" data-act="planwalk">Plan a walk with friends</button>' +
+    '<button class="wmtextrow" data-act="msgopen">' + ti('message-circle') + '<span>Open conversations</span>' + ti('chevron-right') + '</button></section>' +
+    '<button class="wmroute-link" data-tab="p">' + ti('map-2') + '<span><b>Your saved routes</b><small>Find and plan routes on the Map</small></span>' + ti('chevron-right') + '</button>';
+}
+function wmUpcomingWalks(){
+  if(chatsFailed) return '<p class="setnote">Your shared plans could not load. Open conversations to try again.</p>';
+  const walks=nextWalks();
+  if(!walks.length) return '<p class="setnote">No upcoming shared walks. Your plans will appear here when you arrange a walk in a conversation.</p>';
+  return '<section class="wmupcoming"><h3>Your next walks</h3><div class="ibtix">' + walks.map(({c,p,ins})=>{
+    const h=BY_KEY[p.hill];
+    return '<button class="ibtk" data-act="chatopen" data-v="'+esc(c.id)+'"><span class="ibtkb"><b>'+esc(p.hn || (h ? hillName(h) : 'A walk'))+'</b><span>'+esc([walkWhen(p.date),p.time,p.meet].filter(Boolean).join(' · '))+'</span><span>'+ins.length+' going · Open conversation</span></span>'+ti('chevron-right')+'</button>';
+  }).join('')+'</div></section>';
+}
+function wmNavigate(area, v){
+  shopHome = false; ui.homeList = null; ui.patch = null; ui.patchFrom = null; ui.wmProgressList = false;
+  if (area === 'Journal'){
+    ui.wmJournal = v;
+    if (v === 'dogs' || v === 'kit'){
+      tab = 'a'; ui.patchView = v; ui.dog = null; ui.kitItem = null;
+    } else { tab = 'j'; ui.wmJournal = v; }
+  } else if (area === 'Progress'){
+    tab = 'a'; ui.patchView = v === 'patches' ? (ui.patchSub === 'collection' ? 'collection' : 'cork') : v;
+  } else {
+    tab = 'u'; ui.hikerTab = v === 'people' ? 'discover' : v === 'groups' ? 'boards' : v;
+    friendOpen = null; singlePost = null; ui.openComments = null;
+    if (v === 'people' && !discover.length) loadDiscover();
+  }
+  render(); window.scrollTo({top:0});
+}
+function wmCommunityUnread(){ return hkNew() + gTalkUnread(); }
+function wmShopOpen(){
+  if (tab === 'a' && ui.patchView === 'supplies') return;
+  const fields = ['patchView','patch','patchFrom','patchSub','pGroup','dog','dogAll','dogAllPh','kitItem','homeList','list','q','region','status','sort','open','wmJournal','wmProgressList','hikerTab','peopleView','profTab','gView','gFind','planOpen','planDate'];
+  ui.wmShopFrom = {tab, values:Object.fromEntries(fields.map(k=>[k,ui[k] === undefined ? null : ui[k]])),
+    friend:friendOpen, post:singlePost,
+    name:ui.patch && patches().find(p=>p.id===ui.patch) ? patches().find(p=>p.id===ui.patch).label :
+      tab === 'u' && hikerTab() === 'me' ? 'your profile' : wmArea() === 'j' ? 'Journal' : tab === 'a' ? 'Progress' : tab === 'u' ? 'Community' : tab === 'p' || tab === 'm' ? 'Map' : 'Home', y:window.scrollY};
+  shopHome = true; tab = 'a'; ui.patch = null; ui.patchView = 'supplies'; ui.supOpen = null; ui.kitOpen = null;
+  ui.shopSaved = false; ui.shopColl = ''; supGo(null, true); window.scrollTo({top:0});
+}
+function wmShopBack(){
+  const from = ui.wmShopFrom; if (!from) return;
+  shopHome = false; shopClose(); bcSheetClose(); ui.supOpen = null; ui.kitOpen = null;
+  tab = from.tab; Object.assign(ui,from.values); friendOpen = from.friend; singlePost = from.post;
+  ui.wmShopFrom = null; render(); window.scrollTo({top:from.y || 0});
+}
+function wmOpenList(id){
+  if (!ui.wmProgressList){
+    ui.wmListParent = {tab, patchView:ui.patchView, y:window.scrollY};
+    try{history.pushState({...(history.state || {}),wmProgressList:true},'');}catch(e){}
+  }
+  tab='a'; ui.patchView='lists'; ui.wmProgressList=true; ui.list=id;
+  ui.q=''; ui.region=''; ui.status='all'; ui.open=null; render(); window.scrollTo({top:0});
+}
+function wmCloseList(){
+  const parent = ui.wmListParent;
+  ui.wmProgressList=false; ui.wmListParent=null;
+  tab=parent ? parent.tab : 'a'; ui.patchView=parent ? parent.patchView : 'lists';
+  render(); window.scrollTo({top:parent && parent.y || 0});
+}
+function wmPaintSync(label){
+  const text=document.getElementById('wmSyncStatus'),dot=document.getElementById('wmSyncDot'),menu=document.getElementById('menuBtn');
+  const status=syncState === 'error' ? 'Sync failed' : syncState === 'pending' ? 'Changes waiting' : syncState === 'saving' || syncTapBusy ? 'Saving' : '';
+  if(text) text.textContent=label;
+  if(dot){dot.hidden=!status;dot.dataset.state=syncState;dot.title=status;}
+  if(menu){const base=(menu.getAttribute('aria-label') || 'Settings').split(' · Sync:')[0];menu.setAttribute('aria-label',base+(status ? ' · Sync: '+status : ''));}
+}
+
 function renderPatchesPage(){
   const ps = patches();
   if (ui.patch){
@@ -19328,6 +19666,8 @@ function renderPatchesPage(){
     if (p) return renderPatchDetail(p);
     ui.patch = null;
   }
+  const progress = wmProgress();
+  if (progress !== null) return progress;
   const got = ps.filter(x => x.got).length;
   const counts = ps.filter(p => p.kind === 'count').sort((a, b) => a.sort - b.sort);
 
@@ -19354,20 +19694,15 @@ function renderPatchesPage(){
      Shop keeps its glyph when the others drop theirs, and carries a warm
      tint when it is not the one you are on. Measured at eight widths from
      430 down to 320: nothing is cut or wrapped, 7px to spare at the worst. */
-  let s = '<div class="bcswitch ' + (dogs ? 'bc5' : 'bc4') + '" role="group" aria-label="Basecamp">' +
-    '<button data-act="patchview" data-v="' + esc(ui.patchSub === 'collection' ? 'collection' : 'cork') + '" aria-pressed="' + (!shop && !jour && !pack && !kitv) + '">' + ti('circle-dashed') + 'Patches</button>' +
-    '<button data-act="patchview" data-v="journey" aria-pressed="' + jour + '">' + ti('trekking') + 'Journey</button>' +
-    '<button class="bcsell" data-act="patchview" data-v="supplies" aria-pressed="' + shop + '">' + ti('backpack') + 'Shop</button>' +
-    (dogs ? '<button data-act="patchview" data-v="dogs" aria-pressed="' + pack + '">' + ti('paw') +
-      (dogList().length === 1 ? 'Dog' : 'Dogs') + '</button>' : '') +
-    '<button data-act="patchview" data-v="kit" aria-pressed="' + kitv + '">' + ti('shoe') + 'Kit</button></div>';
+  let s = (pack || kitv) ? wmJournalBar(pack ? 'dogs' : 'kit') : wmProgressBar('patches') +
+    (jour ? '<div class="wmhistory"><button class="linkbtn" data-act="patchview" data-v="cork">' + ti('arrow-left') + 'Back to patches</button></div>' : '');
   if (shop){
     supWatch(); shopLoad();
     /* From Home: no Basecamp bar along the top either. One button, naming
        where it goes -- not a bare chevron, which on a phone is a guess. */
     if (shopFromHome()){
       return '<button class="shopback" data-act="shophomeback">' +
-        ti('chevron-left') + 'Back to Home</button>' + renderShop();
+        ti('chevron-left') + (ui.wmShopFrom ? 'Back to ' + esc(ui.wmShopFrom.name) : 'Back to Home') + '</button>' + renderShop();
     }
     return (ui.supOpen || ui.kitOpen ? '' : s) + renderShop();
   }
@@ -19399,7 +19734,8 @@ function patchesHead(ps, got){
      as chips, in the row the app already uses for exactly this on the map. */
   const VIEWS = {cork: 'Board', collection: 'Collection'};
   let s = '<section class="mypatches">' +
-    '<div class="bchead"><p class="eyebrow">My patches</p>' +
+    '<div class="bchead wm-patchhead"><p class="eyebrow">My patches</p>' +
+      '<button class="wmhistorycontrol" data-act="patchview" data-v="journey">' + ti('clock') + 'Patch history</button>' +
       '<div class="bcswitch bcview" role="group" aria-label="How to see them">' +
       Object.keys(VIEWS).map(v => '<button data-act="patchview" data-v="' + v +
         '" aria-pressed="' + (ui.patchView === v) + '">' + VIEWS[v] + '</button>').join('') +
@@ -20068,7 +20404,7 @@ TI['waymark-mountain'] = '<path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="
 /* a pawprint small enough to read at 22px: solid, four toes, one pad */
 const NI = {
   d: TI['home'], h: TI['waymark-mountain'], m: TI['map-2'], p: TI['map-2'],
-  j: TI['notebook'], a: TI['tent'], u: TI['shoe'], f: TI['users']
+  j: TI['notebook'], a: '<circle cx="12" cy="9" r="6"/><path d="M8 14l-1 8 5-3 5 3-1-8"/>', u: TI['message-circle'], f: TI['users']
 };
 /* Joe's own Basecamp icon: the tent with a pawprint walking in front of it,
    drawn as solid shapes so it holds together at 22px. */
@@ -20081,10 +20417,10 @@ const NAV = [
      itself, so the bar keeps to five and Home sits dead centre. */
   {id:'p', label:'Map',       short:'Map',    count:'m', also:['m']},   // opens on Plan a walk; Hills is the other mode
   {id:'j', label:'Journal',   short:'Journal', count:'j'},
-  {id:'a', label:'Basecamp',  short:'Basecamp', count:'a'},
+  {id:'a', label:'Progress',  short:'Progress', count:'a'},
   /* Home and the hill list are one screen (what is next, then the list you
      are working through), which leaves the fifth slot for Hikers. */
-  {id:'u', label:'Hikers',    short:'Hikers', count:'f'}
+  {id:'u', label:'Community', short:'Community', count:'f'}
 ];
 function mapModeBar(){
   return '<div class="seg mapmode" role="group" aria-label="Map view">' +
@@ -20110,16 +20446,16 @@ function navButton(n, c, mobile){
   /* Home sits in the middle of the phone bar, ringed, so the thumb always knows
      where the way back is without reading anything. */
   const home = mobile && n.id === 'd' ? ' homebtn' : '';
-  const on = tab === n.id || (n.also || []).includes(tab);
+  const on = wmArea() === n.id || (n.also || []).includes(wmArea());
   return '<button class="navbtn tab' + home + '" role="tab" data-tab="' + n.id + '" aria-selected="' + on + '">' +
     '<svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" ' +
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    (n.id === 'a' && dogList().length ? NI_TENT_PAW : NI[n.id]) +
+    NI[n.id] +
     /* a pawprint walks in front of the tent once there is a dog in the pack */
     '</svg>' +
     '<span class="nl">' + esc(label) + '</span>' +
     (n.count && c[n.count] ? '<span class="nc">' + esc(c[n.count]) + '</span>' : '') +
-    (n.id === 'u' && hkNew() ? '<span class="nb" aria-label="' + hkNew() + ' new">' + Math.min(99, hkNew()) + '</span>' : '') +
+    (n.id === 'u' && wmCommunityUnread() ? '<span class="nb" aria-label="' + wmCommunityUnread() + ' new">' + Math.min(99, wmCommunityUnread()) + '</span>' : '') +
     '</button>';
 }
 /* Track the tagline out until it spans the same width as the wordmark, so the
@@ -20231,10 +20567,14 @@ function restoreView(){
   let v = null; try{ v = JSON.parse(sessionStorage.getItem(VIEW_KEY) || 'null'); }catch(e){}
   if (!v || !v.tab || Date.now() - (v.at || 0) > 6 * 3600e3) return;
   tab = v.tab;
+  if (v.wmJournal) ui.wmJournal = v.wmJournal;
+  if (v.wmProgressList && onList(v.wmList)){ ui.wmProgressList = true; ui.list = v.wmList; }
   if (v.hikerTab) ui.hikerTab = v.hikerTab;
   if (v.peopleView) ui.peopleView = v.peopleView;
   if (v.profTab) ui.profTab = v.profTab;
   if (v.patchView) ui.patchView = v.patchView === 'challenges' ? 'collection' : v.patchView;
+  ui.wmListParent = v.wmListParent || null;
+  if (v.wmShopFrom && tab === 'a' && ui.patchView === 'supplies'){ ui.wmShopFrom=v.wmShopFrom; shopHome=true; }
   /* a reload half way down 214 rows used to land you back on Home at the
      top with no sign of where you had got to. `v.y` below does the rest. */
   if (v.homeList && onList(v.homeList)){ ui.homeList = v.homeList; ui.list = v.homeList; }
@@ -20244,20 +20584,24 @@ function restoreView(){
 function saveView(){
   let fo = null; try{ fo = friendOpen; }catch(e){}
   try{ sessionStorage.setItem(VIEW_KEY, JSON.stringify({tab, hikerTab: ui.hikerTab || '', peopleView: ui.peopleView || '', profTab: ui.profTab || '',
-    patchView: ui.patchView || '', homeList: ui.homeList || '',
+    wmShopFrom: ui.wmShopFrom || null, wmListParent: ui.wmListParent || null, wmJournal: ui.wmJournal || '', wmProgressList: !!ui.wmProgressList, wmList: ui.list, patchView: ui.patchView || '', homeList: ui.homeList || '',
     friend: fo && fo.uid || '', friendCode: fo && fo.code || '', y: Math.round(window.scrollY || 0), at: Date.now()})); }catch(e){}
 }
 addEventListener('pagehide', saveView);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveView(); });
 /* The name of wherever you are, for the heading below and for nothing else. */
 const SCREEN_NAME = {
-  d: 'Home', p: 'Plan a walk', m: 'Map', j: 'Journal', u: 'Hikers',
+  d: 'Home', p: 'Plan a walk', m: 'Map', j: 'Journal', u: 'Community',
   a: {cork: 'Patches', collection: 'Patches', journey: 'Your journey', supplies: 'The shop'}
 };
 function screenName(){
+  if(tab === 'u') return ({me:'Your profile',popular:'Most marked hills',discover:'Find people',boards:'Groups',plans:'Walk plans',friends:'Your people'})[hikerTab()] || 'Community';
+  if(tab === 'j' && ui.wmJournal === 'photos') return 'Your photographs';
+  if(tab === 'a' && ui.patch){const p=patches().find(p=>p.id===ui.patch);if(p) return String(p.label).replace(/&middot;/g,'·');}
+
   const n = SCREEN_NAME[tab];
   if (typeof n === 'string') return n;
-  if (n) return n[ui.patchView] || 'Basecamp';
+  if (n) return ({dogs:'Dogs', kit:'Kit', lists:'Your lists', goals:'Your goals'})[ui.patchView] || n[ui.patchView] || 'Progress';
   return 'WayMark';
 }
 /* A screen with no <h1> gets a hidden one. A screen that painted its own is
@@ -20543,10 +20887,14 @@ function render(){
      tab === 'p' ? renderPlans() :
      tab === 'm' ? renderMapTab() :
      tab === 'a' ? renderPatchesPage() :
-     tab === 'j' ? renderDiary() :
+     tab === 'j' ? wmJournal() :
      tab === 'u' ? renderHikers() : renderHills());
   const mainSame = mainHTML === lastMainHTML && mainEl.firstChild;
-  if (!mainSame){ lastMainHTML = mainHTML; mainEl.innerHTML = mainHTML; }
+  if (!mainSame){
+    mapDetach();                       // keep the one map across the rewrite
+    lastMainHTML = mainHTML; mainEl.innerHTML = mainHTML;
+    mapAttach();
+  }
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); if (hikerTab() === 'popular') popLoad(); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   ensureScreenHeading();
@@ -20596,7 +20944,55 @@ function render(){
    So nothing down there is a fixed number any more. Each piece is measured
    after it is drawn and the one above it is told how much room to leave. A
    third row of pills, a longer list name, a bigger credit: it still stacks. */
+/* the shell's two fixed numbers, measured rather than assumed: the header
+   and the bottom bar are both built elsewhere and both change height with
+   the safe-area inset on a phone. */
+/* ---- the map knows what is covering it ----------------------------------
+
+   Joe's brief: "Fit the route to the unobscured map area using responsive
+   padding."
+
+   Not cosmetic. Without it every camera move — a route fit, a summit
+   popup, centre-on-me — aims at the geometric middle of the map element,
+   and on a phone the foot of that element is under the drawer. Measured:
+   "show Scafell Pike on the map" put the summit a kilometre off, because
+   the popup panned the map to fit itself into a box whose bottom is
+   hidden. With padding, MapLibre aims at the middle of what you can see. */
+function mapPad(){
+  if (!rmap) return;
+  let bottom = 0;
+  try{
+    if (!ui.mapFull && (tab === 'p' || tab === 'm') && !mapWide()){
+      const d = document.querySelector('.mapdrawer');
+      const box = document.getElementById('routemap');
+      if (d && box){
+        const h = Math.round(d.getBoundingClientRect().height);
+        const bh = box.getBoundingClientRect().height;
+        /* never pad away more than half the map, or a fully open drawer
+           would leave nothing to aim at */
+        bottom = Math.max(0, Math.min(h - 40, Math.round(bh * 0.5)));
+      }
+    }
+  }catch(e){}
+  try{ rmap.setPadding({top:0, right:0, bottom, left:0}); }catch(e){}
+}
+function mapShellVars(){
+  const r = document.documentElement;
+  const h = document.querySelector('.top');
+  const n = document.querySelector('.bnav');
+  if (h) r.style.setProperty('--wm-head', Math.round(h.getBoundingClientRect().height) + 'px');
+  if (n) r.style.setProperty('--wm-nav', Math.round(n.getBoundingClientRect().height) + 'px');
+  r.classList.toggle('mapfull', !!ui.mapFull && (tab === 'p' || tab === 'm'));
+}
 function fitMapFurniture(){
+  mapShellVars();
+  /* TWICE, BECAUSE THE ANSWER CHANGES THE QUESTION.
+     Narrowing the pills to clear the zoom rail makes them wrap onto
+     another row, and the mode bar is spaced off the height they had
+     BEFORE that happened — which is how the pills ended up printed on
+     top of the mode bar at 390. Second pass measures what the first
+     pass actually produced. */
+  for (let pass = 0; pass < 2; pass++)
   for (const wrap of document.querySelectorAll('.mapwrap')){
     const h = sel => { const e = wrap.querySelector(sel);
       if (!e) return 0;
@@ -20611,9 +21007,54 @@ function fitMapFurniture(){
     const cred = credEl ? Math.max(20, Math.round(credEl.getBoundingClientRect().height)) : 0;
     const mode = h('.misle.mmode') || h('.misle.mplot');
     const pills = h('.mpills');
+    /* FULL MAP PUTS THE WAY BACK AT THE BOTTOM OF THE STACK.
+       It lives outside the map box, so it is found on the shell, and its
+       height is measured like everything else here rather than written
+       down as a number that a bigger type size would make wrong. */
+    const shell = wrap.closest('.mapshell');
+    const exitEl = shell ? shell.querySelector('.mapexit') : null;
+    const exit = exitEl ? Math.round(exitEl.getBoundingClientRect().height) : 0;
     wrap.style.setProperty('--mcred', (cred ? cred + 6 : 0) + 'px');
     wrap.style.setProperty('--mfoot', (mode ? mode + 8 : 0) + 'px');
     wrap.style.setProperty('--mpill', (pills ? pills + 8 : 0) + 'px');
+    wrap.style.setProperty('--mexit', (exit ? exit + 8 : 0) + 'px');
+    /* the way back is a child of the shell, not of the map box, so it
+       cannot read a variable set on the box */
+    if (shell) shell.style.setProperty('--mcred', (cred ? cred + 6 : 0) + 'px');
+
+    /* HOW FAR THE DRAWER COVERS THE MAP, MEASURED, NOT ASSUMED.
+       Collapsed it sits below the map and covers nothing. Pulled up it
+       eats into the bottom of the map box and everything standing there
+       has to step up by exactly that much. Past the point where there is
+       no useful map left, the controls are hidden instead. */
+    const draw = shell ? shell.querySelector('.mapdrawer') : null;
+    let over = 0;
+    if (draw && shell && !shell.classList.contains('full')){
+      const wb = wrap.getBoundingClientRect(), db = draw.getBoundingClientRect();
+      if (db.height > 0) over = Math.max(0, Math.round(wb.bottom - db.top));
+      /* The collapsed drawer's rounded top laps the foot of the map by a
+         few pixels. That is not the drawer covering anything, and it must
+         not be read as such — six pixels was enough to put the pills into
+         a scrolling row and shunt them clear of the zoom rail on a screen
+         where they had room to sit in two rows and be read. */
+      if (over <= 12) over = 0;
+    }
+    /* Lifted, the pills run in one scrolling row. Letting them wrap while
+       they are also being narrowed for the zoom rail makes their height
+       depend on a measurement taken before the narrowing — the two chase
+       each other and the mode bar ends up underneath them. */
+    if (shell) shell.classList.toggle('drawerup', over > 0);
+    wrap.style.setProperty('--mdraw', over + 'px');
+    const railEl = wrap.querySelector('.misle.mctl');
+    const rail = railEl ? Math.round(railEl.getBoundingClientRect().width) : 0;
+    wrap.style.setProperty('--mrail', (over && rail ? rail + 8 : 0) + 'px');
+    /* room the furniture needs above the drawer: the top controls, the
+       credit, the mode bar and the pills. If it does not fit there is no
+       useful map left to control, so hide it rather than stack it. */
+    const wb2 = wrap.getBoundingClientRect();
+    const need = 68 + (cred ? cred + 6 : 0) + (mode ? mode + 8 : 0) +
+                 (pills ? pills + 8 : 0) + 24;
+    if (shell) shell.classList.toggle('drawerdeep', over > 0 && over > wb2.height - need);
     if (credEl && !credEl.__watched && 'ResizeObserver' in window){
       credEl.__watched = true;
       new ResizeObserver(fitMapFurnitureSoon).observe(credEl);
@@ -20628,6 +21069,28 @@ function fitMapFurnitureSoon(){
   mapFurnTimer = setTimeout(fitMapFurniture, 60);
 }
 window.addEventListener('resize', fitMapFurnitureSoon);
+/* CROSSING THE BREAKPOINT IS A LAYOUT CHANGE, NOT A NEW SCREEN.
+
+   Only redraw when the answer to "is this wide?" actually changes — a phone
+   rotating or a desktop window nudged by 20px must not rebuild the screen.
+   The map node is carried across by mapDetach/mapAttach, so the instance,
+   the centre, the zoom, the bearing, the pitch and the selected route all
+   survive the move from drawer to sidebar. */
+/* Set every time the shell is drawn, so it is the shape ON SCREEN, not a
+   null that the first resize of the session quietly swallows. It did: the
+   first time a window was dragged past 1024 the handler recorded the new
+   answer and returned without redrawing, so the desktop layout never
+   appeared until the window was resized a second time. */
+let wasWide = null;
+function mapShellResize(){
+  const now = mapWide();
+  if (now !== wasWide){ wasWide = now; if (tab === 'p' || tab === 'm') render(); }
+  if (rmap) { try{ rmap.resize(); mapPad(); }catch(e){} }
+}
+let shellTimer = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(shellTimer); shellTimer = setTimeout(mapShellResize, 120);
+});
 
 function pageHead(eyebrow, figure, sub){
   return '<header class="wmhead">' +
@@ -21452,6 +21915,7 @@ function paintBell(){
   if (b) b.setAttribute('aria-label', n
     ? 'Settings \u2014 ' + n + (n === 1 ? ' thing waiting' : ' things waiting')
     : 'Settings');
+  const sync=document.getElementById('syncBtn'); if(sync) wmPaintSync(sync.getAttribute('aria-label') || 'Cloud sync');
 }
 
 const ndEl = () => document.getElementById('nd');
@@ -24408,6 +24872,7 @@ function diaryDays(){
    journal is newest first, so an entry written up weeks later lands well down
    the page: without this it looks as though nothing was saved. */
 function showJournalDay(date){
+  ui.wmJournal='days';
   /* the day you just wrote up opens itself — folded shut is the right default
      for reading back, and the wrong one for the entry you have this second
      finished. Set before the paint, so it is never seen shut. */
@@ -25443,6 +25908,109 @@ function lineFeature(pts, props){
   return {type:'Feature', properties:props, geometry:{type:'LineString', coordinates:pts.map(c => [c[1], c[0]])}};
 }
 
+/* ---------- 3D: THE REAL SHAPE OF THE GROUND ----------
+
+   Not a tilted picture. MapLibre builds a mesh from a height tile, so the
+   ridge in front really does hide the valley behind it, and the route line
+   and the summit pins sit ON the ground rather than floating over a flat
+   sheet with a perspective transform on it.
+
+   The heights come from the AWS Open Data terrain tiles, in the terrarium
+   encoding. No account, no key, no bill — and no promise that they will be
+   there tomorrow, which is why every path through here has to end with a
+   flat map that still works.
+
+   It is a SEPARATE THING from the Skyline camera. Skyline has its own
+   Ordnance Survey height packs in an encoding of its own, drawn by its own
+   code. Those packs are not fed to MapLibre: the grid, the projection and
+   the two-plane encoding are all different, and handing them over without
+   a converter would put hills in the sea. Skyline is left exactly as it is.
+
+   Saving an area for offline saves the flat map sheets. It does not save
+   these heights, and the Layers panel says so rather than letting somebody
+   walk out of signal expecting 3D. */
+const DEM_KEY = 'waymark.terrain3d';
+const DEM_SRC = 'wm-dem';
+const DEM_TILES = ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'];
+/* Word for word from the terms, not a tidied-up version of them:
+   github.com/tilezen/joerd/blob/master/docs/attribution.md */
+const DEM_CREDIT = 'Heights: Europe terrain data produced using Copernicus data and ' +
+  'information funded by the European Union — EU-DEM layers; United Kingdom terrain ' +
+  'data © Environment Agency copyright and/or database right 2015. All rights ' +
+  'reserved; SRTM terrain data courtesy of the U.S. Geological Survey.';
+const DEM_MAXZOOM = 14;
+/* 1, so a hill is the height it is. Nothing is dramatised. */
+const DEM_EXAG = 1;
+/* enough tilt to read a ridge, not so much that the map becomes a landscape
+   painting you cannot plan on */
+const DEM_PITCH = 55, DEM_MAXPITCH = 70;
+
+let want3d = false;
+try{ want3d = localStorage.getItem(DEM_KEY) === '1'; }catch(e){}
+let demDown = false, demBad = 0, demSaid = false;
+
+const terrainOn = () => want3d && !demDown;
+const terrainMaps = () => [map, rmap].filter(Boolean);
+
+/* Called from style.load as well as from the switch: changing the base map
+   tears the style down, and the heights have to be put back with it or 3D
+   silently turns itself off when somebody picks a different map. */
+function addTerrain(m){
+  if (!m || !terrainOn()) return;
+  try{
+    if (!m.getSource(DEM_SRC)) m.addSource(DEM_SRC, {type:'raster-dem', tiles:DEM_TILES,
+      encoding:'terrarium', tileSize:256, maxzoom:DEM_MAXZOOM, attribution:DEM_CREDIT});
+    m.setMaxPitch(DEM_MAXPITCH);
+    m.setTerrain({source:DEM_SRC, exaggeration:DEM_EXAG});
+    if (m.dragRotate) m.dragRotate.enable();
+    if (m.touchZoomRotate) m.touchZoomRotate.enableRotation();
+    if (m.touchPitch) m.touchPitch.enable();
+  }catch(e){}
+}
+/* Back to flat, and back to flat properly: the tilt and the turn come off
+   too, or the map is left skewed with no way to straighten it, because the
+   turning gestures are switched off again on the way out. */
+function dropTerrain(m){
+  if (!m) return;
+  try{ m.setTerrain(null); }catch(e){}
+  try{ if (m.getSource(DEM_SRC)) m.removeSource(DEM_SRC); }catch(e){}
+  try{
+    if (m.dragRotate) m.dragRotate.disable();
+    if (m.touchZoomRotate) m.touchZoomRotate.disableRotation();
+    if (m.touchPitch) m.touchPitch.disable();
+    m.easeTo({pitch:0, bearing:0, duration:280});
+    setTimeout(() => { try{ m.setMaxPitch(0); }catch(e){} }, 320);
+  }catch(e){}
+}
+/* The heights not loading must not take the map down with them. Four bad
+   tiles is a service that is not answering, not one unlucky request. */
+function demTrouble(m, e){
+  if (!terrainOn()) return;
+  demBad++;
+  if (demBad < 4) return;
+  demDown = true;
+  for (const mm of terrainMaps()) dropTerrain(mm);
+  paintLayers();
+  if (demSaid) return;
+  demSaid = true;
+  toast(navigator.onLine
+    ? 'The 3D heights are not loading: showing the map flat.'
+    : 'No connection, so no 3D heights: showing the map flat.');
+}
+function setTerrain3D(on){
+  want3d = !!on;
+  /* asking for it again is a deliberate retry; forget the earlier failure */
+  if (want3d){ demDown = false; demBad = 0; demSaid = false; }
+  try{ localStorage.setItem(DEM_KEY, want3d ? '1' : '0'); }catch(e){}
+  for (const m of terrainMaps()){
+    if (terrainOn()){
+      addTerrain(m);
+      try{ m.easeTo({pitch:DEM_PITCH, duration:600}); }catch(e){}
+    } else dropTerrain(m);
+  }
+  paintLayers();
+}
+
 /* ---- the base map under it all ---- */
 function makeMap(box, at, opts){
   opts = opts || {};
@@ -25464,7 +26032,7 @@ function makeMap(box, at, opts){
   /* the rose goes on every map a walker navigates by, bare chrome or not */
   if (!noRose) m.addControl(new RoseCtl(m), rosePos);
   m.__bad = 0; m.__good = 0;
-  m.on('error', e => osTrouble(m, e));
+  m.on('error', e => { if (e && e.sourceId === DEM_SRC) demTrouble(m, e); else osTrouble(m, e); });
   m.on('sourcedata', e => { if (e.sourceId === 'esri' && e.tile) m.__good++; });
   applyBase(m, at);
   return m;
@@ -25482,6 +26050,9 @@ async function applyBase(m, at){
   m.__bad = 0; m.__good = 0; m.__osSwapped = false;
   m.once('style.load', () => {
     addOverlays(m);
+    /* a new style has no height source in it; put it back before anything
+       is drawn on top, or picking a different base map quietly flattens 3D */
+    addTerrain(m);
     if (m === map) drawMarkers();
     if (m === rmap) rmDraw();
     redrawHere(m);
@@ -26707,7 +27278,80 @@ function paintEditorStats(){
 }
 
 let rmMarks = [];
+/* ---- one map instance, across panel changes (map spec, desktop §) -------
+
+   `render()` rewrites #main whenever the markup differs, and the drawer and
+   the sidebar change that markup constantly. Rebuilding MapLibre on every
+   panel move costs a white flash, the user's centre/zoom/pitch and a fresh
+   set of tile requests. So the live map node is moved out of the way before
+   the rewrite and put back into its slot after it. */
+let mapHeld = null;
+function mapDetach(){
+  const m = document.getElementById('routemap');
+  if (m && m.parentNode){ mapHeld = m; m.parentNode.removeChild(m); }
+}
+function mapAttach(){
+  const slot = document.getElementById('mapslot');
+  if (!slot) return;                       // not on a map screen: hold it
+  const moved = !!mapHeld;
+  if (mapHeld){ slot.appendChild(mapHeld); mapHeld = null; }
+  else if (!slot.querySelector('#routemap')){
+    const d = document.createElement('div'); d.id = 'routemap'; slot.appendChild(d);
+  }
+  if (!rmap) return;
+  /* THE VIEW IS THE RECORD, NOT WHATEVER THE RESIZE LEFT BEHIND.
+
+     Moving the node out and back makes the container 0×0 for an instant,
+     and the resize that follows does not always put the camera back where
+     it was: measured, "show Scafell Pike on the map" landed a kilometre
+     east of it, and then `moveend` wrote that wrong centre into ui.rview,
+     so the mistake persisted. ui.rview is what the app decided; the
+     resize is plumbing. The record wins. */
+  void moved;
+  const want = ui.rview && ui.rview.c ? {lat: ui.rview.c.lat, lng: ui.rview.c.lng,
+    z: ui.rview.z} : null;
+  setTimeout(() => {
+    if (!rmap) return;
+    try{
+      rmap.resize();
+      /* not only when the node moved: any time the map and the recorded
+         view disagree after a layout change, the record is the one the app
+         decided and the map is the one that drifted. A pan writes ui.rview
+         on moveend, so after a pan the two agree and this does nothing. */
+      if (want){
+        const c = rmap.getCenter();
+        if (Math.abs(c.lat - want.lat) > 0.0005 || Math.abs(c.lng - want.lng) > 0.0005)
+          rmap.jumpTo({center:[want.lng, want.lat],
+            zoom: want.z == null ? rmap.getZoom() : want.z});
+      }
+    }catch(e){}
+  }, 0);
+}
+/* the pending view, applied the moment there is a map to apply it to and
+   a container with a size. Tries for two seconds and then gives up rather
+   than spinning for ever. */
+function applyMapGoto(tries){
+  const g = ui.mapGoto;
+  if (!g) return;
+  const box = document.getElementById('routemap');
+  const ready = rmap && box && box.getBoundingClientRect().height > 40;
+  if (!ready){
+    if ((tries || 0) > 24) { ui.mapGoto = null; return; }
+    setTimeout(() => applyMapGoto((tries || 0) + 1), 80);
+    return;
+  }
+  try{
+    mapPad();
+    goTo(rmap, g.lat, g.lng, g.z);
+    ui.rview = {c:{lat:g.lat, lng:g.lng}, z:g.z};
+    rmDraw();
+    const h = g.k && BY_KEY[g.k];
+    if (h) openPopup(null, h, rmap);
+  }catch(e){}
+  ui.mapGoto = null;
+}
 function mountRouteMap(){
+  mapAttach();
   const box = document.getElementById('routemap');
   if (!box) return;
   if (!ML() || !webglOk()){
@@ -27945,9 +28589,167 @@ function paintMapWeather(){
    top, a Layers button for the settings, zoom and locate on the right, the
    Explore/Plot switch at the foot. Under the map: a plotting card while you
    draw, otherwise the day, its forecast and your routes. */
+/* ===================== THE MAP SHELL ==============================
+
+   Joe's decision, 23 Oct: "Map & drawer for mobile and Open fieldbook for
+   desktop as two layouts of one map feature."
+
+   So this is ONE feature with two shapes, not two screens. Everything below
+   the map — the plotting card, the forecast hint, Your routes — is the same
+   markup in both; only where it sits changes. The map itself is the same
+   MapLibre instance throughout (see mapDetach/mapAttach): crossing the
+   breakpoint moves the node, it does not rebuild the map, so centre, zoom,
+   bearing, pitch, the selected route and the scope all survive.
+
+   The breakpoint is 1024px, which is the app's established desktop width
+   and what the brief asked for. It is measured, not guessed from the input
+   device, so a tablet gets the layout its width deserves. */
+const MAPSHELL_WIDE = 1024;
+function mapWide(){
+  try{ return window.innerWidth >= MAPSHELL_WIDE; }catch(e){ return false; }
+}
+/* collapsed · mid · open. Three, because the brief asked for a useful
+   intermediate: collapsed is the next walk on one line, mid is that plus the
+   start of Your routes, open is the panel. */
+const DRAWER_STATES = ['collapsed', 'mid', 'open'];
+function drawerState(){
+  const d = ui.mapDrawer;
+  return DRAWER_STATES.indexOf(d) >= 0 ? d : 'collapsed';
+}
+/* the one line the collapsed drawer carries: the walk you are going to do
+   next, or the one you have selected. Never invented — if there is no route
+   it says so and offers the two ways to make one. */
+function drawerPeekHTML(){
+  const sel = ui.planOpen ? planById(ui.planOpen) : null;
+  const plans = livePlans().filter(p => !routeWalked(p));
+  const td = today();
+  /* "NEXT" MEANS AHEAD OF YOU, NOT FIRST IN THE LIST.
+
+     Sorting every unwalked route by date and taking the first handed the
+     drawer a walk from six weeks ago and called it "Your next walk". A
+     passed date does not mean it was walked — routeWalked() asks whether
+     the summits are marked, and it is right to — but it does not make the
+     walk next, either. So: the soonest date from today on; failing that an
+     undated route; failing that the most recent one that went by, said
+     plainly. The audit's wording: present passed dates clearly when a walk
+     was not completed. */
+  const byDate = (a, b2) => (a.date || '').localeCompare(b2.date || '');
+  const ahead = plans.filter(p => p.date && p.date >= td).sort(byDate);
+  const undated = plans.filter(p => !p.date);
+  const past = plans.filter(p => p.date && p.date < td).sort((a, b2) => byDate(b2, a));
+  const p = sel || ahead[0] || undated[0] || past[0] || null;
+  if (!p) return '<span class="dpk-none"><b>No routes yet</b>' +
+    '<i>Plot one on the map, or import a GPX.</i></span>';
+  const eyebrow = sel ? 'Selected'
+    : (p.date && p.date < td) ? 'Planned, not walked'
+    : !p.date ? 'A route with no date'
+    : 'Your next walk';
+  const bits = [];
+  if (p.date) bits.push(prettyDate(p.date));
+  const trk = p.trk || [];
+  if (trk.length > 1) bits.push(prettyDist(trackLength(trk)).replace(/ \(.*\)$/, ''));
+  const tops = (p.hills || []).length;
+  if (tops) bits.push(tops + (tops === 1 ? ' summit' : ' summits'));
+  return '<span class="dpk-t">' +
+    '<i class="dpk-eye">' + esc(eyebrow) + '</i>' +
+    '<b>' + esc(p.name || 'Route') + '</b>' +
+    (bits.length ? '<i class="dpk-sub">' + esc(bits.join(' \u00b7 ')) + '</i>' : '') +
+    '</span>';
+}
+/* everything that is not the map. One function, both layouts. */
+function mapPanelHTML(){
+  let html = '';
+  if (ui.rmode === 'plot'){
+    html += plotCardHTML();
+  } else if (!ui.rday){
+    html += '<p class="wxcaution">Tap <b>Pick a day</b> for the forecast on the tops.</p>';
+  }
+  const plans = livePlans();
+  html += '<div class="routeshead"><h3 class="sect">Your routes</h3>' +
+    '<label class="linkbtn">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label></div>';
+  if (!plans.length)
+    return html + '<p class="empty">No routes yet. Switch to <b>Plot a route</b> on the map and tap to draw, or import a GPX.</p>';
+  const soon = plans.filter(p => !routeWalked(p))
+    .sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
+  const been = plans.filter(routeWalked)
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const sec = (label, list) => !list.length ? '' :
+    '<div class="rtsec"><span>' + label + '</span><b>' + list.length + '</b></div>' +
+    '<div class="rtlist">' + list.map(routeRowHTML).join('') + '</div>';
+  html += sec('Coming up', soon) + sec('Walked', been);
+  if (plans.some(p => (p.trk || []).length || (p.hills || []).length > 1))
+    html += '<p class="pathnote">The map is Ordnance Survey; the path-following is OpenStreetMap, which carries England and Wales rights of way from the definitive maps. OS sells mapping, not routing, so there is no OS equivalent. Usually right: check the map before relying on a right of way.</p>';
+  return html;
+}
+/* the plotting card, lifted out of renderPlans so both layouts get it */
+function plotCardHTML(){
+  return '<section class="plotcard"><p class="sumlabel">Plotting</p>' +
+    '<div class="plothead"><div class="rmstats" id="rmstats">' + editorStatsHTML() + '</div>' +
+    '<button class="btn sm ghost' + (editor && editor.snap ? ' on' : '') + '" data-act="rmsnap">' +
+      (editor && editor.snap ? '\u2713 Following paths' : 'Straight lines') + '</button></div>' +
+    '<p class="plothint">Tap the map to drop points. Tap a summit to route through it. Tap the start to close the loop.</p>' +
+    '<div class="btnrow plotrow">' +
+    '<label class="btn quiet">Import a GPX<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label>' +
+    '<span class="grow"></span>' +
+    (editor && (editor.wp.length || editor.id) ? '<button class="btn quiet" data-act="rmdiscard">Discard</button>' : '') +
+    '</div></section>';
+}
 function renderPlans(){
-  /* tab 'm' folds into 'p' at the top of render(), so this one screen is both
-     Hills and Plan a walk — and it is the one that needs the header. */
+  const wide = mapWide();
+  wasWide = wide;      /* what is on screen, for the resize watcher to compare against */
+  const full = !!ui.mapFull;
+  const st = drawerState();
+  let html = '<div class="mapshell' + (wide ? ' wide' : ' tall') +
+    (full ? ' full' : '') + '" data-drawer="' + st + '">';
+
+  /* FULL MAP hides the app's own furniture, and says how to come back.
+     Nothing else on the screen, which is the point of it. */
+  if (full){
+    html += mapStageHTML() +
+      '<button class="btn mapexit" data-act="mapfull" data-v="0">' +
+      ti('arrow-left') + 'Exit full map</button></div>';
+    return html;
+  }
+
+  if (wide){
+    /* OPEN FIELDBOOK. The routes stay beside the map; picking one moves the
+       map, it does not move you to another page. */
+    html += '<aside class="mapside" aria-label="Your routes and route detail">' +
+      '<div class="mapsidein">' + hillsHead() + mapPanelHTML() + '</div></aside>' +
+      '<div class="mapmain">' + mapStageHTML() +
+      '<p class="poistate" id="poistate">' + poiStateText() + '</p></div>';
+    return html + '</div>';
+  }
+
+  /* MAP & DRAWER. The map fills what is left between the header and the
+     bottom bar; the drawer sits over the foot of it. */
+  html += '<div class="mapmain">' + mapStageHTML() + '</div>';
+  html += '<section class="mapdrawer" data-state="' + st + '" aria-label="Routes and planning">' +
+    '<button class="dwhandle" data-act="drawer" data-v="cycle" ' +
+      'aria-expanded="' + (st !== 'collapsed') + '">' +
+      '<span class="dwgrip" aria-hidden="true"></span>' +
+      '<span class="vh">' + (st === 'collapsed' ? 'Open the panel' : 'Close the panel') + '</span></button>' +
+    /* THE WHOLE CARD OPENS IT, NOT JUST THE GRIP.
+       Shut, the only ways in were a 44px bar of nothing and a round button
+       in the corner. The walk's name is the biggest thing on the card and
+       the obvious thing to press, so it is a button too. */
+    '<div class="dwpeek' + (st === 'collapsed' ? ' tap' : '') + '"' +
+      /* no role=button and no tabindex: the handle above it and the round
+         button inside it are the real, focusable ways in, and announcing a
+         third one that the keyboard cannot reach would be worse than the
+         convenience is worth. This is for thumbs. */
+      (st === 'collapsed' ? ' data-act="drawer" data-v="open"' : '') + '>' +
+      drawerPeekHTML() +
+      '<button class="dwmore" data-act="drawer" data-v="' + (st === 'open' ? 'collapsed' : 'open') + '" ' +
+        'aria-label="' + (st === 'open' ? 'Close the panel' : 'Open the panel') + '">' +
+        ti(st === 'open' ? 'chevron-down' : 'plus') + '</button></div>' +
+    '<div class="dwbody">' + hillsHead() +
+      '<p class="poistate" id="poistate">' + poiStateText() + '</p>' +
+      mapPanelHTML() + '</div></section>';
+  return html + '</div>';
+}
+function renderPlansOld(){
+  /* kept only so the old markup is readable in a diff; nothing calls it */
   let html = hillsHead();
   /* the day first: a walk is planned around the weather, so the chips and the
      forecast sit above the map where they are seen without a scroll */
@@ -28052,10 +28854,19 @@ function mapListBar(){
 }
 function mapStageHTML(){
   let s = '<div class="mapwrap mapstage">' +
-    '<div id="routemap"></div>' +
+    /* A SLOT, NOT THE MAP ITSELF. The live #routemap node is lifted out
+       before #main is rewritten and dropped back in here afterwards, so
+       changing the drawer or the sidebar does not throw the map away and
+       build a new one. See mapDetach/mapAttach. */
+    '<div class="mapslot" id="mapslot"></div>' +
     '<div class="misle msearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>' +
       '<input type="search" id="rq" placeholder="Find a hill or a place" value="' + esc(ui.rq || '') + '" autocomplete="off" aria-label="Find a hill or a place"></div>' +
     '<button class="misle mlayers' + (ui.layersOpen ? ' on' : '') + '" data-act="layers" aria-expanded="' + !!ui.layersOpen + '" aria-label="Map layers and settings">' + ti('stack-2') + '</button>' +
+    /* full map, where the approved reference puts it: beside Layers. It
+       hides the app's chrome and nothing else; the way back is a labelled
+       button, not a gesture nobody finds. */
+    '<button class="misle mfull" data-act="mapfull" data-v="1" aria-label="Full map">' +
+      ti('arrows-maximize') + '</button>' +
     mapPillsHTML() +
     '<div id="rqres" class="mresults">' + searchResultsHTML() + '</div>' +
     '<div id="layers" class="mmenu"' + (ui.layersOpen ? '' : ' hidden') + '>' + layersHTML() + '</div>' +
@@ -28085,6 +28896,19 @@ function layersHTML(){
   if (osOk) for (const k of baseChoices())
     s += '<button class="mrow' + (cur === k ? ' on' : '') + '" data-act="basemap" data-v="' + k + '">' + BASEMAPS[k].name + '<small>Ordnance Survey</small></button>';
   else s += '<div class="mrow"><span>OpenTopoMap</span><small>OS unavailable</small></div>';
+  /* FLAT OR 3D, SAID PLAINLY, AND WHAT 3D COSTS YOU.
+     Not a toggle labelled "terrain": two choices, one of them on. The note
+     under 3D is the honest part — the heights come down the wire every time
+     and are not in a saved area, so the answer to "will this work on the
+     hill with no signal" is no, and it says so here rather than finding out
+     on the hill. */
+  s += '<div class="mh">Ground</div>';
+  s += '<button class="mrow' + (!terrainOn() ? ' on' : '') + '" data-act="terrain" data-v="0" aria-pressed="' + (!terrainOn()) + '">Flat<small>the usual map</small></button>';
+  s += '<button class="mrow' + (terrainOn() ? ' on' : '') + '" data-act="terrain" data-v="1" aria-pressed="' + terrainOn() + '">3D<small>' +
+    (demDown ? 'not loading \u2014 tap to try again' : 'tilted, real hill shapes') + '</small></button>';
+  /* the catch, said once under the pair, rather than as four ragged lines
+     squeezed down the right-hand side of the button */
+  s += '<p class="bknote">3D needs a signal. It is not included when you keep an area offline.</p>';
   s += '<div class="mh">Show</div>';
   s += '<button class="mrow' + (poiShow ? ' on' : '') + '" data-act="places" aria-pressed="' + poiShow + '">Places<small>pubs, parking, toilets</small></button>';
   s += '<div class="mh">Which hills</div>';
@@ -28203,8 +29027,9 @@ function routeOpenHTML(p, hs, done, walked, pts){
     '<button class="rtwhenrow' + (p.date ? '' : ' none') + '" data-act="plandate" data-id="' + esc(id) + '"' +
       ' aria-expanded="' + editing + '">' +
       '<b>' + esc(p.date ? prettyDate(p.date) : 'No date yet') + '</b>' +
-      '<span class="rtwhengo">' + (editing ? 'Done' : 'Change') +
+      '<span class="rtwhengo">' + (editing ? 'Done' : p.date ? 'Change' : 'Add date') +
         (editing ? '' : ti('chevron-right')) + '</span></button>';
+  if (!p.date && !editing) s += '<p class="dhint">Set a date to see the forecast for this route.</p>';
   if (editing)
     s += '<div class="rtdateed">' + dateFields(p.date || '', 'data-planid="' + esc(id) + '"', {future:true}) +
       (p.date ? '' : '<p class="dhint">Set a date and the forecast for the tops comes with it.</p>') +
@@ -28236,8 +29061,21 @@ function routeOpenHTML(p, hs, done, walked, pts){
     : '<button class="btn" data-act="editroute" data-id="' + esc(id) + '">' + ti('route') + 'Draw on the map</button>';
   if (hs.length && !walked)
     s += '<button class="btn ghost" data-act="bagall" data-id="' + esc(id) + '">Mark all ' + hs.length + '</button>';
+  /* FIRST LEVEL, BECAUSE THEY ARE WHAT A SAVED ROUTE IS FOR.
+     Walking it with somebody, following it on the day, and having it on
+     the phone when there is no signal are not occasional admin. They were
+     behind the three dots; handoff doc 02 puts them on the card. Sending a
+     copy stays in the menu — that is a different thing from arranging to
+     walk together, and it is said so in the menu. */
+  if (fbUser && pts > 1)
+    s += '<button class="btn ghost" data-act="rtinvite" data-id="' + esc(id) + '">' + ti('user-plus') + 'Plan with a friend</button>';
   if (coarsePointer() && pts > 1)
     s += '<button class="btn ghost" data-act="guide" data-id="' + esc(id) + '">' + ti('current-location') + 'Follow on the hill</button>';
+  /* the same save the Layers panel does, started from the route, so the
+     area saved is the area the route crosses rather than wherever the map
+     happened to be left */
+  if (sheetsOk() && pts > 1)
+    s += '<button class="btn ghost" data-act="rtoffline" data-id="' + esc(id) + '">' + ti('download') + 'Keep offline</button>';
   s += '</div>';
   /* calling it off, and everything else, on one quiet row */
   s += '<div class="rtoff">' +
@@ -28263,8 +29101,9 @@ function routeMenuHTML(p, hs, pts){
   if (fbUser)
     s += '<i class="msep"></i>' +
          '<button role="menuitem" data-act="shareroute" data-id="' + id + '">' + ti('share') + 'Post to Activity</button>' +
-         '<button role="menuitem" data-act="rtsend" data-id="' + id + '">' + ti('send') + 'Send to a chat</button>' +
-         '<button role="menuitem" data-act="rtinvite" data-id="' + id + '">' + ti('walk') + 'Invite to walk it</button>';
+         /* a copy, not a shared document: what they get is a snapshot of the
+            line as it is now, and changing yours later does not change theirs */
+         '<button role="menuitem" data-act="rtsend" data-id="' + id + '">' + ti('send') + 'Send a copy to a chat</button>';
   s += '<i class="msep"></i>' +
     '<label class="menufile">' + ti('file-upload') + (pts ? 'Replace with a GPX' : 'Import a GPX') +
     '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + id + '" class="filein"></label>';
@@ -28615,6 +29454,9 @@ document.addEventListener('click', async e => {
        coming back to Home should give you Home */
     ui.homeList = null;
     tab = tabBtn.dataset.tab;
+    if (tab === 'a' && !onboarding() && ['dogs','kit','supplies'].includes(ui.patchView)) ui.patchView = 'lists';
+    if (tab === 'j' && ['dogs','kit'].includes(ui.wmJournal)){ tab='a'; ui.patchView=ui.wmJournal; }
+    /* Journal remembers its own subsection, independently of legacy patchView. */
     ui.q=''; ui.rq=''; ui.region=''; ui.open=null; ui.patch=null; ui.patchFrom=null;
     /* Leave nothing half-open behind you: a composer, a search result or a
        comment thread from another screen has no business reappearing. */
@@ -28640,6 +29482,15 @@ document.addEventListener('click', async e => {
   const a = el.dataset.act;
   if (/^(chat|msg|pick|plan|pd|live|walkwith|inbox|poll|push|ns[a-z]|sendpost|sttoggle|stsend)/.test(a) && fbUser && FB){ try{ if (await chatAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
 
+  if (a === 'wmsection'){ wmNavigate(el.dataset.area, el.dataset.v); return; }
+  if (a === 'wmprofile'){ closeSheetNow(); tab = 'u'; ui.hikerTab = 'me'; friendOpen = null; singlePost = null; render(); window.scrollTo({top:0}); return; }
+  if (a === 'wmmorephotos'){ ui.wmPhotoLimit = (ui.wmPhotoLimit || 48) + 48; render(); return; }
+  if (a === 'wmlist'){ wmOpenList(el.dataset.v); return; }
+  if (a === 'wmlistback'){
+    if(history.state && history.state.wmProgressList) history.back(); else wmCloseList(); return;
+  }
+  if (a === 'wmshop'){ wmShopOpen(); return; }
+  if (a === 'shophomeback' && ui.wmShopFrom){ wmShopBack(); return; }
   if (a === 'tick'){
     /* THE LIST MUST NOT VANISH UNDER YOUR THUMB. Before the first hill, Home
        shows the list inline and says "tick one below". The moment that first
@@ -28706,10 +29557,17 @@ document.addEventListener('click', async e => {
     if (mqBox){ mqBox.value = ''; mqBox.blur(); }
     ui.rq = ''; ui.searchPin = null;
     ui.rview = {c:{lat:h.a, lng:h.o}, z:14};
+    /* A STANDING INSTRUCTION, NOT A RACE.
+
+       This used to wait 220ms and hope the map existed and had stopped
+       moving. With the shell the map is sized from CSS variables that are
+       measured at the end of render, so the container changes size once
+       more after that tick and the camera drifted — measured a kilometre
+       east of Scafell Pike. A pending view is held until the map is
+       actually ready, applied, and then cleared. */
+    ui.mapGoto = {lat:h.a, lng:h.o, z:14, k:h.k};
     tab = 'p'; render(); window.scrollTo({top:0});
-    setTimeout(() => {
-      if (rmap){ goTo(rmap, h.a, h.o, 14); rmDraw(); openPopup(null, h, rmap); }
-    }, 220);
+    applyMapGoto();
   }
   else if (a === 'tolist'){
     const h = BY_KEY[el.dataset.k]; if (!h) return;
@@ -28799,6 +29657,26 @@ document.addEventListener('click', async e => {
   }
   /* the way out the audit asked for: the hills stay, the challenge goes.
      Nothing saved changes — not the route, not the lists you follow. */
+  /* the drawer: a tap on the handle walks collapsed → mid → open → collapsed,
+     and the +/⌄ button jumps straight to open or shut. Dragging is offered on
+     top of this, never instead of it — the brief asks for a visible tap
+     handle even where a drag exists. */
+  else if (a === 'drawer'){
+    const v = el.dataset.v;
+    if (v === 'cycle'){
+      const i = DRAWER_STATES.indexOf(drawerState());
+      ui.mapDrawer = DRAWER_STATES[(i + 1) % DRAWER_STATES.length];
+    } else ui.mapDrawer = DRAWER_STATES.indexOf(v) >= 0 ? v : 'collapsed';
+    render();
+    if (rmap) setTimeout(() => { try{ rmap.resize(); mapPad(); }catch(e){} }, 220);
+  }
+  else if (a === 'mapfull'){
+    ui.mapFull = el.dataset.v !== '0';
+    render();
+    /* the map just changed size by the height of the header, the drawer and
+       the bottom bar, so it has to be told */
+    if (rmap) setTimeout(() => { try{ rmap.resize(); mapPad(); }catch(e){} }, 220);
+  }
   else if (a === 'mapctxoff'){
     ui.mapCtx = null; ui.mapHi = null;
     if (ui.mapScopeWas){ ui.mapScope = ui.mapScopeWas; ui.mapScopeWas = null; }
@@ -28825,7 +29703,7 @@ document.addEventListener('click', async e => {
     /* the journal is newest first, so a day from months ago is a long way down
        the page — showJournalDay scrolls to it and flashes it, the same as it
        does after writing an entry */
-    ui.patch = null; ui.patchFrom = null; tab = 'j';
+    ui.patch = null; ui.patchFrom = null; tab = 'j'; ui.wmJournal = 'days';
     render(); showJournalDay(el.dataset.d || '');
   }
   else if (a === 'gopatches'){ ui.patch = null; ui.patchFrom = null; ui.patchView = 'collection';
@@ -29583,7 +30461,7 @@ document.addEventListener('click', async e => {
   else if (a === 'peopleview'){ ui.peopleView = el.dataset.v; ui.handleEdit = false; render(); }
   else if (a === 'handleedit'){ ui.handleEdit = true; render(); const f = document.getElementById('myh'); if (f) f.focus(); }
   else if (a === 'peoplego'){ ui.peopleView = el.dataset.v; ui.hikerTab = 'friends'; friendOpen = null; render(); window.scrollTo({top:0}); }
-  else if (a === 'gotab'){ tab = el.dataset.v; render(); window.scrollTo({top:0}); }
+  else if (a === 'gotab'){ if(el.dataset.v === 'j') ui.wmJournal = 'days'; tab = el.dataset.v; render(); window.scrollTo({top:0}); }
   else if (a === 'feedview'){ ui.hikerTab = el.dataset.v === 'discover' ? 'discover' : 'feed'; render(); if (el.dataset.v === 'discover' && !discover.length) loadDiscover(); }
   else if (a === 'sharekind'){
     const k = el.dataset.v;
@@ -29797,6 +30675,7 @@ document.addEventListener('click', async e => {
       (sws.length ? ' ' + sws.join(' and ') + ' switched on.' : ''));
   }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
+  else if (a === 'terrain'){ setTerrain3D(el.dataset.v === '1'); }
   else if (a === 'guide'){ openGuide(el.dataset.id != null ? el.dataset.id : null); }
   else if (a === 'layers'){ ui.layersOpen = !ui.layersOpen; paintLayers(); }
   else if (a === 'mzoom'){ if (rmap) rmap.easeTo({zoom: rmap.getZoom() + (+el.dataset.v), duration:260, easing:t => 1 - Math.pow(1 - t, 3)}); }
@@ -29946,7 +30825,7 @@ document.addEventListener('click', async e => {
   else if (a === 'dogphback'){ dogPhotosBack(el.dataset.v); }
   else if (a === 'dogsex'){ if (ui.dogDraft){ ui.dogDraft.sex = el.dataset.v; paintDogEdit(); } }
   else if (a === 'dogcollar'){ if (ui.dogDraft){ ui.dogDraft.collar = el.dataset.v; paintDogEdit(); } }
-  else if (a === 'homelist'){ ui.homeList = el.dataset.v; ui.list = el.dataset.v;
+  else if (a === 'homelist'){ tab = 'd'; ui.homeList = el.dataset.v; ui.list = el.dataset.v;
     ui.q = ''; ui.region = ''; ui.status = 'all';
     /* a push, so Android's back button and iOS's edge swipe come back to
        Home instead of leaving WayMark. The inbox and the chat already do
@@ -29963,7 +30842,7 @@ document.addEventListener('click', async e => {
        nothing to close and return without repainting, so the button looked
        dead and the list stayed on screen. */
     if (!popped){ ui.homeList = null; render(); window.scrollTo({top:0}); } }
-  else if (a === 'patchview'){ shopHome = false; ui.patch = null; ui.patchFrom = null; ui.dog = null; ui.dogAll = false; ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
+  else if (a === 'patchview'){ if (['dogs','kit'].includes(el.dataset.v)) ui.wmJournal = el.dataset.v; tab = 'a'; shopHome = false; ui.patch = null; ui.patchFrom = null; ui.dog = null; ui.dogAll = false; ui.patchView = el.dataset.v; if (ui.patchView !== 'supplies' && ui.patchView !== 'journey') ui.patchSub = ui.patchView; else { ui.supOpen = null; ui.kitOpen = null; } render(); window.scrollTo({top:0}); }
   else if (a === 'cert'){ certOpen(el.dataset.k); }
   else if (a === 'certclose'){ certClose(); }
   else if (a === 'certkind'){
@@ -30553,6 +31432,14 @@ document.addEventListener('click', async e => {
     ui.layersOpen = true; render();
     const el = document.getElementById('sheets');
     if (el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  else if (a === 'rtoffline'){
+    /* put the route on the map first, then open the saver on it: one
+       offline store, one workflow, started from where it is wanted */
+    viewRoute(el.dataset.id);
+    ui.layersOpen = true; render(); paintLayers();
+    setTimeout(() => { const s2 = document.getElementById('sheets');
+      if (s2) s2.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 60);
   }
   else if (a === 'rdayother'){ ui.rdayPick = !ui.rdayPick; render(); }
   else if (a === 'rdayclose'){ ui.rdayPick = false; render(); }
@@ -33139,7 +34026,7 @@ function paintSync(){
   const html = syncIcon(icon) + (dot ? '<span class="dot ' + dot + '"></span>' : '');
   b.className = 'sync acct' + (icon === 'spin' ? ' spinning' : '');
   if (b.dataset.html !== html){ b.innerHTML = html; b.dataset.html = html; }
-  b.setAttribute('aria-label', label); b.title = label;
+  b.setAttribute('aria-label', label); b.title = label; wmPaintSync(label);
 }
 async function syncTap(){
   if (syncTapBusy) return;
@@ -34241,35 +35128,28 @@ function postHTML(p){
 }
 
 /* ---------- the Hikers screen ---------- */
-const HIKER_TABS = ['feed', 'discover', 'boards', 'popular', 'me', 'friends'];
+const HIKER_TABS = ['plans','feed', 'discover', 'boards', 'popular', 'me', 'friends'];
 function hikerTab(){ return HIKER_TABS.includes(ui.hikerTab) ? ui.hikerTab : 'feed'; }
 function hikersHead(){
-  const un = unreadNotes() + friendReqs.length;
-  const t = hikerTab();
-  /* no page title: the search bar leads the row, the way a social app does */
-  /* Discover has a real search field of its own, so the header's stand-in
-     search disappears there rather than showing two bars at once. */
-  return '<h2 class="vh">Hikers</h2><div class="hkhead">' + (hikerTab() === 'discover' ? '' : '<button class="hksearch" data-act="hikerfind">' + ti('search') + '<span>People, places, hills</span></button>') +
-    '<button class="hkic' + (t === 'boards' ? ' on' : '') + '" data-act="hikertab" data-v="boards" aria-label="Groups' +
-      (gTalkUnread() ? ', ' + gTalkUnread() + ' unread' : '') + '"' + (t === 'boards' ? ' aria-current="page"' : '') + '>' +
-      ti('groups') + (gTalkUnread() ? '<span class="hkpip">' + (gTalkUnread() > 99 ? '99+' : gTalkUnread()) + '</span>' : '') + '</button>' +
-    '<button class="hkic' + (t === 'popular' ? ' on' : '') + '" data-act="hikertab" data-v="popular" aria-label="Most marked hills"' +
-      (t === 'popular' ? ' aria-current="page"' : '') + '>' + ti('bars') + '</button>' +
-    '<button class="hkme" data-act="hikertab" data-v="me" aria-label="Your profile">' + avatarHTML(myAvatar(), myName(), 'sm', fbUser.uid) + '</button></div>';
+  return '<h2 class="vh">Community</h2><div class="hkhead">' +
+    (hikerTab() === 'discover' ? '' : '<button class="hksearch" data-act="hikerfind">' + ti('search') + '<span>People, places, hills</span></button>') +
+    '<button class="btn quiet sm" data-act="hikertab" data-v="popular">Most marked hills</button>' +
+    '<button class="hkme wmcommunityprofile" data-act="wmprofile" aria-label="Your profile" title="Your profile">' + avatarHTML(myAvatar(),myName(),'sm',fbUser.uid) + '</button></div>';
 }
+
 const GOOGLE_G = '<svg class="gg" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
 function renderHikers(){
   if (friendOpen) return renderBoard();
   if (!(fbConfigured() && fbUser)){
     return '<figure class="hkhero"><img src="hikers-welcome.jpg" alt="A sheep on a golden hillside below a steep escarpment at sunrise" width="1200" height="900">' +
       '<figcaption>' + ti('map-pin') + 'Picws Du, Black Mountain</figcaption></figure>' +
-      '<h2 class="pagehead">Hikers</h2>' +
+      '<h2 class="pagehead">Community</h2>' +
       '<div class="hkwelcome"><span>Follow friends, cheer their summit days and race each other up the lists.</span></div>' +
       (fbConfigured() && FB ? '<button class="btn hkcta" data-act="fbin">' + GOOGLE_G + 'Sign in with Google</button>' +
         '<p class="consent hkconsent">Free. Your summits stay on this phone until you choose to share. By signing in you agree to the <a href="legal.html" target="_blank" rel="noopener">terms and privacy policy</a>.</p>' : '') +
       (fbConfigured() && FB ? '' : '<div class="accountBox"></div><p class="pathnote cloudNote"></p><div style="margin-top:20px">' + renderBoard() + '</div>');
   }
-  let s = hikersHead();
+  let s = hikersHead() + wmCommunityBar();
   if (singlePost){
     return s + '<div class="btnrow" style="margin-top:12px"><button class="btn quiet" data-act="singleclose">&larr; Back</button></div>' +
       '<div class="feedsolo">' + postHTML(singlePost) + '</div>';
@@ -34281,9 +35161,10 @@ function renderHikers(){
   /* A group screen carries its own way back. Two back rows stacked on top of
      each other is one too many. */
   else if (t === 'boards' && (ui.gView || ui.gFind));
-  else if (t !== 'friends') s += '<button class="hkback" data-act="hikertab" data-v="feed">' + ti('arrow-left') + 'Hikers</button>';
+  else if (!['friends','discover','boards','plans'].includes(t)) s += '<button class="hkback" data-act="hikertab" data-v="feed">' + ti('arrow-left') + 'Community feed</button>';
   s += '<div style="margin-top:6px">';
   if (t === 'feed') s += '<div class="feedgrid g3"><aside class="feedleft">' + feedLeft() + '</aside><div class="feedmain">' + renderFeed() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
+  else if (t === 'plans') s += wmCommunityPlans();
   else if (t === 'discover') s += '<div class="feedgrid"><div class="feedmain">' + renderDiscover() + '</div><aside class="feedrail">' + feedRail() + '</aside></div>';
   else if (t === 'friends') s += '<div class="btnrow" style="margin-top:6px"><button class="btn quiet" data-act="hikertab" data-v="me">&larr; Your profile</button></div>' + renderFriends();
   else if (t === 'me') s += renderMyProfile();
@@ -35749,7 +36630,7 @@ async function stravaReturn(){
     if (!r.ok || !j.access_token) throw new Error(j.message || 'no token');
     stravaSave({access: j.access_token, refresh: j.refresh_token, exp: j.expires_at, athlete: j.athlete ? {id: j.athlete.id, name: [j.athlete.firstname, j.athlete.lastname].filter(Boolean).join(' ')} : null});
     toast('Strava connected. Your walks can come into your journal now.');
-    tab = 'j'; ui.stravaOpen = true; render(); stravaLoadList();
+    tab = 'j'; ui.wmJournal = 'days'; ui.stravaOpen = true; render(); stravaLoadList();
   }catch(e){ toast('Couldn’t finish connecting Strava. Try again in a minute.'); }
 }
 async function stravaToken(){
@@ -36162,7 +37043,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v373';
+const APP_VERSION = 'v375';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -42921,6 +43802,8 @@ function camClose(fromHistory){
 window.addEventListener('popstate', () => { if (cam) camClose(true); });
 /* a list opened from Home is a screen you can come back from */
 window.addEventListener('popstate', () => {
+  if(ui.wmProgressList && !(history.state && history.state.wmProgressList)){ wmCloseList(); return; }
+  if(history.state && history.state.wmProgressList){ tab='a'; ui.patchView='lists'; ui.wmProgressList=true; render(); return; }
   if (!ui.homeList) return;
   ui.homeList = null; render(); window.scrollTo({top:0});
 });
