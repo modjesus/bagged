@@ -1892,7 +1892,7 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .mapshell.tall .mapwrap{height:calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px) - 108px);
   min-height:300px}
 .mapshell.tall .mapslot, .mapshell.tall #routemap{height:100%}
-.mapdrawer{position:fixed; left:0; right:0; bottom:var(--wm-nav, 64px); z-index:40;
+.mapdrawer{position:fixed; left:0; right:0; bottom:calc(var(--wm-nav, 64px) + var(--vvb, 0px)); z-index:40;
   display:flex; flex-direction:column;
   background:var(--surface); border-top:1px solid var(--line);
   border-radius:18px 18px 0 0; box-shadow:0 -14px 34px -22px rgba(20,51,45,.55);
@@ -1908,8 +1908,14 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 /* 44, not 28 with an invisible ::after doing the rest. A sweep measures the
    element; so does a thumb that misses. The grip inside stays 5px — it is
    the picture, the button is the target. */
-.dwhandle{flex:none; height:44px; padding:0; border:0; background:none; cursor:pointer;
-  display:grid; place-items:center; position:relative}
+.dwhandle{flex:none; height:44px; padding:0; border:0; background:none; cursor:grab;
+  display:grid; place-items:center; position:relative;
+  /* the page must not scroll under the thumb while the drawer is being pulled */
+  touch-action:none; -webkit-user-select:none; user-select:none}
+.dwhandle:active{cursor:grabbing}
+/* no easing while a thumb is on it: the drawer follows the finger, and the
+   220ms curve only comes back for the snap at the end */
+.mapdrawer.dwdragging{transition:none}
 .dwgrip{display:block; width:42px; height:5px; border-radius:99px; background:var(--line)}
 .dwhandle:focus-visible{outline:2px solid var(--accent); outline-offset:-4px}
 .dwpeek{flex:none; display:flex; align-items:center; gap:12px; padding:0 16px 8px}
@@ -1973,10 +1979,12 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 /* FULL MAP ADDS ONE MORE THING TO THE BOTTOM OF THE STACK.
    The way back sits above the credit, and everything else — mode bar,
    pills, compass — has to move up by the height of it. That height is
-   measured in fitMapFurniture and handed round as --mexit, because the
-   button is a line of text in a pill and a bigger type size makes it
-   taller. Lifting one of the three and not the others is how the pills
-   ended up printed on top of the mode bar. */
+   measured in fitMapFurniture and handed round as --mfloor, because the
+   button is a line of text in a pill, a bigger type size makes it taller,
+   and on a phone it is lifted again by the home-bar inset. Lifting one of
+   the three and not the others is how the pills ended up printed on top of
+   the mode bar; adding heights instead of measuring where the button
+   actually reaches is how the mode bar ended up under the button. */
 .mapexit{position:fixed; z-index:61; left:50%; transform:translateX(-50%);
   bottom:calc(12px + var(--mcred, 0px) + env(safe-area-inset-bottom)); min-height:44px;
   display:inline-flex; align-items:center; gap:7px; box-shadow:var(--shadow)}
@@ -5195,7 +5203,7 @@ li.hill.bk .hrow{padding-left:2px}
 /* no --mdraw here: the rose rides in MapLibre's own bottom-left box, and
    that box is already moved up by the drawer. Counting the drawer twice
    lifted the rose clean off the top of the map. */
-#routemap .rosectl{margin-bottom:calc(16px + var(--mcred, 0px) + var(--mexit, 0px) + var(--mfoot, 50px) + var(--mpill, 50px))}
+#routemap .rosectl{margin-bottom:calc(16px + var(--mfloor, 0px) + var(--mfoot, 50px) + var(--mpill, 50px))}
 .maplibregl-ctrl-top-left .rosectl{margin:74px 0 0 12px}
 .rosectl{
   position:relative; width:46px; height:46px; margin:0 0 12px 12px;
@@ -5317,7 +5325,7 @@ body.guiding{overflow:hidden}
    which is the opposite of "more obvious". It wraps instead. The row still
    scrolls sideways on a narrow phone with long list names. */
 .mpills{position:absolute; z-index:5; left:12px; right:calc(12px + var(--grip, 0px) + var(--mrail, 0px));
-  bottom:calc(12px + var(--mdraw, 0px) + var(--mcred, 0px) + var(--mexit, 0px) + var(--mfoot, 50px));
+  bottom:calc(12px + var(--mdraw, 0px) + var(--mfloor, 0px) + var(--mfoot, 50px));
   /* lifted by the drawer, the pills reach the zoom rail's band, so they
      stop short of it; sitting at the foot of the map they do not, and
      they keep the full width. The rail's width is measured. */
@@ -5392,7 +5400,7 @@ body.guiding{overflow:hidden}
 .mctl .mguide{background:var(--accent); color:#FFF3E9}
 .mctl .mguide svg{width:20px; height:20px; stroke-width:2.4; fill:#FFF3E9}
 .mctl .mguide:hover{background:#8E3813}
-.mmode{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mdraw, 0px) + var(--mcred, 0px) + var(--mexit, 0px)); padding:4px; display:flex; gap:2px;
+.mmode{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mdraw, 0px) + var(--mfloor, 0px)); padding:4px; display:flex; gap:2px;
   max-width:calc(100% - 24px); overflow-x:auto; scrollbar-width:none; justify-content:flex-start}
 .mmode::-webkit-scrollbar{display:none}
 @media (min-width:520px){ .mmode{right:auto; width:auto} }
@@ -5643,7 +5651,7 @@ body.guiding{overflow:hidden}
 .jnode.chapter span{font-family:var(--font-data); font-size:11.5px; color:var(--ink-3); background:var(--ground); padding:2px 6px; border-radius:6px}
 .jnote{font-size:13px; color:var(--ink-3); margin:6px 0 0; text-align:center}
 .disc.hasimg > svg{display:none}
-.mplot{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mdraw, 0px) + var(--mcred, 0px) + var(--mexit, 0px)); padding:5px; display:flex; align-items:center; gap:4px}
+.mplot{left:12px; right:calc(12px + var(--grip, 0px)); bottom:calc(12px + var(--mdraw, 0px) + var(--mfloor, 0px)); padding:5px; display:flex; align-items:center; gap:4px}
 .mplot button{height:40px; padding:0 14px; border:0; border-radius:99px; background:transparent; color:var(--ink); font:600 13.5px/1 var(--font-ui); cursor:pointer; white-space:nowrap; transition:background .4s cubic-bezier(.32,.72,0,1), transform .4s cubic-bezier(.32,.72,0,1)}
 .mplot button:disabled{opacity:.4; cursor:default}
 .mplot button:not(:disabled):hover{background:rgba(20,51,45,.07)}
@@ -9117,8 +9125,21 @@ html.kbopen .cvcompose{padding-bottom:8px}
    turn its own position:fixed into absolute — only an ancestor's would, which
    is the fault the comment above the <nav> tag describes and is not this one.
    The bar is already a direct child of <body>; that has not regressed. */
+/* v376: and it was still drifting, on Journal and Progress too, not only
+   Hikers — Joe, 23 Oct: "throughout the app I am having issues where the
+   bottom bar is being pulled up when scrolling."
+
+   `will-change:transform` is what hands the bar to the compositor, and a
+   composited position:fixed layer on iOS is placed by the compositor, which
+   during a momentum scroll is working from a frame that has already gone.
+   The cure WAS the cause. The plain translateZ(0) stays — it keeps the bar
+   off the main layer without promising Safari the thing moves.
+
+   And the belt: `bottom` is driven off visualViewport, so wherever Safari
+   has actually put the bottom of the visible page this frame, the bar is
+   there. --vvb is 0 on every browser that keeps its promises. */
 .bnav{transform:translateZ(0); -webkit-transform:translateZ(0);
-  will-change:transform; backface-visibility:hidden; -webkit-backface-visibility:hidden}
+  bottom:var(--vvb, 0px)}
 
 /* ---- v230: the journal says it is private, and Share says what goes out ---- */
 .privline{display:flex; gap:9px; align-items:flex-start; background:var(--surface);
@@ -9564,9 +9585,33 @@ html.kbopen .cvcompose{padding-bottom:8px}
 .grouphead .gt.gtpick{display:flex; align-items:center; gap:8px; width:100%;
   min-height:44px; padding:0; background:none; border:0; cursor:pointer;
   color:inherit; text-align:left}
+/* flex:1, not width:100% — at full width it pushed "show only this book"
+   onto a line of its own and left a stray chevron under the heading */
+.grouphead .gt.gtfold{display:flex; align-items:center; gap:8px;
+  flex:1 1 auto; min-width:0; min-height:44px; padding:0; background:none;
+  border:0; cursor:pointer; color:inherit; text-align:left}
 .grouphead .gt.gtpick h2{flex:none}
 .grouphead .gt.gtpick > span{flex:1}
+/* A LONG CHAPTER NAME MUST SHRINK, NOT PUSH.
+   "Brecon Beacons & Black Mountains" with flex:none on the heading shoved
+   the fold button 59px off the right of a 390 phone and gave the whole
+   list a sideways scroll. The name gives way; the count and the two
+   buttons keep their size, because they are the part you aim at. */
+.grouphead .gt.gtfold h2{flex:1 1 auto; min-width:0; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; display:block}
+.grouphead .gt.gtfold > span:not(.gtchev){flex:none}
 .grouphead .gt.gtpick > svg{width:18px; height:18px; flex:none; color:var(--ink-3)}
+.grouphead .gtchev{flex:none; display:grid; place-items:center; width:26px; height:26px;
+  border-radius:50%; border:1px solid var(--line); color:var(--ink-3)}
+.grouphead .gtchev svg{width:15px; height:15px}
+/* "show only this book" keeps its own target, at the end of the row */
+.gtonly{flex:none; width:44px; min-height:44px; display:grid; place-items:center;
+  background:none; border:0; padding:0; color:var(--ink-3); cursor:pointer}
+.gtonly svg{width:18px; height:18px}
+.grouphead{display:flex; align-items:center; gap:2px; flex-wrap:wrap}
+.grouphead .skyline{flex-basis:100%}
+.bclocked{margin-top:22px; padding-top:4px; border-top:1px solid var(--line)}
+.bclockedsub{margin:-4px 0 12px; font:400 13px var(--font-ui); color:var(--ink-3)}
 .lspct{margin:9px 0 0; font:400 12.5px var(--font-ui); color:var(--ink-3)}
 /* ---- who can see what (audit 9) ----
    One row per kind of thing, the answer for THIS log beside it, and the
@@ -10352,6 +10397,7 @@ TI['minus'] = '<path d="M5 12l14 0"/>';
 /* for Postpone on a route card: a day you can move */
 TI['calendar'] = '<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M9 15h2v2h-2z"/>';
 TI['arrows-maximize'] = '<path d="M16 4h4v4"/><path d="M14 10l6 -6"/><path d="M8 20h-4v-4"/><path d="M4 20l6 -6"/><path d="M16 20h4v-4"/><path d="M14 14l6 6"/><path d="M8 4h-4v4"/><path d="M4 4l6 6"/>';
+TI['arrows-minimize'] = '<path d="M5 9h4v-4"/><path d="M3 3l6 6"/><path d="M5 15h4v4"/><path d="M3 21l6 -6"/><path d="M19 9h-4v-4"/><path d="M21 3l-6 6"/><path d="M19 15h-4v4"/><path d="M21 21l-6 -6"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
 TI['arrows-sort'] = '<path d="M3 9l4 -4l4 4"/><path d="M7 5v14"/><path d="M21 15l-4 4l-4 -4"/><path d="M17 19v-14"/>';
 TI['lock'] = '<path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/>';
@@ -16222,7 +16268,25 @@ function renderShop(){
     const c = ui.shopColl && SUP_COLL.find(x => x.id === ui.shopColl);
     const list = (c ? sale.filter(d => c.ns.includes(d.n)) : sale.slice())
       .sort((a, b) => SUP_NEW.includes(b.n) - SUP_NEW.includes(a.n));
-    s += '<div class="bcgrid">' + list.map(d => bcCard(d)).join('') + '</div>';
+    /* THE LOCKED ONES GO LAST, IN THEIR OWN SECTION.
+       Joe, 23 Oct: "the not in your log yet tees should be a scroll along
+       the top or a separate section in tees, these are t-shirts people
+       haven't unlocked yet so are unlikely to buy (should not be the first
+       thing they see)."
+
+       All four of the newest tees happen to be summit tees, and New sorted
+       first — so the first four shirts in the shop were four he is told he
+       has not earned. They still sell (the lock is soft, and a gift or the
+       week before the walk is a real sale), so they are moved rather than
+       hidden, and the heading says plainly what they are. */
+    const open = list.filter(d => !teeLock(d.n));
+    const soon = list.filter(d => teeLock(d.n));
+    s += '<div class="bcgrid">' + open.map(d => bcCard(d)).join('') + '</div>';
+    if (soon.length)
+      s += '<section class="bcrow bclocked"><div class="bcrowhead">' +
+        '<h2>For hills you have not marked</h2></div>' +
+        '<p class="bclockedsub">Still yours to buy \u2014 for a gift, or the week before you go.</p>' +
+        '<div class="bcgrid">' + soon.map(d => bcCard(d)).join('') + '</div></section>';
   } else {
     /* the donation goes first: it is the one thing in here that is not a thing */
     const kit = restKitKeys();
@@ -21013,11 +21077,22 @@ function fitMapFurniture(){
        down as a number that a bigger type size would make wrong. */
     const shell = wrap.closest('.mapshell');
     const exitEl = shell ? shell.querySelector('.mapexit') : null;
-    const exit = exitEl ? Math.round(exitEl.getBoundingClientRect().height) : 0;
     wrap.style.setProperty('--mcred', (cred ? cred + 6 : 0) + 'px');
     wrap.style.setProperty('--mfoot', (mode ? mode + 8 : 0) + 'px');
     wrap.style.setProperty('--mpill', (pills ? pills + 8 : 0) + 'px');
-    wrap.style.setProperty('--mexit', (exit ? exit + 8 : 0) + 'px');
+    /* HOW FAR UP THE BOTTOM OF THE MAP IS ALREADY SPOKEN FOR.
+       Not the credit's height plus the button's height: the button sits
+       above the credit AND above the phone's home-bar inset, and adding
+       two heights ignores the inset entirely. On a desktop the inset is
+       zero and the sum happened to be big enough, which is why this looked
+       right here and was wrong on Joe's phone by exactly the 34px of it.
+       Measure where the highest of them actually reaches. */
+    let floor = cred ? cred + 6 : 0;
+    if (exitEl){
+      const wb0 = wrap.getBoundingClientRect(), eb = exitEl.getBoundingClientRect();
+      floor = Math.max(floor, Math.round(wb0.bottom - eb.top) + 8);
+    }
+    wrap.style.setProperty('--mfloor', floor + 'px');
     /* the way back is a child of the shell, not of the map box, so it
        cannot read a variable set on the box */
     if (shell) shell.style.setProperty('--mcred', (cred ? cred + 6 : 0) + 'px');
@@ -21069,6 +21144,32 @@ function fitMapFurnitureSoon(){
   mapFurnTimer = setTimeout(fitMapFurniture, 60);
 }
 window.addEventListener('resize', fitMapFurnitureSoon);
+
+/* WHERE THE BOTTOM OF THE PAGE ACTUALLY IS, THIS FRAME.
+
+   On iOS the layout viewport and the visible one are different heights
+   while the toolbars are sliding, and a position:fixed bar is placed
+   against the layout one — so it hangs in the middle of the screen with
+   the page carrying on underneath it. visualViewport is the only thing
+   that knows where the bottom really is. Everywhere else this is 0 and
+   nothing moves. */
+(function pinToVisibleBottom(){
+  const vv = window.visualViewport;
+  if (!vv) return;
+  let last = -1;
+  const place = () => {
+    const off = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    if (off === last) return;
+    last = off;
+    document.documentElement.style.setProperty('--vvb', off + 'px');
+    /* the map box is measured off the bar, so it has to hear about it too */
+    if (typeof fitMapFurnitureSoon === 'function') fitMapFurnitureSoon();
+  };
+  vv.addEventListener('resize', place);
+  vv.addEventListener('scroll', place);
+  window.addEventListener('orientationchange', () => setTimeout(place, 220));
+  place();
+})();
 /* CROSSING THE BREAKPOINT IS A LAYOUT CHANGE, NOT A NEW SCREEN.
 
    Only redraw when the answer to "is this wide?" actually changes — a phone
@@ -21087,6 +21188,73 @@ function mapShellResize(){
   if (now !== wasWide){ wasWide = now; if (tab === 'p' || tab === 'm') render(); }
   if (rmap) { try{ rmap.resize(); mapPad(); }catch(e){} }
 }
+/* PULLING THE DRAWER, NOT JUST TAPPING IT.
+
+   Joe, 23 Oct: "the grey bar on the routes tab should be able to be
+   pulled/pushed." It only ever cycled on a tap, which is fine for a thumb
+   that knows and wrong for a thumb that tries the obvious thing first.
+
+   The three heights are read off the drawer itself rather than written
+   down here — collapsed is 108px, mid is 46dvh and open is the viewport
+   less the header and the bottom bar, and all three are CSS that can
+   change. Set the state, measure, put it back: three reflows once, on
+   pointerdown, and none after.
+
+   A drag of less than 8px is a tap and still cycles, so nothing that
+   worked before stops working. */
+let dwDrag = null;
+function drawerHeights(d){
+  const was = d.dataset.state, out = {};
+  for (const st of DRAWER_STATES){ d.dataset.state = st; out[st] = d.getBoundingClientRect().height; }
+  d.dataset.state = was;
+  return out;
+}
+document.addEventListener('pointerdown', e => {
+  const h = e.target.closest && e.target.closest('.dwhandle');
+  if (!h) return;
+  const d = h.closest('.mapdrawer');
+  if (!d) return;
+  /* kill the easing FIRST. Measuring the three heights while a .22s
+     height transition is running measures wherever the animation had got
+     to, not where each state ends — which snapped the drawer to the wrong
+     one of the three every time the last change was still moving. */
+  d.classList.add('dwdragging');
+  dwDrag = {id:e.pointerId, y0:e.clientY, h0:d.getBoundingClientRect().height,
+            d, hs:drawerHeights(d), moved:0};
+  try{ h.setPointerCapture(e.pointerId); }catch(x){}
+});
+document.addEventListener('pointermove', e => {
+  if (!dwDrag || e.pointerId !== dwDrag.id) return;
+  const dy = dwDrag.y0 - e.clientY;                    /* up is bigger */
+  dwDrag.moved = Math.max(dwDrag.moved, Math.abs(dy));
+  const lo = dwDrag.hs.collapsed, hi = dwDrag.hs.open;
+  const want = Math.max(lo, Math.min(hi, dwDrag.h0 + dy));
+  dwDrag.d.style.height = want + 'px';
+  if (typeof fitMapFurniture === 'function') fitMapFurniture();
+  if (dwDrag.moved > 8) e.preventDefault();
+}, {passive:false});
+let dwTapKill = 0;
+function drawerDrop(e){
+  if (!dwDrag || (e && e.pointerId !== dwDrag.id)) return;
+  const {d, hs, moved} = dwDrag;
+  const now = d.getBoundingClientRect().height;
+  dwDrag = null;
+  d.style.height = '';
+  d.classList.remove('dwdragging');
+  /* A TAP IS NOT THIS HANDLER'S JOB. The handle already carries
+     data-act="drawer" data-v="cycle", and the click fires straight after
+     this. Cycling here as well moved the drawer two states for one tap. */
+  if (moved <= 8) return;
+  let best = DRAWER_STATES[0], gap = Infinity;
+  for (const st of DRAWER_STATES){ const g = Math.abs(hs[st] - now); if (g < gap){ gap = g; best = st; } }
+  ui.mapDrawer = best;
+  dwTapKill = Date.now();     /* and the click that follows a drag is not a tap either */
+  render();
+  if (rmap) setTimeout(() => { try{ rmap.resize(); mapPad(); }catch(x){} }, 220);
+}
+document.addEventListener('pointerup', drawerDrop);
+document.addEventListener('pointercancel', drawerDrop);
+
 let shellTimer = 0;
 window.addEventListener('resize', () => {
   clearTimeout(shellTimer); shellTimer = setTimeout(mapShellResize, 120);
@@ -21445,6 +21613,9 @@ function hillGroups(items, id, gid, o){
   }
   return [...by.entries()].map(([g, hs]) => ({g, bk: BOOK_VAR[g] || '', hs}));
 }
+/* which chapters are folded away, by name, kept between visits */
+function shutBooks(){ return Array.isArray(ui.shutBooks) ? ui.shutBooks : (ui.shutBooks = []); }
+const bookShut = g => shutBooks().includes(g);
 function hillGroupsHTML(items, id, isW){
   let html = '';
   for (const grp of hillGroups(items, id)){
@@ -21464,17 +21635,39 @@ function hillGroupsHTML(items, id, isW){
        shows that book on its own. One place the books live, and it is the
        place they were already printed. */
     const canPick = !ui.region && (!ui.groupBy || ui.groupBy === 'region') && grp.g && grp.g !== 'Elsewhere';
+    /* FOLD A BOOK SHUT. Joe, 23 Oct: "list view of wainwrights you should be
+       able to minimise books so you can see other sections quicker." Seven
+       chapters of up to 35 hills is a long way to scroll past the one you
+       are not in.
+
+       The heading itself folds, because that is what a heading with a
+       chevron under it means everywhere else. "Show only this book" — audit
+       ticket 14, and the reason the heading became a button in the first
+       place — keeps its own small chevron at the end of the row, so neither
+       one has taken the other's place. */
+    const shut = bookShut(grp.g);
     const gt = '<h2>' + esc(grp.g) + '</h2><span>' + d + '/' + inG.length +
       (ui.view === 'all' ? ' \u00b7 ' + gp + '%' : '') + '</span>';
-    html += '<div class="grouphead' + (bk ? ' hasbk' : '') + '"' + bk + '>' +
+    html += '<div class="grouphead' + (bk ? ' hasbk' : '') + (shut ? ' shut' : '') + '"' + bk + '>' +
+      '<button class="gt gtfold" data-act="bookfold" data-v="' + esc(grp.g) + '"' +
+        ' aria-expanded="' + (!shut) + '" aria-label="' + (shut ? 'Open ' : 'Fold away ') + esc(grp.g) + '">' +
+        /* A MINUS, NOT A SECOND CHEVRON. Folded shut, a rotated chevron
+           points right — exactly like the "show only this book" chevron
+           beside it, so the heading ended up with two identical arrows and
+           no way to tell which did what. Minus and plus mean fold and
+           unfold and cannot be mistaken for going somewhere. */
+        gt + '<span class="gtchev">' + ti(shut ? 'plus' : 'minus') + '</span></button>' +
       (canPick
-        ? '<button class="gt gtpick" data-act="region" data-v="' + esc(grp.g) + '" ' +
-          'aria-label="Show only ' + esc(grp.g) + '">' + gt + ti('chevron-right') + '</button>'
-        : '<div class="gt">' + gt + '</div>');
-    if (ui.view !== 'done') html += skyline(inG);
-    html += '</div><ul class="hills' + (ui.view === 'done' ? ' donelist' : '') + '">';
-    for (const h of inG) html += ui.view === 'done' ? doneEntry(h, id) : hillRow(h, id);
-    html += '</ul>';
+        ? '<button class="gtonly" data-act="region" data-v="' + esc(grp.g) + '" ' +
+          'aria-label="Show only ' + esc(grp.g) + '">' + ti('chevron-right') + '</button>'
+        : '');
+    if (ui.view !== 'done' && !shut) html += skyline(inG);
+    html += '</div>';
+    if (!shut){
+      html += '<ul class="hills' + (ui.view === 'done' ? ' donelist' : '') + '">';
+      for (const h of inG) html += ui.view === 'done' ? doneEntry(h, id) : hillRow(h, id);
+      html += '</ul>';
+    }
   }
   return html;
 }
@@ -28864,9 +29057,16 @@ function mapStageHTML(){
     '<button class="misle mlayers' + (ui.layersOpen ? ' on' : '') + '" data-act="layers" aria-expanded="' + !!ui.layersOpen + '" aria-label="Map layers and settings">' + ti('stack-2') + '</button>' +
     /* full map, where the approved reference puts it: beside Layers. It
        hides the app's chrome and nothing else; the way back is a labelled
-       button, not a gesture nobody finds. */
-    '<button class="misle mfull" data-act="mapfull" data-v="1" aria-label="Full map">' +
-      ti('arrows-maximize') + '</button>' +
+       button, not a gesture nobody finds.
+
+       It is a SWITCH, not a one-way door. Joe, 23 Oct: "pressing the
+       fullscreen button again should close it." It had data-v="1" written
+       into it, so the second press set full map to the state it was
+       already in and nothing happened. */
+    '<button class="misle mfull" data-act="mapfull" data-v="' + (ui.mapFull ? '0' : '1') +
+      '" aria-pressed="' + !!ui.mapFull + '" aria-label="' +
+      (ui.mapFull ? 'Leave full map' : 'Full map') + '">' +
+      ti(ui.mapFull ? 'arrows-minimize' : 'arrows-maximize') + '</button>' +
     mapPillsHTML() +
     '<div id="rqres" class="mresults">' + searchResultsHTML() + '</div>' +
     '<div id="layers" class="mmenu"' + (ui.layersOpen ? '' : ' hidden') + '>' + layersHTML() + '</div>' +
@@ -29662,6 +29862,7 @@ document.addEventListener('click', async e => {
      top of this, never instead of it — the brief asks for a visible tap
      handle even where a drag exists. */
   else if (a === 'drawer'){
+    if (Date.now() - dwTapKill < 500) return true;   /* that was the end of a drag */
     const v = el.dataset.v;
     if (v === 'cycle'){
       const i = DRAWER_STATES.indexOf(drawerState());
@@ -30673,6 +30874,11 @@ document.addEventListener('click', async e => {
     render();
     toast('Marked ' + ks.length + (ks.length === 1 ? ' summit.' : ' summits.') +
       (sws.length ? ' ' + sws.join(' and ') + ' switched on.' : ''));
+  }
+  else if (a === 'bookfold'){
+    const g = el.dataset.v, l = shutBooks(), i = l.indexOf(g);
+    if (i >= 0) l.splice(i, 1); else l.push(g);
+    touched(); render();
   }
   else if (a === 'basemap'){ setBaseStyle(el.dataset.v); }
   else if (a === 'terrain'){ setTerrain3D(el.dataset.v === '1'); }
@@ -35284,10 +35490,14 @@ function feedFiltBar(){
 function renderFeed(){
   let s = '';
   const fr = allFriends();
-  /* the composer: your face and a prompt, not a big button */
+  /* The composer is a prompt, not a mirror. Joe, 23 Oct: "comunity feed
+     page shows your profile (face) twice this is overkill." Your face is
+     already up in the header, labelled Your profile, on every Community
+     tab; this one sat under it doing the same job and going to the same
+     place. The prompt takes the width instead. */
   const strip = friendStrip();
   if (!ui.postForm && !strip){
-    s += '<div class="pcomposer"><button class="pwhobtn" data-act="hikertab" data-v="me">' + avatarHTML(myAvatar(), myName(), 'md', fbUser.uid) + '</button>' +
+    s += '<div class="pcomposer">' +
       '<button class="pprompt" data-act="newpost">Share a day on the hills…</button>' + refreshBtn() + '</div>';
   } else if (ui.postForm && ui.postForm !== 'menu') s += '<div class="btnrow sharerow"><button class="btn quiet" data-act="closepost">Cancel</button></div>';
   s += strip;
@@ -37043,7 +37253,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v375';
+const APP_VERSION = 'v376';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
