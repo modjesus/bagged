@@ -8393,6 +8393,10 @@ body.nonav{padding-bottom:24px}
   background:var(--raise); color:var(--ink-3)}
 /* on a product page the mark is a label, not a hero: a donation has no
    photograph and a tall empty tile only advertises that */
+/* the overlay needs something to be positioned against, and .bcgtop is
+   absolute — without this it would hang off the nearest positioned ancestor,
+   which is the page */
+.pdmedtop{position:relative}
 .pdmedia .donmark{min-height:0; height:96px; border-radius:14px; border:1px solid var(--line)}
 .pdmedia .donmark svg{width:40px; max-width:none}
 .donmark svg{width:38%; max-width:74px; height:auto; opacity:.5}
@@ -15149,6 +15153,13 @@ const sup2 = n => (n < 10 ? '0' : '') + n;
    Opening a design pushes /supplies/<slug>, and a relative src on that path
    would ask for /supplies/tees/... — the pictures would simply stop loading. */
 const SUP_BASE = location.pathname.replace(/[^/]*$/, '');
+/* WHERE THE ADDRESS GOES BACK TO WHEN YOU LEAVE THE SHOP.
+   Not SUP_BASE: that is the folder, so an app served at /app.html would be
+   handed back /, which is a different page. The path this app was actually
+   loaded from is the honest answer — unless that was itself a /supplies
+   address, which is not somewhere to return to. */
+const APP_HOME = /\/supplies(\/[a-z0-9-]+)?\/?$/i.test(location.pathname)
+  ? SUP_BASE : location.pathname;
 /* the pictures live under tees/ — /supplies is an address now, not a folder */
 const supImg = (n, side, size) => SUP_BASE + 'tees/' + sup2(n) + '-' + side + '-' + size + '.png';
 const supLead  = d => d.lead || 'back';
@@ -15400,7 +15411,19 @@ function kitDetail(k){
       '<span class="tpbar"><i style="width:' + Math.round(n / 3 * 100) + '%"></i></span></span></div>';
   })() : '';
   return '<div class="supdetail shopdetail"><div class="pdnav"><button class="backbtn" data-act="kitclose">&larr; The shop</button></div>' +
-    '<div class="pdgrid"><div class="pdmedia">' + kitShots(it, p2) + '</div>' +
+    /* SAVE AND SHARE, THE SAME TWO BUTTONS A TEE HAS. Joe, 24 Oct: "the
+       share and heart icons are not on stickers". A tee's page is .bcpdp,
+       which carries them in a .bcgtop overlay; a sticker's is .pdgrid, a
+       different layout written at a different time, and it had neither.
+       Measured: tee 1 heart 1 share, sticker 0 and 0. The back arrow is not
+       repeated here -- this page already has "The shop" above it. */
+    '<div class="pdgrid"><div class="pdmedia pdmedtop">' + kitShots(it, p2) +
+      '<div class="bcgtop pdgtop"><span></span>' +
+      '<button class="bcround" data-act="bcsave" data-k="' + esc(k) + '" aria-pressed="' + isSaved(k) +
+        '" aria-label="Save ' + esc(it.name) + '">' + bcHeart(isSaved(k)) + '</button>' +
+      (kitSlug(it) ? '<button class="bcround" data-act="kitshare" data-k="' + esc(k) +
+        '" aria-label="Share">' + ti('share') + '</button>' : '') +
+      '</div></div>' +
     '<div class="pdinfo"><p class="shopeyebrow">WayMark &middot; ' + esc(KIND_LABEL[it.kind] || it.kind) + '</p><h2>' + esc(it.name) + '</h2>' +
     (it.blurb ? '<p class="shoplede">' + esc(it.blurb) + '</p>' : '') +
     tpBand +
@@ -15433,10 +15456,9 @@ function kitDetail(k){
        '<button class="chip" data-act="markoff" data-k="' + esc(k) + '">Mark it off</button></div>' : '') +
     '</div>' +
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
-    /* the way out a tee has had all along. This one has an address of its
-       own now, so there is something to share. */
-    (kitSlug(it) ? '<p class="jnote"><button class="linkbtn" data-act="kitshare" data-k="' +
-      esc(k) + '">Share this ' + esc((KIND_LABEL[it.kind] || 'item').toLowerCase()) + '</button></p>' : '') +
+    /* the text link that was here has gone: share is the round button over
+       the picture now, which is where a tee has always had it. Two ways to
+       share one sticker on one page is one too many. */
     '</div></div></div>';
 }
 /* which side a tile is showing, and the side label with it, as it is swiped */
@@ -15710,13 +15732,36 @@ function takeWantedSlug(){
   return true;
 }
 
+/* THE ADDRESS FOLLOWS THE PRODUCT, HOWEVER YOU GOT THERE.
+
+   Joe, 24 Oct: "shouldnt the actual URL be changing too. it just saus
+   waymark.it.com". It only ever changed if you had ARRIVED on a /supplies
+   link -- supRoute -- which is nobody's normal route in. Open the app at the
+   front door, walk to the shop, open anything, and the address stayed at
+   waymark.it.com with no way to copy a link to what was on screen. Measured:
+   from the root, a tee gave /app.html and so did a sticker; arriving on a
+   product link, both were right.
+
+   supRoute still means what it says and still gates onboarding -- somebody
+   who followed a product link is not shown the first-run screens. It no
+   longer decides whether the address is kept honest.
+
+   OUTSIDE THE SHOP IT WRITES NOTHING. Dropping the supRoute guard without
+   this made it rewrite the address on every render anywhere in the app:
+   whatever page you were on became SUP_BASE. It cost nothing on the live
+   site, where the app is already at /, and broke two suites outright on the
+   harness, where it is at /app.html -- v335 found itself at / "still inside
+   the app", and roundtrip's reload fetched a path with no app on it and
+   died. The address is only ours to touch when we are in the shop, or when
+   it is a /supplies path we put there and are now leaving. */
 function supSyncUrl(){
-  if (!supRoute) return;
+  const onSupPath = /\/supplies(\/[a-z0-9-]+)?\/?$/i.test(location.pathname);
+  if (!supHere() && !onSupPath) return;
   const d = supHere() && ui.supOpen ? supById(ui.supOpen) : null;
   const ks = supHere() && ui.kitOpen ? kitSlug(shopItem(ui.kitOpen)) : '';
   const want = supHere()
     ? SUP_BASE + 'supplies' + (d ? '/' + d.slug : ks ? '/' + ks : '')
-    : SUP_BASE;
+    : APP_HOME;
   if (location.pathname === want) return;
   try{ history.replaceState({sup: d ? d.n : 0}, '', want); }catch(e){}
 }
@@ -15728,7 +15773,7 @@ function supGo(n, push){
   if (n && n !== ui.supOpen) ui.shopSize = '';
   if (n && shopItem(n)) bcSeen(n);
   ui.supOpen = n || null;
-  if (supRoute && push){
+  if (push){
     const d = n ? supById(n) : null;
     try{ history.pushState({sup: n || 0}, '', SUP_BASE + 'supplies' + (d ? '/' + d.slug : '')); }catch(e){}
   }
@@ -15827,7 +15872,10 @@ function takeDeepLink(){
 }
 
 window.addEventListener('popstate', () => {
-  if (!supRoute) return;
+  /* not gated on supRoute any more: the address is pushed for everybody now,
+     so Back has to be understood for everybody too. A history entry that is
+     not a /supplies path falls straight through, which is every other
+     pushState in the app -- none of them touch the path. */
   const m = location.pathname.match(/\/supplies(\/([a-z0-9-]+))?/i);
   if (!m){ return; }
   const d = m[2] ? supBySlug(m[2]) : null;
@@ -31866,7 +31914,7 @@ document.addEventListener('click', async e => {
   else if (a === 'kitopen'){ bcSheetClose(); closeBasket(); bcSeen(el.dataset.k); ui.kitOpen = el.dataset.k; ui.kitOpt = ''; ui.kitOpt2 = ''; ui.patch = null; tab = 'a'; ui.patchView = 'supplies'; ui.supOpen = null;
     /* the same push a tee does, so Back goes to the shelf and the address in
        the bar is the one to copy */
-    if (supRoute){ const s = kitSlug(shopItem(el.dataset.k));
+    { const s = kitSlug(shopItem(el.dataset.k));
       if (s) try{ history.pushState({kit: el.dataset.k}, '', SUP_BASE + 'supplies/' + s); }catch(e){} }
     render(); window.scrollTo({top:0}); }
   else if (a === 'kitshare'){
@@ -37742,7 +37790,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v380';
+const APP_VERSION = 'v381';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
