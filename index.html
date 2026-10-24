@@ -14731,6 +14731,11 @@ const SUPPLIES = [
   {n:29, slug:'ben-nevis',          name:'Ben Nevis',             shirt:'cream'},
   {n:30, slug:'yr-wyddfa-contours', name:'Yr Wyddfa (contours)',  shirt:'cream'},
   {n:31, slug:'yr-wyddfa',          name:'Yr Wyddfa',             shirt:'cream'},
+  /* ON SALE IN THE CATALOGUE SINCE 23 OCT AND NOT ON THIS LIST, so the shop
+     never drew it and nobody could buy it: the grid is bcSale(), which is
+     this list filtered by the catalogue, so an entry missing here is a
+     product that does not exist however completely it is priced. The first
+     WayMark tee on a blank other than Natural. */
   {n:32, slug:'dogs-hills-beers',   name:'Dogs Hills Beers',      shirt:'indigo'}
 ];
 /* What the garment is actually CALLED by the printer who makes it.
@@ -14740,8 +14745,11 @@ const SUPPLIES = [
    Heavy Cotton, Natural. `pine` is still Printful's name - no pine design is
    on sale, so nothing wrong reaches a customer, but it needs its real
    Inkthreadable colour before one does. */
-const SHIRTS = {cream:'Natural', sand:'Natural', pine:'Blue Spruce',
-                indigo:'Indigo'};
+/* Inkthreadable's own colour names, not Printful's. "Blue Spruce" is still a
+   Printful name on the five drawing-board designs — none are on sale, so no
+   customer reads it, but it is wrong and known to be. Indigo is Gildan Heavy
+   Cotton GD05-IND, Inkthreadable's own name for it. */
+const SHIRTS = {cream:'Natural', sand:'Natural', pine:'Blue Spruce', indigo:'Indigo'};
 
 /* ---------- the shop: Stripe takes the money, Printful prints and posts ----------
    What is on sale, at what price and in which sizes, lives in the shop helper
@@ -14773,6 +14781,9 @@ async function shopLoad(force){
     shopFailed = '';
   }catch(e){ shopCat = null; shopFailed = navigator.onLine ? 'down' : 'offline'; }
   shopLoading = false;
+  /* a sticker link that arrived before this did */
+  const took = typeof takeWantedSlug === 'function' && takeWantedSlug();
+  if (took){ render(); window.scrollTo({top:0}); supSyncUrl(); return; }
   if (ui.patchView === 'supplies' || tab === 'd' || onboarding()) render();
 }
 /* SHOP_CATALOG is a hand-edited JSON blob in Cloudflare, and older versions of
@@ -15288,8 +15299,9 @@ const shopImg = (n, side) => SUP_BASE + 'tees/' + sup2(n) + '-' + side + '-shop.
 /* Inkthreadable's own Natural swatch, not an eyeballed match: rgb(234,225,208).
    The mockups on the shop are built on this exact value too, so the dot beside
    the name and the shirt in the picture agree. */
-const SHIRT_HEX = {cream:'#EAE1D0', sand:'#EAE1D0', pine:'#4C6151',
-                   indigo:'#4A5D73'};
+/* #4D6580 is sampled off the two garment photographs, per the design note —
+   not off the drawing, whose shirt was #2E4250 and a good deal darker. */
+const SHIRT_HEX = {cream:'#EAE1D0', sand:'#EAE1D0', pine:'#4C6151', indigo:'#4D6580'};
 /* Everything on sale that is not a tee: stickers, caps, beanies, bottles,
    patches, gaiters. Each needs only a catalogue entry with a picture. */
 /* Everything on sale that is not a tee. A donation is the one kind with no
@@ -15421,6 +15433,10 @@ function kitDetail(k){
        '<button class="chip" data-act="markoff" data-k="' + esc(k) + '">Mark it off</button></div>' : '') +
     '</div>' +
     (it.details && it.details.length ? '<div class="pdmore"><details open><summary>Details</summary><ul class="pdspecs">' + it.details.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></details></div>' : '') +
+    /* the way out a tee has had all along. This one has an address of its
+       own now, so there is something to share. */
+    (kitSlug(it) ? '<p class="jnote"><button class="linkbtn" data-act="kitshare" data-k="' +
+      esc(k) + '">Share this ' + esc((KIND_LABEL[it.kind] || 'item').toLowerCase()) + '</button></p>' : '') +
     '</div></div></div>';
 }
 /* which side a tile is showing, and the side label with it, as it is swiped */
@@ -15642,10 +15658,65 @@ function supPaint(){
 const supUrl = d => location.origin + SUP_BASE + 'supplies' + (d ? '/' + d.slug : '');
 const supHere = () => tab === 'a' && ui.patchView === 'supplies';
 
+/* STICKERS HAVE AN ADDRESS TOO.
+
+   Joe, 24 Oct, asking whether he could link a single product in a post: only
+   tees could be. A sticker opens through ui.kitOpen, which was never written
+   to the address and never read back from it, so 39 of the 54 things on sale
+   could only be linked to as "the shop".
+
+   The slug comes off the catalogue name, not the catalogue key: the keys are
+   working names (st-21-waymark-sticker-03-the-mark-cream-80mm) and nobody is
+   pasting that into a post. Five sticker names are also tee names -- The
+   Mark, The Trig, Scafell Pike, Hiking Dept., Rocks in Piles -- so the kind
+   is on the end of every one of them. Suffixing only the five that clash
+   today would let a tee added next month quietly take a sticker's address. */
+const KIT_SUFFIX = {sticker:'sticker', patch:'patch', cap:'cap', beanie:'beanie',
+  bottle:'bottle', gaiter:'gaiter', 'neck-gaiter':'gaiter', hoodie:'hoodie',
+  mug:'mug', poster:'print'};
+const slugify = s => String(s || '').toLowerCase().replace(/&/g, 'and')
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+/* A donation has no picture and nothing to show somebody, so it gets no
+   address. A kind nobody has thought of yet falls back to its own name
+   rather than landing in the tees' namespace unsuffixed. */
+function kitSlug(it){
+  if (!it || it.custom) return '';
+  const kind = it.kind || 'tee';
+  if (kind === 'tee') return '';
+  const base = slugify(it.name), suf = KIT_SUFFIX[kind] || slugify(kind);
+  return base && suf ? base + '-' + suf : '';
+}
+function kitBySlug(s){
+  const want = String(s || '').toLowerCase();
+  if (!want || !shopCat || !shopCat.items) return null;
+  for (const k of Object.keys(shopCat.items))
+    if (kitSlug(shopItem(k)) === want) return k;
+  return null;
+}
+const kitUrl = k => location.origin + SUP_BASE + 'supplies/' + kitSlug(shopItem(k));
+/* A SLUG THAT ARRIVED BEFORE THE CATALOGUE DID.
+   The tee list is in the app, so a tee link resolves on the spot. The
+   stickers are fetched from the shop helper a moment later, so a cold open
+   of /supplies/the-mark-sticker has nothing to look the name up in yet. The
+   slug is held here and shopLoad() redeems it once the catalogue lands. */
+let supWantSlug = '';
+function takeWantedSlug(){
+  if (!supWantSlug) return false;
+  const k = kitBySlug(supWantSlug);
+  if (!k) return false;
+  supWantSlug = '';
+  ui.kitOpen = k; ui.supOpen = null;
+  tab = 'a'; ui.patchView = 'supplies';
+  return true;
+}
+
 function supSyncUrl(){
   if (!supRoute) return;
   const d = supHere() && ui.supOpen ? supById(ui.supOpen) : null;
-  const want = supHere() ? SUP_BASE + 'supplies' + (d ? '/' + d.slug : '') : SUP_BASE;
+  const ks = supHere() && ui.kitOpen ? kitSlug(shopItem(ui.kitOpen)) : '';
+  const want = supHere()
+    ? SUP_BASE + 'supplies' + (d ? '/' + d.slug : ks ? '/' + ks : '')
+    : SUP_BASE;
   if (location.pathname === want) return;
   try{ history.replaceState({sup: d ? d.n : 0}, '', want); }catch(e){}
 }
@@ -15673,7 +15744,14 @@ function takeSuppliesRoute(){
   tab = 'a'; ui.patchView = 'supplies';
   const d = m[1] ? supBySlug(m[1]) : null;
   if (d) ui.supOpen = d.n;
-  try{ history.replaceState({sup: d ? d.n : 0}, '', SUP_BASE + 'supplies' + (d ? '/' + d.slug : '')); }catch(e){}
+  /* not a tee: it may be a sticker, whose names arrive with the catalogue.
+     Try now in case it is already here, and hold the slug if it is not. */
+  else if (m[1]){
+    supWantSlug = m[1].toLowerCase();
+    if (!takeWantedSlug()) shopLoad();
+  }
+  const tail = d ? '/' + d.slug : (m[1] ? '/' + m[1].toLowerCase() : '');
+  try{ history.replaceState({sup: d ? d.n : 0}, '', SUP_BASE + 'supplies' + tail); }catch(e){}
   return true;
 }
 
@@ -15755,6 +15833,9 @@ window.addEventListener('popstate', () => {
   const d = m[2] ? supBySlug(m[2]) : null;
   tab = 'a'; ui.patchView = 'supplies';
   ui.supOpen = d ? d.n : null;
+  /* going back to a sticker, which is looked up in the catalogue rather than
+     in the app's own tee list */
+  ui.kitOpen = d ? null : (m[2] ? kitBySlug(m[2]) : null);
   render(); window.scrollTo({top:0});
 });
 
@@ -15767,11 +15848,11 @@ window.addEventListener('popstate', () => {
 /* collections are how a walker browses ten tees without scrolling ten screens */
 const SUP_COLL = [
   {id:'peaks',  label:'Peak prints', ns:[28, 29, 30, 31, 1, 20, 9, 5, 4, 19]},
-  {id:'humour', label:'Hill humour', ns:[32, 24, 26, 27, 10, 16, 8]},
+  {id:'humour', label:'Hill humour', ns:[24, 26, 27, 10, 16, 8]},
   {id:'mark',   label:'The mark',    ns:[3, 18, 22, 25, 13, 14, 17, 6, 23, 2]}
 ];
 /* the newest drop wears a flag until the next one lands */
-const SUP_NEW = [32, 28, 29, 30, 31];
+const SUP_NEW = [28, 29, 30, 31];
 /* tees that belong to one summit: the card carries its trail tag, and a walker
    who has stood on it is told so */
 const TEE_HILL = {1:'NY215072', 20:'NY215072',
@@ -31545,7 +31626,12 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'supshare'){
     const d = supById(+el.dataset.v);
-    if (d) await shareLink(supUrl(d), d.name + ' — WayMark', 'Would you wear this one?');
+    /* "Would you wear this one?" is the voting question, and it went out
+       with tees that are on sale too — asking somebody to vote on a shirt
+       they can buy. On sale it is a shop link; on the drawing board it is
+       still a vote. */
+    if (d) await shareLink(supUrl(d), d.name + ' — WayMark',
+      shopItem(d.n) ? 'From the WayMark shop.' : 'Would you wear this one?');
   }
   else if (a === 'shopsize'){ ui.shopSize = el.dataset.v; render(); }
   else if (a === 'markoff'){ bcMarkOff(el.dataset.k); }
@@ -31777,7 +31863,17 @@ document.addEventListener('click', async e => {
   else if (a === 'bkcode'){ await applyCode(); }
   else if (a === 'bkcodeoff'){ basketCode = null; ui.bkCodeOpen = false; paintBasket(); }
   else if (a === 'bkcheckout'){ await checkoutBasket(); }
-  else if (a === 'kitopen'){ bcSheetClose(); closeBasket(); bcSeen(el.dataset.k); ui.kitOpen = el.dataset.k; ui.kitOpt = ''; ui.kitOpt2 = ''; ui.patch = null; tab = 'a'; ui.patchView = 'supplies'; render(); window.scrollTo({top:0}); }
+  else if (a === 'kitopen'){ bcSheetClose(); closeBasket(); bcSeen(el.dataset.k); ui.kitOpen = el.dataset.k; ui.kitOpt = ''; ui.kitOpt2 = ''; ui.patch = null; tab = 'a'; ui.patchView = 'supplies'; ui.supOpen = null;
+    /* the same push a tee does, so Back goes to the shelf and the address in
+       the bar is the one to copy */
+    if (supRoute){ const s = kitSlug(shopItem(el.dataset.k));
+      if (s) try{ history.pushState({kit: el.dataset.k}, '', SUP_BASE + 'supplies/' + s); }catch(e){} }
+    render(); window.scrollTo({top:0}); }
+  else if (a === 'kitshare'){
+    const k = el.dataset.k, it = shopItem(k);
+    if (it && kitSlug(it)) await shareLink(kitUrl(k), it.name + ' — WayMark',
+      'From the WayMark shop.');
+  }
   else if (a === 'kitclose'){ ui.kitOpen = null; render(); }
   else if (a === 'kitopt'){ ui.kitOpt = el.dataset.v; render(); }
   else if (a === 'kitopt2'){ ui.kitOpt2 = el.dataset.v; render(); }
@@ -37646,7 +37742,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v379';
+const APP_VERSION = 'v380';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
