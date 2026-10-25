@@ -7458,6 +7458,9 @@ ul.hills, .regionlist{border:0; border-radius:var(--r-card); background:var(--ra
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .dogstripitem i{display:block; font-style:normal; font-family:var(--font-data); font-size:10.5px; color:var(--ink-3)}
 .dogpick{display:flex; gap:8px; flex-wrap:wrap}
+/* display:flex beats the [hidden] attribute, so a folded picker stayed on
+   screen under the line that said it was folded */
+.dogpick[hidden]{display:none}
 /* 40px, and nobody had noticed: the face is 32 and the padding 4 top and
    bottom. t/tap44.js sweeps six screens and an expanded journal day is not
    one of them, so the app's own floor was being broken in the one place a
@@ -9881,6 +9884,136 @@ span.vbadge{color:var(--surface)}
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .kithills i{flex:none; font-style:normal; font:600 11px var(--font-data); color:var(--sage)}
 /* the picker on the mark sheet: the dog picker with a square face */
+/* the folded kit line: what you took, and the way in to change it */
+.kitfold{display:flex; align-items:center; gap:10px; width:100%; min-height:48px; padding:0 14px;
+  margin:0 0 4px; border:1px solid var(--line); border-radius:12px; background:var(--surface);
+  color:var(--ink); font:inherit; text-align:left; cursor:pointer}
+.kitfold > span:first-child{flex:1 1 auto; min-width:0; display:flex; align-items:baseline; gap:8px}
+.kitfold b{font-weight:600; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.kitfold i{font-style:normal; font-size:13px; color:var(--ink-3); flex:none}
+.kitfoldgo{flex:none; font-size:13.5px; font-weight:600; color:var(--accent-text)}
+.kitsetpick{margin-bottom:12px}
+/* ---- the kit tab: setups and all kit ---- */
+/* something upstream makes .mypatches a flex row in this pane, which put
+   the title, the New setup button and both tabs on one line and wrapped
+   "Your kit" onto two. This section stacks. */
+.kittop{display:block !important}
+.kithead2{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.kithead2 .eyebrow{margin:0; flex:1 1 auto; min-width:0}
+.kitswitch{display:flex; gap:18px; margin:12px 0 2px; border-bottom:1px solid var(--line)}
+.kitswitch button{padding:0 0 9px; border:0; background:none; cursor:pointer;
+  font:600 15.5px/1 var(--font-ui); color:var(--ink-3); border-bottom:2px solid transparent; margin-bottom:-1px}
+.kitswitch button.on{color:var(--ink); border-bottom-color:var(--accent)}
+.kitswitch button i{font-style:normal; font-size:13px; color:var(--ink-3); margin-left:3px}
+/* the setup's cover */
+.kitcover{position:relative; margin:14px 12px 10px; padding:16px 16px 14px; border-radius:18px;
+  background:var(--kc); color:var(--kcfg); overflow:hidden}
+.kitcovertop{display:block; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--kcsub)}
+.kitcoverbtn{position:absolute; right:10px; top:10px; width:44px; height:44px; display:grid; place-items:center;
+  border:0; border-radius:50%; background:transparent; color:var(--kcfg); cursor:pointer}
+.kitcoverbtn svg{width:19px; height:19px}
+.kitcovermain{display:flex; align-items:center; gap:13px; margin:10px 0 16px; padding-right:40px}
+.kitcovericon{flex:none; width:44px; height:44px; display:grid; place-items:center; border-radius:12px;
+  background:rgba(255,255,255,.14)}
+.kitcovericon svg{width:23px; height:23px}
+.kitcovermain h2{margin:0; font-family:var(--font-display); font-weight:400; font-size:26px; line-height:1.1;
+  overflow-wrap:anywhere}
+.kitcovermain small{display:block; margin-top:3px; font-size:13.5px; color:var(--kcsub)}
+.kitcoverdef{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase}
+.kitcoverfoot{display:flex; gap:20px; align-items:baseline; padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.16); font-size:13px; color:var(--kcsub)}
+.kitcoverfoot b{font-size:17px; color:var(--kcfg); font-weight:600; margin-right:4px}
+.kitsetnav{display:flex; gap:8px; overflow-x:auto; padding:0 12px 2px; scrollbar-width:none}
+.kitsetnav::-webkit-scrollbar{display:none}
+.kitsetnav button{flex:none; max-width:62vw; min-height:44px; padding:0 14px; border:1px solid var(--line);
+  border-radius:99px; background:var(--surface); color:var(--ink-2); font:600 14px/1.2 var(--font-ui);
+  cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.kitsetnav button.on{border-color:var(--ink); color:var(--ink); background:var(--ground)}
+.kitsetgo{padding:12px}
+.kitsetgo .btn{width:100%; justify-content:center; min-height:50px}
+.kitfoot{margin:14px 12px 4px; font-size:12.5px; line-height:1.5; color:var(--ink-3)}
+.kitmuted{font-size:13px; color:var(--ink-3)}
+/* a row for kit with no photograph */
+.kitrows{display:flex; flex-direction:column; padding:0 12px}
+.kitrow{display:flex; align-items:center; gap:12px; width:100%; min-height:62px; padding:9px 2px;
+  border:0; border-bottom:1px solid var(--line-soft); background:none; color:var(--ink);
+  font:inherit; text-align:left; cursor:pointer}
+.kitrow:last-child{border-bottom:0}
+.kitrowi{flex:none; width:42px; height:42px; border-radius:10px; background:var(--surface-2);
+  display:grid; place-items:center; overflow:hidden; color:var(--ink-3)}
+.kitrowi img{width:100%; height:100%; object-fit:cover; display:block}
+.kitrowi svg{width:20px; height:20px}
+.kitrown{flex:1 1 auto; min-width:0}
+.kitrown b{display:block; font-weight:600; font-size:15px; line-height:1.25; overflow-wrap:anywhere}
+.kitrown small{display:block; margin-top:2px; font-size:12.5px; color:var(--ink-3)}
+.kitrowe{flex:none; text-align:right}
+.kitrowe b{display:block; font-weight:600; font-size:15px; color:var(--accent-text)}
+.kitrowe small{display:block; font-size:11.5px; color:var(--ink-3)}
+.kitrowe svg{width:20px; height:20px; color:var(--ink-3)}
+/* a row that is a tick box */
+.kitcheck{cursor:pointer}
+.kitcheck input{flex:none; width:24px; height:24px; accent-color:var(--accent); cursor:pointer}
+.kitcheck:not(.on) .kitrowi, .kitcheck:not(.on) .kitrown{opacity:.5}
+/* the setup editor */
+.kitedit{padding:4px 0 10px}
+.kitedit .backbtn{margin:0 12px}
+.kiteditt{margin:10px 12px 14px; font-family:var(--font-display); font-weight:400; font-size:25px}
+.kitf{display:block; margin:0 12px 14px}
+.kitf > span{display:block; margin-bottom:6px; font-family:var(--font-mono); font-size:10.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
+.kitf input[type="text"]{width:100%; min-height:48px; padding:0 13px; border:1px solid var(--line);
+  border-radius:11px; background:var(--surface); color:var(--ink); font:16px/1.2 var(--font-ui)}
+.kiticons, .kitcols{display:flex; gap:8px; flex-wrap:wrap}
+.kiticonb{width:48px; height:48px; display:grid; place-items:center; border:1px solid var(--line);
+  border-radius:12px; background:var(--surface); color:var(--ink-2); cursor:pointer}
+.kiticonb.on{border-color:var(--ink); background:var(--ink); color:var(--cream)}
+.kiticonb svg{width:21px; height:21px}
+.kitcolb{display:flex; align-items:center; gap:7px; min-height:44px; padding:0 12px 0 9px;
+  border:1px solid var(--line); border-radius:99px; background:var(--surface); color:var(--ink-2);
+  font:600 13.5px/1 var(--font-ui); cursor:pointer}
+.kitcolb i{width:18px; height:18px; border-radius:50%; background:var(--kc); display:block;
+  box-shadow:inset 0 0 0 1px rgba(20,51,45,.18)}
+.kitcolb.on{border-color:var(--ink); color:var(--ink)}
+.kiteditacts{display:flex; gap:8px; flex-wrap:wrap; margin:16px 12px 0}
+/* using a setup on a walk */
+.kittrip{margin:12px 12px 10px}
+.kittrip b{display:block; margin:4px 0 2px; font-family:var(--font-display); font-weight:400; font-size:23px;
+  line-height:1.15}
+.kitfrom{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 12px 10px;
+  font-size:14.5px}
+.kitnote{margin:0 12px 12px; padding:10px 12px; border-radius:11px; background:var(--accent-soft);
+  color:var(--ink); font-size:13.5px; line-height:1.45}
+.kitcount{display:flex; gap:14px; align-items:baseline; margin:0 12px 6px; padding:10px 12px;
+  border:1px solid var(--line); border-radius:11px; background:var(--surface); font-size:13px; color:var(--ink-3)}
+.kitcount b{font-size:15px; color:var(--ink)}
+.kitextra{margin:12px 12px 0}
+.kitextra summary{min-height:44px; display:flex; align-items:center; font-weight:600; font-size:14.5px;
+  color:var(--accent-text); cursor:pointer}
+.kitextra .kitrows{padding:0}
+@media (min-width:760px){
+  .kitcover{margin-left:0; margin-right:0}
+  .kitrows{padding:0}
+}
+/* the setups row over the shelf */
+.kitsetbar{padding:0 12px 4px}
+.kitsetbar .chip i{font-style:normal; color:var(--ink-3); font-size:12.5px}
+.kitsetbar .chip.on i{color:inherit; opacity:.7}
+.kitsetdef{font-style:normal; margin-left:5px; color:var(--accent-text)}
+.kitsetbar .chip.on .kitsetdef{color:inherit}
+.kitsetnew{border-style:dashed}
+.kitsetbox{margin:10px 0 2px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--surface)}
+.kitsetname{width:100%; min-height:44px; padding:0 12px; border:1px solid var(--line); border-radius:10px;
+  background:var(--ground); color:var(--ink); font:600 16px/1.2 var(--font-ui)}
+.kitsetacts{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+.kitsetbox .pdfine{margin:10px 0 0}
+/* a tile inside a setup is a tick, not a door */
+.kitpickcard .kitsettick{position:absolute; right:8px; top:8px; width:26px; height:26px; border-radius:50%;
+  display:grid; place-items:center; background:var(--surface); border:1px solid var(--line); color:var(--accent-text)}
+.kitpickcard.on .kitsettick{background:var(--accent); border-color:var(--accent); color:#F6EFE4}
+.kitpickcard .kitsettick svg{width:15px; height:15px}
+.kitpickcard{opacity:.62; transition:opacity .15s}
+.kitpickcard.on{opacity:1}
 .kitpick .kitpic{width:30px; height:30px; border-radius:6px}
 .kitpick .kitpic svg{width:16px; height:16px}
 .kitpick button[aria-pressed="true"] .kitpic{border-color:var(--accent)}
@@ -11139,6 +11272,10 @@ function normalise(s){
       trk:Array.isArray(p.trk) ? p.trk : null,
       wp:Array.isArray(p.wp) ? p.wp : null,
       snap:p.snap !== false,
+      /* the setup you mean to walk it in. Carried here for the same reason
+         as the track: anything not named on this list is thrown away on the
+         next load and the next sync. */
+      set:String(p.set || '').slice(0, 40),
       deleted:!!p.deleted, t:p.t||0
     });
   }
@@ -11220,8 +11357,50 @@ function normalise(s){
         /* whose kit: '' is yours, a dog id is that dog's, 'shared' is the
            gear that goes out with whichever dog is coming */
         dog:String(g.dog || '').slice(0, 40),
+        /* WEIGHT, IN GRAMS, AND OPTIONAL. 0 means nobody has weighed it,
+           which is not the same as weighing nothing: a setup's total only
+           ever counts the pieces that have a real number and says how many
+           that was. Nothing here is ever guessed from a product name. */
+        wt:(+g.wt > 0) ? Math.min(Math.round(+g.wt), 99999) : 0,
         deleted:!!g.deleted, t:+g.t || 0
       })).slice(0, 24)
+    : [];
+  /* KIT SETUPS — Joe, 25 Oct: "on the kit list be able to group your kit and
+     make your own groups ... wild camping setup, thru-hike setup, long day
+     hike setup - summer ... this can make it easy to assign groups to hills
+     but make sure its easy to unassign certain items that you didnt take."
+
+     A setup is a NAME and a LIST OF KIT IDS, nothing else. It holds no
+     hills: what a walk counted still lives on the hill, so renaming a setup
+     or throwing it away never costs a pair of boots its mileage — the same
+     reason the kit's own hills are not stored on the kit.
+
+     `defFrom` is the day this setup became the default, and it is the whole
+     reason history stays still. A default setup takes over from each item's
+     `usual` flag as the baseline, but only for hills walked on or after that
+     day. Without it, making a setup default would silently re-count every
+     hill already marked.
+
+     On this list for the same reason as everything above it: a field left
+     off is wiped on the next reload and the next sync, with no warning. */
+  out.kitSets = Array.isArray(s && s.kitSets)
+    ? s.kitSets.filter(x => x && x.id).map(x => ({
+        id:String(x.id).slice(0, 40),
+        n:String(x.n || '').slice(0, 40),
+        items:Array.isArray(x.items)
+          ? [...new Set(x.items.filter(i => typeof i === 'string').map(i => i.slice(0, 40)))].slice(0, 24)
+          : [],
+        /* what the setup is for, and what it looks like. A season line, a
+           symbol from the app's own icon set, and a colour from the app's
+           own palette — a key, not a hex, so a setup made today still looks
+           like WayMark after the palette is next touched. */
+        season:String(x.season || '').slice(0, 60),
+        icon:String(x.icon || '').slice(0, 24),
+        col:String(x.col || '').slice(0, 16),
+        def:!!x.def,
+        defFrom:String(x.defFrom || '').slice(0, 10),
+        deleted:!!x.deleted, t:+x.t || 0
+      })).slice(0, 12)
     : [];
   /* The "we have already done the one-off seed" marker. Left off this list
      it is wiped on every reload and the seed runs for ever. */
@@ -11494,6 +11673,17 @@ function merge(a, b){
     if (!cur || (g.t || 0) > (cur.t || 0)) km.set(g.id, g);
   }
   out.kit = [...km.values()];
+  /* setups: newest edit wins, tombstones respected — the kit's own rule.
+     Two phones can disagree about which setup is the default; the newer
+     edit carries it, and defOne() below makes sure only one ends up lit
+     however they merged. */
+  const sm = new Map();
+  for (const x of [...(a.kitSets || []), ...(b.kitSets || [])]){
+    if (!x || !x.id) continue;
+    const cur = sm.get(x.id);
+    if (!cur || (x.t || 0) > (cur.t || 0)) sm.set(x.id, x);
+  }
+  out.kitSets = [...sm.values()];
   /* seeded once, seeded everywhere — a device that has never seen the marker
      must not start the one-off seed again */
   out.kitSeeded = (a.kitSeeded || b.kitSeeded) ? 1 : 0;
@@ -18696,6 +18886,72 @@ function kitList(){
     .sort((a, b) => (a.made || a.t || 0) - (b.made || b.t || 0));
 }
 function kitById(id){ return (state.kit || []).find(g => g && g.id === id && !g.deleted) || null; }
+
+/* ---------- SETUPS ----------
+   A named handful of your kit: "Wild camping", "Day walk · summer". One tap
+   on a hill says what you took, instead of untapping the tent, the bag, the
+   mat and the stove every time you go out for the day.
+
+   A bit of kit belongs to as many setups as you like — your boots are in all
+   of them — so these are labels, not boxes. */
+function kitSets(){
+  return (state.kitSets || []).filter(x => x && x.id && !x.deleted)
+    .sort((a, b) => (a.t || 0) - (b.t || 0));
+}
+function kitSetById(id){ return kitSets().find(x => x.id === id) || null; }
+
+/* THE COVER COLOURS, FROM THE APP'S OWN PALETTE.
+   Joe chose a short list over a full colour picker, so every setup looks
+   like WayMark and every one of them is readable. `ink` is worked out from
+   the colour rather than written down beside it, so a colour changed here
+   cannot leave its own label unreadable. */
+const KIT_COLS = [
+  {id:'pine',  label:'Pine',  hex:'#14332D'},
+  {id:'moss',  label:'Moss',  hex:'#2C5F55'},
+  {id:'rust',  label:'Rust',  hex:'#A8431A'},
+  {id:'slate', label:'Slate', hex:'#4D6580'},
+  {id:'clay',  label:'Clay',  hex:'#6C261D'},
+  {id:'stone', label:'Stone', hex:'#D7D2C3'}
+];
+const KIT_ICONS = ['tent', 'mountain', 'backpack', 'shoe', 'flame', 'trekking', 'camera', 'map-2'];
+function kitSetCol(x){
+  return KIT_COLS.find(c => c.id === ((x && x.col) || '')) || KIT_COLS[0];
+}
+/* light text or dark, decided by the colour itself */
+function kitSetInk(x){
+  const h = kitSetCol(x).hex.slice(1);
+  const n = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
+  return (n[0] * 0.299 + n[1] * 0.587 + n[2] * 0.114) > 150
+    ? {fg:'#14332D', sub:'#3E625A'} : {fg:'#F8F4E8', sub:'#DCE5DF'};
+}
+function kitSetIcon(x){
+  const i = (x && x.icon) || '';
+  return KIT_ICONS.indexOf(i) >= 0 ? i : 'backpack';
+}
+/* WEIGHT, HONESTLY. Only the pieces that have been weighed are added up,
+   and the count of them is returned with the total so the screen can say
+   so. A setup where nothing has been weighed gets no total at all, rather
+   than a confident 0.00 kg. */
+function kitSetWeight(x){
+  const items = kitSetItems(x);
+  const got = items.filter(g => +g.wt > 0);
+  return {g: got.reduce((a, g) => a + (+g.wt || 0), 0), n: got.length, of: items.length};
+}
+function kitKg(g){ return (g / 1000).toFixed(2) + ' kg'; }
+/* the items of a setup, as live kit, in shelf order and with anything
+   deleted or retired since dropped rather than counted */
+function kitSetItems(x){
+  if (!x) return [];
+  return kitList().filter(g => !g.off && x.items.indexOf(g.id) >= 0);
+}
+/* ONLY ONE DEFAULT, however two phones merged. Both may carry def:true from
+   different days; the newest edit wins, which is the same rule the merge
+   itself uses, so the two cannot disagree. */
+function kitDefaultSet(){
+  const on = (state.kitSets || []).filter(x => x && x.id && !x.deleted && x.def && x.defFrom);
+  if (!on.length) return null;
+  return on.sort((a, b) => (b.t || 0) - (a.t || 0))[0];
+}
 /* ---- whose kit is it, v332 ----
    '' (or missing) is yours. A dog's id is that dog's own gear and lives on
    that dog's page. 'shared' is the towel and the water bowl: dog gear that
@@ -18751,9 +19007,17 @@ function kitCounts(g, r){
   if (!g || !r) return false;
   if (Array.isArray(r.kitX) && r.kitX.indexOf(g.id) >= 0) return false;
   if (Array.isArray(r.kit) && r.kit.indexOf(g.id) >= 0) return true;
-  if (g.usual === false) return false;
   const d = r.date || '';
   if (!d) return false;              /* an undated hill is nobody's guess */
+  /* THE DEFAULT SETUP IS THE BASELINE, FROM THE DAY IT BECAME ONE.
+     Before that day the old rule stands, untouched, so the hills already in
+     the log keep the kit they were counted with. Making a setup default is
+     a decision about the future, not a rewrite of the past — and a walker
+     who never makes one never meets any of this. */
+  const def = kitDefaultSet();
+  if (def && def.defFrom && d >= def.defFrom){
+    if (def.items.indexOf(g.id) < 0) return false;
+  } else if (g.usual === false) return false;
   if (g.since && d < g.since) return false;
   if (g.until && d > g.until) return false;
   return true;
@@ -18796,6 +19060,39 @@ function toggleKitOnHill(key, id){
   if (off.length) next.kitX = off; else delete next.kitX;
   state.bagged[key] = next;
   touched(); render();
+}
+/* PUTTING A SETUP ON A WALK.
+   Both sides are written, not one: `kit` for what the setup holds and
+   `kitX` for every other live piece. Writing only `kit` would leave the
+   rest to the baseline rule and the tent would still be counted on a day
+   walk — the exact thing this is for. Afterwards every chip is still one
+   tap, because toggleKitOnHill just moves an id between the two lists. */
+function applySetToHill(key, setId){
+  const x = kitSetById(setId); if (!x) return;
+  const r = rec(key);
+  const live = kitList().filter(g => !g.off);
+  const on = live.filter(g => x.items.indexOf(g.id) >= 0).map(g => g.id);
+  const off = live.filter(g => x.items.indexOf(g.id) < 0).map(g => g.id);
+  const next = {...r, t:now()};
+  if (on.length) next.kit = on; else delete next.kit;
+  if (off.length) next.kitX = off; else delete next.kitX;
+  state.bagged[key] = next;
+  touched(); render();
+}
+/* Which setup this walk is wearing, if it is wearing one exactly. Compared
+   by what COUNTS rather than by what is stored, so a walk that arrives at a
+   setup's contents by hand is recognised as that setup — and one that has
+   had a single thing taken off it is honestly not. */
+function kitSetOnHill(key){
+  const r = rec(key); if (!r) return null;
+  const live = kitList().filter(g => !g.off);
+  const worn = live.filter(g => kitCounts(g, r)).map(g => g.id).sort().join(',');
+  if (!worn) return null;
+  for (const x of kitSets()){
+    const want = kitSetItems(x).map(g => g.id).sort().join(',');
+    if (want && want === worn) return x;
+  }
+  return null;
 }
 /* what you walked a hill in, for the hill sheet and the journal */
 function kitWorn(key){
@@ -19460,16 +19757,46 @@ function gearPickHTML(key){
      list is only the exceptions, so reading it directly showed every chip
      unlit on a hill that your usual kit was already counted on. */
   const r = rec(key);
-  let s = '<div><label>What were you in?</label><div class="dogpick kitpick">';
+  const sets = kitSets();
+  const cur = kitSetOnHill(key);
+  const worn = list.filter(g => kitCounts(g, r));
+  /* SETUPS FIRST, THEN THE KIT ITSELF.
+     Joe, 25 Oct. One tap says what you took; the list underneath is for the
+     one thing you left behind. */
+  let s = '<div>';
+  if (sets.length){
+    s += '<label>Setup</label><div class="dogpick kitsetpick">';
+    for (const x of sets){
+      const on = !!cur && cur.id === x.id;
+      s += '<button class="chip' + (on ? ' on' : '') + '" data-act="kitsetuse" data-k="' + esc(key) +
+        '" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + esc(x.n || 'Setup') + '</button>';
+    }
+    s += '</div>';
+  }
+  /* THE TWELVE CHIPS FOLD AWAY. Twelve bits of kit is twelve rows on a
+     phone, under a hill you only opened to change one of them. Folded it is
+     a line that says what you took; open it is exactly what it always was,
+     one tap per item. Joe chose folded, 25 Oct. */
+  const open = ui.kitPickOpen === key || !sets.length;
+  s += '<label>What were you in?</label>';
+  if (!open){
+    s += '<button class="kitfold" data-act="kitpickopen" data-k="' + esc(key) + '" aria-expanded="false">' +
+      '<span><b>' + esc(cur ? (cur.n || 'Setup') : 'Your usual kit') + '</b>' +
+      '<i>' + worn.length + ' of ' + list.length + '</i></span>' +
+      '<span class="kitfoldgo">Change</span></button>';
+  }
+  s += '<div class="dogpick kitpick"' + (open ? '' : ' hidden') + '>';
   for (const g of list){
     const sel = kitCounts(g, r);
     s += '<button data-act="geartick" data-k="' + esc(key) + '" data-v="' + esc(g.id) + '" aria-pressed="' + sel + '">' +
       gearPicHTML(g) + '<span class="dogpickname">' + esc(kitName(g)) + '</span></button>';
   }
   s += '</div>';
+  if (open && sets.length)
+    s += '<p class="kitsub">Tap any one to take it off this walk.' +
+      '<button class="linkbtn" data-act="kitpickshut" data-k="' + esc(key) + '" style="margin-left:8px">Done</button></p>';
   /* the moment, the way the dogs get one. The first thing you are wearing
      that counts here, and what number this hill is for it. */
-  const worn = list.filter(g => kitCounts(g, r));
   if (worn.length){
     const g = worn[0], nth = kitHills(g.id).length;
     s += '<p class="kitcheer">' + esc(kitName(g)) + '\u2019s ' + ordinal(nth) + ' hill.' +
@@ -29776,6 +30103,20 @@ function routeOpenHTML(p, hs, done, walked, pts){
   }
   if (p.notes && ui.planEdit !== id) s += '<div class="rtblk"><p class="rtnotes">' + esc(p.notes) + '</p></div>';
 
+  /* WHAT YOU MEAN TO WALK IT IN. Joe, 25 Oct, asked for setups on hills and
+     on planned routes both. Picking it here is picking it once: Mark all
+     puts it on every hill that click marks, so the kit is already right
+     when you get home. Only shown once you have made a setup. */
+  if (kitSets().length && !walked){
+    s += '<div class="rtblk rtset"><p class="eyebrow">Walking it in</p><div class="dogpick">';
+    for (const x of kitSets()){
+      const on = p.set === x.id;
+      s += '<button class="chip' + (on ? ' on' : '') + '" data-act="planset" data-id="' + esc(id) +
+        '" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + esc(x.n || 'Setup') + '</button>';
+    }
+    s += '</div></div>';
+  }
+
   /* ---- WHAT YOU CAME TO DO ------------------------------------------- */
   s += '<div class="rtblk rtactions"><div class="rtbtns">';
   s += pts > 1
@@ -30138,6 +30479,16 @@ function wire(){
     render();
     const n = document.getElementById('tagq');
     if (n){ n.focus(); try{ n.setSelectionRange(pos, pos); }catch(err){} }
+  };
+  /* NAMING A SETUP WITHOUT REBUILDING THE PAGE UNDER THE CURSOR.
+     The name is written straight onto the setup and nothing is redrawn
+     while you type — the shelf below does not depend on it. The counts in
+     the chips above do, so they are caught on the next render, which is
+     whatever you do next. */
+  const ksn = document.getElementById('kitsetn');
+  if (ksn) ksn.oninput = e => {
+    const x = kitSetById(ui.kitSet); if (!x) return;
+    x.n = String(e.target.value || '').slice(0, 40); x.t = now(); touched();
   };
   /* The Routes search repaints only its results, so the map underneath is never
      torn down and rebuilt while you type. */
@@ -31458,6 +31809,152 @@ document.addEventListener('click', async e => {
   else if (a === 'dognone'){ dogNoneOnHill(el.dataset.k); }
   /* ---- the kit ---- */
   else if (a === 'geartick'){ toggleKitOnHill(el.dataset.k, el.dataset.v); }
+  /* a setup on a walk, and the fold over the kit under it */
+  else if (a === 'kitsetuse'){
+    /* tapping the setup that is already on takes it back off, which leaves
+       the walk on the ordinary rule rather than on nothing */
+    const cur = kitSetOnHill(el.dataset.k);
+    if (cur && cur.id === el.dataset.v){
+      const r = rec(el.dataset.k), next = {...r, t:now()};
+      delete next.kit; delete next.kitX;
+      state.bagged[el.dataset.k] = next; touched(); render();
+    } else applySetToHill(el.dataset.k, el.dataset.v);
+  }
+  else if (a === 'kitpickopen'){ ui.kitPickOpen = el.dataset.k; render(); }
+  else if (a === 'kitpickshut'){ ui.kitPickOpen = null; render(); }
+  /* ---- making and filling a setup, on the Kit tab ---- */
+  else if (a === 'kitsetpick'){ ui.kitSet = el.dataset.v || ''; render(); window.scrollTo({top:0}); }
+  else if (a === 'kitview'){ ui.kitView = el.dataset.v; render(); window.scrollTo({top:0}); }
+  else if (a === 'kitsetedit' || a === 'kitsetitems'){
+    ui.kitSet = el.dataset.v; ui.kitEdit = el.dataset.v; render(); window.scrollTo({top:0});
+    const f = document.getElementById('kitsetn'); if (f && !kitSetById(el.dataset.v).n) f.focus();
+  }
+  else if (a === 'kitsetclose'){ ui.kitEdit = null; ui.kitOuting = null; render(); window.scrollTo({top:0}); }
+  else if (a === 'kitseticon'){
+    const x = kitSetById(el.dataset.s); if (!x) return true;
+    x.icon = el.dataset.v; x.t = now(); touched(); render();
+  }
+  else if (a === 'kitsetcol'){
+    const x = kitSetById(el.dataset.s); if (!x) return true;
+    x.col = el.dataset.v; x.t = now(); touched(); render();
+  }
+  else if (a === 'kitsetdupe'){
+    const x = kitSetById(el.dataset.v); if (!x) return true;
+    if (kitSets().length >= 12){ toast('Twelve setups is plenty.'); return true; }
+    /* the name as it is ON SCREEN, not as it was last saved — typing a name
+       and hitting Duplicate must not quietly copy the old one */
+    const f = document.getElementById('kitsetn'), g2 = document.getElementById('kitsets');
+    if (f) { x.n = String(f.value || '').slice(0, 40); }
+    if (g2) { x.season = String(g2.value || '').slice(0, 60); }
+    const y = {id:'ks' + uid(), n:((x.n || 'Setup') + ' copy').slice(0, 40), season:x.season,
+      icon:x.icon, col:x.col, items:[...x.items], def:false, defFrom:'', deleted:false, t:now()};
+    state.kitSets = [...(state.kitSets || []), y];
+    ui.kitSet = y.id; ui.kitEdit = y.id; touched(); render(); window.scrollTo({top:0});
+  }
+  /* ---- a setup on a walk: a draft until you save it ---- */
+  else if (a === 'kitouting'){
+    const x = kitSetById(el.dataset.v); if (!x) return true;
+    const ids = kitSetItems(x).map(g => g.id);
+    ui.kitOuting = {set:x.id, date:'', all:ids, on:[...ids]};
+    ui.kitEdit = null; render(); window.scrollTo({top:0});
+  }
+  else if (a === 'kitoutday'){
+    if (!ui.kitOuting) return true;
+    ui.kitOuting.date = el.dataset.v; render(); window.scrollTo({top:0});
+  }
+  else if (a === 'kitouttick'){
+    const d = ui.kitOuting; if (!d) return true;
+    const id = el.dataset.v;
+    d.on = d.on.indexOf(id) >= 0 ? d.on.filter(i => i !== id) : [...d.on, id];
+    render();
+  }
+  else if (a === 'kitoutadd'){
+    const d = ui.kitOuting; if (!d) return true;
+    if (d.all.indexOf(el.dataset.v) < 0){ d.all.push(el.dataset.v); d.on.push(el.dataset.v); }
+    render();
+  }
+  else if (a === 'kitoutswap'){
+    const d = ui.kitOuting; if (!d) return true;
+    const sets = kitSets().filter(x => x.id !== d.set);
+    if (!sets.length){ toast('That is your only setup.'); return true; }
+    /* THE UNSAVED TICKS ARE WORTH ASKING ABOUT. Swapping the setup throws
+       away every box you have just changed, so it is asked for rather than
+       done — the brief: "production should prevent accidental loss". */
+    const changed = d.all.length !== d.on.length;
+    const go = () => {
+      const i = kitSets().findIndex(x => x.id === d.set);
+      const nx = kitSets()[(i + 1) % kitSets().length];
+      const ids = kitSetItems(nx).map(g => g.id);
+      ui.kitOuting = {set:nx.id, date:d.date, all:ids, on:[...ids]};
+      render(); window.scrollTo({top:0});
+    };
+    if (!changed) { go(); return true; }
+    if (!await confirmAsk({title:'Start again from another setup?',
+      body:'You have taken ' + (d.all.length - d.on.length) +
+        ' off this walk. Swapping setup loses that.',
+      yes:'Swap setup', no:'Keep my ticks'})) return true;
+    go();
+  }
+  else if (a === 'kitoutsave'){
+    const d = ui.kitOuting; if (!d || !d.date) return true;
+    const day = kitOutingDays().find(y => y.date === d.date);
+    if (!day){ toast('That walk is no longer in your log.'); return true; }
+    const live = kitList().filter(g => !g.off).map(g => g.id);
+    const on = d.on.filter(i => live.indexOf(i) >= 0);
+    const off = live.filter(i => on.indexOf(i) < 0);
+    /* WRITTEN TO EACH HILL OF THE DAY, NOT TO THE DAY.
+       A walking day is two or three hill records in this app, and gear
+       lives on the hill. Writing it per hill is what keeps a single hill
+       yours to change afterwards. */
+    for (const k of day.keys){
+      const r = rec(k), next = {...r, t:now()};
+      if (on.length) next.kit = on; else delete next.kit;
+      if (off.length) next.kitX = off; else delete next.kitX;
+      state.bagged[k] = next;
+    }
+    ui.kitOuting = null; touched(); render(); window.scrollTo({top:0});
+    toast(on.length + ' logged to ' + (day.n === 1 ? 'that hill' : 'those ' + day.n + ' hills') + '.');
+  }
+  else if (a === 'planset'){
+    const p = (state.plans || []).find(x => x.id === el.dataset.id); if (!p) return true;
+    /* tapping the one already chosen takes it off again */
+    p.set = p.set === el.dataset.v ? '' : el.dataset.v;
+    p.t = now(); touched(); render();
+  }
+  else if (a === 'kitsetadd'){
+    if (kitSets().length >= 12){ toast('Twelve setups is plenty.'); return true; }
+    const x = {id:'ks' + uid(), n:'', items:[], def:false, defFrom:'', deleted:false, t:now()};
+    state.kitSets = [...(state.kitSets || []), x];
+    ui.kitSet = x.id; touched(); render();
+    const f = document.getElementById('kitsetn'); if (f) f.focus();
+  }
+  else if (a === 'kitsetitem'){
+    const x = kitSetById(el.dataset.s); if (!x) return true;
+    const id = el.dataset.v;
+    x.items = x.items.indexOf(id) >= 0 ? x.items.filter(i => i !== id) : [...x.items, id];
+    x.t = now(); touched(); render();
+  }
+  else if (a === 'kitsetdef'){
+    const x = kitSetById(el.dataset.v); if (!x) return true;
+    const turningOn = !x.def;
+    /* only one usual setup, and the day it became one is written down —
+       that date is what keeps every hill already in the log exactly as it
+       was. Turning it off leaves the date behind rather than clearing it,
+       so turning it on again does not quietly re-date your history. */
+    for (const y of (state.kitSets || [])) if (y && y.def){ y.def = false; y.t = now(); }
+    x.def = turningOn;
+    if (turningOn && !x.defFrom) x.defFrom = today();
+    x.t = now(); touched(); render();
+    toast(turningOn ? 'Your usual setup from today.' : 'No usual setup now.');
+  }
+  else if (a === 'kitsetdel'){
+    const x = kitSetById(el.dataset.v); if (!x) return true;
+    /* a tombstone, like a deleted bit of kit: the walks that wore it keep
+       their own record, because what a hill counted lives on the hill */
+    x.deleted = true; x.def = false; x.t = now();
+    ui.kitSet = ''; touched(); render();
+    toast('Setup deleted. Your hills keep what they counted.');
+  }
   else if (a === 'gearopen'){
     /* On the Kit tab a bit of kit is a PAGE, the way a dog is. Opened from
        the shelf sheet — which is how you reach it from a hill, with no
@@ -32329,8 +32826,17 @@ document.addEventListener('click', async e => {
     /* A whole route at once: one celebration for everything it unlocked, and no
        row opened — you did not tick these one at a time. */
     await marking(() => {
-      p.hills.forEach(k => { if (!isBagged(k)){ const c = rec(k); state.bagged[k] = {...c, st:'done', done:true, date:c.date || d, t:now()}; } });
-      touched(); render(); toast('All marked. Nice one.');
+      const fresh = [];
+      p.hills.forEach(k => { if (!isBagged(k)){ const c = rec(k); state.bagged[k] = {...c, st:'done', done:true, date:c.date || d, t:now()}; fresh.push(k); } });
+      /* THE SETUP YOU PLANNED IT IN, PUT ON THE HILLS YOU JUST MARKED.
+         Only on the ones this click marked — a hill already in the log
+         keeps whatever it was walked in, which may well have been a
+         different day and a different pack. */
+      if (p.set && kitSetById(p.set)) fresh.forEach(k => applySetToHill(k, p.set));
+      touched(); render();
+      toast(p.set && kitSetById(p.set)
+        ? 'All marked, in your ' + (kitSetById(p.set).n || 'setup') + '.'
+        : 'All marked. Nice one.');
     });
   }
 });
@@ -37790,7 +38296,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v381';
+const APP_VERSION = 'v382';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -41082,6 +41588,19 @@ function kitCardHTML(g){
       kitMoneyHTML(g) + '</span>' +
     '</button>';
 }
+/* the same tile, as a tick: in this setup, or not */
+function kitPickCardHTML(g, x){
+  const on = x.items.indexOf(g.id) >= 0;
+  return '<button class="kitcard kitpickcard' + (on ? ' on' : '') + '" data-act="kitsetitem" ' +
+    'data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" aria-pressed="' + on + '">' +
+    '<span class="kitcap">' +
+      (g.img ? '<img src="' + esc(g.img) + '" alt="">'
+             : '<span class="kitcapi">' + ti(kitCat(g).icon) + '</span>') +
+      '<span class="kitsettick">' + (on ? ICON_CHECK : '') + '</span>' +
+    '</span>' +
+    '<span class="kitcb"><b>' + esc(kitName(g)) + '</b><i>' + esc(kitCat(g).label) + '</i></span>' +
+    '</button>';
+}
 /* The way in when there is nothing yet. It has to say what the thing DOES,
    because the name alone does not tell you it counts hills for you. */
 function kitEmptyHTML(){
@@ -41094,13 +41613,24 @@ function kitEmptyHTML(){
 }
 /* retired pieces stay in the grid wearing a stamp, rather than being
    exiled under a grey heading — they have earned their numbers */
-function kitGridHTML(list){
+function kitGridHTML(list, setId){
   const live = list.filter(g => !g.off), gone = list.filter(g => g.off);
+  const x = setId ? kitSetById(setId) : null;
+  /* INSIDE A SETUP THE SHELF IS A TICK LIST. Every tile answers one
+     question — is this in the setup — so a tile is a toggle here rather
+     than a door into the item's own page. A retired piece cannot be put in
+     one: it has stopped counting anywhere. */
+  if (x) return '<div class="kitgrid kitgridpick">' +
+    live.map(g => kitPickCardHTML(g, x)).join('') +
+    (gone.length ? '' : '') + '</div>';
   return '<div class="kitgrid">' + live.concat(gone).map(kitCardHTML).join('') + '</div>';
 }
 function gearShelfHTML(){
   const mine = kitMine(), shared = kitShared();
   if (!mine.length && !shared.length) return kitEmptyHTML();
+  /* All kit is the whole inventory and nothing else — not a setup with a
+     competing copy of it. Picking which pieces are in a setup happens in
+     the setup's own editor, where that is the only question being asked. */
   let s = mine.length ? kitGridHTML(mine) : '';
   s += '<button class="dogadd" data-act="gearadd">+ Add a bit of kit</button>';
   /* SHARED DOG GEAR. Joe, 8 Oct: each dog's own harness lives on that dog's
@@ -41118,10 +41648,218 @@ function gearShelfHTML(){
 }
 
 /* ---------- THE KIT TAB ---------- */
+/* ---- the cover of the setup you are looking at ----
+   One considered card rather than a row of pills: what it is called, what
+   it is for, how much is in it, and what it weighs if you have weighed
+   any of it. */
+function kitCoverHTML(x){
+  const c = kitSetCol(x), ink = kitSetInk(x), w = kitSetWeight(x), n = kitSetItems(x).length;
+  return '<section class="kitcover" style="--kc:' + c.hex + ';--kcfg:' + ink.fg + ';--kcsub:' + ink.sub + '">' +
+    '<span class="kitcovertop">Your saved setup</span>' +
+    '<button class="kitcoverbtn" data-act="kitsetedit" data-v="' + esc(x.id) + '" ' +
+      'aria-label="Customise ' + esc(x.n || 'this setup') + '">' + ti('settings') + '</button>' +
+    '<div class="kitcovermain"><span class="kitcovericon">' + ti(kitSetIcon(x)) + '</span>' +
+      '<div><h2>' + esc(x.n || 'Untitled setup') + '</h2>' +
+      (x.season ? '<small>' + esc(x.season) + '</small>' : '') +
+      (x.def ? '<small class="kitcoverdef">Your usual setup</small>' : '') + '</div></div>' +
+    '<div class="kitcoverfoot"><span><b>' + n + '</b> ' + (n === 1 ? 'item' : 'items') + '</span>' +
+      /* never a confident total over kit nobody has weighed */
+      (w.n ? '<span><b>' + esc(kitKg(w.g)) + '</b> ' +
+        (w.n === w.of ? 'in the pack' : 'over ' + w.n + ' of ' + w.of) + '</span>' : '') +
+    '</div></section>';
+}
+
 function renderKitPane(){
   if (!kitList().length) return kitEmptyHTML();
-  return '<section class="mypatches" style="padding-bottom:2px">' +
-    '<p class="eyebrow">Your kit</p></section>' + gearShelfHTML();
+  /* two screens that take over the pane: customising a setup, and putting
+     one on a walk. Both are their own job and neither belongs underneath
+     the shelf. */
+  if (ui.kitEdit && kitSetById(ui.kitEdit)) return kitSetEditHTML(kitSetById(ui.kitEdit));
+  if (ui.kitOuting) return kitOutingHTML();
+  const sets = kitSets();
+  const view = ui.kitView === 'all' || !sets.length ? 'all' : 'setups';
+  let s = '<section class="mypatches kittop"><div class="kithead2"><p class="eyebrow">Your kit</p>' +
+    '<button class="chip" data-act="kitsetadd">+ New setup</button></div>' +
+    /* two views, not one list pretending to be two */
+    '<div class="kitswitch" role="tablist">' +
+      '<button role="tab" class="' + (view === 'setups' ? 'on' : '') + '" data-act="kitview" data-v="setups"' +
+        ' aria-selected="' + (view === 'setups') + '">Setups' +
+        (sets.length ? ' <i>' + sets.length + '</i>' : '') + '</button>' +
+      '<button role="tab" class="' + (view === 'all' ? 'on' : '') + '" data-act="kitview" data-v="all"' +
+        ' aria-selected="' + (view === 'all') + '">All kit <i>' + kitMine().length + '</i></button>' +
+    '</div></section>';
+  if (view === 'all') return s + gearShelfHTML();
+
+  const x = kitSetById(ui.kitSet) || sets[0];
+  s += kitCoverHTML(x);
+  if (sets.length > 1){
+    s += '<div class="kitsetnav">';
+    for (const y of sets)
+      s += '<button class="' + (y.id === x.id ? 'on' : '') + '" data-act="kitsetpick" data-v="' + esc(y.id) +
+        '" aria-pressed="' + (y.id === x.id) + '">' + esc(y.n || 'Untitled setup') + '</button>';
+    s += '</div>';
+  }
+  s += '<div class="kitsetgo"><button class="btn" data-act="kitouting" data-v="' + esc(x.id) + '">' +
+    ti('mountain') + 'Use on an outing</button></div>';
+  s += '<div class="kithead"><h3>Inside this setup</h3>' +
+    '<button class="linkbtn" data-act="kitsetitems" data-v="' + esc(x.id) + '">Edit items</button></div>';
+  const items = kitSetItems(x);
+  if (!items.length)
+    s += '<p class="pdfine" style="padding:0 12px">Nothing in it yet. <b>Edit items</b> to put your kit in.</p>';
+  else s += kitSetBodyHTML(items);
+  s += '<p class="kitfoot">One bit of kit can be in as many setups as you like. ' +
+    'Its photos, price and hills stay with the item.</p>';
+  return s;
+}
+
+/* INSIDE A SETUP: the photographed kit big, the rest as rows.
+   The brief, and it is right: a wall of oversized empty tiles is what the
+   last attempt got wrong. A photograph earns a big card; a category icon
+   does not. */
+function kitSetBodyHTML(items){
+  const shot = items.filter(g => g.img), plain = items.filter(g => !g.img);
+  let s = '';
+  if (shot.length) s += '<div class="kitgrid">' + shot.map(kitCardHTML).join('') + '</div>';
+  if (plain.length) s += '<div class="kitrows">' + plain.map(kitRowHTML).join('') + '</div>';
+  return s;
+}
+/* ---- CUSTOMISING A SETUP ----
+   Name, what it is for, a symbol, a colour, and which of your kit is in
+   it. Editing any of this changes the template and nothing else: the walks
+   already logged keep what they were logged with. */
+function kitSetEditHTML(x){
+  const mine = kitMine().filter(g => !g.off);
+  const c = kitSetCol(x);
+  let s = '<section class="kitedit">' +
+    '<button class="backbtn" data-act="kitsetclose">&larr; Your setups</button>' +
+    '<h2 class="kiteditt">' + (x.n ? 'Make it yours' : 'Name your setup') + '</h2>' +
+    '<label class="kitf"><span>Name</span>' +
+      '<input id="kitsetn" type="text" maxlength="40" value="' + esc(x.n || '') +
+      '" placeholder="Wild camping" autocomplete="off"></label>' +
+    '<label class="kitf"><span>What it is for</span>' +
+      '<input id="kitsets" type="text" maxlength="60" value="' + esc(x.season || '') +
+      '" placeholder="Three-season" autocomplete="off"></label>' +
+    '<div class="kitf"><span>Symbol</span><div class="kiticons">';
+  for (const i of KIT_ICONS)
+    s += '<button class="kiticonb' + (kitSetIcon(x) === i ? ' on' : '') + '" data-act="kitseticon" ' +
+      'data-s="' + esc(x.id) + '" data-v="' + i + '" aria-pressed="' + (kitSetIcon(x) === i) +
+      '" aria-label="' + i.replace(/-/g, ' ') + '">' + ti(i) + '</button>';
+  s += '</div></div><div class="kitf"><span>Cover colour</span><div class="kitcols">';
+  for (const k of KIT_COLS)
+    s += '<button class="kitcolb' + (c.id === k.id ? ' on' : '') + '" style="--kc:' + k.hex + '" ' +
+      'data-act="kitsetcol" data-s="' + esc(x.id) + '" data-v="' + k.id + '" aria-pressed="' + (c.id === k.id) +
+      '" aria-label="' + k.label + '"><i></i>' + k.label + '</button>';
+  s += '</div></div>';
+  s += '<div class="kithead"><h3>Which kit is in it</h3><span class="kitmuted">' +
+    kitSetItems(x).length + ' of ' + mine.length + '</span></div>';
+  s += '<div class="kitrows">';
+  for (const g of mine){
+    const on = x.items.indexOf(g.id) >= 0;
+    s += '<label class="kitrow kitcheck' + (on ? ' on' : '') + '">' +
+      '<span class="kitrowi">' + (g.img ? '<img src="' + esc(g.img) + '" alt="">' : ti(kitCat(g).icon)) + '</span>' +
+      '<span class="kitrown"><b>' + esc(kitName(g)) + '</b><small>' + esc(kitCat(g).label) +
+        (+g.wt > 0 ? ' · ' + g.wt + ' g' : '') + '</small></span>' +
+      '<input type="checkbox" data-act="kitsetitem" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '"' +
+        (on ? ' checked' : '') + ' aria-label="' + esc(kitName(g)) + ' in this setup"></label>';
+  }
+  s += '</div>';
+  s += '<div class="kiteditacts">' +
+    '<button class="chip' + (x.def ? ' on' : '') + '" data-act="kitsetdef" data-v="' + esc(x.id) + '" aria-pressed="' +
+      !!x.def + '">' + (x.def ? 'Your usual setup' : 'Make it my usual') + '</button>' +
+    '<button class="chip" data-act="kitsetdupe" data-v="' + esc(x.id) + '">Duplicate</button>' +
+    '<button class="chip" data-act="kitsetdel" data-v="' + esc(x.id) + '">Delete setup</button></div>' +
+    (x.def && x.defFrom
+      ? '<p class="kitfoot">Counts on hills walked from ' + esc(prettyDate(x.defFrom)) +
+        '. Hills before that keep the kit they already have.</p>'
+      : '<p class="kitfoot">Changing a setup never changes a walk you have already logged.</p>');
+  return s + '</section>';
+}
+
+/* ---- USING A SETUP ON AN OUTING ----
+   A draft, not a write. You pick the day, you untick what you left at
+   home, and nothing touches your log until you say so. */
+function kitOutingHTML(){
+  const d = ui.kitOuting; if (!d) return '';
+  const x = kitSetById(d.set);
+  const days = kitOutingDays();
+  let s = '<section class="kitedit">' +
+    '<button class="backbtn" data-act="kitsetclose">&larr; Your setups</button>';
+  if (!d.date){
+    s += '<h2 class="kiteditt">Which walk?</h2>';
+    if (!days.length) return s + '<p class="pdfine">Mark a hill first and it will be here.</p></section>';
+    s += '<div class="kitrows">';
+    for (const y of days)
+      s += '<button class="kitrow" data-act="kitoutday" data-v="' + esc(y.date) + '">' +
+        '<span class="kitrowi">' + ti('calendar') + '</span>' +
+        '<span class="kitrown"><b>' + esc(prettyDate(y.date)) + '</b><small>' +
+          esc(y.names.slice(0, 2).join(', ')) + (y.n > 2 ? ' and ' + (y.n - 2) + ' more' : '') + '</small></span>' +
+        '<span class="kitrowe"><b>' + y.n + '</b><small>' + (y.n === 1 ? 'hill' : 'hills') + '</small></span>' +
+        '</button>';
+    return s + '</div></section>';
+  }
+  const day = days.find(y => y.date === d.date) || {n:0, names:[]};
+  const took = d.on.length, left = d.all.length - took;
+  s += '<div class="kittrip"><span class="kitcovertop">Kit for this walk</span>' +
+    '<b>' + esc(day.names.join(', ') || prettyDate(d.date)) + '</b>' +
+    '<span class="kitmuted">' + esc(prettyDate(d.date)) + ' · ' +
+      day.n + (day.n === 1 ? ' hill' : ' hills') + '</span></div>' +
+    '<div class="kitfrom"><span>From <b>' + esc(x ? (x.n || 'setup') : 'your usual kit') + '</b></span>' +
+      '<button class="linkbtn" data-act="kitoutswap">Change setup</button></div>' +
+    '<p class="kitnote">Untick anything you left behind. Your saved setup stays exactly as it is.</p>' +
+    '<div class="kitcount"><b>' + took + ' taken</b><span>' + left + ' left behind</span>' +
+      (() => { const w = d.all.filter(i => d.on.indexOf(i) >= 0)
+                 .map(kitById).filter(g => g && +g.wt > 0);
+        return w.length ? '<span>' + esc(kitKg(w.reduce((a, g) => a + (+g.wt || 0), 0))) +
+          (w.length === took ? '' : ' over ' + w.length + ' of ' + took) + '</span>' : ''; })() +
+    '</div><div class="kitrows">';
+  for (const id of d.all){
+    const g = kitById(id); if (!g) continue;
+    const on = d.on.indexOf(id) >= 0;
+    s += '<label class="kitrow kitcheck' + (on ? ' on' : '') + '">' +
+      '<span class="kitrowi">' + (g.img ? '<img src="' + esc(g.img) + '" alt="">' : ti(kitCat(g).icon)) + '</span>' +
+      '<span class="kitrown"><b>' + esc(kitName(g)) + '</b><small>' + esc(kitCat(g).label) +
+        (+g.wt > 0 ? ' · ' + g.wt + ' g' : '') + '</small></span>' +
+      '<input type="checkbox" data-act="kitouttick" data-v="' + esc(id) + '"' + (on ? ' checked' : '') +
+        ' aria-label="' + esc(kitName(g)) + ' taken"></label>';
+  }
+  s += '</div>';
+  const rest = kitMine().filter(g => !g.off && d.all.indexOf(g.id) < 0);
+  if (rest.length)
+    s += '<details class="kitextra"><summary>+ Add something else for this walk</summary><div class="kitrows">' +
+      rest.map(g => '<button class="kitrow" data-act="kitoutadd" data-v="' + esc(g.id) + '">' +
+        '<span class="kitrowi">' + (g.img ? '<img src="' + esc(g.img) + '" alt="">' : ti(kitCat(g).icon)) + '</span>' +
+        '<span class="kitrown"><b>' + esc(kitName(g)) + '</b><small>' + esc(kitCat(g).label) + '</small></span>' +
+        '<span class="kitrowe">' + ti('plus') + '</span></button>').join('') +
+      '</div></details>';
+  s += '<p class="kitfoot">Saved against each hill of this walk, so a hill you change later stays yours to change.</p>' +
+    '<div class="kitsetgo"><button class="btn" data-act="kitoutsave">Save this kit to the walk</button></div>';
+  return s + '</section>';
+}
+/* the walking days you could put a setup on: every date you have marked
+   something, newest first */
+function kitOutingDays(){
+  const by = new Map();
+  for (const [k, r] of Object.entries(state.bagged || {})){
+    if (!r || !isBagged(k) || !r.date) continue;
+    const h = BY_KEY[k]; if (!h) continue;
+    const e = by.get(r.date) || {date:r.date, keys:[], names:[], n:0};
+    e.keys.push(k); e.names.push(hillName(h)); e.n++;
+    by.set(r.date, e);
+  }
+  return [...by.values()].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 40);
+}
+
+/* a bit of kit with no photograph: a row, not a blank square */
+function kitRowHTML(g){
+  const n = kitHills(g.id).length, m = kitPer(g);
+  return '<button class="kitrow" data-act="gearopen" data-v="' + esc(g.id) + '">' +
+    '<span class="kitrowi">' + (g.img ? '<img src="' + esc(g.img) + '" alt="">' : ti(kitCat(g).icon)) + '</span>' +
+    '<span class="kitrown"><b>' + esc(kitName(g)) + '</b>' +
+      '<small>' + esc(kitCat(g).label) + (+g.wt > 0 ? ' · ' + g.wt + ' g' : '') + '</small></span>' +
+    '<span class="kitrowe">' + (m && m.per
+      ? '<b>' + gbp(m.per) + '</b><small>a summit</small>'
+      : '<b>' + n + '</b><small>' + (n === 1 ? 'hill' : 'hills') + '</small>') + '</span>' +
+    '</button>';
 }
 
 /* ONE BIT OF KIT — what it has done, which is the whole reason it exists.
@@ -41245,6 +41983,14 @@ function gearEditPaint(){
         'value="' + esc(kitPaidStr(g)) + '" placeholder="149"></label>' +
       '<p class="kitfine">Every hill you mark brings the cost per summit down. ' +
         'Only you ever see this.</p>' +
+      /* WEIGHT, AND ONLY IF YOU WANT IT. Left blank it is absent, and a
+         setup's total then says how many of its pieces it could actually
+         add up rather than quietly pretending the rest weigh nothing. */
+      '<label>Weight<span class="kitquid">g</span>' +
+        '<input id="gkw" class="haspre" type="text" inputmode="numeric" maxlength="5" ' +
+        'value="' + (+g.wt > 0 ? String(g.wt) : '') + '" placeholder="1450"></label>' +
+      '<p class="kitfine">Only if you fancy it. A setup adds up the pieces ' +
+        'you have weighed and says how many that was.</p>' +
       '<label>Notes<textarea id="gkx" rows="3" maxlength="400" placeholder="Resoled in April. The left one rubs on a long descent.">' + esc(g.note || '') + '</textarea></label>' +
       '<label class="kitck"><input type="checkbox" id="gku"' + (g.usual === false ? '' : ' checked') + '>' +
         'In my usual kit — goes on every hill I mark</label>' +
@@ -41295,6 +42041,12 @@ function gearSheetSave(id){
      silently storing NaN, which is how gbp() printed "\u00a3NaN" once before. */
   g.paid = kitParsePaid(v('gkp'));
   if (!g.paid) delete g.paid;
+  /* grams, whole numbers, and blank means blank. Anything that is not a
+     number clears it rather than storing NaN — the same lesson the price
+     field learned when gbp() printed "£NaN". */
+  const wt = parseInt(String(v('gkw') || '').replace(/[^0-9]/g, ''), 10);
+  g.wt = (isFinite(wt) && wt > 0) ? Math.min(wt, 99999) : 0;
+  if (!g.wt) delete g.wt;
   g.rshop = String(v('gkrs') || '').trim().slice(0, 60);
   g.rord  = String(v('gkro') || '').trim().slice(0, 40);
   if (!g.rshop) delete g.rshop;
