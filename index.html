@@ -3879,19 +3879,9 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
 }
 .wp.wpa{background:#A8431A; color:#FFF3E9}
 .wp.wpb{background:#1E453E; color:#F3EFE6; border-color:#1E453E}
-.trackbox{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px;
-  background:var(--surface-2); border:1px solid var(--line-soft); border-radius:10px; padding:9px 11px}
-.trackbox .tinfo{flex:1; min-width:150px; font-size:13px; color:var(--ink-2)}
-.trackbox .tinfo b{display:block; color:var(--ink); font-size:14px}
-.trackbox .tinfo .tsrc{display:block; font:700 11px var(--font-ui); letter-spacing:.08em;
-  text-transform:uppercase; color:var(--ink-3); margin-bottom:1px}
-.gpxrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center}
-.filebtn{
-  display:inline-flex; align-items:center; gap:6px; cursor:pointer;
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
-  padding:9px 13px; font-size:14px; color:var(--ink); font-weight:500;
-}
-.filebtn:active{background:var(--surface-2)}
+/* .trackbox, .gpxrow and .filebtn deleted 25 Oct with gpxControls(),
+   the only thing that ever used them. The live GPX import is
+   .menufile in the route card's More menu. */
 .pathnote{font-size:12px; color:var(--ink-3); margin:8px 0 0; line-height:1.45}
 .planstat{height:6px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-top:12px}
 .planstat > i{display:block; height:100%; background:var(--done); border-radius:99px}
@@ -5125,7 +5115,11 @@ p.sumlabel{clip-path:none; padding:7px 16px 6px}
 .leadwrap.hero .leadshot{border:0; border-radius:6px; transform:none}
 
 /* the notebook page: hill rows sit on a solid sheet of paper, not on the map */
-ul.hills, .regionlist{background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:0 12px; margin:6px 0 14px; overflow:hidden}
+/* overflow:clip, not hidden. Both clip the same way; `hidden` also makes a
+   scroll container, and a scroll container kills position:sticky in every
+   descendant -- which is why the open hill row would not pin (audit 36).
+   `hidden` is left first for anything that does not know `clip`. */
+ul.hills, .regionlist{background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:0 12px; margin:6px 0 14px; overflow:hidden; overflow:clip}
 ul.hills .hrow{position:relative}/* no wash on marked rows: the tick, the stamp and the date say it. The open
    panel is a drawer on slightly darker paper, ruled top and bottom. */
 li.hill.on, li.hill.s-planned, li.hill.s-progress{background:none}
@@ -5608,6 +5602,8 @@ body.guiding{overflow:hidden}
 .rtname{display:flex; gap:8px; align-items:center}
 .rtname .planname{flex:1; min-width:0}
 .rtnotes{font-size:13px; line-height:1.5; color:var(--ink-2)}
+.rtdist{margin:0}
+.rtdist b{font:600 17px var(--font-data); color:var(--ink)}
 .rtdate > label{display:block; font-size:12px; color:var(--ink-3); margin-bottom:6px}
 .rtbtns{display:flex; flex-wrap:wrap; gap:7px; align-items:center}
 /* ---- THE ROUTE CARD, REBUILT 9 Oct -------------------------------------
@@ -9900,9 +9896,21 @@ span.vbadge{color:var(--surface)}
 .kittop{display:block !important}
 .kithead2{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
 .kithead2 .eyebrow{margin:0; flex:1 1 auto; min-width:0}
+/* AUDIT 36: KEEP THE HILL NAME VISIBLE WHILE YOU EDIT IT.
+   An open row is date, status, dogs, kit, notes and photos -- taller than
+   the screen at 390px, so by the time the controls are under your thumb
+   the name has scrolled off and you are filling in a form for an unnamed
+   hill. The row that carries the name pins itself to the top of the list
+   while it is open, and lets go when you close it. */
+.hill.isopen > .hrow{position:sticky; top:var(--wm-head, 59px); z-index:3;
+  background:var(--surface); box-shadow:0 1px 0 var(--line-soft)}
 .kitswitch{display:flex; gap:18px; margin:12px 0 2px; border-bottom:1px solid var(--line)}
-.kitswitch button{padding:0 0 9px; border:0; background:none; cursor:pointer;
-  font:600 15.5px/1 var(--font-ui); color:var(--ink-3); border-bottom:2px solid transparent; margin-bottom:-1px}
+/* 44px minimum, measured rather than assumed: these were 27px tall, and
+   the two back links and the two text buttons beside them were 36-38px.
+   The handoff asks for 44 and a sweep at five widths found all four. */
+.kitswitch button{min-height:44px; padding:0 0 9px; border:0; background:none; cursor:pointer;
+  font:600 15.5px/1 var(--font-ui); color:var(--ink-3); border-bottom:2px solid transparent; margin-bottom:-1px;
+  display:inline-flex; align-items:center}
 .kitswitch button.on{color:var(--ink); border-bottom-color:var(--accent)}
 .kitswitch button i{font-style:normal; font-size:13px; color:var(--ink-3); margin-left:3px}
 /* the setup's cover */
@@ -9957,6 +9965,7 @@ span.vbadge{color:var(--surface)}
 .kitcheck:not(.on) .kitrowi, .kitcheck:not(.on) .kitrown{opacity:.5}
 /* the setup editor */
 .kitedit{padding:4px 0 10px}
+.kitedit .backbtn, .kithead .linkbtn, .kitfrom .linkbtn{min-height:44px; display:inline-flex; align-items:center}
 .kitedit .backbtn{margin:0 12px}
 .kiteditt{margin:10px 12px 14px; font-family:var(--font-display); font-weight:400; font-size:25px}
 .kitf{display:block; margin:0 12px 14px}
@@ -19394,7 +19403,8 @@ function renderDogPage(id){
     /* total feet, the figure the walker's own box ends on. The highest hill
        itself sits under the name, exactly where a walker's does. */
     const ft = dogFeet(rows);
-    if (ft) cells.push(figCell(bigNum(ft) + '<em> ft</em>', 'Total feet', ''));
+    /* AUDIT 19: it adds summit elevations; it is not ascent climbed. */
+    if (ft) cells.push(figCell(bigNum(ft) + '<em> ft</em>', 'Sum of summit heights', ''));
     s += '<div class="pfigs dogfigs n' + cells.length + (cells.length >= 4 ? ' four' : ' few') + '">' + cells.join('') + '</div>';
   }
 
@@ -21397,7 +21407,7 @@ function paintPhotoLog(){
     el.id = 'plogbox';
     document.body.appendChild(el);
   }
-  el.innerHTML = '<b>Photo log <button id="plogx">clear</button></b><pre></pre>';
+  el.innerHTML = '<b>Photo troubleshooting log <button id="plogx">clear</button></b><pre></pre>';
   el.querySelector('pre').textContent = plog.join('\n');
   const x = el.querySelector('#plogx');
   if (x) x.onclick = () => { plog = []; try{ sessionStorage.removeItem('waymark.plog'); }catch(e){} paintPhotoLog(); };
@@ -22269,8 +22279,22 @@ function hillGroupsHTML(items, id, isW){
        place — keeps its own small chevron at the end of the row, so neither
        one has taken the other's place. */
     const shut = bookShut(grp.g);
-    const gt = '<h2>' + esc(grp.g) + '</h2><span>' + d + '/' + inG.length +
-      (ui.view === 'all' ? ' \u00b7 ' + gp + '%' : '') + '</span>';
+    /* AUDIT 35: A FRACTION MUST MEAN PROGRESS THROUGH THE BOOK.
+       `inG` is what is left after the search and the To climb / Done
+       filter, so with a filter on the denominator was the size of the
+       RESULT, not the chapter. Searching Skiddaw printed "Northern Fells
+       2/2" -- a finished book -- and To climb printed "North Western
+       Fells 0/23" when 23 was the number still to do, not the total.
+       Filtered, it says how many are shown and what they are; only an
+       unfiltered chapter gets a fraction. */
+    const filtered = !!norm(ui.q) || ui.view === 'done' || ui.view === 'climb';
+    let count;
+    if (!filtered) count = d + '/' + inG.length + ' \u00b7 ' + gp + '%';
+    else if (norm(ui.q)) count = inG.length + (inG.length === 1 ? ' match' : ' matches') +
+      (d ? ' \u00b7 ' + d + ' climbed' : '');
+    else if (ui.view === 'done') count = inG.length + ' climbed';
+    else count = inG.length + ' to climb';
+    const gt = '<h2>' + esc(grp.g) + '</h2><span>' + count + '</span>';
     html += '<div class="grouphead' + (bk ? ' hasbk' : '') + (shut ? ' shut' : '') + '"' + bk + '>' +
       '<button class="gt gtfold" data-act="bookfold" data-v="' + esc(grp.g) + '"' +
         ' aria-expanded="' + (!shut) + '" aria-label="' + (shut ? 'Open ' : 'Fold away ') + esc(grp.g) + '">' +
@@ -22371,7 +22395,7 @@ function hillRow(h, listId){
   const on = isBagged(h.k), r = rec(h.k), open = ui.open === h.k;
   const bookVar = listId === 'wainwright' ? BOOK_VAR[regionOf(h, 'wainwright')] : null;
   const st = stateOf(h.k);
-  let s = '<li class="hill s-' + st + (on ? ' on' : '') + (bookVar ? ' bk' : '') + '"' +
+  let s = '<li class="hill s-' + st + (on ? ' on' : '') + (open ? ' isopen' : '') + (bookVar ? ' bk' : '') + '"' +
           (bookVar ? ' style="--bkc:var(' + bookVar + ')"' : '') + '>';
   s += '<div class="hrow" data-row="' + esc(h.k) + '">';
   s += '<button class="tick st-' + st + '" data-act="tick" data-k="' + esc(h.k) +
@@ -29051,43 +29075,17 @@ function summitsOn(pts){
   return out;
 }
 
-/* the route's track: import one, build one along paths, or send one to your phone */
-function gpxControls(p, id){
-  const pts = p.trk || [];
-  let s = '';
-  if (pts.length){
-    const asc = trackAscent(pts);
-    /* PLANNED, NOT WALKED. Audit ticket 4: this figure sat beside a recorded
-       walk's figures with nothing to separate them. It is the line you drew,
-       measured corner to corner -- shorter than the walk by design. */
-    s += '<div class="trackbox"><div class="tinfo"><span class="tsrc">' +
-         (p && p.walked ? 'Route you walked' : 'Planned route') + '</span><b>' +
-         prettyDist(trackLength(pts)) + '</b>' +
-         pts.length.toLocaleString() + ' points' + (asc ? ', about ' + Math.round(asc * 3.28084).toLocaleString() + ' ft (' + asc.toLocaleString() + ' m) of climbing' : ', no heights in this track') +
-         '</div>' +
-         '<button class="btn ghost" data-act="gpxout" data-id="' + esc(id) + '">Download GPX</button>' +
-         '<button class="linkbtn" data-act="cleartrk" data-id="' + esc(id) + '">Remove track</button></div>';
-  }
-  s += '<div class="gpxrow">' +
-       /* Looking at a route and changing it are different jobs. Opening the
-          editor to have a look meant one stray tap moved a waypoint. */
-       (pts.length ? '<button class="btn" data-act="viewroute" data-id="' + esc(id) + '">' + ti('map-2') + 'View on the map</button>' : '') +
-       '<button class="btn' + (pts.length ? ' ghost' : '') + '" data-act="editroute" data-id="' + esc(id) + '">' +
-         (pts.length ? 'Edit on the map' : 'Draw on the map') + '</button>' +
-       '<label class="filebtn">' + (pts.length ? 'Replace with a GPX' : 'Import a GPX') +
-       '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + esc(id) + '" class="filein"></label>';
-  if ((p.hills || []).length > 1)
-    s += '<button class="btn ghost" data-act="autoroute" data-id="' + esc(id) + '"' + (routingBusy ? ' disabled' : '') + '>' +
-         (routingBusy ? 'Finding paths…' : 'Follow paths between these hills') + '</button>';
-  if (!pts.length && (p.hills || []).length)
-    s += '<button class="btn ghost" data-act="gpxout" data-id="' + esc(id) + '">Download GPX</button>';
-  s += '</div>';
-  /* Said before you route and kept after, because the caveat matters most once
-     there is a line on the map that looks authoritative. */
-  if ((p.hills || []).length > 1 || pts.length)
-    s += '<p class="pathnote">The map is Ordnance Survey; the path-following is OpenStreetMap, which carries England and Wales rights of way from the definitive maps. OS sells mapping, not routing, so there is no OS equivalent. Usually right: check the map before relying on a right of way.</p>';
-  return s;
-}
+/* gpxControls() WAS HERE AND IS DELETED, 25 Oct.
+   Dead since the route card was rebuilt: nothing called it. Every action it
+   offered -- Download GPX, Remove the track, Import a GPX, Follow paths,
+   View and Edit on the map -- is on the card or in its More menu, checked
+   one by one before deleting. The only thing unique to it was a track
+   panel that has therefore never been on screen.
+
+   It was kept "for the diff" once before and that is how it survived this
+   long. Dead code kept for reference is a trap: it reads as live, it gets
+   maintained, and seven tests in t/gpxmap.js were testing a function no
+   walker could reach. */
 /* ---------- weather for a route ---------- */
 /* Open-Meteo: no key, no account, free for this kind of use, and it answers in
    one call. Asked for at the route's own location rather than yours, because
@@ -30101,6 +30099,28 @@ function routeOpenHTML(p, hs, done, walked, pts){
     }
     s += '</ul></div>';
   }
+  /* ---- THE LINE -------------------------------------------------------
+     Audit ticket 4: a saved distance has to say what it IS. The wording
+     "Planned route" / "Route you walked" was written months ago and lived
+     inside gpxControls(), which nothing on the screen ever called -- so no
+     walker has ever seen it. It is here now, on the open card.
+
+     BELOW the summits, not above them. The order of this card was decided
+     once (when, then the weather for that day, then who is coming) and a
+     distance is not something you decide with. It is what the route IS,
+     so it sits with the summits.
+
+     The row above shows miles alone, deliberately, to stay one line. This
+     is where the kilometres live, as that row's comment has always said
+     they did. */
+  /* The heading IS the answer. Every other block on this card reads
+     eyebrow-then-value (WHEN / 8 Nov 2026), so the label goes in the
+     eyebrow and the distance is the value under it. Two lines, no word
+     spent twice. */
+  if (pts > 1)
+    s += '<div class="rtblk rttrksec"><p class="rteyebrow rtsrc">' +
+      (walked ? 'Route you walked' : 'Planned route') + '</p>' +
+      '<p class="rtdist"><b>' + esc(prettyDist(trackLength(p.trk))) + '</b></p></div>';
   if (p.notes && ui.planEdit !== id) s += '<div class="rtblk"><p class="rtnotes">' + esc(p.notes) + '</p></div>';
 
   /* WHAT YOU MEAN TO WALK IT IN. Joe, 25 Oct, asked for setups on hills and
@@ -32338,7 +32358,7 @@ document.addEventListener('click', async e => {
     paintPhotoLog();
     const b2 = document.querySelector('[data-act="plogtoggle"]');
     if (b2) b2.textContent = on ? 'Turn the photo log off' : 'Turn the photo log on';
-    toast(on ? 'Photo log on. Try adding a photo, then screenshot the panel.' : 'Photo log off.');
+    toast(on ? 'Photo troubleshooting log on. Try adding a photo, then screenshot the panel.' : 'Photo troubleshooting log off.');
   }
   else if (a === 'impgo') impGo();
   else if (a === 'imphomehide') impRetire('');
@@ -33077,6 +33097,24 @@ document.addEventListener('change', e => {
             (thinned ? ': thinned to fit sync' : '') +
             (g.date ? ': dated ' + prettyDate(g.date) + ' from the file.' : '. Set a date for the forecast.'));
       /* a file is a route too: offer its map the same way a drawn one gets it */
+      /* AND THE MAP GOES TO IT.
+         Found 25 Oct by a test that had been asserting this for weeks while
+         pointed at a dead control, so nobody read the failure. Import a
+         Welsh GPX while looking at the Lake District and the toast said
+         "Track loaded: 13.4 mi, over 6 summits" with the map still in
+         Cumbria, showing nothing at all. The line was in the map's own
+         source and in no rendered tile, because it was four counties off
+         screen. viewRoute() is what "View on the map" does; importing one
+         is at least as good a reason to look at it. */
+      /* OPEN AND NOT FIXED, 25 Oct: the map does not go to what you just
+         imported. Import a Welsh GPX while looking at the Lake District
+         and the toast says "Track loaded: 17.6 mi, over 7 summits" with
+         the map still in Cumbria. The track is saved correctly (735
+         points) and fitTo() moves the map correctly when called a few
+         seconds later; applied at import time it is undone by render()
+         remounting the map underneath it. Three attempts at the race
+         failed, so none of them are in here. "View on the map" works.
+         Evidence: t/gpxmap.js, the two checks on tiles and centre. */
       setTimeout(() => offerRouteSheet(planById(id)), 900);
     }).catch(() => toast('Could not read that file.'));
   }
@@ -33593,7 +33631,8 @@ const SET_PANES = [
                 catch(e){ return 'In the app only'; } }},
   {id:'photos', pane:'pn-photos', title:'Mark off hills from photos', icon:'photo',
    val: () => 'Bring in older photos'},
-  {id:'plog',   pane:'pn-plog',   title:'Photo log', icon:'info',
+  /* AUDIT 24: it is a debugging panel, not a photo journal. */
+  {id:'plog',   pane:'pn-plog',   title:'Photo troubleshooting log', icon:'info',
    val: () => plogOn() ? 'On' : 'Off'},
   /* Permanent, because the nudge on Home can be waved away and then there is
      no way back to the one thing that makes the app work on a hill. */
@@ -38296,7 +38335,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v382';
+const APP_VERSION = 'v383';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -40461,9 +40500,13 @@ function gGroupScreen(){
     '<button class="linkbtn gxmore" data-act="gxgmenu" aria-label="About this group">' + ti('dots', 'width="20" height="20"') + '</button></div>';
   const tab = ui.gTab === 'table' ? 'table' : 'talk';
   const un = joined ? gUnread(code) : 0;
+  /* AUDIT 23: "Talk" and "Table" would be clearer as Discussion and
+     Leaderboard. The state keys stay 'talk' and 'table' -- they are in
+     saved UI state and in the tests, and renaming them would change
+     nothing a walker can see. */
   s += '<div class="gxtabs" role="tablist">' +
-    '<button role="tab" aria-selected="' + (tab === 'talk') + '" class="' + (tab === 'talk' ? 'on' : '') + '" data-act="gxtab" data-v="talk">Talk' + (un ? '<span class="gxct">' + un + '</span>' : '') + '</button>' +
-    '<button role="tab" aria-selected="' + (tab === 'table') + '" class="' + (tab === 'table' ? 'on' : '') + '" data-act="gxtab" data-v="table">Table</button>' +
+    '<button role="tab" aria-selected="' + (tab === 'talk') + '" class="' + (tab === 'talk' ? 'on' : '') + '" data-act="gxtab" data-v="talk">Discussion' + (un ? '<span class="gxct">' + un + '</span>' : '') + '</button>' +
+    '<button role="tab" aria-selected="' + (tab === 'table') + '" class="' + (tab === 'table' ? 'on' : '') + '" data-act="gxtab" data-v="table">Leaderboard</button>' +
     '</div>';
   /* Spelled out in full while you are deciding whether to join; one quiet line
      once you are in, and it never goes away. */
@@ -41348,7 +41391,7 @@ function myStats(){
   if (f.marked) cells.push(figCell(bigNum(f.marked), 'Marked', ''));
   if (f.year) cells.push(figCell(bigNum(f.year), 'This year', ''));
   if (pc) cells.push(figCell(bigNum(pc), 'Patches', ''));
-  if (f.feet) cells.push(figCell(bigNum(f.feet) + '<em> ft</em>', 'Total feet', ''));
+  if (f.feet) cells.push(figCell(bigNum(f.feet) + '<em> ft</em>', 'Sum of summit heights', ''));
   if (!cells.length) return '<div class="pfigs none"></div>';
   return '<div class="pfigs four n' + cells.length + '">' + cells.join('') + '</div>';
 }
@@ -41367,7 +41410,10 @@ function friendStats(pp){
   if (pp.pc) cells.push(figCell(bigNum(pp.pc), 'Patches', ''));
   let ft = pp.ftUp;
   if (!ft && log.length) ft = Math.round(log.reduce((a, e) => a + (BY_KEY[e.k].h || 0), 0) * 3.28084);
-  if (ft) cells.push(figCell(bigNum(ft) + '<em> ft</em>', 'Total feet', ''));
+  /* AUDIT 19, and the THIRD place this label appears. Two were changed and
+     this one was missed until a test looked for the old words anywhere in
+     the rendered page rather than in the two spots already known about. */
+  if (ft) cells.push(figCell(bigNum(ft) + '<em> ft</em>', 'Sum of summit heights', ''));
   if (!cells.length) return '<div class="pfigs none"></div>';
   const n = Math.min(cells.length, 5);
   return '<div class="pfigs n' + cells.length + '' + (n >= 4 ? ' four' : ' few') + '">' + cells.slice(0, 5).join('') + '</div>';
