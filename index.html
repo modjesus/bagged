@@ -2753,6 +2753,92 @@ button.bstriprow{cursor:pointer}
 .cht-b{flex:1; min-width:0; font-size:14px}
 .cht-h{flex:none; font-family:var(--font-data); font-size:11px; color:var(--ink-3); font-variant-numeric:tabular-nums}
 /* the marks along the way */
+/* .calgrid, .calgo and .calvague deleted v387 with the squares they drew. */
+/* ---- YOUR YEAR TRAIL (v386) ----
+   Every value below is the approved reference's (waymark-year-trail-
+   refined.html, 28 Oct). Light mode reads the app's own tokens, which are
+   the same hexes; dark mode uses the reference's dark values exactly. */
+.ytrail{--yp:var(--surface); --yi:var(--ink); --ys:var(--ink-3); --yl:var(--line); --yr:var(--accent);
+  --yw:#a8431a0b; --yc:#a8431a16; --yk:var(--surface);
+  position:relative; isolation:isolate; overflow:hidden; margin:14px 0 6px;
+  background:var(--yp); color:var(--yi); border-top:4px solid var(--yr); border-radius:7px;
+  padding:18px 22px 10px; font:15px/1.4 var(--font-ui)}
+:root[data-theme="dark"] .ytrail{--yp:#14332d; --yi:#f3efe6; --ys:#b9d0c4; --yl:#48685b; --yr:#e6a181;
+  --yw:#e6a1810b; --yc:#e6a18118; --yk:#14332d}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .ytrail{--yp:#14332d; --yi:#f3efe6; --ys:#b9d0c4; --yl:#48685b; --yr:#e6a181;
+    --yw:#e6a1810b; --yc:#e6a18118; --yk:#14332d} }
+.ytrail *{box-sizing:border-box}
+.yt-terrain{position:absolute; right:0; top:-30px; width:210px; height:260px; z-index:-1; pointer-events:none; color:var(--yc)}
+.yt-terrain path{stroke:currentColor; stroke-width:1; fill:none}
+.yt-head{padding-bottom:10px; border-bottom:1px solid var(--yl)}
+.yt-top{display:flex; justify-content:space-between; align-items:center; gap:12px}
+.ytrail h3{font:31px/1.1 var(--font-display); margin:0; letter-spacing:-.3px; color:var(--yi)}
+.ytrail h3 em{font-style:normal; color:var(--yr)}
+.yt-count{margin:0; font:22px var(--font-data); color:var(--yr); white-space:nowrap}
+.yt-count span{font-size:13px; color:var(--ys)}
+.yt-intro{color:var(--ys); font-size:14px; margin:7px 0 0}
+.yt-trail{position:relative; height:188px; margin:13px -1px 0}
+.yt-route{position:absolute; inset:-9px 0 0; width:100%; height:100%; overflow:visible}
+.yt-route path{stroke:var(--yr); stroke-width:1.6; fill:none; vector-effect:non-scaling-stroke}
+.ytrail button{font:inherit; color:inherit; background:none; border:0; min-height:44px; margin:0; box-shadow:none}
+.yt-m{position:absolute; width:48px; height:52px; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  padding:0; font:12px var(--font-data) !important; cursor:pointer; -webkit-tap-highlight-color:transparent}
+.yt-node{width:22px; height:22px; border:1.5px solid var(--ys); border-radius:50%; background:var(--yp);
+  display:grid; place-items:center}
+.yt-node svg{width:13px; height:13px; stroke-width:2.5}
+.yt-m.marked .yt-node{background:var(--yr); border-color:var(--yr); color:var(--yk)}
+.yt-m[aria-pressed="true"]{color:var(--yr)}
+.yt-m[aria-pressed="true"] .yt-node{outline:2px solid var(--yi); outline-offset:4px}
+.yt-legend{display:flex; justify-content:flex-end; gap:12px; color:var(--ys); font-size:11px; margin:-3px 0 3px}
+.yt-legend span{display:flex; align-items:center; gap:4px}
+.yt-key{width:12px; height:12px; border:1.2px solid var(--ys); border-radius:50%; display:grid; place-items:center}
+.yt-key.on{background:var(--yr); border-color:var(--yr); color:var(--yk)}
+.yt-key svg{stroke-width:3}
+.yt-left{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin:0; padding:7px 0 11px;
+  border-bottom:1px solid var(--yl); font-size:13px}
+.yt-left strong{font-weight:600; color:var(--yr)}
+.yt-left span{font:11px var(--font-data); letter-spacing:.02em}
+.yt-detail{padding:13px 12px 14px; margin:0 0 10px; border-left:3px solid var(--yr); background:var(--yw)}
+.yt-date{display:flex; justify-content:space-between; gap:10px; color:var(--ys);
+  font:11px var(--font-data); margin:0 0 7px; letter-spacing:.04em}
+.yt-detail .yt-date span:first-child{color:var(--yr)}
+.ytrail .yt-hill{font:25px/1.14 var(--font-display); margin:0; overflow-wrap:anywhere; color:var(--yi)}
+.yt-hint{font-size:14px; color:var(--ys); margin:7px 0 0}
+.yt-all{border-top:1px solid var(--yl)}
+.yt-all summary{display:flex; align-items:center; justify-content:space-between; min-height:44px;
+  list-style:none; font-size:14px; cursor:pointer}
+.yt-all summary::-webkit-details-marker{display:none}
+.yt-all summary svg{width:16px; height:16px; flex:none}
+.yt-all[open] summary svg{transform:rotate(180deg)}
+.yt-rec{display:grid; grid-template-columns:32px minmax(0,1fr); gap:12px; padding:13px 0; border-top:1px solid var(--yl)}
+.yt-rec > span{font:11px var(--font-data); color:var(--ys); padding-top:5px}
+.yt-rec .yt-hill{font-size:20px}
+/* Four seasons: one row of four, so the trail is half the height, the
+   stops are wider for "Autumn", and the record column fits "Summer" */
+.yt-trail.seas1{height:96px}
+.yt-m.seas{width:64px}
+.yt-rec.seas{grid-template-columns:52px minmax(0,1fr)}
+.yt-rec small{display:block; color:var(--ys); font:11px var(--font-data); margin-top:5px}
+.yt-foot{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-top:5px; border-top:1px solid var(--yl);
+  color:var(--ys); font-size:13px}
+.yt-foot p{flex:1; min-width:160px; margin:0; font-size:12px; line-height:1.3}
+.ytrail .yt-foot button{padding:0; color:var(--yr); text-decoration:underline; text-underline-offset:4px;
+  font-weight:600; font-size:13px; white-space:nowrap; cursor:pointer}
+/* a phone narrower than 360px gets the reference's 320 padding */
+@media (max-width:359px){ .ytrail{padding-left:20px; padding-right:20px} }
+/* At 320 the section sits inside the page's own margins, so it is 28px
+   narrower than the reference's 320 frame and the heading broke onto two
+   lines. Sized off the section itself, not the screen. */
+.ytrail{container-type:inline-size}
+@container (max-width:300px){
+  .ytrail h3{font-size:28px}
+  .ytrail.seasons h3{font-size:24px}
+  .yt-count{font-size:20px}
+  .yt-left{gap:7px}
+  .yt-left span{letter-spacing:0}
+}
 .chmarks{list-style:none; margin:0 0 14px; padding:0 12px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
 .chmarks li{display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--line-soft); color:var(--ink-3)}
 .chmarks li:first-child{border-top:0}
@@ -2874,6 +2960,7 @@ button.bstriprow{cursor:pointer}
 .ndtop{display:flex; align-items:center; gap:10px; min-height:30px}
 .ndbot{display:flex; align-items:center; gap:8px; margin-top:8px}
 .ndrow .ndn{flex:1; min-width:0; font-family:var(--font-display); font-weight:500; font-size:15.5px; color:var(--ink)}
+.ndrow .ndyr{display:block; margin-top:2px; font:500 11px var(--font-data); letter-spacing:.03em; color:var(--ink-3)}
 .ndrow .ndsub{
   flex:none; font-family:var(--font-data); font-size:11px; letter-spacing:.04em;
   color:var(--ink-3);
@@ -14043,7 +14130,13 @@ const RIDGE = '<svg class="ridge" viewBox="0 0 1200 150" preserveAspectRatio="xM
 const ICON_BOX = 'width="24" height="24"';
 const PATCH_ICONS = {
   summit: ti('mountain', ICON_BOX), book: ti('book-2', ICON_BOX), list: ti('list-check', ICON_BOX),
-  star: ti('star', ICON_BOX), boot: ti('shoe', ICON_BOX)
+  star: ti('star', ICON_BOX), boot: ti('shoe', ICON_BOX),
+  /* v383. The badge glyph is a SEPARATE set from the interface icons, and a
+     patch whose icon is missing from it draws an empty disc -- which is what
+     the two time patches did until this line, because on the small discs the
+     glyph is all there is (.disc.tiny hides the words). A new patch needs its
+     glyph added here as well as its icon chosen. */
+  calendar: ti('calendar', ICON_BOX)
 };
 
 const BOOK_SLUG = {
@@ -14144,6 +14237,88 @@ function peakArt(h){
   return 'peak-' + n.normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
 }
+/* ---- THROUGH THE YEAR -----------------------------------------------
+   Joe, 27 Oct: "look at time based challenge patches. a hike in each
+   month etc."
+
+   Two of them, and they need no new data: every marked hill already
+   carries a date. What they DO need is care about which dates can be
+   used. A date in this app is allowed to be a year on its own, or a year
+   and a month, or a full date -- the day is optional and always has been,
+   because people backdate old walks they only half remember.
+
+   So: a mark dated 2019 alone cannot fill a month, and the patch says so
+   rather than quietly ignoring it. A mark dated 2019-04 fills April. The
+   day is never needed by either of these two, which is the reason this
+   pair was chosen over anything that turns on an exact date.
+
+   Any year counts, and any order. Joe chose that: twelve Januaries over
+   twelve years is still twelve Januaries, and telling somebody their 2017
+   walks do not count would be a lie about their own log. */
+function monthsWalked(){
+  const on = new Set(), first = {}; let latest = null;
+  for (const h of HILLS){
+    if (!isBagged(h.k)) continue;
+    /* EVERY ascent, not the record's `date`. Break-UI audit, 27 Oct:
+       addAscent() sets `date` to the LATEST ascent, so somebody who walked
+       Pen y Fan in each month of 2025 filled December and nothing else --
+       1 of 12 for the walker this patch exists for. ascents() is the list
+       the rest of the app already uses for repeat walks. */
+    for (const d of ascents(h.k)){
+      const p = dateParts(d);
+      const m = Number(p.mo);
+      /* a month outside 1-12 (an old import wrote "2024-13-02") is no
+         month at all: noMonthKeys() counts it, rather than it going
+         silently away */
+      if (!p.y || !(m >= 1 && m <= 12)) continue;
+      on.add(m);
+      /* the EARLIEST walk that filled this month, so the trail can name it */
+      if (!first[m] || d < first[m].date) first[m] = {date: d, h};
+      /* and the most recent walk of all, which is the month the year
+         trail opens on */
+      if (!latest || d > latest.date) latest = {date: d, m};
+    }
+  }
+  return {on, first, latest};
+}
+/* The hills that cannot fill a month: marked, but no ascent carries a real
+   month (no date, a year on its own, or a month that does not exist).
+   Tallest first, like the no-date sheet, because that is the one most
+   likely to be remembered. This is exactly the list "Add months" opens. */
+function noMonthKeys(){
+  const skip = ndIgnored(), out = [];
+  for (const h of HILLS){
+    if (!isBagged(h.k) || skip.has(h.k)) continue;
+    const ok = ascents(h.k).some(d => {
+      const p = dateParts(d), m = Number(p.mo);
+      return p.y && m >= 1 && m <= 12;
+    });
+    if (!ok) out.push(h.k);
+  }
+  return out.sort((a, b) => BY_KEY[b].h - BY_KEY[a].h);
+}
+/* Meteorological seasons, which is what a walker means by winter: winter
+   is December, January, February, not the 21st of December onwards. */
+const SEASONS = [
+  {id:'spr', n:'Spring', s:'SPR', mo:[3,4,5]},
+  {id:'sum', n:'Summer', s:'SUM', mo:[6,7,8]},
+  {id:'aut', n:'Autumn', s:'AUT', mo:[9,10,11]},
+  {id:'win', n:'Winter', s:'WIN', mo:[12,1,2]}
+];
+const seasonsWalked = on => SEASONS.filter(s => s.mo.some(m => on.has(m)));
+/* the sentence under the grid: what is left, named, because "6 of 12"
+   does not tell anybody which boots to put on in February */
+/* Names arrive already in the case they belong in: months keep their
+   capital, seasons are lowercase. The first version lowercased whichever
+   name was last, which printed "One to go: december." on Home. */
+function toGoLine(names){
+  if (!names.length) return '';
+  if (names.length === 1) return 'One to go: ' + names[0] + '.';
+  const n = names.length === 12 ? 'All twelve' :
+    ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven'][names.length];
+  return n + ' to go: ' + names.slice(0, -1).join(', ') + ' and ' +
+    names[names.length - 1] + '.';
+}
 function patches(){
   const total = HILLS.filter(h => isBagged(h.k)).length;
   const out = [];
@@ -14167,6 +14342,41 @@ function patches(){
       id:'three-peaks', got: done === 3 && set.length === 3, icon:'star',
       label:'All Three Peaks', need:'Mark all three',
       kind:'set', keys:set.map(x => x.k), have:done, target:3, sort: 9
+    });
+  }
+  /* ---- through the year ---- */
+  {
+    const {on} = monthsWalked();
+    const seas = seasonsWalked(on);
+    /* The "hills with no month" sentence lived here until v387. Both
+       patches now draw the year trail, which counts those hills itself
+       (noMonthKeys) and offers "Add months", so it is said once, there. */
+    const missMo = [];
+    for (let m = 1; m <= 12; m++) if (!on.has(m)) missMo.push(MON_LONG[m - 1]);
+    out.push({
+      id:'year-months', got: on.size === 12, icon:'calendar',
+      label:'Every month',
+      need:'Stand on a summit in all twelve months',
+      blurb:'February and July are different hills. Any years, any order — ' +
+            'a January from 2017 counts the same as this one.',
+      prog: on.size + ' of 12 months',
+      togo: toGoLine(missMo),
+      kind:'cal', cal:'month', months:[...on], miss: missMo,
+      have: on.size, target: 12, sort: 10
+    });
+    /* seasons are lowercase in a sentence: "spring, autumn and winter" */
+    const missSe = SEASONS.filter(s => !seas.includes(s)).map(s => s.n.toLowerCase());
+    out.push({
+      id:'year-seasons', got: seas.length === 4, icon:'calendar',
+      label:'Four seasons',
+      need:'A summit in spring, summer, autumn and winter',
+      blurb:'The same hill is four different walks across a year. Winter here ' +
+            'is December, January and February — the way a walker means it, ' +
+            'not the solstice.',
+      prog: seas.length + ' of 4 seasons',
+      togo: toGoLine(missSe),
+      kind:'cal', cal:'season', seasons: seas.map(s => s.id), miss: missSe,
+      have: seas.length, target: 4, sort: 9.5
     });
   }
   /* Route patches ride on the same 'set' machinery the Three Peaks uses: a
@@ -14357,7 +14567,7 @@ function patches(){
   return out;
 }
 const PATCH_GROUP = {peak:'summit', set:'challenge', list:'challenge', book:'challenge',
-                     count:'milestone', climb:'milestone'};
+                     cal:'challenge', count:'milestone', climb:'milestone'};
 const GROUP_SHAPE = {summit:'circ', challenge:'hex', milestone:'sq'};
 const PATCH_SHAPES = false;
 
@@ -14371,6 +14581,8 @@ function patchCat(p){
   if (p.group === 'summit')   return (BY_KEY[(p.keys || [])[0]] || {}).c || 'Elsewhere';
   if (p.group === 'milestone') return p.kind === 'count' ? 'Summits' : p.far ? 'Distance' : 'Elevation';
   if (p.route) return 'Routes';
+  /* a new category is a filter chip inside a group, never a fourth shape */
+  if (p.kind === 'cal') return 'Through the year';
   if (p.kind === 'set' || NAMED_CHALLENGES.includes(p.listId)) return 'Mountain challenges';
   return 'Mountain lists';
 }
@@ -14396,7 +14608,8 @@ const GROUP_SHAPE_LINE = {summit:' A circle is a place.',
   challenge:' A hexagon is an objective.', milestone:' A square is progress.'};
 const groupBlurb = g => (GROUP_BLURB[g] || '') + (PATCH_SHAPES ? GROUP_SHAPE_LINE[g] || '' : '');
 /* the order the chips appear in, where it is not alphabetical */
-const CAT_ORDER = {'Routes':1, 'Mountain challenges':2, 'Mountain lists':3,
+const CAT_ORDER = {'Routes':1, 'Through the year':2, 'Mountain challenges':3,
+                   'Mountain lists':4,
                    'Summits':1, 'Elevation':2, 'Distance':3,
                    'England':1, 'Wales':2, 'Scotland':3, 'Northern Ireland':4};
 
@@ -14770,6 +14983,20 @@ function patchState(p, pct){
 function earnedOn(p){
   /* the hill and date that completed a patch */
   let hs;
+  /* A time patch is earned by the walk that filled the LAST empty square --
+     not by the most recent walk, which is what patchPeaks would hand back
+     (it has no key list to work from). For each square take the earliest
+     walk that filled it; the completing one is the latest of those. */
+  if (p.kind === 'cal'){
+    const {first} = monthsWalked();
+    const fills = p.cal === 'season'
+      ? SEASONS.map(x => x.mo.map(m => first[m]).filter(Boolean)
+          .sort((a, b) => a.date.localeCompare(b.date))[0])
+      : Object.keys(first).map(m => first[m]);
+    if (fills.some(f => !f) || !fills.length) return null;
+    const last = fills.sort((a, b) => a.date.localeCompare(b.date))[fills.length - 1];
+    return {h: last.h, date: last.date};
+  }
   if (p.kind === 'count') hs = markedInDateOrder(null).slice(0, p.n);
   else hs = patchPeaks(p);
   const last = hs[hs.length - 1];
@@ -20457,6 +20684,11 @@ function challengeBody(p, pct){
     }).join('') + '</ol>';
   }
 
+  /* The twelve squares that were drawn here for Every month and Four
+     seasons are DELETED, v387. Both patches draw the year trail instead
+     (yearTrailHTML) and return before this function is called, so the
+     squares had become code nothing could reach -- the gpxControls trap. */
+
   if (p.marks && p.marks.length){
     const have = p.have || 0;
     const next = p.marks.find(m => have < m.m);
@@ -20919,6 +21151,139 @@ function patchWant(p){
     (keys.length === 1 ? 'See it on the map' : 'See the ' + keys.length + ' left on the map') + '</button></div>';
   return s + '</section>';
 }
+/* ---- YOUR YEAR TRAIL (v386) ------------------------------------------
+   Joe, 28 Oct, approved "Year Trail" for the Every month patch:
+   "compact, distinctly WayMark and confidently orange". It replaces the
+   twelve squares, which cut every real hill name down to a few letters.
+
+   One orange line wanders through the twelve months in three rows: Jan to
+   Apr left to right, May to Aug back, Sep to Dec across again. A marked
+   month is a filled orange circle with a check; a month still to mark is an
+   open circle; the month you have tapped wears a ring. The hill for that
+   month is printed in full underneath. Names are never cut short.
+
+   Everything here is read from the marks (monthsWalked). Nothing from the
+   design reference's sample records or counts is in this code. */
+const YT_POINTS = [[10,13],[36,10],[64,15],[89,12],[89,47],[64,44],[36,49],[10,46],[10,81],[36,85],[64,80],[89,84]];
+const YT_ROUTE = 'M10 13 C20 6 27 7 36 10 S55 19 64 15 S80 7 89 12 C101 22 101 39 89 47 C80 52 73 41 64 44 ' +
+  'S46 53 36 49 S19 42 10 46 C-2 53 -2 74 10 81 C19 86 27 89 36 85 S54 76 64 80 S80 88 89 84';
+const YT_TERRAIN = 'M115 -20 C20 30 30 95 105 116 S210 155 160 220 S170 280 270 285 M127 -20 C35 30 45 88 112 105 S224 154 174 225 S184 290 280 296 ' +
+  'M139 -20 C50 30 60 81 119 94 S238 153 188 230 S198 300 290 307 M151 -20 C65 30 75 74 126 83 S252 152 202 235 S212 310 300 318 ' +
+  'M163 -20 C80 30 90 67 133 72 S266 151 216 240 M175 -20 C95 30 105 60 140 61 S280 150 230 245 M187 -20 C110 30 120 53 147 50 S294 149 244 250';
+const YT_WORD = ['None','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve'];
+/* FOUR SEASONS, v387. Joe, 28 Oct, picked "A, one row": the same trail with
+   four stops on one wavy line. One function draws both patches, so the two
+   can never drift apart in style. */
+const YT_SEAS_POINTS = [[12,52],[38,38],[63,62],[88,46]];
+const YT_SEAS_ROUTE = 'M12 52 C22 40 28 36 38 38 S54 64 63 62 S80 44 88 46';
+/* Each stop is what the trail draws and what tapping it says. A season is
+   filled by the EARLIEST walk in any of its three months. */
+function ytStops(kind, w){
+  if (kind === 'season') return SEASONS.map((x, i) => {
+    const f = x.mo.map(m => w.first[m]).filter(Boolean).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
+    const names = x.mo.map(m => MON_LONG[m - 1]);
+    return {i, lab: x.n, full: x.n, f, short: x.n,
+      when: f ? MON_SHORT[Number(dateParts(f.date).mo) - 1] + ' ' + dateParts(f.date).y : '',
+      hint: 'Mark a summit in ' + names[0] + ', ' + names[1] + ' or ' + names[2] + '. Any year counts.'};
+  });
+  return MON_LONG.map((n, i) => {
+    const f = w.first[i + 1] || null;
+    return {i, lab: MON_SHORT[i], full: n, f, short: MON_SHORT[i],
+      when: f ? dateParts(f.date).y : '', hint: 'Mark a summit in ' + n + '. Any year counts.'};
+  });
+}
+/* the stop the trail opens on: the one you tapped last, or the month (or
+   season) of your most recent walk, or -- with nothing marked yet -- now */
+function ytPickNow(kind, w){
+  const key = kind === 'season' ? 'ytSeason' : 'ytMonth', max = kind === 'season' ? 3 : 11;
+  if (Number.isInteger(ui[key]) && ui[key] >= 0 && ui[key] <= max) return ui[key];
+  const m = w.latest ? w.latest.m : new Date().getMonth() + 1;
+  return kind === 'season' ? SEASONS.findIndex(x => x.mo.includes(m)) : m - 1;
+}
+function ytMonthNow(w){ return ytPickNow('month', w); }
+function ytDetailInner(i, w, kind){
+  const st = ytStops(kind || 'month', w)[i];
+  if (st.f) return '<p class="yt-date"><span>' + esc(st.full) + '</span><span>' + esc(st.when) + '</span></p>' +
+    '<h4 class="yt-hill">' + esc(hillName(st.f.h)) + '</h4>';
+  return '<p class="yt-date"><span>' + esc(st.full) + '</span><span>Still to mark</span></p>' +
+    '<h4 class="yt-hill">Your next ' + (kind === 'season' ? 'season' : 'month') + ' awaits.</h4>' +
+    '<p class="yt-hint">' + esc(st.hint) + '</p>';
+}
+function yearTrailHTML(kind){
+  kind = kind === 'season' ? 'season' : 'month';
+  const seas = kind === 'season';
+  const w = monthsWalked();
+  const stops = ytStops(kind, w), n = stops.length;
+  const have = stops.filter(x => x.f).length, sel = ytPickNow(kind, w);
+  const unit = seas ? 'season' : 'month', all = seas ? 'four' : 'twelve';
+  let s = '<section class="ytrail' + (seas ? ' seasons' : '') + '" aria-labelledby="ytH">' +
+    '<svg class="yt-terrain" viewBox="0 0 270 260" aria-hidden="true"><path d="' + YT_TERRAIN + '"/></svg>' +
+    '<header class="yt-head"><div class="yt-top">' +
+      (seas ? '<h3 id="ytH">Your four <em>seasons</em></h3>' : '<h3 id="ytH">Your year <em>trail</em></h3>') +
+      '<p class="yt-count">' + have + '<span> / ' + n + '</span><span class="vh"> ' + unit + 's marked</span></p>' +
+    '</div><p class="yt-intro">' + (seas ? 'Any year. Winter is December to February.' : 'Any year. Any order.') + '</p></header>';
+  /* the trail: real buttons, so a keyboard can walk it and a screen reader
+     hears each stop, whether it is marked and the hill on it */
+  const pts = seas ? YT_SEAS_POINTS : YT_POINTS;
+  s += '<div class="yt-trail' + (seas ? ' seas1' : '') + '" role="group" aria-label="' +
+      (seas ? 'Your four seasons, one by one' : 'Your year trail, month by month') + '">' +
+    '<svg class="yt-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="' +
+      (seas ? YT_SEAS_ROUTE : YT_ROUTE) + '"/></svg>';
+  for (const st of stops){
+    const [x, y] = pts[st.i];
+    const say = st.full + ': ' + (st.f ? 'marked, ' + hillName(st.f.h) + ', ' + (seas ? st.when : dateParts(st.f.date).y) : 'still to mark');
+    s += '<button type="button" class="yt-m' + (seas ? ' seas' : '') + (st.f ? ' marked' : '') + '" data-act="' +
+      (seas ? 'ytseason' : 'ytmonth') + '" data-v="' + st.i + '"' +
+      ' style="left:' + x + '%;top:' + y + '%" aria-label="' + esc(say) + '" aria-pressed="' + (st.i === sel) + '">' +
+      '<span class="yt-node">' + (st.f ? ti('check', 'width="13" height="13"') : '') + '</span>' + esc(st.lab) + '</button>';
+  }
+  s += '</div>';
+  /* the key says it in words too: a check and an open circle, not colour */
+  s += '<div class="yt-legend" aria-hidden="true"><span><i class="yt-key on">' + ti('check', 'width="9" height="9"') +
+    '</i>Marked</span><span><i class="yt-key"></i>Still to mark</span></div>';
+  const miss = stops.filter(x => !x.f).map(x => x.short);
+  s += '<p class="yt-left">' + (have === n ? '<strong>All ' + all + ' marked</strong>'
+    : have === 0 ? '<strong>All ' + all + ' to go</strong>'
+    : '<strong>' + YT_WORD[n - have] + ' to go</strong><span>' + miss.map(esc).join(' · ') + '</span>') + '</p>';
+  s += '<section class="yt-detail" aria-live="polite">' + ytDetailInner(sel, w, kind) + '</section>';
+  /* every marked month (or season), in full. MONTHS, not hills: one hill
+     walked in four different months is four rows, so "seven marked hills"
+     would be wrong for the walker who climbs the same one every month. */
+  if (have){
+    const open = seas ? ui.ytSeasOpen : ui.ytOpen;
+    s += '<details class="yt-all"' + (open ? ' open' : '') + ' data-kind="' + kind + '"><summary>' +
+      (have === 1 ? 'Your marked ' + unit : 'All ' + YT_WORD[have].toLowerCase() + ' marked ' + unit + 's') +
+      ti('chevron-down', 'width="16" height="16"') + '</summary>';
+    for (const st of stops){
+      if (!st.f) continue;
+      s += '<div class="yt-rec' + (seas ? ' seas' : '') + '"><span>' + esc(st.lab) + '</span><div><h4 class="yt-hill">' +
+        esc(hillName(st.f.h)) + '</h4><small>' + esc(st.when) + '</small></div></div>';
+    }
+    s += '</details>';
+  }
+  const nm = noMonthKeys().length;
+  if (nm) s += '<footer class="yt-foot"><p>' + (nm === 1 ? 'One marked hill needs' : nm.toLocaleString('en-GB') + ' marked hills need') +
+    ' a month to count.</p><button type="button" data-act="ytadd">' + (nm === 1 ? 'Add a month' : 'Add months') + '</button></footer>';
+  return s + '</section>';
+}
+/* tapping a stop changes what is said about it, in place. A full redraw
+   would throw the keyboard focus off the button that was just pressed. */
+function ytSelect(i, kind){
+  kind = kind === 'season' ? 'season' : 'month';
+  if (!(i >= 0 && i <= (kind === 'season' ? 3 : 11))) return;
+  ui[kind === 'season' ? 'ytSeason' : 'ytMonth'] = i;
+  const root = document.querySelector('.ytrail'); if (!root) return;
+  root.querySelectorAll('.yt-m').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.v) === i)));
+  const d = root.querySelector('.yt-detail');
+  if (d) d.innerHTML = ytDetailInner(i, monthsWalked(), kind);
+}
+document.addEventListener('toggle', e => {
+  const t = e.target;
+  if (t && t.classList && t.classList.contains('yt-all')){
+    if (t.dataset.kind === 'season') ui.ytSeasOpen = t.open; else ui.ytOpen = t.open;
+  }
+}, true);
+
 function renderPatchDetail(p){
   const peaks = patchPeaks(p);
   const pct = p.target ? Math.min(100, Math.round((p.have || 0) / p.target * 100)) : 0;
@@ -20951,11 +21316,20 @@ function renderPatchDetail(p){
     (p.got ? '<div class="btnrow" style="margin-top:12px"><button class="btn ghost" data-act="sharepatch" data-v="' + esc(p.id) + '">Share this patch</button></div>' : '') +
     '</div></section>';
 
+  /* Every month: the header stays, and everything under it is the year
+     trail. Once it is earned the walk that finished it and the embroidered
+     patch follow, as on every other patch. */
+  if (p.id === 'year-months' || p.id === 'year-seasons'){
+    s += yearTrailHTML(p.id === 'year-seasons' ? 'season' : 'month');
+    if (p.got) s += yourWayMark(p) + patchMakeReal(p);
+    return s;
+  }
   s += p.got ? yourWayMark(p) : patchWant(p);
   s += patchMakeReal(p);
   /* A challenge is a thing you set out to do, so its page says what it is,
      draws the shape of it, and shows how far along you are. */
-  if (p.route || p.kind === 'climb') s += '<section class="chdetail">' + challengeBody(p, pct) + '</section>';
+  if (p.route || p.kind === 'climb')
+    s += '<section class="chdetail">' + challengeBody(p, pct) + '</section>';
 
   /* A route has just listed every summit, in order, with its date. Printing
      "In the order you walked them" and "Still to go" underneath says the same
@@ -22761,11 +23135,25 @@ function paintBell(){
 const ndEl = () => document.getElementById('nd');
 const ndOpen = () => ndEl().classList.contains('open');
 let ndDoneKeys = null;   /* answered in this sitting: kept on screen, ticked */
+/* YEAR TRAIL, v386. The same sheet, opened from "Add months" on the Every
+   month patch. It then also lists hills that HAVE a date with no month in
+   it -- "2019" on its own -- because those cannot fill a month either, and
+   the trail counted them. Opened from Settings it is exactly what it was. */
+let ndMode = '';
+const ndList = () => ndMode === 'month' ? noMonthKeys() : undated();
 
 function ndPaint(){
-  const list = undated();
+  const list = ndList();
   const shown = [...list, ...[...(ndDoneKeys || [])].filter(k => !list.includes(k))];
-  document.getElementById('ndLede').textContent = list.length
+  const ttl = document.getElementById('ndTitle');
+  if (ttl) ttl.textContent = ndMode === 'month' ? 'Hills with no month' : 'Hills with no date';
+  document.getElementById('ndLede').textContent = ndMode === 'month'
+    ? (list.length
+        ? (list.length === 1
+            ? 'One marked hill has no month on it. Add one and it counts on your year trail.'
+            : list.length.toLocaleString('en-GB') + ' marked hills have no month on them. Add one and it counts on your year trail.')
+        : 'Every marked hill has a month on it.')
+    : list.length
     ? (list.length === 1
         ? 'One hill is marked with no date on it. Set it here, or leave it be.'
         : list.length + ' hills are marked with no date on them. Set them here, or leave them be.')
@@ -22775,16 +23163,24 @@ function ndPaint(){
   else box.innerHTML = shown.map(k => {
     const h = BY_KEY[k]; if (!h) return '';
     const settled = !list.includes(k);
+    /* a hill already logged as "2019" keeps that year: the picker opens in
+       it, the row says so, and "Today" is not offered for a walk that was
+       years ago */
+    const yr = settled ? '' : (ascents(k).map(d => dateParts(d).y).filter(Boolean).sort().pop() || '');
+    const thisYr = String(new Date().getFullYear());
     return '<div class="ndrow' + (settled ? ' done' : '') + '" data-k="' + esc(k) + '">' +
-      '<div class="ndtop"><span class="ndn">' + esc(hillName(h)) + '</span>' +
+      '<div class="ndtop"><span class="ndn">' + esc(hillName(h)) +
+        (yr ? ' <small class="ndyr">Logged as ' + esc(yr) + '</small>' : '') + '</span>' +
         (settled
           ? '<span class="ndsub">' + esc(prettyDate(rec(k).date) || 'left as it was') + '</span>'
           : '<button type="button" class="ndskip" data-nd="skip">Not sure</button>') +
       '</div>' +
       (settled ? '' :
         '<div class="ndbot">' +
-          '<button type="button" class="ndtoday" data-nd="today">Today</button>' +
-          '<input type="date" data-nd="date" aria-label="Date you walked ' + esc(hillName(h)) + '">' +
+          (!yr || yr === thisYr ? '<button type="button" class="ndtoday" data-nd="today">Today</button>' : '') +
+          '<input type="date" data-nd="date"' +
+            (yr ? ' min="' + esc(yr) + '-01-01" max="' + esc(yr) + '-12-31"' : '') +
+            ' aria-label="Date you walked ' + esc(hillName(h)) + '">' +
         '</div>') +
       '</div>';
   }).join('');
@@ -22793,22 +23189,33 @@ function ndPaint(){
       '<button type="button" class="btn" data-nd="close">Done</button>'
     : '<button type="button" class="btn" data-nd="close">Close</button>';
 }
-function ndShow(){
+function ndShow(mode){
+  ndMode = mode === 'month' ? 'month' : '';
   ndDoneKeys = new Set();
   ndPaint();
   ndEl().classList.add('open');
 }
 function ndClose(){
   ndEl().classList.remove('open');
-  ndDoneKeys = null;
+  ndDoneKeys = null; ndMode = '';
   paintBell(); render();
 }
 /* one hill answered: the row stays, ticked, so the list does not jump about
    under the thumb that is working down it */
+/* v386: the date REPLACES the visit that had no month and keeps every other
+   visit. It used to overwrite the whole list with this one date, which was
+   harmless while the sheet only held hills with no date at all -- and would
+   have deleted real ascents once "Add months" brought in hills logged as a
+   bare year alongside dated walks. */
 function ndSet(k, date){
   const c = rec(k);
   if (!date) return;
-  state.bagged[k] = {...c, st:'done', done:true, date, asc:[date], t:now()};
+  const had = ascents(k).filter(Boolean);
+  const i = had.findIndex(d => { const p = dateParts(d), m = Number(p.mo); return !(p.y && m >= 1 && m <= 12); });
+  const next = had.slice();
+  if (i >= 0) next[i] = date; else next.push(date);
+  const asc = [...new Set(next)].sort();
+  state.bagged[k] = {...c, st:'done', done:true, date: asc[asc.length - 1], asc, t:now()};
   touched();
   if (ndDoneKeys) ndDoneKeys.add(k);
   ndPaint(); paintBell();
@@ -22840,7 +23247,7 @@ document.addEventListener('click', e => {
     const what = btn.dataset.nd;
     if (what === 'close'){ ndClose(); return; }
     if (what === 'ignoreall'){
-      const all = undated();
+      const all = ndList();
       ndIgnore(all);
       if (ndDoneKeys) for (const k of all) ndDoneKeys.add(k);
       ndPaint(); paintBell();
@@ -31816,6 +32223,9 @@ document.addEventListener('click', async e => {
     if (w){ w.hidden = false; const t = document.getElementById('backupText');
       if (t){ t.value = ''; t.focus(); } }
   }
+  else if (a === 'ytmonth'){ ytSelect(Number(el.dataset.v)); }
+  else if (a === 'ytseason'){ ytSelect(Number(el.dataset.v), 'season'); }
+  else if (a === 'ytadd'){ ndShow('month'); }
   else if (a === 'chalview'){ ui.pGroup = el.dataset.v === 'overview' ? '' : el.dataset.v; ui.pCat = ''; render(); window.scrollTo({top:0}); }
   else if (a === 'dognew'){ openDogEdit(''); }
   else if (a === 'dogedit'){ openDogEdit(el.dataset.v); }
@@ -38335,7 +38745,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v383';
+const APP_VERSION = 'v387';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
