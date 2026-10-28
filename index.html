@@ -11356,6 +11356,10 @@ function normalise(s){
       const g = [...new Set(v.kitX.filter(x => typeof x === 'string' && x))].slice(0, 24);
       if (g.length) next.kitX = g;
     }
+    /* "Not sure" about this hill's date, v388. It lives on the hill now, so
+       it syncs and has no ceiling. Same lesson as everything above: a field
+       not named on this list is thrown away on the next reload. */
+    if (v.nd) next.nd = 1;
     out.bagged[nk] = !cur || next.t >= cur.t ? next : cur;
   }
   for (const p of ((s && s.plans) || [])){
@@ -11628,6 +11632,9 @@ function mergeRec(x, y){
      and fixing the date on the laptop must not cost you the dog. */
   const gs = [...new Set([...(Array.isArray(x.dogs) ? x.dogs : []), ...(Array.isArray(y.dogs) ? y.dogs : [])])];
   if (gs.length) win = {...win, dogs:gs};
+  /* "Not sure" is a union for the same reason: answering it on the phone
+     must not be undone by a note typed on the laptop an hour later. */
+  if (x.nd || y.nd) win = {...win, nd:1};
   /* and the kit, for the same reason: ticking your boots on the phone must
      not be undone by a note typed on the laptop. Taking a thing OFF a hill
      wins over putting it on, so the removal is subtracted last — otherwise
@@ -23066,16 +23073,42 @@ function repBadge(k){
    "Ignore" is a first-class answer. Plenty of hills were walked before anybody
    was writing dates down, and being nagged about them forever is worse than
    not knowing. Ignoring is per hill and kept on the device. */
+/* WHERE "NOT SURE" IS KEPT, v388.
+
+   It used to be a list on the device: the latest 400 hills only, and none
+   of it synced. So somebody who marked the Wainwrights and the Munros years
+   ago with no dates (496 hills) pressed "Stop asking" and 96 of them came
+   straight back, in the cog's count and in the year trail's "hills need a
+   month" -- and on a new phone, all 496 came back.
+
+   The answer lives on the hill record now (`nd: 1`). No ceiling, and it
+   travels with the record through sync. The old device list is read once,
+   written onto the hills it names, and cleared (ndMigrate). */
 const ND_KEY = 'waymark.nodate.ignore';
 function ndIgnored(){
-  try{ return new Set(JSON.parse(localStorage.getItem(ND_KEY) || '[]')); }catch(e){ return new Set(); }
+  const out = new Set();
+  for (const k in state.bagged) if (state.bagged[k] && state.bagged[k].nd) out.add(k);
+  /* anything still on the old device list, until ndMigrate has run */
+  try{ for (const k of JSON.parse(localStorage.getItem(ND_KEY) || '[]')) out.add(k); }catch(e){}
+  return out;
 }
 function ndIgnore(keys){
-  try{
-    const set = ndIgnored();
-    for (const k of keys) set.add(k);
-    localStorage.setItem(ND_KEY, JSON.stringify([...set].slice(-400)));
-  }catch(e){}
+  const t = now();
+  let n = 0;
+  for (const k of keys){
+    const r = state.bagged[k];
+    if (!r || r.nd) continue;
+    state.bagged[k] = {...r, nd:1, t};
+    n++;
+  }
+  if (n) touched();
+}
+function ndMigrate(){
+  let old;
+  try{ old = JSON.parse(localStorage.getItem(ND_KEY) || '[]'); }catch(e){ old = []; }
+  if (!Array.isArray(old) || !old.length) return;
+  ndIgnore(old.filter(k => typeof k === 'string' && state.bagged[k]));
+  try{ localStorage.removeItem(ND_KEY); }catch(e){}
 }
 /* marked, no date, not waved away — tallest first, because that is the one
    most likely to be remembered */
@@ -28741,6 +28774,52 @@ function applyMapGoto(tries){
   }catch(e){}
   ui.mapGoto = null;
 }
+/* AN IMPORTED TRACK, SHOWN. v388.
+
+   Open since 25 Oct: import a Welsh walk while looking at the Lake District
+   and the map stayed in Cumbria with the new line four counties off screen.
+
+   The cause was ui.rview, the view the app has decided on. Every redraw
+   (mapAttach, above) puts the map back to it, and the import had moved the
+   map without changing it, so the redraw already in the queue undid the
+   move. The three earlier attempts raced that redraw. This doesn't race it:
+   it waits until the queued redraw is done, moves the map, and then WRITES
+   the new view into ui.rview, so every later redraw lands on the walk
+   instead of taking it away. */
+function applyMapFit(tries){
+  const pts = ui.mapFit;
+  if (!pts) return;
+  const box = document.getElementById('routemap');
+  const ready = rmap && box && box.getBoundingClientRect().height > 40;
+  if (!ready){
+    if ((tries || 0) > 40){
+      /* not on the map (an import from the chat's Share a route sheet, say):
+         decide the view anyway, so the map opens on the walk next time */
+      const la = pts.map(q => q[0]), lo = pts.map(q => q[1]);
+      const span = Math.max(Math.max(...la) - Math.min(...la), (Math.max(...lo) - Math.min(...lo)) * 0.6, 0.002);
+      ui.rview = {c:{lat:(Math.max(...la) + Math.min(...la)) / 2, lng:(Math.max(...lo) + Math.min(...lo)) / 2},
+        z:Math.max(8, Math.min(14, Math.log2(180 / span) - 0.6))};
+      ui.mapFit = null; return;
+    }
+    setTimeout(() => applyMapFit((tries || 0) + 1), 80);
+    return;
+  }
+  try{
+    mapPad();
+    fitTo(rmap, pts, 40, 15);
+    const c = rmap.getCenter();
+    ui.rview = {c:{lat:c.lat, lng:c.lng}, z:rmap.getZoom()};
+    rmDraw();
+  }catch(e){}
+  ui.mapFit = null;
+}
+function showTrackOnMap(pts){
+  const ok = (pts || []).filter(q => q && isFinite(q[0]) && isFinite(q[1]));
+  if (!ok.length) return;
+  ui.mapFit = ok;
+  /* after the redraw the import has just queued, never before it */
+  setTimeout(() => applyMapFit(0), 60);
+}
 function mountRouteMap(){
   mapAttach();
   const box = document.getElementById('routemap');
@@ -33501,30 +33580,17 @@ document.addEventListener('change', e => {
       ui.planDate = id;          // land with the date row open on the new route
       render();
       const p2 = planById(id);
+      if (p2) showTrackOnMap(p2.trk);   /* and the map goes to it, v388 */
       const thinned = p2 && p2.trk.length < before;
       /* g.dist, not the rounded line — see parseGPX */
       toast('Imported ' + prettyDist(g.dist) +
             (thinned ? ': thinned to fit sync' : '') +
             (g.date ? ': dated ' + prettyDate(g.date) + ' from the file.' : '. Set a date for the forecast.'));
       /* a file is a route too: offer its map the same way a drawn one gets it */
-      /* AND THE MAP GOES TO IT.
-         Found 25 Oct by a test that had been asserting this for weeks while
-         pointed at a dead control, so nobody read the failure. Import a
-         Welsh GPX while looking at the Lake District and the toast said
-         "Track loaded: 13.4 mi, over 6 summits" with the map still in
-         Cumbria, showing nothing at all. The line was in the map's own
-         source and in no rendered tile, because it was four counties off
-         screen. viewRoute() is what "View on the map" does; importing one
-         is at least as good a reason to look at it. */
-      /* OPEN AND NOT FIXED, 25 Oct: the map does not go to what you just
-         imported. Import a Welsh GPX while looking at the Lake District
-         and the toast says "Track loaded: 17.6 mi, over 7 summits" with
-         the map still in Cumbria. The track is saved correctly (735
-         points) and fitTo() moves the map correctly when called a few
-         seconds later; applied at import time it is undone by render()
-         remounting the map underneath it. Three attempts at the race
-         failed, so none of them are in here. "View on the map" works.
-         Evidence: t/gpxmap.js, the two checks on tiles and centre. */
+      /* The map goes to it: showTrackOnMap, a few lines up. Open from 25 Oct
+         until v388 (import a Welsh walk while looking at the Lakes and the
+         map stayed in Cumbria). t/gpxjump.js imports through both real
+         buttons and checks the map is on the walk, and stays there. */
       setTimeout(() => offerRouteSheet(planById(id)), 900);
     }).catch(() => toast('Could not read that file.'));
   }
@@ -33568,6 +33634,7 @@ document.addEventListener('change', e => {
       if (tops.length) p.hills = tops;
       if (p.trk.length < before) setTimeout(() => toast('Thinned ' + before.toLocaleString() + ' points to ' + p.trk.length.toLocaleString() + ' so it syncs.'), 1600);
       savePlanEdit(id);
+      showTrackOnMap(p.trk);            /* and the map goes to it, v388 */
       toast('Track loaded: ' + prettyDist(g.dist) +
             (tops.length ? ', over ' + tops.length + (tops.length === 1 ? ' summit.' : ' summits.') : '.') +
             (p.date ? '' : ' Set a date for the forecast.'));
@@ -38745,7 +38812,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v387';
+const APP_VERSION = 'v388';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -43212,6 +43279,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fontWatch)
 takeSuppliesRoute();
 takeInviteFromHash();
 state = loadLocal();
+try{ ndMigrate(); }catch(e){}
 /* before anything reads BY_KEY: the walker's own peaks have to be hills before
    the first render, or their marks look like marks on hills that do not exist */
 registerOwn();
