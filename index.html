@@ -9989,7 +9989,7 @@ span.vbadge{color:var(--surface)}
    the name has scrolled off and you are filling in a form for an unnamed
    hill. The row that carries the name pins itself to the top of the list
    while it is open, and lets go when you close it. */
-.hill.isopen > .hrow{position:sticky; top:var(--wm-head, 59px); z-index:3;
+.hill.isopen > .hrow{position:sticky; top:var(--ghb, var(--wm-head, 59px)); z-index:3;
   background:var(--surface); box-shadow:0 1px 0 var(--line-soft)}
 .kitswitch{display:flex; gap:18px; margin:12px 0 2px; border-bottom:1px solid var(--line)}
 /* 44px minimum, measured rather than assumed: these were 27px tall, and
@@ -10764,6 +10764,25 @@ TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/> <path d="M
    attributes, so ANY CSS rule still overrides them — every existing
    `.something svg{width:15px}` keeps working exactly as before. Pass `attrs`
    to set a different size; it replaces the default. */
+/* LUCIDE, Joe 29 Oct 2026. Twenty-one icons from Lucide replace their Tabler
+   versions, everywhere each one is used: the five tabs, the settings cog, the
+   camera, Share, messages, routes, dogs, the stove and Layers flame, patch
+   posts, Follow, and "Verify with GPS". Joe kept the old ones for Remove the
+   track, the tent, the poles, the binoculars and the boots. Everything else is
+   still Tabler. Same 24 grid, round ends, 1.5 line.
+   Set here, BEFORE anything copies TI (the tab bar, the map's places, the day
+   strip), or those copies keep the old drawing.
+   Source: lucide-static 1.61.0 from npm, geometry unchanged, stroke 2 to 1.5,
+   checked against the package path for path. Pack: WayMark-Lucide-Sourced-
+   Icons-2026-10-23. Lucide is ISC: Copyright (c) 2026 Lucide Icons and
+   Contributors. Permission to use, copy, modify, and/or distribute this
+   software for any purpose with or without fee is hereby granted, provided
+   that the above copyright notice and this permission notice appear in all
+   copies. "share" is derived from Feather, MIT: Copyright (c) 2013-present
+   Cole Bemis. */
+const LUCIDE = {"home": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "map-2": "<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\" /> <path d=\"M15 5.764v15\" /> <path d=\"M9 3.236v15\" />", "notebook": "<path d=\"M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4\" /> <path d=\"M2 6h4\" /> <path d=\"M2 10h4\" /> <path d=\"M2 14h4\" /> <path d=\"M2 18h4\" /> <path d=\"M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z\" />", "settings": "<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" />", "camera": "<path d=\"M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />", "share": "<path d=\"M12 2v13\" /> <path d=\"m16 6-4-4-4 4\" /> <path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\" />", "message-circle": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\" /> <path d=\"M8 12h.01\" /> <path d=\"M12 12h.01\" /> <path d=\"M16 12h.01\" />", "route": "<circle cx=\"6\" cy=\"19\" r=\"3\" /> <path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\" /> <circle cx=\"18\" cy=\"5\" r=\"3\" />", "paw": "<circle cx=\"11\" cy=\"4\" r=\"2\" /> <circle cx=\"18\" cy=\"8\" r=\"2\" /> <circle cx=\"20\" cy=\"16\" r=\"2\" /> <path d=\"M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z\" />", "flame": "<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />", "rosette": "<path d=\"m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526\" /> <circle cx=\"12\" cy=\"8\" r=\"6\" />", "user-plus": "<path d=\"M2 21a8 8 0 0 1 13.292-6\" /> <circle cx=\"10\" cy=\"8\" r=\"5\" /> <path d=\"M19 16v6\" /> <path d=\"M22 19h-6\" />", "bars": "<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "confetti": "<path d=\"M5.8 11.3 2 22l10.7-3.79\" /> <path d=\"M4 3h.01\" /> <path d=\"M22 8h.01\" /> <path d=\"M15 2h.01\" /> <path d=\"M22 20h.01\" /> <path d=\"m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10\" /> <path d=\"m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17\" /> <path d=\"m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7\" /> <path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\" />", "dog": "<path d=\"M11.25 16.25h1.5L12 17z\" /> <path d=\"M16 14v.5\" /> <path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\" /> <path d=\"M8 14v.5\" /> <path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\" />", "quote": "<path d=\"M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z\" /> <path d=\"M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z\" />", "user-minus": "<path d=\"M2 21a8 8 0 0 1 13.292-6\" /> <circle cx=\"10\" cy=\"8\" r=\"5\" /> <path d=\"M22 19h-6\" />", "patch": "<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\" /> <path d=\"m16 9-5.5 5.5L8 12\" />", "verify": "<path d=\"M19.43 12.935c.357-.967.57-1.955.57-2.935a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32.197 32.197 0 0 0 .813-.728\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" /> <path d=\"m16 18 2 2 4-4\" />", "community": "<path d=\"M16 10a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 14.286V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z\" /> <path d=\"M20 9a2 2 0 0 1 2 2v10.286a.71.71 0 0 1-1.212.502l-2.202-2.202A2 2 0 0 0 17.172 19H10a2 2 0 0 1-2-2v-1\" />", "progress": "<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"m19 9-5 5-4-4-3 3\" />"};
+for (const k of ['home','map-2','notebook','settings','camera','share','message-circle','route','paw','flame','rosette','user-plus','bars','confetti','dog','quote','user-minus','patch']) TI[k] = LUCIDE[k];
+TI['verify'] = LUCIDE['verify'];
 function ti(name, attrs){
   return '<svg viewBox="0 0 24 24" ' + (attrs || 'width="24" height="24"') +
     ' fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -16267,6 +16286,17 @@ function takeDeepLink(){
     history.replaceState(null, '', location.pathname + location.search);
     if (!rec0) return false;
     fromWeb = true;
+    /* Joe, 29 Oct: a hill link switches its list on for a NEW walker, the same
+       as a list link does. Somebody with lists of their own keeps their setup:
+       a hill on a list they do not follow still opens as its card. */
+    if (!state.enabled.length){
+      const on = deepListFor(rec0);
+      if (on){
+        state.enabled.push(on);
+        try{ saveLocal(); }catch(e){}
+        try{ toast(LIST_BY[on].name + ' switched on \u2014 change it any time in Settings.'); }catch(e){}
+      }
+    }
     const lid = homeListFor(rec0);
     if (onList(lid)){
       /* no render() here: the caller is still setting the page up and renders
@@ -16287,7 +16317,7 @@ function takeDeepLink(){
     if (!LIST_BY[id]) return false;
     if (!state.enabled.includes(id)){
       state.enabled.push(id);
-      try{ save(); }catch(e){}
+      try{ saveLocal(); }catch(e){}
       try{ toast(LIST_BY[id].name + ' switched on — change it any time in Settings.'); }catch(e){}
     }
     ui.list = id; ui.region = ''; ui.q = ''; ui.status = 'all';
@@ -16303,6 +16333,44 @@ function takeDeepLink(){
   }
   return false;
 }
+
+/* WHICH LIST a hill link switches on. The hill pages are filed by list
+   (/hills/wainwrights/...), so the page the walker came from says which one
+   they were reading about -- Scafell Pike from the Wainwrights page means the
+   Wainwrights, not the Hewitts of England it is also on. The folder names are
+   the website's own (meta.py SLUG). With no page to go on, the first of the
+   hill's lists in the app's own order. */
+const WEB_SLUG = {wainwrights:'wainwright', munros:'munro', corbetts:'corbett',
+  grahams:'graham', donalds:'donald', 'hewitts-of-england':'hewitt-england',
+  'hewitts-of-wales':'hewitt-wales', 'hewitts-of-northern-ireland':'hewitt-ni',
+  nuttalls:'nuttall', 'peak-district-ethels':'ethel', 'dales-30':'dales30',
+  'yorkshire-three-peaks':'yorkshire3', 'welsh-3000s':'welsh3000',
+  'national-three-peaks':'three-peaks', marilyns:'marilyn', birketts:'birkett',
+  deweys:'dewey', 'marilyns-of-ireland':'marilyn-ie', arderins:'arderin',
+  'vandeleur-lynams':'vandeleur-lynam', 'hewitts-of-the-republic':'hewitt-roi'};
+function deepListFor(h){
+  const ls = (h.l || []).filter(x => LIST_BY[x] && x !== 'own' && x !== 'route-top');
+  if (!ls.length) return null;
+  try{
+    const r = new URL(document.referrer);
+    const m = r.host === location.host && r.pathname.match(/^\/hills\/([a-z0-9-]+)\//);
+    const id = m && WEB_SLUG[m[1]];
+    if (id && ls.includes(id)) return id;
+  }catch(e){}
+  return LISTS.map(L => L.id).find(id => ls.includes(id)) || ls[0];
+}
+/* A link that arrives while WayMark is already open changes only the part
+   after the #, so the page does not reload and the start-up code that reads
+   it never runs. Before v389 the link did nothing. Only hill and list links:
+   the other # addresses belong to other parts of the app. */
+window.addEventListener('hashchange', () => {
+  let h = ''; try{ h = decodeURIComponent(location.hash || ''); }catch(e){}
+  if (!/^#(hill|list)=/.test(h)) return;
+  try{
+    try{ closeInfo(); }catch(e){}
+    if (takeDeepLink()){ if (state.enabled.length) ui.onboard = 'done'; render(); }
+  }catch(e){}
+});
 
 window.addEventListener('popstate', () => {
   /* not gated on supRoute any more: the address is pushed for everybody now,
@@ -21439,7 +21507,7 @@ TI['waymark-mountain'] = '<path d="M1.50 16.23 7.61 7.77 10.21 11.25"/><path d="
 /* a pawprint small enough to read at 22px: solid, four toes, one pad */
 const NI = {
   d: TI['home'], h: TI['waymark-mountain'], m: TI['map-2'], p: TI['map-2'],
-  j: TI['notebook'], a: '<circle cx="12" cy="9" r="6"/><path d="M8 14l-1 8 5-3 5 3-1-8"/>', u: TI['message-circle'], f: TI['users']
+  j: TI['notebook'], a: LUCIDE['progress'], u: LUCIDE['community'], f: TI['users']
 };
 /* Joe's own Basecamp icon: the tent with a pawprint walking in front of it,
    drawn as solid shapes so it holds together at 22px. */
@@ -21944,6 +22012,7 @@ function render(){
   /* before anything is painted, so there is no flick back to the first photo */
   restoreCarousels();
   paintSync(); wire(); hydratePhotos(); supMountSlides(); paintBell(); paintBag();
+  if (tab === 'd') ghVars();
   if (tab === 'u') hydratePostPhotos();
   if (tab === 'd') setTimeout(tuneStamp, 0);
   if (ui.openComments && document.getElementById('cmsheet')) paintCommentSheet();
@@ -22821,7 +22890,7 @@ function hillRow(h, listId){
            prettyDate(new Date(vf.t).toISOString().slice(0,10)) + '</p>';
     } else if (isFinite(h.a)){
       s += '<button class="linkbtn vlink" data-act="verify" data-k="' + esc(h.k) + '"' + (locating ? ' disabled' : '') + '>' +
-           ti('current-location') + (locating ? 'Finding you…' : 'Verify with GPS') + '</button>';
+           ti('verify') + (locating ? 'Finding you…' : 'Verify with GPS') + '</button>';
     }
     /* THE WAY TO THE HILL ITSELF. The (i) came off the row -- 214 of them at
        24px, and a second destination off a row that already had one. It has
@@ -24561,6 +24630,25 @@ const homeListFor = h => h.l.find(x => onList(x)) || h.l[0];
    It sets `ui.homeList` as well, which is what opens that page, and it pushes
    a history entry so the back button and the edge swipe come Home rather than
    leaving WayMark. A sixth call site cannot now make the same mistake. */
+/* WHERE AN OPEN ROW PINS ITSELF. Audit 36 pinned the open hill's name under
+   the bar at the top so it never scrolls away -- but each area of a list has
+   its own heading pinned there too (The Southern Fells, with its little
+   profile), and that heading sits on top. So the name was pinned out of
+   sight: arriving from a hill page, you saw the date box of a hill you could
+   not name. Each list of rows learns the bottom edge of its own heading. */
+function ghVars(){
+  for (const g of document.querySelectorAll('.grouphead')){
+    const u = g.nextElementSibling;
+    if (u && u.classList.contains('hills'))
+      u.style.setProperty('--ghb', Math.round((parseFloat(getComputedStyle(g).top) || 0) + g.offsetHeight) + 'px');
+  }
+}
+/* the scroll that puts a row's name exactly where it pins */
+function rowLandY(row){
+  const li = row.closest('.hill') || row;
+  const pin = parseFloat(getComputedStyle(row).top);
+  return li.getBoundingClientRect().top + window.scrollY - (isNaN(pin) ? 72 : pin);
+}
 function openHillRow(k, o){
   o = o || {};
   const h = BY_KEY[k]; if (!h) return false;
@@ -24576,8 +24664,7 @@ function openHillRow(k, o){
   if (o.render !== false) render();
   const go = () => {
     const row = document.querySelector('.hrow[data-row="' + CSS.escape(k) + '"]');
-    if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72,
-                              behavior: o.smooth === false ? 'auto' : 'smooth'});
+    if (row) window.scrollTo({top: rowLandY(row), behavior: o.smooth === false ? 'auto' : 'smooth'});
     else window.scrollTo({top: 0});
   };
   if (o.delay) setTimeout(go, o.delay); else go();
@@ -24842,7 +24929,7 @@ async function markFromSearch(k){
   toast('Marked ' + hillName(h) + (when ? ' · ' + prettyDate(when) : '') +
     (switched ? ' · ' + switched + ' switched on' : ''));
   const row = document.querySelector('.hrow[data-row="' + CSS.escape(k) + '"]');
-  if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
+  if (row) window.scrollTo({top: rowLandY(row), behavior:'smooth'});
   else window.scrollTo({top:0});
 }
 
@@ -31528,7 +31615,7 @@ document.addEventListener('click', async e => {
     render();
     if (k) setTimeout(() => {
       const row = document.querySelector('.hrow[data-row="' + CSS.escape(k) + '"]');
-      if (row) window.scrollTo({top: row.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'});
+      if (row) window.scrollTo({top: rowLandY(row), behavior:'smooth'});
       else window.scrollTo({top:0});
     }, 60);
   }
@@ -36015,7 +36102,8 @@ TI['corner-down-right'] = '<path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4"/>';
    leaderboard is now one tab inside a group rather than the whole of it. */
 TI['groups'] = '<path d="M3 18.5V7.5A3.5 3.5 0 0 1 6.5 4h11A3.5 3.5 0 0 1 21 7.5v6a3.5 3.5 0 0 1 -3.5 3.5H8z"/><path d="M7.4 13.6l3 -4.2l2.2 2.8l1.6 -1.9l2.4 3.3z"/>';
 TI['globe'] = '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/>';
-TI['message-circle'] = '<path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1"/>';
+/* message-circle is Lucide since v390 (see LUCIDE): this line used to
+   redraw it in Tabler after the swap and undo it */
 TI['send'] = '<path d="M10 14l11 -11"/><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5"/>';
 TI['arrow-up-right'] = '<path d="M17 7l-10 10"/><path d="M8 7l9 0l0 9"/>';
 
@@ -38812,7 +38900,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v388';
+const APP_VERSION = 'v390';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
