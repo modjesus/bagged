@@ -23218,12 +23218,28 @@ function kitFormSnap(root){
       const sel = f.querySelector('select[name="cat"]');
       out.push({id, v, auto: !!(sel && sel.hasAttribute('data-auto'))});
     }
+    /* v396 (Joe, 30 Oct: "when making a new setup if you fill in information
+       before selecting your symbol or colour it wipes it"). The setup editor
+       redraws on every symbol, colour or "usual" tap, so its name and season
+       boxes are kept the same way, keyed by the setup. */
+    for (const f of (root || document).querySelectorAll('[data-seted]')){
+      const sv = f.querySelector('[data-act="kitsetsave"]'); if (!sv) continue;
+      const v = {};
+      for (const e of f.querySelectorAll('input[name]')) v[e.name] = e.value;
+      out.push({set: sv.dataset.v, v});
+    }
   }catch(e){}
   return out;
 }
 function kitFormPut(root, snap){
   try{
     for (const k of snap || []){
+      if (k.set){
+        const sv = (root || document).querySelector('[data-seted] [data-act="kitsetsave"][data-v="' + CSS.escape(k.set) + '"]');
+        const f = sv && sv.closest('[data-seted]'); if (!f) continue;
+        for (const [n, val] of Object.entries(k.v)){ const e = f.querySelector('input[name="' + n + '"]'); if (e) e.value = val; }
+        continue;
+      }
       const f = (root || document).querySelector('[data-kited="' + CSS.escape(k.id) + '"] .kitedf'); if (!f) continue;
       for (const [n, val] of Object.entries(k.v)){
         const e = f.querySelector('[name="' + n + '"]'); if (!e || e.type === 'file') continue;
@@ -40525,7 +40541,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v395';
+const APP_VERSION = 'v396';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
