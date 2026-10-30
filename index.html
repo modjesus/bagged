@@ -6784,7 +6784,9 @@ span.pshow{cursor:default}
 .sdcard .pregion{margin:0 0 2px}
 .sdlab{display:block; margin:12px 0 6px; font:600 11px var(--font-data); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
 .sdlab .opt{text-transform:none; letter-spacing:0; font-weight:400}
-.daysheet textarea{width:100%; box-sizing:border-box; border-radius:12px; border:1px solid var(--line); background:var(--raise); color:var(--ink); padding:10px 12px; font:15px var(--font-ui); resize:vertical}
+/* v393 (app audit, 30 Oct): 16px, not 15. iPhone zooms the page into any text
+   box under 16px when you tap it. */
+.daysheet textarea{width:100%; box-sizing:border-box; border-radius:12px; border:1px solid var(--line); background:var(--raise); color:var(--ink); padding:10px 12px; font:16px var(--font-ui); resize:vertical}
 .sdphotos{display:inline-flex; align-items:center; gap:8px; margin-top:10px; min-height:40px; padding:0 14px; border-radius:99px; border:1px solid var(--line); background:var(--raise); color:var(--ink); font:600 13.5px var(--font-ui); cursor:pointer}
 .sdphotos.on{background:var(--done-soft); border-color:var(--done-line)}
 .sdphotos svg{width:16px; height:16px}
@@ -6838,6 +6840,9 @@ span.pshow{cursor:default}
 .sdadd:active{transform:scale(.96)}
 .sdtoggle{margin-top:6px; font-size:13px}
 .sdnudge{margin:6px 0 0; font-size:12.5px; color:var(--ink-3)}
+/* v393 (app audit, 30 Oct): while "Share your day" is up, a message shows at the
+   top of the screen, not over "Who sees it" and the Share button. */
+body:has(#daysheet.open) .toast{bottom:auto; top:calc(env(safe-area-inset-top, 0px) + 64px)}
 .paddph{display:flex; align-items:center; justify-content:center; gap:8px; margin:10px 0 2px; min-height:44px; border-radius:12px; border:1.5px dashed var(--line);
   color:var(--ink-2); font:600 14px var(--font-ui); cursor:pointer; transition:border-color .15s, color .15s}
 .paddph:hover{border-color:var(--accent-text); color:var(--accent-text)}
@@ -6993,7 +6998,11 @@ span.pshow{cursor:default}
 .nempty span{display:block; margin-top:4px; font-size:14px}
 
 /* the toast with an Undo */
-.toast.act{pointer-events:auto; display:flex; align-items:center; gap:14px}
+/* v393 (app audit, 30 Oct): taps only while it is showing. A faded-out Undo
+   toast kept pointer-events on and ate taps in a see-through strip above the
+   bottom bar (the photo caption box, the Home cards). */
+.toast.act{display:flex; align-items:center; gap:14px}
+.toast.act.show{pointer-events:auto}
 .toastbtn{background:none; border:none; color:var(--accent-soft); font:700 14px var(--font-ui); padding:4px 2px; cursor:pointer}
 
 /* desktop: the feed column at a readable width */
@@ -10781,6 +10790,8 @@ textarea, select{font-size:16px}
 #wmpack .setup-meta{display:flex;align-items:center;gap:14px;font-size:13px;color:var(--moss);margin-top:10px}
 #wmpack .setup-meta>span{display:flex;gap:6px;align-items:center}
 #wmpack .setup-meta svg{width:15px;height:15px;color:var(--orange)}
+#wmpack .setup-meta{flex-wrap:wrap;row-gap:4px}
+#wmpack .setup-meta>span{white-space:nowrap}
 #wmpack .setup-meta>span+span{border-left:1px solid var(--line);padding-left:14px}
 #wmpack .setup-edit{width:44px;height:44px;flex:0 0 44px;border:1px solid var(--line);border-radius:50%;background:var(--white);display:grid;place-items:center}
 #wmpack .setup-edit svg{width:17px;height:17px}
@@ -11079,7 +11090,7 @@ textarea, select{font-size:16px}
 #wmkit .jrec{position:absolute;left:8px;top:8px;width:26px;height:26px;border-radius:50%;background:var(--raise);color:var(--accent-text);font:600 13px/26px var(--font-ui);text-align:center}
 #wmkit .jcaption{padding:12px}
 #wmkit .jcaption strong{font:19px/1.15 var(--font-display);display:block;overflow-wrap:anywhere}
-#wmkit .jcaption p{font-size:12px;color:var(--ink-3);margin:6px 0 0}
+#wmkit .jcaption p{font-size:12px;color:var(--ink-3);margin:6px 0 0;overflow-wrap:anywhere}
 #wmkit .jcaption .jcapuse{font:12px var(--font-data);color:var(--ink-2)}
 #wmkit .jcaption .jcapwhy{font-size:12px;color:var(--accent-text)}
 #wmkit .jcaption b{color:var(--accent-text);display:block;border-top:1px dashed var(--line);padding-top:10px;margin-top:10px;font-weight:600;font-size:14px}
@@ -11206,9 +11217,7 @@ textarea, select{font-size:16px}
 #wmkit .jfield .kitunit i{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--ink-3)}
 #wmkit .kitextra{margin-top:12px}
 #wmkit .kitextra summary{min-height:44px;display:flex;align-items:center;color:var(--accent-text);cursor:pointer}
-@media (max-width:360px){#wmkit .jitemrow{grid-template-columns:40px 34px minmax(0,1fr) auto;}
-  #wmkit .jitemrow .jw{grid-column:3;justify-self:start;text-align:left}
-  #wmkit .jthumb{width:34px;height:34px}}
+
 /* inside the planner: the few things the app adds to the approved styles */
 #wmpack .take-static .box{background:var(--paper);color:var(--moss)}
 #wmpack .itemname.linklike{border:0;background:none;padding:0;min-height:0;text-align:left;font:600 16px/1.3 var(--font-ui);color:var(--pine);overflow-wrap:anywhere}
@@ -11225,13 +11234,168 @@ textarea, select{font-size:16px}
 #wmpack .setupeditor .kitf{display:grid;gap:6px;font-size:12px;color:var(--moss)}
 #wmpack .setupeditor .kiticons,#wmpack .setupeditor .kitcols{display:flex;flex-wrap:wrap;gap:6px}
 #wmpack .setupeditor .kiteditacts{display:flex;flex-wrap:wrap;gap:8px}
-#wmpack .setupeditor .chip{min-height:44px}
+#wmpack .setupeditor .chip{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--line);background:var(--white);color:var(--pine);font-size:14px}
+#wmpack .setupeditor .chip.on{background:var(--pine);border-color:var(--pine);color:var(--paper)}
 #wmpack .weight-status{display:flex;flex-wrap:wrap;gap:3px 6px}
 #wmpack .weight-status span:empty{display:none}
 #wmpack .newform .kitnewcat input{font-size:16px}
 #wmpack .item .itemmeta{overflow-wrap:anywhere}
 @media (prefers-reduced-motion:reduce){#wmkit *{scroll-behavior:auto!important}}
+/* v392: the fixes from the break-ui audit */
+#wmkit .story-stats strong.long{font-size:26px;line-height:1.1}
+#wmkit .story-stats strong{overflow-wrap:anywhere}
+#wmkit .jcaption strong,#wmkit .story-title h1,#wmkit .jname,#wmpack .itemname,#wmkit .story-setupgo strong{hyphens:auto;-webkit-hyphens:auto}
+#wmkit .jghost{background:var(--raise);color:var(--accent-text);border:1px solid var(--line)}
+#wmkit .jctl{display:flex;align-items:center;gap:8px;justify-self:end}
+#wmkit .jitemrow{grid-template-columns:44px 40px minmax(0,1fr) auto}
+@media (max-width:400px){
+  #wmkit .jitemrow{grid-template-columns:44px 34px minmax(0,1fr);row-gap:4px;padding:8px 0}
+  #wmkit .jitemrow .jthumb{width:34px;height:34px}
+  #wmkit .jitemrow .jctl{grid-column:3;justify-self:stretch;justify-content:space-between}
+  #wmkit .jsetupfooter{flex-direction:column;align-items:stretch;gap:0;padding:4px 20px}
+  #wmkit .jsetupfooter button{text-align:left}
+  #wmkit .jsetupfooter button+button{border-top:1px solid #ffffff1a}
+}
 
+
+</style>
+<style id="kit393">
+/* ===== v393 compact Kit (Joe, 30 Oct: "limit the scroll", "huge emphasis on the pack guide") ===== */
+#wmkit .jkbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;min-height:48px}
+#wmkit .jseg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px;min-width:0}
+#wmkit .jseg button{border:0;background:none;color:var(--ink);font:600 15px var(--font-ui);padding:0 14px;min-height:44px;border-radius:999px;display:flex;align-items:center;gap:6px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#wmkit .jseg button small{font:500 12px var(--font-data);opacity:.75}
+#wmkit .jseg button[aria-selected=true]{background:var(--pine,#14332d);color:#fffdf7}
+#wmkit .jaddpill{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:var(--accent);color:#fffdf7;font:600 15px var(--font-ui);min-height:44px;padding:0 16px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#wmkit .jaddpill:active,#wmkit .jchip:active,#wmkit .jseg button:active{scale:.96}
+@media (prefers-reduced-motion:no-preference){#wmkit .jaddpill,#wmkit .jchip,#wmkit .jseg button{transition:scale .15s ease-out,background-color .15s}}
+#wmkit .jchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:0 16px;scroll-padding-inline:16px;overscroll-behavior-x:contain}
+#wmkit .jchips::-webkit-scrollbar{display:none}
+#wmkit .jchip{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:999px;min-height:44px;padding:0 14px;font:500 14px var(--font-ui);white-space:nowrap;touch-action:manipulation}
+#wmkit .jchip small{font:12px var(--font-data);color:var(--ink-2)}
+#wmkit .jchip[aria-pressed=true]{background:var(--pine,#14332d);border-color:var(--pine,#14332d);color:#fffdf7}
+#wmkit .jchip[aria-pressed=true] small{color:#c9d3cc}
+#wmkit .jgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px}
+@media (min-width:620px){#wmkit .jgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+#wmkit .jinventory{background:none;border:0;border-radius:0;overflow:visible}
+#wmkit .jinventory > button{display:block;width:100%;padding:0;border:0;background:none;text-align:start;color:inherit;touch-action:manipulation}
+#wmkit .jinventory .jphoto{border-radius:10px;background:var(--surface-2)}
+#wmkit .jinventory .jphoto img{width:100%;height:100%;object-fit:cover;outline:1px solid oklch(0 0 0 / .1);outline-offset:-1px;border-radius:10px}
+#wmkit .jinventory .photo-empty{color:var(--ink-2)}
+#wmkit .jinventory .jhills{top:6px;right:6px;min-width:26px;height:24px;line-height:24px;font-size:12px;padding:0 7px}
+#wmkit .jinventory .jstamp{left:6px;bottom:6px;font-size:11px;padding:3px 6px}
+#wmkit .jinventory .jcaption{padding:6px 0 0}
+#wmkit .jinventory .jcaption strong{font:600 14px/1.25 var(--font-ui);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;hyphens:auto}
+#wmkit .jinventory .jcaption p{margin:1px 0 0;font:12px/1.3 var(--font-data);color:var(--ink-2)}
+#wmkit .jinventory .jcapwhy{font:12px/1.3 var(--font-ui);color:var(--ink-2)}
+#wmkit .jinventory.off .jphoto{opacity:.7}
+#wmkit .jmore{display:flex;width:100%;justify-content:space-between;align-items:center;margin:14px 0 10px;min-height:52px;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--raise);color:var(--ink);font:600 15px var(--font-ui)}
+#wmkit .jmore small{font:500 13px var(--font-data);color:var(--ink-2);margin-left:8px}
+#wmkit .jmore[aria-expanded=true] svg{rotate:180deg}
+#wmkit .jcategorygroup h2{font:600 15px var(--font-ui);margin:14px 0 8px}
+#wmkit .jsetuprow{background:var(--raise);color:var(--ink);border:1px solid var(--line);border-radius:12px;margin:0 0 8px;overflow:hidden}
+#wmkit .jsetuprow .jsetupopen{display:grid;grid-template-columns:44px minmax(0,1fr) auto 18px;gap:12px;align-items:center;width:100%;min-height:68px;padding:8px 12px;border:0;background:none;color:inherit;text-align:start}
+#wmkit .jsetuprow .jsetupicon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fffdf7}
+#wmkit .jsetupname strong{display:block;font:20px/1.15 var(--font-display);overflow-wrap:anywhere}
+#wmkit .jsetupname small{display:block;font-size:13px;color:var(--ink-2);margin-top:2px}
+#wmkit .jsetupkg{font:600 15px var(--font-data);text-align:end}
+#wmkit .jsetupkg i{display:block;font:normal 11px var(--font-ui);color:var(--ink-2)}
+#wmkit .jsetupchev{color:var(--ink-2)}
+/* v393 pack page on a phone: the pack and its parts on the first screen */
+#wmkit.wmkitplan .jback{min-height:44px;margin:0 0 4px}
+#wmkit #wmpack .footer,#wmkit #wmpack .pack-preview{display:none}
+@container packstudio (max-width:620px){
+  #wmkit #wmpack .page{padding:12px 14px 16px}
+  #wmkit #wmpack .titlebar{flex-wrap:nowrap;gap:10px}
+  #wmkit #wmpack .setup-title .eyebrow{display:none}
+  #wmkit #wmpack h1{font-size:28px}
+  #wmkit #wmpack .setup-meta{margin-top:4px;font-size:13px}
+  #wmkit #wmpack .weighthead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;padding:10px 0;align-items:center}
+  #wmkit #wmpack .weight-topline{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;min-height:0}
+  #wmkit #wmpack .weight-topline .weightlabel{margin:0;font-size:13px}
+  #wmkit #wmpack .weight-details-button{min-height:36px}
+  #wmkit #wmpack .weight-readout{grid-row:2 / span 2}
+  #wmkit #wmpack .weightmain strong{font-size:34px;letter-spacing:-1px}
+  #wmkit #wmpack .weightmain .unit{font-size:15px}
+  #wmkit #wmpack .weightbar{margin:0;align-self:end}
+  #wmkit #wmpack .weight-legend{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;margin:0;align-self:start}
+  #wmkit #wmpack .weight-legend span{display:inline-flex;align-items:center;gap:4px}
+  #wmkit #wmpack .weight-legend strong{font-weight:600;margin-left:2px}
+  #wmkit #wmpack .weight-status{grid-column:1 / -1;font-size:12px;margin:0}
+  #wmkit #wmpack .weight-status:empty,#wmkit #wmpack .weight-status:not(:has(span:not(:empty))){display:none}
+  #wmkit #wmpack .weight-extra{grid-column:1 / -1}
+  #wmkit #wmpack .page-tabs{margin-top:6px}
+  #wmkit #wmpack .studio{gap:12px;padding-top:10px}
+  #wmkit #wmpack[data-view=pack] .illustration{display:grid;grid-template-columns:minmax(0,56%) minmax(0,1fr);gap:4px 10px;align-items:start;max-width:none}
+  #wmkit #wmpack .diagramhead{grid-column:1 / -1;padding:0 0 4px}
+  #wmkit #wmpack .scene,#wmkit #wmpack .scene.exploded{height:auto;margin:0}
+  #wmkit #wmpack .mechanical{max-width:none}
+  #wmkit #wmpack .rig{margin-top:0}
+  #wmkit #wmpack .mechanism-caption{display:none}
+  #wmkit #wmpack .zonekeys{grid-template-columns:1fr;gap:4px;margin:0}
+  #wmkit #wmpack .zonekeys button{min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--white);font-size:14px;white-space:nowrap;flex-wrap:nowrap;flex-direction:row;align-items:center;justify-content:space-between;gap:6px}
+  #wmkit #wmpack .zonekeys button .mono{font-size:12px}
+  #wmkit #wmpack[data-view=pack] .illustration{margin:0}
+  #wmkit #wmpack .weighthead{padding:8px 14px 10px;gap:2px 14px}
+  #wmkit #wmpack .weight-status{padding-top:4px;margin-top:2px}
+  #wmkit #wmpack .page-tabs{margin:8px 0 0}
+  #wmkit #wmpack .studio{padding-top:8px}
+  #wmkit #wmpack .zonekeys button[aria-pressed=true]{background:var(--orange);border-color:var(--orange);color:var(--white)}
+  #wmkit #wmpack .zonekeys button[aria-pressed=true] svg{color:var(--white)}
+  #wmkit #wmpack .packinghint{grid-column:1 / -1;margin-top:6px;font-size:13px}
+  #wmkit #wmpack .packinghint .hintsource{display:none}
+  #wmkit #wmpack .kitpanel{padding-top:10px}
+  #wmkit #wmpack .kithead h2{font-size:24px}
+}
+@container packstudio (max-width:620px){
+  #wmkit #wmpack .setup-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px}
+  #wmkit #wmpack .setup-meta{margin-top:0}
+  #wmkit #wmpack .weighthead{position:relative}
+  #wmkit #wmpack .weight-topline .weightlabel{display:none}
+  #wmkit #wmpack .weight-topline{position:absolute;right:6px;bottom:2px;z-index:1}
+  #wmkit #wmpack .weight-readout{grid-row:1 / span 2}
+  #wmkit #wmpack .weight-status{padding-right:84px;min-height:36px;display:flex;align-items:center;flex-wrap:wrap}
+  #wmkit #wmpack[data-view=pack] .illustration{position:relative}
+  #wmkit #wmpack[data-view=pack] .diagramhead{position:absolute;left:0;top:0;z-index:3;border:0;padding:0}
+  #wmkit #wmpack[data-view=pack] .diagramhead .eyebrow{display:none}
+  #wmkit #wmpack[data-view=pack] .diagramhead button{min-height:44px;font-size:13px}
+}
+@container packstudio (max-width:620px){
+  #wmkit #wmpack .setup-title{min-width:0}
+  #wmkit #wmpack .setup-title h1{flex:0 1 auto;min-width:0;font-size:26px;overflow-wrap:anywhere}
+  #wmkit #wmpack .setup-meta{font-size:12px;gap:8px}
+  #wmkit #wmpack .zonekeys{gap:3px}
+  #wmkit #wmpack .zonekeys button{min-height:38px}
+  #wmkit #wmpack[data-view=pack] .diagramhead{display:none}
+}
+#wmkit #wmpack .setup-actions{display:flex;align-items:center;gap:8px;flex:none}
+#wmkit #wmpack .setup-use{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:var(--white);border:0;border-radius:999px;min-height:44px;padding:0 14px;font-weight:600;font-size:14px;white-space:nowrap;touch-action:manipulation}
+#wmkit #wmpack .setup-use:active{scale:.96}
+@container packstudio (max-width:400px){#wmkit #wmpack .setup-use span{font-size:0;position:absolute}#wmkit #wmpack .setup-use span:before{content:'Use';font-size:14px;position:static}#wmkit #wmpack .setup-use span{position:static}}
+/* v393: Save stays in view on long forms (add, edit, retire, outing) */
+#wmkit .kitedacts,#wmkit .jsavebar{position:sticky;bottom:calc(var(--wm-nav,64px) + 6px);z-index:6;background:linear-gradient(transparent,var(--ground,#f3efe6) 28%);padding:14px 0 6px;margin-top:8px}
+#wmkit .kitedacts .jprimary{flex:1;min-height:50px}
+#wmkit .kitguess{font:normal 600 12px var(--font-ui);color:var(--accent-text);margin-left:6px}
+/* v393: messages drop in at the top while you are in Kit, clear of its buttons */
+body:has(#wmkit) .toast{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 64px)}
+/* v393: a hover outline that sticks after a tap on a phone */
+@media (hover:none){#wmpack .clip-hit:hover{outline:0}}
+/* v393: 12px is the smallest text in Kit (was 10–11px) */
+#wmkit #wmpack .itemmeta,#wmkit #wmpack .item .grams,#wmkit #wmpack .editfields label,#wmkit #wmpack .libraryrow small,#wmkit #wmpack .weight-status,#wmkit #wmpack .weight-legend>span,#wmkit #wmpack .record-help,#wmkit #wmpack summary,#wmkit #wmpack .switchbar,#wmkit #wmpack .rangehelp,#wmkit #wmpack .zonekeys .mono,#wmkit #wmpack .targetresult,#wmkit #wmpack .weight-tag,#wmkit #wmpack .page-tabs [data-tab-count],#wmkit #wmpack .drawerhead .eyebrow,#wmkit #wmpack .kithead .eyebrow,#wmkit #wmpack .triphead .eyebrow,#wmkit #wmpack .triphead .mono,#wmkit #wmpack .mechanism-caption,#wmkit .kitedf .record-help,#wmkit .kitedf .rf-open small,#wmkit .story-eyebrow,#wmkit .photo-credit{font-size:12px}
+#wmkit input,#wmkit select,#wmkit textarea,#wmpack input,#wmpack select,#wmpack textarea{font-size:16px}
+#wmkit .jsetuprow .jsetupopen{grid-template-columns:44px minmax(0,1fr) 18px}
+#wmkit .jsetupname small b{font:600 13px var(--font-data);color:var(--ink)}
+#wmkit .jseg button{white-space:nowrap}
+@media (max-width:360px){#wmkit .jseg button{padding:0 11px;font-size:14px}#wmkit .jseg button small{display:none}#wmkit .jaddpill{padding:0 13px}}
+@container packstudio (max-width:345px){
+  #wmkit #wmpack[data-view=pack] .illustration{grid-template-columns:minmax(0,46%) minmax(0,1fr);gap:4px 8px}
+  #wmkit #wmpack .zonekeys button{padding:0 8px;font-size:13px}
+  #wmkit #wmpack .zonekeys button svg{display:none}
+  #wmkit #wmpack .zonekeys button .mono{font-size:12px}
+}
+:root.kbopen #wmkit .kitedacts,:root.kbopen #wmkit .jsavebar{bottom:6px}
+#wmkit .kiteddel{display:flex;justify-content:center;padding:6px 0 4px}
+#wmkit .kiteddel .linkbtn{min-height:44px}
 </style>
 </head>
 <body>
@@ -12171,6 +12335,9 @@ function pickOpen(){ return pickEl().classList.contains('open'); }
 
 function toast(msg){
   const t = document.getElementById('toast');
+  /* v393 (app audit): a plain message drops the Undo look (and its taps) that
+     an earlier toastAct left behind */
+  t.classList.remove('act');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2800);
 }
@@ -12227,6 +12394,13 @@ function normalise(s){
     if (Array.isArray(v.asc)){
       const a = [...new Set(v.asc.filter(d => typeof d === 'string' && d))].sort();
       if (a.length) next.asc = a;
+    }
+    /* v393 (app audit, 30 Oct): and the days taken OFF it. ascX was never on this
+       list, so every reload and every pull from the cloud threw the record of a
+       removed or moved date away, and the next sync could put that date back. */
+    if (Array.isArray(v.ascX)){
+      const x = [...new Set(v.ascX.filter(d => typeof d === 'string' && d))].sort().slice(-60);
+      if (x.length) next.ascX = x;
     }
     /* Carry the GPS verification through. Leaving it off this list quietly
        deleted every "verified at the summit" badge on reload and on sync. */
@@ -12621,10 +12795,15 @@ function mergeRec(x, y){
      express a deletion: without this the other copy puts a removed ascent
      straight back, and because the row's date follows the newest ascent the
      date is dragged forward to it too. */
+  /* v393 (app audit, 30 Oct): except a day the newer copy has on it again.
+     Putting a day back takes it out of that device's ascX, but the union
+     brought the old removal straight back from the other copy, so a day once
+     moved off could never be logged again. The newer record's own days win. */
+  const winHas = new Set(Array.isArray(win.asc) && win.asc.length ? win.asc : (win.date ? [win.date] : []));
   const gone = new Set([
     ...(Array.isArray(x.ascX) ? x.ascX : []),
     ...(Array.isArray(y.ascX) ? y.ascX : [])
-  ].filter(Boolean));
+  ].filter(Boolean).filter(d => !winHas.has(d)));
   const X = gone.size ? [...gone].sort().slice(-60) : undefined;
   const all = [...new Set([
     ...(Array.isArray(x.asc) ? x.asc : []),
@@ -13552,7 +13731,8 @@ function applyDate(el, value){
      reaches the feed exactly as tapping the tick does. It used to do neither,
      and the patch could never be awarded afterwards. */
   if (!wasDone && st === 'done'){
-    marking(() => { state.bagged[k] = {...c, st, done:true, date:value, asc:(value?[value]:c.asc), t:now()}; touched(); render(); });
+    /* v393 (app audit): a day marked again is taken out of ascX, or a sync would drop it */
+    marking(() => { state.bagged[k] = {...c, st, done:true, date:value, asc:(value?[value]:c.asc), ascX:(value ? ascGone(c, [value]) : c.ascX), t:now()}; touched(); render(); });
     return;
   }
   /* The date field at the top of a hill is the LATEST ascent — that is what it
@@ -13565,7 +13745,10 @@ function applyDate(el, value){
     if (list.length < 2) asc = [value];
     else { list[list.length - 1] = value; asc = [...new Set(list)].sort(); }
   }
-  state.bagged[k] = {...c, st, done: st === 'done', date:value, asc, t:now()};
+  /* v393 (app audit, 30 Oct): remember the day the date moved off (ascX), or the
+     sync puts it back from the cloud copy and the hill shows "x2". */
+  const ascX = (st === 'done' && value) ? ascGone(c, asc) : c.ascX;
+  state.bagged[k] = {...c, st, done: st === 'done', date:value, asc, ascX, t:now()};
   touched(); render();
 }
 /* ========= how many have been up it (v260, put right in v262) =========
@@ -13856,7 +14039,10 @@ function setState(key, st, date){
      leaves that history alone. */
   const had = Array.isArray(c.asc) && c.asc.length;
   const asc = !done ? undefined : (had ? c.asc : (d ? [d] : undefined));
-  state.bagged[key] = {...c, st, done, date:d, asc, t:now()};
+  /* v393 (app audit): a day marked again comes out of ascX, and an old single
+     date replaced by a new one goes in, so a sync cannot undo either */
+  const ascX = done && asc ? ascGone(c, asc) : c.ascX;
+  state.bagged[key] = {...c, st, done, date:d, asc, ascX, t:now()};
   if (st === 'none' && !c.notes && !(c.photos && c.photos.length) && !c.date) delete state.bagged[key];
   touched(); render();
   if (done && FB && fbUser) peakTally(key).then(n => {
@@ -22806,6 +22992,43 @@ function paintPhotoLog(){
 }
 try{ plog = JSON.parse(sessionStorage.getItem('waymark.plog') || '[]'); }catch(e){ plog = []; }
 
+/* v393 (Joe, 30 Oct: "changing the category of item in kit whilst
+   information is already added, currently wipes all other info").
+   The kit editor's boxes have names, not ids, so any redraw while it was
+   open threw away everything typed but not yet saved. Tested: adding a
+   photo or a receipt half way through did exactly that, and so would a
+   sync arriving while you type. These two keep what is in the boxes across
+   a redraw, item by item. Photos and receipts are saved as you add them,
+   so file boxes are left alone. */
+function kitFormSnap(root){
+  const out = [];
+  try{
+    for (const f of (root || document).querySelectorAll('[data-kited] .kitedf')){
+      const id = f.closest('[data-kited]').dataset.kited, v = {};
+      for (const e of f.querySelectorAll('input[name],select[name],textarea[name]'))
+        if (e.type !== 'file') v[e.name] = e.type === 'checkbox' ? e.checked : e.value;
+      const sel = f.querySelector('select[name="cat"]');
+      out.push({id, v, auto: !!(sel && sel.hasAttribute('data-auto'))});
+    }
+  }catch(e){}
+  return out;
+}
+function kitFormPut(root, snap){
+  try{
+    for (const k of snap || []){
+      const f = (root || document).querySelector('[data-kited="' + CSS.escape(k.id) + '"] .kitedf'); if (!f) continue;
+      for (const [n, val] of Object.entries(k.v)){
+        const e = f.querySelector('[name="' + n + '"]'); if (!e || e.type === 'file') continue;
+        if (e.type === 'checkbox') e.checked = !!val;
+        else if (e.tagName === 'SELECT'){ if ([...e.options].some(o => o.value === val)) e.value = val; }
+        else e.value = val;
+      }
+      const sel = f.querySelector('select[name="cat"]');
+      if (sel && !k.auto) sel.removeAttribute('data-auto');
+      const nc = f.querySelector('.kitnewcat'); if (nc && sel) nc.hidden = sel.value !== '__new';
+    }
+  }catch(e){}
+}
 function render(){
   /* A render while the photo picker is open throws away the very input the
      walker is using. Hold it. */
@@ -22937,9 +23160,11 @@ function render(){
      tab === 'u' ? renderHikers() : renderHills());
   const mainSame = mainHTML === lastMainHTML && mainEl.firstChild;
   if (!mainSame){
+    const kitTyped = kitFormSnap(mainEl);   /* v393: unsaved kit details survive the redraw */
     mapDetach();                       // keep the one map across the rewrite
     lastMainHTML = mainHTML; mainEl.innerHTML = mainHTML;
     mapAttach();
+    if (kitTyped.length) kitFormPut(mainEl, kitTyped);
   }
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); if (hikerTab() === 'popular') popLoad(); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
@@ -24041,6 +24266,18 @@ function addAscent(key, date, v){
   touched();
   return true;
 }
+/* v393 (app audit, 30 Oct): for the places that write a fresh ascent list over
+   an old one. Every day the record had and no longer has is written into ascX,
+   and every day it has now is taken out of ascX. Without this the sync union
+   (mergeRec) found the old date still in the cloud copy and put it back: change
+   Catbells from today to 25 Oct while signed in and it came back as "x2". */
+function ascGone(c, next){
+  const was = Array.isArray(c.asc) && c.asc.length ? c.asc : (c.date && (c.done || c.st === 'done') ? [c.date] : []);
+  const keep = new Set((next || []).filter(Boolean));
+  const gone = [...new Set([...(Array.isArray(c.ascX) ? c.ascX : []), ...was].filter(Boolean))]
+    .filter(z => !keep.has(z)).sort().slice(-60);
+  return gone.length ? gone : undefined;
+}
 /* Put one visit on a different day, keeping the rest of the record as it is. */
 function moveAscent(key, from, to){
   if (!to || to === from) return;
@@ -24417,6 +24654,7 @@ async function markFromMap(key, again){
     if (first){
       const c = rec(key);
       state.bagged[key] = {...c, st:'done', done:true, date:ans.date, asc:[ans.date],
+                           ascX: ascGone(c, [ans.date]),   // v393 (app audit): see ascGone
                            v: ans.v || c.v, t:now()};
       touched();
     } else if (!addAscent(key, ans.date, ans.v)){
@@ -32850,7 +33088,8 @@ document.addEventListener('click', async e => {
       if (!sameDate && date) for (const k of (p.hills || [])){
         if (!isBagged(k) || ascCount(k) > 1) continue;
         const c = rec(k);
-        state.bagged[k] = {...c, date, asc:[date], t:now()};
+        /* v393 (app audit): the old date goes in ascX, or the sync puts it back */
+        state.bagged[k] = {...c, date, asc:[date], ascX: ascGone(c, [date]), t:now()};
         moved++;
       }
       if (moved) touched();
@@ -33364,6 +33603,9 @@ document.addEventListener('click', async e => {
   else if (a === 'kitpickshut'){ ui.kitPickOpen = null; render(); }
   /* ---- v391: setups, the planner, the inventory, an item's page ---- */
   else if (a === 'kitview'){ ui.kitView = el.dataset.v; render(); window.scrollTo({top:0}); }
+  else if (a === 'kitfilterchip'){ ui.kitFilter = el.dataset.v; render(); hydratePhotos(); }
+  else if (a === 'kitoffopen'){ ui.kitOffOpen = !ui.kitOffOpen; render(); hydratePhotos();
+    if (ui.kitOffOpen){ const t = document.querySelector('[data-act="kitoffopen"]'); if (t) t.scrollIntoView({block:'start', behavior:'smooth'}); } }
   else if (a === 'kitsetadd'){
     if (kitSets().length >= 12){ toast('Twelve setups is plenty.'); return true; }
     /* a distinct record every time, opened with its name box ready */
@@ -33570,6 +33812,7 @@ document.addEventListener('click', async e => {
     render(); window.scrollTo({top:0});
   }
   else if (a === 'kitoutsave'){ kitOutingSave(); }
+  else if (a === 'kitdaysmore'){ ui.kitDaysN = Math.max(40, ui.kitDaysN || 40) + 40; render(); }
   else if (a === 'planset'){
     const p = (state.plans || []).find(x => x.id === el.dataset.id); if (!p) return true;
     /* tapping the one already chosen takes it off again */
@@ -33610,7 +33853,7 @@ document.addEventListener('click', async e => {
        claiming every hill you have ever walked. WHOSE KIT (Joe, 8 Oct):
        data-v is a dog's id, 'shared', or nothing for your own. */
     const own = String(el.dataset.v || '');
-    const g = {id:'g' + uid(), made:now(), n:'', cat:own ? 'other' : 'footwear', c:own ? 'other' : 'boots', note:'', img:'',
+    const g = {id:'g' + uid(), made:now(), n:'', cat:'other', c:'other', catAuto:1, note:'', img:'',
                since:today(), until:'', off:false, usual:true, deleted:false, dog:own, t:now()};
     state.kit = [...(state.kit || []), g];
     touched();
@@ -36850,6 +37093,10 @@ function paintInfo(){
        (on ? 'Unmark' : 'Mark it') + '</button>' +
        '<button class="btn quiet" data-act="closeinfo">Close</button></div>';
   box.innerHTML = s;
+  /* v393 (app audit, 30 Oct): load your photos into the boxes just drawn. The
+     hill page drew them and never asked storage for the pictures, so they sat
+     there blank; every other screen calls hydratePhotos() after drawing. */
+  if (myPics.length) hydratePhotos();
   /* The wordmark here is the app's own lockup, so it gets the app's own fitter:
      the tagline is tracked out to sit exactly under WAYMARK, never past it.
      Only once the sheet is on screen, though — fitTaglines reads zero from a
@@ -39934,7 +40181,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v391';
+const APP_VERSION = 'v393';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -43325,7 +43572,9 @@ function kitOutingDays(){
     e.keys.push(k); e.names.push(hillName(h)); e.n++;
     by.set(r.date, e);
   }
-  return [...by.values()].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 40);
+  /* every walking day, newest first. The picker shows 40 at a time; saving
+     looks a day up here, so it must never be cut short (v392). */
+  return [...by.values()].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
 /* a bit of kit with no photograph: a row, not a blank square */
@@ -43429,6 +43678,14 @@ function kitCatList(){
   return KIT_CATS.map(c => ({id:c.id, n:c.n, icon:c.icon}))
     .concat(kitCustomCats().map(c => ({id:c.id, n:c.n, icon:'circle-dashed', custom:true})));
 }
+/* WHAT A MENU OFFERS (v392): the twelve, plus the custom categories that
+   something is actually in, plus the one this item already has. A custom
+   category nobody uses -- a typo, a one-off -- simply drops out of every
+   list. It is never deleted, so typing the same name again brings it back. */
+function kitCatMenu(keep){
+  const used = new Set(kitList().map(g => kitCatId(g)));
+  return kitCatList().filter(c => !c.custom || used.has(c.id) || c.id === keep);
+}
 function kitCatFind(name){
   const k = kitCatClean(name).toLowerCase(); if (!k) return null;
   return kitCatList().find(c => c.n.toLowerCase() === k) || null;
@@ -43444,6 +43701,29 @@ function kitCatAdd(name){
 /* The category of an item, always one that exists. A custom category that
    was removed, or an id this phone has never heard of, reads as Other
    rather than vanishing the item from every filter. */
+/* v393 (journey audit, 30 Oct): a new rain jacket was saved as Footwear
+   because that was the default. Now the type follows the name you type,
+   until you pick one yourself. Plain words only; anything unknown is Other. */
+const KIT_GUESS = [
+  ['packs', /\b(pack|rucksack|backpack|day ?sack|daypack|bag liner|dry ?bag|stuff ?sack)\b/i],
+  ['footwear', /\b(boots?|shoes?|trainers?|sandals?|gaiters?|socks?|insoles?|laces?|crampons?|microspikes?)\b/i],
+  ['shelter', /\b(tent|tarp|bivvy|bivy|shelter|pegs?|groundsheet|footprint)\b/i],
+  ['sleep', /\b(sleeping|sleep ?pad|mat|pillow|quilt|bag)\b/i],
+  ['cooking', /\b(stove|pot|pan|mug|cup|spork|spoon|fork|lighter|gas|fuel|jetboil|kettle|flask|cook)\b/i],
+  ['hydration', /\b(bottle|bladder|hydration|filter|water|nalgene|sawyer)\b/i],
+  ['navigation', /\b(map|compass|gps|watch|garmin|altimeter)\b/i],
+  ['electronics', /\b(torch|head ?torch|headlamp|phone|battery|power ?bank|charger|camera|cable|radio)\b/i],
+  ['firstaid', /\b(first ?aid|plasters?|blister|medical|bandage|whistle|survival|bothy bag)\b/i],
+  ['poles', /\b(poles?|sticks?|trekking)\b/i],
+  ['clothing', /\b(jacket|coat|shell|fleece|hoodie|jumper|layer|base ?layer|merino|trousers|shorts|leggings|waterproofs?|hat|beanie|cap|gloves?|mitts?|buff|shirt|t-shirt|tee|vest|gilet|poncho|smock|overtrousers)\b/i]
+];
+function kitGuessCat(name){
+  const t = String(name || '');
+  /* clothing words win over "bag"/"pack" words in names like "packable jacket" */
+  const order = ['clothing', 'footwear', 'shelter', 'cooking', 'hydration', 'navigation', 'electronics', 'firstaid', 'poles', 'packs', 'sleep'];
+  for (const id of order){ const r = KIT_GUESS.find(x => x[0] === id); if (r && r[1].test(t)) return id; }
+  return '';
+}
 function kitCatId(g){
   const c = g && g.cat;
   if (c && (KIT_CAT_BY[c] || kitCustomCats().some(x => x.id === c))) return c;
@@ -43633,8 +43913,14 @@ function kitMoney(g, hills){
   if (p === null) return null;
   return {paid:p, per: hills > 0 ? p / hills : null};
 }
-function kitGbp(pence){ return '£' + (pence / 100).toFixed(2); }
-function kitGbpShort(pence){ return '£' + (pence / 100).toFixed(pence % 100 ? 2 : 0); }
+/* v392: with a comma (£1,249.99), the way every price is read out loud */
+function kitGbp(pence){ return '£' + (pence / 100).toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function kitGbpShort(pence){ const d = pence % 100 ? 2 : 0; return '£' + (pence / 100).toLocaleString('en-GB', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+/* WHAT EACH SUMMIT COST, NEVER A FALSE £0.00. A real price spread over
+   enough hills drops under a penny; rounding that to £0.00 says "free".
+   A price of exactly nothing, typed on purpose, still says £0.00. */
+function kitPerStr(m){ if (m.paid > 0 && m.per < 0.5) return 'under 1p'; return kitGbp(Math.round(m.per)); }
+function kitNum(n){ return Number(n || 0).toLocaleString('en-GB'); }
 
 /* ---------- WEIGHT ---------- */
 function kitG(g){ return (g && +g.wt > 0) ? +g.wt : null; }
@@ -43886,15 +44172,20 @@ function renderKitPane(){
   if (ui.kitOuting) return kitOutingHTML();
   if (ui.kitPlan && kitSetById(ui.kitPlan)) return kitPlannerHTML(kitSetById(ui.kitPlan));
   const sets = kitSets(), mine = kitMine();
-  const view = (ui.kitView === 'setups' && sets.length) ? 'setups' : (ui.kitView === 'all' || !sets.length ? 'all' : 'setups');
+  /* v393 (Joe, 30 Oct: "opens on All kit"; "limit the scroll"): one row,
+     All kit first, and the add button for what you are looking at always
+     at the top, never under the list. */
+  const view = ui.kitView === 'setups' ? 'setups' : 'all';
   let s = '<div id="wmkit" class="wmkit">' +
-    '<div class="jheading"><h1>Your kit</h1>' +
-      '<button class="jtextbutton" data-act="kitsetadd">+ New setup</button></div>' +
-    '<div class="jsubtabs" role="tablist">' +
-      '<button role="tab" data-act="kitview" data-v="setups" aria-selected="' + (view === 'setups') + '" aria-pressed="' + (view === 'setups') + '">' +
-        'Setups' + (sets.length ? ' · ' + sets.length : '') + '</button>' +
+    '<h1 class="vh">Your kit</h1>' +
+    '<div class="jkbar"><div class="jseg" role="tablist" aria-label="Your kit">' +
       '<button role="tab" data-act="kitview" data-v="all" aria-selected="' + (view === 'all') + '" aria-pressed="' + (view === 'all') + '">' +
-        'All kit' + (mine.length ? ' · ' + mine.length : '') + '</button>' +
+        'All kit' + (mine.length ? '<small>' + mine.length + '</small>' : '') + '</button>' +
+      '<button role="tab" data-act="kitview" data-v="setups" aria-selected="' + (view === 'setups') + '" aria-pressed="' + (view === 'setups') + '">' +
+        'Setups' + (sets.length ? '<small>' + sets.length + '</small>' : '') + '</button>' +
+    '</div>' +
+    (view === 'all' ? '<button class="jaddpill" data-act="gearadd">' + kitIcon('plus', 'width="17" height="17"') + 'Add kit</button>'
+                    : '<button class="jaddpill" data-act="kitsetadd">' + kitIcon('plus', 'width="17" height="17"') + 'New setup</button>') +
     '</div>';
   s += view === 'setups' ? kitSetupsHTML(sets) : kitInventoryHTML();
   return s + '</div>';
@@ -43907,19 +44198,15 @@ function kitSetupsHTML(sets){
   let s = '';
   for (const x of sets){
     const w = kitSetWeigh(x), n = kitSetItems(x).length;
-    s += '<article class="jsetup">' +
-      '<button class="jsetupopen" data-act="kitplan" data-v="' + esc(x.id) + '">' +
-        '<span class="jeyebrow">Your saved setup' + (x.season ? ' · ' + esc(x.season) : '') +
-          (x.def ? ' · your usual' : '') + '</span>' +
-        '<h2>' + esc(x.n || 'Untitled setup') + '</h2>' +
-        '<div class="jsetupstats"><span>' + n + (n === 1 ? ' item' : ' items') + '</span>' +
-          (n ? '<span>Base kit <b>' + esc(kitKgStr(w.base)) + '</b>' + (w.unknown ? ' <i>known weight only</i>' : '') + '</span>' : '') +
-        '</div></button>' +
-      '<div class="jsetupfooter"><button class="jsetuplink" data-act="kitplan" data-v="' + esc(x.id) + '">Pack plan & item details <span aria-hidden="true">↗</span></button>' +
-        (n ? '<button class="jsetupuse" data-act="kitouting" data-v="' + esc(x.id) + '">Use on an outing →</button>' : '') + '</div>' +
+    s += '<article class="jsetup jsetuprow">' +
+      '<button class="jsetupopen" data-act="kitplan" data-v="' + esc(x.id) + '"><span class="jsetupicon" style="background:' + esc(kitSetCol(x).hex) + ';color:' + kitSetInk(x).fg + '">' + kitIcon(kitSetIcon(x), 'width="22" height="22"') + '</span>' +
+        '<span class="jsetupname"><strong>' + esc(x.n || 'Untitled setup') + '</strong>' +
+        '<small>' + n + (n === 1 ? ' item' : ' items') + (n ? ' · <b>' + esc(kitKgStr(w.base)) + '</b>' + (w.unknown ? ' (known weight only)' : '') : '') +
+          (x.def ? ' · your usual' : '') + (x.season ? ' · ' + esc(x.season) : '') + '</small></span>' +
+        kitIcon('chevron-right', 'width="18" height="18" class="jsetupchev"') + '</button>' +
       '</article>';
   }
-  s += '<p class="jnote">Your reusable packing lists. Adjust what you take for each day out. One item can be in as many setups as you like.</p>';
+  s += '<p class="jnote">A setup is a packing list you use again. One item can be in as many as you like.</p>';
   return s;
 }
 
@@ -43941,26 +44228,33 @@ function kitInventoryHTML(){
   const cats = kitCatList().filter(c => mine.some(g => kitCatId(g) === c.id));
   let s = '';
   if (mine.length){
-    s += '<label class="jcategoryfilter">Browse your kit<span class="jselect"><select data-act="kitfilter" aria-label="Filter your kit by category">' +
-      '<option value="all"' + (f === 'all' ? ' selected' : '') + '>Show all (no categories) · ' + mine.length + '</option>' +
-      '<option value="group"' + (f === 'group' ? ' selected' : '') + '>Group by category · ' + mine.length + '</option>' +
-      cats.map(c => '<option value="' + esc(c.id) + '"' + (f === c.id ? ' selected' : '') + '>' + esc(c.n) + ' · ' +
-        mine.filter(g => kitCatId(g) === c.id).length + '</option>').join('') +
-      '</select>' + kitIcon('chevron-down', 'width="18" height="18" class="jselecti"') + '</span></label>';
-    const shown = f === 'all' || f === 'group' ? ordered : ordered.filter(g => kitCatId(g) === f);
-    s += '<p class="jcategorycount" aria-live="polite">' + shown.length + (shown.length === 1 ? ' item' : ' items') +
-      (f === 'group' ? ' · grouped by category' : f === 'all' ? ' · showing everything' : ' in ' + esc(kitCatOf(f).n)) + '</p>';
+    /* v393: chips, one tap each, instead of a dropdown with a count line under it */
+    const chip = (v, label, k) => '<button class="jchip" data-act="kitfilterchip" data-v="' + esc(v) + '" aria-pressed="' + (f === v) + '">' +
+      esc(label) + (k !== '' ? '<small>' + kitNum(k) + '</small>' : '') + '</button>';
+    s += '<div class="jchips" role="group" aria-label="Show kit by type">' + chip('all', 'All', mine.length) +
+      cats.map(c => chip(c.id, c.n, mine.filter(g => kitCatId(g) === c.id).length)).join('') +
+      (cats.length > 1 ? chip('group', 'By type', '') : '') + '</div>';
+    /* retired kit folds away at the end, so the things you use come first */
+    const live = ordered.filter(g => !g.off), off = ordered.filter(g => g.off);
+    const pick = list => f === 'all' || f === 'group' ? list : list.filter(g => kitCatId(g) === f);
     if (f === 'group'){
       for (const c of cats){
-        const list = ordered.filter(g => kitCatId(g) === c.id);
-        s += '<section class="jcategorygroup"><h2>' + esc(c.n) + ' <small>' + list.length + '</small></h2>' +
+        const list = live.filter(g => kitCatId(g) === c.id);
+        if (list.length) s += '<section class="jcategorygroup"><h2>' + esc(c.n) + ' <small>' + list.length + '</small></h2>' +
           '<div class="jgrid">' + list.map(g => kitInvCardHTML(g, false)).join('') + '</div></section>';
       }
     } else {
-      s += '<div class="jgrid">' + shown.map(g => kitInvCardHTML(g, f === 'all')).join('') + '</div>';
+      const shown = pick(live);
+      s += shown.length ? '<div class="jgrid">' + shown.map(g => kitInvCardHTML(g, false)).join('') + '</div>'
+        : '<p class="jnote">Nothing in use here.</p>';
+    }
+    const offs = pick(off);
+    if (offs.length){
+      s += '<button class="jmore" data-act="kitoffopen" aria-expanded="' + !!ui.kitOffOpen + '"><span>Retired<small>' + offs.length + '</small></span>' +
+        kitIcon('chevron-down', 'width="18" height="18"') + '</button>';
+      if (ui.kitOffOpen) s += '<div class="jgrid">' + offs.map(g => kitInvCardHTML(g, false)).join('') + '</div>';
     }
   }
-  s += '<button class="jprimary jfull" data-act="gearadd">+ Add a bit of kit</button>';
   /* SHARED DOG GEAR. Still here, still its own heading, still not copied
      onto every dog. (Joe, 8 Oct.) */
   if (dogList().length){
@@ -43977,19 +44271,19 @@ function kitInvCardHTML(g, withCat){
   const thumb = kitThumbTag(g, 'jimg');
   const meta = [withCat ? kitCat(g).label : '', w ? kitShortW(w) : ''].filter(Boolean).join(' · ');
   return '<article class="jinventory' + (g.off ? ' off' : '') + '">' +
-    '<button data-act="gearopen" data-v="' + esc(g.id) + '" aria-label="' + esc(kitName(g)) + ', ' + hills + (hills === 1 ? ' hill' : ' hills') + '">' +
+    '<button data-act="gearopen" data-v="' + esc(g.id) + '" aria-label="' + esc(kitName(g)) + ', ' + kitNum(hills) + (hills === 1 ? ' hill' : ' hills') + '">' +
     '<div class="jphoto">' + (thumb ||
-      '<span class="photo-empty">' + kitIcon(kitCat(g).icon, 'width="30" height="30"') + '<span>No photo yet</span></span>') +
-      '<span class="jhills" aria-hidden="true">' + hills + '</span>' +
+      '<span class="photo-empty" title="No photo yet">' + kitIcon(kitCat(g).icon, 'width="28" height="28"') + '</span>') +
+      '<span class="jhills" aria-hidden="true">' + kitNum(hills) + '</span>' +
       (g.off ? '<span class="jstamp">Retired' + (g.until ? ' ' + esc(g.until.slice(0, 4)) : '') + '</span>' : '') +
       (kitHasRec(g) || (g.rdocs || []).length ? '<span class="jrec" aria-hidden="true">£</span>' : '') + '</div>' +
     '<div class="jcaption"><strong>' + esc(kitName(g)) + '</strong>' +
       (meta ? '<p>' + esc(meta) + '</p>' : '') +
-      '<p class="jcapuse">' + hills + (hills === 1 ? ' hill' : ' hills') +
-        (m && m.per !== null ? ' · ' + esc(kitGbp(Math.round(m.per))) + ' a summit' : '') + '</p>' +
+      /* v393: the tile says weight and hills; the cost a summit is on its page */
+      '<p class="jcapuse">' + kitNum(hills) + (hills === 1 ? ' hill' : ' hills') + '</p>' +
       /* otherwise a nought with no reason beside it reads as broken */
       (!g.off && g.usual === false ? '<p class="jcapwhy">Not in usual kit</p>' : '') +
-      '<b>View item →</b></div></button></article>';
+      '</div></button></article>';
 }
 
 /* ---------- ONE ITEM: its own page ---------- */
@@ -43997,7 +44291,7 @@ function renderKitPage(id){
   const g = kitById(id);
   if (!g){ ui.kitItem = null; return renderKitPane(); }
   return '<div id="wmkit" class="wmkit wmkititem">' +
-    '<button class="jback" data-act="kitback">← ' + (ui.kitFrom === 'plan' && kitSetById(ui.kitPlan) ? 'Back to ' + esc(kitSetById(ui.kitPlan).n || 'setup') : 'All kit') + '</button>' +
+    '<button class="jback" data-act="kitback">← ' + (ui.kitFrom === 'plan' && kitSetById(ui.kitPlan) ? esc(kitSetById(ui.kitPlan).n || 'Setup') : 'All kit') + '</button>' +
     kitStoryHTML(g) + '</div>';
 }
 function kitStoryHTML(g){
@@ -44030,8 +44324,8 @@ function kitStoryHTML(g){
   /* the usage block: summits, and what each one cost when there is a price */
   s += '<section class="story-stats" aria-label="Item use and cost">' +
       '<div><button class="story-num" data-act="kithist" data-v="' + esc(g.id) + '"' + (hills ? '' : ' disabled') + '>' +
-        '<strong>' + hills + '</strong><span>' + (hills === 1 ? 'summit together' : 'summits together') + '</span></button></div>' +
-      (m ? '<div><strong>' + esc(m.per !== null ? kitGbp(Math.round(m.per)) : kitGbpShort(m.paid)) + '</strong>' +
+        '<strong class="' + (hills > 99999 ? 'long' : '') + '">' + kitNum(hills) + '</strong><span>' + (hills === 1 ? 'summit together' : 'summits together') + '</span></button></div>' +
+      (m ? (v => '<div><strong class="' + (v.length > 6 ? 'long' : '') + '">' + esc(v) + '</strong>')(m.per !== null ? kitPerStr(m) : kitGbpShort(m.paid)) +
         '<span>' + (m.per !== null ? 'per summit' : 'paid') + '</span></div>' : '') +
     '</section>';
   if (m && m.per !== null) s += '<p class="story-paid">' + esc(kitGbpShort(m.paid)) + ' paid · making every outing count.</p>';
@@ -44058,9 +44352,9 @@ function kitStoryHTML(g){
   if (st.rows.length){
     const hrow = r => '<button data-act="kithill" data-k="' + esc(r.k) + '"><span>' + esc(hillName(r.h)) + '</span><i>' + (r.date ? esc(prettyDate(r.date)) : 'no date') + '</i></button>';
     s += '<div class="kithills">' + st.rows.slice(0, 12).map(hrow).join('') + '</div>' +
-      (st.rows.length > 12 ? '<details class="kitextra kithillmore"><summary>Show all ' + st.rows.length + '</summary><div class="kithills">' +
+      (st.rows.length > 12 ? '<details class="kitextra kithillmore"><summary>Show all ' + kitNum(st.rows.length) + '</summary><div class="kithills">' +
         st.rows.slice(12, 400).map(hrow).join('') + '</div></details>' : '') +
-      '<p class="jnote">' + st.hills + (st.hills === 1 ? ' summit' : ' summits') + ' over ' + st.days + (st.days === 1 ? ' day out' : ' days out') +
+      '<p class="jnote">' + kitNum(st.hills) + (st.hills === 1 ? ' summit' : ' summits') + ' over ' + kitNum(st.days) + (st.days === 1 ? ' day out' : ' days out') +
         (st.top ? ' · highest ' + esc(hillName(st.top)) : '') + '.</p>';
   } else {
     s += '<p class="jnote">Nothing yet. ' + (g.since ? 'Hills you mark from ' + esc(prettyDate(g.since)) + ' count towards it' : 'Hills you mark count towards it') +
@@ -44076,17 +44370,17 @@ function kitStoryHTML(g){
    quietly overwrite the other. Every field is read from inside its own
    container, so the two can never read each other's boxes. */
 function kitEditorHTML(g){
-  const cid = kitCatId(g), cats = kitCatList();
+  const cid = kitCatId(g), cats = kitCatMenu(cid);
   const photos = kitPhotos(g), docs = (g.rdocs || []);
   const price = kitPrice(g);
   return '<div class="kitedf">' +
     '<label class="kitf wide">Name<input name="n" value="' + esc(g.n || '') + '" maxlength="60" placeholder="Scarpa Ranger II" autocomplete="off"></label>' +
-    '<label class="kitf">Category<span class="jselect"><select name="cat" data-act="kitcatpick">' +
+    '<label class="kitf">Type' + (g.catAuto ? '<em class="kitguess" hidden>guessed from the name</em>' : '') + '<span class="jselect"><select name="cat" data-act="kitcatpick"' + (g.catAuto ? ' data-auto="1"' : '') + '>' +
       cats.map(c => '<option value="' + esc(c.id) + '"' + (c.id === cid ? ' selected' : '') + '>' + esc(c.n) + '</option>').join('') +
       '<option value="__new">+ New category…</option></select>' + kitIcon('chevron-down', 'width="18" height="18" class="jselecti"') + '</span></label>' +
     '<label class="kitf kitnewcat" hidden>New category<input name="newcat" maxlength="30" placeholder="e.g. Climbing" autocomplete="off"></label>' +
     '<label class="kitf">Weight<span class="kitunit"><input name="wt" inputmode="numeric" maxlength="5" value="' + (kitG(g) ? kitG(g) : '') + '" placeholder="Unknown"><i>g</i></span></label>' +
-    '<label class="kitf">Got it<input name="since" type="date" value="' + esc(g.since || '') + '"></label>' +
+    '<label class="kitf">Got it<input name="since" type="date" max="' + today() + '" value="' + esc(g.since || '') + '"></label>' +
     '<p class="kitfine wide">Hills you walk from this date count towards it, so the log fills itself in.</p>' +
     '<label class="kitf">Price paid<span class="kitunit pre"><i>£</i><input name="paid" inputmode="decimal" maxlength="9" value="' +
       (price === null ? '' : (price === 0 ? '0' : esc(kitPaidStr(g)))) + '" placeholder="Optional"></span></label>' +
@@ -44116,8 +44410,9 @@ function kitEditorHTML(g){
         '<input type="file" accept="image/*,application/pdf,.pdf" multiple data-act="kitdocs" data-v="' + esc(g.id) + '" class="filein"></label>' : '') +
       '<p class="record-help">Kept on this phone and in your own account. A PDF up to 700 KB.</p>' +
     '</div>' +
-    '<div class="wide kitedacts"><button class="jprimary" data-act="gearsave" data-v="' + esc(g.id) + '">Save item details</button>' +
-      '<button class="linkbtn danger" data-act="geardel" data-v="' + esc(g.id) + '">Delete</button></div>' +
+    '<div class="wide kitedacts"><button class="jprimary" data-act="gearsave" data-v="' + esc(g.id) + '">Save item details</button></div>' +
+    /* v393: Delete sits apart from Save, never in the bar that follows you down the form */
+    '<div class="wide kiteddel"><button class="linkbtn danger" data-act="geardel" data-v="' + esc(g.id) + '">Delete this item</button></div>' +
   '</div>';
 }
 /* read the form from inside its own box */
@@ -44140,9 +44435,11 @@ function kitSaveForm(id, root){
     cat = kitCatAdd(nc);
   }
   if (!(KIT_CAT_BY[cat] || kitCustomCats().some(c => c.id === cat))) cat = 'other';
-  g.cat = cat;
+  g.cat = cat; delete g.catAuto;
   g.c = KIT_CAT_TO_OLD[cat] || 'other';      /* for phones still on v390 */
   g.since = String(f.v('since') || '').slice(0, 10);
+  /* a day you have not got to yet would mean it never counts a hill */
+  if (g.since && g.since > today()){ g.since = today(); toast('That date is in the future, so it is set to today.'); }
   g.note = String(f.v('note') || '').slice(0, 400);
   const praw = String(f.v('paid') || '').replace(/[\s£,]/g, '');
   if (!praw){ delete g.paid; delete g.paid0; }
@@ -44170,12 +44467,13 @@ function kitSaveForm(id, root){
 function kitPlannerHTML(x){
   const tab = ['pack', 'kit', 'supplies'].indexOf(ui.kitTab) >= 0 ? ui.kitTab : 'pack';
   const zone = (ui.kitZone && (ui.kitZone === 'all' || KIT_ZONES[ui.kitZone])) ? ui.kitZone : 'all';
-  const guide = !!ui.kitGuide && tab === 'pack';
+  /* v393: the pack guide is the page (Joe: "huge emphasis on the pack guide"), so it is always open on the Pack tab */
+  const guide = tab === 'pack';
   const adding = !!ui.kitAdd;
   const rows = kitSetRows(x), sup = kitSup(x), w = kitWeigh(rows, sup);
   const n = rows.length;
   const tgt = (+x.tgt > 0) ? +x.tgt : 0;
-  let s = '<div id="wmkit" class="wmkit wmkitplan"><button class="jback" data-act="kitplanclose">← Your setups</button>' +
+  let s = '<div id="wmkit" class="wmkit wmkitplan"><button class="jback" data-act="kitplanclose">← Setups</button>' +
     '<div id="wmpack" data-view="' + tab + '" data-guide-open="' + guide + '" data-adding="' + adding + '" data-setup="' + esc(x.id) + '" aria-label="' + esc(x.n || 'Setup') + ' pack planner">' +
     '<div class="page">';
   /* title */
@@ -44183,7 +44481,9 @@ function kitPlannerHTML(x){
       '<h1>' + esc(x.n || 'Untitled setup') + '<span>.</span></h1>' +
       '<div class="setup-meta"><span>' + kitIcon(kitSetIcon(x)) + '<span>' + (sup.days ? sup.days + (sup.days === 1 ? ' day' : ' days') : 'Days not set') + '</span></span>' +
         '<span>' + n + (n === 1 ? ' item' : ' items') + '</span>' + (x.def ? '<span>Your usual setup</span>' : '') + '</div></div>' +
-    '<button class="setup-edit" data-act="kitsetedit" data-v="' + esc(x.id) + '" aria-label="Edit setup name and season" aria-expanded="' + !!ui.kitSetEdit + '">' + kitIcon('pencil') + '</button></div>';
+    /* v393: "Use on an outing" lives at the top beside the name, so it never covers the pack */
+    '<div class="setup-actions">' + (n ? '<button class="setup-use" data-act="kitouting" data-v="' + esc(x.id) + '">' + kitIcon('walk', 'width="17" height="17"') + '<span>Use on an outing</span></button>' : '') +
+    '<button class="setup-edit" data-act="kitsetedit" data-v="' + esc(x.id) + '" aria-label="Edit setup name and season" aria-expanded="' + !!ui.kitSetEdit + '">' + kitIcon('pencil') + '</button></div></div>';
   if (ui.kitSetEdit) s += kitSetEditorHTML(x);
   /* weight head */
   const parts = [['base', 'Base kit', w.base, '#cfd4ba'], ['food', 'Food', w.food, '#df8755'], ['water', 'Water', w.water, '#8baaa0'], ['fuel', 'Fuel', w.fuel, '#b8a382']];
@@ -44209,14 +44509,12 @@ function kitPlannerHTML(x){
   /* add kit drawer */
   if (adding) s += kitAddDrawerHTML(x);
   /* the small pack, the way into the guide */
-  s += '<button class="pack-preview" data-act="kitguide" aria-expanded="' + guide + '">' + KIT_MINI_PACK +
-    '<span><strong>' + (guide ? 'Close pack guide' : 'Open pack guide') + '</strong><small>See where your kit goes</small></span>' + kitIcon('chevron-right', 'width="18" height="18"') + '</button>';
   /* the studio: the guide and the list */
   s += '<div class="studio">';
   s += '<section class="illustration" aria-label="Interactive backpack packing guide">' +
       '<div class="diagramhead"><p class="eyebrow">Tap your pack to look inside</p><button data-act="kitpackclose">' + kitIcon('refresh') + 'Close pack</button></div>' +
       '<div class="scene mechanical" data-scene>' + (guide ? KIT_RIG : '') + '</div>' +
-      '<div class="zonekeys" role="group" aria-label="Packing zones">' + KIT_ZONE_ORDER.map(k => {
+      '<div class="zonekeys" role="group" aria-label="Packing zones"><button data-act="kitzone" data-v="all" aria-pressed="' + (zone === 'all') + '"><span>' + kitIcon('backpack') + 'All</span><span class="mono">' + kitShortW(rows.filter(r => r.z !== 'worn').reduce((a, r) => a + (r.wt || 0) * r.q, 0)) + '</span></button>' + KIT_ZONE_ORDER.map(k => {
         const m = rows.filter(r => r.z === k).reduce((a, r) => a + (r.wt || 0) * r.q, 0);
         return '<button data-act="kitzone" data-v="' + k + '" aria-pressed="' + (zone === k) + '"><span>' + kitIcon(KIT_ZONES[k].icon) + KIT_ZONES[k].key + '</span><span class="mono">' + kitShortW(m) + '</span></button>';
       }).join('') + '</div>' +
@@ -44226,9 +44524,7 @@ function kitPlannerHTML(x){
   s += '</div>';
   /* supplies */
   s += kitSuppliesHTML(x, sup);
-  s += '<footer class="footer"><span>Your kit and your weights.</span><span>Base weight includes the pack. Worn items stay separate.</span></footer>';
   s += '</div></div>';
-  if (n) s += '<div class="jusebar"><button class="jprimary jfull" data-act="kitouting" data-v="' + esc(x.id) + '">Use on an outing →</button></div>';
   return s + '</div>';
 }
 function kitPanelHTML(x, rows, zone, tab){
@@ -44237,11 +44533,7 @@ function kitPanelHTML(x, rows, zone, tab){
   const shown = all ? rows : rows.filter(r => r.z === zone);
   const zm = shown.reduce((a, r) => a + (r.wt || 0) * r.q, 0);
   let s = '<section class="kitpanel" aria-label="Kit in this setup">' +
-    '<label class="kit-zone-filter"><span class="zone-select-label">Show kit in<strong>' + kitShortW(zm) + '</strong></span>' +
-      '<span class="zone-select-frame"><span data-zone-select-icon aria-hidden="true">' + kitIcon(z ? z.icon : 'backpack') + '</span>' +
-      '<select data-act="kitzonesel" aria-label="Change packing zone"><option value="all"' + (zone === 'all' ? ' selected' : '') + '>All kit</option>' +
-        KIT_ZONE_ORDER.map(k => '<option value="' + k + '"' + (zone === k ? ' selected' : '') + '>' + esc(KIT_ZONES[k].t) + '</option>').join('') + '</select>' +
-      '<span class="zone-select-arrow" aria-hidden="true">' + kitIcon('chevron-down') + '</span></span></label>' +
+    /* v393: no "Show kit in" dropdown; the parts of the pack beside it do that job */
     '<div class="kithead"><div><p class="eyebrow">' + (all ? 'Your setup / Kit list' : esc(z.eye)) + '</p><h2>' + (all ? 'Your kit' : esc(z.t)) + '</h2></div>' +
       '<span class="mass">' + kitShortW(zm) + '</span></div>' +
     '<p class="zonehelp">' + (all ? 'Everything in this setup. Worn kit is counted separately.' : esc(z.help)) + '</p>' +
@@ -44299,7 +44591,7 @@ function kitAddDrawerHTML(x){
     s += '<div class="newform" data-newform>' +
       '<label class="wide">Item name<input name="n" maxlength="60" placeholder="e.g. Camp pillow" autocomplete="off"></label>' +
       '<label>Weight, grams<input name="wt" type="number" min="0" max="99999" inputmode="numeric" placeholder="Leave blank if unknown"></label>' +
-      '<label>Category<select name="cat" data-act="kitcatpick">' + kitCatList().map(c => '<option value="' + esc(c.id) + '"' + (c.id === 'other' ? ' selected' : '') + '>' + esc(c.n) + '</option>').join('') +
+      '<label>Type<select name="cat" data-act="kitcatpick" data-auto="1">' + kitCatMenu('').map(c => '<option value="' + esc(c.id) + '"' + (c.id === 'other' ? ' selected' : '') + '>' + esc(c.n) + '</option>').join('') +
         '<option value="__new">+ New category…</option></select></label>' +
       '<label class="kitnewcat wide" hidden>New category<input name="newcat" maxlength="30" placeholder="e.g. Climbing" autocomplete="off"></label>' +
       '<label class="wide">Pack it in<select name="z"><option value="">Where it usually goes</option>' + KIT_ZONE_ORDER.map(k => '<option value="' + k + '"' + (zone === k ? ' selected' : '') + '>' + esc(KIT_ZONES[k].t) + '</option>').join('') + '</select></label>' +
@@ -44349,18 +44641,21 @@ function kitOutingHTML(){
   const d = ui.kitOuting; if (!d) return '';
   const x = kitSetById(d.set);
   const days = kitOutingDays();
-  let s = '<div id="wmkit" class="wmkit wmkitout"><button class="jback" data-act="kitoutback">← ' + (x ? 'Back to ' + esc(x.n || 'setup') : 'Your setups') + '</button>';
+  let s = '<div id="wmkit" class="wmkit wmkitout"><button class="jback" data-act="kitoutback">← ' + (x ? esc(x.n || 'Setup') : 'Setups') + '</button>';
   if (!d.date){
     s += '<h1>Which outing?</h1><p class="jnote">Your walking days, newest first. A new one appears here as soon as you mark a hill.</p>';
     if (!days.length) return s + '<p class="jnote">Mark a hill first and the day will be here.</p></div>';
     s += '<div class="jdays">';
-    for (const y of days){
+    const shown = Math.max(40, ui.kitDaysN || 40);
+    for (const y of days.slice(0, shown)){
       const tr = kitTrip(y.date);
       s += '<button class="jdayrow" data-act="kitoutday" data-v="' + esc(y.date) + '">' + kitIcon('calendar', 'width="20" height="20"') +
         '<span><b>' + esc(prettyDate(y.date)) + '</b><small>' + esc(y.names.slice(0, 2).join(', ')) + (y.n > 2 ? ' and ' + (y.n - 2) + ' more' : '') +
           (tr ? ' · kit saved' : '') + '</small></span><i>' + y.n + (y.n === 1 ? ' hill' : ' hills') + '</i></button>';
     }
-    return s + '</div></div>';
+    s += '</div>';
+    if (days.length > shown) s += '<button class="jprimary jfull jghost" data-act="kitdaysmore">Show older days (' + kitNum(days.length - shown) + ' more)</button>';
+    return s + '</div>';
   }
   const day = days.find(y => y.date === d.date) || {n:0, names:[]};
   const rows = d.rows.filter(r => kitById(r.id));
@@ -44382,9 +44677,9 @@ function kitOutingHTML(){
     s += '<div class="jitemrow' + (r.on ? '' : ' off') + '"><label class="jtick"><input type="checkbox" data-act="kitouttick" data-v="' + esc(r.id) + '"' + (r.on ? ' checked' : '') + ' aria-label="Taking ' + esc(kitName(g)) + '"></label>' +
       '<span class="jthumb">' + (kitThumbTag(g, '') || kitIcon(kitCat(g).icon, 'width="18" height="18"')) + '</span>' +
       '<span class="jname">' + esc(kitName(g)) + '<small>' + esc(r.z === 'worn' ? 'Worn · outside pack weight' : KIT_ZONES[r.z].t) + '</small></span>' +
-      '<span class="qtystep sm"><button data-act="kitoutq" data-v="' + esc(r.id) + '" data-d="-1" aria-label="One fewer ' + esc(kitName(g)) + '"' + (r.on ? '' : ' disabled') + '>−</button><b>' + r.q + '</b>' +
+      '<span class="jctl"><span class="qtystep sm"><button data-act="kitoutq" data-v="' + esc(r.id) + '" data-d="-1" aria-label="One fewer ' + esc(kitName(g)) + '"' + (r.on ? '' : ' disabled') + '>−</button><b>' + r.q + '</b>' +
         '<button data-act="kitoutq" data-v="' + esc(r.id) + '" data-d="1" aria-label="One more ' + esc(kitName(g)) + '"' + (r.on ? '' : ' disabled') + '>+</button></span>' +
-      '<b class="jw">' + (each === null ? '—' : kitShortW(each * r.q)) + '</b></div>';
+      '<b class="jw">' + (each === null ? '—' : kitShortW(each * r.q)) + '</b></span></div>';
   }
   s += '</div>';
   const rest = kitMine().filter(g => !g.off && !rows.some(r => r.id === g.id));
@@ -44395,7 +44690,7 @@ function kitOutingHTML(){
     [['water', 'Water at the start', 'ml'], ['food', 'Food', 'g'], ['fuel', 'Fuel contents', 'g']].map(([k, l, u]) =>
       '<label class="jfield">' + l + '<span class="kitunit"><input type="number" min="0" max="9999" inputmode="numeric" value="' + (d.sup[k] || 0) + '" data-act="kitoutsup" data-k="' + k + '"><i>' + u + '</i></span></label>').join('') + '</section>';
   s += '<p class="jnote">Saved to each hill of this outing, so the kit you left behind gains nothing and a hill you change later stays yours to change.</p>' +
-    '<button class="jprimary jfull" data-act="kitoutsave">Save kit to this outing</button>';
+    '<div class="jsavebar"><button class="jprimary jfull" data-act="kitoutsave">Save kit to this outing</button></div>';
   return s + '</div>';
 }
 /* a draft from a setup, or from what was saved for that day before */
@@ -44515,12 +44810,15 @@ function kitPickZone(z, animate){
   if (kitRigApi){
     kitRigApi.setZone(z);
     if (animate && z !== 'all' && z !== 'pack' && z !== 'worn') kitRigApi.openZone(z);
+    if (z === 'all' && kitRigApi.closePack) kitRigApi.closePack();
   }
 }
 
 /* after every paint: if the guide is on screen, wire the drawing up again,
    snapped to the state it was in */
 function kitAfterRender(){
+  /* v393: Save bars sit just above the bottom bar, so measure it here too (it was only measured once the map had opened) */
+  try{ if (document.getElementById('wmkit')) mapShellVars(); }catch(e){}
   const root = document.getElementById('wmpack');
   const rig = root && root.querySelector('[data-rig]');
   if (!rig){ if (kitRigApi){ kitRigApi.stop(); kitRigApi = null; } return; }
@@ -44538,6 +44836,13 @@ function kitAfterRender(){
    Selects, number boxes and sliders. A slider moves its own label and box
    as you drag; the page repaints when you let go. */
 document.addEventListener('input', e => {
+  /* v393: the type follows the name until you choose one */
+  if (e.target.name === 'n' && e.target.closest && e.target.closest('.kitedf, [data-newform]')){
+    const box = e.target.closest('.kitedf, [data-newform]'), sel = box.querySelector('select[name="cat"][data-auto]');
+    if (sel){ const gc = kitGuessCat(e.target.value); sel.value = gc || 'other';
+      const gi = box.querySelector('.kitguess'); if (gi) gi.hidden = !gc; }
+    return;
+  }
   const el = e.target.closest && e.target.closest('[data-act="kitsup"]'); if (!el) return;
   const box = el.closest('label'); if (!box) return;
   const v = Math.max(0, Math.round(+el.value || 0)), k = el.dataset.k;
@@ -44550,6 +44855,8 @@ document.addEventListener('change', async e => {
   const a = el.dataset.act;
   if (a === 'kitfilter'){ ui.kitFilter = el.value; render(); hydratePhotos(); }
   else if (a === 'kitcatpick'){
+    delete el.dataset.auto;               /* you chose; the name stops guessing */
+    { const gi = el.closest('label') && el.closest('label').querySelector('.kitguess'); if (gi) gi.hidden = true; }
     const box = el.closest('.kitedf, [data-newform]');
     const nc = box && box.querySelector('.kitnewcat');
     if (nc){ nc.hidden = el.value !== '__new'; if (!nc.hidden){ const i = nc.querySelector('input'); if (i) i.focus(); } }
@@ -44651,6 +44958,7 @@ function gearEditOpen(id){ ui.gearEdit = id; gearEditPaint(); }
 function gearEditPaint(){
   const g = kitById(ui.gearEdit); if (!g) return gearEditClose();
   const el = gearEditEl();
+  const typed = kitFormSnap(el);        /* v393: keep what is typed if the sheet repaints */
   /* THE SAME EDITOR AS THE ITEM'S PAGE (v391), in a sheet because you came
      here from a hill or a dog and should not lose your place. */
   el.innerHTML = '<div class="sheetbox gearbox">' +
@@ -44658,6 +44966,7 @@ function gearEditPaint(){
     '<div class="ntop"><h3>' + (g.n ? 'Edit ' + esc(kitName(g)) : 'Add a bit of kit') + '</h3>' +
       '<button class="xbtn" data-act="geareditclose" aria-label="Close">' + ti('x') + '</button></div>' +
     '<div class="kited" data-kited="' + esc(g.id) + '">' + kitEditorHTML(g) + '</div></div>';
+  if (typed.length) kitFormPut(el, typed);
   el.classList.add('open');
   hydratePhotos();
   if (typeof wire === 'function') wire();
@@ -48255,7 +48564,9 @@ async function impMark(){
     for (const x of list){
       const c = rec(x.k);
       state.bagged[x.k] = {...c, st:'done', done:true, date: c.date || x.date || today(),
-        asc: c.date ? c.asc : [x.date || today()], t: now()};
+        asc: c.date ? c.asc : [x.date || today()],
+        ascX: c.date ? c.ascX : ascGone(c, [x.date || today()]),   // v393 (app audit): see ascGone
+        t: now()};
     }
     touched();
   });
