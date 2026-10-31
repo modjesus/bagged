@@ -11420,6 +11420,100 @@ textarea, select{font-size:16px}
   .kpart{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"t n w" "t q q"}
   .kpart .kptick{grid-area:t}.kpart .kpname{grid-area:n}.kpart .kpw{grid-area:w}.kpart .kpq{grid-area:q;justify-self:start;margin-bottom:6px}
 }
+/* v398 (Joe, 31 Oct): PACK SHARING, after the approved drawing
+   DRAWING-v394-pack-sharing.png: the share sheet, who's bringing what, a
+   friend's pack, and the page a link opens. */
+#wmkit #wmpack .setup-share{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--raise);color:var(--ink);font-weight:600;font-size:14px}
+/* on a narrow pack page the name needs the room: Share is its icon (the button's aria-label still says Share) */
+@container packstudio (max-width:520px){#wmkit #wmpack .setup-actions{flex-wrap:wrap;justify-content:flex-end;max-width:140px;row-gap:8px}#wmkit #wmpack .setup-share{width:44px;padding:0;justify-content:center}#wmkit #wmpack .setup-share span{display:none}}
+.pvlede{margin:4px 0 12px;font-size:15px;color:var(--ink-2);line-height:1.45}
+.pveye{margin:16px 0 8px;font:600 12px var(--font-data);letter-spacing:2px;text-transform:uppercase;color:var(--ink-2)}
+.pvfine{margin:8px 0 0;font-size:14px;color:var(--ink-2);line-height:1.45}
+.pvmsg{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--raise);border:1px solid var(--line);font-size:14.5px;color:var(--ink)}
+.pvwalks{display:flex;flex-direction:column;gap:8px}
+.pvwalk,.pvlink{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;box-sizing:border-box}
+.pvwalk.on{border:2px solid var(--burnt);padding:9px 13px}
+.pvwi{flex:none;display:grid;place-items:center;width:28px;color:var(--ink-2)}
+.pvwi svg{width:20px;height:20px}
+.pvwt2{flex:1;min-width:0;display:flex;flex-direction:column}
+.pvwt2 b{font-size:15.5px;font-weight:600;overflow-wrap:anywhere}
+.pvwt2 i{font-style:normal;font-size:13.5px;color:var(--ink-2)}
+.pvradio{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fffdf7}
+.pvwalk.on .pvradio{background:var(--burnt);border-color:var(--burnt)}
+.pvradio svg{width:15px;height:15px}
+.pvlink > svg{flex:none;width:18px;height:18px;color:var(--ink-2)}
+.pvprimary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;margin-top:16px;border:0;border-radius:12px;background:var(--burnt);color:#fffdf7;font:600 17px var(--font-ui)}
+.pvprimary svg{width:18px;height:18px}
+.packview{position:fixed;inset:0;z-index:2090;display:none;overflow-y:auto;overscroll-behavior:contain;background:var(--ground, var(--bg))}
+.packview.open{display:block}
+html.pvopen{overflow:hidden}
+.pvpage{max-width:600px;margin:0 auto;padding:calc(env(safe-area-inset-top, 0px) + 12px) 16px 130px;box-sizing:border-box}
+.pvback{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0;border:0;background:none;color:var(--accent-text);font:600 15px var(--font-ui)}
+.pvback svg{width:18px;height:18px}
+.pvh1{margin:2px 0 6px;font:400 30px/1.1 var(--font-display);color:var(--ink);overflow-wrap:anywhere}
+.pvsub{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--ink-2);margin:0 0 14px}
+.pvavs{display:inline-flex}
+.pvavs > *{margin-right:-6px}
+.pvsub2{margin:0;font-size:14.5px;color:var(--ink-2)}
+.pvcard{margin:12px 0 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:4px 16px 8px}
+.pvcard .pveye{margin:12px 0 4px}
+.pvgear{display:flex;align-items:center;gap:10px;min-height:56px;border-top:1px solid var(--line);padding:4px 0}
+.pvgear b{flex:1;min-width:0;font-size:15.5px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.pvgi{flex:none;display:grid;place-items:center;width:24px;color:var(--ink-2)}
+.pvclaims{flex:none;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:55%}
+.pvclaim{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px 0 4px;border-radius:999px;background:var(--raise);border:1px solid var(--line);color:var(--ink);font:600 14px var(--font-ui)}
+button.pvclaim{min-height:44px}
+.pvbring{min-height:44px;padding:0 14px;border:1.5px dashed var(--burnt);border-radius:999px;background:none;color:var(--accent-text);font:600 14px var(--font-ui)}
+.pvgx{width:44px;height:44px;border:0;background:none;color:var(--ink-2);display:grid;place-items:center}
+.pvgx svg{width:16px;height:16px}
+.pvaddgear{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;border:0;border-top:1px solid var(--line);background:none;color:var(--accent-text);font:600 15.5px var(--font-ui);padding:0}
+.pvaddgear svg{width:20px;height:20px}
+.pvgearadd{display:flex;gap:8px;align-items:center;border-top:1px solid var(--line);padding:10px 0}
+.pvgearadd input{flex:1;min-width:0;min-height:44px;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--raise);color:var(--ink)}
+.pvgearadd .btn{min-height:44px}
+.pvpack{display:flex;align-items:center;gap:10px;width:100%;min-height:60px;border:0;border-top:1px solid var(--line);background:none;padding:8px 0;color:var(--ink);font:inherit;text-align:left}
+.pvpn{flex:1;min-width:0;display:block}
+.pvpn b{font-size:15.5px;font-weight:600}
+.pvpn i{font-style:normal;font-size:14px;color:var(--ink-2)}
+.pvpbar{display:block;height:6px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}
+.pvpbar i{display:block;height:100%;background:var(--ink)}   /* ink, not pine: pine is the dark-mode page colour */
+.pvkg{flex:none;font:600 15px var(--font-data);white-space:nowrap}
+.pvpack.none .pvpn i{display:block}
+.pvnudge{min-height:44px}
+.pvasked{font-size:14px;color:var(--ink-2);padding:0 6px}
+.pvsticky{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(env(safe-area-inset-bottom, 0px) + 12px);background:linear-gradient(transparent, var(--ground, var(--bg)) 30%)}
+.pvsticky .pvprimary{max-width:568px;margin:0 auto}
+.pvhead{display:flex;align-items:center;gap:12px;margin:6px 0 12px}
+.pvinit{flex:none;width:44px;height:44px;border-radius:50%;background:var(--pine);color:#fffdf7;display:grid;place-items:center;font:600 18px var(--font-ui)}
+.pvweight{display:flex;align-items:center;gap:16px;background:var(--pine);color:#fffdf7;border-radius:14px;padding:16px 18px}
+.pvweight > b{font:600 38px/1 var(--font-data);white-space:nowrap}
+.pvweight > b small{font-size:16px;margin-left:3px}
+.pvwr{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;font:13px var(--font-data);color:#e8ece4}
+.pvwl b{color:#fffdf7;font-weight:600;margin-right:10px}
+.pvbar{display:flex;gap:3px;height:5px}
+.pvbar i{display:block;height:100%;border-radius:3px;min-width:0}
+.pvitems{margin:12px 0 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.pvitem{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.pvitem:first-child{border-top:0}
+.pvic{flex:none;width:40px;height:40px;border-radius:10px;background:var(--raise);display:grid;place-items:center;color:var(--ink-2)}
+.pvin{flex:1;min-width:0;display:flex;flex-direction:column}
+.pvin b{font-size:15.5px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.pvin i{font-style:normal;font-size:13.5px;color:var(--ink-2)}
+.pvparts{display:flex;flex-direction:column;margin-top:4px;font-size:13.5px;color:var(--ink-2)}
+.pvparts em{font-style:normal;font-family:var(--font-data)}
+.pvleft{font-style:italic}
+.packview .avatar.tiny{width:28px;height:28px;border-width:1.5px;font-size:12px;flex:none;margin:0}
+.packview .pvpack .avatar.tiny{width:40px;height:40px;font-size:15px}
+.packview .pvhead .avatar.sm{width:48px;height:48px;flex:none}
+.pvw{flex:none;font:600 14.5px var(--font-data);color:var(--ink);white-space:nowrap;padding-top:2px}
+.pvown{padding:6px 16px 16px}
+.pvown h2{margin:10px 0 4px;font:400 24px var(--font-display);color:var(--ink)}
+.pvown p{margin:0;font-size:15px;color:var(--ink-2)}
+.pvbrand{margin:6px 0 10px;font-size:26px}
+@media (max-width:360px){
+  .pvweight{flex-direction:column;align-items:flex-start;gap:8px}
+  .pvclaims{max-width:62%}
+}
 /* Fuel from the gauge, in Supplies */
 #wmpack .supgas{display:flex;flex-direction:column;gap:4px;padding-top:12px}
 #wmpack .supgas .supgaslab{display:flex;justify-content:space-between;gap:8px;font-weight:600}
@@ -12829,6 +12923,9 @@ function normalise(s){
         def:!!x.def,
         defFrom:String(x.defFrom || '').slice(0, 10),
         defT:+x.defT || 0,   /* v397: when it was made the usual; on this list or a sync forgets it */
+        /* v398: which walks and which link this setup's pack is shared to */
+        share:(x.share && typeof x.share === 'object') ? {walks:Array.isArray(x.share.walks) ? x.share.walks.filter(i => typeof i === 'string' && i).map(i => i.slice(0, 60)).slice(-12) : [],
+          link:/^[A-Za-z0-9]{6,32}$/.test(String(x.share.link || '')) ? String(x.share.link) : ''} : null,
         deleted:!!x.deleted, t:+x.t || 0
       })).slice(0, 12)
     : [];
@@ -12955,7 +13052,7 @@ function wikiTrim(){
     for (const [k] of rows.slice(0, rows.length - Math.floor(WIKI_CAP / 2))) localStorage.removeItem(k);
   }catch(e){}
 }
-function touched(){ registerOwn(); saveLocal(); scheduleSync(); schedulePerson(); }
+function touched(){ registerOwn(); saveLocal(); scheduleSync(); schedulePerson(); schedulePackShare(); }   /* v398: a shared pack stays the latest */
 
 /* ---- keeping your public card honest ----
    `pushPerson()` used to be called only when the profile was edited, a handle
@@ -18919,6 +19016,10 @@ function watchChats(){
         chats = out.filter(c => !(c.members || []).some(u => u !== fbUser.uid && isBlocked(u)))
           .sort((a, b) => (b.t || 0) - (a.t || 0));
         if (chatOpen){ const c = chats.find(x => x.id === chatOpen.id); if (c){ chatOpen.chat = c; paintChatHead(); paintPinbar(); } }
+        /* v398: who's bringing what follows the walk live; and once the chats are
+           here, any shared pack that is out of date is put right */
+        if (ui.packWalk) packWalkFromChats();
+        schedulePackShare();
         if (inboxOpen && !ui.inboxQ) paintMsgInbox();
         paintHeadIcons();
         try{ paintNav(); }catch(e){}
@@ -19592,6 +19693,8 @@ function planCard(m){
       (outs.length ? '<span class="cvout">' + esc(cantNames) + (outs.length > 2 ? ' +' + (outs.length - 2) : '') + ' can’t</span>' : '') + '</div>' +
     (past ? '' : '<div class="cvplanbtns"><button class="btn sm' + (mine === 'in' ? ' inon' : ' ghost') + '" data-act="planrsvp" data-m="' + esc(m.id) + '" data-v="in" aria-pressed="' + (mine === 'in') + '">' + ti('check') + (mine === 'in' ? 'You’re in' : 'I’m in') + '</button>' +
       '<button class="btn sm ghost' + (mine === 'out' ? ' outon' : '') + '" data-act="planrsvp" data-m="' + esc(m.id) + '" data-v="out" aria-pressed="' + (mine === 'out') + '">Can’t make it</button></div>') +
+    /* v398 (Joe, 31 Oct): what everyone is bringing, from the walk itself */
+    (!past && chatOpen ? '<div class="cvplanlinks"><button class="linkbtn" data-act="packwalk" data-v="' + esc(chatOpen.id) + '">' + ti('backpack') + 'Who’s bringing what</button></div>' : '') +
     (h ? '<div class="cvplanlinks"><button class="linkbtn" data-act="planadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button><button class="linkbtn" data-act="chathill" data-k="' + esc(p.hill) + '">About the hill</button></div>'
        : (past ? '' : '<div class="cvplanlinks"><button class="linkbtn" data-act="planpickhill" data-m="' + esc(m.id) + '">' + ti('mountain') + 'Pick the hill</button></div>')) +
   '</div>';
@@ -32710,6 +32813,8 @@ document.addEventListener('click', async e => {
   }
   const a = el.dataset.act;
   if (/^(chat|msg|pick|plan|pd|live|walkwith|inbox|poll|push|ns[a-z]|sendpost|sttoggle|stsend)/.test(a) && fbUser && FB){ try{ if (await chatAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
+  /* v398 (Joe, 31 Oct): pack sharing, on a walk and by link (see packAct) */
+  if (/^pack/.test(a)){ try{ if (await packAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
 
   if (a === 'wmsection'){ wmNavigate(el.dataset.area, el.dataset.v); return; }
   if (a === 'wmprofile'){ closeSheetNow(); tab = 'u'; ui.hikerTab = 'me'; friendOpen = null; singlePost = null; render(); window.scrollTo({top:0}); return; }
@@ -34060,6 +34165,7 @@ document.addEventListener('click', async e => {
     if (!await confirmAsk({title:'Delete ' + (x.n || 'this setup') + '?',
       body:'The setup goes. Your kit stays in All kit, and every outing keeps what it carried.',
       yes:'Delete setup', no:'Keep it'})) return true;
+    packStopAll(x);   /* v398: off every walk, and its link off */
     x.deleted = true; x.def = false; x.t = now();
     touched(); kitPlanClose(true);
     toast('Setup deleted. Your kit and your hills are untouched.');
@@ -40810,7 +40916,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v397';
+const APP_VERSION = 'v398';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -45558,6 +45664,8 @@ function kitPlannerHTML(x){
         '<span>' + n + (n === 1 ? ' item' : ' items') + '</span>' + (x.def ? '<span>Your usual setup</span>' : '') + '</div></div>' +
     /* v393: "Use on an outing" lives at the top beside the name, so it never covers the pack */
     '<div class="setup-actions">' + (n ? '<button class="setup-use" data-act="kitouting" data-v="' + esc(x.id) + '">' + kitIcon('walk', 'width="17" height="17"') + '<span>Use on an outing</span></button>' : '') +
+    /* v398 (Joe, 31 Oct): share this pack with friends on a walk, or by link */
+    (n ? '<button class="setup-share" data-act="packshare" data-v="' + esc(x.id) + '" aria-label="Share ' + esc(x.n || 'this setup') + '">' + kitIcon('share', 'width="17" height="17"') + '<span>Share</span></button>' : '') +
     '<button class="setup-edit" data-act="kitsetedit" data-v="' + esc(x.id) + '" aria-label="Edit setup name and season" aria-expanded="' + !!ui.kitSetEdit + '">' + kitIcon('pencil') + '</button></div></div>';
   if (ui.kitSetEdit) s += kitSetEditorHTML(x);
   /* weight head */
@@ -45863,6 +45971,392 @@ function kitOutingSave(){
   ui.kitOuting = null; touched(); render(); window.scrollTo({top:0});
   toast(on.length + ' saved to ' + (day.n === 1 ? 'that hill' : 'those ' + day.n + ' hills') +
     (left ? ' · ' + left + ' left behind' : '') + ' · ' + kitKgStr(w.start) + ' starting weight.');
+}
+
+/* ==========================================================================
+   v398 (Joe, 31 Oct): PACK SHARING. "Add an option to share your pack list
+   with friends on trips so you know what your friends are bringing."
+   Approved drawing: DRAWING-v394-pack-sharing.png. Joe chose BOTH: (A) on a
+   planned walk, and (B) a link for people without WayMark. Friends always see
+   your LATEST pack, never a snapshot, and prices are never shared.
+
+   WHERE IT LIVES
+   (A) In the walk's chat document, as chats/{id}.packs.{uid} (one pack per
+       walker) and chats/{id}.gear.{gearId} (the shared gear). The chat doc is
+       the one place every member can already write under the current rules
+       (the app already merges plan, going, read, cnt into it), so this needs
+       no rules change. A subcollection would be tidier but its rule is not
+       known to exist. A pack is small (no photos, notes or prices, at most 80
+       items), so even a full 30-person walk stays far under Firestore's 1 MiB.
+       Claims are map keys, gear.{id}.who.{uid}, written with a merge, so two
+       people claiming at once never overwrite each other.
+   (B) In packs/{token}, one public record per link, owned by the sharer.
+       Reading it needs no account (and no anonymous sign-in); writing needs
+       the owner. It needs the rules block Joe adds himself (see the v398
+       ship note); until then making a link says so plainly and shares nothing.
+   LATEST, NOT A SNAPSHOT
+       Which walks and which link a setup is shared to is stored on the setup
+       itself (x.share = {walks:[chatId], link:token}), so it syncs with the
+       setup (v397). Every change to the log (touched) schedules a re-publish;
+       each shared pack is rebuilt and written only when its fingerprint (sig)
+       differs from the one already in the cloud, so an unchanged pack costs
+       no writes at all.
+   NEVER SHARED: price, receipts, order numbers, notes, photos, gas history.
+   ========================================================================== */
+const PACK_ZONE_WORD = {top:'Lid', core:'Close to your back', bottom:'Sleep', pockets:'Pockets', pack:'The pack itself', worn:'Worn'};
+/* the pack as friends see it: names, parts, quantities, zones and weights */
+function packOf(x){
+  const rows = kitSetRows(x).slice(0, 80), w = kitSetWeigh(x);
+  const items = rows.map(r => {
+    const g = kitById(r.id) || {}, c = kitCat(g);
+    const it = {n:String(kitName(g)).slice(0, 60), c:String(c.label || '').slice(0, 30), i:String(c.icon || ''), z:r.z, q:r.q, wt:r.wt === null ? 0 : Math.round(r.wt)};
+    if (r.wt === null || r.unk) it.u = 1;
+    if (kitHasParts(g) && !kitGasHas(g)){
+      const take = r.take || kitPartsTake(x, g);
+      it.parts = g.parts.slice(0, 40).map(pt => ({n:String(pt.n || 'Part').slice(0, 60), q:take[pt.id] || 0, of:Math.max(1, +pt.q || 1), wt:+pt.wt > 0 ? Math.round(+pt.wt) : 0}));
+    }
+    return it;
+  });
+  const p = {by:meU(), name:String(myName()).slice(0, 40), set:String(x.n || 'Setup').slice(0, 40), season:String(x.season || '').slice(0, 60), n:items.length, items,
+    w:{base:Math.round(w.base), food:w.food, water:w.water, fuel:w.fuel, worn:Math.round(w.worn), start:Math.round(w.start), unknown:w.unknown}};
+  p.sig = packSig(p);
+  p.t = Date.now();
+  return p;
+}
+function packSig(p){
+  const s = JSON.stringify({...p, t:0, sig:''});
+  let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36) + '.' + s.length;
+}
+const packRef = tok => FB.doc(fbDb, 'packs', tok);
+const packLinkUrl = tok => wmBase() + '#pack=' + tok;
+const packDenied = e => !!e && (e.code === 'permission-denied' || /permission|insufficient/i.test(String(e.message || e)));
+const PACK_RULES_MSG = 'Sharing links need a quick setting change in Firebase. Nothing was shared.';
+function packShares(){ return (state.kitSets || []).filter(x => x && !x.deleted && x.share && ((x.share.walks || []).length || x.share.link)); }
+/* the walker's upcoming planned walks: walk chats with a date today or later */
+function packWalks(){
+  return (chats || []).filter(c => c && c.plan && c.plan.date && c.plan.date >= today() && (c.members || []).indexOf(meU()) >= 0)
+    .sort((a, b) => String(a.plan.date).localeCompare(String(b.plan.date)));
+}
+function packWalkName(c){ const p = (c && c.plan) || {}, h = BY_KEY[p.hill]; return p.hn || (h ? hillName(h) : '') || (c && c.title) || 'The walk'; }
+function packWalkWith(c){
+  const g = (c.plan && c.plan.going) || {}, ins = Object.keys(g).filter(u => g[u] === 'in' && u !== meU());
+  const who = (ins.length ? ins : (c.members || []).filter(u => u !== meU())).map(u => firstName((c.names || {})[u]));
+  return who.length ? 'with ' + (who.length > 1 ? who.slice(0, -1).slice(0, 3).join(', ') + ' and ' + who[who.length - 1] : who[0]) : 'just you so far';
+}
+/* ---- keeping it the latest ---- */
+let packTimer = null, packBusy = false;
+const packSigs = {};
+function schedulePackShare(){
+  if (!FB || !fbUser) return;
+  clearTimeout(packTimer);
+  packTimer = setTimeout(() => { packPublishAll().catch(() => {}); }, 2500);
+}
+async function packPublishAll(){
+  if (!FB || !fbUser || packBusy) return;
+  packBusy = true;
+  try{
+    for (const x of packShares()){
+      const p = packOf(x);
+      for (const cid of (x.share.walks || [])){
+        const c = (chats || []).find(y => y.id === cid);
+        const have = c && c.packs && c.packs[meU()] && c.packs[meU()].sig;
+        if (packSigs['c:' + cid] === p.sig || have === p.sig) continue;
+        try{ await FB.setDoc(chatRef(cid), {packs:{[meU()]: p}}, {merge:true}); packSigs['c:' + cid] = p.sig; }catch(e){}
+      }
+      const tok = x.share.link;
+      if (tok && packSigs['l:' + tok] !== p.sig){
+        try{ await FB.setDoc(packRef(tok), {...p, owner:meU(), on:1}); packSigs['l:' + tok] = p.sig; }catch(e){}
+      }
+    }
+  } finally { packBusy = false; }
+}
+/* ---- (A) the share sheet, from a setup ---- */
+function packShareOpen(setId, msg){
+  const x = kitSetById(setId); if (!x) return;
+  ui.packShareSet = setId;
+  const w = kitSetWeigh(x), n = kitSetItems(x).length, walks = packWalks();
+  const on = (x.share && x.share.walks) || [];
+  if (!ui.packPick || !walks.some(c => c.id === ui.packPick)) ui.packPick = (walks.find(c => on.indexOf(c.id) < 0) || walks[0] || {}).id || '';
+  const pick = walks.find(c => c.id === ui.packPick);
+  let s = '<h3 class="bcsheettitle">Share ' + esc(x.n || 'this setup') + '</h3>' +
+    '<p class="pvlede">' + esc((w.start / 1000).toFixed(2) + ' kg · ' + n + (n === 1 ? ' item' : ' items')) + '. Friends see the list and the weights, never what you paid.</p>';
+  if (!fbUser) s += '<p class="pvmsg" role="status">Sign in to share your pack with friends.</p>';
+  s += '<p class="pveye">On a planned walk</p>';
+  if (walks.length){
+    s += '<div class="pvwalks" role="radiogroup" aria-label="Planned walks">' + walks.slice(0, 8).map(c => {
+      const sel = c.id === ui.packPick, shared = on.indexOf(c.id) >= 0;
+      return '<button class="pvwalk' + (sel ? ' on' : '') + '" role="radio" aria-checked="' + sel + '" data-act="packpick" data-v="' + esc(c.id) + '">' +
+        '<span class="pvwi">' + ti('mountain') + '</span><span class="pvwt2"><b>' + esc(packWalkName(c)) + ' · ' + esc(walkWhen(c.plan.date)) + '</b>' +
+        '<i>' + esc(packWalkWith(c)) + (shared ? ' · shared' : '') + '</i></span><span class="pvradio" aria-hidden="true">' + (sel ? ti('check') : '') + '</span></button>';
+    }).join('') + '</div><p class="pvfine">Everyone on the walk sees your pack, and you see theirs.</p>';
+  } else s += '<p class="pvfine">No planned walks yet. Plan one in a chat with the people you’re going with, and it shows here.</p>';
+  s += '<p class="pveye">Or anyone, with a link</p>' +
+    '<button class="pvlink" data-act="packlink" data-v="' + esc(x.id) + '"><span class="pvwi">' + ti('share') + '</span><span class="pvwt2"><b>' + (x.share && x.share.link ? 'Send the link again' : 'Send a link') + '</b>' +
+      '<i>Works without WayMark. They can look, not change.</i></span>' + ti('chevron-right') + '</button>' +
+    (x.share && x.share.link ? '<p class="pvfine">Your link is on. <button class="linkbtn" data-act="packlinkstop" data-v="' + esc(x.id) + '">Stop sharing it</button></p>' : '') +
+    '<p class="pvmsg" role="status"' + (msg ? '' : ' hidden') + '>' + esc(msg || '') + '</p>' +
+    (pick ? '<button class="pvprimary" data-act="packsharego" data-v="' + esc(x.id) + '">Share with the ' + esc(packWalkName(pick)) + ' walk</button>' : '');
+  bcSheet(s, 'Share ' + (x.n || 'this setup'), 'pvsheet');
+}
+async function packShareToWalk(setId, cid){
+  const x = kitSetById(setId), c = (chats || []).find(y => y.id === cid) || (ui.packWalk && ui.packWalk.cid === cid ? ui.packWalk.doc : null);
+  if (!x || !c || !fbUser) return;
+  /* one pack per walker per walk: sharing another setup to it replaces the first */
+  for (const y of (state.kitSets || [])) if (y && y !== x && y.share && (y.share.walks || []).indexOf(cid) >= 0){ y.share = {...y.share, walks:y.share.walks.filter(i => i !== cid)}; y.t = now(); }
+  x.share = {...(x.share || {}), walks:[...new Set([...((x.share && x.share.walks) || []), cid])].slice(-12)};
+  x.t = now(); touched();
+  const p = packOf(x);
+  try{ await FB.setDoc(chatRef(cid), {packs:{[meU()]: p}}, {merge:true}); packSigs['c:' + cid] = p.sig; }
+  catch(e){ packShareOpen(setId, 'That didn’t share. ' + fbWhy(e)); return; }
+  bcSheetClose();
+  toast('Shared with the ' + packWalkName(c) + ' walk.');
+  packWalkOpen(cid);
+}
+/* ---- (B) the link ---- */
+async function packLinkGo(setId){
+  const x = kitSetById(setId); if (!x) return;
+  if (!FB || !fbUser){ packShareOpen(setId, 'Sign in to make a link to your pack.'); return; }
+  const tok = (x.share && x.share.link) || (Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4));
+  const p = packOf(x);
+  try{ await FB.setDoc(packRef(tok), {...p, owner:meU(), on:1}); packSigs['l:' + tok] = p.sig; }
+  catch(e){ packShareOpen(setId, packDenied(e) ? PACK_RULES_MSG : 'That didn’t work. ' + fbWhy(e)); return; }
+  if (!(x.share && x.share.link)){ x.share = {...(x.share || {}), link:tok}; x.t = now(); touched(); }
+  packShareOpen(setId);
+  await shareLink(packLinkUrl(tok), firstName(myName()) + '’s pack', firstName(myName()) + '’s ' + (x.n || 'pack') + ' on WayMark: what I’m taking and what it weighs.');
+}
+async function packLinkStop(setId){
+  const x = kitSetById(setId); if (!x || !(x.share && x.share.link)) return;
+  const tok = x.share.link;
+  try{ await FB.deleteDoc(packRef(tok)); }
+  catch(e){ packShareOpen(setId, packDenied(e) ? 'That link can’t be stopped from here until the Firebase setting is changed.' : fbWhy(e)); return; }
+  delete packSigs['l:' + tok];
+  x.share = {...x.share, link:''}; x.t = now(); touched();
+  packShareOpen(setId); toast('The link is off. Anyone who opens it now sees nothing.');
+}
+/* a deleted setup takes its packs with it: off every walk, and its link off */
+function packStopAll(x){
+  if (!x || !x.share || !FB || !fbUser) return;
+  for (const cid of (x.share.walks || [])) FB.setDoc(chatRef(cid), {packs:{[meU()]: FB.deleteField()}}, {merge:true}).catch(() => {});
+  if (x.share.link) FB.deleteDoc(packRef(x.share.link)).catch(() => {});
+  x.share = null;
+}
+/* ---- the full-screen page: who's bringing what, a friend's pack, a link ---- */
+function packViewEl(){
+  let el = document.getElementById('packview');
+  if (!el){
+    el = document.createElement('div'); el.id = 'packview'; el.className = 'packview';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function packViewClose(){
+  const el = document.getElementById('packview'); if (el){ el.classList.remove('open'); el.innerHTML = ''; }
+  document.documentElement.classList.remove('pvopen');
+  ui.packWalk = null; ui.packPub = null;
+}
+async function packWalkOpen(cid, who){
+  ui.packPub = null;
+  ui.packWalk = {cid, who:who || null, doc:(chats || []).find(y => y.id === cid) || null, fromChat:!!(chatOpen && chatOpen.id === cid)};
+  packViewPaint();
+  await packWalkLoad();
+}
+async function packWalkLoad(){
+  const w = ui.packWalk; if (!w || !FB) return;
+  try{ const s2 = await FB.getDoc(chatRef(w.cid)); if (s2.exists() && ui.packWalk === w){ w.doc = {id:w.cid, ...s2.data()}; packViewPaint(); } }catch(e){}
+}
+/* a chat snapshot arriving while the page is open keeps it live */
+function packWalkFromChats(){
+  const w = ui.packWalk; if (!w) return;
+  const c = (chats || []).find(y => y.id === w.cid); if (c){ w.doc = c; packViewPaint(); }
+}
+const packKg = g => (Math.max(0, +g || 0) / 1000).toFixed(2);
+function packWeightHTML(p){
+  const w = p.w || {}, tot = +w.start || 0;
+  const seg = [['base', '#cfd4ba'], ['food', '#df8755'], ['water', '#8baaa0'], ['fuel', '#b8a382']];
+  return '<div class="pvweight"><b>' + packKg(tot) + '<small>kg</small></b><div class="pvwr">' +
+    '<span class="pvbar" aria-hidden="true">' + seg.map(([k, c]) => '<i style="width:' + (tot ? ((+w[k] || 0) / tot * 100).toFixed(1) : 0) + '%;background:' + c + '"></i>').join('') + '</span>' +
+    '<span class="pvwl">Kit <b>' + packKg(w.base) + '</b> Food <b>' + packKg(w.food) + '</b></span><span class="pvwl">Water <b>' + packKg(w.water) + '</b> Fuel <b>' + packKg(w.fuel) + '</b></span></div></div>' +
+    (w.unknown ? '<p class="pvfine">Known weight only: ' + w.unknown + (w.unknown === 1 ? ' item has' : ' items have') + ' no weight yet.</p>' : '');
+}
+function packItemsHTML(p){
+  return '<div class="pvitems">' + (p.items || []).map(it => {
+    const parts = Array.isArray(it.parts) ? it.parts : [];
+    const left = parts.filter(pt => !pt.q).map(pt => pt.n);
+    return '<div class="pvitem"><span class="pvic">' + kitIcon(it.i || 'circle-dashed', 'width="20" height="20"') + '</span>' +
+      '<span class="pvin"><b>' + esc(it.n) + '</b><i>' + esc((PACK_ZONE_WORD[it.z] || '') + (it.q > 1 ? ' · ' + it.q + ' of them' : '')) + '</i>' +
+      (parts.length ? '<span class="pvparts">' + parts.filter(pt => pt.q > 0).map(pt => '<span>' + pt.q + '× ' + esc(pt.n) + (pt.wt ? ' <em>' + kitShortW(pt.q * pt.wt) + '</em>' : '') + '</span>').join('') +
+        (left.length ? '<span class="pvleft">Left at home: ' + esc(left.join(', ')) + '</span>' : '') + '</span>' : '') + '</span>' +
+      '<span class="pvw">' + (it.wt ? kitShortW(it.wt * (it.q || 1)) : '—') + '</span></div>';
+  }).join('') + '</div>';
+}
+function packViewPaint(){
+  const el = packViewEl();
+  let s = '';
+  if (ui.packPub) s = packPubHTML();
+  else if (ui.packWalk) s = ui.packWalk.who ? packFriendHTML() : packWalkHTML();
+  else return packViewClose();
+  el.innerHTML = '<div class="pvpage">' + s + '</div>';
+  el.classList.add('open'); document.documentElement.classList.add('pvopen');
+  if (typeof wire === 'function') wire();
+}
+function packWalkHTML(){
+  const w = ui.packWalk, c = w.doc || {}, me = meU();
+  const packs = c.packs || {}, gear = c.gear || {}, members = (c.members || []).slice();
+  const name = packWalkName(c), plan = c.plan || {};
+  const av = u => avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u);
+  const who = u => u === me ? 'You' : firstName((c.names || {})[u] || (packs[u] || {}).name);
+  let s = '<button class="pvback" data-act="packwalkclose">' + ti('arrow-left') + (w.fromChat ? esc(name) + ' walk chat' : 'Back') + '</button>' +
+    '<h1 class="pvh1">Who’s bringing what</h1>' +
+    '<div class="pvsub"><span class="pvavs">' + members.slice(0, 6).map(av).join('') + '</span><span>' + esc((plan.date ? walkWhen(plan.date) + ' · ' : '') + (plan.meet || name)) + '</span></div>';
+  /* shared gear, and who is bringing it */
+  const gs = Object.entries(gear).filter(([id, g]) => g && g.n).sort((a, b) => (a[1].t || 0) - (b[1].t || 0));
+  s += '<section class="pvcard"><p class="pveye">Shared gear</p>' + gs.map(([id, g]) => {
+    const claim = Object.keys(g.who || {}).filter(u => (g.who || {})[u]);
+    const mine = claim.indexOf(me) >= 0;
+    const icon = (kitCatOf(kitGuessCat(g.n) || 'other') || {}).icon || 'circle-dashed';
+    return '<div class="pvgear"><span class="pvgi">' + kitIcon(icon, 'width="19" height="19"') + '</span><b>' + esc(g.n) + '</b><span class="pvclaims">' +
+      claim.map(u => u === me
+        ? '<button class="pvclaim mine" data-act="packunclaim" data-v="' + esc(id) + '" aria-label="You are bringing ' + esc(g.n) + '. Tap to take it back.">' + av(u) + 'You</button>'
+        : '<span class="pvclaim">' + av(u) + esc(who(u)) + '</span>').join('') +
+      (!claim.length ? '<button class="pvbring" data-act="packclaim" data-v="' + esc(id) + '">I’ll bring it</button>' : '') +
+      (g.by === me && !claim.length ? '<button class="pvgx" data-act="packgeardel" data-v="' + esc(id) + '" aria-label="Remove ' + esc(g.n) + '">' + ti('x') + '</button>' : '') +
+      '</span></div>';
+  }).join('') +
+    (ui.packGearAdd ? '<div class="pvgearadd"><input id="pvgearin" maxlength="40" placeholder="e.g. Tent, 2 person" aria-label="Shared gear" autocomplete="off"><button class="btn sm" data-act="packgearadd">Add</button></div>'
+      : '<button class="pvaddgear" data-act="packgearopen">' + ti('plus') + 'Add shared gear</button>') + '</section>';
+  /* everyone's pack */
+  const order = [me, ...members.filter(u => u !== me)].filter(u => members.indexOf(u) >= 0 || packs[u]);
+  const max = Math.max(1, ...order.map(u => +((packs[u] || {}).w || {}).start || 0));
+  s += '<section class="pvcard"><p class="pveye">Packs</p>' + order.map(u => {
+    const p = packs[u];
+    if (!p) return '<div class="pvpack none">' + av(u) + '<span class="pvpn"><b>' + esc(who(u)) + '</b><i>' + (u === me ? 'Not shared yet' : 'Hasn’t shared yet') + '</i></span>' +
+      (u === me ? '' : (ui.packNudged && ui.packNudged[w.cid + '|' + u] ? '<span class="pvasked">Asked</span>' : '<button class="btn sm ghost pvnudge" data-act="packnudge" data-v="' + esc(u) + '">Nudge</button>')) + '</div>';
+    const kg = +(p.w || {}).start || 0;
+    return '<button class="pvpack" data-act="packwho" data-v="' + esc(u) + '">' + av(u) + '<span class="pvpn"><b>' + esc(who(u)) + '</b><i> · ' + esc((u === me ? p.set + ' · ' : '') + p.n + (p.n === 1 ? ' item' : ' items')) + '</i>' +
+      '<span class="pvpbar"><i style="width:' + (kg / max * 100).toFixed(1) + '%"></i></span></span><span class="pvkg">' + packKg(kg) + ' kg</span></button>';
+  }).join('') + '</section>';
+  s += '<div class="pvsticky"><button class="pvprimary" data-act="packmine">' + ti('share') + (packs[me] ? 'Change my pack' : 'Share my pack') + '</button></div>';
+  return s;
+}
+function packFriendHTML(){
+  const w = ui.packWalk, c = w.doc || {}, u = w.who, p = ((c.packs || {})[u]) || null, me = meU();
+  const name = u === me ? 'Your' : firstName((c.names || {})[u] || (p && p.name)) + '’s';
+  let s = '<button class="pvback" data-act="packwhoback">' + ti('arrow-left') + 'Who’s bringing what</button>';
+  if (!p) return s + '<p class="pvfine">' + esc(name) + ' pack isn’t shared yet.</p>';
+  s += '<div class="pvhead">' + avatarHTML((c.avs || {})[u], (c.names || {})[u], 'sm', u) + '<div><h1 class="pvh1">' + esc(name) + ' pack</h1>' +
+    '<p class="pvsub2">For ' + esc(packWalkName(c)) + ((c.plan || {}).date ? ' · ' + esc(walkWhen(c.plan.date)) : '') + '</p></div></div>' +
+    packWeightHTML(p) + packItemsHTML(p) +
+    '<p class="pvfine">' + (u === me ? 'This is what everyone on the walk sees. Prices stay private.' : 'You can see ' + esc(firstName((c.names || {})[u] || p.name)) + '’s list and weights. Prices stay private.') + '</p>';
+  return s;
+}
+/* ---- (B) opening a link: works with no account at all ---- */
+function packPubToken(){
+  const h = (location.hash || '').match(/^#pack=([A-Za-z0-9]{6,32})$/);
+  const q = (location.search || '').match(/[?&]pack=([A-Za-z0-9]{6,32})(&|$)/);
+  return (h && h[1]) || (q && q[1]) || '';
+}
+async function packPubOpen(tok){
+  ui.packWalk = null;
+  ui.packPub = {tok, state:'loading', p:null};
+  packViewPaint();
+  /* the SDK loads on its own; reading a shared pack never needs a sign-in */
+  for (let i = 0; i < 120 && !(FB && fbDb); i++) await new Promise(r => setTimeout(r, 100));
+  const pub = ui.packPub; if (!pub || pub.tok !== tok) return;
+  if (!(FB && fbDb)){ pub.state = 'offline'; packViewPaint(); return; }
+  try{
+    const s2 = await FB.getDoc(packRef(tok));
+    const d = s2.exists() ? s2.data() : null;
+    pub.p = d && d.on ? d : null; pub.state = pub.p ? 'ok' : 'gone';
+  }catch(e){ pub.state = packDenied(e) ? 'closed' : 'offline'; }
+  if (ui.packPub === pub) packViewPaint();
+}
+function packPubHTML(){
+  const pub = ui.packPub, p = pub.p;
+  let s = '<p class="pvbrand"><b class="brand">WAY<em>MARK</em></b></p>';
+  if (pub.state === 'loading') return s + '<p class="pvfine">Opening the pack…</p>';
+  if (!p) s += '<p class="pvlede">' + (pub.state === 'gone' ? 'This pack isn’t shared any more.' : pub.state === 'closed' ? 'This pack can’t be opened just now. Try again later.' : 'This pack couldn’t be opened. Check your signal and try again.') + '</p>';
+  else {
+    const nm = firstName(p.name);
+    s += '<div class="pvhead"><span class="pvinit" aria-hidden="true">' + esc(nm.slice(0, 1).toUpperCase()) + '</span><div><h1 class="pvh1">' + esc(nm) + '’s pack</h1>' +
+      '<p class="pvsub2">' + esc(p.set) + (p.t ? ' · shared ' + esc(prettyDate(new Date(p.t).toISOString().slice(0, 10)).replace(/ \d{4}$/, '')) : '') + '</p></div></div>' +
+      packWeightHTML(p) + packItemsHTML(p);
+  }
+  s += '<section class="pvcard pvown"><h2>Plan your own pack</h2><p>WayMark is free: mark your hills, weigh your kit.</p>' +
+    '<button class="pvprimary" data-act="packpubclose">Open WayMark</button></section>';
+  return s;
+}
+/* ---- nudging someone who hasn't shared: one message in the walk's chat ---- */
+async function packNudge(cid, u){
+  const c = (ui.packWalk && ui.packWalk.doc) || (chats || []).find(y => y.id === cid); if (!c || !fbUser) return;
+  const key = cid + '|' + u;
+  ui.packNudged = ui.packNudged || {};
+  if (ui.packNudged[key]) return;
+  ui.packNudged[key] = 1; packViewPaint();
+  const text = firstName(myName()) + ' would like to see your pack for ' + packWalkName(c) + '. Share it from Journal › Kit › your setup › Share.';
+  try{
+    if (chatOpen && chatOpen.id === cid){ await sendMsg({kind:'text', text}); return; }
+    /* the same two writes sendMsg makes, for a chat that is not open */
+    const t = Date.now(), ref = FB.doc(FB.collection(fbDb, 'chats', cid, 'msgs'));
+    await FB.setDoc(ref, {from:fbUser.uid, t, kind:'text', text});
+    const cnt = {}; for (const m of c.members || []) if (m !== fbUser.uid) cnt[m] = FB.increment(1);
+    await FB.setDoc(chatRef(cid), {t, last:{from:fbUser.uid, t, kind:'text', text:text.slice(0, 120)}, read:{[fbUser.uid]: t}, cnt}, {merge:true});
+    pushPing({kind:'msg', cid, mid:ref.id});
+    toast('Asked ' + firstName((c.names || {})[u]) + '.');
+  }catch(e){ delete ui.packNudged[key]; packViewPaint(); toast('That didn’t send. ' + fbWhy(e)); }
+}
+/* ---- every pack action, from the global click handler ---- */
+async function packAct(a, el){
+  const w = ui.packWalk, me = meU();
+  if (a === 'packshare'){ ui.packPick = ''; packShareOpen(el.dataset.v); return true; }
+  if (a === 'packpick'){ ui.packPick = el.dataset.v; packShareOpen(ui.packShareSet); return true; }
+  if (a === 'packsharego'){ if (!fbUser){ packShareOpen(el.dataset.v, 'Sign in to share your pack with friends.'); return true; } await packShareToWalk(el.dataset.v, ui.packPick); return true; }
+  if (a === 'packlink'){ await packLinkGo(el.dataset.v); return true; }
+  if (a === 'packlinkstop'){ await packLinkStop(el.dataset.v); return true; }
+  if (a === 'packwalk'){ await packWalkOpen(el.dataset.v); return true; }
+  if (a === 'packwalkclose'){ packViewClose(); return true; }
+  if (a === 'packwho'){ if (w){ w.who = el.dataset.v; packViewPaint(); document.getElementById('packview').scrollTop = 0; } return true; }
+  if (a === 'packwhoback'){ if (w){ w.who = null; packViewPaint(); } return true; }
+  if (a === 'packpubclose'){ packViewClose(); try{ history.replaceState(null, '', location.pathname); }catch(e){} render(); return true; }
+  if (!w || !FB || !fbUser) return /^pack/.test(a);
+  const ref = chatRef(w.cid), d = w.doc || (w.doc = {});
+  if (a === 'packclaim' || a === 'packunclaim'){
+    const id = el.dataset.v, on = a === 'packclaim';
+    /* shown at once; the write is one key of one map, so nobody else's claim is touched */
+    d.gear = {...(d.gear || {})}; const g = d.gear[id] = {...(d.gear[id] || {})}; g.who = {...(g.who || {})};
+    if (on) g.who[me] = Date.now(); else delete g.who[me];
+    packViewPaint();
+    try{ await FB.setDoc(ref, {gear:{[id]:{who:{[me]: on ? Date.now() : FB.deleteField()}}}}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+    await packWalkLoad(); return true;
+  }
+  if (a === 'packgearopen'){ ui.packGearAdd = true; packViewPaint(); const i = document.getElementById('pvgearin'); if (i) i.focus(); return true; }
+  if (a === 'packgearadd'){
+    const i = document.getElementById('pvgearin'); const n = String(i ? i.value : '').replace(/\s+/g, ' ').trim().slice(0, 40);
+    if (!n){ if (i) i.focus(); return true; }
+    if (Object.keys(d.gear || {}).length >= 40){ toast('Forty things is plenty to share.'); return true; }
+    const id = 'sg' + uid();
+    ui.packGearAdd = false;
+    d.gear = {...(d.gear || {}), [id]:{n, by:me, t:Date.now()}}; packViewPaint();
+    try{ await FB.setDoc(ref, {gear:{[id]:{n, by:me, t:Date.now()}}}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+    await packWalkLoad(); return true;
+  }
+  if (a === 'packgeardel'){
+    const id = el.dataset.v; d.gear = {...(d.gear || {})}; delete d.gear[id]; packViewPaint();
+    try{ await FB.setDoc(ref, {gear:{[id]: FB.deleteField()}}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+    await packWalkLoad(); return true;
+  }
+  if (a === 'packnudge'){ await packNudge(w.cid, el.dataset.v); return true; }
+  if (a === 'packmine'){
+    const sets = kitSets();
+    if (!sets.length){ toast('Make a setup first: Journal › Kit › Setups.'); return true; }
+    if (sets.length === 1){ ui.packPick = w.cid; ui.packShareSet = sets[0].id; await packShareToWalk(sets[0].id, w.cid); return true; }
+    bcSheet('<h3 class="bcsheettitle">Which setup?</h3><div class="pvwalks">' + sets.map(x => '<button class="pvwalk" data-act="packminepick" data-v="' + esc(x.id) + '"><span class="pvwi">' + kitIcon(kitSetIcon(x)) + '</span>' +
+      '<span class="pvwt2"><b>' + esc(x.n || 'Setup') + '</b><i>' + esc(packKg(kitSetWeigh(x).start) + ' kg · ' + kitSetItems(x).length + ' items') + '</i></span></button>').join('') + '</div>', 'Which setup', 'pvsheet');
+    return true;
+  }
+  if (a === 'packminepick'){ ui.packPick = w.cid; await packShareToWalk(el.dataset.v, w.cid); return true; }
+  return /^pack/.test(a);
 }
 
 /* ---------- going in and coming back ----------
@@ -46821,6 +47315,9 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fontWatch)
 
 takeSuppliesRoute();
 takeInviteFromHash();
+/* v398: somebody opened a shared pack link: show it, account or not */
+{ const pt = packPubToken(); if (pt) setTimeout(() => packPubOpen(pt), 0); }
+window.addEventListener('hashchange', () => { const pt = packPubToken(); if (pt && !(ui.packPub && ui.packPub.tok === pt)) packPubOpen(pt); });
 state = loadLocal();
 try{ ndMigrate(); }catch(e){}
 /* before anything reads BY_KEY: the walker's own peaks have to be hills before
