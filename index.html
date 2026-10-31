@@ -11352,6 +11352,74 @@ textarea, select{font-size:16px}
 .gassheet .gwline{margin:6px 0 0;font-size:16px;color:var(--ink)}
 .gassheet .gwsub{margin:4px 0 0;font:14px var(--font-data);color:var(--ink-2)}
 .gassheet .gwclamp{margin:8px 0 0;font-size:14px;color:var(--accent-text)}
+/* v397 (Joe, 30 Oct): KIT WITH PARTS, after the approved drawing
+   DRAWING-kit-parts.png. The editor's "What's in it", the item page's
+   Contents, and the parts you tick in a setup and on an outing. */
+.kitpartsed{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 14px}
+.kitpartsed .record-heading{margin:0 0 4px}
+.kpedhead{display:none}
+/* phone: the name and the row's total on the first line; how many, the weight each and remove under it */
+.kped{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"n n t" "q w x";gap:6px 8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.kped:first-of-type{border-top:0}
+.kped .qtystep{grid-area:q;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:var(--raise)}
+#wmkit .kped .qtystep button,.kped .qtystep button{width:40px;min-height:44px;border:0;background:none;font-size:18px;color:var(--accent-text)}
+.kitedf .kped .qtystep input{width:2.4ch;border:0;background:none;text-align:center;font:600 16px var(--font-data);color:var(--ink);padding:0;min-height:44px}
+.kitedf .kped .kpedn{grid-area:n;min-width:0;width:100%;min-height:44px;box-sizing:border-box}
+.kped .kpedw{grid-area:w;display:flex;align-items:center;max-width:130px}
+.kitedf .kped .kpedw input{min-width:0;width:100%;min-height:44px;padding-left:10px;padding-right:24px;box-sizing:border-box}
+.kitedf .kped .kpedw i{right:8px}
+.kped .kpedt{grid-area:t;justify-self:end;font:600 15px var(--font-data);color:var(--ink);white-space:nowrap}
+.kped .kpedx{grid-area:x;justify-self:end;width:44px;height:44px;border:0;background:none;color:var(--ink-2);border-radius:50%;display:grid;place-items:center}
+@media (max-width:400px){
+  /* a phone this narrow: a little more room for the weight box */
+  .kitpartsed{padding:12px 10px}
+  #wmkit .kped .qtystep button,.kped .qtystep button{width:34px}
+  .kitedf .kped .kpedw input{padding-left:8px;padding-right:20px}
+  .kitedf .kped .kpedw i{right:6px}
+}
+@media (min-width:600px){
+  .kpedhead{display:grid;grid-template-columns:128px minmax(0,1fr) 120px 70px 44px;gap:10px;padding:2px 0 6px;font:600 11px var(--font-data);letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-2)}
+  .kpedhead span:nth-child(4){text-align:right}
+  .kped{grid-template-columns:128px minmax(0,1fr) 120px 70px 44px;grid-template-areas:"q n w t x"}
+}
+.kpedadd{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;margin:10px 0 0;border:1px dashed var(--line);border-radius:10px;background:none;color:var(--accent-text);font:600 15px var(--font-ui)}
+.kpedsum{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 0;padding:12px 14px;border-radius:10px;background:var(--pine);color:#fffdf7}
+.kpedsum span{font-size:15px}
+.kpedsum b{font:600 22px var(--font-data);white-space:nowrap}
+.kpedfine{margin:8px 0 0 !important}
+#wmkit .kitcontents{margin:12px 18px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 16px 6px}
+#wmkit .kitcontents .story-eyebrow{margin:0 0 4px}
+#wmkit .kcrow{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink)}
+#wmkit .kcrow span{min-width:0;overflow-wrap:anywhere}
+#wmkit .kcrow b{font:600 14px var(--font-data);white-space:nowrap}
+#wmkit .kcrow.kcall span{font-weight:600}
+#wmkit .kcrow.kcall small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-2)}
+/* in a setup and on an outing */
+#wmpack .kpopen{display:flex;align-items:center;gap:6px;width:100%;min-height:44px;margin:4px 0 0;padding:0 0 0 34px;border:0;background:none;color:var(--accent-text);font:600 14px var(--font-ui);text-align:left}
+#wmpack .kpopen svg{transition:transform .2s}
+#wmpack .kpopen[aria-expanded="true"] svg{transform:rotate(180deg)}
+.kparts{margin:2px 0 0;padding-left:34px}
+.kpart{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:6px;align-items:center;min-height:48px;border-top:1px solid var(--line)}
+.kptick{width:44px;height:44px;display:grid;place-items:center;border:0;background:none;padding:0}
+.kpbox{width:24px;height:24px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;background:var(--surface);color:#fffdf7}
+.kptick[aria-pressed="true"] .kpbox{background:var(--burnt);border-color:var(--burnt)}
+.kpname{min-width:0;font-size:15px;color:var(--ink);overflow-wrap:anywhere}
+.kpart.off .kpname,.kpart.off .kpw{text-decoration:line-through;color:var(--ink-3)}
+.kpw{font:600 14px var(--font-data);white-space:nowrap;color:var(--ink);text-align:right}
+.kpq{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:22px;overflow:hidden}
+#wmkit .kpq button,#wmpack .kpq button{width:40px;min-height:44px}
+.kpnote{margin:6px 0 4px 34px !important}
+#wmkit .joutparts{padding:0 0 8px 44px;border-bottom:1px solid var(--line)}
+#wmkit .joutparts .kparts{padding-left:0}
+#wmkit .joutparts .kpnote{margin-left:0 !important}
+@media (max-width:360px){
+  .kparts{padding-left:8px}
+  #wmkit .joutparts{padding-left:8px}
+  #wmpack .kpopen{padding-left:8px}
+  .kpnote{margin-left:8px !important}
+  .kpart{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"t n w" "t q q"}
+  .kpart .kptick{grid-area:t}.kpart .kpname{grid-area:n}.kpart .kpw{grid-area:w}.kpart .kpq{grid-area:q;justify-self:start;margin-bottom:6px}
+}
 /* Fuel from the gauge, in Supplies */
 #wmpack .supgas{display:flex;flex-direction:column;gap:4px;padding-top:12px}
 #wmpack .supgas .supgaslab{display:flex;justify-content:space-between;gap:8px;font-weight:600}
@@ -12698,6 +12766,11 @@ function normalise(s){
           empty:Math.max(0, Math.min(99999, Math.round(+g.gas.empty || 0))),
           w:Array.isArray(g.gas.w) ? g.gas.w.filter(x => x && +x.g > 0).map(x => ({d:String(x.d || '').slice(0, 10),
             g:Math.min(99999, Math.round(+x.g)), t:+x.t || 0})).slice(-12) : []} : undefined,
+        /* v397 (Joe, 30 Oct): what it is made of. ON THIS LIST, or every part
+           is wiped on the next reload and the next sync. Weight is grams EACH. */
+        parts:Array.isArray(g.parts) && g.parts.length ? g.parts.filter(pt => pt && pt.id).slice(0, 40).map(pt => ({
+          id:String(pt.id).slice(0, 40), n:String(pt.n || '').slice(0, 60),
+          q:Math.max(1, Math.min(20, Math.round(+pt.q || 1))), wt:(+pt.wt > 0) ? Math.min(Math.round(+pt.wt), 99999) : 0})) : undefined,
         /* when it was added, so the inventory keeps one order. Items from
            before v391 never kept this (it was dropped on reload, and the
            list sorted by last edit, so saving an item moved it); they take
@@ -12742,6 +12815,10 @@ function normalise(s){
           water:Math.max(0, Math.min(99999, Math.round(+x.sup.water || 0))), fuel:Math.max(0, Math.min(99999, Math.round(+x.sup.fuel || 0))),
           days:Math.max(0, Math.min(30, Math.round(+x.sup.days || 0)))} : {},
         tgt:(+x.tgt > 0) ? Math.min(Math.round(+x.tgt), 50000) : 0,
+        /* v397: which parts of an item this setup takes, {item: {part: how many}} */
+        p:(x.p && typeof x.p === 'object') ? Object.fromEntries(Object.entries(x.p).filter(([k, v]) => typeof k === 'string' && v && typeof v === 'object').slice(0, 120)
+          .map(([k, v]) => [k.slice(0, 40), Object.fromEntries(Object.entries(v).filter(([pk, n]) => typeof pk === 'string' && +n >= 0 && +n <= 20).slice(0, 40)
+            .map(([pk, n]) => [pk.slice(0, 40), Math.round(+n)]))])) : {},
         /* what the setup is for, and what it looks like. A season line, a
            symbol from the app's own icon set, and a colour from the app's
            own palette — a key, not a hex, so a setup made today still looks
@@ -12751,6 +12828,7 @@ function normalise(s){
         col:String(x.col || '').slice(0, 16),
         def:!!x.def,
         defFrom:String(x.defFrom || '').slice(0, 10),
+        defT:+x.defT || 0,   /* v397: when it was made the usual; on this list or a sync forgets it */
         deleted:!!x.deleted, t:+x.t || 0
       })).slice(0, 12)
     : [];
@@ -12769,7 +12847,11 @@ function normalise(s){
         items:Array.isArray(t.items) ? t.items.filter(i => i && typeof i.id === 'string').slice(0, 120).map(i => ({
           id:String(i.id).slice(0, 40), q:Math.max(1, Math.min(20, Math.round(+i.q || 1))),
           z:['top','core','bottom','pockets','pack','worn'].indexOf(i.z) >= 0 ? i.z : 'core',
-          wt:(+i.wt > 0) ? Math.min(Math.round(+i.wt), 99999) : 0, n:String(i.n || '').slice(0, 60)})) : [],
+          wt:(+i.wt > 0) ? Math.min(Math.round(+i.wt), 99999) : 0, n:String(i.n || '').slice(0, 60),
+          /* v397: the parts as they were carried that day, kept as they were */
+          ...(Array.isArray(i.parts) && i.parts.length ? {parts:i.parts.filter(pp => pp && pp.id).slice(0, 40).map(pp => ({id:String(pp.id).slice(0, 40),
+            n:String(pp.n || '').slice(0, 60), q:Math.max(0, Math.min(20, Math.round(+pp.q || 0))), of:Math.max(1, Math.min(20, Math.round(+pp.of || 1))),
+            wt:(+pp.wt > 0) ? Math.min(Math.round(+pp.wt), 99999) : 0}))} : {})})) : [],
         left:Array.isArray(t.left) ? t.left.filter(i => i && typeof i.id === 'string').slice(0, 120).map(i => ({
           id:String(i.id).slice(0, 40), q:Math.max(1, Math.min(20, Math.round(+i.q || 1))),
           z:['top','core','bottom','pockets','pack','worn'].indexOf(i.z) >= 0 ? i.z : 'core'})) : [],
@@ -13095,6 +13177,21 @@ function merge(a, b){
     if (!cur || (x.t || 0) > (cur.t || 0)) sm.set(x.id, x);
   }
   out.kitSets = [...sm.values()];
+  /* v397 (Joe, 30 Oct): setups sync between phones now, so "your usual setup"
+     is made single HERE (the comment above promised it; nothing did it).
+     If two phones each made a different one the usual, the one made the
+     usual LATEST keeps it (defT; a setup from before v397 has none and goes
+     by the day it became the usual, defFrom), so editing the old usual's name
+     on another phone does not take the flag back. Then edit time, then id. The others lose the flag but not their edit
+     time, so every phone reaches the same answer. */
+  const usual = out.kitSets.filter(x => x && !x.deleted && x.def);
+  if (usual.length > 1){
+    const when = x => +x.defT || Date.parse(x.defFrom || '') || 0;
+    /* a tie is settled by edit time and then id, so two phones cannot pick differently */
+    const later = (q2, p2) => when(q2) !== when(p2) ? when(q2) > when(p2) : (q2.t || 0) !== (p2.t || 0) ? (q2.t || 0) > (p2.t || 0) : String(q2.id) > String(p2.id);
+    const keep = usual.reduce((p2, q2) => later(q2, p2) ? q2 : p2);
+    out.kitSets = out.kitSets.map(x => (x && x.def && x !== keep) ? {...x, def:false} : x);
+  }
   /* v391: custom categories by id, and outing snapshots by DATE -- one per
      walking day, newest save wins, so two phones cannot double a day */
   const cm = new Map();
@@ -20557,8 +20654,10 @@ function kitSetIcon(x){
    than a confident 0.00 kg. */
 function kitSetWeight(x){
   const items = kitSetItems(x);
-  const got = items.filter(g => +g.wt > 0);
-  return {g: got.reduce((a, g) => a + (+g.wt || 0), 0), n: got.length, of: items.length};
+  /* v397: an item with parts counts the parts this setup takes */
+  const w1 = g => kitHasParts(g) && !kitGasHas(g) ? (kitTakeWt(g, kitPartsTake(x, g)) || 0) : (+g.wt || 0);
+  const got = items.filter(g => w1(g) > 0);
+  return {g: got.reduce((a, g) => a + w1(g), 0), n: got.length, of: items.length};
 }
 function kitKg(g){ return (g / 1000).toFixed(2) + ' kg'; }
 /* the items of a setup, as live kit, in shelf order and with anything
@@ -20573,7 +20672,9 @@ function kitSetItems(x){
 function kitDefaultSet(){
   const on = (state.kitSets || []).filter(x => x && x.id && !x.deleted && x.def && x.defFrom);
   if (!on.length) return null;
-  return on.sort((a, b) => (b.t || 0) - (a.t || 0))[0];
+  /* v397: the one made the usual latest (defT), the same rule as merge() */
+  const when = x => +x.defT || Date.parse(x.defFrom || '') || 0;
+  return on.sort((a, b) => (when(b) - when(a)) || ((b.t || 0) - (a.t || 0)))[0];
 }
 /* ---- whose kit is it, v332 ----
    '' (or missing) is yours. A dog's id is that dog's own gear and lives on
@@ -20789,6 +20890,8 @@ function kitDedupe(){
     for (const g of group.slice(1)){
       for (const f of ['img', 'note', 'since', 'until'])
         if (!keep[f] && g[f]) keep[f] = g[f];
+      /* v397: a copy's parts are not thrown away with it */
+      if (!kitHasParts(keep) && kitHasParts(g)){ keep.parts = g.parts; if (+g.wt > 0) keep.wt = g.wt; }
       if (g.usual === false) keep.usual = false;
       g.deleted = true; g.img = ''; g.t = now();
       folded++;
@@ -23250,6 +23353,7 @@ function kitFormPut(root, snap){
       const sel = f.querySelector('select[name="cat"]');
       if (sel && !k.auto) sel.removeAttribute('data-auto');
       const nc = f.querySelector('.kitnewcat'); if (nc && sel) nc.hidden = sel.value !== '__new';
+      kitPartsEdPaint(f);   /* v397: the parts' totals follow the restored boxes */
     }
   }catch(e){}
 }
@@ -33945,6 +34049,9 @@ document.addEventListener('click', async e => {
     for (const y of (state.kitSets || [])) if (y && y.def){ y.def = false; y.t = now(); }
     x.def = turningOn;
     if (turningOn && !x.defFrom) x.defFrom = today();
+    /* v397 (Joe, 30 Oct): WHEN it became the usual, so two phones that each
+       picked a different one agree on the later choice (see merge) */
+    if (turningOn) x.defT = now();
     x.t = now(); touched(); render();
     toast(turningOn ? 'Your usual setup from today.' : 'No usual setup now.');
   }
@@ -34015,10 +34122,39 @@ document.addEventListener('click', async e => {
     const x = kitSetById(el.dataset.s), g = kitById(el.dataset.v); if (!x || !g) return true;
     x.items = x.items.filter(i => i !== g.id);
     if (x.q) delete x.q[g.id]; if (x.z) delete x.z[g.id];
+    if (x.p) delete x.p[g.id];   /* v397: back in later, it takes all of it again */
     x.t = now(); ui.kitRowOpen = null; touched(); render();
     toast(kitName(g) + ' is out of ' + (x.n || 'this setup') + '. It is still in All kit.');
   }
   else if (a === 'kitopenfromplan'){ kitItemOpen(el.dataset.v, 'plan'); }
+  /* v397 (Joe, 30 Oct): kit with parts — the editor's rows */
+  else if (a === 'kitpartadd' || a === 'kitpartdel'){
+    const box = el.closest('.kitedf'), gid = el.dataset.v; if (!box || !kitById(gid)) return true;
+    const ids = [...box.querySelectorAll('.kped')].map(r => r.dataset.p);
+    const fresh = 'p' + uid();
+    ui.kitPartIds = ui.kitPartIds || {};
+    ui.kitPartIds[gid] = a === 'kitpartadd' ? (ids.length < 40 ? [...ids, fresh] : ids) : ids.filter(i => i !== el.dataset.p);
+    if (el.closest('#geareditsheet')) gearEditPaint(); else render();
+    if (a === 'kitpartadd'){ const n = document.querySelector('.kitedf [name="pn-' + CSS.escape(fresh) + '"]'); if (n){ n.focus(); n.scrollIntoView({block:'center'}); } }
+  }
+  else if (a === 'kitpartedq'){
+    const r = el.closest('.kped'); const i = r && r.querySelector('input[name^="pq-"]'); if (!i) return true;
+    i.value = Math.max(1, Math.min(20, (parseInt(i.value, 10) || 1) + (+el.dataset.d || 0)));
+    kitPartsEdPaint(el.closest('.kitedf'));
+  }
+  /* in a setup: tick a part, or take fewer of it. Stored as x.p, only where
+     it differs from all of it. */
+  else if (a === 'kitparttick' || a === 'kitpartq'){
+    const x = kitSetById(el.dataset.s), g = kitById(el.dataset.v); if (!x || !kitHasParts(g)) return true;
+    const pt = g.parts.find(y => y.id === el.dataset.p); if (!pt) return true;
+    const take = kitPartsTake(x, g), q = Math.max(1, +pt.q || 1);
+    take[pt.id] = a === 'kitparttick' ? (take[pt.id] > 0 ? 0 : q) : Math.max(1, Math.min(q, take[pt.id] + (+el.dataset.d || 0)));
+    const diff = Object.fromEntries(Object.entries(take).filter(([pid, n]) => { const y = g.parts.find(z => z.id === pid); return y && n !== Math.max(1, +y.q || 1); }));
+    const p2 = {...(x.p || {})};
+    if (Object.keys(diff).length) p2[g.id] = diff; else delete p2[g.id];
+    x.p = p2; x.t = now(); ui.kitPartsOpen = g.id; touched(); render();
+  }
+  else if (a === 'kitpartsopen'){ ui.kitPartsOpen = ui.kitPartsOpen === el.dataset.v ? null : el.dataset.v; render(); }
   else if (a === 'kitdays'){
     const x = kitSetById(el.dataset.s); if (!x) return true;
     const sp = kitSup(x), d = Math.max(0, Math.min(30, (sp.days || 0) + (+el.dataset.d || 0)));
@@ -34035,6 +34171,7 @@ document.addEventListener('click', async e => {
     ui.kitPhoto = +el.dataset.v || 0; render(); hydratePhotos();
   }
   else if (a === 'kitedit'){
+    if (ui.kitPartIds) delete ui.kitPartIds[el.dataset.v];   /* v397: a fresh editor starts from the saved parts */
     ui.kitEditing = ui.kitEditing === el.dataset.v ? null : el.dataset.v; render();
     if (ui.kitEditing){ const c = document.querySelector('.story-edit-caption'); if (c) c.scrollIntoView({block:'start', behavior:'smooth'}); }
   }
@@ -34044,7 +34181,7 @@ document.addEventListener('click', async e => {
     const x = kitSetById(el.dataset.s), g = kitById(el.dataset.v); if (!x || !g) return true;
     const on = x.items.indexOf(g.id) >= 0;
     x.items = on ? x.items.filter(i => i !== g.id) : [...x.items, g.id];
-    if (on){ if (x.q) delete x.q[g.id]; if (x.z) delete x.z[g.id]; }
+    if (on){ if (x.q) delete x.q[g.id]; if (x.z) delete x.z[g.id]; if (x.p) delete x.p[g.id]; }   /* v397: x.p too */
     x.t = now(); touched(); render();
     toast(on ? kitName(g) + ' is out of ' + (x.n || 'that setup') + '. Still in All kit.' : kitName(g) + ' is in ' + (x.n || 'that setup') + '.');
   }
@@ -34082,6 +34219,16 @@ document.addEventListener('click', async e => {
     const r = d.rows.find(y => y.id === el.dataset.v); if (r) r.on = !r.on;
     render();
   }
+  /* v397 (Joe, 30 Oct): the parts of an item, for this walk only */
+  else if (a === 'kitoutpart' || a === 'kitoutpartq'){
+    const d = ui.kitOuting; if (!d) return true;
+    const r = d.rows.find(y => y.id === el.dataset.v), g = kitById(el.dataset.v); if (!r || !kitHasParts(g)) return true;
+    const pt = g.parts.find(y => y.id === el.dataset.p); if (!pt) return true;
+    const q = Math.max(1, +pt.q || 1);
+    r.p = {...kitPartsTake(null, g), ...(r.p || {})};
+    r.p[pt.id] = a === 'kitoutpart' ? (r.p[pt.id] > 0 ? 0 : q) : Math.max(1, Math.min(q, (r.p[pt.id] || 0) + (+el.dataset.d || 0)));
+    render();
+  }
   else if (a === 'kitoutq'){
     const d = ui.kitOuting; if (!d) return true;
     const r = d.rows.find(y => y.id === el.dataset.v); if (!r) return true;
@@ -34091,7 +34238,7 @@ document.addEventListener('click', async e => {
     const d = ui.kitOuting; if (!d) return true;
     const g = kitById(el.dataset.v); if (!g || d.rows.some(r => r.id === g.id)) return true;
     const x = kitSetById(d.set);
-    d.rows.push({id:g.id, q:1, z:x ? kitZoneOf(x, g.id) : (KIT_ZONE_FOR[kitCatId(g)] || 'core'), on:true});
+    d.rows.push({id:g.id, q:1, z:x ? kitZoneOf(x, g.id) : (KIT_ZONE_FOR[kitCatId(g)] || 'core'), on:true, ...(kitHasParts(g) ? {p:kitPartsTake(null, g)} : {})});   /* v397 */
     render();
   }
   else if (a === 'kitoutswap'){
@@ -36359,10 +36506,90 @@ async function fbSignOut(){
 const userRef = () => FB.doc(fbDb, 'users', fbUser.uid);
 const photoRef = id => FB.doc(fbDb, 'users', fbUser.uid, 'photos', id);
 
+/* v396 (Joe, 30 Oct: 'Could not save to the cloud'): ONE CLOUD RECORD WAS
+   NEVER GOING TO BE ENOUGH.
+
+   Firestore holds at most 1 MiB in a document, and the whole log went into
+   one. Joe's planned walks (354 kB of tracks) and journal (289 kB) took him
+   past it and his account simply stopped saving. A log that fits comfortably
+   is still written exactly as before, in the user record. A bigger one is cut
+   into pieces under users/{uid}/logparts/0..n-1, each stamped with the same
+   save id, and the user record points at them (logParts, logV). The pieces
+   and the pointer go up in one batch, so a reader never sees half a save.
+   Nothing here ever deletes a piece: leftovers past n are simply ignored. */
+const LOG_ONE  = 700000;     /* bytes: up to here the log stays in the user record, as it always has */
+const LOG_PART = 700000;     /* bytes in each piece — well clear of the 1 MiB ceiling */
+const LOG_MAX  = 9000000;    /* bytes: a batch carries at most 10 MiB, so beyond this it cannot go up at all */
+const logPartRef  = i => FB.doc(fbDb, 'users', fbUser.uid, 'logparts', String(i));
+const logPartsCol = () => FB.collection(fbDb, 'users', fbUser.uid, 'logparts');
+/* Firestore counts bytes, not characters: a curly quote is three, an emoji
+   four. The old check counted characters, which flattered a journal. */
+function u8len(s){
+  let n = 0;
+  for (let i = 0; i < s.length; i++){
+    const c = s.charCodeAt(i);
+    if (c < 0x80) n += 1;
+    else if (c < 0x800) n += 2;
+    else if (c >= 0xD800 && c <= 0xDBFF && (s.charCodeAt(i + 1) & 0xFC00) === 0xDC00){ n += 4; i++; }
+    else n += 3;
+  }
+  return n;
+}
+/* Cut by bytes, and never between the two halves of an emoji: half an emoji
+   on its own is not valid text and would not come back the same. */
+function logChunks(s, max){
+  const out = [];
+  let start = 0, bytes = 0;
+  for (let i = 0; i < s.length; i++){
+    const c = s.charCodeAt(i);
+    let w = c < 0x80 ? 1 : c < 0x800 ? 2 : 3, step = 1;
+    if (c >= 0xD800 && c <= 0xDBFF && (s.charCodeAt(i + 1) & 0xFC00) === 0xDC00){ w = 4; step = 2; }
+    if (bytes + w > max && i > start){ out.push(s.slice(start, i)); start = i; bytes = 0; }
+    bytes += w; i += step - 1;
+  }
+  out.push(s.slice(start));
+  return out;
+}
+/* Put the pieces back together. Only a complete set counts: every piece from
+   0 to n-1, all carrying the same save id. The set the user record names is
+   wanted first; failing that, any other complete set (the newest) is still
+   the walker's own log, and merging it is as safe as merging an older phone.
+   null means there is no complete set to be had. */
+function joinLogParts(snap, want, wantN){
+  const sets = {};
+  snap.forEach(x => {
+    const p = x.data() || {};
+    if (typeof p.s !== 'string' || !p.v || !(+p.n > 0)) return;
+    const g = sets[p.v] || (sets[p.v] = {n: +p.n, t: +p.t || 0, at: {}});
+    if (+p.n === g.n) g.at[+p.i] = p.s;
+  });
+  const whole = v => {
+    const g = sets[v];
+    if (!g) return null;
+    const bits = [];
+    for (let i = 0; i < g.n; i++){ if (typeof g.at[i] !== 'string') return null; bits.push(g.at[i]); }
+    return bits.join('');
+  };
+  if (want && sets[want] && sets[want].n === wantN){ const w = whole(want); if (w !== null) return {s: w, v: want}; }
+  const rest = Object.keys(sets).filter(v => v !== want).sort((a, b) => sets[b].t - sets[a].t);
+  for (const v of rest){ const w = whole(v); if (w !== null) return {s: w, v}; }
+  return null;
+}
 async function fbPull(){
-  const snap = await FB.getDoc(userRef());
-  if (!snap.exists()) return null;
-  const d = snap.data() || {};
+  /* v396: the record and its pieces are two reads, and another phone can save
+     in between them — so a mismatch is read again before it is believed. */
+  let snap, d, logText = null;
+  for (let go = 0; go < 3; go++){
+    snap = await FB.getDoc(userRef());
+    if (!snap.exists()) return null;
+    d = snap.data() || {};
+    if (!(+d.logParts > 0)){ logText = d.log || '{}'; break; }
+    const parts = await FB.getDocs(logPartsCol());
+    const got = joinLogParts(parts, d.logV, +d.logParts);
+    if (got && got.v === d.logV){ logText = got.s; break; }
+    if (go === 2 && got){ logText = got.s; console.warn('[WayMark] cloud log: the newest pieces were incomplete, using the last complete set'); break; }
+    if (go < 2) await new Promise(r => setTimeout(r, 400));
+  }
   /* Each preference is held back only by its own unsaved change. */
   if (d.name && !fbDirty.has('name')) fbName = niceName(d.name);
   if (typeof d.avatar === 'string' && !fbDirty.has('avatar')) fbAvatar = d.avatar;
@@ -36370,8 +36597,12 @@ async function fbPull(){
   if (typeof d.detail === 'boolean' && !fbDirty.has('detail')) fbDetail = d.detail;
   if (d.strava) stravaFromCloud(d.strava);
   fbPulled = true;
+  /* v396: pieces that never add up are "the cloud cannot be read just now",
+     not "the cloud is empty". Nothing is merged and nothing local is touched;
+     the save that follows writes a whole new set and that mends it. */
+  if (logText === null){ console.warn('[WayMark] cloud log: pieces do not add up, keeping this device\u2019s copy'); return null; }
   try{
-    const parsed = normalise(JSON.parse(d.log || '{}'));
+    const parsed = normalise(JSON.parse(logText || '{}'));
     if (Array.isArray(d.groups)) parsed.groups = d.groups.filter(g => g && g.code);
     if (Array.isArray(d.enabled) && d.enabled.length) parsed.enabled = d.enabled.filter(x => LIST_BY[x]);
     parsed.enabledT = d.enabledT || 0;
@@ -36388,6 +36619,10 @@ function cloudParts(){
     ['your dogs', B(state.dogs || [])],
     ['your hills', B(state.bagged || {})],
     ['your kit', B(state.kit || [])],
+    /* v397: these go up now too, so they are weighed with the rest */
+    ['your kit setups', B(state.kitSets || [])],
+    ['the kit saved to your walks', B(state.kitTrips || [])],
+    ['your kit categories', B(state.kitCats || [])],
     ['your own peaks', B(state.own || [])]
   ];
   return rows.filter(r => r[1] > 0).sort((a, b) => b[1] - a[1]);
@@ -36399,7 +36634,13 @@ function cloudHeavy(){
   return 'most of it is ' + top.map(r => r[0] + ' at ' + kb(r[1])).join(' and ');
 }
 async function fbPush(){
-  const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || [], own:state.own || [], dogs:state.dogs || [], kit:state.kit || [], kitSeeded:state.kitSeeded || 0, chal:state.chal || null});
+  /* v397 (Joe, 30 Oct): and the setups, the kit saved to each walk, and the
+     custom kit categories. They were never in here, so they lived on one
+     phone only. They go in the same log string, so a big log carries them
+     into its pieces (logChunks) like everything else. Reading them back is
+     normalise() and merge(), which already knew them. */
+  const payload = JSON.stringify({bagged:state.bagged, plans:state.plans, diary:state.diary || [], own:state.own || [], dogs:state.dogs || [], kit:state.kit || [], kitSeeded:state.kitSeeded || 0, chal:state.chal || null,
+    kitSets:state.kitSets || [], kitTrips:state.kitTrips || [], kitCats:state.kitCats || []});
   /* Firestore's limit is on the WHOLE document, and the log is not the whole
      document: the picture, the groups and the Strava record go in the same
      one. Measuring only the log let a push through at 880 KB and then have
@@ -36407,16 +36648,19 @@ async function fbPush(){
      nothing about. Measure what is actually being written. */
   const extra = (fbAvatar || '').length + JSON.stringify(myGroups() || []).length +
                 JSON.stringify(stravaRec() || null).length + JSON.stringify(state.enabled || []).length + 400;
-  if (payload.length + extra > 950000)
-    /* WHAT IS BIG IS A MEASUREMENT, NOT A GUESS.
+  /* v396 (Joe, 30 Oct: 'Could not save to the cloud'): this used to refuse
+     anything over 950,000 characters in total, which is what stopped Joe's
+     account saving. Now a log that fits comfortably goes in the user record
+     exactly as before, and a bigger one goes up in pieces (see LOG_ONE above
+     fbPull). Only a log that cannot go up even in pieces is refused.
 
-       The old wording named "routes or photos". On Joe's own log, 6 Oct, the
-       photos came to 5 kB — they are already stored outside this record —
-       and the hills themselves to 15 kB of 864. Naming the wrong thing sends
-       a walker off deleting pictures that were never the problem. So the
-       message weighs the record and names the two heaviest parts by what
-       they are and how big they actually are. */
-    throw new Error('Your log has outgrown one cloud record — ' + cloudHeavy() +
+     WHAT IS BIG IS A MEASUREMENT, NOT A GUESS (6 Oct): the message weighs
+     the record and names the two heaviest parts by what they are and how big
+     they actually are, rather than sending a walker off deleting photos that
+     were never the problem. */
+  const logBytes = u8len(payload);
+  if (logBytes + extra > LOG_MAX || extra > LOG_PART)
+    throw new Error('Your log is too big to save to the cloud \u2014 ' + cloudHeavy() +
       '. Nothing is lost: it is all still on this device.');
   /* setDoc replaces the whole record, so writing before ever having read it
      would push empty defaults over a name and picture already saved. Belt to
@@ -36424,13 +36668,34 @@ async function fbPush(){
   if (!fbPulled){
     try{ await fbPull(); }catch(e){ throw e; }
   }
-  await FB.setDoc(userRef(), {
+  const rec = {
     log: payload, name: niceName(fbName || (fbUser && fbUser.name)) || 'Walker',
     avatar: fbAvatar || '', handle: fbHandle || '',
     detail: !!fbDetail, groups: myGroups(),
     enabled: state.enabled, enabledT: state.enabledT || 0, updatedAt: Date.now(),
     strava: stravaRec() || null
-  });
+  };
+  /* small enough: written exactly as it always was. Being a whole-record
+     write, it also drops the pointer to any pieces from a bigger day, and
+     the pieces left behind are never read again. */
+  if (logBytes + extra <= LOG_ONE){ await FB.setDoc(userRef(), rec); return; }
+  /* v396: in pieces. Every piece carries the same save id; the record names
+     it. One batch, so the pieces and the pointer land together or not at all. */
+  const bits = logChunks(payload, LOG_PART);
+  const v = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  const t = Date.now();
+  rec.log = ''; rec.logParts = bits.length; rec.logV = v;
+  if (typeof FB.writeBatch === 'function'){
+    const batch = FB.writeBatch(fbDb);
+    bits.forEach((chunk, i) => batch.set(logPartRef(i), {s: chunk, i, n: bits.length, v, t}));
+    batch.set(userRef(), rec);
+    await batch.commit();
+  } else {
+    /* no batch to be had: the pieces first and the pointer last, so the
+       record never points at a set that is not all there yet */
+    for (let i = 0; i < bits.length; i++) await FB.setDoc(logPartRef(i), {s: bits[i], i, n: bits.length, v, t});
+    await FB.setDoc(userRef(), rec);
+  }
 }
 async function fbGetPhoto(id){
   try{
@@ -37657,6 +37922,10 @@ async function deleteMyCloudData(){
   await zap(personRef(uid), 'public card');
   /* the log itself */
   await zapAll(FB.collection(fbDb, 'users', uid, 'photos'), 'photo');
+  /* v396 (Joe, 30 Oct: 'Could not save to the cloud'): a big log is kept in
+     pieces beside the record (see LOG_ONE). Delete my account means all of
+     it, so the pieces go too — Firestore would otherwise keep them for ever. */
+  await zapAll(FB.collection(fbDb, 'users', uid, 'logparts'), 'log piece');
   await zap(userRef(), 'log');
   /* and the sign-in. Google insists on a recent login for this one. */
   let authGone = false;
@@ -40541,7 +40810,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v396';
+const APP_VERSION = 'v397';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -44349,6 +44618,128 @@ function kitSupOf(x){
   const fuel = cans.reduce((a, g) => a + kitGasNow(g).left * kitQtyOf(x, g.id), 0);
   return {...s, fuel, fuelFrom:cans};
 }
+/* ---------- KIT WITH PARTS (v397, Joe, 30 Oct; approved drawing
+   DRAWING-kit-parts.png) ----------
+   "Be able to add multiple items to one kit item, for example a 2 person
+   cook-kit that includes 1x pot, 1x frying pan, 2x 8oz mugs. Each of these
+   items need their own weights that add up, and then when 'packing' them be
+   able to select individual aspects of it."
+   On the item:   g.parts = [{id, n, q, wt}]   (wt is grams EACH, 0 = not weighed)
+   On a setup:    x.p = {itemId: {partId: how many taken}}  — only what differs
+                  from "all of it", so a part added later is taken by default
+   On an outing:  the draft row carries its own p, and the saved trip keeps
+                  every part with what was taken and what it weighed then.
+   The item's own weight (wt) is the sum of its parts, written on save, so
+   everything that already reads wt (tiles, the hill sheet) stays right.
+   A gas canister has no parts: the editor offers one or the other. */
+/* a declaration, not a const: kitDedupe can run while the page is still loading */
+function kitHasParts(g){ return !!(g && Array.isArray(g.parts) && g.parts.length); }
+/* what one part list weighs and counts. take: {partId: n} or null for all */
+function kitPartsSum(g, take){
+  let wt = 0, unk = 0, n = 0, of = 0, known = 0;
+  for (const pt of (g && g.parts) || []){
+    const q = Math.max(1, +pt.q || 1);
+    const t = take && Object.prototype.hasOwnProperty.call(take, pt.id) ? Math.max(0, Math.min(q, +take[pt.id] || 0)) : q;
+    of += q; n += t;
+    if (!t) continue;
+    if (+pt.wt > 0){ wt += t * +pt.wt; known++; } else unk++;
+  }
+  return {wt, unk, n, of, known};
+}
+/* how many of each part a setup takes: {partId: n}, every part present */
+function kitPartsTake(x, g){
+  const sel = (x && x.p && g && x.p[g.id]) || {};
+  const out = {};
+  for (const pt of (g && g.parts) || []){
+    const q = Math.max(1, +pt.q || 1);
+    out[pt.id] = Object.prototype.hasOwnProperty.call(sel, pt.id) ? Math.max(0, Math.min(q, +sel[pt.id] || 0)) : q;
+  }
+  return out;
+}
+/* THE ONE WEIGHT A ROW CARRIES: a weighed gas canister's tin (v394), the
+   parts that are ticked, or the item's own weight. null = not weighed. */
+function kitTakeWt(g, take){
+  if (kitGasHas(g)) return Math.round(+g.gas.empty);
+  if (kitHasParts(g)){ const s = kitPartsSum(g, take); return (s.known || !s.unk) ? s.wt : null; }
+  return kitG(g);
+}
+function kitTakeUnk(g, take){ return kitHasParts(g) && !kitGasHas(g) ? (k => k.unk > 0 && k.known > 0)(kitPartsSum(g, take)) : false; }
+function kitPieces(n){ return n + (n === 1 ? ' part' : ' parts'); }
+/* the parts rows in a setup or on an outing: tick, − n +, the weight taken */
+function kitPartsTickHTML(g, take, act){
+  /* act: {tick, q, attrs} — the data-act names and the extra data attributes */
+  let s = '<div class="kparts" role="group" aria-label="Parts of ' + esc(kitName(g)) + '">';
+  for (const pt of g.parts){
+    const q = Math.max(1, +pt.q || 1), t = take[pt.id] || 0, on = t > 0;
+    s += '<div class="kpart' + (on ? '' : ' off') + '">' +
+      '<button class="kptick" data-act="' + act.tick + '" ' + act.attrs + ' data-p="' + esc(pt.id) + '" aria-pressed="' + on + '" ' +
+        'aria-label="' + (on ? 'Leave ' : 'Take ') + esc(pt.n || 'this part') + '"><span class="kpbox">' + (on ? kitIcon('check', 'width="15" height="15"') : '') + '</span></button>' +
+      /* "2×" only where no − n + says it already */
+      '<span class="kpname">' + (q > 1 && !on ? q + '× ' : '') + esc(pt.n || 'Part') + '</span>' +
+      (on && q > 1 ? '<span class="qtystep sm kpq"><button data-act="' + act.q + '" ' + act.attrs + ' data-p="' + esc(pt.id) + '" data-d="-1" aria-label="One fewer ' + esc(pt.n || 'part') + '"' + (t <= 1 ? ' disabled' : '') + '>−</button>' +
+        '<b>' + t + '</b><button data-act="' + act.q + '" ' + act.attrs + ' data-p="' + esc(pt.id) + '" data-d="1" aria-label="One more ' + esc(pt.n || 'part') + '"' + (t >= q ? ' disabled' : '') + '>+</button></span>' : '') +
+      '<span class="kpw">' + (+pt.wt > 0 ? kitShortW((on ? t : q) * +pt.wt) : '—') + '</span></div>';
+  }
+  return s + '</div>';
+}
+/* a sentence for what is short of all of it: "Mugs: taking 1 of 2." */
+function kitPartsShort(g, take){
+  return g.parts.filter(pt => (take[pt.id] || 0) > 0 && (take[pt.id] || 0) < (+pt.q || 1))
+    .map(pt => (pt.n || 'Part') + ': taking ' + take[pt.id] + ' of ' + pt.q + '.').join(' ');
+}
+/* the editor's "What's in it": one row per part, in the order they were added */
+function kitPartsEdHTML(g){
+  const ids = (ui.kitPartIds && ui.kitPartIds[g.id]) || ((g.parts || []).map(pt => pt.id));
+  const by = Object.fromEntries((g.parts || []).map(pt => [pt.id, pt]));
+  let s = '<div class="wide kitpartsed" data-parts="' + esc(g.id) + '"><p class="record-heading">What’s in it</p>' +
+    (ids.length ? '<div class="kpedhead" aria-hidden="true"><span>How many</span><span>Part</span><span>Each</span><span>Total</span></div>' : '');
+  for (const pid of ids){
+    const pt = by[pid] || {id:pid, n:'', q:1, wt:0};
+    const q = Math.max(1, +pt.q || 1);
+    s += '<div class="kped" data-p="' + esc(pid) + '">' +
+      '<span class="qtystep sm"><button type="button" data-act="kitpartedq" data-d="-1" aria-label="One fewer">−</button>' +
+        '<input name="pq-' + esc(pid) + '" inputmode="numeric" maxlength="2" value="' + q + '" aria-label="How many"><button type="button" data-act="kitpartedq" data-d="1" aria-label="One more">+</button></span>' +
+      '<input class="kpedn" name="pn-' + esc(pid) + '" maxlength="60" value="' + esc(pt.n || '') + '" placeholder="e.g. Pot, 1.2 L" aria-label="Part name" autocomplete="off">' +
+      '<span class="kitunit kpedw"><input name="pw-' + esc(pid) + '" inputmode="decimal" maxlength="7" value="' + (+pt.wt > 0 ? +pt.wt : '') + '" placeholder="?" aria-label="Weight each, grams"><i>g</i></span>' +
+      '<span class="kpedt" aria-label="Total for this part">—</span>' +
+      '<button type="button" class="kpedx" data-act="kitpartdel" data-v="' + esc(g.id) + '" data-p="' + esc(pid) + '" aria-label="Remove this part">' + kitIcon('x', 'width="16" height="16"') + '</button></div>';
+  }
+  s += '<button type="button" class="kpedadd" data-act="kitpartadd" data-v="' + esc(g.id) + '">' + kitIcon('plus', 'width="16" height="16"') + 'Add a part</button>';
+  if (ids.length) s += '<div class="kpedsum"><span>Weight of the whole kit</span><b class="kpedtot">—</b></div>' +
+    '<p class="kitfine kpedfine">Adds up from its parts. Change a part and it follows.</p>';
+  return s + '</div>';
+}
+/* the live sums in the editor, from what is in the boxes now */
+function kitPartsEdPaint(box){
+  const w = box && box.querySelector('.kitpartsed'); if (!w) return;
+  let tot = 0, unk = 0, any = 0;
+  for (const r of w.querySelectorAll('.kped')){
+    const pid = r.dataset.p;
+    const q = Math.max(1, Math.min(20, parseInt((r.querySelector('[name="pq-' + CSS.escape(pid) + '"]') || {}).value, 10) || 1));
+    const name = ((r.querySelector('[name="pn-' + CSS.escape(pid) + '"]') || {}).value || '').trim();
+    const each = kitParseGrams((r.querySelector('[name="pw-' + CSS.escape(pid) + '"]') || {}).value);
+    const t = r.querySelector('.kpedt');
+    if (!name && !each){ if (t) t.textContent = '—'; continue; }
+    any++;
+    if (each){ tot += q * each; if (t) t.textContent = kitShortW(q * each); } else { unk++; if (t) t.textContent = '—'; }
+  }
+  const b = w.querySelector('.kpedtot');
+  if (b) b.textContent = any ? kitShortW(tot) + (unk ? ' +' : '') : '—';
+  const f = w.querySelector('.kpedfine');
+  if (f) f.textContent = unk && tot ? 'Known weight only: ' + unk + (unk === 1 ? ' part has' : ' parts have') + ' no weight yet.'
+    : 'Adds up from its parts. Change a part and it follows.';
+  const wt = box.querySelector('[name="wtparts"]');
+  if (wt) wt.value = any ? Math.round(tot) : '';
+}
+/* the item page's Contents card, like the label on the box */
+function kitContentsHTML(g){
+  if (!kitHasParts(g)) return '';
+  const s0 = kitPartsSum(g, null);
+  return '<section class="kitcontents" aria-label="Contents"><p class="story-eyebrow">Contents</p>' +
+    g.parts.map(pt => '<div class="kcrow"><span>' + Math.max(1, +pt.q || 1) + '× ' + esc(pt.n || 'Part') + '</span><b>' +
+      (+pt.wt > 0 ? kitShortW(Math.max(1, +pt.q || 1) * +pt.wt) : '—') + '</b></div>').join('') +
+    '<div class="kcrow kcall"><span>All of it' + (s0.unk ? ' <small>known weight only</small>' : '') + '</span><b>' + (s0.known ? kitShortW(s0.wt) : '—') + '</b></div></section>';
+}
 /* the canister, filled from the bottom (from the approved drawing's code,
    cans-drawing.js, with the bottle left out). 110/230/450 = small/medium/large. */
 let gasSvgN = 0;
@@ -44584,8 +44975,10 @@ function kitWeigh(rows, sup){
   let base = 0, worn = 0, unknown = 0, unknownWorn = 0;
   for (const r of rows){
     const w = r.wt;
-    if (r.z === 'worn'){ if (w === null) unknownWorn++; else worn += w * r.q; }
-    else { if (w === null) unknown++; else base += w * r.q; }
+    /* v397: r.unk — an item whose ticked parts are only partly weighed adds
+       what is known AND counts as "known weight only" */
+    if (r.z === 'worn'){ if (w === null) unknownWorn++; else { worn += w * r.q; if (r.unk) unknownWorn++; } }
+    else { if (w === null) unknown++; else { base += w * r.q; if (r.unk) unknown++; } }
   }
   const s = sup || {food:0, water:0, fuel:0};
   return {base, worn, food:s.food, water:s.water, fuel:s.fuel,
@@ -44593,7 +44986,9 @@ function kitWeigh(rows, sup){
 }
 function kitSetRows(x){
   /* v394: kitRowWt — a weighed gas canister counts its empty tin here and its gas in Fuel */
-  return kitSetItems(x).map(g => ({id:g.id, q:kitQtyOf(x, g.id), z:kitZoneOf(x, g.id), wt:kitRowWt(g)}));
+  /* v397: kitTakeWt — and an item with parts weighs the parts this setup takes */
+  return kitSetItems(x).map(g => { const take = kitHasParts(g) ? kitPartsTake(x, g) : null;
+    return {id:g.id, q:kitQtyOf(x, g.id), z:kitZoneOf(x, g.id), wt:kitTakeWt(g, take), unk:kitTakeUnk(g, take), take}; });
 }
 function kitSetWeigh(x){ return kitWeigh(kitSetRows(x), kitSupOf(x)); }
 
@@ -44926,7 +45321,11 @@ function kitStoryHTML(g){
     '<div class="story-title"><span class="story-eyebrow">THE KIT THAT GOES WITH YOU</span>' +
       '<h1>' + esc(kitName(g)) + '</h1>' +
       '<span class="story-weight">' + (w ? esc(kitShortW(w)) : 'Weight not added') + ' · ' + esc(kitCat(g).label) +
-        (g.off ? ' · retired' : '') + '</span></div>';
+        /* v397: and how many pieces it is made of */
+        (kitHasParts(g) ? ' · ' + kitPieces(kitPartsSum(g, null).of) : '') +
+        (g.off ? ' · retired' : '') + '</span></div>' +
+    /* v397 (Joe, 30 Oct): what is in it, like the label on the box */
+    kitContentsHTML(g);
   /* the usage block: summits, and what each one cost when there is a price */
   s += '<section class="story-stats" aria-label="Item use and cost">' +
       '<div><button class="story-num" data-act="kithist" data-v="' + esc(g.id) + '"' + (hills ? '' : ' disabled') + '>' +
@@ -44937,7 +45336,7 @@ function kitStoryHTML(g){
   /* v394 (Joe, 30 Oct): the gas gauge, under the numbers, as drawn — or, on
      cooking kit and anything named like a canister, the way to set one up */
   if (kitGasOn(g)) s += kitGasCardHTML(g);
-  else if (!g.off && gasSuggest(g)) s += '<button class="gzoffer" data-act="gassetup" data-v="' + esc(g.id) + '">' + kitIcon('flame', 'width="18" height="18"') +
+  else if (!g.off && gasSuggest(g) && !kitHasParts(g)) s += '<button class="gzoffer" data-act="gassetup" data-v="' + esc(g.id) + '">' + kitIcon('flame', 'width="18" height="18"') +
     '<span><b>A gas canister?</b>Set up the gas gauge and weigh it to see what is left.</span>' + kitIcon('chevron-right', 'width="18" height="18"') + '</button>';
   if (m && m.per !== null) s += '<p class="story-paid">' + esc(kitGbpShort(m.paid)) + ' paid · making every outing count.</p>';
   else if (m) s += '<p class="story-paid">No hills yet.</p>';
@@ -44984,6 +45383,10 @@ function kitEditorHTML(g){
   const cid = kitCatId(g), cats = kitCatMenu(cid);
   const photos = kitPhotos(g), docs = (g.rdocs || []);
   const price = kitPrice(g);
+  /* v397 (Joe, 30 Oct): an item with parts (or parts being added now) */
+  const gasOn = !!(g.gas && g.gas.on);
+  const partIds = (ui.kitPartIds && ui.kitPartIds[g.id]) || (g.parts || []).map(pt => pt.id);
+  const withParts = !gasOn && partIds.length > 0;
   return '<div class="kitedf">' +
     '<label class="kitf wide">Name<input name="n" value="' + esc(g.n || '') + '" maxlength="60" placeholder="Scarpa Ranger II" autocomplete="off"></label>' +
     '<label class="kitf">Type' + (g.catAuto ? '<em class="kitguess" hidden>guessed from the name</em>' : '') + '<span class="jselect"><select name="cat" data-act="kitcatpick"' + (g.catAuto ? ' data-auto="1"' : '') + '>' +
@@ -44995,7 +45398,14 @@ function kitEditorHTML(g){
     (kitGasHas(g)
       ? '<label class="kitf">Weight<span class="kitunit"><input name="wtgas" value="' + kitG(g) + '" readonly aria-describedby="kitgaswt-' + esc(g.id) + '"><i>g</i></span>' +
         '<small class="kitgaswt" id="kitgaswt-' + esc(g.id) + '">Follows the gas gauge. Weigh it to change it.</small></label>'
+      /* v397 (Joe, 30 Oct): with parts, the weight is theirs added up */
+      : withParts
+      ? '<label class="kitf">Weight<span class="kitunit"><input name="wtparts" value="' + (kitG(g) ? kitG(g) : '') + '" readonly aria-describedby="kitptwt-' + esc(g.id) + '"><i>g</i></span>' +
+        '<small class="kitgaswt" id="kitptwt-' + esc(g.id) + '">Adds up from its parts.</small></label>'
       : '<label class="kitf">Weight<span class="kitunit"><input name="wt" inputmode="numeric" maxlength="5" value="' + (kitG(g) ? kitG(g) : '') + '" placeholder="Unknown"><i>g</i></span></label>') +
+    /* v397 (Joe, 30 Oct): "What's in it". Not on a gas canister: a gauge
+       weighs the whole canister, so parts would count it twice. */
+    (gasOn ? '' : kitPartsEdHTML(g)) +
     '<label class="kitf">Got it<input name="since" type="date" max="' + today() + '" value="' + esc(g.since || '') + '"></label>' +
     '<p class="kitfine wide">Hills you walk from this date count towards it, so the log fills itself in.</p>' +
     '<label class="kitf">Price paid<span class="kitunit pre"><i>£</i><input name="paid" inputmode="decimal" maxlength="9" value="' +
@@ -45007,7 +45417,8 @@ function kitEditorHTML(g){
     '<label class="kitck wide"><input type="checkbox" name="usual"' + (g.usual === false ? '' : ' checked') + '>In my usual kit — counts on every hill I mark</label>' +
     /* v394 (Joe, 30 Oct): offered for cooking kit, and shown for anything
        named like a gas canister. Never ticked for the walker. */
-    '<label class="kitck wide kitgasck"' + ((gasSuggest(g) || (g.gas && g.gas.on)) ? '' : ' hidden') + '><input type="checkbox" name="gas"' + (g.gas && g.gas.on ? ' checked' : '') + '>' +
+    /* v397: and not on an item made of parts (see kitPartsEdHTML) */
+    '<label class="kitck wide kitgasck"' + (((gasSuggest(g) || gasOn) && !withParts) ? '' : ' hidden') + '><input type="checkbox" name="gas"' + (g.gas && g.gas.on ? ' checked' : '') + '>' +
       'This is a gas canister — it gets a gas gauge' + (!(g.gas && g.gas.on) && gasNamed(g.n) ? '<em class="kitgasguess">the name says gas</em>' : '') + '</label>' +
     '<label class="kitck wide"><input type="checkbox" name="off"' + (g.off ? ' checked' : '') + '>Retired — keeps its numbers, stops counting</label>' +
     /* photos */
@@ -45041,7 +45452,7 @@ function kitGasCkSync(box){
   const ck = box && box.querySelector('.kitgasck'); if (!ck) return;
   const n = (box.querySelector('[name="n"]') || {}).value || '', c = (box.querySelector('select[name="cat"]') || {}).value || '';
   const on = ck.querySelector('input').checked;
-  ck.hidden = !(on || c === 'cooking' || gasNamed(n));
+  ck.hidden = !(on || c === 'cooking' || gasNamed(n)) || !!box.querySelector('.kped');   /* v397: not with parts */
   let em = ck.querySelector('.kitgasguess');
   if (!on && gasNamed(n)){ if (!em){ em = document.createElement('em'); em.className = 'kitgasguess'; em.textContent = 'the name says gas'; ck.appendChild(em); } }
   else if (em) em.remove();
@@ -45084,8 +45495,30 @@ function kitSaveForm(id, root){
   /* v394 (Joe, 30 Oct): "This is a gas canister". Off keeps the set-up and the
      weighings (on:0), so ticking it again brings the gauge straight back.
      On with nothing set up yet opens "Set up the gas gauge" after Save. */
+  /* v397 (Joe, 30 Oct): "What's in it". A row with neither a name nor a
+     weight is an empty line and is dropped; a weight with no name is "Part".
+     The item's own weight becomes the parts added up (known weights only). */
+  let partsNow = false;
+  if (root.querySelector('.kitpartsed')){
+    const parts = [];
+    for (const r of root.querySelectorAll('.kped')){
+      const pid = r.dataset.p, val = n => { const e = r.querySelector('[name="' + n + '-' + CSS.escape(pid) + '"]'); return e ? e.value : ''; };
+      const pn = String(val('pn')).replace(/\s+/g, ' ').trim().slice(0, 60);
+      const each = kitParseGrams(val('pw'));
+      const q = Math.max(1, Math.min(20, parseInt(val('pq'), 10) || 1));
+      if (!pn && !each) continue;
+      parts.push({id:String(pid).slice(0, 40), n:pn || 'Part', q, wt:each || 0});
+    }
+    if (parts.length){
+      g.parts = parts.slice(0, 40); partsNow = true;
+      const sum = kitPartsSum(g, null);
+      if (sum.wt > 0) g.wt = Math.min(99999, sum.wt); else delete g.wt;
+    } else delete g.parts;
+  }
+  if (ui.kitPartIds) delete ui.kitPartIds[g.id];
   if (f.has('gas')){
-    const want = f.ck('gas');
+    /* v397: an item made of parts is not a gas canister (see kitPartsEdHTML) */
+    const want = f.ck('gas') && !partsNow;
     if (want){ g.gas = {full:0, empty:0, w:[], ...(g.gas || {}), on:1}; if (!kitGasOn(g)) ui.gasAfterSave = g.id; }
     else if (g.gas) g.gas = {...g.gas, on:0};
   }
@@ -45204,12 +45637,26 @@ function kitRowEdHTML(x, r, showZone){
         (thumb ? '<span class="grams' + (each === null ? ' unknown' : '') + '">' + (each === null ? 'Add weight' : kitShortW(each * r.q)) + '</span>' : '') + '</div>' +
       (thumb ? '' : '<span class="grams' + (each === null ? ' unknown' : '') + '">' + (each === null ? 'Add weight' : kitShortW(each * r.q)) + '</span>') +
     '</div>' +
+    /* v397 (Joe, 30 Oct): an item with parts opens to tick the parts this
+       setup takes, and how many of a part there are two or more of */
+    (kitHasParts(g) && !kitGasHas(g) ? (() => {
+      const take = r.take || kitPartsTake(x, g), sm = kitPartsSum(g, take), open = ui.kitPartsOpen === g.id;
+      return '<button class="kpopen" data-act="kitpartsopen" data-v="' + esc(g.id) + '" aria-expanded="' + open + '">' +
+          '<span>' + (sm.n === sm.of ? 'All ' + kitPieces(sm.of) : 'Taking ' + sm.n + ' of ' + kitPieces(sm.of)) + (sm.unk ? ' · known weight only' : '') + '</span>' +
+          kitIcon('chevron-down', 'width="16" height="16"') + '</button>' +
+        (open ? kitPartsTickHTML(g, take, {tick:'kitparttick', q:'kitpartq', attrs:'data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '"'}) +
+          '<p class="rangehelp kpnote">Untick what stays at home. The setup weight follows.</p>' : '');
+    })() : '') +
     '<details class="itemdetails"' + (ui.kitRowOpen === g.id ? ' open' : '') + '><summary aria-label="Change ' + esc(kitName(g)) + ' in this setup" data-act="kitrowopen" data-v="' + esc(g.id) + '">' + kitIcon('settings') + '</summary>' +
       '<div class="editfields">' +
         /* v394 (Joe, 30 Oct): a weighed gas canister is weighed, not typed */
         (kitGasHas(g)
           ? '<p class="rangehelp wide">Empty canister ' + kitShortW(each) + ' here, in base kit. Its gas, ' + kitGasNow(g).left + ' g, is in Fuel.' +
             ' <button class="linkbtn" data-act="gasweigh" data-v="' + esc(g.id) + '">Weigh it now</button></p>'
+          /* v397: its weight is its parts', so it is changed on the item */
+          : kitHasParts(g)
+          ? '<p class="rangehelp wide">Its weight is the parts you take, added up. Change a part’s weight on the item. ' +
+            '<button class="linkbtn" data-act="kitopenfromplan" data-v="' + esc(g.id) + '">Open ' + esc(kitName(g)) + '</button></p>'
           : '<label>Each item, grams<input type="number" min="0" max="99999" step="1" inputmode="numeric" data-act="kitrowwt" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" value="' + (each === null ? '' : each) + '" placeholder="Unknown"></label>') +
         '<label>Quantity<span class="qtystep"><button data-act="kitrowq" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" data-d="-1" aria-label="One fewer">−</button>' +
           '<b>' + r.q + '</b><button data-act="kitrowq" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" data-d="1" aria-label="One more">+</button></span></label>' +
@@ -45318,7 +45765,8 @@ function kitOutingHTML(){
   const day = days.find(y => y.date === d.date) || {n:0, names:[]};
   const rows = d.rows.filter(r => kitById(r.id));
   const taking = rows.filter(r => r.on), left = rows.filter(r => !r.on);
-  const w = kitWeigh(taking.map(r => ({id:r.id, q:r.q, z:r.z, wt:kitRowWt(kitById(r.id))})), d.sup);   /* v394 */
+  /* v394: a weighed canister's tin; v397: an item with parts weighs the parts ticked for this walk */
+  const w = kitWeigh(taking.map(r => { const g = kitById(r.id); return {id:r.id, q:r.q, z:r.z, wt:kitTakeWt(g, r.p || null), unk:kitTakeUnk(g, r.p || null)}; }), d.sup);
   s += '<h1>What’s coming along?</h1>' +
     '<div class="jouthead"><span class="jeyebrow">' + esc(day.names.slice(0, 3).join(', ') || prettyDate(d.date)) + '</span>' +
       '<small>' + esc(prettyDate(d.date)) + ' · ' + day.n + (day.n === 1 ? ' hill' : ' hills') + '</small>' +
@@ -45331,13 +45779,26 @@ function kitOutingHTML(){
   if (left.length) s += '<p class="jleft" role="status">Leaving behind: ' + esc(left.map(r => kitName(kitById(r.id))).join(', ')) + '.</p>';
   s += '<div class="joutrows">';
   for (const r of rows){
-    const g = kitById(r.id), each = kitRowWt(g);   /* v394: a weighed canister's tin; its gas is in Fuel */
+    const g = kitById(r.id), each = kitTakeWt(g, r.p || null);   /* v394: a weighed canister's tin; its gas is in Fuel. v397: the ticked parts */
+    /* v397 (Joe, 30 Oct): the parts of it for this walk, starting from the setup's choice */
+    const pts = kitHasParts(g) && !kitGasHas(g) ? (() => {
+      const take = r.p || kitPartsTake(null, g), sm = kitPartsSum(g, take);
+      const x0 = kitSetById(d.set), base = kitPartsTake(x0 && x0.items.indexOf(g.id) >= 0 ? x0 : null, g);
+      const differs = Object.keys(take).some(pid => (take[pid] || 0) !== (base[pid] || 0));
+      return {take, sm, differs};
+    })() : null;
     s += '<div class="jitemrow' + (r.on ? '' : ' off') + '"><label class="jtick"><input type="checkbox" data-act="kitouttick" data-v="' + esc(r.id) + '"' + (r.on ? ' checked' : '') + ' aria-label="Taking ' + esc(kitName(g)) + '"></label>' +
       '<span class="jthumb">' + (kitThumbTag(g, '') || kitIcon(kitCat(g).icon, 'width="18" height="18"')) + '</span>' +
-      '<span class="jname">' + esc(kitName(g)) + '<small>' + esc(r.z === 'worn' ? 'Worn · outside pack weight' : KIT_ZONES[r.z].t) + '</small></span>' +
+      '<span class="jname">' + esc(kitName(g)) + '<small>' + (pts ? esc(pts.sm.n + ' of ' + kitPieces(pts.sm.of)) + (pts.differs ? ' · just this walk' : '') :
+        esc(r.z === 'worn' ? 'Worn · outside pack weight' : KIT_ZONES[r.z].t)) + '</small></span>' +
       '<span class="jctl"><span class="qtystep sm"><button data-act="kitoutq" data-v="' + esc(r.id) + '" data-d="-1" aria-label="One fewer ' + esc(kitName(g)) + '"' + (r.on ? '' : ' disabled') + '>−</button><b>' + r.q + '</b>' +
         '<button data-act="kitoutq" data-v="' + esc(r.id) + '" data-d="1" aria-label="One more ' + esc(kitName(g)) + '"' + (r.on ? '' : ' disabled') + '>+</button></span>' +
       '<b class="jw">' + (each === null ? '—' : kitShortW(each * r.q)) + '</b></span></div>';
+    if (pts && r.on){
+      const short = kitPartsShort(g, pts.take);
+      s += '<div class="joutparts">' + kitPartsTickHTML(g, pts.take, {tick:'kitoutpart', q:'kitoutpartq', attrs:'data-v="' + esc(r.id) + '"'}) +
+        '<p class="jnote kpnote">' + (short ? esc(short) + ' ' : '') + 'For this walk only. Your setup stays the same.</p></div>';
+    }
   }
   s += '</div>';
   const rest = kitMine().filter(g => !g.off && !rows.some(r => r.id === g.id));
@@ -45357,13 +45818,18 @@ function kitOutingDraft(setId, date){
   if (tr){
     const ids = new Set(tr.items.map(i => i.id));
     const x = kitSetById(setId) || kitSetById(tr.set);
-    const rows = tr.items.filter(i => kitById(i.id)).map(i => ({id:i.id, q:i.q || 1, z:i.z || 'core', on:true}));
+    /* v397: the parts as they were taken that day; a part added since was not */
+    const rows = tr.items.filter(i => kitById(i.id)).map(i => { const g = kitById(i.id), row = {id:i.id, q:i.q || 1, z:i.z || 'core', on:true};
+      if (kitHasParts(g)){ const was = Object.fromEntries((i.parts || []).map(pp => [pp.id, pp.q || 0]));
+        row.p = Object.fromEntries(g.parts.map(pt => [pt.id, Math.max(0, Math.min(Math.max(1, +pt.q || 1), +was[pt.id] || 0))]));
+        if (!(i.parts || []).length) row.p = kitPartsTake(null, g); }
+      return row; });
     /* what the setup held but was left behind that day, unticked */
     for (const r of (tr.left || [])) if (kitById(r.id) && !ids.has(r.id)) rows.push({id:r.id, q:r.q || 1, z:r.z || 'core', on:false});
     return {set:(x && x.id) || setId, date, rows, sup:{food:tr.sup.food || 0, water:tr.sup.water || 0, fuel:tr.sup.fuel || 0}, fromTrip:1};
   }
   const x = kitSetById(setId);
-  const rows = x ? kitSetRows(x).map(r => ({id:r.id, q:r.q, z:r.z, on:true})) : [];
+  const rows = x ? kitSetRows(x).map(r => ({id:r.id, q:r.q, z:r.z, on:true, ...(r.take ? {p:{...r.take}} : {})})) : [];   /* v397: the setup's parts */
   const sp = kitSupOf(x);   /* v394: the outing starts from the weighed gas too */
   return {set:setId, date:date || '', rows, sup:{food:sp.food, water:sp.water, fuel:sp.fuel}};
 }
@@ -45384,7 +45850,12 @@ function kitOutingSave(){
   }
   /* and the snapshot: what was carried, with what it weighed today */
   const snap = {date:d.date, set:d.set || '', t:now(), deleted:false,
-    items: taking.map(r => ({id:r.id, q:r.q, z:r.z, wt:kitRowWt(kitById(r.id)) || 0, n:kitName(kitById(r.id)).slice(0, 60)})),   /* v394 */
+    /* v394: a canister's tin. v397: an item with parts weighs what was ticked,
+       and keeps every part with how many went and what each weighed THEN */
+    items: taking.map(r => { const g = kitById(r.id), it = {id:r.id, q:r.q, z:r.z, wt:kitTakeWt(g, r.p || null) || 0, n:kitName(g).slice(0, 60)};
+      if (kitHasParts(g) && !kitGasHas(g)){ const take = r.p || kitPartsTake(null, g);
+        it.parts = g.parts.map(pt => ({id:pt.id, n:String(pt.n || 'Part').slice(0, 60), q:take[pt.id] || 0, of:Math.max(1, +pt.q || 1), wt:+pt.wt > 0 ? Math.round(+pt.wt) : 0})); }
+      return it; }),
     left: d.rows.filter(r => !r.on && live.indexOf(r.id) >= 0).map(r => ({id:r.id, q:r.q, z:r.z})),
     sup:{food:+d.sup.food || 0, water:+d.sup.water || 0, fuel:+d.sup.fuel || 0}};
   state.kitTrips = [...(state.kitTrips || []).filter(t => t && t.date !== d.date), snap];
@@ -45477,6 +45948,8 @@ function kitPickZone(z, animate){
 function kitAfterRender(){
   /* v393: Save bars sit just above the bottom bar, so measure it here too (it was only measured once the map had opened) */
   try{ if (document.getElementById('wmkit')) mapShellVars(); }catch(e){}
+  /* v397: the parts' totals in any open editor */
+  try{ for (const f of document.querySelectorAll('#main .kitedf')) kitPartsEdPaint(f); }catch(e){}
   const root = document.getElementById('wmpack');
   const rig = root && root.querySelector('[data-rig]');
   if (!rig){ if (kitRigApi){ kitRigApi.stop(); kitRigApi = null; } return; }
@@ -45494,6 +45967,8 @@ function kitAfterRender(){
    Selects, number boxes and sliders. A slider moves its own label and box
    as you drag; the page repaints when you let go. */
 document.addEventListener('input', e => {
+  /* v397 (Joe, 30 Oct): the parts' totals follow as you type */
+  if (e.target.closest && e.target.closest('.kitpartsed')){ kitPartsEdPaint(e.target.closest('.kitedf')); return; }
   /* v394 (Joe, 30 Oct): the gas sheets follow what is typed or slid, in place */
   /* and an old "type the empty weight" message goes as soon as you type (it used to stay up beside a filled box) */
   if (e.target.closest && e.target.closest('#bcsheet .gassetup, #bcsheet .gasweigh')){ const er = e.target.closest('#bcsheet').querySelector('.gserr'); if (er) er.textContent = ''; }
@@ -45637,6 +46112,7 @@ function gearEditPaint(){
       '<button class="xbtn" data-act="geareditclose" aria-label="Close">' + ti('x') + '</button></div>' +
     '<div class="kited" data-kited="' + esc(g.id) + '">' + kitEditorHTML(g) + '</div></div>';
   if (typed.length) kitFormPut(el, typed);
+  else { const f = el.querySelector('.kitedf'); if (f) kitPartsEdPaint(f); }   /* v397 */
   el.classList.add('open');
   hydratePhotos();
   if (typeof wire === 'function') wire();
