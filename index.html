@@ -23666,6 +23666,34 @@ function kitFormPut(root, snap){
   }catch(e){}
 }
 let lastScrKey = '', keepPlaceTimer = null;   /* v401: keep your place in Kit across a redraw */
+/* v402 (Joe's screen recording, 1 Nov): on his iPhone the drop to the top can
+   come a moment AFTER the redraw (photos decoding, the phone settling), so a
+   single check straight away missed it. For 1.5 seconds after a redraw of the
+   same screen, a fall from where you were to the very top, that your finger
+   did not make, is put back. The page keeps its height until then. A touch,
+   wheel or key ends the watch at once, so your own scrolling is never fought. */
+let keepPlaceOff = null;
+function keepPlaceWatch(mainEl, y0, key){
+  const hold = mainEl.style.minHeight;           /* set before the rebuild, from the old page */
+  if (keepPlaceOff) keepPlaceOff();
+  if (!(y0 > 200)){ mainEl.style.minHeight = ''; return; }
+  mainEl.style.minHeight = hold || (mainEl.offsetHeight + 'px');
+  let done = false; const timers = [];
+  const back = () => { if (done || lastScrKey !== key) return; const y = window.scrollY || 0; if (y < 60) window.scrollTo(0, y0); };
+  /* your finger ends the watch, but the held height stays until the timer:
+     letting go of it under a finger that is pressing a button can move the
+     button away before the press lands, and the tap is lost */
+  const quiet = () => { done = true; };
+  const stop = () => { done = true; for (const t of timers) clearTimeout(t);
+    removeEventListener('scroll', back); for (const ev of ['touchstart', 'wheel', 'keydown']) removeEventListener(ev, quiet, true);
+    mainEl.style.minHeight = ''; keepPlaceOff = null; };
+  keepPlaceOff = stop;
+  back(); requestAnimationFrame(back);
+  addEventListener('scroll', back, {passive:true});
+  for (const ev of ['touchstart', 'wheel', 'keydown']) addEventListener(ev, quiet, {capture:true, passive:true});
+  for (const ms of [60, 150, 300, 600, 1000]) timers.push(setTimeout(back, ms));
+  timers.push(setTimeout(() => { back(); stop(); }, 1500));
+}
 function render(){
   /* A render while the photo picker is open throws away the very input the
      walker is using. Hold it. */
@@ -23815,14 +23843,8 @@ function render(){
     mapAttach();
     if (kitTyped.length) kitFormPut(mainEl, kitTyped);
   }
-  if (keepPlace){
-    /* only the drop to the top is undone: a deliberate scroll to a form or a
-       drawer on the same screen (scrollIntoView after render) is left alone */
-    const back = () => { const y = window.scrollY || 0; if (y0 > 200 && y < 60 && lastScrKey === scrKey) window.scrollTo(0, y0); };
-    back(); requestAnimationFrame(back);
-    clearTimeout(keepPlaceTimer);
-    keepPlaceTimer = setTimeout(() => { back(); mainEl.style.minHeight = ''; }, 350);
-  }
+  if (keepPlace) keepPlaceWatch(mainEl, y0, scrKey);
+  else if (keepPlaceOff && !mainSame) keepPlaceOff();   /* a different screen: let go of the old one's height */
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); if (hikerTab() === 'popular') popLoad(); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   ensureScreenHeading();
@@ -41216,7 +41238,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v401';
+const APP_VERSION = 'v402';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
