@@ -10999,7 +10999,8 @@ button.tagb::before{top:-10px; bottom:-10px; left:-1px; right:-1px}
 #wmpack .newform label{font-size:13px}
 #wmpack .newform input,#wmpack .newform select{border-radius:7px;background:var(--white)}
 #wmpack .newform button{width:100%;min-height:48px}
-#wmpack[data-adding=true] .studio,#wmpack[data-adding=true] .trip{display:none!important}
+/* v401: adding kit no longer hides the pack and list (the drawer opens in the list, under its button) */
+#wmpack[data-adding=true] .trip{display:none!important}
 #wmpack[data-view=kit] .illustration,#wmpack[data-view=supplies] .studio,#wmpack:not([data-view=supplies]) .trip{display:none}
 #wmpack .footer{font-size:10px;line-height:1.5;gap:3px;padding-top:13px;margin-top:24px}
 #wmpack .footer span{display:block}
@@ -11659,6 +11660,53 @@ html.pvopen #toast.toast{top:auto;bottom:calc(env(safe-area-inset-bottom, 0px) +
   #wmkit .jsetupfooter button{text-align:left}
   #wmkit .jsetupfooter button+button{border-top:1px solid #ffffff1a}
 }
+/* ---- v401: kit you use up (hand warmers): the editor box, its page's card,
+   "Take … of 12" in a setup, and "Did you use them?" after the walk ---- */
+.kitedf .kitconsbox[hidden],.kitedf .kitconshave[hidden],.kitedf .kitpartsed[hidden]{display:none!important}
+.kitedf .kitconsbox{border:1.5px solid var(--line);background:var(--raise);border-radius:12px;padding:10px 14px 12px;box-sizing:border-box;min-width:0}
+.kitedf .kitconsbox .kitconsck{font:600 16px/1.3 var(--font-ui);color:var(--ink);min-height:44px}
+.kitedf .kitconshint{margin:0 0 4px;font-size:14px;line-height:1.4;color:var(--ink-2)}
+.kitedf .kitconshave{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-top:6px}
+.kitedf .kitconsl{font:600 15px var(--font-ui);color:var(--ink)}
+.kitconsstep,.constakestep,.consstep{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:24px;background:var(--surface);overflow:hidden;flex:none}
+.kitconsstep button,.constakestep button,.consstep button{flex:none;width:44px;min-height:44px;border:0;background:none;font:600 20px/1 var(--font-ui);color:var(--ink);padding:0;touch-action:manipulation}
+.kitconsstep button[disabled],.constakestep button[disabled],.consstep button[disabled]{opacity:.35}
+.kitedf .kitconshave .kitconsstep input[name]{width:4ch;min-height:44px;border:0;border-radius:0;background:none;text-align:center;font:700 17px var(--font-data);color:var(--ink);padding:0;box-shadow:none;flex:none}
+.constakestep b,.consstep b{min-width:30px;text-align:center;font:700 17px var(--font-data)}
+#wmkit .conscard{display:flex;align-items:center;gap:14px;background:var(--pine);color:#fffdf7;margin:12px 18px 12px;border-radius:15px;padding:14px 18px;min-height:64px}
+:root[data-theme="dark"] #wmkit .conscard{background:#1E453E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #wmkit .conscard{background:#1E453E}}
+#wmkit .conscard .consbig{font:44px/1 var(--font-display);flex:none}
+#wmkit .conscard .consword{display:flex;flex-direction:column;gap:3px;min-width:0}
+#wmkit .conscard .consword b{font:700 18px/1.2 var(--font-ui)}
+#wmkit .conscard .consword span{font-size:14px;line-height:1.35;color:#e8ece4}
+#wmpack .constake{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:10px 0 0 36px}
+#wmpack .constakel{font:600 15px var(--font-ui);color:var(--pine)}
+#wmpack .constakestep{background:var(--white);border-color:#b9c6c0}
+#wmpack .constakestep button,#wmpack .constakestep b{color:var(--pine)}
+#wmpack .constakeof{font-size:15px;color:var(--moss)}
+#wmkit .consnag{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;background:var(--raise);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 14px}
+#wmkit .consnag p{flex:1 1 180px;margin:0;font:600 15px/1.4 var(--font-ui);color:var(--ink)}
+#wmkit .consnag button{min-height:44px;padding:0 20px;border:0;border-radius:22px;background:var(--accent);color:var(--accent-ink);font:600 15px var(--font-ui);flex:none}
+.conssheet .consey{margin:0;font:600 12px var(--font-data);letter-spacing:2px;text-transform:uppercase;color:var(--ink-2)}
+.conssheet .bcsheettitle{margin-top:2px!important}
+.conssheet .conslede{margin:4px 0 12px;font-size:15px;line-height:1.4;color:var(--ink-2)}
+.conssheet .consq{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:12px 14px;margin:0 0 10px}
+.conssheet .consqh{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap}
+.conssheet .consqh b{font:700 16px/1.3 var(--font-ui);color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.conssheet .consqh span{font-size:14px;color:var(--ink-2)}
+.conssheet .conspick{display:flex;gap:8px;margin:10px 0 0}
+.conssheet .conspick button{flex:1 1 0;min-width:0;min-height:44px;border:1.5px solid var(--line);border-radius:22px;background:var(--surface);color:var(--ink);font:600 15px var(--font-ui);padding:0 6px}
+.conssheet .conspick button[aria-pressed="true"]{background:#14332d;border-color:#14332d;color:#fffdf7}
+:root[data-theme="dark"] .conssheet .conspick button[aria-pressed="true"]{background:#F3EFE6;border-color:#F3EFE6;color:#14332d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .conssheet .conspick button[aria-pressed="true"]{background:#F3EFE6;border-color:#F3EFE6;color:#14332d}}
+.conssheet .consused{display:flex;align-items:center;gap:12px;margin:10px 0 0;font:600 15px var(--font-ui);color:var(--ink)}
+.conssheet .consleft{margin:10px 0 0;font-size:15px;color:var(--ink)}
+.conssheet .consbtns{display:flex;gap:10px;margin-top:4px}
+.conssheet .consbtns button{flex:1 1 0;min-height:48px;border-radius:24px;font:600 16px var(--font-ui)}
+.conssheet .conslater{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.conssheet .conssave{flex-grow:1.6!important;background:var(--accent);color:var(--accent-ink);border:0}
+.conssheet .consfine{margin:6px 0 0;font-size:13px;color:var(--ink-2)}
 
 
 </style>
@@ -12993,6 +13041,12 @@ function normalise(s){
         parts:Array.isArray(g.parts) && g.parts.length ? g.parts.filter(pt => pt && pt.id).slice(0, 40).map(pt => ({
           id:String(pt.id).slice(0, 40), n:String(pt.n || '').slice(0, 60),
           q:Math.max(1, Math.min(20, Math.round(+pt.q || 1))), wt:(+pt.wt > 0) ? Math.min(Math.round(+pt.wt), 99999) : 0})) : undefined,
+        /* v401 (Joe, 1 Nov): used up, like hand warmers. ON THIS LIST, or how
+           many you have and every use are wiped on the next reload and sync. */
+        cons:(g.cons && typeof g.cons === 'object') ? {on:g.cons.on ? 1 : 0,
+          have:Math.max(0, Math.min(999, Math.round(+g.cons.have || 0))),
+          used:Array.isArray(g.cons.used) ? g.cons.used.filter(x => x && +x.n > 0).map(x => ({d:String(x.d || '').slice(0, 10),
+            n:Math.min(999, Math.round(+x.n)), t:+x.t || 0})).slice(-200) : []} : undefined,
         /* when it was added, so the inventory keeps one order. Items from
            before v391 never kept this (it was dropped on reload, and the
            list sorted by last edit, so saving an item moved it); they take
@@ -13083,7 +13137,13 @@ function normalise(s){
           id:String(i.id).slice(0, 40), q:Math.max(1, Math.min(20, Math.round(+i.q || 1))),
           z:['top','core','bottom','pockets','pack','worn'].indexOf(i.z) >= 0 ? i.z : 'core'})) : [],
         sup:{food:Math.max(0, Math.round(+(t.sup && t.sup.food) || 0)), water:Math.max(0, Math.round(+(t.sup && t.sup.water) || 0)),
-          fuel:Math.max(0, Math.round(+(t.sup && t.sup.fuel) || 0))}
+          fuel:Math.max(0, Math.round(+(t.sup && t.sup.fuel) || 0))},
+        /* v401: the used-up kit taken that day ({item: how many}) and, once
+           answered, how many of each were used. ON THIS LIST, or the
+           "Did you use them?" question comes back after every reload. */
+        ...(t.cons && typeof t.cons === 'object' && t.cons.take && typeof t.cons.take === 'object' ? {cons:{
+          take:Object.fromEntries(Object.entries(t.cons.take).filter(([k, v]) => typeof k === 'string' && +v >= 1).slice(0, 60).map(([k, v]) => [k.slice(0, 40), Math.min(999, Math.round(+v))])),
+          used:Object.fromEntries(Object.entries(t.cons.used || {}).filter(([k, v]) => typeof k === 'string' && +v >= 0).slice(0, 60).map(([k, v]) => [k.slice(0, 40), Math.min(999, Math.round(+v))]))}} : {})
       })).slice(-400)
     : [];
   /* The challenge. Same lesson as the dogs and the GPS badge: leave it off
@@ -23601,9 +23661,11 @@ function kitFormPut(root, snap){
       if (sel && !k.auto) sel.removeAttribute('data-auto');
       const nc = f.querySelector('.kitnewcat'); if (nc && sel) nc.hidden = sel.value !== '__new';
       kitPartsEdPaint(f);   /* v397: the parts' totals follow the restored boxes */
+      kitConsSync(f);       /* v401: and "I have several" shows what it hides */
     }
   }catch(e){}
 }
+let lastScrKey = '', keepPlaceTimer = null;   /* v401: keep your place in Kit across a redraw */
 function render(){
   /* A render while the photo picker is open throws away the very input the
      walker is using. Hold it. */
@@ -23734,12 +23796,32 @@ function render(){
      tab === 'j' ? wmJournal() :
      tab === 'u' ? renderHikers() : renderHills());
   const mainSame = mainHTML === lastMainHTML && mainEl.firstChild;
+  /* v401 (Joe, 1 Nov): "in kit whenever I click on a drop down or add kit it
+     takes me back up to the top of the page". Rebuilding the page empties it
+     for a moment; on a phone the page is then too short to stay where you
+     were, so the browser drops you to the top and nothing puts you back.
+     On the same Journal screen (same tab, same item, same setup, same form),
+     the page holds its height while it is rebuilt and you stay where you
+     were. Moving to a different screen still starts at its top. */
+  const scrKey = tab === 'j' ? ['j', ui.wmJournal, ui.kitView, ui.kitPlan, ui.kitItem, ui.kitEditing, ui.kitTab, ui.kitPacking ? 1 : 0, ui.kitOuting ? 1 : 0, ui.kitOpen, ui.kitSetEdit].map(v => v == null ? '' : String(v)).join('|') : '';
+  const keepPlace = !!scrKey && scrKey === lastScrKey && !mainSame;
+  const y0 = window.scrollY || (document.scrollingElement && document.scrollingElement.scrollTop) || 0;
+  if (keepPlace) mainEl.style.minHeight = mainEl.offsetHeight + 'px';
+  lastScrKey = scrKey;
   if (!mainSame){
     const kitTyped = kitFormSnap(mainEl);   /* v393: unsaved kit details survive the redraw */
     mapDetach();                       // keep the one map across the rewrite
     lastMainHTML = mainHTML; mainEl.innerHTML = mainHTML;
     mapAttach();
     if (kitTyped.length) kitFormPut(mainEl, kitTyped);
+  }
+  if (keepPlace){
+    /* only the drop to the top is undone: a deliberate scroll to a form or a
+       drawer on the same screen (scrollIntoView after render) is left alone */
+    const back = () => { const y = window.scrollY || 0; if (y0 > 200 && y < 60 && lastScrKey === scrKey) window.scrollTo(0, y0); };
+    back(); requestAnimationFrame(back);
+    clearTimeout(keepPlaceTimer);
+    keepPlaceTimer = setTimeout(() => { back(); mainEl.style.minHeight = ''; }, 350);
   }
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); if (hikerTab() === 'popular') popLoad(); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
@@ -34368,7 +34450,7 @@ document.addEventListener('click', async e => {
   else if (a === 'kitzone' || a === 'kitrigzone'){ kitPickZone(el.dataset.v, true); }
   else if (a === 'kitzonesel2'){ kitPickZone(el.dataset.v, false); }
   else if (a === 'kitrigclip'){ if (kitRigApi) kitRigApi.toggleClip(el.dataset.v); }
-  else if (a === 'kitaddopen'){ ui.kitAdd = 'library'; render(); const d = document.querySelector('#wmpack .drawer'); if (d) d.scrollIntoView({block:'start'}); }
+  else if (a === 'kitaddopen'){ ui.kitAdd = 'library'; render(); const d = document.querySelector('#wmpack .drawer'); if (d) d.scrollIntoView({block:'nearest'}); }
   else if (a === 'kitaddclose'){ ui.kitAdd = null; render(); }
   else if (a === 'kitaddtab'){ ui.kitAdd = el.dataset.v; render(); }
   else if (a === 'kitaddlib'){
@@ -34412,7 +34494,7 @@ document.addEventListener('click', async e => {
     const x = kitSetById(el.dataset.s); if (!x) return true;
     const id = el.dataset.v, q = Math.max(1, Math.min(20, kitQtyOf(x, id) + (+el.dataset.d || 0)));
     x.q = {...(x.q || {}), [id]:q}; if (q === 1) delete x.q[id];
-    x.t = now(); ui.kitRowOpen = id; touched(); render();
+    x.t = now(); if (!el.dataset.c) ui.kitRowOpen = id; touched(); render();   /* v401: "Take" on the row leaves the cog shut */
   }
   else if (a === 'kitrowremove'){
     const x = kitSetById(el.dataset.s), g = kitById(el.dataset.v); if (!x || !g) return true;
@@ -34432,6 +34514,10 @@ document.addEventListener('click', async e => {
     ui.kitPartIds[gid] = a === 'kitpartadd' ? (ids.length < 40 ? [...ids, fresh] : ids) : ids.filter(i => i !== el.dataset.p);
     if (el.closest('#geareditsheet')) gearEditPaint(); else render();
     if (a === 'kitpartadd'){ const n = document.querySelector('.kitedf [name="pn-' + CSS.escape(fresh) + '"]'); if (n){ n.focus(); n.scrollIntoView({block:'center'}); } }
+  }
+  else if (a === 'kitconsq'){
+    const i = el.closest('.kitconsstep') && el.closest('.kitconsstep').querySelector('input[name="conshave"]'); if (!i) return true;
+    i.value = Math.max(0, Math.min(999, (parseInt(String(i.value).replace(/[^0-9]/g, ''), 10) || 0) + (+el.dataset.d || 0)));
   }
   else if (a === 'kitpartedq'){
     const r = el.closest('.kped'); const i = r && r.querySelector('input[name^="pq-"]'); if (!i) return true;
@@ -34548,6 +34634,16 @@ document.addEventListener('click', async e => {
     render(); window.scrollTo({top:0});
   }
   else if (a === 'kitoutsave'){ kitOutingSave(); }
+  /* v401: "Did you use them?" */
+  else if (a === 'consanswer'){ ui.consAsk = null; consAskOpen(el.dataset.v); }
+  else if (a === 'consm'){ const pk = ui.consAsk && ui.consAsk.pick[el.dataset.v]; if (pk){ pk.m = el.dataset.m; if (pk.m === 'some') pk.n = Math.max(1, +pk.n || 1); consAskPaint(); } }
+  else if (a === 'consn'){
+    const dr = ui.consAsk, t = dr && kitTrip(dr.date), pk = dr && dr.pick[el.dataset.v]; if (!pk || !t || !t.cons) return true;
+    const n = Math.max(1, +t.cons.take[el.dataset.v] || 1);
+    pk.n = Math.max(1, Math.min(n - 1, (+pk.n || 1) + (+el.dataset.d || 0))); consAskPaint();
+  }
+  else if (a === 'conslater'){ ui.consAsk = null; bcSheetClose(); render(); }
+  else if (a === 'conssave'){ consSave(); }
   else if (a === 'kitdaysmore'){ ui.kitDaysN = Math.max(40, ui.kitDaysN || 40) + 40; render(); }
   else if (a === 'planset'){
     const p = (state.plans || []).find(x => x.id === el.dataset.id); if (!p) return true;
@@ -41120,7 +41216,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v400';
+const APP_VERSION = 'v401';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -44946,6 +45042,25 @@ function kitSupOf(x){
    A gas canister has no parts: the editor offers one or the other. */
 /* a declaration, not a const: kitDedupe can run while the page is still loading */
 function kitHasParts(g){ return !!(g && Array.isArray(g.parts) && g.parts.length); }
+/* v401 (Joe, 1 Nov; approved drawing DRAWING-kit-consumables.png): kit you
+   have several of and use up — hand warmers, gel packs, blister plasters.
+   g.cons = {on:1, have:12, used:[{d:'2026-11-08', n:1, t}]}. An item is
+   parts OR a gas gauge OR used up, never two of them. No low-stock warning
+   (Joe chose none). Declarations, not consts: normalise can run early. */
+function kitConsOn(g){ return !!(g && g.cons && g.cons.on && !kitHasParts(g) && !(g.gas && g.gas.on)); }
+function kitConsHave(g){ return Math.max(0, Math.min(999, Math.round(+(g && g.cons && g.cons.have) || 0))); }
+function kitConsUsed(g){
+  const u = ((g && g.cons && g.cons.used) || []).filter(x => x && +x.n > 0);
+  return {n:u.reduce((a, x) => a + Math.round(+x.n || 0), 0), last:u.map(x => String(x.d || '')).filter(Boolean).sort().pop() || ''};
+}
+/* "Sun 8 Nov", and the year when it is not this one */
+function consDay(d){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d || '')); if (!m) return String(d || '');
+  const dt = new Date(+m[1], +m[2] - 1, +m[3]);
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()] + ' ' + (+m[3]) + ' ' + MON_SHORT[+m[2] - 1] + (m[1] === today().slice(0, 4) ? '' : ' ' + m[1]);
+}
+/* "Hand warmers" reads "hand warmers" mid-sentence; "MSR" stays "MSR" */
+function consLower(n){ n = String(n || ''); return /^[A-Z][a-z]/.test(n) ? n[0].toLowerCase() + n.slice(1) : n; }
 /* what one part list weighs and counts. take: {partId: n} or null for all */
 function kitPartsSum(g, take){
   let wt = 0, unk = 0, n = 0, of = 0, known = 0;
@@ -45051,6 +45166,16 @@ function kitContentsHTML(g){
     g.parts.map(pt => '<div class="kcrow"><span>' + Math.max(1, +pt.q || 1) + '× ' + esc(pt.n || 'Part') + '</span><b>' +
       (+pt.wt > 0 ? kitShortW(Math.max(1, +pt.q || 1) * +pt.wt) : '—') + '</b></div>').join('') +
     '<div class="kcrow kcall"><span>All of it' + (s0.unk ? ' <small>known weight only</small>' : '') + '</span><b>' + (s0.known ? kitShortW(s0.wt) : '—') + '</b></div></section>';
+}
+/* v401: the dark card on a used-up item's page: "12 left", and how many have
+   been used. No warning colour at 0: Joe chose no low-stock warning. */
+function kitConsCardHTML(g){
+  if (!kitConsOn(g)) return '';
+  const have = kitConsHave(g), u = kitConsUsed(g);
+  return '<section class="conscard" aria-label="How many left">' +
+    (have ? '<strong class="consbig">' + kitNum(have) + '</strong>' : '') +
+    '<div class="consword"><b>' + (have ? 'left' : 'None left') + '</b>' +
+      (u.n ? '<span>Used ' + kitNum(u.n) + ' so far' + (u.last ? ' · last on ' + esc(consDay(u.last)) : '') + '</span>' : '') + '</div></section>';
 }
 /* the canister, filled from the bottom (from the approved drawing's code,
    cans-drawing.js, with the bottle left out). 110/230/450 = small/medium/large. */
@@ -45540,7 +45665,7 @@ function kitInventoryHTML(){
   /* stable order: the order things were added, retired pieces after */
   const ordered = mine.filter(g => !g.off).concat(mine.filter(g => g.off));
   const cats = kitCatList().filter(c => mine.some(g => kitCatId(g) === c.id));
-  let s = '';
+  let s = consCardsHTML();   /* v401: "After Sun 8 Nov: did you use your hand warmers?" */
   if (mine.length){
     /* v393: chips, one tap each, instead of a dropdown with a count line under it */
     const chip = (v, label, k) => '<button class="jchip" data-act="kitfilterchip" data-v="' + esc(v) + '" aria-pressed="' + (f === v) + '">' +
@@ -45583,7 +45708,9 @@ function kitInventoryHTML(){
 function kitInvCardHTML(g, withCat){
   const hills = kitHills(g.id).length, m = kitMoney(g, hills), w = kitG(g);
   const thumb = kitThumbTag(g, 'jimg');
-  const meta = [withCat ? kitCat(g).label : '', w ? kitShortW(w) : ''].filter(Boolean).join(' · ');
+  const meta = [withCat ? kitCat(g).label : '', w ? kitShortW(w) : '',
+    /* v401: how many are left of kit you use up */
+    kitConsOn(g) ? (kitConsHave(g) ? kitNum(kitConsHave(g)) + ' left' : 'None left') : ''].filter(Boolean).join(' · ');
   return '<article class="jinventory' + (g.off ? ' off' : '') + '">' +
     '<button data-act="gearopen" data-v="' + esc(g.id) + '" aria-label="' + esc(kitName(g)) + ', ' + kitNum(hills) + (hills === 1 ? ' hill' : ' hills') + '">' +
     '<div class="jphoto">' + (thumb ||
@@ -45635,12 +45762,14 @@ function kitStoryHTML(g){
         (editing ? 'Close editing' : 'Edit item') + '</button></div>' +
     '<div class="story-title"><span class="story-eyebrow">THE KIT THAT GOES WITH YOU</span>' +
       '<h1>' + esc(kitName(g)) + '</h1>' +
-      '<span class="story-weight">' + (w ? esc(kitShortW(w)) : 'Weight not added') + ' · ' + esc(kitCat(g).label) +
+      '<span class="story-weight">' + (w ? esc(kitShortW(w)) + (kitConsOn(g) ? ' each' : '') : 'Weight not added') + ' · ' + esc(kitCat(g).label) +
         /* v397: and how many pieces it is made of */
         (kitHasParts(g) ? ' · ' + kitPieces(kitPartsSum(g, null).of) : '') +
         (g.off ? ' · retired' : '') + '</span></div>' +
     /* v397 (Joe, 30 Oct): what is in it, like the label on the box */
-    kitContentsHTML(g);
+    kitContentsHTML(g) +
+    /* v401 (Joe, 1 Nov): how many are left, of kit you use up */
+    kitConsCardHTML(g);
   /* the usage block: summits, and what each one cost when there is a price */
   s += '<section class="story-stats" aria-label="Item use and cost">' +
       '<div><button class="story-num" data-act="kithist" data-v="' + esc(g.id) + '"' + (hills ? '' : ' disabled') + '>' +
@@ -45702,6 +45831,8 @@ function kitEditorHTML(g){
   const gasOn = !!(g.gas && g.gas.on);
   const partIds = (ui.kitPartIds && ui.kitPartIds[g.id]) || (g.parts || []).map(pt => pt.id);
   const withParts = !gasOn && partIds.length > 0;
+  /* v401: used up, like hand warmers — never with parts or a gas gauge */
+  const consOn = !!(g.cons && g.cons.on) && !gasOn && !withParts;
   return '<div class="kitedf">' +
     '<label class="kitf wide">Name<input name="n" value="' + esc(g.n || '') + '" maxlength="60" placeholder="Scarpa Ranger II" autocomplete="off"></label>' +
     '<label class="kitf">Type' + (g.catAuto ? '<em class="kitguess" hidden>guessed from the name</em>' : '') + '<span class="jselect"><select name="cat" data-act="kitcatpick"' + (g.catAuto ? ' data-auto="1"' : '') + '>' +
@@ -45717,10 +45848,20 @@ function kitEditorHTML(g){
       : withParts
       ? '<label class="kitf">Weight<span class="kitunit"><input name="wtparts" value="' + (kitG(g) ? kitG(g) : '') + '" readonly aria-describedby="kitptwt-' + esc(g.id) + '"><i>g</i></span>' +
         '<small class="kitgaswt" id="kitptwt-' + esc(g.id) + '">Adds up from its parts.</small></label>'
-      : '<label class="kitf">Weight<span class="kitunit"><input name="wt" inputmode="numeric" maxlength="5" value="' + (kitG(g) ? kitG(g) : '') + '" placeholder="Unknown"><i>g</i></span></label>') +
+      : '<label class="kitf">' + (consOn ? 'Weight of one' : 'Weight') + '<span class="kitunit"><input name="wt" inputmode="numeric" maxlength="5" value="' + (kitG(g) ? kitG(g) : '') + '" placeholder="Unknown"><i>g</i></span></label>') +
+    /* v401 (Joe, 1 Nov; approved drawing): "I have several and use them up".
+       Hidden on an item with parts or a gas gauge; while ticked, "What's in
+       it" and the gas box are hidden instead (kitConsSync). */
+    '<div class="wide kitconsbox"' + (gasOn || withParts ? ' hidden' : '') + '>' +
+      '<label class="kitck kitconsck"><input type="checkbox" name="cons"' + (consOn ? ' checked' : '') + '>I have several and use them up</label>' +
+      '<p class="kitconshint">Like hand warmers, gel packs or blister plasters.</p>' +
+      '<div class="kitconshave"' + (consOn ? '' : ' hidden') + '><span class="kitconsl" id="kitconsl-' + esc(g.id) + '">How many you have</span>' +
+        '<span class="kitconsstep"><button type="button" data-act="kitconsq" data-d="-1" aria-label="One fewer">−</button>' +
+        '<input name="conshave" inputmode="numeric" maxlength="3" value="' + kitConsHave(g) + '" aria-labelledby="kitconsl-' + esc(g.id) + '" autocomplete="off">' +
+        '<button type="button" data-act="kitconsq" data-d="1" aria-label="One more">+</button></span></div></div>' +
     /* v397 (Joe, 30 Oct): "What's in it". Not on a gas canister: a gauge
        weighs the whole canister, so parts would count it twice. */
-    (gasOn ? '' : kitPartsEdHTML(g)) +
+    (gasOn ? '' : consOn ? kitPartsEdHTML(g).replace('<div class="wide kitpartsed"', '<div class="wide kitpartsed" hidden') : kitPartsEdHTML(g)) +
     '<label class="kitf">Got it<input name="since" type="date" max="' + today() + '" value="' + esc(g.since || '') + '"></label>' +
     '<p class="kitfine wide">Hills you walk from this date count towards it, so the log fills itself in.</p>' +
     '<label class="kitf">Price paid<span class="kitunit pre"><i>£</i><input name="paid" inputmode="decimal" maxlength="9" value="' +
@@ -45733,7 +45874,7 @@ function kitEditorHTML(g){
     /* v394 (Joe, 30 Oct): offered for cooking kit, and shown for anything
        named like a gas canister. Never ticked for the walker. */
     /* v397: and not on an item made of parts (see kitPartsEdHTML) */
-    '<label class="kitck wide kitgasck"' + (((gasSuggest(g) || gasOn) && !withParts) ? '' : ' hidden') + '><input type="checkbox" name="gas"' + (g.gas && g.gas.on ? ' checked' : '') + '>' +
+    '<label class="kitck wide kitgasck"' + (((gasSuggest(g) || gasOn) && !withParts && !consOn) ? '' : ' hidden') + '><input type="checkbox" name="gas"' + (g.gas && g.gas.on ? ' checked' : '') + '>' +
       'This is a gas canister — it gets a gas gauge' + (!(g.gas && g.gas.on) && gasNamed(g.n) ? '<em class="kitgasguess">the name says gas</em>' : '') + '</label>' +
     '<label class="kitck wide"><input type="checkbox" name="off"' + (g.off ? ' checked' : '') + '>Retired — keeps its numbers, stops counting</label>' +
     /* photos */
@@ -45767,10 +45908,29 @@ function kitGasCkSync(box){
   const ck = box && box.querySelector('.kitgasck'); if (!ck) return;
   const n = (box.querySelector('[name="n"]') || {}).value || '', c = (box.querySelector('select[name="cat"]') || {}).value || '';
   const on = ck.querySelector('input').checked;
-  ck.hidden = !(on || gasNamed(n)) || !!box.querySelector('.kped');   /* v399: the name, not the type */   /* v397: not with parts */
+  ck.hidden = !(on || gasNamed(n)) || !!box.querySelector('.kped') || kitConsTicked(box);   /* v399: the name, not the type */   /* v397: not with parts */   /* v401: not when used up */
   let em = ck.querySelector('.kitgasguess');
   if (!on && gasNamed(n)){ if (!em){ em = document.createElement('em'); em.className = 'kitgasguess'; em.textContent = 'the name says gas'; ck.appendChild(em); } }
   else if (em) em.remove();
+}
+/* v401: "I have several and use them up", as the form is filled in. Shown
+   only with no parts and no gas gauge ticked; while ticked it hides "What's
+   in it" and the gas box, shows "How many you have", and the weight is
+   "Weight of one". */
+function kitConsTicked(box){
+  const cb = box && box.querySelector('.kitconsbox'), ck = cb && cb.querySelector('[name="cons"]');
+  return !!(ck && ck.checked && !cb.hidden);
+}
+function kitConsSync(box){
+  const cb = box && box.querySelector('.kitconsbox'); if (!cb) return;
+  const gas = box.querySelector('[name="gas"]');
+  cb.hidden = !!box.querySelector('.kped') || !!(gas && gas.checked) || !!box.querySelector('[name="wtgas"]');
+  const on = kitConsTicked(box);
+  const hv = cb.querySelector('.kitconshave'); if (hv) hv.hidden = !on;
+  const pe = box.querySelector('.kitpartsed'); if (pe) pe.hidden = on;
+  { const wt = box.querySelector('[name="wt"]'), l = wt && wt.closest('label'), tx = l && l.firstChild;
+    if (tx && tx.nodeType === 3) tx.textContent = on ? 'Weight of one' : 'Weight'; }
+  kitGasCkSync(box);
 }
 /* read the form from inside its own box */
 function kitFormRead(root){
@@ -45836,6 +45996,15 @@ function kitSaveForm(id, root){
     const want = f.ck('gas') && !partsNow;
     if (want){ g.gas = {full:0, empty:0, w:[], ...(g.gas || {}), on:1}; if (!kitGasOn(g)) ui.gasAfterSave = g.id; }
     else if (g.gas) g.gas = {...g.gas, on:0};
+  }
+  /* v401 (Joe, 1 Nov): used up, like hand warmers. Off keeps how many and
+     every use (on:0), as the gas gauge does. Never with parts or gas. */
+  if (f.has('cons')){
+    const want = kitConsTicked(root) && !partsNow && !(g.gas && g.gas.on);
+    if (want){
+      const have = Math.max(0, Math.min(999, parseInt(String(f.v('conshave') || '').replace(/[^0-9]/g, ''), 10) || 0));
+      g.cons = {used:[], ...(g.cons || {}), on:1, have};
+    } else if (g.cons) g.cons = {...g.cons, on:0};
   }
   g.rshop = String(f.v('rshop') || '').trim().slice(0, 60); if (!g.rshop) delete g.rshop;
   g.rord = String(f.v('rord') || '').trim().slice(0, 40); if (!g.rord) delete g.rord;
@@ -45905,8 +46074,7 @@ function kitPlannerHTML(x){
     '<button data-act="kittab" data-v="pack" aria-pressed="' + (tab === 'pack') + '">' + kitIcon('backpack') + 'Pack</button>' +
     '<button data-act="kittab" data-v="kit" aria-pressed="' + (tab === 'kit') + '">' + kitIcon('list-check') + 'Kit<span>' + n + '</span></button>' +
     '<button data-act="kittab" data-v="supplies" aria-pressed="' + (tab === 'supplies') + '">' + kitIcon('droplet') + 'Supplies</button></nav>';
-  /* add kit drawer */
-  if (adding) s += kitAddDrawerHTML(x);
+  /* add kit drawer: v401 (Joe, 1 Nov) opens under its own Add kit button, in the kit list, not up here */
   /* the small pack, the way into the guide */
   /* the studio: the guide and the list */
   s += '<div class="studio">';
@@ -45938,6 +46106,7 @@ function kitPanelHTML(x, rows, zone, tab){
     '<p class="zonehelp">' + (all ? 'Everything in this setup. Worn kit is counted separately.' : esc(z.help)) + '</p>' +
     '<div class="kittoolbar"><span>' + shown.length + (shown.length === 1 ? ' item' : ' items') + '</span>' +
       '<button class="primary" data-act="kitaddopen" data-v="' + esc(x.id) + '">' + kitIcon('plus') + '<span>Add kit</span></button></div>' +
+    (ui.kitAdd ? kitAddDrawerHTML(x) : '') +
     '<div data-items>';
   if (!shown.length) s += '<div class="listempty">' + (rows.length ? 'Nothing packed here yet. Move an item into this zone, or add kit.' : 'Nothing in this setup yet. Add kit from your inventory, or a new item.') + '</div>';
   for (const r of (all ? KIT_ZONE_ORDER.flatMap(k => shown.filter(y => y.z === k)) : shown)) s += kitRowEdHTML(x, r, all);
@@ -45956,11 +46125,19 @@ function kitRowEdHTML(x, r, showZone){
       '<span class="take take-static" aria-hidden="true"><span class="box">' + kitIcon(KIT_ZONES[r.z].icon, 'width="13" height="13"') + '</span></span>' +
       (thumb ? '<button class="kit-thumbnail" data-act="kitopenfromplan" data-v="' + esc(g.id) + '" aria-label="Open ' + esc(kitName(g)) + '">' + thumb + '</button>' : '') +
       '<div><button class="itemname linklike" data-act="kitopenfromplan" data-v="' + esc(g.id) + '">' + esc(kitName(g)) + '</button>' +
-        '<div class="itemmeta">' + esc(kitCat(g).label) + (showZone ? ' · ' + esc(KIT_ZONES[r.z].t) : '') + (r.q > 1 ? ' · ' + r.q + ' of them' : '') +
+        '<div class="itemmeta">' + esc(kitCat(g).label) + (showZone ? ' · ' + esc(KIT_ZONES[r.z].t) : '') + (r.q > 1 && !kitConsOn(g) ? ' · ' + r.q + ' of them' : '') +
           (kitGasHas(g) ? ' · empty tin, gas ' + kitGasNow(g).pct + '% in Fuel' : '') + '</div>' +   /* v394 */
         (thumb ? '<span class="grams' + (each === null ? ' unknown' : '') + '">' + (each === null ? 'Add weight' : kitShortW(each * r.q)) + '</span>' : '') + '</div>' +
       (thumb ? '' : '<span class="grams' + (each === null ? ' unknown' : '') + '">' + (each === null ? 'Add weight' : kitShortW(each * r.q)) + '</span>') +
     '</div>' +
+    /* v401 (Joe, 1 Nov; approved drawing): kit you use up shows how many this
+       setup takes, of how many you have. The setup's own quantity, not capped
+       at what you have. */
+    (kitConsOn(g) ? '<div class="constake"><span class="constakel" id="constake-' + esc(x.id) + '-' + esc(g.id) + '">Take</span>' +
+      '<span class="constakestep" role="group" aria-labelledby="constake-' + esc(x.id) + '-' + esc(g.id) + '">' +
+        '<button data-act="kitrowq" data-c="1" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" data-d="-1" aria-label="Take one fewer ' + esc(kitName(g)) + '"' + (r.q <= 1 ? ' disabled' : '') + '>−</button>' +
+        '<b>' + r.q + '</b><button data-act="kitrowq" data-c="1" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" data-d="1" aria-label="Take one more ' + esc(kitName(g)) + '"' + (r.q >= 20 ? ' disabled' : '') + '>+</button></span>' +
+      '<span class="constakeof">of ' + kitNum(kitConsHave(g)) + '</span></div>' : '') +
     /* v397 (Joe, 30 Oct): an item with parts opens to tick the parts this
        setup takes, and how many of a part there are two or more of */
     (kitHasParts(g) && !kitGasHas(g) ? (() => {
@@ -45982,8 +46159,9 @@ function kitRowEdHTML(x, r, showZone){
           ? '<p class="rangehelp wide">Its weight is the parts you take, added up. Change a part’s weight on the item. ' +
             '<button class="linkbtn" data-act="kitopenfromplan" data-v="' + esc(g.id) + '">Open ' + esc(kitName(g)) + '</button></p>'
           : '<label>Each item, grams<input type="number" min="0" max="99999" step="1" inputmode="numeric" data-act="kitrowwt" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" value="' + (each === null ? '' : each) + '" placeholder="Unknown"></label>') +
+        (kitConsOn(g) ? '' :   /* v401: kit you use up has "Take" on the row itself */
         '<label>Quantity<span class="qtystep"><button data-act="kitrowq" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" data-d="-1" aria-label="One fewer">−</button>' +
-          '<b>' + r.q + '</b><button data-act="kitrowq" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" data-d="1" aria-label="One more">+</button></span></label>' +
+          '<b>' + r.q + '</b><button data-act="kitrowq" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '" data-d="1" aria-label="One more">+</button></span></label>') +
         '<label class="wide">Pack it in<select data-act="kitrowzone" data-s="' + esc(x.id) + '" data-v="' + esc(g.id) + '">' +
           KIT_ZONE_ORDER.map(k => '<option value="' + k + '"' + (k === r.z ? ' selected' : '') + '>' + esc(KIT_ZONES[k].t) + '</option>').join('') + '</select></label>' +
         '<p class="rangehelp wide">The weight is the item’s own, so it changes everywhere it is used. Quantity and where it is packed belong to this setup.</p>' +
@@ -46182,11 +46360,102 @@ function kitOutingSave(){
       return it; }),
     left: d.rows.filter(r => !r.on && live.indexOf(r.id) >= 0).map(r => ({id:r.id, q:r.q, z:r.z})),
     sup:{food:+d.sup.food || 0, water:+d.sup.water || 0, fuel:+d.sup.fuel || 0}};
+  /* v401 (Joe, 1 Nov): the used-up kit taken, so "Did you use them?" can be
+     asked. Saving the same day again keeps what was already answered, so a
+     use is never taken off twice. */
+  { const take = {};
+    for (const r of taking) if (kitConsOn(kitById(r.id))) take[r.id] = r.q;
+    if (Object.keys(take).length){
+      const prev = kitTrip(d.date), pu = (prev && prev.cons && prev.cons.used) || {};
+      snap.cons = {take, used:Object.fromEntries(Object.entries(pu).filter(([k]) => k in take))};
+    } }
   state.kitTrips = [...(state.kitTrips || []).filter(t => t && t.date !== d.date), snap];
   const w = kitTripWeigh(snap), left = d.rows.filter(r => !r.on).length;
   ui.kitOuting = null; touched(); render(); window.scrollTo({top:0});
   toast(on.length + ' saved to ' + (day.n === 1 ? 'that hill' : 'those ' + day.n + ' hills') +
     (left ? ' · ' + left + ' left behind' : '') + ' · ' + kitKgStr(w.start) + ' starting weight.');
+  if (consPending(snap).length) consAskOpen(snap.date);   /* v401 */
+}
+
+/* ==========================================================================
+   v401 (Joe, 1 Nov; approved drawing DRAWING-kit-consumables.png): AFTER THE
+   WALK. An outing saved with used-up kit in it asks "Did you use them?" once.
+   Save takes what was used off how many you have (never below 0) and adds a
+   use to the item. Later keeps the question as a card at the top of All kit.
+   The answer is kept on the trip (t.cons.used), so it syncs with it and is
+   never asked again; a deleted trip, or a deleted item, is not asked about.
+   ========================================================================== */
+function consPending(t){
+  if (!t || t.deleted || !t.cons || !t.cons.take) return [];
+  const used = t.cons.used || {};
+  return Object.keys(t.cons.take).filter(id => !(id in used) && kitConsOn(kitById(id)) && +t.cons.take[id] >= 1);
+}
+function consTripsPending(){
+  return (state.kitTrips || []).filter(t => t && !t.deleted && kitTrip(t.date) === t && consPending(t).length)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+}
+function consWhat(ids){
+  const n = ids.map(id => consLower(kitName(kitById(id))));
+  return n.length === 1 ? n[0] : n.length === 2 ? n[0] + ' and ' + n[1] : n[0] + ' and ' + (n.length - 1) + ' more';
+}
+/* the card at the top of All kit, one per walk still to answer */
+function consCardsHTML(){
+  return consTripsPending().slice(0, 3).map(t =>
+    '<section class="consnag" aria-label="A question about your kit"><p>After ' + esc(consDay(t.date)) + ': did you use your ' + esc(consWhat(consPending(t))) + '?</p>' +
+      '<button data-act="consanswer" data-v="' + esc(t.date) + '">Answer</button></section>').join('');
+}
+function consAskOpen(date){
+  const t = kitTrip(date), ids = consPending(t);
+  if (!ids.length){ ui.consAsk = null; bcSheetClose(); return; }
+  if (!ui.consAsk || ui.consAsk.date !== date) ui.consAsk = {date, pick:{}};
+  for (const id of ids) if (!ui.consAsk.pick[id]) ui.consAsk.pick[id] = {m:'all', n:1};
+  consAskPaint();
+}
+function consUsedOf(t, id){
+  const n = Math.max(1, +t.cons.take[id] || 1), pk = (ui.consAsk && ui.consAsk.pick[id]) || {m:'all'};
+  return pk.m === 'none' ? 0 : pk.m === 'some' && n > 1 ? Math.max(1, Math.min(n - 1, +pk.n || 1)) : n;
+}
+function consAskPaint(){
+  const dr = ui.consAsk, t = dr && kitTrip(dr.date), ids = consPending(t);
+  if (!ids.length){ ui.consAsk = null; bcSheetClose(); return; }
+  const day = kitOutingDays().find(y => y.date === t.date);
+  const where = day && day.names.length ? day.names[0] + (day.n > 1 ? ' and ' + (day.n - 1) + ' more' : '') : '';
+  let s = '<div class="consask" data-date="' + esc(t.date) + '"><p class="consey">' + esc(consDay(t.date)) + (where ? ' · ' + esc(where) : '') + '</p>' +
+    '<h3 class="bcsheettitle">Did you use them?</h3><p class="conslede">So WayMark knows how many you have left.</p>';
+  for (const id of ids){
+    const g = kitById(id), n = Math.max(1, +t.cons.take[id] || 1), pk = dr.pick[id], u = consUsedOf(t, id);
+    const m = pk.m === 'some' && n < 2 ? 'all' : pk.m, left = Math.max(0, kitConsHave(g) - u), nm = esc(kitName(g));
+    const b = (k, label) => '<button data-act="consm" data-v="' + esc(id) + '" data-m="' + k + '" aria-pressed="' + (m === k) + '">' + label + '</button>';
+    s += '<section class="consq" data-v="' + esc(id) + '"><div class="consqh"><b>' + nm + '</b><span>you took ' + n + '</span></div>' +
+      '<div class="conspick" role="group" aria-label="How many ' + nm + ' did you use?">' + b('all', 'All ' + n) + (n > 1 ? b('some', 'Some') : '') + b('none', 'None') + '</div>' +
+      (m === 'some' ? '<div class="consused"><span id="consu-' + esc(id) + '">Used</span><span class="consstep" role="group" aria-labelledby="consu-' + esc(id) + '">' +
+        '<button data-act="consn" data-v="' + esc(id) + '" data-d="-1" aria-label="One fewer used"' + (u <= 1 ? ' disabled' : '') + '>−</button><b>' + u + '</b>' +
+        '<button data-act="consn" data-v="' + esc(id) + '" data-d="1" aria-label="One more used"' + (u >= n - 1 ? ' disabled' : '') + '>+</button></span></div>' : '') +
+      '<p class="consleft" role="status"><b>' + (left ? kitNum(left) + ' left' : 'None left') + '</b> after this walk.</p></section>';
+  }
+  s += '<div class="consbtns"><button class="conslater" data-act="conslater">Later</button><button class="conssave" data-act="conssave">Save</button></div>' +
+    '<p class="consfine">Later keeps the question on Kit until you answer.</p></div>';
+  bcSheet(s, 'Did you use them?', 'conssheet');
+}
+function consSave(){
+  const dr = ui.consAsk, t = dr && kitTrip(dr.date), ids = consPending(t);
+  const us = Object.fromEntries(ids.map(id => [id, consUsedOf(t, id)]));   /* read before the draft goes */
+  ui.consAsk = null; bcSheetClose();
+  if (!ids.length){ render(); return; }
+  const used = {...(t.cons.used || {})}, at = now();
+  let one = null;
+  for (const id of ids){
+    const g = kitById(id), u = us[id];
+    used[id] = u;
+    if (u > 0){
+      g.cons = {...g.cons, have:Math.max(0, kitConsHave(g) - u), used:[...((g.cons && g.cons.used) || []), {d:t.date, n:u, t:at}].slice(-200)};
+      g.t = at;
+    }
+    one = g;
+  }
+  t.cons = {...t.cons, used}; t.t = at;
+  touched(); render();
+  toast(ids.length === 1 && one ? 'Saved. ' + (kitConsHave(one) ? kitNum(kitConsHave(one)) + ' left.' : 'None left.') : 'Saved.');
 }
 
 /* ==========================================================================
@@ -46930,6 +47199,11 @@ document.addEventListener('input', e => {
   for (const i of box.querySelectorAll('[data-act="kitsup"]')) if (i !== el) i.value = v;
   const lab = box.querySelector('.rangevalue');
   if (lab) lab.textContent = k === 'water' ? (v / 1000).toFixed(2) + ' L' : kitShortW(v);
+});
+/* v401: ticking "I have several" (or the gas box) shows and hides the rest */
+document.addEventListener('change', e => {
+  const t = e.target; if (!t || !t.closest || (t.name !== 'cons' && t.name !== 'gas')) return;
+  const box = t.closest('.kitedf'); if (box) kitConsSync(box);
 });
 /* v394: Enter in the weigh box saves, as the button does */
 document.addEventListener('keydown', e => {
