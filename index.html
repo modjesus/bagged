@@ -10392,6 +10392,65 @@ textarea, select{font-size:16px}
 @media(min-width:760px){.wm-patchhead{grid-template-columns:minmax(0,1fr) auto auto auto}.wm-patchhead .bcview{grid-column:2;grid-row:1}.wm-patchhead .shufb{grid-column:3;grid-row:1}.wmhistorycontrol{grid-column:4;grid-row:1;margin-left:8px;padding-left:16px;border-left:1px solid var(--line-soft)}}
 @media(max-width:420px){.wmphotos{grid-template-columns:repeat(2,minmax(0,1fr))}.wmsections button{padding:8px 5px;font-size:14px}.navbtn .nl{font-size:10px}}
 
+/* ================= v400 (31 Oct) =================
+   From the whole-app journey audit (claude/87). Kept together, at the end of
+   the sheet, so each rule wins over the older one it corrects. */
+
+/* 2 · TAPS OF 44. The look stays; the box you can hit grows. */
+/* the map card's buttons: 36 tall, now 44 */
+.popbtn{min-height:44px}
+/* the celebration's Close: 37 wide, now 44 */
+.winlnk .linkbtn.winclose{min-width:44px}
+/* "<- Progress" on a patch page: 71x36, now 44 tall. Same words, same grey. */
+.backbtn{min-height:44px; display:inline-flex; align-items:center}
+/* the list chips on a hill's page stay small pills (26px, with their words
+   now at 12px); the tap reaches 10px above and below, and the rows open up
+   by 20px so one chip's reach never covers the next */
+#info .tags{row-gap:20px}
+button.tagb::before{top:-10px; bottom:-10px; left:-1px; right:-1px}
+/* "Who sees it" (and every other who-can-see row): 36 tall, now 44 */
+.visrow .pill{min-height:44px}
+/* a folded Journal day: the date chip got taller than the 25px the old
+   padding was worked out for; a floor instead of arithmetic */
+.dday.fold .ddate.shut{min-height:44px; box-sizing:border-box; align-items:center}
+/* "Add the kit you walk in" sits inside a sentence, so the words stay where
+   they are and the tap reaches 12px above and below */
+.kitnone .linkbtn::after{top:-12px; bottom:-12px}
+/* the red search pin: 44 wide to tap, drawn the same 30x36 */
+.searchpin{width:44px !important; height:44px !important; display:flex; align-items:flex-end; justify-content:center; cursor:pointer; filter:none}
+.searchpin svg{width:30px; height:36px; filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+/* a hill on the map keeps its drawn size; its tap area is a circle up to
+   44px across, cut down to never reach a neighbour (set in paintHills) */
+/* (the marker itself is position:absolute, placed by MapLibre, so the circle
+   is centred on it without touching its position) */
+.peakwrap::before{content:""; position:absolute; left:50%; top:50%; width:var(--hit, 100%); height:var(--hit, 100%);
+  transform:translate(-50%, -50%); border-radius:50%}
+
+/* 5 · NOTHING YOU READ UNDER 12px */
+.eyebrow, .sumlabel, .dcount, .wxgrid dt, .wxrhead dt, .lfacts dt, .rstep, .detail label, .form label,
+.accountBox label, .plandate label, .otherday label, .plannoteedit label, .dnote b{font-size:12px; line-height:16.5px}
+.grouphead span{font-size:12px; line-height:16.5px}
+/* (16.5px is the line these had at 11px: one point bigger, nothing moves) */
+.np2 p.sumlabel, .lead.hasshot .nextpatch.big.np2 p.sumlabel{font-size:12px}
+.tagb{font-size:12px; letter-spacing:.04em}
+.bnav .navbtn .nl{font-size:12px}
+/* and it still fits at 320. "Community" is the longest word (67px at 12px,
+   bold when you are on it) and it is the last tab, so the two END tabs are
+   a little wider than the middle three. Equal at both ends, so Home stays
+   dead centre. Below 360 the 1px side padding goes and the letters close up
+   by a hair, which is what lets "Progress" in bold fit the middle tab. */
+@media (max-width:379px){ .bnav .navbtn:first-child, .bnav .navbtn:last-child{flex-grow:1.2} }
+@media (max-width:359px){ .bnav .navbtn{padding-left:0; padding-right:0} .bnav .navbtn .nl{letter-spacing:-.01em} }
+
+/* 3 · THE LOGO AT 320. "WAYMARK" needs 115px at 24px; below 340 the row
+   cannot give it that, so it was cut to "WAYMAR" with Shop over the K. A
+   rule for this was already written (18px under 340) but the 400px rule
+   came after it in the sheet and put 24px back. Here it comes last. */
+@media (max-width:339px){ .brandrow .brand{font-size:18px; letter-spacing:.5px} }
+
+/* 6 · the dog sheet: Save stays on screen while you fill it in */
+.dogsheet [data-act="dogsave"]{margin-top:14px; position:sticky; bottom:10px; z-index:3; box-shadow:0 0 0 12px var(--surface)}
+
 </style>
 <style id="kit391">
 /* ===== v391 Journal Kit: the approved pack planner (scoped to #wmpack, from the prototype) and the kit pages ===== */
@@ -18921,7 +18980,7 @@ function homeShopRail(){
   const from = Math.min(...sale.map(d => shopItem(d.n).price));
   return '<div class="bcnudge"><button class="bcnudgego" data-act="shopgo">' +
     '<span class="bcfan sm">' + pick.map(d => '<img alt="" src="' + shopImg(d.n, supLead(d)) + '">').join('') + '</span>' +
-    '<span><b>Visit Basecamp</b> Tees from ' + gbp(from) + '</span>' + ti('chevron-right') + '</button></div>';
+    '<span><b>Visit the shop</b> Tees from ' + gbp(from) + '</span>' + ti('chevron-right') + '</button></div>';
 }
 
 /* ---- a patch earned: its tee, or the real patch that is coming ---- */
@@ -20751,14 +20810,14 @@ function setDogTab(on){
   try{ localStorage.setItem('wm-dogtab', on ? 'on' : 'off'); }catch(e){}
   if (!on && ui.patchView === 'dogs'){ ui.patchView = 'cork'; ui.dog = null; }
   render(); paintDogPref();
-  toast(on ? 'The Dogs tab is back in Basecamp.' : 'Hidden. Settings, Appearance brings it back.');
+  toast(on ? 'Dogs is back in Journal.' : 'Hidden. Settings, Appearance brings it back.');
 }
 function paintDogPref(){
   const b = document.getElementById('dogPrefBox'); if (!b) return;
   const on = dogTabOn(), has = dogList().length;
   b.innerHTML = '<div class="togglerow"><div class="tinfo"><b>Dogs</b><span>' +
     (has ? 'You have ' + has + (has === 1 ? ' dog' : ' dogs') + ' in the pack, so the tab stays.'
-         : 'A tab in Basecamp for the dog you walk with.') + '</span></div></div>' +
+         : 'A tab in Journal for the dog you walk with.') + '</span></div></div>' +
     '<div class="seg themeseg" role="group" aria-label="Dogs tab">' +
       '<button data-act="dogtab" data-v="on" aria-pressed="' + on + '"' + (has ? ' disabled' : '') + '>Show it</button>' +
       '<button data-act="dogtab" data-v="off" aria-pressed="' + (!on) + '"' + (has ? ' disabled' : '') + '>Hide it</button></div>';
@@ -21423,6 +21482,7 @@ function openDogEdit(id){
   ui.dogDraft = dogDraftFrom(id ? dogById(id) : null);
   paintDogEdit();
 }
+function dogSaveLabel(d){ return ti('check') + (d.id ? 'Save' : 'Add ' + (d.name.trim() ? esc(d.name.trim()) : 'them')); }
 function paintDogEdit(){
   const d = ui.dogDraft; if (!d) return;
   const el = bcSheet('<h3 class="bcsheettitle">' + (d.id ? 'Edit ' + esc(d.name || 'your dog') : 'Add a dog') + '</h3>' +
@@ -21454,11 +21514,13 @@ function paintDogEdit(){
       '<button type="button" data-act="dogcollar" data-v="' + c.id + '" aria-pressed="' + (d.collar === c.id) + '" style="background:' + c.v + '" aria-label="' + c.name + '"></button>').join('') + '</div>' +
     '<label for="dgbest">Best at <span class="opt">optional</span></label><input id="dgbest" type="text" maxlength="80" placeholder="Scrambles and stream crossings" value="' + esc(d.best) + '">' +
     '<label for="dgnope">Not keen on <span class="opt">optional</span></label><input id="dgnope" type="text" maxlength="80" placeholder="Stiles, sheep, the car boot" value="' + esc(d.nope) + '">' +
-    '<button class="btn bcgo" data-act="dogsave"' + (d.name.trim() ? '' : ' disabled') + ' style="margin-top:14px">' + ti('check') + (d.id ? 'Save' : 'Add ' + (d.name.trim() ? esc(d.name.trim()) : 'them')) + '</button>' +
+    '<button class="btn bcgo" data-act="dogsave"' + (d.name.trim() ? '' : ' disabled') + '>' + dogSaveLabel(d) + '</button>' +
     '</div>', d.id ? 'Edit dog' : 'Add a dog', 'dogsheet');
   const bind = (id2, k) => { const i = el.querySelector('#' + id2); if (i) i.oninput = e => {
     d[k] = e.target.value;
-    if (k === 'name'){ const b = el.querySelector('[data-act=dogsave]'); if (b) b.disabled = !d.name.trim(); }
+    /* v400: the button says the name as you type it ("Add Moss"). It said
+       "Add them" until the sheet was painted again. */
+    if (k === 'name'){ const b = el.querySelector('[data-act=dogsave]'); if (b){ b.disabled = !d.name.trim(); b.innerHTML = dogSaveLabel(d); } }
   }; };
   bind('dgname', 'name'); bind('dgbreed', 'breed'); bind('dgdob', 'dob'); bind('dgbest', 'best'); bind('dgnope', 'nope');
   /* the cover in the sheet is a photo-store picture like any other, and the
@@ -23065,30 +23127,38 @@ function renderPatchDetail(p){
    The dashboard passes nothing and gets the lot for every list you have on. */
 /* the same count the strip carried, without the strip. One row, one tap to
    Basecamp, where the patches actually live. */
+/* v400: 'cal' joins the patches shown on every list. The two Through the
+   year patches (v384: every month, all four seasons) are earned on any list,
+   but this filter was written before they existed and quietly left them out,
+   so Home said "4 of 60 earned" while Progress said 4/62 for the same log. */
+const PATCH_ALWAYS = ['count', 'climb', 'peak', 'set', 'cal'];
 function patchesForList(listId){
   let ps = patches();
   if (!listId) return ps;
   return ps.filter(p =>
-    p.kind === 'count' || p.kind === 'climb' || p.kind === 'peak' || p.kind === 'set' ||
+    PATCH_ALWAYS.includes(p.kind) ||
     (p.kind === 'book' && listId === 'wainwright') ||
     (p.kind === 'list' && p.listId === listId));
 }
+/* THE COUNT IS PROGRESS'S COUNT. Both of these rows say "Patches N of M
+   earned" and both open Progress, which counts every patch you can earn
+   (navCounts). Counting only this list's patches here meant the number
+   changed the moment you tapped it. The strip below still shows the
+   patches that belong to the list you are looking at. */
+function patchCount(){
+  const ps = patches();
+  return {got: ps.filter(p => p.got).length, all: ps.length};
+}
 function listPatchLink(listId){
-  const ps = patchesForList(listId);
+  const ps = patches();
   const got = ps.filter(p => p.got).length;
   return '<button class="sect eyelink patchline" data-tab="a">Patches ' +
     '<span>' + got + ' of ' + ps.length + ' earned &rsaquo;</span></button>';
 }
 function renderPatches(listId){
-  let ps = patches();
-  if (listId){
-    ps = ps.filter(p =>
-      p.kind === 'count' || p.kind === 'climb' || p.kind === 'peak' || p.kind === 'set' ||   // always shown
-      (p.kind === 'book' && listId === 'wainwright') ||
-      (p.kind === 'list' && p.listId === listId));
-  }
-  const got = ps.filter(p => p.got).length;
-  let s = '<button class="sect eyelink" data-tab="a">Patches <span>' + got + ' of ' + ps.length + ' earned &rsaquo;</span></button><div class="patchstrip">';
+  const ps = patchesForList(listId);
+  const pc = patchCount();
+  let s = '<button class="sect eyelink" data-tab="a">Patches <span>' + pc.got + ' of ' + pc.all + ' earned &rsaquo;</span></button><div class="patchstrip">';
   /* patchDisc(), LIKE EVERY OTHER PLACE A PATCH IS DRAWN. Joe, 9 Oct, with
      two screenshots: "patches on 335 are different on home and patch
      section." Skiddaw was a bare mountain outline on Home and the real
@@ -24305,7 +24375,7 @@ function listEmptyHTML(id, s){
       '<button class="linkbtn" data-act="clearq">Clear the search</button></p>';
   }
   if (ui.view === 'done') return '<div class="empty emptybig"><b>Nothing marked here yet.</b>' +
-    '<span>Tick one off and the day you did it shows up here, with your photographs.</span>' +
+    '<span>Mark one off and the day you did it shows up here, with your photographs.</span>' +
     '<button class="btn" data-act="view" data-v="climb">See what there is to climb</button></div>';
   if (ui.view === 'climb' && ui.status !== 'all')
     return '<p class="empty">None of them are ' + (ui.status === 'planned' ? 'planned' : 'part-done') + '. ' +
@@ -27451,7 +27521,7 @@ function renderDashboard(){
     s += '<div class="invite">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + NI.h + '</svg>' +
       '<h2 class="pagehead">Mark your first fell</h2>' +
-      '<p>Every hill you walk goes in the log, earns you patches, and draws your journey on the map. Search for one above, or tick one below that you have already done.</p></div>';
+      '<p>Every hill you walk goes in the log, earns you patches, and draws your journey on the map. Search for one above, or mark one below that you have already done.</p></div>';
     /* BEFORE THE FIRST HILL THE LIST STAYS INLINE. "tick one below" is the
        only instruction on the screen, and a card that opens somewhere else
        is not "below". Once there is one hill marked, Home has something of
@@ -29382,6 +29452,7 @@ function hillIconHTML(h, cs){
 function hillMarker(m, arr, h, cs, onClick, tip){
   const {html, big, done} = hillIconHTML(h, cs);
   const mk = domMarker(m, arr, html, 'peakwrap', big, big, h.a, h.o);
+  mk.__k = h.k;
   const el = mk.getElement();
   el.title = tip || hillName(h);
   /* sent here from a patch: ring the ones it is waiting on */
@@ -29416,6 +29487,35 @@ function paintHills(m, arr, hs, onClick, withTip){
   }
   setData(m, 'wm-dots', {type:'FeatureCollection', features:dots});
   fanOut(placed).forEach(p => { if (p.ox || p.oy) p.mk.setOffset([p.ox, p.oy]); });
+  hitAreas(placed);
+  /* where each drawn hill ended up, so the search pin can stand on it */
+  m.__hillOff = {};
+  placed.forEach(p => { m.__hillOff[p.mk.__k] = {x:p.ox || 0, y:p.oy || 0, r:p.hit || p.r}; });
+}
+/* v400: AN INVISIBLE TAP AREA FOR EACH HILL. The drawn marker stays 22px
+   (more once walked); the circle you can tap reaches out to 44px across,
+   but never into a neighbour: between two hills d apart, each gets the
+   share of d its own size earns (d x r / (r + r2)), so two reaches never
+   overlap each other or the other hill's drawing. A hill crowded on all
+   sides keeps at least its own drawn size. */
+const HIT_R = 22;
+function hitAreas(placed){
+  const cell = 2 * HIT_R + 40, grid = new Map();
+  const pos = placed.map(p => ({x:p.x + (p.ox || 0), y:p.y + (p.oy || 0), r:p.r}));
+  pos.forEach((q, i) => { const k = Math.floor(q.x / cell) + ',' + Math.floor(q.y / cell); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(i); });
+  pos.forEach((q, i) => {
+    let reach = HIT_R;
+    const gx = Math.floor(q.x / cell), gy = Math.floor(q.y / cell);
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++)
+      for (const j of (grid.get((gx + dx) + ',' + (gy + dy)) || [])){
+        if (j === i) continue;
+        const o = pos[j], d = Math.hypot(o.x - q.x, o.y - q.y);
+        reach = Math.min(reach, d * q.r / (q.r + o.r));
+      }
+    reach = Math.max(q.r, Math.floor(reach * 10) / 10);
+    placed[i].hit = reach;
+    placed[i].mk.getElement().style.setProperty('--hit', (2 * reach) + 'px');
+  });
 }
 /* Markers that would sit on top of each other are pushed apart, a little at a
    time, until none hides another: each overlapping pair moves half the overlap
@@ -29450,12 +29550,20 @@ function fanOut(items, gap){
   return items;
 }
 /* the pin you searched for, so you can see what you asked about */
-function drawSearchPin(m, arr){
+/* v400: for a HILL the pin stands on top of the hill's marker, its point
+   at the edge of the hill's tap area, rather than over it, so the hill can
+   still be seen and tapped. Tapping the pin does what tapping the hill does (onHill).
+   A place that is not a hill keeps its pin exactly where it was. */
+function drawSearchPin(m, arr, onHill){
   const sp = ui.searchPin; if (!sp || !m) return;
-  const mk = domMarker(m, arr, '<div class="searchpin" title="' + esc(sp.name || 'Here') + '"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+  const h = sp.k && BY_KEY[sp.k];
+  const off = (h && m.__hillOff && m.__hillOff[h.k]) || null;
+  const mk = domMarker(m, arr, '<div class="searchpin" title="' + esc(sp.name || 'Here') + '"' + (h ? ' role="button" aria-label="' + esc(hillName(h)) + '"' : '') + '><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
     '<path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#F3EFE6"/></svg></div>',
-    'peakwrap', 30, 36, sp.la, sp.lo, {anchor:'bottom'});
-  mk.getElement().style.zIndex = 5;
+    'pinwrap', 44, 44, sp.la, sp.lo, {anchor:'bottom', offset: h && off ? [off.x, off.y - off.r] : [0, 0]});
+  const el = mk.getElement();
+  el.style.zIndex = 5;
+  if (h && onHill) el.addEventListener('click', e => { e.stopPropagation(); onHill(h); });
 }
 function drawMarkers(){
   if (!mapReady || !map) return;
@@ -29467,7 +29575,7 @@ function drawMarkers(){
   }
   setData(map, 'wm-lines', {type:'FeatureCollection', features:lines});
   paintHills(map, mapMarks, mapHills(), (mk, h) => openPopup(mk, h, map), false);
-  drawSearchPin(map, mapMarks);
+  drawSearchPin(map, mapMarks, h => openPopup(null, h, map));
 }
 function openPopup(mk, h, m){
   m = m || (mk && mk.__m) || map;
@@ -30801,7 +30909,10 @@ function drawMapSummits(){
     if (editor && ui.rmode === 'plot') rmAdd([hh.a, hh.o]);
     else openPopup(mk, hh, rmap);
   }, true);
-  drawSearchPin(rmap, rmMarks);
+  drawSearchPin(rmap, rmMarks, hh => {
+    if (editor && ui.rmode === 'plot') rmAdd([hh.a, hh.o]);
+    else openPopup(null, hh, rmap);
+  });
 }
 
 /* ---------- on the hill ----------
@@ -32523,7 +32634,7 @@ function searchResultsHTML(){
   let s = '<div class="rqres">';
   for (const h of hills)
     s += '<button class="rqrow" data-act="gomap" data-la="' + h.a + '" data-lo="' + h.o +
-      '" data-name="' + esc(hillName(h)) + '">' +
+      '" data-name="' + esc(hillName(h)) + '" data-k="' + esc(h.k) + '">' +
       '<span class="rqn">' + esc(hillName(h)) + '</span>' +
       '<span class="rqm">' + feet(h).toLocaleString() + ' ft &middot; ' + esc(h.c || '') + '</span></button>';
   for (const p of near)
@@ -34708,7 +34819,7 @@ document.addEventListener('click', async e => {
     toast('\u00a3' + (pence / 100).toFixed(2) + ' added. Thank you.');
   }
   else if (a === 'bagopen'){ openBasket(); }
-  else if (a === 'bchomehide'){ try{ localStorage.setItem('waymark.homeshop', 'hide'); }catch(e){} const n = el.closest('.bcnudge'); if (n) n.remove(); toast('Hidden. The shop is always in Basecamp.'); }
+  else if (a === 'bchomehide'){ try{ localStorage.setItem('waymark.homeshop', 'hide'); }catch(e){} const n = el.closest('.bcnudge'); if (n) n.remove(); toast('Hidden. Shop is always at the top of the screen.'); }
   else if (a === 'bcsave'){ bcToggleSave(el.dataset.k); }
   else if (a === 'bcquick'){ bcQuick(el.dataset.k); }
   else if (a === 'bcaddsize'){ bcAdd(el.dataset.k, el.dataset.o); }
@@ -35207,7 +35318,7 @@ document.addEventListener('click', async e => {
     if (!isFinite(la)) return;
     shutSearch();
     /* a pin where you searched, on whichever map, until the next search */
-    ui.searchPin = el.dataset.p ? null : {la, lo, name: el.dataset.name || ''};
+    ui.searchPin = el.dataset.p ? null : {la, lo, name: el.dataset.name || '', k: el.dataset.k || ''};
     /* whichever map is on screen — the planner's or the Map tab's */
     const onMapTab = tab === 'm';
     /* ui.rview is NOT set to the destination first. mapAttach jumps the
@@ -35218,13 +35329,23 @@ document.addEventListener('click', async e => {
     render();
     setTimeout(() => {
       const m = onMapTab ? map : rmap;
+      /* v400: A HILL OPENS ITS MAP CARD. Joe's audit, 30 Oct: the red pin
+         landed on top of Latrigg, tapping it did nothing, and the 22px hill
+         under it could not be reached. You searched for one hill by name, so
+         its card (Mark it, About this hill) is what comes up, once the map
+         has arrived. The card says which hill it is, so the toast goes. */
+      const hk = el.dataset.k && BY_KEY[el.dataset.k];
+      if (m && hk){
+        let done = false;
+        const show = () => { if (done || !m) return; done = true; openPopup(null, hk, m); };
+        m.once('moveend', () => setTimeout(show, 60));
+        setTimeout(show, 2600);      // already there, or the flight was cut short
+      }
       if (m) flyToPlace(m, la, lo, 14);
       if (onMapTab) drawMarkers(); else rmDraw();
-      /* A place opens, because that is where the hours and charges are. A hill
-         does not: you are finding it on the map, not deciding whether to tick
-         it, and being asked to mark it off here is the wrong question. */
+      /* A place opens, because that is where the hours and charges are. */
       if (el.dataset.p) openPoi(el.dataset.p);
-      else if (el.dataset.name) toast(el.dataset.name + ', centred on the map.');
+      else if (el.dataset.name && !hk) toast(el.dataset.name + ', centred on the map.');
     }, 120);
   }
   else if (a === 'places'){
@@ -36519,15 +36640,19 @@ document.getElementById('restoreBtn').onclick = () => {
     const inc = normalise(s);
     for (const v of Object.values(inc.bagged)) v.t = now();
     for (const p of inc.plans) p.t = now();
-    const m = merge(state, {bagged:inc.bagged, plans:inc.plans, diary:inc.diary, enabled:inc.enabled, groups:inc.groups});
-    /* Keep the diary and the leaderboards. merge() worked them out and the old
-       code dropped both on the floor — a walker with no account lost every
-       diary entry permanently, from a backup that contained them. */
-    state = {bagged:m.bagged, plans:m.plans, diary:m.diary || [], dogs:m.dogs || state.dogs || [],
-             kit:m.kit || state.kit || [], kitSeeded:m.kitSeeded || state.kitSeeded || 0,
+    /* v400 (Joe, 31 Oct): a backup is restored the way the cloud copy is
+       merged (fbSync), with EVERYTHING in it. This used to pass merge() only
+       hills, plans, diary, lists and groups, then rebuild the log from a
+       short list of fields — so setups, walk kit, kit categories, your own
+       peaks and your goal were dropped, and the backup's own kit and dogs
+       never came in at all. Fields merge() does not handle are kept. */
+    const m = merge(state, inc);
+    state = {...state, ...m,
+             diary:m.diary || state.diary || [], dogs:m.dogs || state.dogs || [], kit:m.kit || state.kit || [],
              groups:(Array.isArray(m.groups) && m.groups.length) ? m.groups : myGroups(),
              enabled:(Array.isArray(m.enabled) && m.enabled.length) ? m.enabled : state.enabled,
              enabledT:m.enabledT || state.enabledT || 0};
+    try{ registerOwn(); }catch(e){}
     seedSeen();
     try{ kitDedupe(); }catch(e){}
     try{ dogFaceMigrate(); }catch(e){}
@@ -40995,7 +41120,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v399';
+const APP_VERSION = 'v400';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
