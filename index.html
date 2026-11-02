@@ -23606,7 +23606,7 @@ function scrollDiag(){
   }, {passive:true});
   const st = window.scrollTo; window.scrollTo = function(...a){ if (plogOn() && (window.scrollY || 0) > 200) photoLog('scrollTo ' + JSON.stringify(a), sdWho()); return st.apply(this, a); };
   const si = Element.prototype.scrollIntoView; Element.prototype.scrollIntoView = function(...a){ if (plogOn()) photoLog('scrollIntoView ' + (this.id || this.className || this.tagName).toString().slice(0, 30), sdWho()); return si.apply(this, a); };
-  const fo = HTMLElement.prototype.focus; HTMLElement.prototype.focus = function(...a){ if (plogOn() && tab === 'j') photoLog('focus ' + (this.id || this.name || this.className || this.tagName).toString().slice(0, 30), sdWho()); return fo.apply(this, a); };
+  const fo = HTMLElement.prototype.focus; HTMLElement.prototype.focus = function(...a){ if (plogOn() && (tab === 'j' || tab === 'a')) photoLog('focus ' + (this.id || this.name || this.className || this.tagName).toString().slice(0, 30), sdWho()); return fo.apply(this, a); };
   for (const ev of ['touchend', 'click']) addEventListener(ev, e => { const a = e.target && e.target.closest && e.target.closest('[data-act]'); if (a){ window.__lastAct = a.dataset.act; window.__lastActT = performance.now(); } }, {capture:true, passive:true});
 }
 function photoLog(what, extra){
@@ -23717,7 +23717,11 @@ function keepPlaceWatch(mainEl, y0, key){
   addEventListener('scroll', back, {passive:true});
   for (const ev of ['touchstart', 'wheel', 'keydown']) addEventListener(ev, quiet, {capture:true, passive:true});
   for (const ms of [60, 150, 300, 600, 1000]) timers.push(setTimeout(back, ms));
-  timers.push(setTimeout(() => { back(); stop(); }, 1500));
+  /* v404: hold on until the photos in the list have drawn (they decode late on
+     a phone and the page is short until they have), up to 4 seconds */
+  const imgsDone = () => [...mainEl.querySelectorAll('img')].every(i => i.complete || !i.getAttribute('src'));
+  const settle = t => { back(); if (imgsDone() || t >= 4000) stop(); else timers.push(setTimeout(() => settle(t + 250), 250)); };
+  timers.push(setTimeout(() => settle(1500), 1500));
 }
 function render(){
   /* A render while the photo picker is open throws away the very input the
@@ -23856,7 +23860,11 @@ function render(){
      On the same Journal screen (same tab, same item, same setup, same form),
      the page holds its height while it is rebuilt and you stay where you
      were. Moving to a different screen still starts at its top. */
-  const scrKey = tab === 'j' ? ['j', ui.wmJournal, ui.kitView, ui.kitPlan, ui.kitItem, ui.kitEditing, ui.kitTab, ui.kitPacking ? 1 : 0, ui.kitOuting ? 1 : 0, ui.kitOpen, ui.kitSetEdit].map(v => v == null ? '' : String(v)).join('|') : '';
+  /* v404 (Joe's troubleshooting log, 2 Nov: "JUMP 2613→0 … act:kitpartsopen"
+     with no redraw logged): on the phone, Kit and Dogs are drawn by the
+     Progress page (tab 'a', patchView 'kit'), not by Journal (tab 'j'), so the
+     v401/v402 keep-your-place code never ran there. Both now count. */
+  const scrKey = (tab === 'j' || tab === 'a') ? [tab, ui.wmJournal, ui.patchView, ui.patch, ui.kitView, ui.kitPlan, ui.kitItem, ui.kitEditing, ui.kitTab, ui.kitPacking ? 1 : 0, ui.kitOuting ? 1 : 0, ui.kitOpen, ui.kitSetEdit].map(v => v == null ? '' : String(v)).join('|') : '';
   const keepPlace = !!scrKey && scrKey === lastScrKey && !mainSame;
   const y0 = window.scrollY || (document.scrollingElement && document.scrollingElement.scrollTop) || 0;
   if (keepPlace) mainEl.style.minHeight = mainEl.offsetHeight + 'px';
@@ -23870,7 +23878,7 @@ function render(){
   }
   if (keepPlace) keepPlaceWatch(mainEl, y0, scrKey);
   else if (keepPlaceOff && !mainSame) keepPlaceOff();   /* a different screen: let go of the old one's height */
-  if (tab === 'j' && !mainSame && plogOn()) photoLog('redraw ' + (keepPlace ? 'same screen' : 'new screen') + ' was ' + Math.round(y0) + ' now ' + sdWhere(), 'act:' + (window.__lastAct || ''));   /* v403 */
+  if (scrKey && !mainSame && plogOn()) photoLog('redraw ' + (keepPlace ? 'same screen' : 'new screen') + ' was ' + Math.round(y0) + ' now ' + sdWhere(), 'act:' + (window.__lastAct || ''));   /* v403 */
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); if (hikerTab() === 'popular') popLoad(); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   ensureScreenHeading();
@@ -41264,7 +41272,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v403';
+const APP_VERSION = 'v404';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
