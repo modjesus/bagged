@@ -11972,9 +11972,9 @@ body:has(#info.open) .toast{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 
     </div>
 
     <div class="setpane" id="pn-plog" hidden>
-      <p class="setnote">Turn this on and WayMark writes every step of adding a photo to a panel on screen. Take a screenshot of it and send it over &mdash; a phone has no other way of showing what went wrong. Turn it off again when you are done.</p>
+      <p class="setnote">Turn this on and WayMark writes what it is doing to a panel on screen: every step of adding a photo, and anything that moves the page in Kit. Take a screenshot of it and send it over &mdash; a phone has no other way of showing what went wrong. Turn it off again when you are done.</p>
       <div class="btnrow">
-        <button class="btn" data-act="plogtoggle">Turn the photo log on</button>
+        <button class="btn" data-act="plogtoggle">Turn the log on</button>
       </div>
     </div>
 
@@ -23585,8 +23585,33 @@ document.addEventListener('visibilitychange', () => {
 const PLOG_KEY = 'waymark.photolog';
 const plogOn = () => { try{ return localStorage.getItem(PLOG_KEY) === '1'; }catch(e){ return false; } };
 let plog = [];
+
+/* v403 (Joe, 2 Nov: Kit still jumps to the top on his iPhone after v401 and
+   v402, and no browser here behaves like his phone). While the troubleshooting
+   log is on, write down everything that can move the page: each redraw in
+   Journal (where you were, where you are after), every big jump in the
+   scroll position and what was running when it happened, and every call that
+   scrolls or focuses. A screenshot of the panel says what is doing it. */
+let scrollDiagOn = false, scrollDiagLast = 0;
+function sdWhere(){ return Math.round(window.scrollY || 0) + '/' + Math.round((document.scrollingElement || document.documentElement).scrollTop || 0) + '/' + Math.round(document.body.scrollTop || 0) + ' h' + Math.round(document.documentElement.scrollHeight); }
+function sdWho(){ try{ return (new Error().stack || '').split('\n').slice(3, 6).map(l => (l.match(/(\w+)@|at (\S+)/) || [])[1] || (l.match(/at (\S+)/) || [])[1] || '').filter(Boolean).join('<'); }catch(e){ return ''; } }
+function scrollDiag(){
+  if (scrollDiagOn) return; scrollDiagOn = true;
+  scrollDiagLast = window.scrollY || 0;
+  addEventListener('scroll', () => {
+    if (!plogOn()) return;
+    const y = window.scrollY || 0;
+    if (Math.abs(y - scrollDiagLast) > 300) photoLog('JUMP ' + Math.round(scrollDiagLast) + '→' + Math.round(y), sdWhere() + ' act:' + (window.__lastAct || '') + ' ' + (performance.now() - (window.__lastActT || 0)).toFixed(0) + 'ms');
+    scrollDiagLast = y;
+  }, {passive:true});
+  const st = window.scrollTo; window.scrollTo = function(...a){ if (plogOn() && (window.scrollY || 0) > 200) photoLog('scrollTo ' + JSON.stringify(a), sdWho()); return st.apply(this, a); };
+  const si = Element.prototype.scrollIntoView; Element.prototype.scrollIntoView = function(...a){ if (plogOn()) photoLog('scrollIntoView ' + (this.id || this.className || this.tagName).toString().slice(0, 30), sdWho()); return si.apply(this, a); };
+  const fo = HTMLElement.prototype.focus; HTMLElement.prototype.focus = function(...a){ if (plogOn() && tab === 'j') photoLog('focus ' + (this.id || this.name || this.className || this.tagName).toString().slice(0, 30), sdWho()); return fo.apply(this, a); };
+  for (const ev of ['touchend', 'click']) addEventListener(ev, e => { const a = e.target && e.target.closest && e.target.closest('[data-act]'); if (a){ window.__lastAct = a.dataset.act; window.__lastActT = performance.now(); } }, {capture:true, passive:true});
+}
 function photoLog(what, extra){
   if (!plogOn()) return;
+  if (!scrollDiagOn) scrollDiag();
   const t = new Date();
   plog.push(String(t.getMinutes()).padStart(2,'0') + ':' + String(t.getSeconds()).padStart(2,'0') +
             '.' + String(t.getMilliseconds()).padStart(3,'0') + '  ' + what +
@@ -23603,7 +23628,7 @@ function paintPhotoLog(){
     el.id = 'plogbox';
     document.body.appendChild(el);
   }
-  el.innerHTML = '<b>Photo troubleshooting log <button id="plogx">clear</button></b><pre></pre>';
+  el.innerHTML = '<b>Troubleshooting log <button id="plogx">clear</button></b><pre></pre>';
   el.querySelector('pre').textContent = plog.join('\n');
   const x = el.querySelector('#plogx');
   if (x) x.onclick = () => { plog = []; try{ sessionStorage.removeItem('waymark.plog'); }catch(e){} paintPhotoLog(); };
@@ -23845,6 +23870,7 @@ function render(){
   }
   if (keepPlace) keepPlaceWatch(mainEl, y0, scrKey);
   else if (keepPlaceOff && !mainSame) keepPlaceOff();   /* a different screen: let go of the old one's height */
+  if (tab === 'j' && !mainSame && plogOn()) photoLog('redraw ' + (keepPlace ? 'same screen' : 'new screen') + ' was ' + Math.round(y0) + ' now ' + sdWhere(), 'act:' + (window.__lastAct || ''));   /* v403 */
   if (tab === 'u'){ renderAccountBox(); paintCloudNote(); autoLoadBoards(); autoLoadSocial(); try{ gHydrate(); }catch(e){} if (hikerTab() === 'feed') setTimeout(markFeedSeen, 1500); if (hikerTab() === 'popular') popLoad(); armBannerDrag(); }
   { const nb = document.getElementById('profsheetbox'); if (nb && psTop) nb.scrollTop = psTop; }
   ensureScreenHeading();
@@ -35067,7 +35093,7 @@ document.addEventListener('click', async e => {
     else photoLog('photo log on', {version: APP_VERSION, standalone: !!(window.navigator.standalone || matchMedia('(display-mode: standalone)').matches)});
     paintPhotoLog();
     const b2 = document.querySelector('[data-act="plogtoggle"]');
-    if (b2) b2.textContent = on ? 'Turn the photo log off' : 'Turn the photo log on';
+    if (b2) b2.textContent = on ? 'Turn the log off' : 'Turn the log on';
     toast(on ? 'Photo troubleshooting log on. Try adding a photo, then screenshot the panel.' : 'Photo troubleshooting log off.');
   }
   else if (a === 'impgo') impGo();
@@ -36343,7 +36369,7 @@ const SET_PANES = [
   {id:'photos', pane:'pn-photos', title:'Mark off hills from photos', icon:'photo',
    val: () => 'Bring in older photos'},
   /* AUDIT 24: it is a debugging panel, not a photo journal. */
-  {id:'plog',   pane:'pn-plog',   title:'Photo troubleshooting log', icon:'info',
+  {id:'plog',   pane:'pn-plog',   title:'Troubleshooting log', icon:'info',
    val: () => plogOn() ? 'On' : 'Off'},
   /* Permanent, because the nudge on Home can be waved away and then there is
      no way back to the one thing that makes the app work on a hill. */
@@ -41238,7 +41264,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v402';
+const APP_VERSION = 'v403';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
