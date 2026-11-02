@@ -4094,6 +4094,19 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
 .pdroute span{display:block; min-width:0; font-size:13.5px; color:var(--ink-2)}
 .pdroute b{display:block; font-size:14.5px; color:var(--ink); font-weight:600}
 .pdroute i{display:block; font-style:normal; font-size:12.5px; color:var(--sage); margin-top:2px}
+/* v405: tick up to three routes to send */
+.pdroutes{display:flex; flex-direction:column; gap:8px; margin:0 0 14px}
+.pdrlbl{margin:0; font:700 10.5px var(--font-data); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.pdrpick{display:flex; align-items:center; gap:12px; width:100%; min-height:56px; padding:9px 12px; text-align:left;
+  border:1.5px solid var(--line); border-radius:12px; background:var(--raise); color:var(--ink); font:inherit; cursor:pointer}
+.pdrpick.on{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 7%, var(--raise))}
+.pdrbox{flex:0 0 24px; width:24px; height:24px; border-radius:6px; border:2px solid var(--line); display:grid; place-items:center; background:var(--raise)}
+.pdrpick.on .pdrbox{background:var(--accent); border-color:var(--accent); color:#FFF3E9}
+.pdrbox svg{width:15px; height:15px; stroke-width:2.6}
+.pdrtxt{min-width:0; display:flex; flex-direction:column; gap:2px}
+.pdrtxt b{font-size:15px; font-weight:700; color:var(--ink); overflow-wrap:anywhere}
+.pdrtxt i{font-style:normal; font-size:13px; color:var(--ink-3)}
+.pdvotefine{margin:10px 0 0 !important; line-height:1.4}
 
 .sheetbox{max-width:560px; margin:30px auto; background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:var(--shadow); position:relative}
 
@@ -5576,6 +5589,7 @@ body.guiding{overflow:hidden}
 .mhill{right:calc(12px + var(--grip, 0px)); background:var(--accent); color:#FFF3E9}
 .mhill svg{width:18px; height:18px; stroke-width:2}
 .mhill:hover{background:#8E3813}
+.poimapnote{position:absolute; z-index:7; left:12px; right:calc(68px + var(--grip, 0px)); top:120px; margin:0; padding:10px 14px; border-radius:14px; background:rgba(251,250,246,.95); color:var(--ink); font:600 14px/1.35 var(--font-ui); box-shadow:0 0 0 1px rgba(20,51,45,.08), var(--shadow); pointer-events:none}
 .msaveoff{left:12px; background:rgba(251,250,246,.92);
   -webkit-backdrop-filter:blur(16px) saturate(1.25); backdrop-filter:blur(16px) saturate(1.25);
   color:var(--ink); box-shadow:0 0 0 1px rgba(20,51,45,.08), var(--shadow)}
@@ -5616,6 +5630,10 @@ body.guiding{overflow:hidden}
 .mm-import:hover{background:rgba(20,51,45,.07)}
 .mmenu{position:absolute; z-index:8; right:calc(12px + var(--grip, 0px)); top:64px; width:min(280px, calc(100% - 24px)); max-height:calc(100% - 80px); overflow:auto; padding:8px; border-radius:20px; background:rgba(251,250,246,.96); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
   box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 28px 48px -20px rgba(20,51,45,.55); font-size:14px; color:var(--ink)}
+.mhrow{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.mhrow .mh{padding-right:0}
+.mclose{display:inline-flex; align-items:center; gap:4px; min-height:44px; min-width:44px; padding:0 12px; border:0; border-radius:22px; background:transparent; color:var(--ink); font:600 15px var(--font-ui)}
+.mclose svg{width:18px; height:18px}
 .mh{font:600 10px/1 var(--font-ui); letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3); padding:10px 10px 6px}
 .mrow{display:flex; justify-content:space-between; align-items:center; gap:10px; width:100%; padding:9px 10px; border:0; border-radius:12px; background:transparent; color:inherit; font:inherit; font-weight:600; text-align:left; cursor:pointer; transition:background .35s cubic-bezier(.32,.72,0,1)}
 .mrow small{font:12px/1.3 var(--font-data); color:var(--ink-3); text-align:right; flex:none; max-width:55%; white-space:normal}
@@ -5690,6 +5708,31 @@ body.guiding{overflow:hidden}
   width:100%; min-height:70px; padding:12px 13px; background:var(--surface); border:0;
   text-align:left; cursor:pointer; font-family:var(--font-ui); color:var(--ink)}
 .rtrow.open{background:var(--raise)}
+/* v405: a route with a line: its colour, the row, and Shown / Hidden */
+.rtline{display:flex; align-items:stretch; background:var(--surface); min-width:0}
+.rtline > .rtrow{flex:1; min-width:0; padding-left:10px; padding-right:6px}
+.rtline:has(> .rtrow.open){background:var(--raise)}
+.rtbar{flex:0 0 5px; width:5px; margin:12px 0 12px 8px; border-radius:3px}
+.rteye{flex:none; align-self:center; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  min-width:44px; min-height:44px; margin:0 10px 0 2px; padding:0 12px; border-radius:99px;
+  border:1.5px solid var(--line); background:var(--surface); color:var(--ink);
+  font:600 13px var(--font-ui); cursor:pointer}
+.rteye svg{width:17px; height:17px; flex:none}
+.rteye:not(.on){background:var(--surface-2); color:var(--ink-2)}
+/* the name may take two lines here: the switch costs the row its width,
+   and a name cut to "Fan Fawr — n…" cannot be told from its neighbour */
+.rtline .rtnm{white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere}
+.rtline.hid .rtbar{opacity:.3}
+.rtline.hid .rtnm, .rtline.hid .rtmeta, .rtline.hid .rtwhen{opacity:.6}
+@media (max-width:359px){ .rteye span{display:none} .rteye{padding:0; width:44px} .rtline .rtwhen s{display:none} }
+.routeshead:has(.rtshowall){justify-content:flex-start}
+.routeshead .rtshowall{margin-left:auto; min-height:44px; font-weight:700; color:var(--accent-text)}
+/* "2 of 3 routes shown", on the map under Which hills */
+.mrtchip{left:12px; top:116px; height:44px; display:inline-flex; align-items:center; gap:7px;
+  padding:0 14px 0 12px; border:0; cursor:pointer; font:600 13.5px var(--font-ui); color:var(--ink);
+  max-width:calc(100% - 24px - var(--mrailw, 56px)); border-radius:99px}
+.mrtchip svg{width:16px; height:16px; color:var(--accent-text); flex:none}
+.mrtchip span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .rtrow:active{background:var(--surface-2)}
 .rtring{width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
   border:2px solid var(--line); background:var(--raise); color:var(--ink-3);
@@ -9172,6 +9215,44 @@ div.cvcard{cursor:default}
 .cvplanlinks{display:flex; gap:16px; padding:9px 14px 12px; border-top:1px solid var(--line-soft)}
 .cvplanlinks .linkbtn{display:inline-flex; align-items:center; gap:4px; font-size:13.5px}
 .cvplanlinks svg{width:14px; height:14px}
+/* v405: the routes on a plan, to vote on, then confirmed */
+.rvbox{display:flex; flex-direction:column; gap:8px; padding:12px 14px 12px}
+.rvq{margin:0; font-size:13.5px; color:var(--ink-2)}
+.rvrow{display:flex; align-items:center; gap:10px; width:100%; min-height:56px; padding:7px 10px; text-align:left;
+  border:1.5px solid var(--line); border-radius:12px; background:var(--raise); color:var(--ink); font:inherit; cursor:pointer}
+.rvrow.on{border-color:var(--done); background:color-mix(in srgb, var(--done) 8%, var(--raise))}
+.rvrow:disabled{cursor:default}
+.rvrow .rvmini{flex:0 0 56px; width:56px; height:40px}
+.rvtxt{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.rvtxt b{font-size:14.5px; font-weight:700; line-height:1.2; color:var(--ink); overflow-wrap:anywhere}
+.rvtxt i{font-style:normal; font-size:12.5px; color:var(--ink-3)}
+.rvwho{flex:none; display:inline-flex}
+.rvini{width:24px; height:24px; border-radius:50%; display:grid; place-items:center; margin-left:-5px;
+  background:var(--ink); color:var(--raise); border:2px solid var(--raise); font:700 12px/1 var(--font-ui); font-style:normal}
+.rvini:first-child{margin-left:0}
+.rvini.more{background:var(--surface-2); color:var(--ink)}
+.rvgo{width:100%; justify-content:center; min-height:46px; margin-top:4px; background:var(--ink); border-color:var(--ink); color:var(--raise)}
+/* the whole name, on two lines if it needs them: a cut-off name on the
+   button that decides the walk is the one place a guess is not good enough */
+.rvgo{height:auto; padding-top:10px; padding-bottom:10px}
+.rvgo span{white-space:normal; text-align:center; line-height:1.25; min-width:0; overflow-wrap:anywhere}
+.rvgo svg{width:17px; height:17px; stroke-width:2.4; flex:none}
+.rvfine{margin:0; font-size:12.5px; line-height:1.4; color:var(--ink-3)}
+.rvother{align-self:flex-start; min-height:44px; margin:-6px 0 -8px; font-size:13.5px; font-weight:700; color:var(--accent-text)}
+.rvdone{display:flex; flex-direction:column; gap:6px; padding:12px 14px 12px}
+.rvbadge{display:flex; align-items:center; gap:7px; margin:0; padding:9px 12px; border-radius:10px;
+  background:color-mix(in srgb, var(--done) 12%, var(--raise)); color:var(--ink); font-size:14px; font-weight:700}
+.rvbadge svg{width:16px; height:16px; stroke-width:2.6; color:var(--done)}
+.rvmap{border-radius:10px; background:var(--surface-2); overflow:hidden}
+.rvmap .rvmini{display:block; width:100%; height:auto}
+.rvname{font-size:16px; font-weight:700; color:var(--ink); line-height:1.25}
+.rvmeta{font-size:13px; color:var(--ink-2)}
+.rvwas{font-size:13px; color:var(--ink-3)}
+.rvwas s{text-decoration-thickness:1.5px}
+.rvbtns{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px}
+.rvbtns.one{grid-template-columns:1fr}
+.rvbtns .btn{justify-content:center; min-height:44px}
+.rvbtns .btn svg{width:16px; height:16px}
 /* the poll */
 .cvpoll{display:flex; flex-direction:column}
 .cvpollhead{display:flex; gap:10px; align-items:center; padding:14px 14px 6px}
@@ -19876,6 +19957,8 @@ function planCard(m){
     '<div class="cvplanhead"><span class="cvcic">' + ti('walk') + '</span><div><i class="lbl">' + esc(eyebrow) + '</i>' +
       '<b>' + esc(p.name || p.hn || (h ? hillName(h) : 'A walk')) + '</b>' + (h ? '<span>' + feet(h).toLocaleString() + ' ft &middot; ' + esc(regionOf(h, h.l[0])) + '</span>' : '') + '</div></div>' +
     '<div class="cvperf" aria-hidden="true"></div>' +
+    /* v405: two or three routes to vote on, or the one confirmed */
+    (planRoutesOf(m).length >= 2 ? planRoutesHTML(m, past) : '') +
     '<div class="cvplanfacts">' +
       '<div><i>Meet</i><b>' + esc(p.meet || 'Not set yet') + '</b></div>' +
       '<div><i>On top</i><b>' + (h && !past ? planWx(h, p.date) : '&ndash;') + '</b></div></div>' +
@@ -19891,6 +19974,154 @@ function planCard(m){
     (h ? '<div class="cvplanlinks"><button class="linkbtn" data-act="planadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button><button class="linkbtn" data-act="chathill" data-k="' + esc(p.hill) + '">About the hill</button></div>'
        : (past ? '' : '<div class="cvplanlinks"><button class="linkbtn" data-act="planpickhill" data-m="' + esc(m.id) + '">' + ti('mountain') + 'Pick the hill</button></div>')) +
   '</div>';
+}
+/* ---------- v405: the routes on a plan, to vote on and then confirmed ---------- */
+function planRoutesOf(m){
+  const r = (m && m.plan || {}).routes;
+  return Array.isArray(r) ? r.filter(x => x && typeof x.id === 'string') : [];
+}
+/* the real line, drawn small: the track scaled into a W x H box */
+function routeMini(trk, col, W, H){
+  if (!trk || trk.length < 2) return '<svg class="rvmini" viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true"></svg>';
+  const lats = trk.map(q => q[0]), lons = trk.map(q => q[1]);
+  const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lons), lo1 = Math.max(...lons);
+  const kx = Math.cos((la0 + la1) / 2 * Math.PI / 180);
+  const w = Math.max((lo1 - lo0) * kx, 1e-5), h = Math.max(la1 - la0, 1e-5);
+  const pad = Math.max(4, Math.round(Math.min(W, H) * .12));
+  const sc = Math.min((W - pad * 2) / w, (H - pad * 2) / h);
+  const ox = (W - w * sc) / 2, oy = (H - h * sc) / 2;
+  const X = lo => ox + (lo - lo0) * kx * sc, Y = la => H - oy - (la - la0) * sc;
+  const step = Math.max(1, Math.floor(trk.length / 160));
+  const pts = trk.filter((_, i) => i % step === 0 || i === trk.length - 1);
+  const d = pts.map((q, i) => (i ? 'L' : 'M') + X(q[1]).toFixed(1) + ' ' + Y(q[0]).toFixed(1)).join('');
+  return '<svg class="rvmini" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+    '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + (W > 100 ? 3.5 : 2.4) + '" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="' + X(pts[0][1]).toFixed(1) + '" cy="' + Y(pts[0][0]).toFixed(1) + '" r="' + (W > 100 ? 4.5 : 2.6) + '" fill="var(--raise)" stroke="' + col + '" stroke-width="1.8"/></svg>';
+}
+function planRouteMeta(r){
+  const bits = [];
+  if (r.m) bits.push((r.m / 1609.344).toFixed(1) + ' mi');
+  else { const t = msgTrk(r.trk); if (t.length > 1) bits.push((trackLength(t) / 1609.344).toFixed(1) + ' mi'); }
+  if (r.asc) bits.push(gHeight(r.asc) + ' up');
+  return bits.join(' · ');
+}
+/* the most votes; a tie goes to the first offered */
+function planRouteLead(m){
+  const rts = planRoutesOf(m), votes = m.votes || {};
+  let best = rts[0], n = -1;
+  for (const r of rts){ const k = Object.values(votes).filter(v => v === r.id).length; if (k > n){ best = r; n = k; } }
+  return best;
+}
+function planRoutesHTML(m, past){
+  const p = m.plan || {}, rts = planRoutesOf(m), c = chatOpen.chat, votes = m.votes || {};
+  const me = meU(), planner = m.from === me, mine = votes[me] || '';
+  const col = r => RT_COLS[Math.max(0, rts.indexOf(r)) % RT_COLS.length];
+  const nm = u => firstName((c.names || {})[u]);
+  const ini = u => '<i class="rvini" title="' + esc(nm(u)) + '">' + esc((nm(u) || '?').charAt(0).toUpperCase()) + '</i>';
+  const pick = p.pick ? rts.find(r => r.id === p.pick) : null;
+  const members = (c.members || []).length || Object.keys(votes).length;
+  if (pick){
+    const n = Object.values(votes).filter(v => v === pick.id).length;
+    const was = (Array.isArray(p.was) ? p.was : []).filter(id => id !== pick.id).map(id => rts.find(r => r.id === id)).filter(Boolean);
+    const meta = [planRouteMeta(pick), n ? n + ' of ' + members + ' voted for it' : ''].filter(Boolean).join(' · ');
+    return '<div class="rvdone" data-pick="' + esc(pick.id) + '">' +
+      '<p class="rvbadge">' + ti('check') + 'Route confirmed</p>' +
+      '<div class="rvmap">' + routeMini(msgTrk(pick.trk), col(pick), 300, 110) + '</div>' +
+      '<b class="rvname">' + esc(pick.name || 'A route') + '</b>' +
+      (meta ? '<span class="rvmeta">' + esc(meta) + '</span>' : '') +
+      (was.length ? '<span class="rvwas">Was ' + was.slice(-2).map(r => '<s>' + esc(r.name || 'a route') + '</s>').join(', ') + '</span>' : '') +
+      '<div class="rvbtns' + (planner && !past ? '' : ' one') + '">' +
+        '<button class="btn sm ghost" data-act="planrvopen" data-m="' + esc(m.id) + '" data-v="' + esc(pick.id) + '">' + ti('map-2') + 'Open it</button>' +
+        (planner && !past ? '<button class="btn sm ghost" data-act="planrvchange" data-m="' + esc(m.id) + '">' + ti('pencil') + 'Change route</button>' : '') +
+      '</div></div>';
+  }
+  const lead = planRouteLead(m);
+  const rows = rts.map(r => {
+    const who = Object.keys(votes).filter(u => votes[u] === r.id);
+    const on = mine === r.id;
+    return '<button class="rvrow' + (on ? ' on' : '') + '" data-act="planrvvote" data-m="' + esc(m.id) + '" data-v="' + esc(r.id) + '"' +
+      (past ? ' disabled' : '') + ' aria-pressed="' + on + '" aria-label="' + esc((r.name || 'A route') + (on ? ', your vote' : '') + (who.length ? ', ' + who.length + (who.length === 1 ? ' vote' : ' votes') : '')) + '">' +
+      routeMini(msgTrk(r.trk), col(r), 56, 40) +
+      '<span class="rvtxt"><b>' + esc(r.name || 'A route') + '</b>' + (planRouteMeta(r) ? '<i>' + esc(planRouteMeta(r)) + '</i>' : '') + '</span>' +
+      '<span class="rvwho">' + who.slice(0, 4).map(ini).join('') + (who.length > 4 ? '<i class="rvini more">+' + (who.length - 4) + '</i>' : '') + '</span></button>';
+  }).join('');
+  return '<div class="rvbox"><p class="rvq">' + (past ? 'The routes' : 'Which route? Tap to vote.') + '</p>' + rows +
+    (past ? '' : planner
+      ? '<button class="btn rvgo" data-act="planrvconfirm" data-m="' + esc(m.id) + '" data-v="' + esc(lead.id) + '">' + ti('check') +
+          '<span>Confirm ' + esc(lead.name || 'this route') + '</span></button>' +
+        '<p class="rvfine">Only you can confirm, because you planned it. Everyone sees the choice.</p>' +
+        '<button class="linkbtn rvother" data-act="planrvpick" data-m="' + esc(m.id) + '">Pick a different one</button>'
+      : '<p class="rvfine">' + esc(nm(m.from)) + ' planned it, so ' + esc(nm(m.from)) + ' confirms the route.</p>') +
+    '</div>';
+}
+/* the planner's list: confirm any of them, or (once confirmed) change it,
+   to another one offered or to a different route of their own */
+function planRoutePickSheet(m, changing){
+  const rts = planRoutesOf(m), p = m.plan || {};
+  const row = (act, v, name, meta, extra) => '<button class="mrow" data-act="' + act + '" data-m="' + esc(m.id) + '" data-v="' + esc(v) + '">' +
+    '<span class="mmain"><b>' + esc(name) + '</b><span>' + esc(meta) + '</span></span>' + (extra || '') + '</button>';
+  const offered = rts.filter(r => r.id !== p.pick);
+  const srcs = new Set(rts.map(r => r.src).filter(Boolean));
+  const mine = changing ? livePlans().filter(x => !srcs.has(x.id)).slice(0, 8) : [];
+  bcSheet('<h3 class="bcsheettitle">' + (changing ? 'Change the Route' : 'Confirm a Route') + '</h3>' +
+    '<div class="hpres">' + offered.map(r => row('planrvset', r.id, r.name || 'A route', planRouteMeta(r) || 'Offered on the plan')).join('') + '</div>' +
+    (mine.length ? '<p class="lbl2">Or send a different route</p><div class="hpres">' +
+      mine.map(pl => row('planrvnew', pl.id, pl.name || 'Untitled route', planRouteFacts(pl))).join('') + '</div>' : '') +
+    '<p class="pdfine">Everyone in the chat sees the change.</p>', changing ? 'Change the route' : 'Confirm a route');
+}
+/* the planner confirms, or changes, the route. Their own message only. */
+async function planRouteSet(m, rid, newPl){
+  if (!chatOpen || !m || m.from !== meU()) return;
+  const p = m.plan || {};
+  let routes = planRoutesOf(m).slice();
+  if (newPl){
+    const have = routes.find(r => r.src === newPl.id);
+    if (have) rid = have.id;
+    else {
+      let n = routes.length; while (routes.some(r => r.id === 'r' + n)) n++;
+      rid = 'r' + n;
+      routes = routes.concat([planRouteOffer(newPl, rid)]).slice(-6);
+    }
+  }
+  const r = routes.find(x => x.id === rid); if (!r) return;
+  const before = p.pick || '';
+  if (before === rid) return;
+  const was = before ? (Array.isArray(p.was) ? p.was : []).filter(x => x !== before && x !== rid).concat([before]).slice(-4) : (Array.isArray(p.was) ? p.was : []);
+  const upd = {pick: rid, pickT: Date.now(), was};
+  if (newPl) upd.routes = routes;
+  m.plan = {...p, ...upd};
+  paintMsgs();
+  try{
+    await FB.setDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'msgs', m.id), {plan: upd}, {merge:true});
+    const who = firstName(myName()), nm = r.name || 'a new route';
+    await sendMsg({kind:'sys', text: before ? who + ' changed the route to “' + nm + '”' : who + ' confirmed the route: “' + nm + '”'},
+      before ? 'Changed the route' : 'Confirmed the route');
+  }catch(e){ toast(fbWhy(e)); }
+}
+/* Open it: the planner's own route if it is still theirs; anyone else gets
+   a copy, made the way "Add to my plans" makes one from a sent route. */
+function planRouteOpen(m, rid){
+  if (!chatOpen) return;
+  const r = planRoutesOf(m).find(x => x.id === rid); if (!r) return;
+  const c = chatOpen.chat;
+  let pl = m.from === meU() && r.src ? livePlans().find(x => x.id === r.src) : null;
+  if (!pl){
+    const id = 'pc' + String(m.id).replace(/[^A-Za-z0-9]/g, '').slice(0, 14) + rid;
+    pl = state.plans.find(x => x.id === id) || null;
+    if (!pl){
+      pl = {id, name: r.name || 'Shared route', date: (m.plan || {}).date || r.date || '', notes:'From a chat with ' + chatName(c),
+        hills: r.hills || [], trk: msgTrk(r.trk), wp:null, snap:true, deleted:false, t: now()};
+      state.plans.push(pl);
+    } else if (pl.deleted){ pl.deleted = false; pl.t = now(); }
+    touched();
+  }
+  if (rtHid().delete(pl.id)) rtHidSave();
+  const go = pl;
+  bcSheetClose(); closeChat(); if (typeof closeInbox === 'function') closeInbox();
+  tab = 'p'; ui.rmode = 'explore'; ui.planOpen = go.id; ui.mapDrawer = 'collapsed';
+  render(); window.scrollTo({top:0});
+  setTimeout(() => { try{ if (rmap && go.trk && go.trk.length > 1) fitTo(rmap, go.trk, 60, 15); }catch(e){} }, 400);
+  toast((go.name || 'The route') + ' is on your map.');
 }
 function pollCard(m){
   const p = m.poll || {}, votes = m.votes || {}, c = chatOpen.chat;
@@ -20024,7 +20255,13 @@ function paintPlanComposer(){
   /* The route is attached and gets posted under the plan, but nothing on the
      sheet said so — you sent an invite not knowing the line went with it. */
   const rp = d.route ? livePlans().find(x => x.id === d.route) : null;
-  const rline = rp
+  /* v405: with a route attached, tick up to three of yours. One goes as it
+     always has; two or three go as a choice to vote on. */
+  if (rp && !d.routes) d.routes = [rp.id];
+  const nTick = rp ? planRoutesTicked(d).length : 0;
+  const rline = rp && planRouteChoices(d).length > 1
+    ? planRoutesPickHTML(d)
+    : rp
     ? '<p class="pdroute">' + ti('route', ICON_BOX) + '<span><b>' + esc(rp.name || 'Your route') + '</b>' +
         esc((rp.hills || []).length + ' hill' + ((rp.hills || []).length === 1 ? '' : 's') +
           (rp.trk && rp.trk.length > 1 ? ' \u00b7 ' + prettyDist(trackLength(rp.trk)).replace(/ \(.*\)$/, '') : '')) +
@@ -20039,14 +20276,78 @@ function paintPlanComposer(){
     '<div><label for="pdmeet">Where to meet <span class="opt">optional</span></label><input id="pdmeet" maxlength="80" placeholder="Seathwaite car park" value="' + esc(d.meet) + '"></div>' +
     '<div><label for="pdnote">A note <span class="opt">optional</span></label><input id="pdnote" maxlength="200" placeholder="Bring a flask, it’ll be windy on top" value="' + esc(d.note) + '"></div>' +
     '<p class="pdfine">No hill yet? Set the date and sort the hill later — everyone can still see the plan.</p>' +
-    '<button class="btn bcgo" data-act="plansend"' + (d.date ? '' : ' disabled') + '>' + ti('send') + (d.with && d.with.length > 1 ? 'Start the walk chat' : 'Send the plan') + '</button></div>', 'Plan a walk', '', d.cid ? 'chatplus' : '');
+    '<button class="btn bcgo" data-act="plansend"' + (d.date ? '' : ' disabled') + '>' + ti('send') + planSendLabel(d, nTick) + '</button>' +
+    (rp && planRouteChoices(d).length > 1 ? '<p class="pdfine pdvotefine">Pick one route and it goes as it does today. Pick two or three and they vote.</p>' : '') +
+    '</div>', 'Plan a walk', '', d.cid ? 'chatplus' : '');
   const bind = (id, k) => { const i = el.querySelector('#' + id); if (i) i.oninput = e => { d[k] = e.target.value; const b = el.querySelector('[data-act=plansend]'); if (b) b.disabled = !d.date; }; };
   bind('pddate', 'date'); bind('pdtime', 'time'); bind('pdmeet', 'meet'); bind('pdnote', 'note');
   const q = el.querySelector('#pdq');
   if (q) q.oninput = e => { d.q = e.target.value; const r = el.querySelector('#pdres'); if (r) r.innerHTML = walkHillResults(d.q); };
 }
+/* ---------- v405: SEND MORE THAN ONE ROUTE, AND VOTE ON IT ----------
+   Joe, 2 Nov: "be able to send/plan multiple routes to a friend and then
+   confirm 1 specific route or be able to update it". (Approved drawing,
+   panels 2-4.)
+
+   How it is kept, inside the rules that are live today:
+   - The routes ride on the plan message itself, as plan.routes. Each is
+     packed exactly as a single sent route is (packTrk), so a friend's copy
+     is made the same way.
+   - A vote is the voter's OWN key in the message's `votes` map, the same
+     field a poll uses: {votes:{<uid>: 'r1'}}. The rules let any member
+     change `votes`, `going` and `react`, and only their own key.
+   - Confirming, and changing it later, is the planner's: they sent the
+     message, and only the sender may change anything else on it. It is
+     plan.pick (the route), and plan.was (the ones it replaced, so the card
+     can cross them out). A plain 'sys' line says it in the chat too, which
+     every version of the app shows.
+   - One route ticked goes exactly as before: the plan, then the route
+     message under it. Nothing new is written. */
+const PLAN_ROUTES_MAX = 3;
+/* the routes you could send: the one you started from, then the rest */
+function planRouteChoices(d){
+  const all = livePlans();
+  const first = all.find(x => x.id === d.route);
+  return (first ? [first] : []).concat(all.filter(x => x !== first)).slice(0, 8);
+}
+function planRoutesTicked(d){
+  const ok = new Set(livePlans().map(x => x.id));
+  return (d.routes || []).filter(id => ok.has(id));
+}
+function planSendLabel(d, n){
+  if (n >= 2) return 'Send ' + n + ' routes to vote on';
+  return d.with && d.with.length > 1 ? 'Start the walk chat' : 'Send the plan';
+}
+function planRouteFacts(pl){
+  const trk = pl.trk || [];
+  const bits = [];
+  if (trk.length > 1) bits.push((trackLength(trk) / 1609.344).toFixed(1) + ' mi');
+  const up = trk.length > 1 ? trackAscent(trk) : 0;
+  if (up) bits.push(gHeight(up) + ' up');
+  if (!bits.length){ const n = (pl.hills || []).length; bits.push(n + (n === 1 ? ' hill' : ' hills')); }
+  return bits.join(' \u00b7 ');
+}
+function planRoutesPickHTML(d){
+  const on = new Set(planRoutesTicked(d));
+  return '<div class="pdroutes"><p class="pdrlbl">Routes to send</p>' +
+    planRouteChoices(d).map(pl => {
+      const t = on.has(pl.id);
+      return '<button type="button" class="pdrpick' + (t ? ' on' : '') + '" data-act="pdroutetick" data-v="' + esc(pl.id) + '" aria-pressed="' + t + '">' +
+        '<span class="pdrbox" aria-hidden="true">' + (t ? ti('check') : '') + '</span>' +
+        '<span class="pdrtxt"><b>' + esc(pl.name || 'Untitled route') + '</b><i>' + esc(planRouteFacts(pl)) + '</i></span></button>';
+    }).join('') + '</div>';
+}
+/* one route, packed for the plan message the way sendRouteMsg packs one */
+function planRouteOffer(pl, id){
+  const trk = pl.trk || [];
+  return {id, src: pl.id, name: String(pl.name || '').slice(0, 60), hills: (pl.hills || []).slice(0, 40), date: pl.date || '',
+    trk: packTrk(trk, 1500) || null, m: trk.length > 1 ? Math.round(trackLength(trk)) : 0, asc: trk.length > 1 ? (trackAscent(trk) || 0) : 0};
+}
 async function sendPlan(){
   const d = ui.planDraft; if (!d || !d.date) return;
+  /* v405: which routes are ticked. Only when a route came with the plan. */
+  const picked = d.route ? planRoutesTicked(d).map(id => livePlans().find(x => x.id === id)).filter(Boolean).slice(0, PLAN_ROUTES_MAX) : [];
+  if (d.route && d.routes) d.route = picked.length === 1 ? picked[0].id : '';
   bcSheetClose(); ui.planDraft = null;
   const h = d.hill ? BY_KEY[d.hill] : null;
   const plan = {hill: d.hill || '', hn: h ? hillName(h) : '', la: h ? +(+h.a).toFixed(4) : null, lo: h ? +(+h.o).toFixed(4) : null,
@@ -20059,6 +20360,14 @@ async function sendPlan(){
     await openChat(cid);
   }
   if (!chatOpen) return;
+  if (picked.length >= 2){
+    /* two or three: one plan message carrying the routes, to vote on */
+    const routes = picked.map((pl, i) => planRouteOffer(pl, 'r' + i));
+    const mid2 = await sendMsg({kind:'plan', plan:{...plan, routes}, going:{[fbUser.uid]:'in'}, votes:{}},
+      'Planned ' + (h ? hillName(h) : 'a walk') + ', ' + walkWhen(plan.date) + ' \u00b7 ' + routes.length + ' routes to vote on');
+    if (mid2){ const full = {...plan, mid: mid2, going:{[fbUser.uid]:'in'}}; chatOpen.chat.plan = full; paintPinbar(); FB.setDoc(chatRef(chatOpen.id), {plan: full}, {merge:true}).catch(() => {}); }
+    return;
+  }
   const mid = await sendMsg({kind:'plan', plan, going:{[fbUser.uid]:'in'}}, 'Planned ' + (h ? hillName(h) : 'a walk') + ', ' + walkWhen(plan.date));
   /* the route that started the invite, posted under the plan so everyone can
      see the line before they answer — and add it to their own map */
@@ -20466,6 +20775,44 @@ async function chatAct(a, el){
   else if (a === 'pdhill'){ if (ui.planDraft){ ui.planDraft.hill = el.dataset.k; paintPlanComposer(); } }
   else if (a === 'pdhillclear'){ if (ui.planDraft){ ui.planDraft.hill = ''; paintPlanComposer(); } }
   else if (a === 'plansend'){ await sendPlan(); }
+  /* v405: tick up to three routes on the plan sheet */
+  else if (a === 'pdroutetick'){
+    const d = ui.planDraft; if (!d) return true;
+    const id = el.dataset.v, cur = planRoutesTicked(d);
+    if (cur.includes(id)) d.routes = cur.filter(x => x !== id);
+    else if (cur.length >= PLAN_ROUTES_MAX){ toast('Up to ' + PLAN_ROUTES_MAX + ' routes.'); return true; }
+    else d.routes = cur.concat([id]);
+    paintPlanComposer();
+  }
+  /* v405: a vote is your own key in the message's votes, as a poll's is */
+  else if (a === 'planrvvote'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || (m.plan || {}).pick) return true;
+    const cur = (m.votes || {})[me], v = cur === el.dataset.v ? FB.deleteField() : el.dataset.v;
+    m.votes = {...(m.votes || {})}; if (typeof v === 'string') m.votes[me] = v; else delete m.votes[me];
+    paintMsgs();
+    try{ await FB.setDoc(FB.doc(fbDb, 'chats', chatOpen.id, 'msgs', m.id), {votes:{[me]: v}}, {merge:true}); }catch(e){ toast(fbWhy(e)); }
+  }
+  else if (a === 'planrvconfirm'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || m.from !== me) return true;
+    await planRouteSet(m, el.dataset.v);
+  }
+  else if (a === 'planrvpick' || a === 'planrvchange'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || m.from !== me) return true;
+    planRoutePickSheet(m, a === 'planrvchange');
+  }
+  else if (a === 'planrvset'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); bcSheetClose(); if (!m || m.from !== me) return true;
+    await planRouteSet(m, el.dataset.v);
+  }
+  else if (a === 'planrvnew'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); bcSheetClose(); if (!m || m.from !== me) return true;
+    const pl = livePlans().find(x => x.id === el.dataset.v); if (!pl) return true;
+    await planRouteSet(m, null, pl);
+  }
+  else if (a === 'planrvopen'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m) return true;
+    planRouteOpen(m, el.dataset.v);
+  }
   else if (a === 'planrsvp'){
     const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m) return true;
     const v = (m.going || {})[me] === el.dataset.v ? FB.deleteField() : el.dataset.v;
@@ -29706,11 +30053,9 @@ function drawSearchPin(m, arr, onHill){
 function drawMarkers(){
   if (!mapReady || !map) return;
   const lines = [];
-  /* the same switch as the Map tab: one toggle, both maps */
-  if (ui.mapRoutes !== false) for (const p of livePlans()){
-    if (!p.trk || p.trk.length < 2) continue;
-    lines.push(lineFeature(p.trk, {name:p.name || 'Route', sub:prettyDist(trackLength(p.trk)), col:p.walked ? '#2C7BE5' : '#A8431A', w:4, cw:7, dash:0}));
-  }
+  /* the same switch as the Map tab: one toggle, both maps.
+     v405: and the same Shown / Hidden on each route, in each route's colour */
+  lines.push(...routeLineFeatures());
   setData(map, 'wm-lines', {type:'FeatureCollection', features:lines});
   paintHills(map, mapMarks, mapHills(), (mk, h) => openPopup(mk, h, map), false);
   drawSearchPin(map, mapMarks, h => openPopup(null, h, map));
@@ -29942,7 +30287,13 @@ let poiBusy = false, poiErr = '', poiTimer = null;
 /* kumi.systems first: it is consistently the quicker of the public mirrors. */
 const POI_MIRRORS = [
   'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass-api.de/api/interpreter'
+  'https://overpass-api.de/api/interpreter',
+  /* v405 (Joe, 2 Nov: "car parks and pubs etc not displaying on maps
+     anymore"): on 2 Nov both of the above were full and turning queries away
+     ("This Overpass API server is currently at capacity"). Two more public
+     mirrors of the same OpenStreetMap data, tried in turn. */
+  'https://overpass.private.coffee/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
 ];
 let poiMirror = 0;
 
@@ -30039,12 +30390,12 @@ async function fetchPois(bounds){
     } finally { clearTimeout(t); }
   };
   try{
-    let j;
-    try{ j = await ask(POI_MIRRORS[poiMirror]); }
-    catch(e1){
-      poiMirror = (poiMirror + 1) % POI_MIRRORS.length;   // remember the one that works
-      j = await ask(POI_MIRRORS[poiMirror]);
+    let j, lastErr;
+    for (let tries = 0; tries < POI_MIRRORS.length && !j; tries++){
+      try{ j = await ask(POI_MIRRORS[poiMirror]); }
+      catch(e1){ lastErr = e1; poiMirror = (poiMirror + 1) % POI_MIRRORS.length; }   // remember the one that works
     }
+    if (!j) throw lastErr || new Error('no answer');
     for (const el of (j.elements || [])){
       const t = el.tags || {};
       const la = el.lat != null ? el.lat : (el.center && el.center.lat);
@@ -30213,15 +30564,28 @@ function poiStateText(){
   if (rmap && rmap.getZoom() < 12) return '';
   if (poiBusy) return 'Finding places\u2026';
   if (poiErr === 'zoom') return 'Zoom in a little.';
-  if (poiErr) return 'OpenStreetMap did not answer. The map still works, it will try again as you pan.';
+  if (poiErr) return 'Car parks and pubs can\u2019t load just now: OpenStreetMap\u2019s free servers are busy. Trying again\u2026';
   const b = rmap && viewBox(rmap, .1);
   const shown = b ? [...poiSeen.values()].filter(p => b.has(p.la, p.lo)).length : 0;
   return shown ? shown + ' places \u00b7 tap one for hours, charges and a way to start there'
                : 'Nothing mapped around here.';
 }
+let poiRetry = null;
 function paintPoiBar(){
   const el = document.getElementById('poistate');
   if (el) el.textContent = poiStateText();
+  /* v405: the note was only in the drawer, which is shut while you look at
+     the map, so a failure looked like the places had simply gone. Now it
+     sits on the map while it lasts, and the places are asked for again every
+     45 seconds until they come. */
+  const failing = poiShow && poiErr && poiErr !== 'zoom';
+  let n = document.getElementById('poimapnote');
+  const host = document.querySelector('.mapshell');
+  if (failing && host){
+    if (!n){ n = document.createElement('p'); n.id = 'poimapnote'; n.className = 'poimapnote'; n.setAttribute('role', 'status'); host.appendChild(n); }
+    n.textContent = poiStateText();
+    if (!poiRetry) poiRetry = setTimeout(() => { poiRetry = null; try{ if (rmap && poiShow && poiErr && poiErr !== 'zoom'){ poiErr = ''; poiRefresh(); } }catch(e){} }, 45000);
+  } else if (n) n.remove();
   const b = document.querySelector('[data-act="places"]');
   if (b){ b.classList.toggle('on', poiShow); b.setAttribute('aria-pressed', String(poiShow)); }
 }
@@ -30419,6 +30783,9 @@ function openEditor(id){
     wp = hs.map(x => [x.a, x.o]);
   }
   editor = {id, wp, trk: (p.trk || []).slice(), snap: p.snap !== false, view:null, dirty:false};
+  /* v405: the route you are editing is never hidden, and it is not hidden
+     again behind your back when you finish */
+  if (rtHid().delete(id)) rtHidSave();
   render();
 }
 function closeEditor(){ editor = null; ui.rmode = 'explore'; render(); }
@@ -31003,11 +31370,10 @@ function rmDraw(){
        The only way to see your own track was to open the editor.
        The editor's own line above is never hidden: you cannot draw a route
        you cannot see. */
-    for (const q of livePlans()){
-      if (!q.trk || q.trk.length < 2) continue;
-      lines.push(lineFeature(q.trk, {name:q.name || 'Route', sub:prettyDist(trackLength(q.trk)),
-        col:q.walked ? '#2C7BE5' : '#A8431A', w:4, cw:7, dash:0}));
-    }
+    /* v405: a route can be hidden on its own (Shown / Hidden on its row),
+       and each one is drawn in its own colour, the colour of the bar
+       beside its row, so two lines over the same hill can be told apart. */
+    lines.push(...routeLineFeatures());
   }
   setData(rmap, 'wm-lines', {type:'FeatureCollection', features:lines});
   drawMapSummits();
@@ -32219,8 +32585,11 @@ function mapPanelHTML(){
   const plans = livePlans();
   /* no second Import a GPX here: it is one of the two buttons at the top
      of the drawer now, and it was printed twice on the same screen */
+  /* v405: "Show all" at the head of the list, only while one is hidden */
+  const rsc = routeShownCount();
   html += '<div class="routeshead"><h3 class="sect">Your routes</h3>' +
-    (plans.length ? '<span class="rtcount">' + plans.length + '</span>' : '') + '</div>';
+    (plans.length ? '<span class="rtcount">' + plans.length + '</span>' : '') +
+    (rsc.shown < rsc.all ? '<button class="linkbtn rtshowall" data-act="rtshowall">Show all</button>' : '') + '</div>';
   if (!plans.length)
     return html + '<p class="empty">No routes yet. Switch to <b>Plot a route</b> on the map and tap to draw, or import a GPX.</p>';
   const soon = plans.filter(p => !routeWalked(p))
@@ -32345,7 +32714,7 @@ function mapPillsHTML(){
   s += '<div class="mmenu mleft mlistmenu"' + (ui.listOpen ? '' : ' hidden') + '>' +
     '<p class="mh">Which hills</p>' + mapListBar() + '</div>';
   s += '<div class="mmenu mleft mdaymenu"' + (ui.dayOpen ? '' : ' hidden') + '>' +
-    '<p class="mh">Which day</p>' + dayChipsHTML() +
+    '<div class="mhrow"><p class="mh">Which day</p><button class="mclose" data-act="dayclose">' + ti('x') + 'Done</button></div>' + dayChipsHTML() +
     (ui.rday ? '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>' +
       '<p class="mdaynote">Forecasts move \u2014 check again the night before.</p>' : '') + '</div>';
   return s;
@@ -32401,6 +32770,12 @@ function mapStageHTML(){
     '<button class="misle mlistchip' + (ui.listOpen ? ' on' : '') + '" data-act="mlistfold"' +
       ' aria-expanded="' + !!ui.listOpen + '" aria-label="Which hills: ' + esc(listLbl) + '">' +
       ti('filter') + '<span>' + esc(listLbl) + '</span>' + listNum + ti('chevron-down') + '</button>' +
+    /* v405: SOME ROUTES HIDDEN, SAID ON THE MAP. Only while one is, and
+       only while the all-routes switch is on. Tapping it shows them all. */
+    ((rc => ui.mapRoutes !== false && ui.rmode !== 'plot' && rc.all && rc.shown < rc.all
+      ? '<button class="misle mrtchip" data-act="rtshowall" aria-label="' + rc.shown + ' of ' + rc.all +
+        ' routes shown. Tap to show them all.">' + ti('route') + '<span>' + rc.shown + ' of ' + rc.all + ' routes shown</span></button>'
+      : '')(routeShownCount())) +
     '<div id="rqres" class="mresults">' + searchResultsHTML() + '</div>' +
     '<div id="layers" class="mmenu"' + (ui.layersOpen ? '' : ' hidden') + '>' + layersHTML() + '</div>' +
     /* zoom, centre, then 3D directly under it, as the handoff asks */
@@ -32440,7 +32815,7 @@ function mapStageHTML(){
     '<div class="mmenu mleft mlistmenu"' + (ui.listOpen ? '' : ' hidden') + '>' +
       '<p class="mh">Which hills</p>' + mapListBar() + '</div>' +
     '<div class="mmenu mleft mdaymenu"' + (ui.dayOpen ? '' : ' hidden') + '>' +
-      '<p class="mh">Which day</p>' + dayChipsHTML() +
+      '<div class="mhrow"><p class="mh">Which day</p><button class="mclose" data-act="dayclose">' + ti('x') + 'Done</button></div>' + dayChipsHTML() +
       (ui.rday ? '<div id="mapwx" class="wxtop">' + mapWeatherHTML() + '</div>' +
         '<p class="mdaynote">Forecasts move \u2014 check again the night before.</p>' : '') + '</div>' +
     /* PLOTTING KEEPS ITS OWN TOOLBAR. Explore is simply the state you are
@@ -32567,6 +32942,66 @@ const routeWalked = p => {
   const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
   return hs.length > 0 && hs.every(h => isBagged(h.k));
 };
+/* ---------- v405: SHOWN / HIDDEN, ONE ROUTE AT A TIME ----------
+   Joe, 2 Nov: "there needs to be a way of hiding visible routes as quite
+   often you are testing multiple viable routes in the same location to
+   find the one you want to use." (Approved drawing, panel 1.)
+
+   Hiding a route takes its line off the map. It stays saved, in the list,
+   exactly as it was. Which routes are hidden is kept on THIS phone only
+   (localStorage): it is how you are looking at the map today, not part of
+   the route, so it does not sync. The all-routes switch in Map settings
+   still turns every line off at once, over the top of this.
+
+   Each route has its own colour, in the order the routes were made, and
+   the bar beside its row is the same colour, so a line on the map can be
+   matched to its name. The route being plotted or edited is never hidden:
+   you cannot draw a line you cannot see. */
+const RT_COLS = ['#A8431A', '#2C6FBF', '#2E7D4F', '#7A4BA8', '#B7791F', '#C2185B'];
+const RT_HIDE_KEY = 'waymark.rthide';
+let rtHidden = null;
+function rtHid(){
+  if (!rtHidden){
+    rtHidden = new Set();
+    try{
+      const v = JSON.parse(localStorage.getItem(RT_HIDE_KEY) || '[]');
+      if (Array.isArray(v)) v.forEach(x => { if (typeof x === 'string') rtHidden.add(x); });
+    }catch(e){}
+  }
+  return rtHidden;
+}
+function rtHidSave(){ try{ localStorage.setItem(RT_HIDE_KEY, JSON.stringify([...rtHid()])); }catch(e){} }
+/* only a route with a line can be on the map, so only those can be hidden */
+const trackedPlans = () => livePlans().filter(q => q.trk && q.trk.length > 1);
+function routeCol(p){
+  const i = trackedPlans().findIndex(q => q.id === p.id);
+  return RT_COLS[Math.max(0, i) % RT_COLS.length];
+}
+function routeShown(p){
+  if (editor && editor.id && editor.id === p.id) return true;
+  return !rtHid().has(p.id);
+}
+/* how many of the routes with a line are on the map: {shown, all} */
+function routeShownCount(){
+  const t = trackedPlans();
+  return {shown: t.filter(routeShown).length, all: t.length};
+}
+/* the lines both maps draw: the all-routes switch, then each route's own */
+function routeLineFeatures(){
+  if (ui.mapRoutes === false) return [];
+  const out = [];
+  trackedPlans().forEach((q, i) => {
+    if (!routeShown(q)) return;
+    out.push(lineFeature(q.trk, {name:q.name || 'Route', sub:prettyDist(trackLength(q.trk)),
+      col:RT_COLS[i % RT_COLS.length], w:4, cw:7, dash:0, id:q.id}));
+  });
+  return out;
+}
+function rtRedraw(){
+  render();
+  if (rmap) rmDraw();
+  if (mapReady) drawMarkers();
+}
 const RT_MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 /* "12 OCT" - the date at a glance, in the mono the app uses for figures */
 function rtDate(d){
@@ -32610,6 +33045,17 @@ function routeRowHTML(p){
       ? '<span class="rtwhen">' + esc(rtDate(p.date)) + '<s>' + esc(rtWhen(p.date)) + '</s></span>'
       : '<span class="rtwhen nodate">No date</span>') +
     '</button>';
+  /* v405: a route with a line gets its colour bar and a Shown / Hidden
+     switch. The row itself is the same button it always was, next to it
+     rather than around it, because a button cannot hold a button. */
+  if (pts > 1){
+    const shown = routeShown(p), nm = p.name || 'Untitled route';
+    s = '<div class="rtline' + (shown ? '' : ' hid') + '" data-id="' + esc(p.id) + '">' +
+      '<i class="rtbar" style="background:' + routeCol(p) + '" aria-hidden="true"></i>' + s +
+      '<button class="rteye' + (shown ? ' on' : '') + '" data-act="rthide" data-id="' + esc(p.id) + '"' +
+        ' aria-pressed="' + shown + '" aria-label="' + esc(nm) + (shown ? ': shown on the map. Tap to hide.' : ': hidden. Tap to show.') + '">' +
+        ti(shown ? 'eye' : 'eye-off') + '<span>' + (shown ? 'Shown' : 'Hidden') + '</span></button></div>';
+  }
   return s + (open ? routeOpenHTML(p, hs, done, walked, pts) : '');
 }
 function routeOpenHTML(p, hs, done, walked, pts){
@@ -33971,6 +34417,9 @@ document.addEventListener('click', async e => {
     }, 60);
   }
   else if (a === 'dayfold'){ ui.dayOpen = !ui.dayOpen; if (ui.dayOpen) ui.listOpen = false; render(); }
+  /* v405 (Joe, 2 Nov): "if you pick a date using the pick a date function on
+     maps there is no way of getting out of it". The panel had no close. */
+  else if (a === 'dayclose'){ ui.dayOpen = false; ui.rdayPick = false; render(); }
   /* one day open at a time, like the route rows. Nothing half-open is left
      behind in it either. */
   else if (a === 'jfold'){
@@ -35418,6 +35867,18 @@ document.addEventListener('click', async e => {
     ui.rday = ui.rday === el.dataset.v ? '' : el.dataset.v;
     ui.rdayPick = false;
     render();
+  }
+  else if (a === 'rthide'){
+    /* v405: one route off the map, or back on. It stays saved. */
+    const id = el.dataset.id, h = rtHid();
+    if (h.has(id)) h.delete(id); else h.add(id);
+    rtHidSave();
+    rtRedraw();
+  }
+  else if (a === 'rtshowall'){
+    rtHid().clear(); rtHidSave();
+    rtRedraw();
+    toast('All routes shown.');
   }
   else if (a === 'maproutes'){
     ui.mapRoutes = ui.mapRoutes === false;
@@ -41272,7 +41733,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v404';
+const APP_VERSION = 'v405';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
