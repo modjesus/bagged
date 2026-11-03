@@ -1930,6 +1930,23 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
    GPX under the line, so it is 166, not 108 */
 .mapdrawer[data-state="mid"]{height:46dvh}
 .mapdrawer[data-state="open"]{height:calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px))}
+/* v406. BETWEEN THE HEADER AND THE BAR, MEASURED, NEVER UNDER EITHER.
+   Joe, 3 Nov: "sometimes it clips the waymark header and waymark footer".
+   The open height was 100dvh less the two bars, and the drawer stands on
+   the bar plus --vvb (where iOS has really put the bottom this frame).
+   Whenever --vvb is not 0, or 100dvh is not the height the bars stand in
+   (a home-screen app on iOS), those disagree and the top of the drawer,
+   grip and all, slid under the header. --dwroom is the gap between the
+   foot of the header and the top of the bar, measured on the page each
+   time the map is laid out, so the drawer is built to fit the gap. */
+.mapdrawer{max-height:var(--dwroom, calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px)))}
+.mapdrawer[data-state="mid"]{height:min(46dvh, var(--dwroom, 46dvh))}
+.mapdrawer[data-state="open"]{height:var(--dwroom, calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px)))}
+/* the peek and the two buttons under it are part of the pull tab now: a
+   thumb on them moves the drawer, never the page under it */
+.dwpeek, .dwacts{touch-action:none}
+/* nor does the page itself bounce on the map, taking the header with it */
+html.maptab, html.maptab body{overscroll-behavior:none}
 /* the handle is a real 44px button, not a decorative bar */
 /* 44, not 28 with an invisible ::after doing the rest. A sweep measures the
    element; so does a thumb that misses. The grip inside stays 5px — it is
@@ -9177,6 +9194,9 @@ div.cvcard{cursor:default}
 .cvcard > span:last-child > span{font-size:13px; color:var(--ink-3)}
 .cvcard .chip{align-self:flex-start; margin-top:8px; display:inline-flex; align-items:center; gap:5px; min-height:34px; cursor:pointer}
 .cvcard .chip svg{width:14px; height:14px}
+/* v406: Show on map beside Add to my plans, wrapping under it on a narrow phone */
+.cvrtbtns{display:flex; flex-wrap:wrap; gap:0 8px}
+.cvrtbtns .chip{min-height:44px}
 .cvdone{display:inline-flex; align-items:center; gap:4px; margin-top:4px; font:normal 700 12.5px var(--font-ui); color:var(--done)}
 .cvdone svg{width:14px; height:14px; stroke-width:2.4}
 .cvpost{display:block; width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer}
@@ -19917,7 +19937,35 @@ function routeCard(m){
   return '<div class="cvcard"><span class="cvcic">' + ti('route') + '</span><span><i class="lbl">Route</i><b>' + esc(r.name || 'A route') + '</b><span>' +
     (hs.length ? hs.length + (hs.length === 1 ? ' hill' : ' hills') + ' &middot; ' + esc(hs.slice(0, 3).map(h => hillName(h)).join(', ')) : 'No hills on it') +
     (msgTrk(r.trk).length > 1 ? ' &middot; ' + prettyDist(trackLength(msgTrk(r.trk))) : '') + '</span>' +
-    '<button class="chip" data-act="chatrouteadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button></span></div>';
+    /* v406: and a way to SEE it. "Add to my plans" was the only button, so
+       a route in a chat could not be looked at without filing it first and
+       going to find it. */
+    '<span class="cvrtbtns">' +
+    (msgTrk(r.trk).length > 1 || hs.length ? '<button class="chip" data-act="chatrouteview" data-m="' + esc(m.id) + '">' + ti('map-2') + 'Show on map</button>' : '') +
+    '<button class="chip" data-act="chatrouteadd" data-m="' + esc(m.id) + '">' + ti('plus') + 'Add to my plans</button></span></span></div>';
+}
+/* v406: a route from a chat, on your map. Your own route if you sent it and
+   still have it; anyone else gets one copy, kept under the message's id so
+   pressing Show on map twice does not file it twice. */
+function chatRouteOpen(m){
+  if (!chatOpen || !m || !m.route) return;
+  const r = m.route, c = chatOpen.chat, trk = msgTrk(r.trk);
+  const hs = (r.hills || []).map(k => BY_KEY[k]).filter(h => h && isFinite(h.a));
+  const same = q => q.name === (r.name || '') && q.trk && trk.length > 1 && q.trk.length > 1 &&
+    Math.abs(q.trk[0][0] - trk[0][0]) < 1e-4 && Math.abs(q.trk[0][1] - trk[0][1]) < 1e-4;
+  let pl = m.from === meU() ? livePlans().find(same) : null;
+  if (!pl){
+    const id = 'pc' + String(m.id).replace(/[^A-Za-z0-9]/g, '').slice(0, 18);
+    pl = state.plans.find(x => x.id === id) || null;
+    if (!pl){
+      pl = {id, name: r.name || 'Shared route', date: r.date || '', notes:'From a chat with ' + chatName(c),
+        hills: r.hills || [], trk, wp:null, snap:true, deleted:false, t: now()};
+      state.plans.push(pl);
+    } else if (pl.deleted){ pl.deleted = false; pl.t = now(); }
+    touched();
+  }
+  bcSheetClose(); closeChat(); if (typeof closeInbox === 'function') closeInbox();
+  showRouteOnMap(pl, trk.length > 1 ? trk : hs.map(h => [h.a, h.o]));
 }
 function postCard(m){
   const p = m.post || {};
@@ -20115,13 +20163,12 @@ function planRouteOpen(m, rid){
     } else if (pl.deleted){ pl.deleted = false; pl.t = now(); }
     touched();
   }
-  if (rtHid().delete(pl.id)) rtHidSave();
   const go = pl;
   bcSheetClose(); closeChat(); if (typeof closeInbox === 'function') closeInbox();
-  tab = 'p'; ui.rmode = 'explore'; ui.planOpen = go.id; ui.mapDrawer = 'collapsed';
-  render(); window.scrollTo({top:0});
-  setTimeout(() => { try{ if (rmap && go.trk && go.trk.length > 1) fitTo(rmap, go.trk, 60, 15); }catch(e){} }, 400);
-  toast((go.name || 'The route') + ' is on your map.');
+  /* v406: the same way onto the map as View on the map. This one fitted
+     the line 400 ms later without writing the view down, so any redraw
+     after that (a sync, the panel moving) took the map back. */
+  showRouteOnMap(go, go.trk);
 }
 function pollCard(m){
   const p = m.poll || {}, votes = m.votes || {}, c = chatOpen.chat;
@@ -20738,6 +20785,10 @@ async function chatAct(a, el){
   else if (a === 'chatsendroute'){
     bcSheetClose(); const p = livePlans().find(x => x.id === el.dataset.v); if (!p) return true;
     await sendRouteMsg(p);
+  }
+  else if (a === 'chatrouteview'){
+    const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || !m.route) return true;
+    chatRouteOpen(m);
   }
   else if (a === 'chatrouteadd'){
     const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || !m.route) return true;
@@ -24074,6 +24125,8 @@ function render(){
   /* A render while the photo picker is open throws away the very input the
      walker is using. Hold it. */
   if (pickerBusy()){ renderWanted++; photoLog('render held back — picker is open'); return; }
+  /* v406: nor while a thumb is pulling the map drawer (see drawerDrop) */
+  if (dwDrag && dwDrag.moved > 8 && document.contains(dwDrag.d)){ dwDrag.held = true; return; }
   if (!viewRestored) restoreView();
   if (FB && fbUser && !notesUnsub && !notesFailed) watchNotes();
   if (FB && fbUser && !chatsUnsub && !chatsFailed) watchChats();
@@ -24247,6 +24300,7 @@ function render(){
   if (tab === 'p') mountRouteMap();
   if (tab === 'm') mountMap();
   if (tab === 'p' || tab === 'm') fitMapFurniture();
+  document.documentElement.classList.toggle('maptab', tab === 'p' || tab === 'm');
   try{ kitAfterRender(); }catch(e){}
   /* anything earned but never celebrated gets its moment on Home */
   if (tab === 'd') setTimeout(settleWins, 400);
@@ -24315,6 +24369,12 @@ function mapShellVars(){
   const n = document.querySelector('.bnav');
   if (h) r.style.setProperty('--wm-head', Math.round(h.getBoundingClientRect().height) + 'px');
   if (n) r.style.setProperty('--wm-nav', Math.round(n.getBoundingClientRect().height) + 'px');
+  /* v406: the room the drawer has, from the foot of the header to the top
+     of the bottom bar, as they actually stand (see .mapdrawer) */
+  if (h && n){
+    const hb = h.getBoundingClientRect(), nb = n.getBoundingClientRect();
+    if (hb.height && nb.height && nb.top > hb.bottom) r.style.setProperty('--dwroom', Math.round(nb.top - Math.max(0, hb.bottom)) + 'px');
+  }
   /* THE PAGE'S OWN SIDE MARGIN, SO THE MAP CAN CANCEL IT.
      Joe, 23 Oct: "Make standard map fullscreen with the tabs etc so its
      edge to edge." The map lives inside the reading column, which keeps
@@ -24514,16 +24574,28 @@ function mapShellResize(){
 
    A drag of less than 8px is a tap and still cycles, so nothing that
    worked before stops working. */
-let dwDrag = null;
+var dwDrag = null;      /* var: render() reads it, and may run before this line has */
 function drawerHeights(d){
   const was = d.dataset.state, out = {};
   for (const st of DRAWER_STATES){ d.dataset.state = st; out[st] = d.getBoundingClientRect().height; }
   d.dataset.state = was;
   return out;
 }
+/* v406 (Joe, 3 Nov: "the pull tab to expand the route view doesnt work
+   100%"). Four things, each reproduced here with real touch events:
+   - the peek under the grip is part of the tab: a swipe on the walk's name
+     did nothing, because only the 44px grip listened;
+   - the pointer is captured only once it is a drag, so a tap on the round
+     button inside the peek still lands on that button;
+   - a redraw while the thumb is down (a sync landing) rebuilt the drawer
+     under it, and it snapped shut with the finger still on it. render()
+     now waits for the thumb to come off (dwDrag.held);
+   - a pull is read by which way it went: 150px up from half way used to
+     snap back to half way, because "half way" was nearer. */
 document.addEventListener('pointerdown', e => {
-  const h = e.target.closest && e.target.closest('.dwhandle');
+  const h = e.target.closest && e.target.closest('.dwhandle, .dwpeek');
   if (!h) return;
+  if (e.button > 0) return;
   const d = h.closest('.mapdrawer');
   if (!d) return;
   /* kill the easing FIRST. Measuring the three heights while a .22s
@@ -24531,34 +24603,62 @@ document.addEventListener('pointerdown', e => {
      to, not where each state ends — which snapped the drawer to the wrong
      one of the three every time the last change was still moving. */
   d.classList.add('dwdragging');
+  const st0 = DRAWER_STATES.indexOf(d.dataset.state) >= 0 ? d.dataset.state : 'collapsed';
   dwDrag = {id:e.pointerId, y0:e.clientY, h0:d.getBoundingClientRect().height,
-            d, hs:drawerHeights(d), moved:0};
-  try{ h.setPointerCapture(e.pointerId); }catch(x){}
+            d, h, st0, hs:drawerHeights(d), moved:0, held:false, cap:false};
 });
 document.addEventListener('pointermove', e => {
   if (!dwDrag || e.pointerId !== dwDrag.id) return;
   const dy = dwDrag.y0 - e.clientY;                    /* up is bigger */
   dwDrag.moved = Math.max(dwDrag.moved, Math.abs(dy));
+  if (dwDrag.moved <= 8) return;                       /* still a tap */
+  /* redrawn in the 8px before it was a drag: follow the new drawer */
+  if (!document.contains(dwDrag.d)){
+    const nd = document.querySelector('.mapdrawer'); if (!nd){ dwDrag = null; return; }
+    nd.classList.add('dwdragging'); dwDrag.d = nd;
+    dwDrag.h = nd.querySelector('.dwhandle') || nd;
+  }
+  if (!dwDrag.cap){ dwDrag.cap = true; try{ dwDrag.h.setPointerCapture(e.pointerId); }catch(x){} }
   const lo = dwDrag.hs.collapsed, hi = dwDrag.hs.open;
   const want = Math.max(lo, Math.min(hi, dwDrag.h0 + dy));
   dwDrag.d.style.height = want + 'px';
   if (typeof fitMapFurniture === 'function') fitMapFurniture();
-  if (dwDrag.moved > 8) e.preventDefault();
+  e.preventDefault();
 }, {passive:false});
 let dwTapKill = 0;
+/* where a pull lands: a pull of more than 40px goes on to the next height
+   in the direction it went (the nearest of those to where the thumb let
+   go); anything shorter settles on the nearest height */
+function drawerLand(hs, st0, now){
+  const base = hs[st0], go = now - base;
+  let pool = DRAWER_STATES;
+  if (go > 40) pool = DRAWER_STATES.filter(st => hs[st] > base + 1);
+  else if (go < -40) pool = DRAWER_STATES.filter(st => hs[st] < base - 1);
+  if (!pool.length) pool = [st0];
+  let best = pool[0], gap = Infinity;
+  for (const st of pool){ const g = Math.abs(hs[st] - now); if (g < gap){ gap = g; best = st; } }
+  return best;
+}
 function drawerDrop(e){
   if (!dwDrag || (e && e.pointerId !== dwDrag.id)) return;
-  const {d, hs, moved} = dwDrag;
+  const {d, hs, moved, st0, held} = dwDrag;
   const now = d.getBoundingClientRect().height;
   dwDrag = null;
-  d.style.height = '';
-  d.classList.remove('dwdragging');
   /* A TAP IS NOT THIS HANDLER'S JOB. The handle already carries
      data-act="drawer" data-v="cycle", and the click fires straight after
      this. Cycling here as well moved the drawer two states for one tap. */
-  if (moved <= 8) return;
-  let best = DRAWER_STATES[0], gap = Infinity;
-  for (const st of DRAWER_STATES){ const g = Math.abs(hs[st] - now); if (g < gap){ gap = g; best = st; } }
+  if (moved <= 8){
+    d.style.height = '';
+    d.classList.remove('dwdragging');
+    if (held) render();
+    return;
+  }
+  const best = drawerLand(hs, st0, now);
+  /* the new height is set before the thumb's height is let go, so the
+     drawer eases from where the thumb left it straight to where it lands */
+  d.classList.remove('dwdragging');
+  d.dataset.state = best;
+  d.style.height = '';
   ui.mapDrawer = best;
   dwTapKill = Date.now();     /* and the click that follows a drag is not a tap either */
   render();
@@ -24566,6 +24666,12 @@ function drawerDrop(e){
 }
 document.addEventListener('pointerup', drawerDrop);
 document.addEventListener('pointercancel', drawerDrop);
+/* the map's buttons are placed off the drawer's height, so once the drawer
+   has finished moving they are placed again, off where it ended up */
+document.addEventListener('transitionend', e => {
+  if (e.propertyName !== 'height' || !e.target.classList || !e.target.classList.contains('mapdrawer')) return;
+  try{ fitMapFurniture(); if (rmap){ rmap.resize(); mapPad(); } }catch(x){}
+});
 
 let shellTimer = 0;
 window.addEventListener('resize', () => {
@@ -30748,26 +30854,41 @@ function viewRoute(id){
   const p = planById(id); if (!p) return;
   const pts = (p.trk && p.trk.length > 1) ? p.trk : (p.hills || []).map(k => BY_KEY[k]).filter(h => h && isFinite(h.a)).map(h => [h.a, h.o]);
   if (pts.length < 1){ toast('That route has no line on it yet.'); return; }
+  showRouteOnMap(p, pts);
+}
+/* v406. ONE WAY ONTO THE MAP FOR A ROUTE, FROM ANYWHERE.
+
+   Joe, 3 Nov: "the 'show on map' isnt working for routes". It wasn't, and
+   never had been since v388. The fit happened, and then the redraw that
+   render() had already queued (mapAttach) put the map straight back to
+   ui.rview, the view from before. Measured: the camera moved to the route
+   and was back where it started 1 ms later, with the panel still open on
+   top of the map and the toast saying "Showing Far away." over nothing.
+
+   So this does it the way an imported track does (applyMapFit, v388): it
+   waits for the queued redraw, fits, and then WRITES the new view, so no
+   later redraw can take it away. The panel comes down so the map can be
+   seen, and the route is put back on the map if it had been hidden (v405
+   Shown / Hidden) or all routes were switched off. The vote card's "Open
+   it" and a route sent in a chat come through here too. */
+function showRouteOnMap(p, pts){
+  if (!p) return;
+  pts = (pts || p.trk || []).filter(q => q && isFinite(q[0]) && isFinite(q[1]));
+  if (rtHid().delete(p.id)) rtHidSave();
+  ui.mapRoutes = true;
+  if (editor && !editor.dirty) editor = null;
   ui.rmode = 'explore';
-  /* Routes live on Plan a walk. This used to send the walker to the Hills
-     map, which the line in render() above then undid — so it waited for a map
-     that was never going to be mounted and gave up in silence. */
-  tab = 'p';
-  render();
-  const go = (n) => {
-    const m = curMap();
-    if (!m){
-      if (n < 40){ setTimeout(() => go(n + 1), 120); return; }
-      /* Never silence. If the map cannot be drawn, say why. */
-      toast(ML() ? 'The map could not be drawn on this device.'
-                 : 'The map needs a connection the first time. Try again when you have signal.');
-      return;
-    }
-    rmDraw();
-    fitTo(m, pts, 40, 15);
-    toast(p.name ? 'Showing ' + p.name + '.' : 'Showing that route.');
-  };
-  go(0);
+  tab = 'p'; ui.planOpen = p.id; ui.mapDrawer = 'collapsed';
+  mapListRestore();
+  render(); window.scrollTo({top:0});
+  if (!ML()){ toast('The map needs a connection the first time. Try again when you have signal.'); return; }
+  if (pts.length){
+    ui.mapFit = pts;
+    /* after the panel has come down (.22s), so the room left for the
+       route is measured on the panel's final height, not half way there */
+    setTimeout(() => applyMapFit(0), 280);
+  }
+  toast(p.name ? 'Showing ' + p.name + '.' : 'Showing that route.');
 }
 function openEditor(id){
   const p = planById(id); if (!p) return;
@@ -32719,6 +32840,33 @@ function mapPillsHTML(){
       '<p class="mdaynote">Forecasts move \u2014 check again the night before.</p>' : '') + '</div>';
   return s;
 }
+/* v406. THE MAP KEEPS THE LIST YOU LAST PICKED ON IT.
+
+   Joe, 3 Nov: "wainwrights is always preset to the the only view it should
+   be the last one you clicked on." It was preset: ui.list starts as
+   'wainwright' and ui.mapScope as 'one' every time the app loads, and the
+   choice made on the map was never written down anywhere. ui.list is also
+   the list Home and Progress are looking at, so opening a hill elsewhere
+   moved the map's list with it.
+
+   So the map writes down its own choice (the list, or All my lists, or
+   Every hill) on this phone, and puts it back when the app opens and
+   whenever you come to the map. */
+const MAP_LIST_KEY = 'waymark.maplist';
+function mapListSave(){
+  try{ localStorage.setItem(MAP_LIST_KEY, JSON.stringify({s: ui.mapScope, l: ui.list})); }catch(e){}
+}
+function mapListRestore(){
+  let v = null;
+  try{ v = JSON.parse(localStorage.getItem(MAP_LIST_KEY) || 'null'); }catch(e){ v = null; }
+  if (!v || typeof v !== 'object' || ['one', 'enabled', 'all'].indexOf(v.s) < 0) return false;
+  const okList = typeof v.l === 'string' && onList(v.l);
+  /* a list you have since switched off is not put back */
+  if (v.s === 'one' && !okList) return false;
+  ui.mapScope = v.s; ui.mapScopeWas = null;
+  if (okList) ui.list = v.l;
+  return true;
+}
 /* the list chips on the map, with the two "everything" answers first */
 function mapListBar(){
   const one = ui.mapScope === 'one';
@@ -33555,6 +33703,8 @@ document.addEventListener('click', async e => {
        coming back to Home should give you Home */
     ui.homeList = null;
     tab = tabBtn.dataset.tab;
+    /* v406: coming to the map puts back the list you last picked on it */
+    if (tab === 'p' || tab === 'm') mapListRestore();
     if (tab === 'a' && !onboarding() && ['dogs','kit','supplies'].includes(ui.patchView)) ui.patchView = 'lists';
     if (tab === 'j' && ['dogs','kit'].includes(ui.wmJournal)){ tab='a'; ui.patchView=ui.wmJournal; }
     /* Journal remembers its own subsection, independently of legacy patchView. */
@@ -33962,11 +34112,11 @@ document.addEventListener('click', async e => {
   else if (a === 'open-lists'){ openSheet(); showSetPane('lists'); }
   /* choosing a scope yourself is you taking charge of it: the challenge no
      longer owes you the one you had before */
-  else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; ui.mapScopeWas = null;
+  else if (a === 'mapscope'){ ui.mapScope = el.dataset.v; ui.mapScopeWas = null; mapListSave();
     ui.listOpen = false; render(); if (mapReady) drawMarkers(true); }
   /* picking one list from the map also puts the map on that list, which is
      what tapping a list on a map obviously means */
-  else if (a === 'mappicklist'){ ui.list = el.dataset.v; ui.mapScope = 'one'; ui.listOpen = false;
+  else if (a === 'mappicklist'){ ui.list = el.dataset.v; ui.mapScope = 'one'; ui.listOpen = false; mapListSave();
     ui.region = ''; ui.q = ''; ui.status = 'all'; render(); if (mapReady) drawMarkers(true); }
   else if (a === 'togglelist'){ toggleList(el.dataset.v); }
   else if (a === 'viewphoto') openViewer(el.dataset.k, el.dataset.p);
@@ -41733,7 +41883,7 @@ function openPostSummits(id){
    can be found again. Reports and feedback land in an inbox inside Settings
    that only shows for accounts listed in the `admins` collection (added by
    hand in the Firebase console), and in the console itself. */
-const APP_VERSION = 'v405';
+const APP_VERSION = 'v406';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -48567,6 +48717,8 @@ registerOwn();
 if (!Array.isArray(state.enabled)) state.enabled = [];
 saveLocal();   // persist the migration immediately, so it happens once
 if (state.enabled.length && !state.enabled.includes(ui.list)) ui.list = state.enabled[0];
+/* v406: and the map opens on the list you last picked on it, not Wainwrights */
+try{ if (state.enabled.length) mapListRestore(); }catch(e){}
 /* an existing walker has already answered all this */
 if (seenOnboard() || state.enabled.length) ui.onboard = 'done';
 /* and somebody who switched every list off in Settings and came back has
