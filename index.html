@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
 <script>
-try{ var wmT = localStorage.getItem('waymark.theme') || 'light'; if (wmT !== 'auto') document.documentElement.setAttribute('data-theme', wmT); }
+try{ var wmT = localStorage.getItem('waymark.theme') || 'light'; if (wmT === 'auto') wmT = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', wmT); }
 catch(e){ document.documentElement.setAttribute('data-theme', 'light'); }</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -185,9 +185,12 @@ body::before{
   background-position:center top;
 }
 :root{--topo-pine:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256%22%20height%3D%22256%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.11%22%20stroke-width%3D%220.9%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M255.2%20139L244%20131.6L232%20131.5L199.8%20151.2L196%20155.6L194.8%20160.8L197%20169.6L203.4%20178.4L211.2%20183.3L220.8%20185.4L230.4%20184.7L238.4%20181.6L255.2%20164.1%20M22.4%20184.8L16%20188.4L11.6%20196L12.7%20201.6L17.6%20204.5L25.6%20204L30.2%20198.4L28.6%20188.8L22.4%20184.8Z%20M50.4%20213.5L46.3%20215.2L44%20219.2L44.9%20224.8L48%20228.6L57.6%20230.5L66.1%20225.6L67.7%20220L64.8%20216L58.4%20213.6L50.4%20213.5Z%20M255.2%20131.7L239.2%20123.8L225.6%20123.2L208.8%20135.3L187.2%20146L182.4%20150.9L180.7%20156L185.1%20166.4L201.1%20184L215.2%20189.5L244.8%20192.3L248.8%20195.7L255.2%20206.7%20M0%20207.7L7.2%20213.7L26.4%20222.3L40%20236.1L48.8%20239L60.8%20238.2L72%20233.9L80.1%20226.4L83.7%20217.6L82.4%20213.6L78.4%20210.3L54.4%20202.1L47.2%20197.5L33.9%20176L16.8%20161.7L8.3%20142.4L0%20132.4%20M255.2%20126.3L231.2%20114.5L224%20112.8L218.1%20113.6L200.7%20128L173.6%20144L167%20152L164.6%20160L168.3%20167.2L196.7%20188L207.2%20192.5L236.8%20198.6L255.2%20216.8%20M0%20217.4L19.6%20228L35.2%20242.1L47.2%20244.9L74.4%20241.3L97.6%20230.3L120%20230.2L125.3%20226.4L127.1%20220L124%20207.9L116%20200.8L108.8%20199.8L80%20201.6L64.8%20198.6L55.2%20194.2L49.1%20188L37.6%20170.2L21.6%20154L9.6%20135.7L0%20126.9%20M56.8%2098.4L50.9%20103.2L50.1%20112L55.2%20119.7L62.4%20121.4L68.7%20115.2L69.8%20104.8L65.6%2098.9L56.8%2098.4Z%20M76.5%200L97.6%2016.9L107.2%2021.6L109.6%2020.2L112.1%207.2L116%200%20M255.2%2011.4L244.2%2016.8L240.8%2027.2L245.2%2044L255.2%2055.1%20M0%2055.5L8.8%2057.8L16%2055L20%2046.8L21.3%2032.8L20.3%2017.6L17.6%2010.3L12.8%208.9L0%2011.2%20M255.2%20116.7L224.8%2097.1L214.4%2095.4L204.4%2097.6L196.8%20102.4L182.2%20118.4L154.5%20139.2L136%20166.6L129.6%20173.2L90.4%20187.5L77.6%20189.7L67.2%20187.9L59.2%20182.9L41.6%20156.8L21%20133.6L0%20117.2%20M116.8%20255.2L124%20251L140.8%20246.4L144.6%20243.2L145.8%20236.8L143.5%20212.8L144.3%20202.4L148.8%20194.7L157.6%20191.1L169.6%20191.4L193.8%20201.6L225.6%20206.5L232.9%20211.2L245.6%20225.1L255.2%20231.3%20M55.2%2082.3L44.6%2084.8L38.7%2089.6L35.9%2097.6L35.8%20109.6L39.1%20121.6L45%20130.4L52.8%20135.7L62.4%20136.9L71.2%20133.3L77.1%20125.6L82.2%20108L83.4%2092.8L81%2086.4L76%2083L55.2%2082.3Z%20M212.5%200L226.8%2017.6L241.4%2052L247.5%2059.2L255.2%2064.5%20M0%2064.9L16%2069.8L27.2%2070.4L28.6%2019.2L33%2010.4L42.3%204.8L60%201.7L74.3%205.6L97.7%2028.8L111.2%2048.5L116%2051.5L121.6%2052.4L130.4%2049L134.3%2040.8L133.1%2031.2L125.4%2015.2L127.2%207.2L131.2%204.7L137.6%204.1L157.6%2011.2L168%2012L174.9%208L173.8%200%20M255.2%20111.6L226.4%2090.4L199.2%2085L182.4%2073.7L171.2%2074.4L164.6%2079.2L161.5%2087.2L161.8%2096L166.1%20109.6L165.2%20114.4L146.1%20135.2L129.9%20159.2L116%20169.3L88.8%20181.6L76.8%20184L67.2%20181.8L60%20175.9L52.9%20163.2L49.5%20150.4L52.8%20146.4L72%20140.4L80%20131.4L89.5%2094.4L89.3%2085.6L86.1%2079.2L75.2%2075.1L30.4%2073.8L28.8%2079.2L28.1%20124L21.6%20123.7L0%20112.1%20M173.3%20255.2L158.4%20238.6L152.7%20224.8L151.8%20216L153.3%20208.8L156.8%20204.2L162.4%20201.9L171.2%20202.8L192%20211.3L212.8%20210.7L221.6%20212.4L228.6%20217.6L239.2%20232.8L255.2%20241.7%20M242.9%20255.2L229.6%20244L222.4%20242.3L213.6%20246L211.7%20250.4L212.2%20255.2%20M0%2074.2L10.4%2079L16.2%2084L19.9%2091.2L21.3%20100.8L20.2%20108L16.8%20111.3L9.6%20110.7L0%20106%20M255.2%20105.4L233.6%2085.1L208.6%2075.2L193.6%2062L185.6%2061.2L169.6%2065.8L161.6%2070L157.2%2075.2L150.6%20111.2L124.5%20152L116%20159.2L87.2%20174.9L79.2%20177.3L72%20176.7L63.3%20169.6L60.7%20158.4L64%20153.3L78.9%20144L84.3%20136L94.6%2094.4L95.1%2077.6L92.7%2072.8L87.2%2069.7L56.8%2067.1L44.5%2062.4L36.6%2051.2L33.3%2031.2L35.3%2019.2L41.6%2011.3L53.6%206.6L65.6%207.3L75.2%2013L89.7%2028.8L106.4%2055.8L112%2058.6L120%2059.3L131.2%2057.3L138.4%2052.2L141.5%2044.8L144%2027.6L148%2022.9L157.6%2022L191.2%2026.3L208%2026L215.2%2029.1L220.8%2034.2L241.6%2065.6L255.2%2073.9%20M168.8%20219.2L175.1%20220.8L182.2%20226.4L185.4%20232L184%20235.9L177.6%20236.2L169.6%20231.1L165.9%20224L166.5%20220.8L168.8%20219.2Z%20M54.4%2018.4L64%2019.3L73.9%2028L82.2%2041.6L82.7%2046.4L80.5%2050.4L74.4%2052.7L65.6%2052L57.6%2048.7L51.2%2043.2L47.2%2036L46.5%2028L48.8%2022.3L54.4%2018.4Z%20M124%2070.3L134.4%2070.7L140.1%2074.4L142.7%2083.2L141.2%2096L135.6%20107.2L116%20130.6L110.4%20135.1L105.6%20135.7L101.4%20131.2L100.1%20121.6L106.5%2086.4L112.4%2075.2L124%2070.3Z%20M125.6%2076.8L131.2%2077.8L135%2081.6L136.4%2087.2L135.3%2094.4L126.4%20106.9L119.2%20111.9L113.6%20113.1L111.2%20111.1L109.9%20105.6L112%2088.7L117.3%2080L125.6%2076.8Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.16%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M237.6%20140.6L213.6%20153.6L207.2%20159L205.5%20168L210.9%20176L217.6%20179L225.6%20178.9L232%20176.1L237.6%20170.4L247.6%20156L249.8%20149.6L246.4%20142.3L237.6%20140.6Z%20M0%2042.9L4.8%2045L8.8%2043.8L11.5%2040L12.8%2033.6L9.3%2024L4.8%2022.4L0%2023.6%20M255.2%20121.5L226.4%20105.1L218.4%20103.5L211.2%20105.2L192.4%20122.4L161.4%20144L152.5%20156.8L148.9%20169.6L149.7%20173.6L152.8%20176.8L175.2%20182.8L196.8%20195L232%20203.1L255.2%20224.1%20M0%20224.6L14.4%20232.8L27.2%20246L33.6%20249.4L73.6%20248.5L94.4%20251.6L131.2%20238.1L135.6%20232.8L136.9%20224.8L133.4%20200.8L128%20191.3L122.4%20189.1L113.6%20188.8L80%20195.2L61.6%20191.3L53.6%20184.6L40.8%20165.3L13.9%20133.6L0%20122%20M56.8%2089.5L49.6%2091.9L44.9%2096L42.4%20101.8L42.2%20109.6L44.5%20117.6L49.4%20124.8L56%20129.1L62.4%20129.9L68.8%20127.1L73.5%20120.8L76.7%20109.6L77.1%2099.2L75.2%2093.8L71.2%2090.4L56.8%2089.5Z%20M0%2090.2L4.8%2090.7L7.3%2095.2L4%2096.4L0%2092.5%20M52.8%2011.9L60%2011.5L67.2%2013.8L82.5%2028.8L92.8%2046.4L93.3%2053.6L90.5%2058.4L80%2061.2L64%2060.5L53.6%2056.9L45.9%2050.4L40.4%2039.2L39.6%2026.4L44%2017L52.8%2011.9Z%20M159.2%2031.9L167.2%2032L174.8%2035.2L179.2%2040L180.1%2046.4L177.5%2051.2L172.6%2055.2L150.8%2064L147.1%2096L141.6%20110.4L115.6%20147.2L106.4%20152.5L88.7%20157.6L81.7%20163.2L78.4%20163.8L78.3%20160.8L86.4%20155.8L89.3%20149.6L94.5%20116L104.8%2071.9L112.8%2066.6L146.2%2060.8L151.5%2038.4L154.4%2034.2L159.2%2031.9Z%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.06%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M0%200H256M0%20128H256M0%200V256M128%200V256%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")}
-:root[data-theme="dark"] .topo, :root:not([data-theme="light"]) .topo{
+:root[data-theme="dark"] .topo{
   background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256%22%20height%3D%22256%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.11%22%20stroke-width%3D%220.9%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M255.2%20139L244%20131.6L232%20131.5L199.8%20151.2L196%20155.6L194.8%20160.8L197%20169.6L203.4%20178.4L211.2%20183.3L220.8%20185.4L230.4%20184.7L238.4%20181.6L255.2%20164.1%20M22.4%20184.8L16%20188.4L11.6%20196L12.7%20201.6L17.6%20204.5L25.6%20204L30.2%20198.4L28.6%20188.8L22.4%20184.8Z%20M50.4%20213.5L46.3%20215.2L44%20219.2L44.9%20224.8L48%20228.6L57.6%20230.5L66.1%20225.6L67.7%20220L64.8%20216L58.4%20213.6L50.4%20213.5Z%20M255.2%20131.7L239.2%20123.8L225.6%20123.2L208.8%20135.3L187.2%20146L182.4%20150.9L180.7%20156L185.1%20166.4L201.1%20184L215.2%20189.5L244.8%20192.3L248.8%20195.7L255.2%20206.7%20M0%20207.7L7.2%20213.7L26.4%20222.3L40%20236.1L48.8%20239L60.8%20238.2L72%20233.9L80.1%20226.4L83.7%20217.6L82.4%20213.6L78.4%20210.3L54.4%20202.1L47.2%20197.5L33.9%20176L16.8%20161.7L8.3%20142.4L0%20132.4%20M255.2%20126.3L231.2%20114.5L224%20112.8L218.1%20113.6L200.7%20128L173.6%20144L167%20152L164.6%20160L168.3%20167.2L196.7%20188L207.2%20192.5L236.8%20198.6L255.2%20216.8%20M0%20217.4L19.6%20228L35.2%20242.1L47.2%20244.9L74.4%20241.3L97.6%20230.3L120%20230.2L125.3%20226.4L127.1%20220L124%20207.9L116%20200.8L108.8%20199.8L80%20201.6L64.8%20198.6L55.2%20194.2L49.1%20188L37.6%20170.2L21.6%20154L9.6%20135.7L0%20126.9%20M56.8%2098.4L50.9%20103.2L50.1%20112L55.2%20119.7L62.4%20121.4L68.7%20115.2L69.8%20104.8L65.6%2098.9L56.8%2098.4Z%20M76.5%200L97.6%2016.9L107.2%2021.6L109.6%2020.2L112.1%207.2L116%200%20M255.2%2011.4L244.2%2016.8L240.8%2027.2L245.2%2044L255.2%2055.1%20M0%2055.5L8.8%2057.8L16%2055L20%2046.8L21.3%2032.8L20.3%2017.6L17.6%2010.3L12.8%208.9L0%2011.2%20M255.2%20116.7L224.8%2097.1L214.4%2095.4L204.4%2097.6L196.8%20102.4L182.2%20118.4L154.5%20139.2L136%20166.6L129.6%20173.2L90.4%20187.5L77.6%20189.7L67.2%20187.9L59.2%20182.9L41.6%20156.8L21%20133.6L0%20117.2%20M116.8%20255.2L124%20251L140.8%20246.4L144.6%20243.2L145.8%20236.8L143.5%20212.8L144.3%20202.4L148.8%20194.7L157.6%20191.1L169.6%20191.4L193.8%20201.6L225.6%20206.5L232.9%20211.2L245.6%20225.1L255.2%20231.3%20M55.2%2082.3L44.6%2084.8L38.7%2089.6L35.9%2097.6L35.8%20109.6L39.1%20121.6L45%20130.4L52.8%20135.7L62.4%20136.9L71.2%20133.3L77.1%20125.6L82.2%20108L83.4%2092.8L81%2086.4L76%2083L55.2%2082.3Z%20M212.5%200L226.8%2017.6L241.4%2052L247.5%2059.2L255.2%2064.5%20M0%2064.9L16%2069.8L27.2%2070.4L28.6%2019.2L33%2010.4L42.3%204.8L60%201.7L74.3%205.6L97.7%2028.8L111.2%2048.5L116%2051.5L121.6%2052.4L130.4%2049L134.3%2040.8L133.1%2031.2L125.4%2015.2L127.2%207.2L131.2%204.7L137.6%204.1L157.6%2011.2L168%2012L174.9%208L173.8%200%20M255.2%20111.6L226.4%2090.4L199.2%2085L182.4%2073.7L171.2%2074.4L164.6%2079.2L161.5%2087.2L161.8%2096L166.1%20109.6L165.2%20114.4L146.1%20135.2L129.9%20159.2L116%20169.3L88.8%20181.6L76.8%20184L67.2%20181.8L60%20175.9L52.9%20163.2L49.5%20150.4L52.8%20146.4L72%20140.4L80%20131.4L89.5%2094.4L89.3%2085.6L86.1%2079.2L75.2%2075.1L30.4%2073.8L28.8%2079.2L28.1%20124L21.6%20123.7L0%20112.1%20M173.3%20255.2L158.4%20238.6L152.7%20224.8L151.8%20216L153.3%20208.8L156.8%20204.2L162.4%20201.9L171.2%20202.8L192%20211.3L212.8%20210.7L221.6%20212.4L228.6%20217.6L239.2%20232.8L255.2%20241.7%20M242.9%20255.2L229.6%20244L222.4%20242.3L213.6%20246L211.7%20250.4L212.2%20255.2%20M0%2074.2L10.4%2079L16.2%2084L19.9%2091.2L21.3%20100.8L20.2%20108L16.8%20111.3L9.6%20110.7L0%20106%20M255.2%20105.4L233.6%2085.1L208.6%2075.2L193.6%2062L185.6%2061.2L169.6%2065.8L161.6%2070L157.2%2075.2L150.6%20111.2L124.5%20152L116%20159.2L87.2%20174.9L79.2%20177.3L72%20176.7L63.3%20169.6L60.7%20158.4L64%20153.3L78.9%20144L84.3%20136L94.6%2094.4L95.1%2077.6L92.7%2072.8L87.2%2069.7L56.8%2067.1L44.5%2062.4L36.6%2051.2L33.3%2031.2L35.3%2019.2L41.6%2011.3L53.6%206.6L65.6%207.3L75.2%2013L89.7%2028.8L106.4%2055.8L112%2058.6L120%2059.3L131.2%2057.3L138.4%2052.2L141.5%2044.8L144%2027.6L148%2022.9L157.6%2022L191.2%2026.3L208%2026L215.2%2029.1L220.8%2034.2L241.6%2065.6L255.2%2073.9%20M168.8%20219.2L175.1%20220.8L182.2%20226.4L185.4%20232L184%20235.9L177.6%20236.2L169.6%20231.1L165.9%20224L166.5%20220.8L168.8%20219.2Z%20M54.4%2018.4L64%2019.3L73.9%2028L82.2%2041.6L82.7%2046.4L80.5%2050.4L74.4%2052.7L65.6%2052L57.6%2048.7L51.2%2043.2L47.2%2036L46.5%2028L48.8%2022.3L54.4%2018.4Z%20M124%2070.3L134.4%2070.7L140.1%2074.4L142.7%2083.2L141.2%2096L135.6%20107.2L116%20130.6L110.4%20135.1L105.6%20135.7L101.4%20131.2L100.1%20121.6L106.5%2086.4L112.4%2075.2L124%2070.3Z%20M125.6%2076.8L131.2%2077.8L135%2081.6L136.4%2087.2L135.3%2094.4L126.4%20106.9L119.2%20111.9L113.6%20113.1L111.2%20111.1L109.9%20105.6L112%2088.7L117.3%2080L125.6%2076.8Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.16%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M237.6%20140.6L213.6%20153.6L207.2%20159L205.5%20168L210.9%20176L217.6%20179L225.6%20178.9L232%20176.1L237.6%20170.4L247.6%20156L249.8%20149.6L246.4%20142.3L237.6%20140.6Z%20M0%2042.9L4.8%2045L8.8%2043.8L11.5%2040L12.8%2033.6L9.3%2024L4.8%2022.4L0%2023.6%20M255.2%20121.5L226.4%20105.1L218.4%20103.5L211.2%20105.2L192.4%20122.4L161.4%20144L152.5%20156.8L148.9%20169.6L149.7%20173.6L152.8%20176.8L175.2%20182.8L196.8%20195L232%20203.1L255.2%20224.1%20M0%20224.6L14.4%20232.8L27.2%20246L33.6%20249.4L73.6%20248.5L94.4%20251.6L131.2%20238.1L135.6%20232.8L136.9%20224.8L133.4%20200.8L128%20191.3L122.4%20189.1L113.6%20188.8L80%20195.2L61.6%20191.3L53.6%20184.6L40.8%20165.3L13.9%20133.6L0%20122%20M56.8%2089.5L49.6%2091.9L44.9%2096L42.4%20101.8L42.2%20109.6L44.5%20117.6L49.4%20124.8L56%20129.1L62.4%20129.9L68.8%20127.1L73.5%20120.8L76.7%20109.6L77.1%2099.2L75.2%2093.8L71.2%2090.4L56.8%2089.5Z%20M0%2090.2L4.8%2090.7L7.3%2095.2L4%2096.4L0%2092.5%20M52.8%2011.9L60%2011.5L67.2%2013.8L82.5%2028.8L92.8%2046.4L93.3%2053.6L90.5%2058.4L80%2061.2L64%2060.5L53.6%2056.9L45.9%2050.4L40.4%2039.2L39.6%2026.4L44%2017L52.8%2011.9Z%20M159.2%2031.9L167.2%2032L174.8%2035.2L179.2%2040L180.1%2046.4L177.5%2051.2L172.6%2055.2L150.8%2064L147.1%2096L141.6%20110.4L115.6%20147.2L106.4%20152.5L88.7%20157.6L81.7%20163.2L78.4%20163.8L78.3%20160.8L86.4%20155.8L89.3%20149.6L94.5%20116L104.8%2071.9L112.8%2066.6L146.2%2060.8L151.5%2038.4L154.4%2034.2L159.2%2031.9Z%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.06%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M0%200H256M0%20128H256M0%200V256M128%200V256%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .topo{
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256%22%20height%3D%22256%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.11%22%20stroke-width%3D%220.9%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M255.2%20139L244%20131.6L232%20131.5L199.8%20151.2L196%20155.6L194.8%20160.8L197%20169.6L203.4%20178.4L211.2%20183.3L220.8%20185.4L230.4%20184.7L238.4%20181.6L255.2%20164.1%20M22.4%20184.8L16%20188.4L11.6%20196L12.7%20201.6L17.6%20204.5L25.6%20204L30.2%20198.4L28.6%20188.8L22.4%20184.8Z%20M50.4%20213.5L46.3%20215.2L44%20219.2L44.9%20224.8L48%20228.6L57.6%20230.5L66.1%20225.6L67.7%20220L64.8%20216L58.4%20213.6L50.4%20213.5Z%20M255.2%20131.7L239.2%20123.8L225.6%20123.2L208.8%20135.3L187.2%20146L182.4%20150.9L180.7%20156L185.1%20166.4L201.1%20184L215.2%20189.5L244.8%20192.3L248.8%20195.7L255.2%20206.7%20M0%20207.7L7.2%20213.7L26.4%20222.3L40%20236.1L48.8%20239L60.8%20238.2L72%20233.9L80.1%20226.4L83.7%20217.6L82.4%20213.6L78.4%20210.3L54.4%20202.1L47.2%20197.5L33.9%20176L16.8%20161.7L8.3%20142.4L0%20132.4%20M255.2%20126.3L231.2%20114.5L224%20112.8L218.1%20113.6L200.7%20128L173.6%20144L167%20152L164.6%20160L168.3%20167.2L196.7%20188L207.2%20192.5L236.8%20198.6L255.2%20216.8%20M0%20217.4L19.6%20228L35.2%20242.1L47.2%20244.9L74.4%20241.3L97.6%20230.3L120%20230.2L125.3%20226.4L127.1%20220L124%20207.9L116%20200.8L108.8%20199.8L80%20201.6L64.8%20198.6L55.2%20194.2L49.1%20188L37.6%20170.2L21.6%20154L9.6%20135.7L0%20126.9%20M56.8%2098.4L50.9%20103.2L50.1%20112L55.2%20119.7L62.4%20121.4L68.7%20115.2L69.8%20104.8L65.6%2098.9L56.8%2098.4Z%20M76.5%200L97.6%2016.9L107.2%2021.6L109.6%2020.2L112.1%207.2L116%200%20M255.2%2011.4L244.2%2016.8L240.8%2027.2L245.2%2044L255.2%2055.1%20M0%2055.5L8.8%2057.8L16%2055L20%2046.8L21.3%2032.8L20.3%2017.6L17.6%2010.3L12.8%208.9L0%2011.2%20M255.2%20116.7L224.8%2097.1L214.4%2095.4L204.4%2097.6L196.8%20102.4L182.2%20118.4L154.5%20139.2L136%20166.6L129.6%20173.2L90.4%20187.5L77.6%20189.7L67.2%20187.9L59.2%20182.9L41.6%20156.8L21%20133.6L0%20117.2%20M116.8%20255.2L124%20251L140.8%20246.4L144.6%20243.2L145.8%20236.8L143.5%20212.8L144.3%20202.4L148.8%20194.7L157.6%20191.1L169.6%20191.4L193.8%20201.6L225.6%20206.5L232.9%20211.2L245.6%20225.1L255.2%20231.3%20M55.2%2082.3L44.6%2084.8L38.7%2089.6L35.9%2097.6L35.8%20109.6L39.1%20121.6L45%20130.4L52.8%20135.7L62.4%20136.9L71.2%20133.3L77.1%20125.6L82.2%20108L83.4%2092.8L81%2086.4L76%2083L55.2%2082.3Z%20M212.5%200L226.8%2017.6L241.4%2052L247.5%2059.2L255.2%2064.5%20M0%2064.9L16%2069.8L27.2%2070.4L28.6%2019.2L33%2010.4L42.3%204.8L60%201.7L74.3%205.6L97.7%2028.8L111.2%2048.5L116%2051.5L121.6%2052.4L130.4%2049L134.3%2040.8L133.1%2031.2L125.4%2015.2L127.2%207.2L131.2%204.7L137.6%204.1L157.6%2011.2L168%2012L174.9%208L173.8%200%20M255.2%20111.6L226.4%2090.4L199.2%2085L182.4%2073.7L171.2%2074.4L164.6%2079.2L161.5%2087.2L161.8%2096L166.1%20109.6L165.2%20114.4L146.1%20135.2L129.9%20159.2L116%20169.3L88.8%20181.6L76.8%20184L67.2%20181.8L60%20175.9L52.9%20163.2L49.5%20150.4L52.8%20146.4L72%20140.4L80%20131.4L89.5%2094.4L89.3%2085.6L86.1%2079.2L75.2%2075.1L30.4%2073.8L28.8%2079.2L28.1%20124L21.6%20123.7L0%20112.1%20M173.3%20255.2L158.4%20238.6L152.7%20224.8L151.8%20216L153.3%20208.8L156.8%20204.2L162.4%20201.9L171.2%20202.8L192%20211.3L212.8%20210.7L221.6%20212.4L228.6%20217.6L239.2%20232.8L255.2%20241.7%20M242.9%20255.2L229.6%20244L222.4%20242.3L213.6%20246L211.7%20250.4L212.2%20255.2%20M0%2074.2L10.4%2079L16.2%2084L19.9%2091.2L21.3%20100.8L20.2%20108L16.8%20111.3L9.6%20110.7L0%20106%20M255.2%20105.4L233.6%2085.1L208.6%2075.2L193.6%2062L185.6%2061.2L169.6%2065.8L161.6%2070L157.2%2075.2L150.6%20111.2L124.5%20152L116%20159.2L87.2%20174.9L79.2%20177.3L72%20176.7L63.3%20169.6L60.7%20158.4L64%20153.3L78.9%20144L84.3%20136L94.6%2094.4L95.1%2077.6L92.7%2072.8L87.2%2069.7L56.8%2067.1L44.5%2062.4L36.6%2051.2L33.3%2031.2L35.3%2019.2L41.6%2011.3L53.6%206.6L65.6%207.3L75.2%2013L89.7%2028.8L106.4%2055.8L112%2058.6L120%2059.3L131.2%2057.3L138.4%2052.2L141.5%2044.8L144%2027.6L148%2022.9L157.6%2022L191.2%2026.3L208%2026L215.2%2029.1L220.8%2034.2L241.6%2065.6L255.2%2073.9%20M168.8%20219.2L175.1%20220.8L182.2%20226.4L185.4%20232L184%20235.9L177.6%20236.2L169.6%20231.1L165.9%20224L166.5%20220.8L168.8%20219.2Z%20M54.4%2018.4L64%2019.3L73.9%2028L82.2%2041.6L82.7%2046.4L80.5%2050.4L74.4%2052.7L65.6%2052L57.6%2048.7L51.2%2043.2L47.2%2036L46.5%2028L48.8%2022.3L54.4%2018.4Z%20M124%2070.3L134.4%2070.7L140.1%2074.4L142.7%2083.2L141.2%2096L135.6%20107.2L116%20130.6L110.4%20135.1L105.6%20135.7L101.4%20131.2L100.1%20121.6L106.5%2086.4L112.4%2075.2L124%2070.3Z%20M125.6%2076.8L131.2%2077.8L135%2081.6L136.4%2087.2L135.3%2094.4L126.4%20106.9L119.2%20111.9L113.6%20113.1L111.2%20111.1L109.9%20105.6L112%2088.7L117.3%2080L125.6%2076.8Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.16%22%20stroke-width%3D%221.8%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M237.6%20140.6L213.6%20153.6L207.2%20159L205.5%20168L210.9%20176L217.6%20179L225.6%20178.9L232%20176.1L237.6%20170.4L247.6%20156L249.8%20149.6L246.4%20142.3L237.6%20140.6Z%20M0%2042.9L4.8%2045L8.8%2043.8L11.5%2040L12.8%2033.6L9.3%2024L4.8%2022.4L0%2023.6%20M255.2%20121.5L226.4%20105.1L218.4%20103.5L211.2%20105.2L192.4%20122.4L161.4%20144L152.5%20156.8L148.9%20169.6L149.7%20173.6L152.8%20176.8L175.2%20182.8L196.8%20195L232%20203.1L255.2%20224.1%20M0%20224.6L14.4%20232.8L27.2%20246L33.6%20249.4L73.6%20248.5L94.4%20251.6L131.2%20238.1L135.6%20232.8L136.9%20224.8L133.4%20200.8L128%20191.3L122.4%20189.1L113.6%20188.8L80%20195.2L61.6%20191.3L53.6%20184.6L40.8%20165.3L13.9%20133.6L0%20122%20M56.8%2089.5L49.6%2091.9L44.9%2096L42.4%20101.8L42.2%20109.6L44.5%20117.6L49.4%20124.8L56%20129.1L62.4%20129.9L68.8%20127.1L73.5%20120.8L76.7%20109.6L77.1%2099.2L75.2%2093.8L71.2%2090.4L56.8%2089.5Z%20M0%2090.2L4.8%2090.7L7.3%2095.2L4%2096.4L0%2092.5%20M52.8%2011.9L60%2011.5L67.2%2013.8L82.5%2028.8L92.8%2046.4L93.3%2053.6L90.5%2058.4L80%2061.2L64%2060.5L53.6%2056.9L45.9%2050.4L40.4%2039.2L39.6%2026.4L44%2017L52.8%2011.9Z%20M159.2%2031.9L167.2%2032L174.8%2035.2L179.2%2040L180.1%2046.4L177.5%2051.2L172.6%2055.2L150.8%2064L147.1%2096L141.6%20110.4L115.6%20147.2L106.4%20152.5L88.7%20157.6L81.7%20163.2L78.4%20163.8L78.3%20160.8L86.4%20155.8L89.3%20149.6L94.5%20116L104.8%2071.9L112.8%2066.6L146.2%2060.8L151.5%2038.4L154.4%2034.2L159.2%2031.9Z%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23A3BEB8%22%20stroke-opacity%3D%22.06%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M0%200H256M0%20128H256M0%200V256M128%200V256%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+} }
 
 .trail{position:relative; margin-top:14px; overflow:hidden;
   background-color:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
@@ -3206,6 +3209,7 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
   display:grid; place-items:center; padding:0}
 .setback svg{width:15px; height:15px; display:block}
 .setmenu{display:grid; gap:0; background:var(--raise);
+  grid-template-columns:minmax(0, 1fr);
   border:1px solid var(--line-soft); border-radius:12px; overflow:hidden}
 .setrow{display:flex; align-items:center; gap:12px; width:100%; text-align:left;
   min-height:54px; padding:13px; background:none; border:0;
@@ -3214,7 +3218,7 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
 .setrow:active{background:var(--surface-2)}
 .seti{width:26px; height:26px; flex:0 0 26px; display:grid; place-items:center; color:var(--moss)}
 .seti svg{display:block}
-.setrow b{font-size:15.5px; font-weight:600}
+.setrow b{font-size:15.5px; font-weight:600; min-width:0}
 .setval{margin-left:auto; font-size:14px; color:var(--ink-2); white-space:nowrap;
   overflow:hidden; text-overflow:ellipsis; max-width:46%}
 .setchev{flex:0 0 auto; color:var(--sage); display:grid; place-items:center}
@@ -3582,6 +3586,9 @@ li.hill.on .tick svg path{animation:penstroke .2s cubic-bezier(.4,0,.25,1) both}
 
 .sumgh{margin-top:18px}
 .sumlist{margin-bottom:2px}
+.jmore{display:flex; width:100%; justify-content:center; gap:6px; min-height:44px; margin:6px 0 18px}
+.jmore span{color:var(--ink-3); font-weight:500}
+.sumall{display:flex; width:100%; justify-content:center; min-height:44px; margin:2px 0 14px}
 .sumempty{margin-top:22px}
 
 li.done{position:relative}
@@ -3700,7 +3707,7 @@ li.done{position:relative}
 .coverdoor:hover .coverall svg, .coverdoor:focus-visible .coverall svg{transform:translateX(2px)}
 .coverdoor:active .coverall{background:var(--surface-2)}
 .cover-hero .coverall{background:rgba(248,243,233,.96); border-color:rgba(246,239,228,.95);
-  color:var(--ink); box-shadow:0 1px 6px rgba(0,0,0,.22)}
+  color:#14332D; box-shadow:0 1px 6px rgba(0,0,0,.22)}
 .cover-hero .coverall svg{color:var(--accent)}
 @media (prefers-reduced-motion: reduce){
   .sheetwrap, .sumsheet{animation:none}
@@ -4536,6 +4543,9 @@ body.guiding{overflow:hidden}
   font:700 15px/1.3 var(--font-ui); color:var(--ink)}
 .wxbrow > span{display:inline-flex; align-items:center; gap:4px; white-space:nowrap}
 .wxbrow svg{width:17px; height:17px; flex:none; color:var(--accent-text)}
+.wxbstale{display:block; padding:6px 14px 0; font:600 12.5px/1.35 var(--font-ui); color:var(--warn); text-align:left}
+.upwx.wxstale{display:block; margin-top:4px; color:var(--warn)}
+.wxnote.wxstale{color:var(--warn); font-weight:600}
 .wxbfoot{display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:40px; padding:0 14px 6px;
   font:500 12.5px/1.3 var(--font-ui); color:var(--ink-2)}
 .wxbwhen{min-width:0}
@@ -7118,6 +7128,7 @@ html.msgopen .bnav{display:none}
 .ibtkd{width:58px; flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; background:var(--done); color:var(--surface); border-right:2px dashed var(--ground)}
 .ibtkd i{font:700 10.5px var(--font-data); font-style:normal; letter-spacing:.08em}
 .ibtkd b{font:400 26px/1 var(--font-display)}
+.ibtkd i.ibtky{opacity:.82; letter-spacing:.04em}
 .ibtkb{flex:1; min-width:0; padding:9px 12px; display:flex; flex-direction:column; gap:2px}
 .ibtkb > b{font-size:15px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .ibtkb > span{font-size:12.5px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -9560,6 +9571,37 @@ button.pvclaim{min-height:44px}
 .pvidea{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px 0 12px;border-radius:999px;border:1.5px dashed var(--line);background:none;color:var(--ink);font:500 15px var(--font-ui)}
 .pvidea svg{width:18px;height:18px}
 .pvhome{margin-top:20px}
+.rtsharebtn{width:100%; margin-top:8px}
+.rppage .pvhead{margin-bottom:14px}
+.rpdate{color:var(--accent-text); font-weight:600}
+.rpmap{position:relative; height:260px; border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.rpmap .rpsvg{display:block; width:100%; height:100%}
+.rpmap.live{background:var(--surface-2); background-image:none}
+.rptiles{margin-top:12px}
+.rpst{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
+.rpstt{display:flex; flex-direction:column; min-width:0}
+.rpstt b{font-size:16px; font-weight:600; color:var(--ink)}
+.rpstt i{font-style:normal; font-size:14px; color:var(--ink-2)}
+.rpdot{flex:none; width:30px; height:30px; border-radius:7px; display:grid; place-items:center; background:var(--raise); color:var(--accent-text)}
+.rpdot svg{width:18px; height:18px}
+.rpdot.on{background:#A8431A; color:#fff; box-shadow:0 0 0 2px #fffdf7}
+.rpstartpin .rtpk{box-shadow:0 0 0 2px #fffdf7}
+.rpdirs{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px}
+.rpdirs .btn{text-decoration:none; min-height:48px; padding:0 10px}
+.rpeye{margin-top:20px}
+.rpsums{margin-top:0}
+.rpgpx{margin-top:14px}
+.rpown{width:100%; margin-top:14px; min-height:48px}
+.rpfine{margin-top:14px}
+.rpsay{margin-top:18px; font-size:17px; color:var(--ink)}
+@media (min-width:900px){
+  .pvpage.rppage{max-width:1160px; padding-top:28px}
+  .rpgrid{display:grid; grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); gap:28px; align-items:start}
+  .rpleft{position:sticky; top:16px}
+  .rpmap{height:470px}
+  .rpright > .pvcard:first-child{margin-top:0}
+}
+
 html.pvopen #toast.toast{top:auto;bottom:calc(env(safe-area-inset-bottom, 0px) + 86px);width:max-content;max-width:calc(100vw - 32px);box-sizing:border-box}
 .cvpackrow{display:flex;justify-content:center;padding:6px 8px}
 .cvpack{width:100%;max-width:340px;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
@@ -9767,6 +9809,17 @@ html.pvopen #toast.toast{top:auto;bottom:calc(env(safe-area-inset-bottom, 0px) +
   background:var(--raise); gap:6px}
 .herebtn.herepill svg{width:17px; height:17px}
 @media (max-width:359px){ .marktop{gap:6px} .herebtn.herepill{padding:0 10px; gap:5px; font-size:13.5px} }
+@media (max-width:259px){
+  .top .brandrow{flex-wrap:wrap; row-gap:2px; justify-content:flex-end}
+  .top .hbrand{display:none}
+  .top .brandrow{gap:2px}
+  .marktop{flex-wrap:wrap; gap:6px}
+  .marktop .field{flex:1 1 100%}
+  .herebtn.herepill{flex:1 1 100%; justify-content:center}
+  .banner{flex-wrap:wrap}
+  .banner > div{flex:1 1 100%; min-width:0}
+  .imphomecta, .imphomecta:active{padding:0 8px}
+}
 .moreways{display:flex; align-items:center; gap:8px; width:100%; min-height:var(--tap); margin-top:4px;
   padding:0 12px; border:0; border-radius:12px; background:none; color:var(--accent-text);
   font:700 14px var(--font-ui); text-align:left; cursor:pointer}
@@ -9806,6 +9859,10 @@ html.pvopen #toast.toast{top:auto;bottom:calc(env(safe-area-inset-bottom, 0px) +
 .hometk .ibtkb > b{font-size:16px}
 .hometk .ibtkb > span{font-size:13px; color:var(--ink-2)}
 .hometk .ibtkin i{min-width:0; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+@media (min-width:1024px){
+  .homesec.homeupnext{max-width:640px}
+  .lead:not(.hasshot) > .homework, .lead:not(.hasshot) > .npk{max-width:640px; width:100%}
+}
 .hometk > svg{flex:none; align-self:center; width:var(--i-md); height:var(--i-md); margin-right:12px; color:var(--ink-3)}
 .homework .hlcard{margin-bottom:0; background:var(--raise)}
 .homework .hlt i{font-size:12px}
@@ -10119,6 +10176,7 @@ body:has(#info.open) .toast{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 
       <p class="setnote">Save your whole log as one file: hills, dates, notes, routes, journal, packs, kit, dogs and photos. Keep it somewhere safe, like your email or cloud drive.</p>
       <div class="btnrow">
         <button class="btn" data-act="bkfile">Download backup file</button>
+        <button class="btn ghost" data-act="bkfilelite">Download without photos</button>
       </div>
       <p class="setnote" id="bkNote" hidden></p>
       <p class="setnote bkhead">Bring a backup back</p>
@@ -10606,6 +10664,9 @@ function linky(v){
 }
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const isoDay = t => { const d = new Date(t); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const isFutureDay = d => !!d && /^\d{4}-\d{2}-\d{2}/.test(d) && String(d).slice(0, 10) > today();
+const futureDayToast = () => toast('That day has not come yet. Pick today or a day before.');
 const uid = () => Math.random().toString(36).slice(2,9) + now().toString(36).slice(-4);
 const feet = h => h.f.toLocaleString();
 const gridRef = h => String((h && (h.g || h.k)) || '').replace(/^IRISH:/, '');
@@ -10809,6 +10870,7 @@ function normalise(s){
       wp:Array.isArray(p.wp) ? p.wp : null,
       snap:p.snap !== false,
       set:String(p.set || '').slice(0, 40),
+      link:/^[A-Za-z0-9]{6,32}$/.test(p.link || '') ? p.link : '',
       deleted:!!p.deleted, t:p.t||0
     });
   }
@@ -10999,7 +11061,7 @@ function wikiTrim(){
     for (const [k] of rows.slice(0, rows.length - Math.floor(WIKI_CAP / 2))) localStorage.removeItem(k);
   }catch(e){}
 }
-function touched(){ registerOwn(); saveLocal(); scheduleSync(); schedulePerson(); schedulePackShare(); }
+function touched(){ registerOwn(); saveLocal(); scheduleSync(); schedulePerson(); schedulePackShare(); scheduleRouteShare(); }
 
 let personTimer = 0;
 function schedulePerson(){
@@ -11730,6 +11792,10 @@ async function hydratePhotos(){
 
 function applyDate(el, value){
   if (el.dataset.plan){ if (ui.draft) ui.draft.date = value; render(); return; }
+  if (!el.dataset.rday && !el.dataset.planid &&
+      (isFutureDay(value) || (/^\d{4}$/.test(value) && +value > new Date().getFullYear()))){
+    futureDayToast(); render(); return;
+  }
   if (el.dataset.diary){ if (ui.dDraft) ui.dDraft.date = value; render(); return; }
   if (el.dataset.rday){ ui.rday = value; render(); return; }
   if (el.dataset.planid){
@@ -12775,13 +12841,13 @@ function dateFields(value, attrs, o){
   let s = '<div class="dategroup' + (yearOnly ? ' yonly' : '') + '">';
   if (yearOnly){
     s += '<select class="dsel dy" data-act="dyear" ' + attrs + ' aria-label="Year climbed">';
-    for (let y = yNow + 1; y >= 1950; y--)
+    for (let y = o.future ? yNow + 1 : yNow; y >= 1950; y--)
       s += '<option value="' + y + '"' + (p.y === String(y) ? ' selected' : '') + '>' + y + '</option>';
     s += '</select>';
   } else {
     const full = !!(p.y && p.mo && p.d);
     s += '<input type="date" class="dinput' + (full ? '' : ' empty') + '" data-act="dinput" ' + attrs +
-      ' min="1950-01-01" max="' + (yNow + 1) + '-12-31" aria-label="Date climbed" value="' +
+      ' min="1950-01-01" max="' + (o.future ? (yNow + 1) + '-12-31' : today()) + '" aria-label="Date climbed" value="' +
       esc(full ? value : '') + '">';
   }
   s += '<button class="btn quiet dtoday" data-act="dtoday" ' + attrs + '>Today</button>';
@@ -15450,7 +15516,8 @@ function paintMsgInbox(){
   if (walks.length) s += '<p class="ibsec"><b>Your next walks</b></p><div class="ibtix">' + walks.map(({c, p, ins}) => {
       const d = new Date(p.date + 'T12:00'), h = BY_KEY[p.hill];
       return '<button class="ibtk" data-act="chatopen" data-v="' + esc(c.id) + '"><span class="ibtkd"><i>' + ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()] + '</i><b>' + d.getDate() + '</b><i>' +
-        ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEPT','OCT','NOV','DEC'][d.getMonth()] + '</i></span><span class="ibtkb"><b>' + esc(p.hn || (h ? hillName(h) : 'A walk')) + '</b><span>' +
+        ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEPT','OCT','NOV','DEC'][d.getMonth()] + '</i>' +
+        (d.getFullYear() !== new Date().getFullYear() ? '<i class="ibtky">' + d.getFullYear() + '</i>' : '') + '</span><span class="ibtkb"><b>' + esc(p.hn || (h ? hillName(h) : 'A walk')) + '</b><span>' +
         esc([p.time, p.meet].filter(Boolean).join(' · ') || chatName(c)) + '</span><span class="ibtkin">' + ins.slice(0, 4).map(u => avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u)).join('') +
         '<i>' + ins.length + ' in</i></span></span></button>';
     }).join('') + '</div>';
@@ -16158,7 +16225,7 @@ function planRoutesHTML(m, past){
   const me = meU(), planner = m.from === me, mine = votes[me] || '';
   const col = r => RT_COLS[Math.max(0, rts.indexOf(r)) % RT_COLS.length];
   const nm = u => firstName((c.names || {})[u]);
-  const ini = u => '<i class="rvini" title="' + esc(nm(u)) + '">' + esc((nm(u) || '?').charAt(0).toUpperCase()) + '</i>';
+  const ini = u => '<i class="rvini" title="' + esc(nm(u)) + '">' + esc(nm(u) ? nameInitial(nm(u)) : '?') + '</i>';
   const pick = p.pick ? rts.find(r => r.id === p.pick) : null;
   const members = (c.members || []).length || Object.keys(votes).length;
   if (pick){
@@ -16383,7 +16450,7 @@ function planComposer(cid, opts){
 }
 function paintPlanComposer(){
   const d = ui.planDraft; if (!d) return;
-  const h = d.hill ? BY_KEY[d.hill] : null, tdy = new Date().toISOString().slice(0, 10);
+  const h = d.hill ? BY_KEY[d.hill] : null, tdy = today();
   const rp = d.route ? livePlans().find(x => x.id === d.route) : null;
   if (rp && !d.routes) d.routes = [rp.id];
   const nTick = rp ? planRoutesTicked(d).length : 0;
@@ -16485,7 +16552,7 @@ function pollComposer(){
 }
 function paintPollComposer(){
   const d = ui.pollDraft; if (!d) return;
-  const tdy = new Date().toISOString().slice(0, 10);
+  const tdy = today();
   const el = bcSheet('<h3 class="bcsheettitle">Start a Poll</h3><div class="form walkinv" style="margin:0">' +
     '<div class="pollkind" role="group" aria-label="What are people choosing"><button data-act="pollkind" data-v="dates" aria-pressed="' + d.dates + '">' + ti('walk') + 'Dates</button><button data-act="pollkind" data-v="any" aria-pressed="' + !d.dates + '">' + ti('poll') + 'Anything</button></div>' +
     '<div><label for="pollq">Question</label><input id="pollq" maxlength="80" placeholder="' + (d.dates ? 'Which Saturday?' : 'Which hill?') + '" value="' + esc(d.q) + '"></div>' +
@@ -16848,7 +16915,7 @@ async function chatAct(a, el){
   else if (a === 'polladd'){
     const m = chatOpen.msgs.find(x => x.id === el.dataset.m); if (!m || m.from !== me) return true;
     const p = m.poll || {};
-    const tdy = new Date().toISOString().slice(0, 10);
+    const tdy = today();
     const sh = bcSheet('<h3 class="bcsheettitle">Add ' + (p.dates ? 'a Date' : 'an Option') + '</h3><input id="polladdin" class="pickin" ' + (p.dates ? 'type="date" min="' + tdy + '"' : 'maxlength="40" placeholder="Another option"') + ' aria-label="New option">' +
       '<button class="btn bcgo" data-act="polladdgo" data-m="' + esc(m.id) + '">Add it</button>', 'Add an option');
     const i = sh.querySelector('#polladdin'); if (i) i.focus();
@@ -17106,7 +17173,7 @@ function installTipSpent(){
     const v = localStorage.getItem(INSTALL_TIP_KEY);
     if (!v){ localStorage.setItem(INSTALL_TIP_KEY, VISIT_ID); return false; }
     return v !== VISIT_ID;
-  }catch(e){ return false; }
+  }catch(e){ return true; }
 }
 function installBanner(){
   const st = installOffer();
@@ -17611,13 +17678,13 @@ function renderDogsPane(){
     s += '<button class="dogcard" data-act="dogopen" data-v="' + esc(d.id) + '" style="--dogc:' + collarOf(d) + '">' +
       '<span class="dogcover">' +
         (dogCoverHTML(d) || '<span class="noph">No photo yet</span>') +
-        '<span class="cnt">' + rows.length + (rows.length === 1 ? ' hill' : ' hills') + '</span>' +
+        '<span class="cnt">' + rows.length.toLocaleString('en-GB') + (rows.length === 1 ? ' hill' : ' hills') + '</span>' +
         dogFaceHTML(d) +
       '</span>' +
       '<span class="dogmeta"><b>' + esc(dogName(d)) + '</b><span>' + (esc(dogFacts(d)) || 'Tap to fill in their details') + '</span>' +
-        '<span class="dogmini"><span><b>' + rows.length + '</b><i>' + (rows.length === 1 ? 'hill' : 'hills') + '</i></span>' +
+        '<span class="dogmini"><span><b>' + rows.length.toLocaleString('en-GB') + '</b><i>' + (rows.length === 1 ? 'hill' : 'hills') + '</i></span>' +
         '<span><b>' + dogPatchCount(rows.length) + '</b><i>' + (dogPatchCount(rows.length) === 1 ? 'patch' : 'patches') + '</i></span>' +
-        '<span><b>' + ph.length + '</b><i>' + (ph.length === 1 ? 'photo' : 'photos') + '</i></span></span>' +
+        '<span><b>' + ph.length.toLocaleString('en-GB') + '</b><i>' + (ph.length === 1 ? 'photo' : 'photos') + '</i></span></span>' +
       '</span></button>';
   }
   s += '<button class="dogadd" data-act="dognew">+ Add a dog</button>';
@@ -17629,7 +17696,7 @@ function dogStripHTML(){
   return '<p class="eyebrow">Walks with</p><div class="dogstrip">' + ds.map(d => {
     const n = dogHills(d.id).length;
     return '<button class="dogstripitem" data-act="dogfromprof" data-v="' + esc(d.id) + '" style="--dogc:' + collarOf(d) + '">' +
-      dogFaceHTML(d) + '<b>' + esc(dogName(d)) + '</b><i>' + n + (n === 1 ? ' hill' : ' hills') + '</i></button>';
+      dogFaceHTML(d) + '<b>' + esc(dogName(d)) + '</b><i>' + n.toLocaleString('en-GB') + (n === 1 ? ' hill' : ' hills') + '</i></button>';
   }).join('') + '</div>';
 }
 function dogInviteHTML(){
@@ -20119,7 +20186,7 @@ function hillRow(h, listId){
     const vf = verifiedAt(h.k);
     if (vf){
       s += '<p class="verified"><span class="vtick">' + ICON_CHECK + '</span>Verified at the summit &middot; ' +
-           prettyDate(new Date(vf.t).toISOString().slice(0,10)) + '</p>';
+           prettyDate(isoDay(vf.t)) + '</p>';
     } else if (isFinite(h.a)){
       s += '<button class="linkbtn vlink" data-act="verify" data-k="' + esc(h.k) + '"' + (locating ? ' disabled' : '') + '>' +
            ti('verify') + (locating ? 'Finding you…' : 'Verify with GPS') + '</button>';
@@ -20409,7 +20476,7 @@ function ndPaint(){
         '<div class="ndbot">' +
           (!yr || yr === thisYr ? '<button type="button" class="ndtoday" data-nd="today">Today</button>' : '') +
           '<input type="date" data-nd="date"' +
-            (yr ? ' min="' + esc(yr) + '-01-01" max="' + esc(yr) + '-12-31"' : '') +
+            (yr ? ' min="' + esc(yr) + '-01-01" max="' + esc(+yr >= +thisYr ? today() : yr + '-12-31') + '"' : ' max="' + today() + '"') +
             ' aria-label="Date you walked ' + esc(hillName(h)) + '">' +
         '</div>') +
       '</div>';
@@ -20433,6 +20500,7 @@ function ndClose(){
 function ndSet(k, date){
   const c = rec(k);
   if (!date) return;
+  if (isFutureDay(date)){ futureDayToast(); ndPaint(); return; }
   const had = ascents(k).filter(Boolean);
   const i = had.findIndex(d => { const p = dateParts(d), m = Number(p.mo); return !(p.y && m >= 1 && m <= 12); });
   const next = had.slice();
@@ -20515,7 +20583,7 @@ function mkPaintDays(){
 }
 function mkPre(date){
   if (date && /^\d{4}-\d{2}-\d{2}$/.test(date) && date <= today()) return {date};
-  return mkLast;
+  return mkLast && mkLast.date && isFutureDay(mkLast.date) ? null : mkLast;
 }
 
 function markSheet(key, opts){
@@ -20530,7 +20598,9 @@ function markSheet(key, opts){
     htFlat(h) + (o.again ? ' · walked ' + ascCount(key) + ' times so far' : '');
   mkMode = o.change ? 'change' : o.again ? 'again' : 'mark';
   mkNoPick = mkMode === 'mark' && !!(o.pre && o.pre.nodate);
-  document.getElementById('mkDate').value = mkNoPick ? '' : (o.date || (mkMode === 'mark' && o.pre && o.pre.date) || today());
+  const pre = o.pre && o.pre.date && isFutureDay(o.pre.date) ? null : o.pre;
+  document.getElementById('mkDate').max = today();
+  document.getElementById('mkDate').value = mkNoPick ? '' : (o.date || (mkMode === 'mark' && pre && pre.date) || today());
   mkPaintDays();
   const g = document.getElementById('mkGps');
   const note = document.getElementById('mkGpsNote');
@@ -20543,6 +20613,12 @@ function markSheet(key, opts){
   box.classList.add('open');
   setTimeout(() => { const b = document.getElementById('mkYes'); if (b) b.focus(); }, 30);
   return new Promise(res => { mkDone = res; });
+}
+function mkConfirm(){
+  if (mkNoPick){ mkClose({date:'', v:mkFix, nodate:true}); return; }
+  const d = document.getElementById('mkDate').value || today();
+  if (isFutureDay(d)){ futureDayToast(); return; }
+  mkClose({date:d, v:mkFix});
 }
 function mkClose(v){
   mkEl().classList.remove('open');
@@ -20638,12 +20714,7 @@ document.addEventListener('click', e => {
   if (!mkOpen()) return;
   const t = e.target;
   if (t.closest('#mkX') || t.closest('#mkNo')){ mkClose(null); return; }
-  if (t.closest('#mkYes')){
-    if (mkNoPick){ mkClose({date:'', v:mkFix, nodate:true}); return; }
-    const d = document.getElementById('mkDate').value || today();
-    mkClose({date:d, v:mkFix});
-    return;
-  }
+  if (t.closest('#mkYes')){ mkConfirm(); return; }
   if (t.closest('#mkGps')){ mkVerify(mkKey); return; }
   if (t.closest('#mkNoDate')){ mkClose({date:'', v:mkFix, nodate:true}); return; }
   const day = t.closest('#mkDays button');
@@ -21183,7 +21254,7 @@ function wxDayFor(wx, dateISO){
   return {day:days[days.length - 1], why:'near'};
 }
 
-function summitLine(h, dateISO){
+function summitLineBody(h, dateISO){
   const at = {la:h.a, lo:h.o};
   if (!isFinite(at.la)) return '';
   const wx = wxCached(at);
@@ -21275,7 +21346,14 @@ function packKitHTML(day, metres){
     '<i>' + ti(ic, 'width="14" height="14"') + '<u>' + esc(lab) + '</u></i>').join('') + '</span>';
 }
 
-function summitStrip(h, dateISO){
+function wxStaleTag(h){
+  if (!h || !isFinite(h.a)) return '';
+  const wx = wxCached({la:h.a, lo:h.o});
+  return wx && wx.stale && wx.days.length ? '<span class="upwx dim wxstale">' + esc(wxStaleText(wx)) + '</span>' : '';
+}
+function summitStrip(h, dateISO){ const s = summitStripBody(h, dateISO); return s ? s + wxStaleTag(h) : s; }
+function summitLine(h, dateISO){ const s = summitLineBody(h, dateISO); return s ? s + wxStaleTag(h) : s; }
+function summitStripBody(h, dateISO){
   const at = {la:h.a, lo:h.o};
   if (!isFinite(at.la)) return '';
   const wx = wxCached(at);
@@ -21352,6 +21430,7 @@ function latestPhoto(){
   let best = null;
   const see = (ph, date, title) => {
     if (!ph || !ph.id) return;
+    if (isFutureDay(date)) return;
     const d = date || '';
     const cand = {id:ph.id, up:ph.up ? 1 : 0, date:d, title, fy: ph.fy == null ? 50 : ph.fy, lead: !!ph.lead};
     if (!best || d > best.date || (d === best.date && cand.lead && !best.lead)) best = cand;
@@ -21773,7 +21852,7 @@ function ordersPaint(){
           (step.live
             ? '<span class="ordbadge' + (step.i >= 2 ? ' on' : '') + '">' + esc(step.label) + '</span>'
             : '') +
-          (o.t ? '<span class="ordwhen">' + esc(shortDay(new Date(o.t).toISOString().slice(0, 10))) + '</span>' : '') +
+          (o.t ? '<span class="ordwhen">' + esc(shortDay(isoDay(o.t))) + '</span>' : '') +
         '</div>';
       if (o.lines.length){
         s += '<div class="ordline">' +
@@ -22307,6 +22386,7 @@ function walkGoingLine(c, ins){
   const us = ins.slice().sort((a, b) => (a === me ? -1 : b === me ? 1 : 0));
   const nm = u => u === me ? 'You' : firstName((c.names || {})[u]);
   if (!us.length) return '';
+  if (us.length === 1 && us[0] === me) return 'Just you so far';
   const ns = us.length > 3 ? us.slice(0, 2).map(nm).concat([(us.length - 2) + ' more']) : us.map(nm);
   return (ns.length > 1 ? ns.slice(0, -1).join(', ') + ' and ' + ns[ns.length - 1] : ns[0]) + ' going';
 }
@@ -22317,17 +22397,21 @@ function homeWalkHTML(w){
   const others = ins.filter(u => u !== me);
   const title = (p.hn || (h ? hillName(h) : 'A walk')) +
     (others.length === 1 ? ' with ' + firstName((c.names || {})[others[0]]) : others.length > 1 ? ' with friends' : '');
-  const line = [DAY_SHORT[d.getDay()] + ' ' + d.getDate() + ' ' + MON_SHORT[d.getMonth()], p.time || '',
+  const yr = d.getFullYear() !== new Date().getFullYear() ? d.getFullYear() : 0;
+  const line = [DAY_SHORT[d.getDay()] + ' ' + d.getDate() + ' ' + MON_SHORT[d.getMonth()] + (yr ? ' ' + yr : ''), p.time || '',
     p.meet ? 'meet at ' + p.meet : ''].filter(Boolean).join(' · ');
   const who = walkGoingLine(c, ins);
+  const cn = chatName(c), base = p.hn || (h ? hillName(h) : 'A walk');
+  const nobody = !cn || cn === base || cn === title ? 'No one has said they are going yet' : cn;
   return '<section class="homesec home410 homeupnext">' +
     '<div class="homesech"><h2>Up next</h2>' +
       '<button class="homesecgo" data-act="wmsection" data-area="Community" data-v="plans">All plans' + ti('chevron-right') + '</button></div>' +
     '<button class="ibtk hometk" data-act="chatopen" data-v="' + esc(c.id) + '">' +
-      '<span class="ibtkd"><i>' + DAY_SHORT[d.getDay()].toUpperCase() + '</i><b>' + d.getDate() + '</b><i>' + MON_SHORT[d.getMonth()].toUpperCase() + '</i></span>' +
+      '<span class="ibtkd"><i>' + DAY_SHORT[d.getDay()].toUpperCase() + '</i><b>' + d.getDate() + '</b><i>' + MON_SHORT[d.getMonth()].toUpperCase() + '</i>' +
+        (yr ? '<i class="ibtky">' + yr + '</i>' : '') + '</span>' +
       '<span class="ibtkb"><b>' + esc(title) + '</b><span>' + esc(line) + '</span>' +
         (who ? '<span class="ibtkin">' + ins.slice(0, 4).map(u => avatarHTML((c.avs || {})[u], (c.names || {})[u], 'tiny', u)).join('') +
-          '<i>' + esc(who) + '</i></span>' : '<span>' + esc(chatName(c)) + '</span>') +
+          '<i>' + esc(who) + '</i></span>' : '<span>' + esc(nobody) + '</span>') +
       '</span>' + ti('chevron-right') + '</button></section>';
 }
 
@@ -22339,20 +22423,32 @@ function noteWorkList(k){
   if (!lid) return;
   try{ localStorage.setItem(WORK_KEY, lid); }catch(e){}
 }
+function workOpen(lid){
+  if (!lid || !onList(lid) || !LIST_BY[lid]) return false;
+  const st = statsFor(lid);
+  return st.total > 0 && st.done < st.total;
+}
 function workList(){
   let lid = null;
   try{ lid = localStorage.getItem(WORK_KEY); }catch(e){}
-  if (lid && onList(lid) && LIST_BY[lid]) return lid;
-  let best = null;
+  if (workOpen(lid)) return lid;
+  const walks = [];
   for (const h of summitKeys()){
     const r = rec(h.k);
-    const at = (r.date || '') + '|' + String(r.t || 0).padStart(16, '0');
-    if (!best || at > best.at) best = {h, at};
+    if (isFutureDay(r.date)) continue;
+    walks.push({h, at: (r.date || '') + '|' + String(r.t || 0).padStart(16, '0')});
   }
-  const l = best && (best.h.l || []).find(x => onList(x));
-  if (l && LIST_BY[l]) return l;
-  const on = enabled();
-  return on.length ? on[0].id : null;
+  walks.sort((a, b) => a.at < b.at ? 1 : a.at > b.at ? -1 : 0);
+  const done = new Set();
+  for (const w of walks){
+    for (const x of (w.h.l || [])){
+      if (done.has(x)) continue;
+      if (workOpen(x)) return x;
+      done.add(x);
+    }
+  }
+  const on = enabled().find(L => workOpen(L.id));
+  return on ? on.id : null;
 }
 function hlCardHTML(L){
   const st = statsFor(L.id);
@@ -22393,6 +22489,7 @@ function lastWalkPos(){
   for (const h of summitKeys()){
     if (!isFinite(h.a) || !isFinite(h.o)) continue;
     const d = rec(h.k).date || '';
+    if (isFutureDay(d)) continue;
     if (d > date){ date = d; pts = [h]; } else if (d === date) pts.push(h);
   }
   if (!pts.length) return null;
@@ -22519,8 +22616,8 @@ function renderDashboard(){
     '<h1>' + logged.toLocaleString() + (logged === 1 ? ' hill' : ' hills') + '<br>marked<em>.</em></h1>' +
     '<span class="coverall">All your summits' + ti('chevron-right') + '</span></button>' +
     '<p class="coversub"><b>' + hillsThisYear().toLocaleString() + ' in ' + yr + '</b>' +
-      (days ? ' \u00b7 ' + days + (days === 1 ? ' day' : ' days') + ' out' : '') +
-      (sct.regions ? ' \u00b7 ' + sct.regions + (sct.regions === 1 ? ' region' : ' regions') : '') + '.</p>' +
+      (days ? ' \u00b7 ' + days.toLocaleString('en-GB') + (days === 1 ? ' day' : ' days') + ' out' : '') +
+      (sct.regions ? ' \u00b7 ' + sct.regions.toLocaleString('en-GB') + (sct.regions === 1 ? ' region' : ' regions') : '') + '.</p>' +
     '<span class="flstamp" aria-hidden="true"><img class="fl-l" src="stamp-field-log-light.webp" alt="" width="116" height="90"><img class="fl-d" src="stamp-field-log-dark.webp" alt="" width="116" height="90"><b>' + yr + '</b></span>';
   const shotNow = latestPhoto();
   if (!shotNow) s += '<header class="cover">' + coverInner + '</header>';
@@ -22601,7 +22698,7 @@ function homeDogsRow(){
   return '<section class="homesec homedogs">' +
     '<div class="homesech"><h2>' + esc(names) + '</h2>' +
       '<button class="homesecgo" data-act="patchview" data-v="dogs">' +
-        tot + (tot === 1 ? ' hill' : ' hills') +
+        tot.toLocaleString('en-GB') + (tot === 1 ? ' hill' : ' hills') +
         (ds.length === 1 ? ' together' : ' between them') +
         ti('chevron-right') + '</button></div>' +
     '<div class="dogrow">' + ds.map(d => {
@@ -22609,10 +22706,10 @@ function homeDogsRow(){
       const pic = dogCoverHTML(d, 'dogshot');
       return '<button class="dogcell' + (pic ? '' : ' nopic') + '" data-act="dogfromprof" data-v="' +
         esc(d.id) + '" style="--dogc:' + collarOf(d) + '"' +
-        ' aria-label="' + esc(dogName(d)) + ', ' + n + (n === 1 ? ' hill' : ' hills') + '">' +
+        ' aria-label="' + esc(dogName(d)) + ', ' + n.toLocaleString('en-GB') + (n === 1 ? ' hill' : ' hills') + '">' +
         (pic || '<span class="dogpaw">' + ti('paw') + '</span>') +
         '<span class="dogveil"></span>' +
-        '<span class="dogn" aria-hidden="true"><b>' + n + '</b><i>' +
+        '<span class="dogn" aria-hidden="true"><b>' + n.toLocaleString('en-GB') + '</b><i>' +
           (n === 1 ? 'HILL' : 'HILLS') + '</i></span>' +
         '<span class="dognm" aria-hidden="true">' + esc(dogName(d)) + '</span>' +
       '</button>';
@@ -22652,6 +22749,8 @@ function summitStats(){
   }
   return {n: hs.length, lists: lists.size, regions: regions.size, hs};
 }
+const SUM_FOLD = 12;
+const JDAYS = 60;
 const SUM_GROUPS = [{id:'region', label:'By region'}, {id:'list', label:'By list'},
                     {id:'height', label:'By height'}];
 
@@ -22682,10 +22781,15 @@ function summitsPage(){
     const inG = grp.hs.slice().sort((x, y) => y.h - x.h);
     const bk = grp.bk ? ' style="--bkc:var(' + grp.bk + ')"' : '';
     s += '<div class="grouphead sumgh' + (bk ? ' hasbk' : '') + '"' + bk + '>' +
-      '<div class="gt"><h2>' + esc(grp.g) + '</h2><span>' + inG.length + '</span></div></div>';
+      '<div class="gt"><h2>' + esc(grp.g) + '</h2><span>' + inG.length.toLocaleString('en-GB') + '</span></div></div>';
+    const open = (ui.sumAll || {})[ui.sumGroup + '|' + grp.g];
+    const shown = open || inG.length <= SUM_FOLD + 3 ? inG : inG.slice(0, SUM_FOLD);
     s += '<ul class="hills donelist sumlist">';
-    for (const h of inG) s += summitEntry(h);
+    for (const h of shown) s += summitEntry(h);
     s += '</ul>';
+    if (shown.length < inG.length)
+      s += '<button class="btn ghost sumall" data-act="sumall" data-v="' + esc(ui.sumGroup + '|' + grp.g) + '">Show all ' +
+        inG.length.toLocaleString('en-GB') + ' in ' + esc(grp.g) + '</button>';
   }
   return s + COLOPHON;
 }
@@ -22836,14 +22940,14 @@ function diaryDays(){
   const put = (date) => (days[date] = days[date] || {date, hills:[], notes:[], photos:[], entries:[]});
 
   for (const [k, r] of Object.entries(state.bagged)){
-    if (!isBagged(k) || !BY_KEY[k] || !r.date) continue;
+    if (!isBagged(k) || !BY_KEY[k] || !r.date || isFutureDay(r.date)) continue;
     const d = put(r.date);
     d.hills.push(BY_KEY[k]);
     if (r.notes) d.notes.push({h:BY_KEY[k], text:r.notes});
     for (const ph of (r.photos || [])) d.photos.push({...ph, k});
   }
   for (const e of liveDiary()){
-    if (!e.date) continue;
+    if (!e.date || isFutureDay(e.date)) continue;
     put(e.date).entries.push(e);
   }
   return Object.values(days).sort((a, b) => b.date.localeCompare(a.date));
@@ -22985,7 +23089,10 @@ function renderDiary(){
 
   if (ui.jopen === 0) ui.jopen = null;
 
-  for (const d of days){
+  const jIdx = ui.jopen ? days.findIndex(x => x.date === ui.jopen) + 1 : 0;
+  const jLim = Math.max(ui.jdayLimit || JDAYS, jIdx);
+  const jDays = days.length > jLim + 10 ? days.slice(0, jLim) : days;
+  for (const d of jDays){
     const where = dayWhere(d);
     const dayPics = (typeof dayPhotos === 'function' ? dayPhotos(d.date) : d.photos) || [];
     const open = ui.jopen === d.date;
@@ -23093,6 +23200,11 @@ function renderDiary(){
     }
     html += '</article>';
   }
+  if (jDays.length < days.length){
+    const left = days.length - jDays.length;
+    html += '<button class="btn ghost jmore" data-act="jmore">Show ' + Math.min(JDAYS, left) + ' more days <span>(' +
+      left.toLocaleString('en-GB') + ' older)</span></button>';
+  }
   return html;
 }
 
@@ -23132,7 +23244,7 @@ function whenAgo(t){
   if (s < 3600) return Math.round(s / 60) + ' min ago';
   if (s < 86400) return Math.round(s / 3600) + 'h ago';
   if (s < 7 * 86400) return Math.round(s / 86400) + 'd ago';
-  return prettyDate(new Date(t).toISOString().slice(0, 10));
+  return prettyDate(isoDay(t));
 }
 const picMem = new Map();
 function picURL(src){
@@ -23151,6 +23263,22 @@ function picURL(src){
   return u;
 }
 const AV_TONES = ['#2C5F55', '#7A4A2E', '#4E5A7A', '#5E6B3A', '#7A3D4C'];
+function nameInitial(n){
+  const t = String(n || '').trim();
+  if (!t) return 'W';
+  const chars = Array.from(t);
+  const letter = chars.find(c => /[\p{L}\p{N}]/u.test(c));
+  return (letter || chars[0]).toUpperCase();
+}
+function avGone(img){
+  try{
+    const d = document.createElement('div');
+    d.className = img.className + ' initial';
+    d.style.background = img.dataset.bg || AV_TONES[0];
+    d.textContent = img.dataset.i || 'W';
+    img.replaceWith(d);
+  }catch(e){}
+}
 function avTone(k){ let h = 0; for (const c of String(k || 'W')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % AV_TONES.length; }
 function avatarHTML(av, name, cls, uid){
   let src = av, nm = name;
@@ -23161,8 +23289,9 @@ function avatarHTML(av, name, cls, uid){
       if (live){ if (live.av) src = live.av; if (live.name) nm = live.name; }
     }
   }
-  return src ? '<img class="avatar ' + cls + '" src="' + esc(picURL(src)) + '" alt="" decoding="sync">'
-             : '<div class="avatar ' + cls + ' initial" style="background:' + AV_TONES[avTone(uid || nm)] + '">' + esc((nm || 'W').trim().charAt(0).toUpperCase()) + '</div>';
+  const bg = AV_TONES[avTone(uid || nm)], ini = nameInitial(nm);
+  return src ? '<img class="avatar ' + cls + '" src="' + esc(picURL(src)) + '" alt="" decoding="sync" data-i="' + esc(ini) + '" data-bg="' + bg + '" onerror="avGone(this)">'
+             : '<div class="avatar ' + cls + ' initial" style="background:' + bg + '">' + esc(ini) + '</div>';
 }
 const CLAMP_AT = 240;
 function ptextHTML(p){
@@ -24386,11 +24515,21 @@ function poiRefresh(){
   }, 250);
 }
 
+function mapViewSaved(){
+  try{
+    if (!rmap) return false;
+    const c = rmap.getCenter();
+    return sheets().some(x => x.box && c.lat >= x.box.s && c.lat <= x.box.n && c.lng >= x.box.w && c.lng <= x.box.e);
+  }catch(e){ return false; }
+}
+window.addEventListener('offline', () => { try{ if (rmap) paintPoiBar(); }catch(e){} });
+window.addEventListener('online', () => { try{ if (rmap) paintPoiBar(); }catch(e){} });
 function poiStateText(){
   if (!poiShow) return '';
   if (rmap && rmap.getZoom() < 12) return '';
   if (poiBusy) return 'Finding places\u2026';
   if (poiErr === 'zoom') return 'Zoom in a little.';
+  if (poiErr && navigator.onLine === false) return mapViewSaved() ? 'No signal: car parks and pubs show where a saved map has them.' : 'No signal, and this area isn\u2019t saved.';
   if (poiErr) return 'Car parks and pubs can\u2019t load just now: OpenStreetMap\u2019s free servers are busy. Trying again\u2026';
   const b = rmap && viewBox(rmap, .1);
   const shown = b ? [...poiSeen.values()].filter(p => b.has(p.la, p.lo)).length : 0;
@@ -24402,11 +24541,12 @@ function paintPoiBar(){
   const el = document.getElementById('poistate');
   if (el) el.textContent = poiStateText();
   const failing = poiShow && poiErr && poiErr !== 'zoom';
+  const blank = !!rmap && navigator.onLine === false && !mapViewSaved();
   let n = document.getElementById('poimapnote');
   const host = document.querySelector('.mapshell');
-  if (failing && host){
+  if ((failing || blank) && host){
     if (!n){ n = document.createElement('p'); n.id = 'poimapnote'; n.className = 'poimapnote'; n.setAttribute('role', 'status'); host.appendChild(n); }
-    n.textContent = poiStateText();
+    n.textContent = blank ? 'No signal, and this area isn\u2019t saved.' : poiStateText();
     if (!poiRetry) poiRetry = setTimeout(() => { poiRetry = null; try{ if (rmap && poiShow && poiErr && poiErr !== 'zoom'){ poiErr = ''; poiRefresh(); } }catch(e){} }, 45000);
   } else if (n) n.remove();
   const b = document.querySelector('[data-act="places"]');
@@ -24521,6 +24661,7 @@ function shutSearch(){
 }
 
 let editor = null, rmap = null, rmLayer = null, rmBusy = false, rmSeq = 0;
+let rmSaid = '';
 
 function viewRoute(id){
   const p = planById(id); if (!p) return;
@@ -24547,6 +24688,7 @@ function showRouteOnMap(p, pts){
 }
 function openEditor(id){
   const p = planById(id); if (!p) return;
+  rmSaid = '';
   ui.rmode = 'plot';
   let wp = (p.wp && p.wp.length) ? p.wp.map(c => [c[0], c[1]]) : [];
   if (!wp.length && p.trk && p.trk.length > 1){
@@ -25022,8 +25164,13 @@ async function rmRecompute(){
   }catch(err){
     if (mine !== rmSeq) return;
     editor.trk = wp.map(c => c.slice());
-    toast(err.message + ' Using straight lines for now.');
+    const net = navigator.onLine === false || err instanceof TypeError || /fetch|network|load failed/i.test(String(err && err.message));
+    const say = net ? 'No signal: drawing straight lines for now.' : String(err.message || 'The paths could not be found.').replace(/[.\s]+$/, '') + '. Using straight lines for now.';
+    if (rmSaid !== say){ rmSaid = say; toast(say); }
+    rmBusy = false; rmDraw(); paintEditorStats();
+    return;
   }
+  rmSaid = '';
   rmBusy = false; rmDraw(); paintEditorStats();
 }
 
@@ -25406,29 +25553,46 @@ async function saveSheetBox(b){
   try{ cache = await caches.open(SHEET_CACHE); }
   catch(e){ sheetJob = null; toast('Could not open the sheet store.'); paintSheets(); return; }
   let i = 0;
+  const mine = [];
+  const job0 = sheetJob;
   const worker = async () => {
-    while (i < urls.length && sheetJob){
+    while (i < urls.length && sheetJob === job0){
       const u = urls[i++];
       try{
         const r = await fetch(u, {cache:'reload'});
         if (r.ok){
           const buf = await r.clone().arrayBuffer();
-          sheetJob.bytes += buf.byteLength;
+          job0.bytes += buf.byteLength;
           await cache.put(u, r);
-        } else if (r.status !== 404) sheetJob.fail++;
-      }catch(e){ sheetJob.fail++; }
-      sheetJob.done++;
-      if (sheetJob.done % 12 === 0 || sheetJob.done === sheetJob.total) paintSheets();
+          mine.push(u);
+        } else if (r.status !== 404) job0.fail++;
+      }catch(e){ job0.fail++; }
+      job0.done++;
+      if (job0.done % 12 === 0 || job0.done === job0.total) paintSheets();
     }
   };
   await Promise.all([worker(), worker(), worker(), worker(), worker(), worker()]);
-  const job = sheetJob; sheetJob = null;
-  if (!job) return;
+  const job = sheetJob === job0 ? job0 : null;
+  if (sheetJob === job0) sheetJob = null;
+  const tidy = async () => {
+    const keep = new Set();
+    for (const o of sheets()){ for (const k of sheetTiles(o.box)) keep.add(tileKeyUrl(k)); if (o) for (const u of glyphUrls()) keep.add(u); }
+    for (const u of mine) if (!keep.has(u)){ try{ await cache.delete(u); }catch(e){} }
+  };
+  if (!job){ await tidy(); paintSheets(); return; }
   if (job.fail > job.total * .2){
-    toast('That sheet did not finish: ' + job.fail + ' tiles failed. Try again with a connection.');
+    await tidy();
+    toast('That sheet did not finish: ' + job.fail + ' tiles failed. Nothing was kept. Try again with a connection.');
     paintSheets(); return;
   }
-  const l = sheets();
+  const near = (x, y) => Math.abs(x - y) < 0.002;
+  const same = o => o.box && ((near(o.box.s, b.s) && near(o.box.n, b.n) && near(o.box.w, b.w) && near(o.box.e, b.e)) ||
+    (o.box.s >= b.s && o.box.n <= b.n && o.box.w >= b.w && o.box.e <= b.e));
+  const l = sheets().filter(o => {
+    if (!same(o)) return true;
+    try{ localStorage.removeItem('waymark.sheetpoi.' + o.id); }catch(e){}
+    return false;
+  });
   l.push({id, name:sheetName(b), box:b, at:Date.now(), tiles:keys.length, bytes:job.bytes});
   saveSheets(l);
   keepSheetPois(id, b);
@@ -25557,7 +25721,7 @@ function sheetsHTML(){
     s += '<button class="mrow" data-act="sheetsave"' + (why ? ' disabled' : '') + '>Save this view<small>' + (why || (est ? 'about ' + est.mb + ' MB, draws without signal' : '')) + '</small></button>';
   }
   for (const x of l.slice().reverse())
-    s += '<div class="mrow msheet"><button class="mgo" data-act="sheetgo" data-v="' + esc(x.id) + '">' + esc(x.name) + '<small>' + fmtMB(x.bytes) + ' &middot; ' + esc(prettyDate(new Date(x.at).toISOString().slice(0, 10)).replace(/ \d{4}$/, '')) + '</small></button>' +
+    s += '<div class="mrow msheet"><button class="mgo" data-act="sheetgo" data-v="' + esc(x.id) + '">' + esc(x.name) + '<small>' + fmtMB(x.bytes) + ' &middot; ' + esc(prettyDate(isoDay(x.at)).replace(/ \d{4}$/, '')) + '</small></button>' +
          '<button class="mdel" data-act="sheetdel" data-v="' + esc(x.id) + '" aria-label="Remove ' + esc(x.name) + '">' + ti('x') + '</button></div>';
   return s;
 }
@@ -25703,9 +25867,20 @@ function routeTop(p){
   return top;
 }
 
+function wxStale(k){
+  try{
+    const v = JSON.parse(localStorage.getItem('waymark.' + k) || 'null');
+    if (v && Array.isArray(v.days) && v.days.length && v.days[v.days.length - 1].date >= today())
+      return {...v, stale: true};
+  }catch(e){}
+  return null;
+}
 function wxCached(at){
   const k = wxKey(at);
-  if (wxMem[k] && Date.now() - wxMem[k].t < WX_TTL) return wxMem[k];
+  if (wxMem[k] && Date.now() - wxMem[k].t < WX_TTL){
+    if (!wxMem[k].days.length) return wxStale(k) || wxMem[k];
+    return wxMem[k];
+  }
   try{
     const raw = localStorage.getItem('waymark.' + k);
     if (raw){
@@ -25713,7 +25888,18 @@ function wxCached(at){
       if (v && Date.now() - v.t < WX_TTL){ wxMem[k] = v; return v; }
     }
   }catch(e){}
+  if (navigator.onLine === false) return wxStale(k);
   return null;
+}
+function wxStaleText(wx){
+  if (!wx || !wx.stale) return '';
+  const d = new Date(wx.t), hm = String(d.getHours()) + ':' + String(d.getMinutes()).padStart(2, '0');
+  const when = isoDay(wx.t) === today() ? hm : DAY_SHORT[d.getDay()] + ' ' + hm;
+  return 'Forecast from ' + when + (navigator.onLine === false ? ', no signal now' : ', the weather service is not answering');
+}
+function wxFailText(){
+  return navigator.onLine === false ? 'No forecast: no signal, and none saved on this phone for here'
+                                    : 'No forecast right now: the weather service did not answer';
 }
 function fetchWeather(at){
   const k = wxKey(at);
@@ -25899,7 +26085,7 @@ function mapWeatherHTML(){
   }
   if (!wx.days.length)
     return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
-           '<span>No forecast right now. <button class="linkbtn" style="padding:0" ' +
+           '<span>' + esc(wxFailText()) + '. <button class="linkbtn" style="padding:0" ' +
            'data-act="wxretry" data-id="">Try again</button></span></div>';
 
   const day = wx.days.find(d => d.date === ui.rday);
@@ -25917,7 +26103,7 @@ function mapWeatherHTML(){
   const open = ui.wxOpen;
 
   let s = '<div class="wxb wxbmap' + (open ? ' open' : '') + ' wxb-' + wxVerdict(day, top, up).kind + '">';
-  s += wxBandHTML(day, top, lev, up, {act:'wxmore', open: !!open,
+  s += wxBandHTML(day, top, lev, up, {act:'wxmore', open: !!open, stale: wxStaleText(wx),
     when: (area ? area + ' \u00b7 ' : '') + wxShortDay(day.date)});
   if (open){
     s += '<div class="wxminibody wxbody">';
@@ -26419,6 +26605,7 @@ function rtFirstHTML(p, hs, walked, pts){
   if (fbUser && pts > 1)
     two += '<button class="btn ghost" data-act="rtinvite" data-id="' + esc(id) + '">' + ti('user-plus') + 'Plan with a friend</button>';
   if (two) s += '<div class="rtmain2">' + two + '</div>';
+  s += '<button class="btn ghost rtsharebtn" data-act="rsshare" data-id="' + esc(id) + '">' + ti('share') + 'Share this route</button>';
   return s + '</div></div>';
 }
 function routeOpenHTML(p, hs, done, walked, pts){
@@ -26507,10 +26694,8 @@ function routeMenuHTML(p, hs, pts){
   if (hs.length > 1)
     s += '<button role="menuitem" data-act="autoroute" data-id="' + id + '"' + (routingBusy ? ' disabled' : '') + '>' +
       ti('navigation') + (routingBusy ? 'Finding paths…' : 'Follow paths between these hills') + '</button>';
-  if (fbUser)
-    s += '<i class="msep"></i>' +
-         '<button role="menuitem" data-act="shareroute" data-id="' + id + '">' + ti('share') + 'Post to Activity</button>' +
-         '<button role="menuitem" data-act="rtsend" data-id="' + id + '">' + ti('send') + 'Send a copy to a chat</button>';
+  s += '<i class="msep"></i>' +
+       '<button role="menuitem" data-act="rsshare" data-id="' + id + '">' + ti('share') + 'Share…</button>';
   s += '<i class="msep"></i>' +
     '<label class="menufile">' + ti('file-upload') + (pts ? 'Replace with a GPX' : 'Import a GPX') +
     '<input type="file" accept=".gpx,application/gpx+xml,text/xml" data-act="gpxin" data-id="' + id + '" class="filein"></label>';
@@ -26606,6 +26791,7 @@ function wxBandHTML(day, top, lev, upWind, o){
       (cold ? '<span>' + ti('temperature') + cold + '</span> ' : '') +
       (day.rain != null ? '<span>' + ti('droplet') + day.rain + '% rain</span> ' : '') +
       '<span>' + wxSvg(look.i) + esc(look.t) + '</span></span>' +
+    (o.stale ? '<span class="wxbstale">' + esc(o.stale) + '</span>' : '') +
     '<span class="wxbfoot"><span class="wxbwhen">' + esc(o.when || '') + '</span>' +
       '<span class="wxbmore">' + (o.open ? 'Hide' : 'Full forecast') + ti('chevron-down') + '</span></span></button>';
 }
@@ -26631,7 +26817,7 @@ function weatherFor(at, p, topM, o){
   }
   if (!wx.days.length){
     return '<div class="wxnote"><span class="wxi">' + wxSvg('cloud') + '</span>' +
-           '<span>No forecast right now' + (wx.err ? ': ' + esc(wx.err) : '') + '. ' +
+           '<span>' + esc(wxFailText()) + '. ' +
            '<button class="linkbtn" style="padding:0" data-act="wxretry" data-id="' + esc((p && p.id) || '') + '">Try again</button></span></div>';
   }
   p = p || {};
@@ -26664,12 +26850,13 @@ function weatherFor(at, p, topM, o){
                   : undated ? 'No date set: ' + wxShortDay(day.date)
                   : wxShortDay(day.date);
     let h = '<div class="wxb wxfold' + (openW ? ' open' : '') + ' wxb-' + wxVerdict(day, top, upWind).kind + '">';
-    h += wxBandHTML(day, top, lev, upWind, {act:'wxfold', id: p.id || '', open: openW,
+    h += wxBandHTML(day, top, lev, upWind, {act:'wxfold', id: p.id || '', open: openW, stale: wxStaleText(wx),
       when: (where ? where + ' \u00b7 ' : '') + whenTxt});
     if (!openW) return h + '</div>';
     s = h + '<div class="wxbody">';
   } else {
     s = '<div class="wx">';
+    if (wx.stale) s += '<p class="wxnote wxstale">' + esc(wxStaleText(wx)) + '</p>';
     s += '<div class="wxtop"><span class="wxi big">' + wxSvg(look.i) + '</span>' +
       '<div class="wxsum"><b>' + look.t + '</b>' +
       '<span>' + (where ? esc(where) + ' \u00b7 ' : '') + esc(when) + '</span></div>' +
@@ -26879,6 +27066,7 @@ document.addEventListener('click', async e => {
   const a = el.dataset.act;
   if (/^(chat|msg|pick|plan|pd|live|walkwith|inbox|poll|push|ns[a-z]|sendpost|sttoggle|stsend)/.test(a) && fbUser && FB){ try{ if (await chatAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
   if (/^pack/.test(a)){ try{ if (await packAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
+  if (/^rs[a-z]/.test(a)){ try{ if (await routeShareAct(a, el)) return; }catch(err){ toast(fbWhy(err)); return; } }
   if (/^pb/.test(a)){ if (pbAct(a, el)) return; }
   if (/^kg/.test(a)){ if (kgAct(a, el)) return; }
 
@@ -27068,6 +27256,8 @@ document.addEventListener('click', async e => {
     ui.summits = false; ui.sumEdit = null; ui.sumAdd = false;
     render(); window.scrollTo({top:0});
   }
+  else if (a === 'jmore'){ ui.jdayLimit = (ui.jdayLimit || JDAYS) + JDAYS; render(); }
+  else if (a === 'sumall'){ ui.sumAll = {...(ui.sumAll || {}), [el.dataset.v]: 1}; render(); }
   else if (a === 'sumgroup'){
     const top = el.getBoundingClientRect().top;
     ui.sumGroup = el.dataset.v;
@@ -27470,19 +27660,7 @@ document.addEventListener('click', async e => {
     if (!FB || !fbUser){ toast('Sign in on Hikers to invite somebody.'); return true; }
     openPicker('walk', {route: el.dataset.id});
   }
-  else if (a === 'shareroute'){
-    const pl = livePlans().find(x => x.id === el.dataset.id); if (!pl) return;
-    if (!FB || !fbUser){ toast('Sign in on Hikers to share a route.'); return; }
-    if (!(pl.hills || []).length && !(pl.trk || []).length){
-      toast('Add some hills or draw the line first.'); return;
-    }
-    try{
-      const trk = prof.hideRoute ? [] : (pl.trk || []);
-      await createPost({kind:'route', text:(pl.name || 'A route') + (pl.notes ? '\n\n' + pl.notes : ''), hills:(pl.hills || []).slice(0, 12), date:pl.date || today(), tags:[], trk,
-        dist: trk.length > 1 ? Math.round(trackLength(pl.trk)) : 0, asc: pl.asc || trackAscent(pl.trk || []) || 0, mins: pl.mins || 0});
-      toast('Route shared to Activity.');
-    }catch(e){ toast(fbWhy(e)); }
-  }
+  else if (a === 'shareroute'){ bcSheetClose(); await routePostToActivity(el.dataset.id); }
   else if (a === 'postgpx'){
     const p = knownPosts().find(x => x.id === el.dataset.id); if (!p) return;
     const trk = postTrk(p); if (trk.length < 2){ toast('No track on this post.'); return; }
@@ -27509,6 +27687,7 @@ document.addEventListener('click', async e => {
     const text = String(ta ? ta.value : (ui.editText || '')).trim().slice(0, 600);
     const di = document.querySelector('.pedit .peddate');
     const date = String(di ? di.value : (ui.editDate || '')).slice(0, 10);
+    if (isFutureDay(date)){ futureDayToast(); return; }
     const p = knownPosts().find(x => x.id === id);
     if (!p) return;
     if (!text && !(p.hills || []).length && !(p.shots || []).length){ toast('Write something, or delete the post instead.'); return; }
@@ -27818,7 +27997,7 @@ document.addEventListener('click', async e => {
     const tick = e.post ? {
       label:'Take the post down too',
       sub: (e.pvis === 'public' ? 'Shared with everyone' : e.pvis === 'me' ? 'Saved to your own log' : 'Shared with your followers') +
-           (e.shared ? ' on ' + prettyDate(new Date(e.shared).toISOString().slice(0,10)) : '') +
+           (e.shared ? ' on ' + prettyDate(isoDay(e.shared)) : '') +
            (e.pshots ? ' \u00b7 ' + e.pshots + (e.pshots === 1 ? ' photograph' : ' photographs') : '')
     } : null;
     const ok = await confirmAsk({title:'Delete this entry?',
@@ -27940,7 +28119,8 @@ document.addEventListener('click', async e => {
     try{ localStorage.setItem(SAFE_KEY, JSON.stringify({t: Date.now(), n: markedCount()})); }catch(err){}
     render(); toast('Hidden for 30 days.');
   }
-  else if (a === 'bkfile'){ await backupDownload(); }
+  else if (a === 'bkfile'){ await backupDownload(false); }
+  else if (a === 'bkfilelite'){ await backupDownload(true); }
   else if (a === 'bkpaste'){
     const w = document.getElementById('bkwrap');
     if (w){ w.hidden = false; const t = document.getElementById('backupText');
@@ -30016,8 +30196,9 @@ document.addEventListener('keydown', e => {
   }
   if (mkOpen()){
     if (e.key === 'Escape') mkClose(null);
-    if (e.key === 'Enter' && document.activeElement === document.getElementById('mkYes'))
-      mkClose({date: document.getElementById('mkDate').value || today(), v:mkFix});
+    if (e.key === 'Enter' && document.activeElement === document.getElementById('mkYes')){
+      e.preventDefault(); mkConfirm();
+    }
     return;
   }
   if (pickOpen()){
@@ -30047,9 +30228,13 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('syncBtn').onclick = syncTap;
 document.getElementById('copyBtn').onclick = async () => {
-  const ta = document.getElementById('backupText');
-  try{ await navigator.clipboard.writeText(ta.value); toast('Backup copied.'); }
-  catch(err){ ta.select(); toast('Press copy on your keyboard: the text is selected.'); }
+  const txt = JSON.stringify(state);
+  try{ await navigator.clipboard.writeText(txt); toast('Backup copied.'); }
+  catch(err){
+    const ta = document.getElementById('backupText'), w = document.getElementById('bkwrap');
+    ta.value = txt; if (w) w.hidden = false; ta.focus(); ta.select();
+    toast('Press copy on your keyboard: the text is selected.');
+  }
 };
 document.getElementById('restoreBtn').onclick = () => restoreBackup(document.getElementById('backupText').value);
 document.getElementById('restoreFile').onchange = async e => {
@@ -30087,38 +30272,55 @@ function backupPhotoIds(){
   walk(state, false);
   return ids;
 }
-async function backupFile(){
-  const out = {kind: BACKUP_KIND, v: 1, app: APP_VERSION, made: new Date().toISOString(),
-               state: JSON.parse(JSON.stringify(state)), photos: {}, photoNote: ''};
+async function backupParts(lite){
   const want = backupPhotoIds();
-  let keys = [];
-  try{ keys = await tx('readonly', st => st.getAllKeys()); }catch(e){ keys = []; }
   const txt = JSON.stringify(state);
-  for (const k of keys){
-    if (typeof k !== 'string' || !(want.has(k) || txt.indexOf('"' + k + '"') >= 0)) continue;
-    const b = await getBlob(k);
-    if (b instanceof Blob){ try{ out.photos[k] = {type: b.type || 'image/jpeg', d: await blobToB64(b)}; }catch(e){} }
+  const parts = ['{"kind":' + JSON.stringify(BACKUP_KIND) + ',"v":1,"app":' + JSON.stringify(APP_VERSION) +
+    ',"made":' + JSON.stringify(new Date().toISOString()) + ',"state":', txt, ',"photos":{'];
+  const got = new Set();
+  if (!lite){
+    let keys = [];
+    try{ keys = await tx('readonly', st => st.getAllKeys()); }catch(e){ keys = []; }
+    for (const k of keys){
+      if (typeof k !== 'string' || !(want.has(k) || txt.indexOf('"' + k + '"') >= 0)) continue;
+      const b = await getBlob(k);
+      if (!(b instanceof Blob)) continue;
+      try{
+        const d = await blobToB64(b);
+        parts.push((got.size ? ',' : '') + JSON.stringify(k) + ':{"type":' + JSON.stringify(b.type || 'image/jpeg') + ',"d":"' + d + '"}');
+        got.add(k);
+      }catch(e){}
+    }
   }
-  const have = Object.keys(out.photos).length;
-  const away = [...want].filter(id => !out.photos[id]).length;
-  out.photoNote = (have ? have + (have === 1 ? ' photo is' : ' photos are') + ' in this file.' : 'No photos in this file.') +
-    (away ? ' ' + away + (away === 1 ? ' photo is' : ' photos are') + (fbUser ? ' saved with your account, not in this file.' : ' not on this phone, so not in this file.') : '');
-  return {text: JSON.stringify(out), have, away};
+  const have = got.size;
+  const away = [...want].filter(id => !got.has(id)).length;
+  const note = lite
+    ? 'Saved without photos.' + (want.size ? ' ' + want.size + (want.size === 1 ? ' photo stays' : ' photos stay') + ' on this phone' + (fbUser ? ' and with your account.' : '.') : '')
+    : (have ? have + (have === 1 ? ' photo is' : ' photos are') + ' in this file.' : 'No photos in this file.') +
+      (away ? ' ' + away + (away === 1 ? ' photo is' : ' photos are') + (fbUser ? ' saved with your account, not in this file.' : ' not on this phone, so not in this file.') : '');
+  parts.push('},"photoNote":' + JSON.stringify(note) + '}');
+  return {parts, have, away, lite: !!lite};
 }
-async function backupDownload(){
+async function backupFile(lite){
+  const r = await backupParts(lite);
+  return {text: r.parts.join(''), have: r.have, away: r.away};
+}
+async function backupDownload(lite){
   let r;
-  try{ r = await backupFile(); }catch(e){ toast('The backup could not be made.'); return false; }
-  const name = 'waymark-backup-' + today() + '.json';
+  try{ r = await backupParts(lite); }catch(e){ toast('The backup could not be made.'); return false; }
+  const name = 'waymark-backup-' + today() + (lite ? '-no-photos' : '') + '.json';
   try{
-    const url = URL.createObjectURL(new Blob([r.text], {type: 'application/json'}));
+    const url = URL.createObjectURL(new Blob(r.parts, {type: 'application/json'}));
+    r.parts = null;
     const a = document.createElement('a');
     a.href = url; a.download = name; a.rel = 'noopener'; a.style.display = 'none';
     document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
   }catch(e){ toast('The backup could not be saved.'); return false; }
   const note = document.getElementById('bkNote');
-  const say = (r.have ? 'Saved ' + name + ', with ' + r.have + (r.have === 1 ? ' photo.' : ' photos.') : 'Saved ' + name + '.') +
-    (r.away && fbUser ? ' Photos are saved with your account.' : r.away ? ' ' + r.away + (r.away === 1 ? ' photo was' : ' photos were') + ' not on this phone.' : '');
+  const say = lite ? 'Saved ' + name + ', without photos.'
+    : (r.have ? 'Saved ' + name + ', with ' + r.have + (r.have === 1 ? ' photo.' : ' photos.') : 'Saved ' + name + '.') +
+      (r.away && fbUser ? ' Photos are saved with your account.' : r.away ? ' ' + r.away + (r.away === 1 ? ' photo was' : ' photos were') + ' not on this phone.' : '');
   if (note){ note.textContent = say; note.hidden = false; }
   toast(say);
   return true;
@@ -30131,10 +30333,8 @@ function restoreBackup(raw){
       photos = s.photos && typeof s.photos === 'object' ? s.photos : null;
       s = s.state;
     }
-    if (!s || typeof s !== 'object' || !('bagged' in s)) throw new Error('bad');
+    if (!s || typeof s !== 'object' || Array.isArray(s) || !s.bagged || typeof s.bagged !== 'object' || Array.isArray(s.bagged)) throw new Error('bad');
     const inc = normalise(s);
-    for (const v of Object.values(inc.bagged)) v.t = now();
-    for (const p of inc.plans) p.t = now();
     const m = merge(state, inc);
     state = {...state, ...m,
              diary:m.diary || state.diary || [], dogs:m.dogs || state.dogs || [], kit:m.kit || state.kit || [],
@@ -30635,7 +30835,7 @@ function ownHTML(){
         return '<button class="opk' + (u.picked === i ? ' on' : '') + (near ? ' dim' : '') +
           (mate ? ' mate' : '') +
           '" data-act="ownpick" data-i="' + i + '"' + (near ? ' disabled' : '') + '>' +
-          (mate ? '<span class="opkav">' + esc(who.slice(0,1).toUpperCase()) + '</span>' : '') +
+          (mate ? '<span class="opkav">' + esc(nameInitial(who)) + '</span>' : '') +
           '<span class="opkn"><b>' + esc(x.n) + '</b><i>' +
           (near ? 'Already in WayMark, on ' + esc(LIST_BY[near.l[0]] ? LIST_BY[near.l[0]].name : 'a list')
                 : mate ? esc(who) + ' added this one \u00b7 join theirs'
@@ -30901,8 +31101,7 @@ const THEME_KEY = 'waymark.theme';
 function themePref(){ try{ return localStorage.getItem(THEME_KEY) || 'light'; }catch(e){ return 'light'; } }
 function applyTheme(){
   const t = themePref();
-  if (t === 'auto') document.documentElement.removeAttribute('data-theme');
-  else document.documentElement.setAttribute('data-theme', t);
+  document.documentElement.setAttribute('data-theme', t === 'auto' ? (systemIsDark() ? 'dark' : 'light') : t);
   const c = t === 'dark' ? '#0C221D' : t === 'light' ? '#F3EFE6' : null;
   document.querySelectorAll('meta[name="theme-color"]').forEach((m, i) => {
     if (!m.dataset.orig) m.dataset.orig = m.getAttribute('content');
@@ -30914,6 +31113,7 @@ function setTheme(t){
   applyTheme(); renderThemeBox(); paintThemeBtn();
   if (mapReady) drawMarkers();
 }
+try{ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (themePref() === 'auto'){ applyTheme(); try{ if (mapReady) drawMarkers(); }catch(e){} } }); }catch(e){}
 function systemIsDark(){
   try{ return window.matchMedia('(prefers-color-scheme: dark)').matches; }catch(e){ return false; }
 }
@@ -32148,7 +32348,7 @@ function postHTML(p){
   } else if (mine && ui.editPost === p.id){
     s += '<div class="pedit"><textarea data-act="editfield" maxlength="600" rows="4" aria-label="Edit your post">' + esc(ui.editText == null ? (p.text || '') : ui.editText) + '</textarea>' +
       '<label class="pedlab" for="pedd-' + esc(p.id) + '">The day you walked it</label>' +
-      '<input type="date" class="peddate" id="pedd-' + esc(p.id) + '" value="' + esc(ui.editDate == null ? (p.date || '') : ui.editDate) + '">' +
+      '<input type="date" class="peddate" id="pedd-' + esc(p.id) + '" max="' + today() + '" value="' + esc(ui.editDate == null ? (p.date || '') : ui.editDate) + '">' +
       '<div class="btnrow"><button class="btn sm" data-act="editsave" data-id="' + esc(p.id) + '">Save</button>' +
       '<button class="btn sm ghost" data-act="editcancel">Cancel</button></div></div>';
   } else if (p.text) s += ptextHTML(p);
@@ -32530,7 +32730,8 @@ function walkHillResults(q){
   return markSearch(q).slice(0, 5).map(h => '<button class="mrow" data-act="pdhill" data-k="' + esc(h.k) + '"><span class="mmain"><b>' + esc(hillName(h)) +
     '</b><span>' + htFlat(h) + '</span></span></button>').join('');
 }
-const walkWhen = d => { try{ return new Date(d + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}); }catch(e){ return d; } };
+const walkWhen = d => { try{ const x = new Date(d + 'T12:00');
+  return x.toLocaleDateString('en-GB', x.getFullYear() !== new Date().getFullYear() ? {weekday:'short', day:'numeric', month:'short', year:'numeric'} : {weekday:'short', day:'numeric', month:'short'}); }catch(e){ return d; } };
 
 function discoverPeople(){
   const seen = new Set([fbUser.uid, ...followingUids(), ...blocked]);
@@ -33828,7 +34029,7 @@ function openPostSummits(id){
 }
 
 
-const APP_VERSION = 'v410';
+const APP_VERSION = 'v411';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -36202,7 +36403,7 @@ function myBadgeStrip(){
 function profileHeader(pp, opts){
   const mine = !!(opts && opts.mine);
   const pic = pp.avHi || pp.av || '';
-  const initial = esc((pp.name || 'W').trim().charAt(0).toUpperCase());
+  const initial = esc(nameInitial(pp.name));
   let s = '<section class="prof pv3"><div class="pine">';
 
   const sky = Array.isArray(pp.sky) ? pp.sky : (mine ? myHeights() : []);
@@ -38320,9 +38521,10 @@ function packViewClose(){
   const el = document.getElementById('packview'); if (el){ el.classList.remove('open'); el.innerHTML = ''; }
   document.documentElement.classList.remove('pvopen');
   ui.packWalk = null; ui.packPub = null;
+  ui.routePub = null; routePubKill();
 }
 async function packWalkOpen(cid, who, o){
-  ui.packPub = null;
+  ui.packPub = null; ui.routePub = null;
   ui.packWalk = {cid, who:who || null, doc:(chats || []).find(y => y.id === cid) || null, fromChat:!!(chatOpen && chatOpen.id === cid), fromSet:(o && o.fromSet) || ''};
   packViewPaint();
   await packWalkLoad();
@@ -38358,12 +38560,14 @@ function packItemsHTML(p){
 function packViewPaint(){
   const el = packViewEl();
   let s = '';
-  if (ui.packPub) s = packPubHTML();
+  if (ui.routePub){ routePubKill(); s = routePubHTML(); }
+  else if (ui.packPub) s = packPubHTML();
   else if (ui.packWalk) s = ui.packWalk.who ? packFriendHTML() : packWalkHTML();
   else return packViewClose();
-  el.innerHTML = '<div class="pvpage">' + s + '</div>';
+  el.innerHTML = '<div class="pvpage' + (ui.routePub ? ' rppage' : '') + '">' + s + '</div>';
   el.classList.add('open'); document.documentElement.classList.add('pvopen');
   if (typeof wire === 'function') wire();
+  if (ui.routePub) routePubMount();
 }
 function packWalkHTML(){
   const w = ui.packWalk, c = w.doc || {}, me = meU();
@@ -38424,7 +38628,7 @@ function packPubToken(){
   return (h && h[1]) || (q && q[1]) || '';
 }
 async function packPubOpen(tok){
-  ui.packWalk = null;
+  ui.packWalk = null; ui.routePub = null;
   ui.packPub = {tok, state:'loading', p:null};
   packViewPaint();
   for (let i = 0; i < 120 && !(FB && fbDb); i++) await new Promise(r => setTimeout(r, 100));
@@ -38476,6 +38680,318 @@ async function packNudge(cid, u){
     pushPing({kind:'msg', cid, mid:ref.id});
     toast('Asked ' + firstName((c.names || {})[u]) + '.');
   }catch(e){ delete ui.packNudged[key]; packViewPaint(); toast('That didn’t send. ' + fbWhy(e)); }
+}
+const ROUTE_TOK_RE = /^[A-Za-z0-9]{6,32}$/;
+const routeRef = tok => FB.doc(fbDb, 'routes', tok);
+const routeLinkUrl = tok => wmBase() + '#route=' + tok;
+const ROUTE_RULES_MSG = 'Sharing links aren’t switched on yet. Nothing was shared.';
+const ROUTE_MAX_PTS = 1500;
+function routeTrkStr(trk){
+  const src = (trk || []).filter(q => Array.isArray(q) && isFinite(q[0]) && isFinite(q[1]));
+  let use = src;
+  if (src.length > ROUTE_MAX_PTS){
+    const step = (src.length - 1) / (ROUTE_MAX_PTS - 1);
+    use = Array.from({length:ROUTE_MAX_PTS}, (_, i) => src[Math.round(i * step)]);
+  }
+  return use.map(q => (+q[0]).toFixed(5) + ',' + (+q[1]).toFixed(5) + (q.length > 2 && isFinite(q[2]) && q[2] !== null ? ',' + Math.round(q[2]) : '')).join(';');
+}
+function routeTrkParse(s){
+  if (!s || typeof s !== 'string') return [];
+  return s.split(';').map(p => p.split(',').map(Number)).filter(q => (q.length === 2 || q.length === 3) && q.every(isFinite));
+}
+function routeStart(p){
+  const t = (p && p.trk) || [];
+  if (t.length < 2 || !t[0] || !isFinite(t[0][0]) || !isFinite(t[0][1])) return null;
+  const cp = rtCarPark(p);
+  if (cp) return {la:+(+cp.p.la).toFixed(5), lo:+(+cp.p.lo).toFixed(5), n:String(poiName(cp.p) || 'Car park').slice(0, 60), park:1, d:Math.round(cp.d)};
+  return {la:+(+t[0][0]).toFixed(5), lo:+(+t[0][1]).toFixed(5), n:'', park:0, d:0};
+}
+async function routeStartReady(p){
+  const t = (p && p.trk) || [];
+  if (t.length < 2 || typeof loadPlaceCells !== 'function') return;
+  const la = +t[0][0], lo = +t[0][1]; if (!isFinite(la) || !isFinite(lo)) return;
+  try{ await Promise.race([loadPlaceCells({s:la - .025, n:la + .025, w:lo - .045, e:lo + .045}), new Promise(r => setTimeout(r, 2500))]); }catch(e){}
+}
+const routeListTag = h => {
+  const ls = h.l || [], mine = (state.enabled || []).filter(l => ls.indexOf(l) >= 0 && LIST_TAG[l]);
+  if (mine.length) return LIST_TAG[mine[0]];
+  for (const l of ls) if (LIST_TAG[l]) return LIST_TAG[l];
+  return '';
+};
+function routeOf(p){
+  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean).slice(0, 40);
+  const t = (p.trk || []).filter(q => Array.isArray(q) && isFinite(q[0]) && isFinite(q[1]));
+  const m = t.length > 1 ? Math.round(trackLength(t)) : 0;
+  const ele = m > 0 && trkHasEle(t), up = ele ? Math.round(trackAscent(t)) : null;
+  const r = {
+    by:String(firstName(myName())).slice(0, 40),
+    name:String(p.name || 'A route').slice(0, 60),
+    date:/^\d{4}-\d\d-\d\d$/.test(p.date || '') ? p.date : '',
+    trk:t.length > 1 ? routeTrkStr(t) : '',
+    hills:hs.map(h => ({k:String(h.k), n:String(hillName(h)).slice(0, 60), h:Math.round(+h.h || 0), f:Math.round(+h.f || (+h.h || 0) * 3.28084),
+      l:routeListTag(h), a:+(+h.a).toFixed(5), o:+(+h.o).toFixed(5)})),
+    m, up, mins:ele ? Math.round(rtEstMins(m, up)) : null,
+    start:routeStart(p)
+  };
+  r.sig = packSig(r);
+  r.t = Date.now();
+  return r;
+}
+let routeTimer = null, routeBusy = false;
+const routeSigs = {};
+function scheduleRouteShare(){
+  if (!FB || !fbUser) return;
+  if (!(state.plans || []).some(p => p && p.link)) return;
+  clearTimeout(routeTimer);
+  routeTimer = setTimeout(() => { routePublishAll().catch(() => {}); }, 2500);
+}
+async function routePublishAll(){
+  if (!FB || !fbUser || routeBusy) return;
+  routeBusy = true;
+  try{
+    for (const p of (state.plans || [])){
+      if (!p || !p.link) continue;
+      const tok = p.link;
+      if (p.deleted){ try{ await FB.deleteDoc(routeRef(tok)); }catch(e){} delete routeSigs[tok]; p.link = ''; continue; }
+      await routeStartReady(p);
+      const r = routeOf(p);
+      if (routeSigs[tok] === r.sig) continue;
+      try{ await FB.setDoc(routeRef(tok), {...r, owner:meU(), on:1}); routeSigs[tok] = r.sig; }catch(e){}
+    }
+  } finally { routeBusy = false; }
+}
+async function routePostToActivity(id){
+  const pl = livePlans().find(x => x.id === id); if (!pl) return;
+  if (!FB || !fbUser){ toast('Sign in on Hikers to share a route.'); return; }
+  if (!(pl.hills || []).length && !(pl.trk || []).length){
+    toast('Add some hills or draw the line first.'); return;
+}
+  try{
+    const trk = prof.hideRoute ? [] : (pl.trk || []);
+    await createPost({kind:'route', text:(pl.name || 'A route') + (pl.notes ? '\n\n' + pl.notes : ''), hills:(pl.hills || []).slice(0, 12), date:pl.date || today(), tags:[], trk,
+      dist: trk.length > 1 ? Math.round(trackLength(pl.trk)) : 0, asc: pl.asc || trackAscent(pl.trk || []) || 0, mins: pl.mins || 0});
+    toast('Route shared to Activity.');
+}catch(e){ toast(fbWhy(e)); }
+}
+function routeShareOpen(id, msg){
+  const p = planById(id); if (!p || id === 'draft') return;
+  if (ui.rtTextShow && ui.rtTextShow !== id) ui.rtTextShow = '';
+  ui.rtShareId = id;
+  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean), t = p.trk || [];
+  const bits = [];
+  if (t.length > 1) bits.push(gDist(trackLength(t)));
+  if (hs.length) bits.push(hs.length + (hs.length === 1 ? ' summit' : ' summits'));
+  if (p.date) bits.push(walkWhen(p.date));
+  const row = (act, icon, b, i) => '<button class="pvlink" data-act="' + act + '" data-id="' + esc(p.id) + '"><span class="pvwi">' + ti(icon) + '</span><span class="pvwt2"><b>' + b + '</b><i>' + i + '</i></span>' + ti('chevron-right') + '</button>';
+  let s = '<h3 class="bcsheettitle">Share ' + esc(p.name || 'this route') + '</h3>' +
+    (bits.length ? '<p class="pvlede">' + esc(bits.join(' · ')) + '.</p>' : '') +
+    '<p class="pveye">On WayMark</p>' +
+    row('rssend', 'send', 'Send to a chat', 'A copy for friends on WayMark.') +
+    row('rspost', 'users', 'Post to Activity', 'For everyone who follows you.') +
+    '<p class="pveye">Or anyone, with a link</p>' +
+    row('rslink', 'share', p.link ? 'Send the link again' : 'Send a link', 'Works without WayMark. They can look and download it.') +
+    (p.link ? '<div class="pvlinkon"><p><b>Your link is on.</b> It always shows your latest route.</p>' +
+      '<button class="pvstop" data-act="rslinkstop" data-id="' + esc(p.id) + '">Stop sharing</button></div>' : '') +
+    '<p class="pvmsg" role="status"' + (msg ? '' : ' hidden') + '>' + esc(msg || '') + '</p>' +
+    '<p class="pveye">Or paste it anywhere</p>' +
+    row('rscopy', 'copy', 'Copy as text', 'For WhatsApp, a message or a note.') +
+    (ui.rtTextShow === p.id ? '<p class="pvfine">Copying didn’t work here. Select the text and copy it.</p><textarea id="rstextbox" class="pvtext" readonly rows="8" aria-label="Your route as text">' + esc(routeText(p)) + '</textarea>' : '') +
+    '<p class="pveye">For their own app</p>' +
+    row('gpxout', 'download', 'Download GPX', 'For OS Maps, Komoot or a watch.');
+  bcSheet(s, 'Share ' + (p.name || 'this route'), 'pvsheet');
+}
+async function routeLinkGo(id){
+  const p = planById(id); if (!p || id === 'draft') return;
+  if (!FB || !fbUser || fbUser.isAnonymous){ routeShareOpen(id, 'Sign in to make a link to your route.'); return; }
+  if (!(p.hills || []).length && !((p.trk || []).length > 1)){ routeShareOpen(id, 'Add some hills or draw the line first.'); return; }
+  const tok = p.link || (Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4));
+  await routeStartReady(p);
+  const r = routeOf(p);
+  try{ await FB.setDoc(routeRef(tok), {...r, owner:meU(), on:1}); routeSigs[tok] = r.sig; }
+  catch(e){ routeShareOpen(id, packDenied(e) ? ROUTE_RULES_MSG : 'That didn’t work. ' + fbWhy(e)); return; }
+  if (!p.link){ p.link = tok; p.t = now(); touched(); }
+  routeShareOpen(id);
+  await shareLink(routeLinkUrl(tok), firstName(myName()) + '’s route', firstName(myName()) + '’s route on WayMark: ' + (p.name || 'a route') + (p.date ? ', ' + walkWhen(p.date) : '') + '.');
+}
+async function routeLinkStop(id){
+  const p = planById(id); if (!p || !p.link) return;
+  const tok = p.link;
+  try{ await FB.deleteDoc(routeRef(tok)); }
+  catch(e){ routeShareOpen(id, packDenied(e) ? 'That link can’t be stopped until sharing links are switched on in Firebase.' : fbWhy(e)); return; }
+  delete routeSigs[tok];
+  p.link = ''; p.t = now(); touched();
+  routeShareOpen(id); toast('The link is off. Anyone who opens it now sees nothing.');
+}
+function routeText(p){
+  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean), t = p.trk || [];
+  const m = t.length > 1 ? trackLength(t) : 0, up = m && trkHasEle(t) ? trackAscent(t) : null;
+  const out = [(p.name || 'A route') + (p.date ? ' · ' + walkWhen(p.date) : '')];
+  const nums = [];
+  if (m) nums.push(gDist(m));
+  if (up != null) nums.push(gHeight(up) + ' climb', 'about ' + hm(rtEstMins(m, up)));
+  if (nums.length) out.push(nums.join(' · '));
+  if (hs.length) out.push('Summits: ' + hs.map(h => hillName(h) + ' ' + gHeight(h.h)).join(', '));
+  const st = routeStart(p);
+  if (st) out.push('Start: ' + (st.park ? st.n || 'Car park' : 'the start of the route') + ' ' + rtGoogleDir(st.la, st.lo));
+  if (p.link) out.push('The route: ' + routeLinkUrl(p.link));
+  return out.join('\n');
+}
+async function routeCopy(id){
+  const p = planById(id); if (!p) return;
+  const text = routeText(p);
+  try{ await navigator.clipboard.writeText(text); toast('Copied. Paste it anywhere.'); return; }catch(e){}
+  try{ if (navigator.share){ await navigator.share({text}); return; } }catch(e){ if (e && e.name === 'AbortError') return; }
+  ui.rtTextShow = id; routeShareOpen(id);
+  const box = document.getElementById('rstextbox'); if (box){ box.focus(); box.select(); }
+}
+const appleDir = (la, lo) => 'https://maps.apple.com/?daddr=' + (+la).toFixed(5) + ',' + (+lo).toFixed(5) + '&dirflg=d';
+function routePubToken(){
+  const h = (location.hash || '').match(/^#route=(.*)$/);
+  const q = (location.search || '').match(/[?&]route=([^&]*)/);
+  const v = h ? h[1] : q ? q[1] : null;
+  if (v === null) return '';
+  return ROUTE_TOK_RE.test(v) ? v : '!';
+}
+let rpMap = null;
+function routePubKill(){ if (rpMap){ try{ rpMap.remove(); }catch(e){} rpMap = null; } }
+async function routePubOpen(tok){
+  ui.packWalk = null; ui.packPub = null;
+  routePubKill();
+  ui.routePub = {tok, state:'loading', r:null};
+  packViewPaint();
+  if (tok === '!'){ ui.routePub.state = 'bad'; packViewPaint(); return; }
+  for (let i = 0; i < 120 && !(FB && fbDb); i++) await new Promise(r => setTimeout(r, 100));
+  const pub = ui.routePub; if (!pub || pub.tok !== tok) return;
+  if (!(FB && fbDb)){ pub.state = 'offline'; packViewPaint(); return; }
+  try{
+    const s2 = await FB.getDoc(routeRef(tok));
+    const d = s2.exists() ? s2.data() : null;
+    pub.r = d && d.on ? d : null; pub.state = pub.r ? 'ok' : 'gone';
+  }catch(e){ pub.state = packDenied(e) ? 'closed' : 'offline'; }
+  if (ui.routePub === pub) packViewPaint();
+}
+const ROUTE_PUB_SAY = {
+  bad:'This link isn’t complete. Ask for it to be sent again.',
+  gone:'This route isn’t shared any more.',
+  closed:'This route can’t be opened just now. Try again later.',
+  offline:'This route couldn’t be opened. Check your signal and try again.'
+};
+function routePubHTML(){
+  const pub = ui.routePub, r = pub.r;
+  let s = '<p class="pvbrand"><b class="brand">WAY<em>MARK</em></b></p>';
+  if (pub.state === 'loading') return s + '<p class="pvfine">Opening the route…</p>';
+  const own = (fbUser && !fbUser.isAnonymous)
+    ? '<button class="pvprimary pvhome" data-act="rspubclose">' + ti('arrow-left') + 'Back to WayMark</button>'
+    : '<section class="pvcard pvown"><h2>Track hills like this</h2><p>WayMark is free. Plan routes and mark off your hills.</p>' +
+      '<button class="btn ghost rpown" data-act="rspubclose">Open WayMark · free</button></section>';
+  if (!r) return s + '<p class="pvlede rpsay">' + esc(ROUTE_PUB_SAY[pub.state] || ROUTE_PUB_SAY.offline) + '</p>' + own;
+  const by = firstName(r.by || 'Walker');
+  s += '<div class="pvhead"><span class="pvinit" aria-hidden="true">' + esc(by.slice(0, 1).toUpperCase()) + '</span><div><h1 class="pvh1">' + esc(r.name || 'A route') + '</h1>' +
+    '<p class="pvsub2">' + esc(by) + '’s route' + (r.date ? ' · <b class="rpdate">' + esc(walkWhen(r.date)) + '</b>' : '') + '</p></div></div>';
+  const t = routeTrkParse(r.trk), hs = Array.isArray(r.hills) ? r.hills : [];
+  let left = '';
+  if (t.length > 1 || hs.length) left += '<div class="rpmap topo" id="rpmap">' + routePubSvg(r) + '</div>';
+  if (+r.m > 0){
+    const tile = (v, l) => '<div class="rttile"><b>' + esc(v) + '</b><i>' + l + '</i></div>';
+    const ele = r.up !== null && r.up !== undefined && isFinite(+r.up);
+    left += '<div class="rttiles rptiles' + (ele ? '' : ' one') + '">' + tile(gDist(+r.m), 'distance') +
+      (ele ? tile(gHeight(+r.up), 'climb') + tile(hm(+r.mins || rtEstMins(+r.m, +r.up)), 'about') : '') + '</div>';
+  }
+  let right = '';
+  const st = r.start;
+  if (st && isFinite(+st.la) && isFinite(+st.lo)){
+    right += '<section class="pvcard rpstart"><p class="pveye">Where to start</p><div class="rpst">' +
+      (st.park ? '<span class="rtpk" aria-hidden="true">P</span>' : '<span class="rpdot" aria-hidden="true">' + ti('map-pin') + '</span>') +
+      '<span class="rpstt"><b>' + esc(st.park ? st.n || 'Car park' : 'The start of the route') + '</b>' +
+      (st.park ? '<i>' + (+st.d > 50 ? (Math.round(+st.d / 10) * 10) + ' m from the start of the route' : 'At the start of the route') + '</i>' : '') + '</span></div>' +
+      '<div class="rpdirs"><a class="btn ghost" data-dir="google" href="' + esc(rtGoogleDir(st.la, st.lo)) + '" target="_blank" rel="noopener">' + ti('navigation') + 'Google Maps</a>' +
+      '<a class="btn ghost" data-dir="apple" href="' + esc(appleDir(st.la, st.lo)) + '" target="_blank" rel="noopener">' + ti('navigation') + 'Apple Maps</a></div></section>';
+  }
+  if (hs.length){
+    const mUnits = unitsPref() === 'm';
+    right += '<p class="pveye rpeye">' + hs.length + (hs.length === 1 ? ' summit' : ' summits') + '</p><div class="pvitems rpsums">' + hs.map(h => {
+      const ft = (+h.f || 0).toLocaleString() + ' ft', mm = (+h.h || 0).toLocaleString() + ' m';
+      return '<div class="pvitem"><span class="pvic">' + ti('mountain') + '</span><span class="pvin"><b>' + esc(h.n) + '</b><i>' +
+        esc((mUnits ? ft : mm) + (h.l ? ' · ' + h.l : '')) + '</i></span><span class="pvw">' + esc(mUnits ? mm : ft) + '</span></div>';
+    }).join('') + '</div>';
+  }
+  if (t.length > 1 || hs.length)
+    right += '<button class="pvlink rpgpx" data-act="rspubgpx"><span class="pvwi">' + ti('download') + '</span><span class="pvwt2"><b>Download GPX</b><i>For OS Maps, Komoot or a watch.</i></span>' + ti('chevron-right') + '</button>';
+  right += own + '<p class="pvfine rpfine">The time is a guide. Check the weather before you go.</p>';
+  return s + '<div class="rpgrid"><div class="rpleft">' + left + '</div><div class="rpright">' + right + '</div></div>';
+}
+function routePubSvg(r){
+  const t = routeTrkParse(r.trk), hs = (r.hills || []).filter(h => isFinite(+h.a) && isFinite(+h.o));
+  const pts = t.concat(hs.map(h => [+h.a, +h.o]));
+  if (r.start && isFinite(+r.start.la)) pts.push([+r.start.la, +r.start.lo]);
+  if (!pts.length) return '';
+  const W = 600, H = 400, pad = 30;
+  const lats = pts.map(q => q[0]), lons = pts.map(q => q[1]);
+  const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lons), lo1 = Math.max(...lons);
+  const kx = Math.cos((la0 + la1) / 2 * Math.PI / 180);
+  const w = Math.max((lo1 - lo0) * kx, 1e-4), h = Math.max(la1 - la0, 1e-4);
+  const sc = Math.min((W - pad * 2) / w, (H - pad * 2) / h);
+  const ox = (W - w * sc) / 2, oy = (H - h * sc) / 2;
+  const X = lo => ox + (lo - lo0) * kx * sc, Y = la => H - oy - (la - la0) * sc;
+  const step = Math.max(1, Math.floor(t.length / 400));
+  const d = t.filter((_, i) => i % step === 0 || i === t.length - 1).map((q, i) => (i ? 'L' : 'M') + X(q[1]).toFixed(1) + ' ' + Y(q[0]).toFixed(1)).join('');
+  let s = '<svg class="rpsvg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The route drawn small">';
+  if (d) s += '<path d="' + d + '" fill="none" stroke="#fffdf7" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="' + d + '" fill="none" stroke="' + RT_COLS[0] + '" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  for (const x of hs) s += '<g transform="translate(' + X(+x.o).toFixed(1) + ' ' + Y(+x.a).toFixed(1) + ')"><circle r="11" fill="var(--surface)" stroke="#65847E" stroke-width="2"/>' +
+    '<svg x="-8" y="-8" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#65847E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + MOUNTAIN_PATH + '</svg></g>';
+  if (r.start && isFinite(+r.start.la)) s += '<g transform="translate(' + X(+r.start.lo).toFixed(1) + ' ' + Y(+r.start.la).toFixed(1) + ')"><rect x="-13" y="-13" width="26" height="26" rx="6" fill="' + (r.start.park ? '#2C6FBF' : RT_COLS[0]) + '" stroke="#fffdf7" stroke-width="2"/>' +
+    (r.start.park ? '<text y="6" text-anchor="middle" font-size="16" font-weight="800" fill="#fff" font-family="system-ui,sans-serif">P</text>' : '<circle r="4" fill="#fff"/>') + '</g>';
+  return s + '</svg>';
+}
+function routePubMount(){
+  const pub = ui.routePub, r = pub && pub.r, box = document.getElementById('rpmap');
+  if (!r || !box || rpMap) return;
+  const t = routeTrkParse(r.trk), hs = (r.hills || []).filter(h => isFinite(+h.a) && isFinite(+h.o));
+  const all = t.map(q => [q[0], q[1]]).concat(hs.map(h => [+h.a, +h.o]));
+  if (!all.length || !(ML() && webglOk())) return;
+  try{
+    box.innerHTML = '';
+    rpMap = makeMap(box, {la:all[0][0], lo:all[0][1]}, {bare:true, noRose:true, zoom:11, cooperativeGestures:true});
+    box.classList.add('live');
+    fitTo(rpMap, all, 40, 15);
+    const cs = getComputedStyle(document.documentElement);
+    rpMap.once('style.load', () => setTimeout(() => {
+      if (!rpMap) return;
+      if (t.length > 1) setData(rpMap, 'wm-lines', {type:'FeatureCollection', features:[lineFeature(t, {name:r.name || 'Route', sub:gDist(+r.m || 0), col:RT_COLS[0], w:4.5, cw:8, dash:0, id:'rp'})]});
+    }, 30));
+    for (const h of hs){
+      const hh = BY_KEY[h.k], col = hh ? hillColour(hh, cs) : (cs.getPropertyValue('--sage').trim() || '#65847E');
+      domMarker(rpMap, null, '<div class="hpin" style="width:22px;height:22px;border-color:' + col + ';color:' + col + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></div>', 'peakwrap', 22, 22, +h.a, +h.o).getElement().title = h.n;
+    }
+    if (r.start && isFinite(+r.start.la)) domMarker(rpMap, null, r.start.park ? '<span class="rtpk">P</span>' : '<span class="rpdot on">' + ti('map-pin') + '</span>', 'rpstartpin', 30, 30, +r.start.la, +r.start.lo);
+    const tuck = () => box.querySelectorAll('.maplibregl-compact-show').forEach(e => e.classList.remove('maplibregl-compact-show'));
+    rpMap.once('load', () => setTimeout(() => { tuck(); if (rpMap) rpMap.resize(); }, 300));
+    setTimeout(tuck, 400); setTimeout(tuck, 1500);
+  }catch(e){ routePubKill(); box.innerHTML = routePubSvg(r); box.classList.remove('live'); }
+}
+function routePubGpx(){
+  const r = ui.routePub && ui.routePub.r; if (!r) return;
+  const hills = (r.hills || []).map(h => h.k).filter(k => BY_KEY[k]);
+  exportGPX(safeName(r.name), buildGPX({name:r.name || 'WayMark route', hills, trk:routeTrkParse(r.trk)}));
+}
+async function routeShareAct(a, el){
+  const id = el.dataset.id;
+  if (a === 'rsshare'){ ui.rtTextShow = ''; routeShareOpen(id); return true; }
+  if (a === 'rssend'){
+    if (!FB || !fbUser || fbUser.isAnonymous){ routeShareOpen(id, 'Sign in to send a route to a chat.'); return true; }
+    routeSendSheet(id); return true;
+  }
+  if (a === 'rspost'){
+    if (!FB || !fbUser || fbUser.isAnonymous){ routeShareOpen(id, 'Sign in to post a route to Activity.'); return true; }
+    bcSheetClose(); await routePostToActivity(id); return true;
+  }
+  if (a === 'rslink'){ await routeLinkGo(id); return true; }
+  if (a === 'rslinkstop'){ await routeLinkStop(id); return true; }
+  if (a === 'rscopy'){ await routeCopy(id); return true; }
+  if (a === 'rspubgpx'){ routePubGpx(); return true; }
+  if (a === 'rspubclose'){ packViewClose(); try{ history.replaceState(null, '', location.pathname); }catch(e){} render(); return true; }
+  return false;
 }
 async function packAct(a, el){
   const w = ui.packWalk, me = meU();
@@ -40193,6 +40709,8 @@ takeSuppliesRoute();
 takeInviteFromHash();
 { const pt = packPubToken(); if (pt) setTimeout(() => packPubOpen(pt), 0); }
 window.addEventListener('hashchange', () => { const pt = packPubToken(); if (pt && !(ui.packPub && ui.packPub.tok === pt)) packPubOpen(pt); });
+{ const rt = routePubToken(); if (rt) setTimeout(() => routePubOpen(rt), 0); }
+window.addEventListener('hashchange', () => { const rt = routePubToken(); if (rt && !(ui.routePub && ui.routePub.tok === rt)) routePubOpen(rt); });
 state = loadLocal();
 try{ ndMigrate(); }catch(e){}
 registerOwn();
