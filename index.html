@@ -4609,6 +4609,50 @@ body.guiding{overflow:hidden}
 .menufile:hover{background:var(--surface-2)}
 .menufile svg{width:17px; height:17px; color:var(--ink-3)}
 .rtopen .pathnote{margin:0}
+.rtopen > .rtblk.hdg{display:flex; flex-direction:column; gap:8px; padding-top:12px; padding-bottom:13px}
+.hdgh h3{margin:0; font:400 22px/1.15 var(--font-display); color:var(--ink)}
+.hdgsub{margin:3px 0 0; font:500 13px/1.35 var(--font-ui); color:var(--ink-2)}
+.hdglink{display:inline-block; background:none; border:0; margin:-12px 0; padding:12px 0; font:600 13px/1.35 var(--font-ui);
+  color:var(--accent-text); text-decoration:underline; text-underline-offset:3px; white-space:nowrap; cursor:pointer}
+.hdg .hdgdate{margin:2px 0 0}
+.hdg .planhills{margin:2px 0 0; border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:4px 10px 4px 2px; gap:0}
+.hdg .planhills li{border-top:1px solid var(--line-soft)}
+.hdg .planhills li:first-child{border-top:0}
+.hdg .planhills .on .nm{text-decoration:none; color:var(--ink)}
+.hdg .planhills li:not(.on) .nm{color:var(--ink-2)}
+.hdg .planhills li:not(.on) .hh{color:var(--ink-3)}
+.hdg .planhills li.done .nm{color:var(--ink-2); text-decoration:line-through; text-decoration-color:var(--done)}
+.hdg .planhills .tick svg{position:relative; z-index:1; width:13px; height:13px}
+.hdg .planhills li.done .tick{display:grid; place-items:center; color:#fff; cursor:default}
+.hdg .planhills li.done .tick::before{background:var(--done); border-color:var(--done)}
+.hdgbtns{display:flex; flex-direction:column; gap:4px; margin-top:2px}
+.hdgbtns > .btn{width:100%; justify-content:center; min-height:48px; display:inline-flex; align-items:center; gap:8px}
+.hdgbtns > .btn svg{width:16px; height:16px}
+.hdgbtns > .btn[disabled]{opacity:.45}
+.hdgpack{display:flex; align-items:center; justify-content:center; gap:6px; margin:0; min-height:28px; font:500 13px/1.3 var(--font-ui); color:var(--ink-2)}
+.hdgpack svg{width:16px; height:16px; color:var(--accent-text)}
+.hdgquiet{align-self:center; min-height:44px; padding:0 12px; font-weight:600; font-size:13px}
+.rtopen > .rtblk.hdd{display:flex; flex-direction:column; gap:6px; padding-top:12px}
+.hddl{display:flex; align-items:flex-start; gap:9px}
+.hddi{flex:none; width:24px; height:24px; border-radius:50%; background:var(--done); color:#fff; display:grid; place-items:center; margin-top:1px}
+.hddi svg{width:14px; height:14px}
+.hddt{flex:1; min-width:0; margin:0; font:500 14px/1.4 var(--font-ui); color:var(--ink-2); overflow-wrap:anywhere}
+.hddt b{display:block; font:700 15px/1.3 var(--font-ui); color:var(--ink)}
+.hddgo{display:inline-flex; align-items:center; gap:3px; align-self:flex-start; margin-left:33px; min-height:44px; padding:0 4px 0 0;
+  font:700 14px var(--font-ui); color:var(--accent-text); background:none; border:0; cursor:pointer; text-align:left}
+.hddgo svg{width:16px; height:16px; flex:none}
+.planhills .tag.another{margin-left:6px; font-size:12px; white-space:nowrap; color:var(--ink-2); border-color:var(--line);
+  text-transform:none; letter-spacing:0; padding:2px 6px; vertical-align:middle}
+.hdnudge .tag{font-size:12px}
+.hdnudge .hdgo{display:inline-flex; align-items:center; gap:2px; margin:8px 0 0; font:700 14px/1.3 var(--font-ui); color:var(--accent-text)}
+.hdnudge .hdgo svg{width:16px; height:16px}
+.hdslim{display:flex; align-items:center; gap:10px; width:100%; min-height:44px; margin:6px 0 0; padding:8px 12px; text-align:left;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r); color:var(--ink-2); cursor:pointer}
+.hdslimt{flex:1; min-width:0; font:500 12.5px/1.35 var(--font-ui); overflow-wrap:anywhere}
+.hdslimt b{color:var(--ink); font-weight:700}
+.hdslimgo{flex:none; display:inline-flex; align-items:center; gap:2px; font:700 13px var(--font-ui); color:var(--accent-text); white-space:nowrap}
+.hdslimgo svg{width:16px; height:16px}
+.homesec.homeupnext + .hdslim{margin:8px 15px 0; width:auto}
 :root[data-theme="dark"] .misle, :root[data-theme="dark"] .mmenu, :root[data-theme="dark"] .mresults .rqres{background:rgba(21,42,38,.86); box-shadow:0 0 0 1px rgba(243,239,230,.1), 0 18px 40px -22px rgba(0,0,0,.7)}
 :root[data-theme="dark"] .mlayers.on, :root[data-theme="dark"] .mmode button[aria-pressed="true"], :root[data-theme="dark"] .mrow.on{background:#F3EFE6; color:#14332D}
 
@@ -10871,6 +10915,7 @@ function normalise(s){
       snap:p.snap !== false,
       set:String(p.set || '').slice(0, 40),
       link:/^[A-Za-z0-9]{6,32}$/.test(p.link || '') ? p.link : '',
+      later:Array.isArray(p.later) ? [...new Set(p.later.map(migrateKey).filter(Boolean))].slice(0, 200) : [],
       deleted:!!p.deleted, t:p.t||0
     });
   }
@@ -11801,7 +11846,7 @@ function applyDate(el, value){
   if (el.dataset.planid){
     const p = planById(el.dataset.planid);
     if (p){ p.date = value; p.t = now(); touched(); }
-    ui.planDate = null;
+    ui.planDate = null; ui.hdgDate = null;
     render();
     if (p) toast(value ? 'Moved to ' + prettyDate(value) + '.' : 'Date cleared.');
     return;
@@ -13561,9 +13606,10 @@ const SUPPLIES = [
   {n:29, slug:'ben-nevis',          name:'Ben Nevis',             shirt:'cream'},
   {n:30, slug:'yr-wyddfa-contours', name:'Yr Wyddfa (contours)',  shirt:'cream'},
   {n:31, slug:'yr-wyddfa',          name:'Yr Wyddfa',             shirt:'cream'},
-  {n:32, slug:'dogs-hills-beers',   name:'Dogs Hills Beers',      shirt:'indigo'}
+  {n:32, slug:'dogs-hills-beers',   name:'Dogs Hills Beers',      shirt:'indigo'},
+  {n:33, slug:'trig-point-division', name:'Trig Point Division',   shirt:'chocolate'}
 ];
-const SHIRTS = {cream:'Natural', sand:'Natural', pine:'Blue Spruce', indigo:'Indigo'};
+const SHIRTS = {cream:'Natural', sand:'Natural', pine:'Blue Spruce', indigo:'Indigo', chocolate:'Dark Chocolate'};
 
 const shopCfg = () => ({ w: String(window.SHOP_WORKER || '').trim().replace(/\/$/, ''), pk: String(window.STRIPE_PUBLISHABLE_KEY || '').trim() });
 let shopCat = null, shopLoading = false, shopCheckout = null;
@@ -14009,7 +14055,7 @@ function supList(){
 }
 
 const shopImg = (n, side) => SUP_BASE + 'tees/' + sup2(n) + '-' + side + '-shop.webp';
-const SHIRT_HEX = {cream:'#EAE1D0', sand:'#EAE1D0', pine:'#4C6151', indigo:'#4D6580'};
+const SHIRT_HEX = {cream:'#EAE1D0', sand:'#EAE1D0', pine:'#4C6151', indigo:'#4D6580', chocolate:'#382826'};
 const kitItems = () => shopCat && shopCat.items ? Object.entries(shopCat.items).filter(([k, it]) => (it.kind || 'tee') !== 'tee' && ((it.img && it.img.length) || it.custom)) : [];
 function donateAmt(){
   const el = document.getElementById('donamt');
@@ -19420,6 +19466,13 @@ function scrollDiag(){
     if (Math.abs(y - scrollDiagLast) > 300) photoLog('JUMP ' + Math.round(scrollDiagLast) + '→' + Math.round(y), sdWhere() + ' act:' + (window.__lastAct || '') + ' ' + (performance.now() - (window.__lastActT || 0)).toFixed(0) + 'ms');
     scrollDiagLast = y;
   }, {passive:true});
+  const pLast = new WeakMap();
+  addEventListener('scroll', e => {
+    const t = e.target; if (!plogOn() || !t || !t.classList || !(t.classList.contains('dwbody') || t.classList.contains('mapsidein'))) return;
+    const y = t.scrollTop, was = pLast.has(t) ? pLast.get(t) : 0;
+    if (Math.abs(y - was) > 300 && !(t.__rpPut != null && Math.abs(y - t.__rpPut) < 2))    photoLog('PANEL JUMP ' + Math.round(was) + '→' + Math.round(y), 'act:' + (window.__lastAct || '') + ' ' + (performance.now() - (window.__lastActT || 0)).toFixed(0) + 'ms');
+    pLast.set(t, y);
+  }, {capture:true, passive:true});
   const st = window.scrollTo; window.scrollTo = function(...a){ if (plogOn() && (window.scrollY || 0) > 200) photoLog('scrollTo ' + JSON.stringify(a), sdWho()); return st.apply(this, a); };
   const si = Element.prototype.scrollIntoView; Element.prototype.scrollIntoView = function(...a){ if (plogOn()) photoLog('scrollIntoView ' + (this.id || this.className || this.tagName).toString().slice(0, 30), sdWho()); return si.apply(this, a); };
   const fo = HTMLElement.prototype.focus; HTMLElement.prototype.focus = function(...a){ if (plogOn() && (tab === 'j' || tab === 'a')) photoLog('focus ' + (this.id || this.name || this.className || this.tagName).toString().slice(0, 30), sdWho()); return fo.apply(this, a); };
@@ -19516,6 +19569,76 @@ function keepPlaceWatch(mainEl, y0, key){
   const settle = t => { back(); if (imgsDone() || t >= 4000) stop(); else timers.push(setTimeout(() => settle(t + 250), 250)); };
   timers.push(setTimeout(() => settle(1500), 1500));
 }
+let rpLastKey = '', rpLastOpen = null, rpTap = null, rpWatchOff = null;
+for (const ev of ['click', 'change']) addEventListener(ev, e => {
+  const a = e.target && e.target.closest && e.target.closest('[data-act]');
+  if (a) rpTap = {el: a, top: a.getBoundingClientRect().top, t: performance.now()};
+}, {capture:true, passive:true});
+const RP_SCROLLERS = ['.mapshell.tall .dwbody, .mapshell.wide .mapsidein', '#layers', '.mlistmenu', '.mdaymenu'];
+function rpScroller(root){ return (root || document).querySelector(RP_SCROLLERS[0]); }
+function rpKey(){
+  if (tab !== 'p') return '';
+  const w = mapWide(), st = drawerState();
+  if (ui.mapFull) return '';
+  return ['p', w ? 'w' : 't', !w && st === 'collapsed' ? 'shut' : 'up', ui.rmode === 'plot' ? 'plot' : 'x'].join('|');
+}
+function rpSel(el){
+  let s = (el.tagName || '').toLowerCase();
+  for (const k of ['act', 'id', 'k', 'v']){ const v = el.dataset && el.dataset[k]; if (v != null) s += '[data-' + k + '="' + CSS.escape(v) + '"]'; }
+  const role = el.getAttribute && el.getAttribute('role');
+  return s + (role ? '[role="' + CSS.escape(role) + '"]' : ':not([role])');
+}
+function rpSnap(mainEl){
+  const key = rpKey(), same = !!key && key === rpLastKey;
+  const out = {key, same, wasOpen: rpLastOpen, tops: [], anchor: null};
+  if (!same) return out;
+  const tap = rpTap && performance.now() - rpTap.t < 1500 && rpTap.el.isConnected ? rpTap : null;
+  RP_SCROLLERS.forEach((q, n) => {
+    const sc = mainEl.querySelector(q);
+    out.tops[n] = sc && sc.offsetParent ? sc.scrollTop : null;
+    if (sc && tap && !out.anchor && sc.contains(tap.el)){
+      const sel = rpSel(tap.el), all = [...sc.querySelectorAll(sel)];
+      out.anchor = {n, sel, i: Math.max(0, all.indexOf(tap.el)), top: tap.top};
+    }
+  });
+  return out;
+}
+function rpPut(mainEl, s){
+  rpLastKey = s.key; rpLastOpen = ui.planOpen || null;
+  if (rpWatchOff) rpWatchOff();
+  if (!s.same) return;
+  const wants = [];
+  RP_SCROLLERS.forEach((q, n) => {
+    const sc = mainEl.querySelector(q), was = s.tops[n];
+    if (!sc || was == null || !sc.offsetParent) return;
+    let how = 'kept';
+    sc.scrollTop = was;
+    const fresh = n === 0 && ui.planOpen && ui.planOpen !== s.wasOpen;
+    const row = fresh && sc.querySelector('.rtline[data-id="' + CSS.escape(ui.planOpen) + '"], .rtrow[data-act="planopen"][data-id="' + CSS.escape(ui.planOpen) + '"]');
+    if (row){
+      sc.scrollTop += row.getBoundingClientRect().top - sc.getBoundingClientRect().top - 8;
+      how = 'route to the top';
+    } else if (s.anchor && s.anchor.n === n){
+      const again = sc.querySelectorAll(s.anchor.sel)[s.anchor.i] || sc.querySelector(s.anchor.sel);
+      if (again && again.offsetParent){ sc.scrollTop += again.getBoundingClientRect().top - s.anchor.top; how = 'kept the button'; }
+    }
+    const want = sc.scrollTop; sc.__rpPut = want;
+    if (n === 0 && plogOn()) photoLog('redraw routes panel ' + how + ' was ' + Math.round(was) + ' now ' + Math.round(want), 'act:' + (window.__lastAct || ''));
+    if (want > 200) wants.push([sc, want]);
+  });
+  if (!wants.length) return;
+  let done = false; const timers = [];
+  const back = () => { if (done) return; for (const [sc, want] of wants) if (sc.isConnected && sc.scrollTop < 60) sc.scrollTop = want; };
+  const quiet = () => { done = true; };
+  const stop = () => { done = true; for (const t of timers) clearTimeout(t); for (const [sc] of wants) sc.removeEventListener('scroll', back);
+    for (const ev of ['touchstart', 'wheel', 'keydown']) removeEventListener(ev, quiet, true); rpWatchOff = null; };
+  rpWatchOff = stop;
+  requestAnimationFrame(back);
+  for (const [sc] of wants) sc.addEventListener('scroll', back, {passive:true});
+  for (const ev of ['touchstart', 'wheel', 'keydown']) addEventListener(ev, quiet, {capture:true, passive:true});
+  for (const ms of [60, 150, 300, 600]) timers.push(setTimeout(back, ms));
+  timers.push(setTimeout(stop, 1000));
+}
 function render(){
   if (pickerBusy()){ renderWanted++; photoLog('render held back — picker is open'); return; }
   if (dwDrag && dwDrag.moved > 8 && document.contains(dwDrag.d)){ dwDrag.held = true; return; }
@@ -19557,7 +19680,7 @@ function render(){
 
   if (onboarding()){
     document.getElementById('main').innerHTML = renderOnboard();
-    lastMainHTML = '';
+    lastMainHTML = ''; rpLastKey = '';
     paintSync(); wire();
     return;
   }
@@ -19586,10 +19709,12 @@ function render(){
   lastScrKey = scrKey;
   if (!mainSame){
     const kitTyped = kitFormSnap(mainEl);
+    const rp = rpSnap(mainEl);
     mapDetach();
     lastMainHTML = mainHTML; mainEl.innerHTML = mainHTML;
     mapAttach();
     if (kitTyped.length) kitFormPut(mainEl, kitTyped);
+    rpPut(mainEl, rp);
   }
   if (keepPlace) keepPlaceWatch(mainEl, y0, scrKey);
   else if (keepPlaceOff && !mainSame) keepPlaceOff();
@@ -21001,7 +21126,7 @@ function recentlyMarked(n){
     .slice(0, n);
 }
 function nextRoute(){
-  const open = livePlans().filter(p => !p.hills.length || !p.hills.every(k => isBagged(k)));
+  const open = livePlans().filter(p => (!p.hills.length || !p.hills.every(k => isBagged(k))) && !(hdgDue(p) && p.date < today()));
   const dated = open.filter(p => p.date).sort((a, b) => a.date.localeCompare(b.date));
   return dated[0] || open.sort((a, b) => (b.t || 0) - (a.t || 0))[0] || null;
 }
@@ -22645,7 +22770,9 @@ function renderDashboard(){
     (hs.length ? summitStrip(hs[0], nr.date || '') : '') + '</button>';
   };
 
-  const upNow = walk ? homeWalkHTML(walk) : nr ? upnextCard() : '';
+  const nudge = hdgNudge();
+  let upNow = walk ? homeWalkHTML(walk) : nr ? upnextCard() : '';
+  if (nudge) upNow += hdgNudgeHTML(nudge, !!upNow);
   if (upNow){
     if (shot) s += upNow;
     else { const at = s.lastIndexOf('<header class="cover">'); s = s.slice(0, at) + upNow + s.slice(at); }
@@ -26608,6 +26735,94 @@ function rtFirstHTML(p, hs, walked, pts){
   s += '<button class="btn ghost rtsharebtn" data-act="rsshare" data-id="' + esc(id) + '">' + ti('share') + 'Share this route</button>';
   return s + '</div></div>';
 }
+const HDG_NO_KEY = 'waymark.hdgno';
+let hdgNoSet = null;
+function hdgNo(){
+  if (!hdgNoSet){
+    hdgNoSet = new Set();
+    try{ const v = JSON.parse(localStorage.getItem(HDG_NO_KEY) || '[]'); if (Array.isArray(v)) v.forEach(x => { if (typeof x === 'string') hdgNoSet.add(x); }); }catch(e){}
+  }
+  return hdgNoSet;
+}
+function hdgNoSave(){ try{ localStorage.setItem(HDG_NO_KEY, JSON.stringify([...hdgNo()])); }catch(e){} }
+const hdgLeft = p => (p.hills || []).filter(k => BY_KEY[k] && !isBagged(k));
+const hdgLater = p => (p.later || []).filter(k => BY_KEY[k] && !isBagged(k) && (p.hills || []).indexOf(k) >= 0);
+function hdgDue(p){
+  if (!p || p.deleted || !p.date || p.date > today()) return false;
+  if (!hdgLeft(p).length) return false;
+  if ((p.later || []).length) return false;
+  return !hdgNo().has(p.id);
+}
+function hdgNudge(){
+  const due = livePlans().filter(p => hdgDue(p) && p.date < today());
+  due.sort((a, b) => b.date.localeCompare(a.date) || (b.t || 0) - (a.t || 0));
+  return due[0] || null;
+}
+function hdgDay(d){
+  if (!d) return '';
+  if (d === today()) return 'Today';
+  if (rtWhen(d) === 'yesterday') return 'Yesterday';
+  return wxShortDay(d);
+}
+function hdgOff(id){ ui.hdgOff = ui.hdgOff || {}; return ui.hdgOff[id] || (ui.hdgOff[id] = []); }
+function hdgCardHTML(p, hs){
+  const id = p.id, left = hdgLeft(p), off = hdgOff(id).filter(k => left.indexOf(k) >= 0);
+  const n = left.length - off.length, m = hs.length;
+  const set = p.set && kitSetById(p.set);
+  let s = '<div class="rtblk hdg" data-hdg="' + esc(id) + '">' +
+    '<div class="hdgh"><h3>How did it go?</h3>' +
+    '<p class="hdgsub">' + esc(hdgDay(p.date)) + ' · ' + m + ' summit' + (m === 1 ? '' : 's') + ' planned · ' +
+      '<button class="hdglink" data-act="hdgday" data-id="' + esc(id) + '" aria-expanded="' + (ui.hdgDate === id) + '">' + (ui.hdgDate === id ? 'Done' : 'Change day') + '</button></p></div>';
+  if (ui.hdgDate === id) s += '<div class="rtdateed hdgdate">' + dateFields(p.date || '', 'data-planid="' + esc(id) + '"', {future:true}) + '</div>';
+  s += '<ul class="planhills hdglist">';
+  for (const h of hs){
+    const done = isBagged(h.k), on = done || off.indexOf(h.k) < 0;
+    s += '<li class="' + (on ? 'on' : '') + (done ? ' done' : '') + '">' +
+      (done
+        ? '<span class="tick" aria-hidden="true">' + ICON_CHECK + '</span>'
+        : '<button class="tick" data-act="hdgtick" data-id="' + esc(id) + '" data-k="' + esc(h.k) + '" aria-pressed="' + on + '" aria-label="' + esc(hillName(h)) + (on ? ': climbed. Tap if you did not reach it.' : ': not reached. Tap if you did.') + '">' + ICON_CHECK + '</button>') +
+      '<span class="nm">' + esc(hillName(h)) + '</span>' +
+      '<span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
+  }
+  s += '</ul><div class="hdgbtns">' +
+    '<button class="btn" data-act="hdgmark" data-id="' + esc(id) + '"' + (n ? '' : ' disabled') + '>' + ICON_CHECK + 'Mark ' + n + ' of ' + m + '</button>' +
+    (set ? '<p class="hdgpack">' + ti('backpack') + 'In your ' + esc(set.n || 'pack') + ' pack</p>' : '') +
+    '<button class="linkbtn hdgquiet" data-act="hdgno" data-id="' + esc(id) + '">Didn’t go</button></div>';
+  return s + '</div>';
+}
+function hdgDoneHTML(p, hs, done){
+  const later = hdgLater(p); if (!later.length) return '';
+  const names = later.map(k => hillName(BY_KEY[k]));
+  const list = names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] : names[0];
+  return '<div class="rtblk hdd" data-hdd="' + esc(p.id) + '">' +
+    '<div class="hddl"><span class="hddi">' + ICON_CHECK + '</span>' +
+      '<p class="hddt"><b>' + done + ' of ' + hs.length + ' marked' + (p.date ? ' · ' + esc(hdgDay(p.date)) : '') + '</b>' +
+        esc(list) + ' left for another day.</p></div>' +
+    '<button class="hddgo" data-act="hdgrest" data-id="' + esc(p.id) + '">' + ti('route') + 'Walk the rest · ' + later.length + ' summit' + (later.length === 1 ? '' : 's') + ti('chevron-right') + '</button></div>';
+}
+function hdgNudgeHTML(p, slim){
+  const hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+  const left = hdgLeft(p).length, dn = hs.length - left;
+  const what = hs.length + ' summit' + (hs.length === 1 ? '' : 's') + ' planned, ' + (dn ? dn + ' marked so far' : 'not marked yet');
+  if (slim)
+    return '<button class="hdslim" data-act="hdgopen" data-id="' + esc(p.id) + '">' +
+      '<span class="hdslimt"><b>Last planned walk</b> · ' + esc(p.name || 'Untitled route') + ' · ' + esc(hdgDay(p.date)) + ' · ' + esc(what) + '</span>' +
+      '<span class="hdslimgo">How did it go?' + ti('chevron-right') + '</span></button>';
+  return '<button class="dcard upnext hdnudge" data-act="hdgopen" data-id="' + esc(p.id) + '">' +
+    '<div class="upntop"><p class="sumlabel">Last planned walk</p></div>' +
+    '<div class="dch"><b>' + esc(p.name || 'Untitled route') + '</b><span class="tag">' + esc(hdgDay(p.date)) + '</span></div>' +
+    '<p class="dcs">' + esc(what) + '</p>' +
+    '<p class="hdgo">How did it go?' + ti('chevron-right') + '</p></button>';
+}
+function hdgOpen(id){
+  const p = planById(id); if (!p) return;
+  tab = 'p'; ui.planOpen = id; ui.mapDrawer = 'open'; ui.postMenu = null; ui.planEdit = null; ui.planDate = null;
+  if (ui.mapFull) ui.mapFull = false;
+  render(); try{ window.scrollTo({top:0}); }catch(e){}
+  const put = () => { const sc = rpScroller(), row = sc && sc.querySelector('.rtline[data-id="' + CSS.escape(id) + '"], .rtrow[data-act="planopen"][data-id="' + CSS.escape(id) + '"]');
+    if (sc && row) sc.scrollTop += row.getBoundingClientRect().top - sc.getBoundingClientRect().top - 8; };
+  put(); setTimeout(put, 80);
+}
 function routeOpenHTML(p, hs, done, walked, pts){
   const id = p.id, mk = 'r:' + id, mOpen = ui.postMenu === mk;
   const editing = ui.planDate === id;
@@ -26616,6 +26831,9 @@ function routeOpenHTML(p, hs, done, walked, pts){
     s += '<div class="rtname"><input class="planname" data-act="planname" data-id="' + esc(id) + '" value="' +
       esc(p.name || '') + '" placeholder="Name this route" maxlength="60">' +
       '<button class="btn sm" data-act="planrename" data-id="' + esc(id) + '">Done</button></div>';
+
+  if (hdgDue(p)) s += hdgCardHTML(p, hs);
+  else if (!walked) s += hdgDoneHTML(p, hs, done);
 
   s += rtFirstHTML(p, hs, walked, pts);
 
@@ -26632,9 +26850,12 @@ function routeOpenHTML(p, hs, done, walked, pts){
       '</div>';
   s += '</div>';
 
+  const later = walked ? [] : hdgLater(p);
   if (hs.length){
     const sOpen = (ui.rtSumOpen || []).indexOf(String(id)) >= 0;
-    const names = hs.slice(0, 2).map(h => hillName(h)).join(', ') + (hs.length > 2 ? ' +' + (hs.length - 2) : '');
+    const names = later.length
+      ? done + ' marked, ' + later.length + ' another day'
+      : hs.slice(0, 2).map(h => hillName(h)).join(', ') + (hs.length > 2 ? ' +' + (hs.length - 2) : '');
     s += '<div class="rtblk rtsums' + (sOpen ? ' open' : '') + '"><button class="rtsumhead" data-act="rtsumfold" data-id="' + esc(id) + '" aria-expanded="' + sOpen + '">' +
       '<span class="rtsumi">' + ti('mountain') + '</span>' +
       '<span class="rtsumt"><b>' + hs.length + ' summit' + (hs.length === 1 ? '' : 's') + '</b>' +
@@ -26649,7 +26870,8 @@ function routeOpenHTML(p, hs, done, walked, pts){
         '" data-date="' + esc(p.date || '') + '" aria-pressed="' + on + '" aria-label="Mark off ' + esc(hillName(h)) + '">' +
         ICON_CHECK + '</button><span class="nm">' + esc(hillName(h)) +
         (verifiedAt(h.k) ? '<span class="vbadge" title="Verified at the summit">' + ICON_CHECK + '</span>' : '') +
-        repBadge(h.k) + '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
+        repBadge(h.k) + (!on && later.indexOf(h.k) >= 0 ? '<span class="tag another">another day</span>' : '') +
+        '</span><span class="hh"><b>' + feet(h) + '</b> ft</span></li>';
     }
     s += '</ul>';
   }
@@ -26672,7 +26894,8 @@ function routeOpenHTML(p, hs, done, walked, pts){
 
   s += '<div class="rtblk rtactions"><div class="rtbtns">';
   if (hs.length && !walked)
-    s += '<button class="btn ghost" data-act="bagall" data-id="' + esc(id) + '">Mark all ' + hs.length + '</button>';
+    s += '<button class="btn ghost" data-act="bagall" data-id="' + esc(id) + '">' +
+      (done ? 'Mark the other ' + (hs.length - done) : 'Mark all ' + hs.length) + '</button>';
   if (sheetsOk() && pts > 1)
     s += '<button class="btn ghost" data-act="rtoffline" data-id="' + esc(id) + '">' + ti('download') + 'Keep offline</button>';
   s += '</div>';
@@ -29185,7 +29408,7 @@ document.addEventListener('click', async e => {
     ui.planEdit = ui.planEdit === el.dataset.id ? null : el.dataset.id;
     render();
     const box = document.querySelector('.planname');
-    if (box){ box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+    if (box){ box.scrollIntoView({block:'nearest'}); box.focus({preventScroll:true}); box.setSelectionRange(box.value.length, box.value.length); }
   }
   else if (a === 'delplan'){
     const p = state.plans.find(x => x.id === el.dataset.id); if (!p) return;
@@ -29216,6 +29439,52 @@ document.addEventListener('click', async e => {
     try{ localStorage.removeItem('waymark.' + wxKey(at)); }catch(e){}
     render();
   }
+  else if (a === 'hdgtick'){
+    const off = hdgOff(el.dataset.id), k = el.dataset.k, i = off.indexOf(k);
+    if (i < 0) off.push(k); else off.splice(i, 1);
+    render();
+  }
+  else if (a === 'hdgday'){
+    ui.hdgDate = ui.hdgDate === el.dataset.id ? null : el.dataset.id;
+    ui.planDate = null;
+    render();
+  }
+  else if (a === 'hdgno'){
+    const p = planById(el.dataset.id); if (!p) return;
+    hdgNo().add(p.id); hdgNoSave();
+    render();
+    toast('Okay. The route is still here for another day.');
+  }
+  else if (a === 'hdgmark'){
+    const p = planById(el.dataset.id); if (!p) return;
+    const left = hdgLeft(p), off = hdgOff(p.id);
+    const keys = left.filter(k => off.indexOf(k) < 0), skipped = left.filter(k => off.indexOf(k) >= 0);
+    if (!keys.length) return;
+    const d = p.date && p.date <= today() ? p.date : today();
+    await marking(() => {
+      keys.forEach(k => { const c = rec(k); state.bagged[k] = {...c, st:'done', done:true, date:c.date || d, t:now()}; });
+      if (p.set && kitSetById(p.set)) keys.forEach(k => applySetToHill(k, p.set));
+      p.later = skipped; p.t = now();
+      delete (ui.hdgOff || {})[p.id];
+      touched(); render();
+      const inPack = p.set && kitSetById(p.set) ? ', in your ' + (kitSetById(p.set).n || 'pack') + ' pack' : '';
+      toast(skipped.length
+        ? keys.length + ' of ' + (p.hills || []).length + ' marked' + inPack + '. The other ' + (skipped.length === 1 ? 'one is' : skipped.length + ' are') + ' kept for another day.'
+        : 'All marked' + inPack + '. Nice one.');
+    });
+  }
+  else if (a === 'hdgrest'){
+    const p = planById(el.dataset.id); if (!p) return;
+    const later = hdgLater(p); if (!later.length) return;
+    const q = {id: uid(), name: (p.name || 'Untitled route') + ' — the rest', date:'', notes:'',
+      hills: later.slice(), trk: Array.isArray(p.trk) ? p.trk : null, wp: Array.isArray(p.wp) ? p.wp : null,
+      snap: p.snap !== false, set: p.set || '', link:'', later: [], deleted:false, t: now()};
+    state.plans.push(q);
+    ui.planOpen = q.id; ui.postMenu = null; ui.planDate = null; ui.hdgDate = null;
+    touched(); render();
+    toast('New route: ' + q.name + '.');
+  }
+  else if (a === 'hdgopen'){ hdgOpen(el.dataset.id); }
   else if (a === 'bagall'){
     const p = state.plans.find(x => x.id === el.dataset.id); if (!p) return;
     let d = p.date;
@@ -34029,7 +34298,7 @@ function openPostSummits(id){
 }
 
 
-const APP_VERSION = 'v411';
+const APP_VERSION = 'v413';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
