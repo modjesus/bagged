@@ -2669,7 +2669,7 @@ button.bstriprow{cursor:pointer}
 .shopsheet{max-width:560px; width:min(560px, calc(100vw - 24px)); max-height:calc(100dvh - 32px); overflow:auto}
 .shophead{display:flex; align-items:center; justify-content:space-between; margin:0 0 12px}
 .shophead b{font:700 17px var(--font-ui)}
-.shophead .xbtn{position:static; inset:auto; transform:none; width:40px; height:40px}
+.shophead .xbtn{position:relative; inset:auto; transform:none; width:40px; height:40px}
 .shopsum{margin:0 0 12px; font-size:14px; color:var(--ink-2)}
 .shopwait{margin:18px 0; font-size:15px; color:var(--ink-2)}
 .shopthanks{display:flex; flex-direction:column; align-items:flex-start; gap:10px; padding:8px 0}
@@ -7169,7 +7169,7 @@ body.nonav{padding-bottom:24px}
 .profsheet .ntop{display:flex; align-items:center; gap:10px; margin:0}
 .profsheet .ntop h3{flex:1; margin:0}
 .profsheetbtns{display:flex; align-items:center; gap:8px}
-.profsheetbtns .xbtn{position:static; transform:none}
+.profsheetbtns .xbtn{position:relative; inset:auto; transform:none}
 .profsheetbtns .xbtn svg{transition:transform .2s}
 .profsheet.min .profsheetbtns .xbtn svg{transform:rotate(180deg)}
 .profsheet.min .profsheetbody{display:none}
@@ -17473,6 +17473,8 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('mess
     const busy = (el && (el.tagName === 'TEXTAREA' || el.isContentEditable ||
                   (el.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|file|color|date)$/i.test(el.type || '')))) ||
                  !!document.querySelector('.sheet.open, .camx.open') ||
+                 !!document.querySelector('#shopsheet, #basketsheet, #bcsheet.open, .repback') ||
+                 (el && el.tagName === 'IFRAME') ||
                  document.visibilityState !== 'visible';
     if (!busy){ location.reload(); return; }
     try{ toastAct('A newer WayMark is ready.', 'Load it', () => location.reload()); }catch(err){}
@@ -34782,7 +34784,7 @@ function openPostSummits(id){
 }
 
 
-const APP_VERSION = 'v415';
+const APP_VERSION = 'v416';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
