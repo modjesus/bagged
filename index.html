@@ -1542,7 +1542,8 @@ button.tagb::before{content:""; position:absolute; top:-7px; bottom:-7px; left:-
 .mapshell{position:relative}
 .mapshell.tall{display:block}
 .mapshell.tall .mapmain{position:relative}
-.mapshell.tall .mapwrap{height:calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px) - 166px);
+.mapshell.tall{--dwshut:110px}
+.mapshell.tall .mapwrap{height:calc(100dvh - var(--wm-head, 59px) - var(--wm-nav, 64px) - var(--dwshut, 110px));
   min-height:260px}
 .mapshell.tall .mapslot, .mapshell.tall #routemap{height:100%}
 .mapdrawer{position:fixed; left:0; right:0; bottom:calc(var(--wm-nav, 64px) + var(--vvb, 0px)); z-index:40;
@@ -1572,7 +1573,7 @@ html.maptab, html.maptab body{overscroll-behavior:none}
 .mapsidein .dwacts{padding:10px 0 2px}
 .dwacts > *{flex:1 1 0; min-width:0; min-height:46px; justify-content:center; white-space:nowrap}
 .dwacts .btn svg{width:17px; height:17px}
-.mapdrawer[data-state="collapsed"]{height:110px}
+.mapdrawer[data-state="collapsed"]{height:var(--dwshut, 110px)}
 .mapdrawer[data-state="collapsed"] .nrmenu{top:auto; bottom:calc(100% + 8px)}
 .dpk-t, .dpk-none{flex:1; min-width:0; display:block}
 .dpk-t b, .dpk-none b{display:block; font:400 18px/1.15 var(--font-display); color:var(--ink);
@@ -1602,6 +1603,13 @@ html.maptab, html.maptab body{overscroll-behavior:none}
 .mapshell.wide .rtnm{white-space:normal; overflow:visible; text-overflow:clip}
 .mapshell.wide .rtrow{align-items:start}
 .mapshell.wide .rtwhen{padding-top:2px}
+.mapshell.wide .rtrow{grid-template-columns:30px 1fr}
+.mapshell.wide .rtline .rtnm{display:block; -webkit-line-clamp:unset; overflow:visible; overflow-wrap:normal}
+.mapshell.wide .rtwhen{grid-column:2; display:flex; gap:6px; align-items:baseline; padding:0; margin-top:-6px}
+.mapshell.wide .rtwhen s{text-decoration:none}
+.mapshell.wide .rteye > span{display:none}
+.mapshell.wide .rteye{width:44px; min-width:44px; padding:0; margin-right:8px}
+.hdmlab .hdmagain{color:#A8431A; font-weight:600}
 .mapshell.wide .mapsidein{flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain;
   padding:4px 16px 20px}
 .mapshell.wide .mapmain{min-width:0; min-height:0; display:flex; flex-direction:column; overflow:hidden}
@@ -8545,7 +8553,7 @@ textarea, select{font-size:16px}
 .lshead .lsback{padding-left:6px}
 .lsx{width:44px; padding:0; justify-content:center}
 #layers > .lstitle{padding:4px 4px 2px}
-.lsrow{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 10px; width:100%; padding:7px 2px 7px 4px; border:0; border-top:1px solid var(--line-soft); background:transparent; color:var(--ink); text-align:left; font:inherit}
+.lsrow{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 10px; width:100%; padding:4px 2px 4px 4px; border:0; border-top:1px solid var(--line-soft); background:transparent; color:var(--ink); text-align:left; font:inherit}
 .lst{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1 1 120px}
 .lst b{font:650 14.5px/1.2 var(--font-ui)}
 .lst small{font:500 12px/1.3 var(--font-ui); color:var(--ink-3)}
@@ -8556,7 +8564,8 @@ textarea, select{font-size:16px}
 .lsgo{cursor:pointer; min-height:52px}
 .lssee{display:inline-flex; align-items:center; gap:2px; font:650 14px var(--font-ui); color:var(--accent-text)}
 .lssee svg{width:16px; height:16px}
-.lsbooks{padding:0 4px 8px}
+.lsbooks{padding:0 4px 6px; gap:4px 12px; font-size:12px}
+.lsbooks span{padding:1px 0}
 .offsheet .offh{margin:4px 0 6px; font:700 22px/1.2 var(--font-display, var(--font-ui)); color:var(--ink)}
 .offlede{margin:0 0 14px; font:500 15.5px/1.45 var(--font-ui); color:var(--ink)}
 .offwarn{display:flex; gap:10px; align-items:flex-start; margin:0 0 12px; padding:10px 12px; border-radius:12px; background:var(--accent-soft); color:var(--ink); font:500 14.5px/1.4 var(--font-ui)}
@@ -8577,7 +8586,9 @@ textarea, select{font-size:16px}
 .wxnosig .wxi svg{width:18px; height:18px}
 #nearlabs{position:absolute; inset:0; z-index:4; pointer-events:none}
 #nearlabs .nearlines{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
-#nearlabs line{stroke:#14332D; stroke-width:1.5; stroke-dasharray:3 3}
+#nearlabs line{stroke:#14332D; stroke-width:1.2; stroke-dasharray:2 3}
+.hilllab{position:absolute; left:0; top:0; white-space:nowrap; padding:2px 7px; border-radius:99px; background:rgba(255,253,248,.94); color:#14332D;
+  border:1px solid rgba(20,51,45,.35); font:700 11.5px/1.25 var(--font-ui)}
 .nearlab{position:absolute; left:0; top:0; white-space:nowrap; padding:4px 10px; border-radius:99px; background:#FFFDF8; color:#14332D;
   border:1.5px solid #14332D; font:500 13px/1.25 var(--font-ui); box-shadow:0 6px 14px -8px rgba(20,51,45,.6)}
 .nearlab b{font-weight:700}
@@ -24368,7 +24379,7 @@ function hillColour(h, cs){
 const PIN_COL_KEY = 'waymark.pincol';
 const PIN_MARKED = '#A8431A';
 const PIN_TODO = '#3E625A';
-function pinBooks(){ try{ return localStorage.getItem(PIN_COL_KEY) === 'books'; }catch(e){ return false; } }
+function pinBooks(){ try{ return localStorage.getItem(PIN_COL_KEY) !== 'marked'; }catch(e){ return true; } }
 function setPinBooks(on){ try{ localStorage.setItem(PIN_COL_KEY, on ? 'books' : 'marked'); }catch(e){} }
 function hillIconHTML(h, cs){
   const st = stateOf(h.k), done = st === 'done';
@@ -24391,6 +24402,7 @@ function hillMarker(m, arr, h, cs, onClick, tip){
   mk.__k = h.k;
   const el = mk.getElement();
   el.title = tip || hillName(h);
+  el.dataset.k = h.k;
   const hi = ui.mapHi && ui.mapHi.indexOf(h.k) >= 0;
   if (hi){ el.classList.add('hipeak'); el.style.zIndex = 5; }
   else el.style.zIndex = done ? 3 : 2;
@@ -25643,54 +25655,83 @@ function nearSoon(){ clearTimeout(nearTimer); nearTimer = setTimeout(paintNear, 
 function nearClear(){ const L = document.getElementById('nearlabs'); if (L) L.remove(); }
 function paintNear(){
   nearClear();
-  if (!rmap || tab !== 'p' || !hideMarkedOn() || ui.rmode === 'plot' || hdgPicking() || ui.mapFull) return;
-  const near = nearHills(); if (!near.length) return;
+  if (!rmap || tab !== 'p' || hdgPicking()) return;
   const box = rmap.getContainer(); if (!box || !box.isConnected) return;
   const B = box.getBoundingClientRect(); if (!B.width || !B.height) return;
   const rect = e => e.getBoundingClientRect();
   const hit = (a, b) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
-  const blocks = [];
+  const CELL = 64, grid = new Map();
+  const put = q => { for (let gx = Math.floor(q.l / CELL); gx <= Math.floor(q.r / CELL); gx++) for (let gy = Math.floor(q.t / CELL); gy <= Math.floor(q.b / CELL); gy++){
+    const k = gx + ',' + gy; if (!grid.has(k)) grid.set(k, []); grid.get(k).push(q); } };
+  const clear = q => { for (let gx = Math.floor(q.l / CELL); gx <= Math.floor(q.r / CELL); gx++) for (let gy = Math.floor(q.t / CELL); gy <= Math.floor(q.b / CELL); gy++){
+    for (const o of (grid.get(gx + ',' + gy) || [])) if (hit(q, o)) return false; } return true; };
   const wrap = box.closest('.mapwrap') || document;
   for (const e of wrap.querySelectorAll('.misle, .mhill, .msaveoff, .mmenu:not([hidden]), .mresults .rqres, .poimapnote, .maplibregl-ctrl, .rosectl'))
-    { const r = rect(e); if (r.width && r.height) blocks.push({l:r.left - 4, t:r.top - 4, r:r.right + 4, b:r.bottom + 4}); }
+    { const r = rect(e); if (r.width && r.height) put({l:r.left - 4, t:r.top - 4, r:r.right + 4, b:r.bottom + 4}); }
   for (const e of document.querySelectorAll('.mapdrawer, .mapside, .bnav, .top'))
-    { const r = rect(e); if (r.width && r.height) blocks.push({l:r.left, t:r.top - 4, r:r.right, b:r.bottom}); }
-  const marks = [...box.querySelectorAll('.maplibregl-marker')].map(e => { const r = rect(e); return {l:r.left - 2, t:r.top - 2, r:r.right + 2, b:r.bottom + 2}; })
-    .filter(q => q.r > B.left && q.l < B.right && q.b > B.top && q.t < B.bottom);
+    { const r = rect(e); if (r.width && r.height) put({l:r.left, t:r.top - 4, r:r.right, b:r.bottom}); }
+  const pins = [];
+  for (const e of box.querySelectorAll('.maplibregl-marker')){
+    const r = rect(e); if (!(r.right > B.left && r.left < B.right && r.bottom > B.top && r.top < B.bottom)) continue;
+    put({l:r.left - 2, t:r.top - 2, r:r.right + 2, b:r.bottom + 2});
+    const k = e.dataset && e.dataset.k;
+    if (k && BY_KEY[k]) pins.push({h: BY_KEY[k], x:(r.left + r.right) / 2, y:(r.top + r.bottom) / 2, R:r.width / 2});
+  }
   const L = document.createElement('div'); L.id = 'nearlabs'; L.setAttribute('aria-hidden', 'true');
   box.appendChild(L);
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'nearlines');
   L.appendChild(svg);
-  const placed = [], named = [];
-  const R = 14;
-  for (const {h, d} of near){
-    const p = rmap.project([h.o, h.a]); const x = B.left + p.x, y = B.top + p.y;
-    if (x < B.left || x > B.right || y < B.top || y > B.bottom) continue;
-    const t = document.createElement('div'); t.className = 'nearlab';
-    t.innerHTML = '<b>' + esc(hillName(h)) + '</b> <span>' + esc(nearDist(d)) + '</span>';
-    L.appendChild(t);
-    const find = () => { const w = t.offsetWidth, ht = t.offsetHeight;
-      for (const off of [0, 26, 52, 80, 110]) for (const [lx, ly] of [
-          [x + R + 4 + off, y - ht / 2], [x - R - 4 - w - off, y - ht / 2],
-          [x - w / 2, y - R - 4 - ht - off], [x - w / 2, y + R + 4 + off],
-          [x + R + off, y - R - ht - off * .6], [x - R - w - off, y - R - ht - off * .6],
-          [x + R + off, y + R + off * .6], [x - R - w - off, y + R + off * .6]]){
+  const named = [], done = new Set();
+  const inMap = b => b.l >= B.left + 6 && b.r <= B.right - 6 && b.t >= B.top + 6 && b.b <= B.bottom - 6;
+  const place = (t, x, y, R, offs, diag) => {
+    const w = t.offsetWidth, ht = t.offsetHeight;
+    for (const off of offs){
+      const c = [[x + R + 4 + off, y - ht / 2], [x - R - 4 - w - off, y - ht / 2], [x - w / 2, y - R - 4 - ht - off], [x - w / 2, y + R + 4 + off]];
+      if (diag) c.push([x + R + off, y - R - ht - off * .6], [x - R - w - off, y - R - ht - off * .6], [x + R + off, y + R + off * .6], [x - R - w - off, y + R + off * .6]);
+      for (const [lx, ly] of c){
         const b = {l:lx, t:ly, r:lx + w, b:ly + ht};
-        if (b.l < B.left + 6 || b.r > B.right - 6 || b.t < B.top + 6 || b.b > B.bottom - 6) continue;
-        if (blocks.some(q => hit(b, q)) || marks.some(q => hit(b, q)) || placed.some(q => hit(b, {l:q.l - 4, t:q.t - 4, r:q.r + 4, b:q.b + 4}))) continue;
+        if (!inMap(b)) continue;
+        if (!clear({l:b.l - 3, t:b.t - 3, r:b.r + 3, b:b.b + 3})) continue;
         return b;
-      } return null; };
-    let ok = find();
-    if (!ok){ t.innerHTML = '<b>' + esc(hillName(h)) + '</b>'; ok = find(); }
-    if (!ok){ t.remove(); continue; }
+      }
+    }
+    return null;
+  };
+  const settle = (t, ok, x, y, R) => {
     t.style.left = (ok.l - B.left) + 'px'; t.style.top = (ok.t - B.top) + 'px';
-    t.dataset.k = h.k;
-    placed.push(ok); named.push(h.k);
+    put(ok);
     const cx = Math.max(ok.l, Math.min(ok.r, x)), cy = Math.max(ok.t, Math.min(ok.b, y));
     if (Math.hypot(cx - x, cy - y) > R + 8){
       const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       ln.setAttribute('x1', x - B.left); ln.setAttribute('y1', y - B.top); ln.setAttribute('x2', cx - B.left); ln.setAttribute('y2', cy - B.top);
       svg.appendChild(ln);
+    }
+  };
+  if (hideMarkedOn() && ui.rmode !== 'plot' && !ui.mapFull){
+    for (const {h, d} of nearHills()){
+      const p = rmap.project([h.o, h.a]); const x = B.left + p.x, y = B.top + p.y;
+      if (x < B.left || x > B.right || y < B.top || y > B.bottom) continue;
+      const t = document.createElement('div'); t.className = 'nearlab';
+      t.innerHTML = '<b>' + esc(hillName(h)) + '</b> <span>' + esc(nearDist(d)) + '</span>';
+      L.appendChild(t);
+      let ok = place(t, x, y, 14, [0, 26, 52, 80, 110], true);
+      if (!ok){ t.innerHTML = '<b>' + esc(hillName(h)) + '</b>'; ok = place(t, x, y, 14, [0, 26, 52, 80, 110], true); }
+      if (!ok){ t.remove(); continue; }
+      t.dataset.k = h.k; settle(t, ok, x, y, 14);
+      named.push(h.k); done.add(h.k);
+    }
+  }
+  if (pins.length <= 160){
+    pins.sort((a, b) => b.h.h - a.h.h);
+    for (const q of pins){
+      if (done.has(q.h.k)) continue;
+      const t = document.createElement('div'); t.className = 'hilllab';
+      t.textContent = hillName(q.h);
+      L.appendChild(t);
+      const ok = place(t, q.x, q.y, q.R + 2, [0, 14, 30], false);
+      if (!ok){ t.remove(); continue; }
+      t.dataset.k = q.h.k; settle(t, ok, q.x, q.y, q.R + 10);
+      done.add(q.h.k);
     }
   }
   L.dataset.named = named.join(',');
@@ -27303,10 +27344,12 @@ function hdgNo(){
 }
 function hdgNoSave(){ try{ localStorage.setItem(HDG_NO_KEY, JSON.stringify([...hdgNo()])); }catch(e){} }
 const hdgLeft = p => (p.hills || []).filter(k => BY_KEY[k] && !isBagged(k));
+const hdgAgain = (p, day) => { const d = day || hdgPickDay(p);
+  return (p.hills || []).filter(k => BY_KEY[k] && isBagged(k) && ascents(k).indexOf(d) < 0); };
 const hdgLater = p => (p.later || []).filter(k => BY_KEY[k] && !isBagged(k) && (p.hills || []).indexOf(k) >= 0);
 function hdgDue(p){
   if (!p || p.deleted || !p.date || p.date > today()) return false;
-  if (!hdgLeft(p).length) return false;
+  if (!hdgLeft(p).length && !hdgAgain(p, p.date).length) return false;
   if (routeState(p) !== 'planned') return false;
   return !hdgNo().has(p.id);
 }
@@ -27381,9 +27424,12 @@ function hdgPromptHTML(p, hs){
 }
 function hdgPickCardHTML(p){
   const id = p.id, hs = (p.hills || []).map(k => BY_KEY[k]).filter(Boolean);
-  const left = hdgLeft(p), off = hdgOff(id).filter(k => left.indexOf(k) >= 0);
+  const left = hdgLeft(p), ag = hdgAgain(p), off = hdgOff(id).filter(k => left.indexOf(k) >= 0 || ag.indexOf(k) >= 0);
   const near = hdgNear(p).map(x => x.h.k), ex = hdgExOn(id).filter(k => near.indexOf(k) >= 0);
-  const onR = hs.length - off.length, n = left.length - off.length + ex.length;
+  const agOn = ag.filter(k => off.indexOf(k) < 0);
+  const onR = hs.length - off.length, n = left.length + ag.length - off.length + ex.length;
+  const agSay = agOn.length === 1 ? ' · ' + esc(hillName(BY_KEY[agOn[0]])) + ' for the ' + ordinal(ascCount(agOn[0]) + 1) + ' time'
+    : agOn.length > 1 ? ' · <b>' + agOn.length + '</b> climbed again' : '';
   const set = p.set && kitSetById(p.set);
   let s = '<div class="hdmcard" data-hdg="' + esc(id) + '">' +
     '<div class="hdmhead"><h3>How did it go?</h3>' +
@@ -27391,7 +27437,7 @@ function hdgPickCardHTML(p){
     '<p class="hdgsub">' + esc(hdgDay(hdgPickDay(p))) + ' · ' + esc(p.name || 'Untitled route') + ' · ' +
       '<button class="hdglink" data-act="hdgday" data-id="' + esc(id) + '" aria-expanded="' + (ui.hdgDate === id) + '">' + (ui.hdgDate === id ? 'Done' : 'Change day') + '</button></p>';
   if (ui.hdgDate === id) s += '<div class="rtdateed hdgdate">' + dateFields(p.date || '', 'data-planid="' + esc(id) + '"', {future:true}) + '</div>';
-  s += '<p class="hdmtally" aria-live="polite"><b>' + onR + ' of ' + hs.length + '</b> on the route' + (ex.length ? ' · <b>+' + ex.length + '</b> extra' : '') + '</p>' +
+  s += '<p class="hdmtally" aria-live="polite"><b>' + onR + ' of ' + hs.length + '</b> on the route' + agSay + (ex.length ? ' · <b>+' + ex.length + '</b> extra' : '') + '</p>' +
     '<button class="btn hdmgo" data-act="hdgmark" data-id="' + esc(id) + '"' + (n ? '' : ' disabled') + '>' + ICON_CHECK + 'Mark ' + n + ' hill' + (n === 1 ? '' : 's') + '</button>' +
     '<div class="hdmfoot">' + (set ? '<p class="hdgpack">' + ti('backpack') + 'In your ' + esc(set.n || 'pack') + ' pack</p>' : '<span></span>') +
       '<button class="linkbtn hdgquiet" data-act="hdgno" data-id="' + esc(id) + '">Didn’t go</button></div>';
@@ -27506,6 +27552,7 @@ function mkEdge(r, x, y){ return [Math.max(r.x, Math.min(x, r.x + r.w)), Math.ma
 function mkMapLive(){ return !!rmap && !!ML() && !document.querySelector('.hdmstage.nomap'); }
 function mkHTML(p, L, hs, near){
   const off = hdgOff(p.id), ex = hdgExOn(p.id), f = v => Math.round(v * 10) / 10;
+  const againK = hdgAgain(p);
   let svg = '<svg class="hdmline" width="' + L.W + '" height="' + L.H + '" aria-hidden="true">';
   if (L.line.length > 1){
     const pts = L.line.map(q => f(q[0]) + ',' + f(q[1])).join(' ');
@@ -27525,15 +27572,18 @@ function mkHTML(p, L, hs, near){
   for (const q of L.tags) s += '<i class="hdmdot' + (ex.indexOf(q.k) >= 0 ? ' on' : '') + '" style="left:' + f(q.ax - 6) + 'px;top:' + f(q.ay - 6) + 'px"></i>';
   for (const q of L.pins){
     const h = byK[q.k]; if (!h) continue;
-    const done = isBagged(q.k), on = done || off.indexOf(q.k) < 0, nm = hillName(h);
+    const again = isBagged(q.k) && againK.indexOf(q.k) >= 0;
+    const done = isBagged(q.k) && !again, on = done || off.indexOf(q.k) < 0, nm = hillName(h);
     const at = 'left:' + f(q.x - 22) + 'px;top:' + f(q.y - 22) + 'px';
     s += done
       ? '<span class="hdmpin on done" style="' + at + '" data-k="' + esc(q.k) + '" role="img" aria-label="' + esc(nm) + ': in your log already"><span>' + ICON_CHECK + '</span></span>'
       : '<button class="hdmpin' + (on ? ' on' : '') + '" style="' + at + '" data-act="hdgtick" data-id="' + esc(p.id) + '" data-k="' + esc(q.k) + '" aria-pressed="' + on + '" aria-label="' +
-        esc(nm) + (on ? ': climbed. Tap if you did not reach it.' : ': not reached. Tap if you did.') + '"><span>' + (on ? ICON_CHECK : '') + '</span></button>';
+        esc(nm) + (again ? (on ? ': climbed again, your ' + ordinal(ascCount(q.k) + 1) + ' time. Tap if not this time.' : ': in your log already. Tap if you climbed it again.')
+          : on ? ': climbed. Tap if you did not reach it.' : ': not reached. Tap if you did.') + '"><span>' + (on ? ICON_CHECK : '') + '</span></button>';
     const pos = q.sd === 'r' ? 'left:' + f(q.x + 24) + 'px;top:' + f(q.y) + 'px' : q.sd === 'l' ? 'right:' + f(L.W - (q.x - 24)) + 'px;top:' + f(q.y) + 'px'
       : q.sd === 'b' ? 'left:' + f(q.x) + 'px;top:' + f(q.y + 24) + 'px' : 'left:' + f(q.x) + 'px;bottom:' + f(L.H0 - (q.y - 24)) + 'px';
-    s += '<span class="hdmlab s' + q.sd + (on ? '' : ' off') + '" style="' + pos + '" aria-hidden="true">' + esc(nm) + (done ? '<i> · marked</i>' : on ? '' : '<i> · skipped</i>') + '</span>';
+    s += '<span class="hdmlab s' + q.sd + (on ? '' : ' off') + '" style="' + pos + '" aria-hidden="true">' + esc(nm) +
+      (done ? '<i> · marked</i>' : again ? (on ? '<i class="hdmagain"> · ' + ordinal(ascCount(q.k) + 1) + ' time</i>' : '<i> · marked before</i>') : on ? '' : '<i> · skipped</i>') + '</span>';
   }
   for (const q of L.tags){
     const x = nByK[q.k]; if (!x) continue;
@@ -27554,11 +27604,12 @@ function mkPaint(){
   const W = Math.round(O.width), H = Math.round(vis);
   const hs = (p.hills || []).map(k => BY_KEY[k]).filter(h => h && isFinite(h.a) && isFinite(h.o));
   const near = hdgNear(p), line = hdgLinePts(p);
+  const againK = hdgAgain(p);
   const fonts = document.fonts ? document.fonts.status : '';
-  const key = [p.id, W, H, Math.round(O.height), hs.map(h => h.k).join(), near.map(x => x.h.k).join(), line.length, line[0] ? line[0].join() : '', fonts].join('|');
+  const key = [p.id, W, H, Math.round(O.height), hs.map(h => h.k).join(), againK.join(), near.map(x => x.h.k).join(), line.length, line[0] ? line[0].join() : '', fonts].join('|');
   if (!mkLay || mkLay.key !== key){
     box.innerHTML = '<div class="hdmmeasure" aria-hidden="true">' +
-      hs.map(h => '<span class="hdmlab">' + esc(hillName(h)) + '<i> · skipped</i></span>').join('') +
+      hs.map(h => '<span class="hdmlab">' + esc(hillName(h)) + (againK.indexOf(h.k) >= 0 ? '<i> · marked before</i>' : '<i> · skipped</i>') + '</span>').join('') +
       near.map(x => '<span class="hdmx">' + ti('plus') + '<span>' + esc(hillName(x.h)) + '</span></span>').join('') +
       '<p class="hdmhint">' + ti('mountain') + 'Tap the hills you climbed</p></div>';
     const ms = box.querySelector('.hdmmeasure');
@@ -30352,10 +30403,12 @@ document.addEventListener('click', async e => {
     const extra = hdgExOn(p.id).filter(k => near.indexOf(k) >= 0 && !isBagged(k));
     const keys = left.filter(k => off.indexOf(k) < 0), skipped = left.filter(k => off.indexOf(k) >= 0);
     const all = keys.concat(extra);
-    if (!all.length) return;
+    const again = hdgAgain(p).filter(k => off.indexOf(k) < 0);
+    if (!all.length && !again.length) return;
     const d = hdgPickDay(p);
     await marking(() => {
       all.forEach(k => { const c = rec(k); state.bagged[k] = {...c, st:'done', done:true, date:c.date || d, t:now()}; });
+      again.forEach(k => addAscent(k, d));
       if (p.set && kitSetById(p.set)) all.forEach(k => applySetToHill(k, p.set));
       p.later = skipped;
       p.extra = [...new Set((p.extra || []).concat(extra))];
@@ -30367,9 +30420,11 @@ document.addEventListener('click', async e => {
       setTimeout(() => { try{ mapPad(); if (rmap) rmDraw(); }catch(e){} }, 0);
       const inPack = p.set && kitSetById(p.set) ? ', in your ' + (kitSetById(p.set).n || 'pack') + ' pack' : '';
       const plus = extra.length ? ', and ' + extra.length + ' more nearby' : '';
-      toast(skipped.length
-        ? keys.length + ' of ' + (p.hills || []).length + ' marked' + plus + inPack + '. The other ' + (skipped.length === 1 ? 'one is' : skipped.length + ' are') + ' kept for another day.'
-        : 'All marked' + plus + inPack + '. Nice one.');
+      const twice = again.length === 1 ? ' ' + hillName(BY_KEY[again[0]]) + ' is on ' + ascCount(again[0]) + ' times now.'
+        : again.length > 1 ? ' ' + again.length + ' climbed again.' : '';
+      toast((skipped.length
+        ? keys.length + again.length + ' of ' + (p.hills || []).length + ' marked' + plus + inPack + '. The other ' + (skipped.length === 1 ? 'one is' : skipped.length + ' are') + ' kept for another day.'
+        : 'All marked' + plus + inPack + '. Nice one.') + twice);
     });
   }
   else if (a === 'hdgrest'){
@@ -30391,7 +30446,7 @@ document.addEventListener('click', async e => {
     ui.postMenu = null;
     if (v === 'done'){
       if (st === 'done'){ render(); return; }
-      if (!hdgLeft(p).length){ p.state = 'done'; p.t = now(); touched(); render(); toast('Climbed.'); return; }
+      if (!hdgLeft(p).length && !hdgAgain(p).length){ p.state = 'done'; p.t = now(); touched(); render(); toast('Climbed.'); return; }
       hdgPickOpen(p.id); return;
     }
     if (v === 'later'){
@@ -35228,7 +35283,7 @@ function openPostSummits(id){
 }
 
 
-const APP_VERSION = 'v418';
+const APP_VERSION = 'v420';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
