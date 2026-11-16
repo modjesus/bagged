@@ -4287,6 +4287,13 @@ body.guiding{overflow:hidden}
 .walkbtn svg, .followrow .btn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
 .followrow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:10px 0 2px}
 .followrow span{font-size:12.5px; color:var(--ink-3)}
+.misle.mlayers{width:auto; padding:0 14px 0 12px; display:flex; align-items:center; gap:6px; font:700 14px/1 var(--font-ui); white-space:nowrap}
+.misle.mlayers:not(.on){color:var(--ink)}
+.misle.mlayers svg{width:18px; height:18px}
+.misle.msearch{right:calc(12px + var(--grip, 0px) + var(--mlw, 136px) + 8px)}
+.mapwrap .mresults{right:calc(12px + var(--mlw, 136px) + 8px)}
+.misle.mlayers .mls{display:none}
+@media (max-width:359px){ .misle.mlayers .mlw{display:none} .misle.mlayers .mls{display:inline} }
 .peakwrap.pkin{animation:pkin .18s ease-out}
 @keyframes pkin{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion: reduce){ .peakwrap.pkin{animation:none} }
@@ -10739,6 +10746,7 @@ for (const k of ['home','map-2','notebook','settings','camera','share','message-
 TI['verify'] = LUCIDE['verify'];
 TI['refresh'] = '<path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>';
 TI['arrows-maximize'] = '<path d="M16 4l4 0l0 4"/><path d="M14 10l6 -6"/><path d="M8 20l-4 0l0 -4"/><path d="M4 20l6 -6"/><path d="M16 20l4 0l0 -4"/><path d="M14 14l6 6"/><path d="M8 4l-4 0l0 4"/><path d="M4 4l6 6"/>';
+TI['arrows-minimize'] = '<path d="M5 9l4 0l0 -4"/><path d="M3 3l6 6"/><path d="M5 15l4 0l0 4"/><path d="M3 21l6 -6"/><path d="M19 9l-4 0l0 -4"/><path d="M15 9l6 -6"/><path d="M19 15l-4 0l0 4"/><path d="M15 15l6 6"/>';
 TI['wifi-off'] = '<path d="M12 18l.01 0"/><path d="M9.172 15.172a4 4 0 0 1 5.656 0"/><path d="M6.343 12.343a7.963 7.963 0 0 1 3.864 -2.14m4.163 .155a7.965 7.965 0 0 1 3.287 2"/><path d="M3.515 9.515a12 12 0 0 1 3.544 -2.455m3.101 -.92a12 12 0 0 1 10.325 3.374"/><path d="M3 3l18 18"/>';
 function ti(name, attrs){
   return '<svg viewBox="0 0 24 24" ' + (attrs || 'width="24" height="24"') +
@@ -20095,6 +20103,10 @@ function mapShellVars(){
 }
 function fitMapFurniture(){
   mapShellVars();
+  for (const wrap of document.querySelectorAll('.mapwrap')){
+    const b = wrap.querySelector('.mlayers'); const w = b ? Math.ceil(b.getBoundingClientRect().width) : 0;
+    if (w) wrap.style.setProperty('--mlw', w + 'px');
+  }
   for (let pass = 0; pass < 2; pass++)
   for (const wrap of document.querySelectorAll('.mapwrap')){
     const h = sel => { const e = wrap.querySelector(sel);
@@ -27335,7 +27347,7 @@ function mapStageHTML(){
     '<div class="mapslot" id="mapslot"></div>' +
     '<div class="misle msearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>' +
       '<input type="search" id="rq" placeholder="Find a hill or a place" value="' + esc(ui.rq || '') + '" autocomplete="off" aria-label="Find a hill or a place"></div>' +
-    '<button class="misle mlayers' + (ui.layersOpen ? ' on' : '') + '" data-act="layers" aria-expanded="' + !!ui.layersOpen + '" aria-label="Map settings">' + ti('stack-2') + '</button>' +
+    '<button class="misle mlayers' + (ui.layersOpen ? ' on' : '') + '" data-act="layers" aria-expanded="' + !!ui.layersOpen + '" aria-label="Map settings">' + ti('stack-2') + '<span class="mlw">Map settings</span><span class="mls">Settings</span></button>' +
     '<button class="misle mlistchip' + (ui.listOpen ? ' on' : '') + '" data-act="mlistfold"' +
       ' aria-expanded="' + !!ui.listOpen + '" aria-label="Which hills: ' + esc(listLbl) + '">' +
       ti('filter') + '<span>' + esc(listLbl) + '</span>' + listNum + ti('chevron-down') + '</button>' +
@@ -27345,6 +27357,7 @@ function mapStageHTML(){
     '<div class="misle mctl"><button data-act="mzoom" data-v="1" aria-label="Zoom in">' + ti('plus') + '</button>' +
       '<button data-act="mzoom" data-v="-1" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>' +
       '<button data-act="mlocate" aria-label="Centre the map on me" title="Centre the map on me">' + ti('current-location') + '</button>' +
+      '<button class="mfull" data-act="mapfull" data-v="' + (ui.mapFull ? '0' : '1') + '" aria-label="' + (ui.mapFull ? 'Exit full screen' : 'Full screen') + '" title="' + (ui.mapFull ? 'Exit full screen' : 'Full screen') + '">' + ti(ui.mapFull ? 'arrows-minimize' : 'arrows-maximize') + '</button>' +
       '</div>' +
     mapFollowHTML() +
     (sheetsOk()
@@ -27388,7 +27401,6 @@ function layersHTML(){
     return s + '<div id="sheets">' + sheetsListHTML() + '</div>';
   }
   let s = '<div class="lshead"><p class="lstitle">Map settings</p>' +
-    '<button class="btn quiet sm lsfull" data-act="mapfull" data-v="1">' + ti('arrows-maximize') + 'Full screen</button>' +
     '<button class="mclose lsx" data-act="layers" aria-label="Close Map settings">' + ti('x') + '</button></div>';
   const osKeys = baseChoices().filter(k => BASEMAPS[k].os);
   s += lsRow('Map', osOk ? 'Terrain, or the OS map' : 'The OS map is not answering just now',
@@ -35601,7 +35613,7 @@ function openPostSummits(id){
 }
 
 
-const APP_VERSION = 'v423';
+const APP_VERSION = 'v424';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
