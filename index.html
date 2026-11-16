@@ -4287,6 +4287,9 @@ body.guiding{overflow:hidden}
 .walkbtn svg, .followrow .btn svg{width:15px; height:15px; margin-right:6px; vertical-align:-3px}
 .followrow{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:10px 0 2px}
 .followrow span{font-size:12.5px; color:var(--ink-3)}
+.peakwrap.pkin{animation:pkin .18s ease-out}
+@keyframes pkin{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion: reduce){ .peakwrap.pkin{animation:none} }
 .chnewbig{width:100%; min-height:52px; display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px}
 .chqlab{margin:0 0 8px; font:700 11px/1 var(--font-ui); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
 .chquick2{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px}
@@ -24384,7 +24387,8 @@ function makeMap(box, at, opts){
   const m = new maplibregl.Map(Object.assign({
     container:box, style:blankStyle(), center:[-3.1, 54.45], zoom:9, minZoom:5, maxZoom:17,
     attributionControl:false, keyboard:!coarsePointer(), dragRotate:false, pitchWithRotate:false,
-    touchPitch:false, maxPitch:0, transformRequest:osRequest, fadeDuration:120
+    touchPitch:false, maxPitch:0, transformRequest:osRequest, fadeDuration:120,
+    pixelRatio:Math.min(2, window.devicePixelRatio || 1)
   }, opts || {}));
   m.touchZoomRotate.disableRotation();
   m.addControl(new maplibregl.AttributionControl({compact:true, customAttribution:
@@ -24541,8 +24545,8 @@ function hillIconHTML(h, cs){
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></div>';
   return {html, big, done, col, st};
 }
-function hillMarker(m, arr, h, cs, onClick, tip){
-  const {html, big, done} = hillIconHTML(h, cs);
+function hillMarker(m, arr, h, cs, onClick, tip, icon){
+  const {html, big, done} = icon || hillIconHTML(h, cs);
   const mk = domMarker(m, arr, html, 'peakwrap', big, big, h.a, h.o);
   mk.__k = h.k;
   const el = mk.getElement();
@@ -24561,11 +24565,11 @@ function hillDot(h, cs){
           geometry:{type:'Point', coordinates:[h.o, h.a]}};
 }
 function paintHills(m, arr, hs, onClick, withTip){
-  clearMarks(arr);
   const z = m.getZoom();
   const box = viewBox(m, .25);
   const cs = getComputedStyle(document.documentElement);
   const dots = [], placed = [];
+  const had = m.__hm || (m.__hm = new Map()), keep = new Set();
   let n = 0;
   for (const h of hs){
     if (!isFinite(h.a)) continue;
@@ -24573,15 +24577,46 @@ function paintHills(m, arr, hs, onClick, withTip){
     if (z < 9 && !done){ dots.push(hillDot(h, cs)); continue; }
     if (!box.has(h.a, h.o)) continue;
     if (++n > 900) continue;
-    const mk = hillMarker(m, arr, h, cs, onClick, withTip ? hillName(h) + ' · ' + (unitsPref() === 'm' ? h.h + ' m' : feet(h) + ' ft') : '');
+    const tip = withTip ? hillName(h) + ' · ' + (unitsPref() === 'm' ? h.h + ' m' : feet(h) + ' ft') : '';
+    const icon = hillIconHTML(h, cs);
+    const hi = !!(ui.mapHi && ui.mapHi.indexOf(h.k) >= 0);
+    const sig = icon.html + '|' + icon.big + '|' + tip + '|' + hi;
+    let mk = null;
+    const old = had.get(h.k);
+    if (old && old.sig === sig && old.mk.__m === m && old.mk.getElement().isConnected) mk = old.mk;
+    else {
+      if (old) old.mk.remove();
+      mk = hillMarker(m, null, h, cs, onClick, tip, icon);
+      had.set(h.k, {mk, sig});
+      if (old || m.__hmDrawn) mk.getElement().classList.add('pkin');
+    }
+    keep.add(h.k);
     const pt = m.project([h.o, h.a]);
     placed.push({mk, x:pt.x, y:pt.y, r:(parseFloat(mk.getElement().style.width) || 24) / 2});
   }
+  for (const [k, v] of had) if (!keep.has(k)){ v.mk.remove(); had.delete(k); }
+  m.__hmDrawn = true;
   setData(m, 'wm-dots', {type:'FeatureCollection', features:dots});
-  fanOut(placed).forEach(p => { if (p.ox || p.oy) p.mk.setOffset([p.ox, p.oy]); });
+  fanOut(placed);
+  pinGlide(m, placed);
   hitAreas(placed);
   m.__hillOff = {};
   placed.forEach(p => { m.__hillOff[p.mk.__k] = {x:p.ox || 0, y:p.oy || 0, r:p.hit || p.r}; });
+}
+function pinGlide(m, placed){
+  if (m.__glide) cancelAnimationFrame(m.__glide);
+  const moves = placed.map(p => { const o = p.mk.getOffset ? p.mk.getOffset() : {x:0, y:0};
+    return {mk:p.mk, x0:o.x || 0, y0:o.y || 0, x1:p.ox || 0, y1:p.oy || 0}; })
+    .filter(q => Math.abs(q.x1 - q.x0) > .5 || Math.abs(q.y1 - q.y0) > .5);
+  if (!moves.length) return;
+  if (lessMotion() || moves.length > 300){ moves.forEach(q => q.mk.setOffset([q.x1, q.y1])); return; }
+  const t0 = performance.now(), D = 200;
+  const step = t => {
+    const u = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - u, 3);
+    for (const q of moves) q.mk.setOffset([q.x0 + (q.x1 - q.x0) * e, q.y0 + (q.y1 - q.y0) * e]);
+    m.__glide = u < 1 ? requestAnimationFrame(step) : 0;
+  };
+  m.__glide = requestAnimationFrame(step);
 }
 const HIT_R = 22;
 function hitAreas(placed){
@@ -24631,12 +24666,14 @@ function fanOut(items, gap){
   return items;
 }
 function drawSearchPin(m, arr, onHill){
+  if (m && m.__sp){ m.__sp.remove(); const i = arr ? arr.indexOf(m.__sp) : -1; if (i >= 0) arr.splice(i, 1); m.__sp = null; }
   const sp = ui.searchPin; if (!sp || !m) return;
   const h = sp.k && BY_KEY[sp.k];
   const off = (h && m.__hillOff && m.__hillOff[h.k]) || null;
   const mk = domMarker(m, arr, '<div class="searchpin" title="' + esc(sp.name || 'Here') + '"' + (h ? ' role="button" aria-label="' + esc(hillName(h)) + '"' : '') + '><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
     '<path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#F3EFE6"/></svg></div>',
     'pinwrap', 44, 44, sp.la, sp.lo, {anchor:'bottom', offset: h && off ? [off.x, off.y - off.r] : [0, 0]});
+  m.__sp = mk;
   const el = mk.getElement();
   el.style.zIndex = 5;
   if (h && onHill) el.addEventListener('click', e => { e.stopPropagation(); onHill(h); });
@@ -25548,6 +25585,14 @@ function mapDetach(){
   const m = document.getElementById('routemap');
   if (m && m.parentNode){ mapHeld = m; m.parentNode.removeChild(m); }
 }
+function mapTouching(m){ return !!(m && m.__down && Date.now() - m.__down < 15000); }
+function watchTouch(m){
+  const box = m.getContainer();
+  const on = () => { m.__down = Date.now(); }, off = () => { m.__down = 0; };
+  box.addEventListener('pointerdown', on, {passive:true});
+  box.addEventListener('touchstart', on, {passive:true});
+  for (const ev of ['pointerup', 'pointercancel', 'touchend', 'touchcancel']) box.addEventListener(ev, e => { if (!e.touches || !e.touches.length) off(); }, {passive:true});
+}
 function mapAttach(){
   const slot = document.getElementById('mapslot');
   if (!slot) return;
@@ -25564,7 +25609,7 @@ function mapAttach(){
       z: ui.rview.z} : null;
     try{
       rmap.resize();
-      if (want && !hdgPicking()){
+      if (want && !hdgPicking() && !rmap.isMoving() && !mapTouching(rmap)){
         const c = rmap.getCenter();
         if (Math.abs(c.lat - want.lat) > 0.0005 || Math.abs(c.lng - want.lng) > 0.0005)
           rmap.jumpTo({center:[want.lng, want.lat],
@@ -25637,6 +25682,7 @@ function mountRouteMap(){
   if (!rmap){
     rmap = makeMap(box, editor ? routeAt(planById(editor.id) || {}) : (ui.rview ? {la:ui.rview.c.lat, lo:ui.rview.c.lng} : null), {bare:true});
     guardMapTaps(box);
+    watchTouch(rmap);
     if (hereAt && Date.now() - (hereAt.t || 0) < 20 * 60000) hereAt.m = rmap;
     rmap.on('click', e => {
       if (rmap.__dotHit && Date.now() - rmap.__dotHit < 300) return;
@@ -25652,10 +25698,14 @@ function mountRouteMap(){
       syncBaseLayer(rmap);
       rmDraw();
       poiRefresh();
-      if (ui.layersOpen && !sheetJob) paintSheets();
-      paintMapWeather();
-      if (!sheetJob) paintSheets();
+      clearTimeout(rmap.__settle);
+      rmap.__settle = setTimeout(() => {
+        if (!rmap || rmap.isMoving()) return;
+        paintMapWeather();
+        if (!sheetJob) paintSheets();
+      }, 160);
     });
+    rmap.on('movestart', () => { clearTimeout(rmap.__settle); });
     if (editor && editor.view) goTo(rmap, editor.view.c.lat, editor.view.c.lng, editor.view.z);
     else if (ui.rview) goTo(rmap, ui.rview.c.lat, ui.rview.c.lng, ui.rview.z);
     else rmFit();
@@ -25727,7 +25777,13 @@ function rmDraw(){
   } else if (ui.mapRoutes !== false){
     lines.push(...routeLineFeatures());
   }
-  setData(rmap, 'wm-lines', {type:'FeatureCollection', features:lines});
+  const lj = JSON.stringify(lines);
+  let src = null; try{ src = rmap.getSource('wm-lines') || null; }catch(e){}
+  if (!src || rmap.__lj !== lj || rmap.__ljSrc !== src){
+    setData(rmap, 'wm-lines', {type:'FeatureCollection', features:lines});
+    let now2 = null; try{ now2 = rmap.getSource('wm-lines') || null; }catch(e){}
+    if (now2){ rmap.__lj = lj; rmap.__ljSrc = now2; } else rmap.__lj = null;
+  }
   drawMapSummits();
   if (!editor) return;
   editor.wp.forEach((c, i) => {
@@ -25799,6 +25855,7 @@ let nearTimer = null;
 function nearSoon(){ clearTimeout(nearTimer); nearTimer = setTimeout(paintNear, 60); }
 function nearClear(){ const L = document.getElementById('nearlabs'); if (L) L.remove(); }
 function paintNear(){
+  if (rmap && rmap.__glide){ nearSoon(); return; }
   nearClear();
   if (!rmap || tab !== 'p' || hdgPicking()) return;
   const box = rmap.getContainer(); if (!box || !box.isConnected) return;
@@ -35544,7 +35601,7 @@ function openPostSummits(id){
 }
 
 
-const APP_VERSION = 'v422';
+const APP_VERSION = 'v423';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
