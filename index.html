@@ -1595,7 +1595,7 @@ html.maptab, html.maptab body{overscroll-behavior:none}
 .mapshell.drawerdeep .rosectl, .mapshell.drawerdeep .maplibregl-ctrl-bottom-right,
 .mapshell.drawerdeep .mmenu, .mapshell.drawerdeep .mresults,
 .mapshell.drawerdeep .mhill, .mapshell.drawerdeep .msaveoff{display:none}
-.mapshell.wide{display:grid; grid-template-columns:minmax(340px, 26%) 1fr;
+.mapshell.wide{display:grid; grid-template-columns:clamp(380px, 34%, 470px) 1fr;
   grid-template-rows:minmax(0, 1fr); gap:0;
   align-items:stretch; height:calc(100dvh - var(--wm-head, 59px))}
 .mapshell.wide .mapside{border-right:1px solid var(--line); background:var(--surface);
@@ -1681,6 +1681,11 @@ html.mapfull .bnav, html.mapfull .top{display:none}
 .rqn{flex:1; min-width:0; font-family:var(--font-display); font-size:15px; color:var(--ink)}
 .rqm{font-family:var(--font-ui); font-size:11px; color:var(--ink-3); white-space:nowrap}
 .rqempty{margin:8px 0 0; font-size:13px; color:var(--ink-3)}
+.rqrow.rqtwo{flex-direction:column; align-items:flex-start; gap:2px}
+.rqrow.rqtwo .rqm{white-space:normal; font-size:13px}
+.rqnear{margin:0; padding:8px 12px 4px; font:600 13px var(--font-ui); color:var(--ink-2); background:var(--surface)}
+.mresults .rqempty{margin:6px 0 0; padding:12px 14px; border-radius:16px; background:rgba(251,250,246,.96); color:var(--ink-2); font-size:14px; box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 18px 30px -18px rgba(20,51,45,.45)}
+:root[data-theme="dark"] .mresults .rqempty{background:rgba(21,42,38,.92)}
 
 .mapwrap.nomap .misle, .mapwrap.nomap .mmenu, .mapwrap.nomap .mresults, .mapwrap.nomap .mpills{display:none}
 .mapwrap.nomap #mapbox, .mapwrap.nomap #routemap{display:grid; place-items:center; padding:24px 18px}
@@ -4435,6 +4440,9 @@ body.guiding{overflow:hidden}
   color:var(--ink); box-shadow:0 0 0 1px rgba(20,51,45,.08), var(--shadow)}
 .msaveoff svg{width:17px; height:17px; color:var(--accent-text)}
 .mapshell.mapshort:not(.drawerdeep) .mctl{display:grid; grid-template-columns:repeat(2, auto); gap:2px}
+.mapshell.mapshort:not(.drawerdeep) .mctl{border-radius:22px; padding:4px}
+.mapshell.mapshort:not(.drawerdeep) .mctl button{border-radius:16px}
+.mapshell.maptiny:not(.drawerdeep) .msaveoff, .mapshell.maptiny:not(.drawerdeep) .mhill{display:none}
 .mlayers.on{background:var(--ink); color:#F3EFE6}
 .mlayers:active{transform:scale(.94)}
 .mresults{position:absolute; z-index:7; left:12px; right:64px; max-width:520px; top:62px}
@@ -8763,6 +8771,8 @@ textarea, select{font-size:16px}
 .dcseg{display:flex; background:color-mix(in srgb, var(--ink) 8%, transparent); border-radius:22px; padding:3px; gap:2px; margin:0 0 10px}
 .dcsegb{flex:1; min-height:40px; border:0; border-radius:19px; background:transparent; color:var(--ink-2); font:700 15px var(--font-ui); cursor:pointer}
 .dcsegb.on{background:var(--raise); color:var(--ink); box-shadow:0 1px 4px rgba(20,51,45,.18)}
+.hasseg .routeshead h3, .hasseg .routeshead .rtcount, .mapsidein .dcseg ~ .routeshead h3, .mapsidein .dcseg ~ .routeshead .rtcount{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.hasseg .routeshead{min-height:0; margin:0}
 .mapsidein .dcseg{margin:2px 0 10px}
 .dcdrawer:not([data-state="collapsed"]) .dcpeekw{display:none}
 .dcdrawer .dwpeek{min-height:56px}
@@ -8854,6 +8864,45 @@ textarea, select{font-size:16px}
 .rlccv small{font-size:13px; color:var(--ink-2); line-height:1.25}
 .rlccgo{min-height:44px; border:0; border-radius:22px; background:color-mix(in srgb, var(--ink) 8%, transparent); color:var(--ink); font:700 15px var(--font-ui); cursor:pointer; margin-top:2px}
 .rlccx{min-height:44px; font-size:13px; color:var(--ink-2)}
+#rlbar .rlsave{flex:none; width:52px; padding:0}
+#rlbar .rlsave:not([disabled]) span{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+#rlbar .rlsave[disabled]{width:auto; padding:0 12px; font-size:14px}
+#rlbar .rlplan{flex:1.35; background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+#rlbar .rlgo{background:var(--ink); border-color:var(--ink); color:var(--surface)}
+#rlbar .rlbtn{font-size:16px; gap:7px}
+@media (max-width:370px){ #rlbar .rlplan svg, #rlbar .rlgo svg{display:none} #rlbar .rlbtn{font-size:15px} }
+.pdays{display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; margin:0 -18px; padding:3px 18px 4px}
+.pdays::-webkit-scrollbar{display:none}
+.pday{flex:none; width:92px; min-height:118px; display:flex; flex-direction:column; align-items:center; gap:2px; padding:9px 6px; border:0; border-radius:14px; background:var(--raise); color:var(--ink); box-shadow:0 1px 3px rgba(20,51,45,.12); cursor:pointer; text-align:center; font:inherit}
+.pday.on{box-shadow:0 0 0 2px var(--accent)}
+.pdh{font:700 15px var(--font-ui)}
+.pdd{font-size:13px; color:var(--ink-2)}
+.pdwi{display:grid; place-items:center; height:28px} .pdwi svg{width:24px; height:24px}
+.pday b{font:700 14px var(--font-ui)}
+.pday small{font-size:13px; color:var(--ink-2); line-height:1.2}
+.pdnof{margin-top:12px}
+.pdpick{position:relative; justify-content:center; gap:6px; color:var(--ink-2)}
+.pdpick svg{width:24px; height:24px}
+.pdpick input{position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer}
+.plight{display:flex; gap:10px; align-items:center; padding:11px 13px; border-radius:14px; background:var(--accent-soft); color:var(--ink); font-size:14px; line-height:1.35}
+.plight > svg{flex:none; color:var(--accent-text)}
+.plight b{display:block; font-size:16px}
+.pwho{display:flex; flex-wrap:wrap; gap:10px}
+.pwhob{display:flex; flex-direction:column; align-items:center; gap:4px; width:60px; border:0; background:none; padding:0; cursor:pointer; color:var(--ink)}
+.pwav{position:relative; display:grid; place-items:center; width:48px; height:48px; border-radius:50%}
+.pwhob.on .pwav{box-shadow:0 0 0 2.5px var(--accent)}
+.pwav > i{position:absolute; right:-3px; bottom:-3px; width:20px; height:20px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; border:2px solid var(--surface)}
+.pwn{font-size:13px; max-width:60px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ptog{display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; min-height:56px; padding:10px 13px; border:0; border-radius:14px; background:var(--raise); box-shadow:0 1px 3px rgba(20,51,45,.12); color:var(--ink); text-align:left; cursor:pointer; font:inherit}
+.ptog b{display:block; font-size:15px} .ptog small{font-size:13px; color:var(--ink-2)}
+.ptg{flex:none; position:relative; width:44px; height:26px; border-radius:13px; background:color-mix(in srgb, var(--ink) 22%, transparent)}
+.ptg > i{position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.ptg.on{background:var(--moss)} .ptg.on > i{left:21px}
+.pgo{flex:1}
+.mapshell.dcmode .poiwrap{display:none}
+.mapshell.dcmode .peakwrap > .peak, .mapshell.dcmode .peakwrap > .hpin{transform:scale(.8); opacity:.9}
+.dcpin.st2{box-shadow:4px -4px 0 -1px #fff, 5px -5px 0 0 rgba(20,51,45,.55), 0 1px 4px rgba(0,0,0,.35)}
+.dcpin.st3{box-shadow:4px -4px 0 -1px #fff, 5px -5px 0 0 rgba(20,51,45,.55), 8px -8px 0 -1px #fff, 9px -9px 0 0 rgba(20,51,45,.35), 0 1px 4px rgba(0,0,0,.35)}
 .rlmkn i{display:grid; place-items:center; width:24px; height:24px; border-radius:50%; color:#fff; font:700 12.5px var(--font-data); font-style:normal; border:2px solid #fff; text-shadow:none; box-shadow:0 1px 4px rgba(0,0,0,.35)}
 .rlring{width:10px; height:10px; border-radius:50%; background:#fff; border:2.5px solid #14332D; flex:none}
 .rltop{width:0; height:0; border-left:8px solid transparent; border-right:8px solid transparent; border-bottom:13px solid #14332D; flex:none; filter:drop-shadow(0 0 1.5px #fff)}
@@ -10940,6 +10989,7 @@ Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path 
 TI['trophy'] = '<path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>';
 TI['shopping-bag'] = '<path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.965 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z"/><path d="M9 11v-5a3 3 0 0 1 6 0v5"/>';
 TI['minus'] = '<path d="M5 12l14 0"/>';
+TI['chevron-left'] = '<path d="M15 6l-6 6l6 6"/>';
 TI['calendar'] = '<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M9 15h2v2h-2z"/>';
 TI['arrows-maximize'] = '<path d="M16 4h4v4"/><path d="M14 10l6 -6"/><path d="M8 20h-4v-4"/><path d="M4 20l6 -6"/><path d="M16 20h4v-4"/><path d="M14 14l6 6"/><path d="M8 4h-4v4"/><path d="M4 4l6 6"/>';
 TI['filter'] = '<path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/>';
@@ -20357,6 +20407,7 @@ function fitMapFurniture(){
     }
     if (shell) shell.classList.toggle('drawerup', over > 0);
     if (shell) shell.classList.toggle('mapshort', (wrap.getBoundingClientRect().height - over) < 440);
+    if (shell) shell.classList.toggle('maptiny', (wrap.getBoundingClientRect().height - over) < 300);
     wrap.style.setProperty('--mdraw', over + 'px');
     const railEl = wrap.querySelector('.misle.mctl');
     const rail = railEl ? Math.round(railEl.getBoundingClientRect().width) : 0;
@@ -27457,7 +27508,7 @@ function renderPlans(){
       '<section class="mapdrawer hdmdrawer" data-state="pick" aria-label="How did it go?">' + hdgPickCardHTML(pick) + '</section></div>';
   }
   let html = '<div class="mapshell' + (wide ? ' wide' : ' tall') +
-    (full ? ' full' : '') + '" data-drawer="' + st + '">';
+    (full ? ' full' : '') + (dcDisc() ? ' dcmode' : '') + '" data-drawer="' + st + '">';
 
   if (full){
     html += mapStageHTML() +
@@ -27469,7 +27520,7 @@ function renderPlans(){
   if (wide){
     html += '<aside class="mapside" aria-label="Your routes and route detail">' +
       (dcDisc()
-        ? '<div class="mapsidein dcside">' + dcSegHTML() + '<div class="dwpeek mapsidepeek" id="dcpeek">' + dcPeekHTML() + '</div>' + dcBodyHTML() + '</div></aside>'
+        ? '<div class="mapsidein dcside">' + dcSegHTML() + (dc().sel ? '<div class="dwpeek mapsidepeek" id="dcpeek">' + dcPeekHTML() + '</div>' : '') + dcBodyHTML() + '</div></aside>'
         : '<div class="mapsidein">' + (ui.rmode === 'plot' ? '' : dcSegHTML()) + '<div class="dwpeek mapsidepeek">' + drawerPeekHTML() + newRouteBtnHTML() + newRouteMenuHTML() + '</div>' +
         followWalkHTML() + mapPanelHTML() + '</div></aside>') +
       '<div class="mapmain">' + mapStageHTML() +
@@ -27495,8 +27546,7 @@ function renderPlans(){
       (st === 'collapsed' ? ' data-act="drawer" data-v="open"' : '') + '>' +
       drawerPeekHTML() +
       newRouteBtnHTML() + '</div>' + newRouteMenuHTML() +
-    '<div class="dwbody">' + (ui.rmode === 'plot' ? '' : dcSegHTML()) + followWalkHTML() +
-      '<p class="poistate" id="poistate">' + poiStateText() + '</p>' +
+    '<div class="dwbody' + (ui.rmode === 'plot' ? '' : ' hasseg') + '">' + (ui.rmode === 'plot' ? '' : dcSegHTML()) + followWalkHTML() +
       mapPanelHTML() + '</div></section>';
   return html + '</div>';
 }
@@ -28343,28 +28393,78 @@ function routeMenuHTML(p, hs, pts){
   return s;
 }
 
+function editDist(a, b, max){
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({length:b.length + 1}, (_, j) => j), pp = null;
+  for (let i = 1; i <= a.length; i++){
+    const cur = [i]; let lo = i;
+    for (let j = 1; j <= b.length; j++){
+      let v = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (pp && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, pp[j - 2] + 1);
+      cur.push(v); if (v < lo) lo = v;
+    }
+    if (lo > max) return max + 1;
+    pp = prev; prev = cur;
+  }
+  return prev[b.length];
+}
+function fuzzyHit(q, name){
+  if (q.length < 4 || !name) return null;
+  const lim = q.length >= 7 ? 2 : 1;
+  const words = [norm(name)].concat(String(name).toLowerCase().split(/[\s,()\-\u2013\u2014'\u2019&]+/).map(norm).filter(w => w.length >= 3));
+  let best = lim + 1;
+  for (const w of words) for (const L of [q.length - 1, q.length, q.length + 1]){
+    if (L < 3) continue;
+    const d = editDist(q, w.slice(0, L), lim); if (d < best) best = d;
+  }
+  return best <= lim ? best : null;
+}
+function placeWhere(la, lo){
+  const c = typeof dcCentre === 'function' ? dcCentre() : null, bits = [];
+  if (c) bits.push((distM(c.la, c.lo, la, lo) / 1609.344).toFixed(1) + ' mi');
+  let best = null, bd = 4000;
+  for (const h of HILLS){ if (!isFinite(h.a) || Math.abs(h.a - la) > .04 || Math.abs(h.o - lo) > .07) continue; const d = distM(la, lo, h.a, h.o); if (d < bd){ bd = d; best = h; } }
+  if (best) bits.push('near ' + hillName(best));
+  return bits.join(' \u00b7 ');
+}
 function searchResultsHTML(){
   const q = norm(ui.rq || '');
   if (q.length < 2) return '';
-  const hills = HILLS.filter(h => norm(h.n).includes(q) || norm(h.w).includes(q) || norm(altStr(h)).includes(q))
+  let hills = HILLS.filter(h => norm(h.n).includes(q) || norm(h.w).includes(q) || norm(altStr(h)).includes(q))
                      .sort((a,b) => b.h - a.h).slice(0, 5);
-  const near = [...poiSeen.values()].filter(p => norm(poiName(p)).includes(q)).slice(0, 5);
+  let fuzzy = [];
+  if (hills.length < 3 && q.length >= 4){
+    const have = new Set(hills.map(h => h.k));
+    fuzzy = HILLS.filter(h => !have.has(h.k)).map(h => ({h, d: fuzzyHit(q, h.n)})).filter(x => x.d != null)
+      .sort((a, b) => a.d - b.d || b.h.h - a.h.h).slice(0, 5 - hills.length).map(x => x.h);
+  }
+  const ctr = typeof dcCentre === 'function' ? dcCentre() : null;
+  const near = [...poiSeen.values()].filter(p => norm(poiName(p)).includes(q))
+    .sort((a, b) => ctr ? distM(ctr.la, ctr.lo, a.la, a.lo) - distM(ctr.la, ctr.lo, b.la, b.lo) : 0).slice(0, 5);
   const seenIds = new Set(near.map(p => p.id));
   const far = (geoQ && norm(geoQ) === q ? geoRes : []).filter(g => !seenIds.has(g.osm)).slice(0, 6);
 
   let s = '<div class="rqres">';
   for (const h of hills)
-    s += '<button class="rqrow" data-act="gomap" data-la="' + h.a + '" data-lo="' + h.o +
+    s += '<button class="rqrow rqtwo" data-act="gomap" data-la="' + h.a + '" data-lo="' + h.o +
       '" data-name="' + esc(hillName(h)) + '" data-k="' + esc(h.k) + '">' +
       '<span class="rqn">' + esc(hillName(h)) + '</span>' +
       '<span class="rqm">' + feet(h).toLocaleString() + ' ft &middot; ' + esc(h.c || '') + '</span></button>';
+  if (fuzzy.length){
+    s += '<p class="rqnear">Close to \u201c' + esc(ui.rq.trim()) + '\u201d:</p>';
+    for (const h of fuzzy)
+      s += '<button class="rqrow rqtwo" data-act="gomap" data-la="' + h.a + '" data-lo="' + h.o +
+        '" data-name="' + esc(hillName(h)) + '" data-k="' + esc(h.k) + '">' +
+        '<span class="rqn">' + esc(hillName(h)) + '</span>' +
+        '<span class="rqm">' + feet(h).toLocaleString() + ' ft &middot; ' + esc(h.c || '') + '</span></button>';
+  }
   for (const p of near)
-    s += '<button class="rqrow" data-act="gomap" data-la="' + p.la + '" data-lo="' + p.lo +
+    s += '<button class="rqrow rqtwo" data-act="gomap" data-la="' + p.la + '" data-lo="' + p.lo +
       '" data-p="' + esc(p.id) + '">' +
       '<span class="rqn">' + esc(poiName(p)) + '</span>' +
-      '<span class="rqm">' + esc(POI_KINDS[p.kind].label) + '</span></button>';
+      '<span class="rqm">' + esc([POI_KINDS[p.kind].label, placeWhere(p.la, p.lo)].filter(Boolean).join(' \u00b7 ')) + '</span></button>';
   for (const g of far)
-    s += '<button class="rqrow" data-act="gomap" data-la="' + g.la + '" data-lo="' + g.lo +
+    s += '<button class="rqrow rqtwo" data-act="gomap" data-la="' + g.la + '" data-lo="' + g.lo +
       '" data-name="' + esc(g.name) + '">' +
       '<span class="rqn">' + esc(g.name) + '</span>' +
       '<span class="rqm">' + esc([g.kind, g.where].filter(Boolean).join(' \u00b7 ')) + '</span></button>';
@@ -28374,12 +28474,12 @@ function searchResultsHTML(){
   if (routes.length){
     s = s.replace(/<\/div>$/, '');
     for (const r of routes)
-      s += '<button class="rqrow" data-act="dc" data-v="find" data-id="' + esc(r.id) + '">' +
+      s += '<button class="rqrow rqtwo" data-act="dc" data-v="find" data-id="' + esc(r.id) + '">' +
         '<span class="rqn">' + esc(rlNameFull(r)) + '</span>' +
         '<span class="rqm">Route &middot; ' + rlMiles(r) + ' mi &middot; ' + (rlRound(r) ? 'round' : 'up and back') + ' &middot; from ' + esc(r.from) + '</span></button>';
     s += '</div>';
   }
-  const none = !hills.length && !near.length && !far.length && !routes.length;
+  const none = !hills.length && !fuzzy.length && !near.length && !far.length && !routes.length;
   if (geoBusy) s += '<p class="rqempty">Looking further afield\u2026</p>';
   else if (geoErr && none) s += '<p class="rqempty">' + esc(geoErr) + ' Hills still search offline.</p>';
   else if (none) s += '<p class="rqempty">Nothing by that name.</p>';
@@ -36143,7 +36243,7 @@ function rlRouteHTML(k, id){
       (r.warn ? '' : '<span>' + esc(r.g) + '</span>') + '<span class="rlnot">Not checked by WayMark yet</span></p>' +
     '<div class="rlstats">' + stat('route', 'Walk', rlMiles(r) + ' mi') + stat('clock', 'Time', rlTime(r)) +
       stat('mountain', 'Climb', rlFeet(r.asc) + ' ft') + stat('flag', tops.length === 1 ? 'WayMark top' : 'WayMark tops', String(tops.length)) + '</div>' +
-    (r.warn ? '<p class="rltag warn rltagbig">' + esc(r.g) + '</p>' : '') + (r.gn ? '<p class="rlgn">' + esc(r.gn) + '</p>' : '') +
+    (r.warn ? '<p class="rltag warn rltagbig">' + esc(r.g) + '</p>' : '') + (r.gn && !/^not graded/i.test(r.gn) ? '<p class="rlgn">' + esc(r.gn) + '</p>' : '') +
     '<div class="rltwo"><button class="rlbtn2 pri" data-rl="mapshow" data-id="' + esc(id) + '">' + ti('map-2') + 'Show on map</button>' +
       (st0.cmp ? '' : '<button class="rlbtn2' + (dcInCmp(id) ? ' on' : '') + '" data-rl="cmpadd" data-id="' + esc(id) + '" aria-pressed="' + dcInCmp(id) + '">' +
         ti(dcInCmp(id) ? 'check' : 'plus') + (dcInCmp(id) ? 'In compare' : 'Compare') + '</button>') + '</div>' +
@@ -36175,16 +36275,17 @@ function rlRouteHTML(k, id){
   return s;
 }
 function rlBarHTML(id){
-  return rlSaveBtn(id, true) + '<button class="rlbtn rlgo" data-rl="follow" data-id="' + id + '">' + ti('navigation') + '<span>Follow</span></button>';
+  return rlSaveBtn(id, true) + '<button class="rlbtn rlplan" data-rl="plan" data-id="' + id + '">' + ti('calendar') + '<span>Plan this walk</span></button>' +
+    '<button class="rlbtn rlgo" data-rl="follow" data-id="' + id + '">' + ti('navigation') + '<span>Follow</span></button>';
 }
 function rlPaint(){
   const st = ui.rl, root = document.getElementById('rl'), body = document.getElementById('rlbody');
   if (!st || !root || !body){ if (st && !root){ rlKill(); ui.rl = null; } return; }
   const was = st.__shown;
-  body.innerHTML = st.id ? rlRouteHTML(st.k, st.id) : st.cmp ? rlCompareHTML(st.cmp) : rlListHTML(st.k);
-  root.classList.toggle('rlone', !!st.id);
+  body.innerHTML = st.plan ? rlPlanHTML(st.k, st.plan) : st.id ? rlRouteHTML(st.k, st.id) : st.cmp ? rlCompareHTML(st.cmp) : rlListHTML(st.k);
+  root.classList.toggle('rlone', !!st.id || !!st.plan);
   root.classList.toggle('rlcmpv', !st.id && !!st.cmp);
-  const now = st.id || (st.cmp ? 'cmp' : '');
+  const now = (st.plan ? 'plan:' : '') + (st.id || (st.cmp ? 'cmp' : ''));
   if (was !== now){
     st.__shown = now;
     const box = root.closest('.sheetbox'); if (box) box.scrollTop = 0;
@@ -36243,6 +36344,12 @@ document.addEventListener('click', e => {
   if (!st) return;
   if (a === 'route'){ st.id = el.dataset.id; rlPaint(); rlRedrawMap(); }
   else if (a === 'list'){ st.id = null; rlPaint(); rlRedrawMap(); }
+  else if (a === 'plan'){ st.plan = el.dataset.id; st.pday = null; st.pwith = []; st.__wxAsk = 0; st.__wxDone = 0; rlPaint(); rlPdayIntoView(); }
+  else if (a === 'planback'){ st.plan = null; rlPaint(); }
+  else if (a === 'pday'){ st.pday = el.dataset.d; rlPaint(); }
+  else if (a === 'pwith'){ const l = st.pwith || (st.pwith = []), u = el.dataset.u, i = l.indexOf(u); if (i >= 0) l.splice(i, 1); else l.push(u); rlPaint(); }
+  else if (a === 'pkeep'){ st.pkeep = st.pkeep === false; rlPaint(); }
+  else if (a === 'plango'){ rlPlanGo(el.dataset.id); }
   else if (a === 'close'){ bcSheetClose(); }
   else if (a === 'mapshow'){ dcShowOnMap(el.dataset.id); }
   else if (a === 'cmpadd'){ dcCmpToggle(el.dataset.id); rlPaint(); if (tab === 'p' || tab === 'm') render(); }
@@ -36487,7 +36594,8 @@ function dcMarks(){
     const a = RL_TRK[r.id]; if (!a) return;
     const la = a[0] / 1e5, lo = a[1] / 1e5;
     const g = seen.find(x => distM(x.la, x.lo, la, lo) < 120);
-    if (g){ g.more++; g.el.querySelector('.dcpin').innerHTML = g.n + '<small>+' + g.more + '</small>'; return; }
+    if (g){ g.more++; const b = g.el.querySelector('.dcpin'); b.classList.remove('st2'); b.classList.add(g.more > 1 ? 'st3' : 'st2');
+      b.setAttribute('aria-label', 'Routes ' + g.n + ' to ' + (g.n + g.more) + ' start here'); return; }
     const m = domMarker(rmap, rmMarks, '<button class="dcpin" aria-label="Route ' + (i + 1) + ': ' + esc(rlNameFull(r)) + '">' + (i + 1) + '</button>', 'dcmk dcpinw', 26, 26, la, lo);
     const el = m.getElement(); el.style.zIndex = 6; el.style.width = 'auto';
     el.addEventListener('click', e => { e.stopPropagation(); dcPick(r.id, true); });
@@ -36586,8 +36694,121 @@ function dcSearchHits(q){
     if (hay.includes(q)) out.push(r);
     if (out.length >= 4) break;
   }
+  if (!out.length && q.length >= 4)
+    for (const id of Object.keys(RL_ROUTES)){
+      const r = Object.assign({id}, RL_ROUTES[id]);
+      if (fuzzyHit(q, rlNameFull(r)) != null || fuzzyHit(q, r.from) != null) out.push(r);
+      if (out.length >= 3) break;
+    }
   return out;
 }
+
+
+const PLAN_LIGHT_MIN = 30;
+function sunTimes(iso, la, lo){
+  const d = new Date(iso + 'T12:00:00Z'); if (isNaN(d)) return null;
+  const start = Date.UTC(d.getUTCFullYear(), 0, 0), n = Math.floor((d - start) / 86400000);
+  const g = 2 * Math.PI / 365 * (n - 1);
+  const eqt = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const r = Math.PI / 180, cosH = Math.cos(90.833 * r) / (Math.cos(la * r) * Math.cos(dec)) - Math.tan(la * r) * Math.tan(dec);
+  if (cosH > 1 || cosH < -1) return null;
+  const ha = Math.acos(cosH) / r;
+  const at = m => { const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) + Math.round(m) * 60000);
+    return t.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/London'}); };
+  return {rise: at(720 - 4 * (lo + ha) - eqt), set: at(720 - 4 * (lo - ha) - eqt)};
+}
+const hmToMin = s => { const m = /^(\d{1,2}):(\d{2})/.exec(s || ''); return m ? +m[1] * 60 + +m[2] : null; };
+const minToHm = v => String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0');
+function planLight(r, iso, day){
+  const top = BY_KEY[rlMainTop(r)], s = top ? sunTimes(iso, top.a, top.o) : null;
+  const set = (day && day.sunset) || (s && s.set), rise = (day && day.sunrise) || (s && s.rise);
+  const sm = hmToMin(set), rm = hmToMin(rise); if (sm == null) return null;
+  const by = Math.floor((sm - rlMins(r) - PLAN_LIGHT_MIN) / 5) * 5;
+  if (rm != null && by < rm) return {set, rise, by:null, text:'Longer than the daylight. Start at first light (' + rise + ') and take a head torch.'};
+  return {set, rise, by:minToHm(by), text:'Start by ' + minToHm(by) + ' to finish with half an hour of light.'};
+}
+function planDays(){
+  const out = [], d = new Date();
+  for (let i = 0; i < 7; i++){ const x = new Date(d); x.setDate(d.getDate() + i); out.push(isoOf(x)); }
+  return out;
+}
+function rlPlanHTML(k, id){
+  const st = ui.rl, r = Object.assign({id}, RL_ROUTES[id]), top = BY_KEY[rlMainTop(r)];
+  const at = {la:top.a, lo:top.o}, lev = wxLevelFor(top.h);
+  let wx = wxCached(at);
+  const days = planDays();
+  const covers = wx && wx.days && wx.days.some(x => x.date === days[0]);
+  if (!covers && navigator.onLine !== false && !st.__wxAsk){
+    st.__wxAsk = 1;
+    fetchWeather(at).then(() => { st.__wxDone = 1; if (ui.rl && ui.rl.plan === id) rlPaint(); });
+  }
+  if (!st.pday){ const w = weekendISO(); st.pday = days.indexOf(w) >= 0 ? w : days[1]; }
+  const dayOf = iso => ((wx && wx.days) || []).find(x => x.date === iso) || null;
+  const dcard = iso => {
+    const f = dayOf(iso), on = st.pday === iso, dt = new Date(iso + 'T12:00:00');
+    const head = iso === today() ? 'Today' : DAY_SHORT[dt.getDay()];
+    let body = '';
+    if (f){
+      const look = wxLook(f.code), w = lev && f.up && f.up[lev.hPa] != null ? f.up[lev.hPa] : f.wind;
+      body = '<span class="pdwi">' + wxSvg(look.i) + '</span><b>' + esc(look.t) + '</b><small>' +
+        (w != null ? Math.round(w) + ' mph' : '') + (f.rain != null ? ' · ' + f.rain + '% rain' : '') + '</small>';
+    } else body = '<small class="pdnof">' + (navigator.onLine === false ? 'No signal' : st.__wxAsk && !st.__wxDone ? 'Forecast…' : 'No forecast yet') + '</small>';
+    return '<button class="pday' + (on ? ' on' : '') + '" data-rl="pday" data-d="' + iso + '" aria-pressed="' + on + '">' +
+      '<span class="pdh">' + head + '</span><span class="pdd">' + dt.getDate() + ' ' + RT_MON[dt.getMonth()].charAt(0) + RT_MON[dt.getMonth()].slice(1).toLowerCase() + '</span>' + body + '</button>';
+  };
+  const custom = st.pday && days.indexOf(st.pday) < 0;
+  const light = st.pday ? planLight(r, st.pday, dayOf(st.pday)) : null;
+  const ppl = (FB && fbUser && typeof msgPeople === 'function') ? msgPeople().slice(0, 8) : [];
+  const sel = st.pwith || (st.pwith = []);
+  let s = '<button class="rlback" data-rl="planback">' + ti('arrow-left', 'width="18" height="18"') + 'Back to the route</button>' +
+    '<h3 class="rlh rlname">Plan ' + esc(rlNameFull(r)) + '</h3>' +
+    '<p class="rlsub">' + rlNums(r) + ' at a steady pace</p>' +
+    '<div class="rlsec"><div class="rlsech"><h4>Which day?</h4>' + (days.some(dayOf) ? '<small>Forecast for the top</small>' : '') + '</div>' +
+    '<div class="pdays">' + days.map(dcard).join('') +
+      '<label class="pday pdpick' + (custom ? ' on' : '') + '">' + ti('calendar') + '<span class="pdh">' + (custom ? esc(wxShortDay(st.pday)) : 'Another day') + '</span>' +
+        '<input type="date" data-rlp="date" min="' + today() + '" value="' + esc(custom ? st.pday : '') + '" aria-label="Pick another day"></label></div></div>' +
+    (light ? '<div class="plight">' + ti('sun', 'width="24" height="24"') + '<span><b>Sunset ' + esc(light.set) + '</b>' + esc(light.text) + '</span></div>' : '') +
+    '<div class="rlsec"><div class="rlsech"><h4>Who is coming?</h4></div>';
+  if (!FB || !fbUser) s += '<p class="rlfine">Sign in on Community to invite friends. You can still plan it for yourself.</p>';
+  else if (!ppl.length) s += '<p class="rlfine">Follow hikers on Community and they show up here to invite.</p>';
+  else s += '<div class="pwho">' + ppl.map(x => { const on = sel.indexOf(x.uid) >= 0;
+      return '<button class="pwhob' + (on ? ' on' : '') + '" data-rl="pwith" data-u="' + esc(x.uid) + '" aria-pressed="' + on + '">' +
+        '<span class="pwav">' + avatarHTML(x.av, x.name, 'sm', x.uid) + (on ? '<i>' + ti('check', 'width="12" height="12"') + '</i>' : '') + '</span>' +
+        '<span class="pwn">' + esc(firstName(x.name)) + '</span></button>'; }).join('') + '</div>' +
+      '<p class="rlfine">' + (sel.length ? 'They get an invite with the route and the day.' : 'Tap someone to invite them.') + '</p>';
+  s += '</div>';
+  if (sheetsOk()){
+    const keep = st.pkeep !== false;
+    s += '<button class="ptog" data-rl="pkeep" aria-pressed="' + keep + '"><span><b>Keep the map for no signal</b><small>Saves the ground around the route on this phone</small></span><i class="ptg' + (keep ? ' on' : '') + '"><i></i></i></button>';
+  }
+  s += '<div class="rlbar"><button class="rlbtn rlgo pgo" data-rl="plango" data-id="' + esc(id) + '"' + (st.pday ? '' : ' disabled') + '>' + ti('calendar') +
+    '<span>' + (sel.length ? 'Plan it, then invite ' + sel.length : 'Add to Your routes') + '</span></button></div>';
+  return s;
+}
+function rlPdayIntoView(){
+  const b = document.querySelector('.pday.on'), row = b && b.parentElement; if (!row) return;
+  row.scrollLeft = Math.max(0, b.offsetLeft - row.offsetLeft - (row.clientWidth - b.offsetWidth) / 2);
+}
+async function rlPlanGo(id){
+  const st = ui.rl, r = RL_ROUTES[id]; if (!st || !r || !st.pday) return;
+  const date = st.pday, friends = (st.pwith || []).slice(), keep = sheetsOk() && st.pkeep !== false;
+  const p = rlMakePlan(id);
+  p.date = date; p.state = 'planned'; p.t = now();
+  touched();
+  bcSheetClose();
+  dcSegSet('mine'); ui.planOpen = p.id; ui.mapDrawer = 'open';
+  if (tab !== 'p' && tab !== 'm'){ tab = 'p'; ui.rq = ''; }
+  render(); if (rmap) rmDraw();
+  if (keep) rlSave(id);
+  if (friends.length && FB && fbUser)
+    planComposer(null, {with:friends, title:p.name, hill:(p.hills || [])[0] || '', date, route:p.id});
+  else toast('Planned for ' + wxShortDay(date) + '. It is in Your routes.');
+}
+document.addEventListener('change', e => {
+  const el = e.target; if (!el || !el.dataset || el.dataset.rlp !== 'date' || !ui.rl) return;
+  if (el.value && el.value >= today()){ ui.rl.pday = el.value; rlPaint(); }
+});
 
 function rlCompare(ids){
   ids = ids.filter(id => RL_ROUTES[id]).slice(0, 3);
@@ -36629,7 +36850,7 @@ function rlCompareHTML(ids){
   return s;
 }
 
-const APP_VERSION = 'v430';
+const APP_VERSION = 'v432';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -39213,7 +39434,7 @@ function gearHTML(pp, mine){
         '<i>' + (top && top.n
           ? esc(kitName(top.g)) + ' has walked ' + top.n + (top.n === 1 ? ' hill' : ' hills')
           : 'Nothing counted yet') + '</i></span>' +
-      ti('chev') + '</button>';
+      ti('chevron-right') + '</button>';
 }
 function gearTheirsHTML(pp){
   const list = (pp.gear || []).filter(g => g && g.n);
