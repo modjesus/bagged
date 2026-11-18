@@ -8931,6 +8931,42 @@ textarea, select{font-size:16px}
 .mapshell.maptiny:not(.drawerdeep) .mpchips{display:none}
 .mapshell.dcmode .poimapnote{top:168px}
 .mapshell.dcmode .poiwrap .poipin{scale:.86}
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mlistchip,
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mpchips,
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .msaveoff,
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mhill,
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .rosectl{display:none !important}
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mctl button:not([data-act="mlocate"]){display:none !important}
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mctl{display:block !important; top:64px; padding:0 !important; width:44px; height:44px; border-radius:99px !important}
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mctl button{border-radius:99px !important}
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mlayers{width:44px !important; padding:0 !important}
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mlayers .mlw, .mapshell.dcmode.tall:not([data-drawer="collapsed"]) .mlayers .mls{display:none !important}
+.mapshell.dcmode.tall:not([data-drawer="collapsed"]) .msearch{right:calc(12px + var(--grip, 0px) + 52px) !important}
+.mapshell.dcmode.dcpoimod.tall:not([data-drawer="collapsed"]) .mlayers::after{content:''; position:absolute; top:6px; right:6px; width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 2px #FBFAF6}
+.dcmp{position:absolute; z-index:9; top:64px; right:12px; left:64px; max-width:420px; margin-left:auto; max-height:calc(100% - 76px - var(--mdraw, 0px)); overflow-y:auto; overscroll-behavior:contain;
+  background:rgba(251,250,246,.97); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border-radius:20px; padding:10px 14px 6px;
+  box-shadow:0 0 0 1px rgba(20,51,45,.08), 0 20px 40px -18px rgba(20,51,45,.55); color:var(--ink); transform-origin:top right}
+@media (prefers-reduced-motion:no-preference){ .dcmp{animation:dcmpin .22s cubic-bezier(.2,0,0,1)} }
+@keyframes dcmpin{from{opacity:0; scale:.96}}
+.mapshell:not(.dcmode) .dcmp, .mapshell[data-drawer="collapsed"] .dcmp, .mapshell.wide .dcmp{display:none}
+.dcmph{display:flex; justify-content:space-between; align-items:center}
+.dcmph b{font:700 16.5px var(--font-ui)}
+.dcmpx{width:44px; height:44px; margin-right:-10px; border:0; background:none; color:var(--ink-3); display:grid; place-items:center; cursor:pointer}
+.dcmpl{margin:6px 0 4px; font:700 12px var(--font-data); letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3)}
+.dcmpchips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px}
+.lsplaces{display:block !important}
+.lsplaces .lst{display:block; margin-bottom:8px}
+.lsplaces .lst b, .lsplaces .lst small{display:block}
+.lsplaces .dcmpchips{margin:0}
+.dcmpchips .mpchip{box-shadow:0 0 0 1.5px var(--line); background:var(--raise)}
+.dcmpchips .mpchip.on{background:var(--ink); box-shadow:none}
+.dcmprow{display:flex; align-items:center; gap:9px; width:100%; min-height:46px; padding:0 2px; border:0; border-top:1px solid var(--line-soft); background:none; color:var(--ink); font:600 15px var(--font-ui); text-align:left; cursor:pointer}
+.dcmprow span{flex:1}
+.dcmprow svg{flex:none; color:var(--ink-3)}
+.dcmpl + .dcmprow{border-top:0}
+.mapshell.dcmode.dcsel .peakwrap.dcoff{opacity:.4 !important}
+.mapshell.dcmode.dcsel .peakwrap.dcoff > .peak, .mapshell.dcmode.dcsel .peakwrap.dcoff > .hpin{transform:scale(.5)}
+@media (prefers-reduced-motion:no-preference){ .mapshell.dcmode .peakwrap{transition:opacity .25s ease} .mapshell.dcmode .peakwrap > .peak, .mapshell.dcmode .peakwrap > .hpin{transition:transform .25s cubic-bezier(.2,0,0,1)} }
 .rlby{display:flex; align-items:center; gap:5px; font:600 13px var(--font-ui); color:#2E6B47; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .rlby svg{flex:none}
 .rlnote{margin:0; padding:10px 12px; border-left:3px solid #2E6B47; background:var(--raise); border-radius:0 10px 10px 0; font-size:15px; line-height:1.45; color:var(--ink)}
@@ -26201,6 +26237,7 @@ function rmDraw(){
     if (now2){ rmap.__lj = lj; rmap.__ljSrc = now2; } else rmap.__lj = null;
   }
   drawMapSummits();
+  try{ dcFadeHills(); }catch(e){}
   if (!editor){ dcMarks(); return; }
   editor.wp.forEach((c, i) => {
     const last = i === editor.wp.length - 1;
@@ -26293,6 +26330,7 @@ function paintNear(){
     const r = rect(e); if (!(r.right > B.left && r.left < B.right && r.bottom > B.top && r.top < B.bottom)) continue;
     put({l:r.left - 2, t:r.top - 2, r:r.right + 2, b:r.bottom + 2});
     const k = e.dataset && e.dataset.k;
+    if (e.classList.contains('dcoff')) continue;
     if (k && BY_KEY[k]) pins.push({h: BY_KEY[k], x:(r.left + r.right) / 2, y:(r.top + r.bottom) / 2, R:r.width / 2});
   }
   const L = document.createElement('div'); L.id = 'nearlabs'; L.setAttribute('aria-hidden', 'true');
@@ -27648,7 +27686,7 @@ function renderPlans(){
       '<section class="mapdrawer hdmdrawer" data-state="pick" aria-label="How did it go?">' + hdgPickCardHTML(pick) + '</section></div>';
   }
   let html = '<div class="mapshell' + (wide ? ' wide' : ' tall') +
-    (full ? ' full' : '') + (dcDisc() ? ' dcmode' : '') + '" data-drawer="' + st + '">';
+    (full ? ' full' : '') + (dcDisc() ? ' dcmode' + (dcPoiDefault() ? '' : ' dcpoimod') : '') + '" data-drawer="' + st + '">';
 
   if (full){
     html += mapStageHTML() +
@@ -27765,7 +27803,8 @@ function mapStageHTML(){
     '<button class="misle mlistchip' + (ui.listOpen ? ' on' : '') + '" data-act="mlistfold"' +
       ' aria-expanded="' + !!ui.listOpen + '" aria-label="Which hills: ' + esc(listLbl) + '">' +
       ti('filter') + '<span>' + esc(listLbl) + '</span>' + listNum + ti('chevron-down') + '</button>' +
-    mapKeyHTML() + mapCtxStageHTML() + (dcDisc() ? dcPoiChipsHTML() : '') +
+    mapKeyHTML() + mapCtxStageHTML() + (dcDisc() ? dcMapPanelHTML() : '') +
+
     '<div id="rqres" class="mresults">' + searchResultsHTML() + '</div>' +
     '<div id="layers" class="mmenu"' + (ui.layersOpen ? '' : ' hidden') + '>' + layersHTML() + '</div>' +
     '<div class="misle mctl"><button data-act="mzoom" data-v="1" aria-label="Zoom in">' + ti('plus') + '</button>' +
@@ -27825,7 +27864,10 @@ function layersHTML(){
   if (terrainOn())
     s += lsRow('Lift the hills', want3dTall ? 'Taller than they really are' : 'True heights',
       lsPill('Off', !want3dTall, 'terraintall', '0') + lsPill('On', want3dTall, 'terraintall', '1'));
-  s += lsRow('Places', 'Car parks, pubs, toilets',
+  if (dcDisc()){ const ps = dcPoi();
+    s += '<div class="lsrow lsplaces"><span class="lst"><b>Places</b><small>What shows on Discover</small></span><div class="dcmpchips">' +
+      DC_POI.map(x => '<button class="mpchip' + (ps.has(x[0]) ? ' on' : '') + '" data-act="dcpoi" data-k="' + x[0] + '" aria-pressed="' + ps.has(x[0]) + '">' + ti(x[2], 'width="17" height="17"') + '<span>' + x[1] + '</span></button>').join('') + '</div></div>'; }
+  else s += lsRow('Places', 'Car parks, pubs, toilets',
     lsPill('Off', !poiShow, 'places', '0') + lsPill('On', poiShow, 'places', '1'));
   const rc = routeShownCount();
   if (rc.all){
@@ -37082,6 +37124,7 @@ document.addEventListener('click', e => {
   const k = b.dataset.k; dcPoiToggle(k);
   const on = dcPoi().has(k);
   b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
+  try{ dcPoiMark(); }catch(e){}
   if (rmap){ clearMarks(poiMarks); poiPins.clear(); poiRefresh(); }
 }, true);
 
@@ -37315,6 +37358,47 @@ function dcLineGrow(id){
     if (x < 1) requestAnimationFrame(step); else { d.grow = null; dcLinesOnly(); }
   };
   requestAnimationFrame(step);
+}
+
+const dcPoiDefault = () => { const s = dcPoi(); return s.size === 2 && s.has('parking') && s.has('pub'); };
+function dcMapPanelHTML(){
+  if (!ui.dcMapOpen) return '';
+  const s = dcPoi(), l = LIST_BY[ui.list];
+  const lbl = ui.mapScope === 'all' ? 'Every hill' : ui.mapScope === 'enabled' ? 'All my lists' : (l ? l.name : 'Lists');
+  return '<div class="dcmp" role="dialog" aria-label="On the map"><div class="dcmph"><b>On the map</b>' +
+      '<button class="dcmpx" data-act="dcmapx" aria-label="Close">' + ti('x', 'width="20" height="20"') + '</button></div>' +
+    '<p class="dcmpl">Hills</p><button class="dcmprow" data-act="dcmaphills">' + ti('filter', 'width="18" height="18"') + '<span>' + esc(lbl) + '</span>' + ti('chevron-right', 'width="18" height="18"') + '</button>' +
+    '<p class="dcmpl">Places</p><div class="dcmpchips">' + DC_POI.map(x => '<button class="mpchip' + (s.has(x[0]) ? ' on' : '') + '" data-act="dcpoi" data-k="' + x[0] + '" aria-pressed="' + s.has(x[0]) + '">' +
+      ti(x[2], 'width="17" height="17"') + '<span>' + x[1] + '</span></button>').join('') + '</div>' +
+    '<button class="dcmprow" data-act="mapfull" data-v="1">' + ti('arrows-maximize', 'width="18" height="18"') + '<span>Full screen</span></button>' +
+    (sheetsOk() ? '<button class="dcmprow" data-act="mapsave">' + ti('download', 'width="18" height="18"') + '<span>Save this area for no signal</span></button>' : '') +
+    '<button class="dcmprow" data-act="dcmapmore">' + ti('stack-2', 'width="18" height="18"') + '<span>More map settings</span>' + ti('chevron-right', 'width="18" height="18"') + '</button></div>';
+}
+function dcCalm(){
+  const sh = document.querySelector('.mapshell');
+  return !!sh && sh.classList.contains('dcmode') && sh.classList.contains('tall') && sh.dataset.drawer !== 'collapsed';
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-act="layers"], [data-act^="dcmap"]'); if (!b) return;
+  const a = b.dataset.act;
+  if (a === 'layers'){
+    if (!b.classList.contains('mlayers') || !dcCalm()) return;
+    e.preventDefault(); e.stopPropagation();
+    ui.dcMapOpen = !ui.dcMapOpen; ui.layersOpen = false; ui.listOpen = false; render(); return;
+  }
+  e.preventDefault(); e.stopPropagation();
+  ui.dcMapOpen = false;
+  if (a === 'dcmaphills'){ ui.listOpen = true; ui.layersOpen = false; }
+  if (a === 'dcmapmore'){ ui.layersOpen = true; ui.listOpen = false; }
+  render();
+}, true);
+function dcPoiMark(){ const sh = document.querySelector('.mapshell'); if (sh) sh.classList.toggle('dcpoimod', !dcPoiDefault()); }
+function dcFadeHills(){
+  const sh = document.querySelector('.mapshell'); if (!sh) return;
+  const d = dc(), on = dcOnSafe() && d.sel && RL_ROUTES[d.sel];
+  sh.classList.toggle('dcsel', !!on);
+  const tops = on ? new Set(RL_ROUTES[d.sel].tops) : null;
+  for (const el of document.querySelectorAll('#routemap .peakwrap[data-k]')) el.classList.toggle('dcoff', !!tops && !tops.has(el.dataset.k));
 }
 
 const PUB_COL = 'pubroutes', PUB_KEY = 'waymark.pubroutes', PUB_TTL = 6 * 3600e3;
@@ -37558,7 +37642,7 @@ function rlCompareHTML(ids){
   return s;
 }
 
-const APP_VERSION = 'v433';
+const APP_VERSION = 'v435';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
