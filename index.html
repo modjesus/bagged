@@ -8784,6 +8784,13 @@ textarea, select{font-size:16px}
 .rphtop{position:absolute; left:6px; top:6px; max-width:calc(100% - 12px); display:flex; align-items:center; gap:4px; font:700 11.5px var(--font-ui); color:#fff; background:rgba(14,26,23,.72); border-radius:8px; padding:3px 7px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
 .rphtop svg{flex:none}
 .rphvtop{display:flex; align-items:center; gap:6px; margin:0 0 4px; font:700 15px var(--font-ui)}
+.hcover{position:relative; margin:-18px -18px 14px; height:min(240px, 58vw); border-radius:17px 17px 0 0; overflow:hidden; background:var(--surface-2)}
+.hcovim{position:absolute; inset:0; width:100%; height:100%; padding:0; border:0; background:center/cover no-repeat; cursor:zoom-in; touch-action:pan-y}
+.hcovim:focus-visible{outline:3px solid var(--accent); outline-offset:-3px}
+.hcovcred{position:absolute; left:12px; bottom:12px; font:600 12.5px var(--font-ui); color:#fff; background:rgba(0,0,0,.5); padding:4px 9px; border-radius:11px; pointer-events:none}
+.hcovn{position:absolute; right:12px; bottom:12px; font:700 13px var(--font-ui); color:#14332D; background:rgba(248,245,236,.95); padding:5px 11px; border-radius:14px; pointer-events:none}
+.hcovdots{position:absolute; left:50%; translate:-50% 0; bottom:18px; display:flex; gap:6px; pointer-events:none}
+.hcovdots span{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.6)} .hcovdots span.on{background:#fff}
 .rphpick{position:relative; width:84px; height:84px; border-radius:12px; background:center/cover no-repeat var(--surface-2,#E7E1D2)}
 .rphpick button{position:absolute; right:-6px; top:-6px; width:30px; height:30px; border-radius:50%; border:2px solid var(--surface); background:var(--ink); color:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer}
 .rphprep{display:flex; align-items:center; justify-content:center; text-align:center; font-size:12.5px; color:var(--ink-2); padding:6px}
@@ -21966,7 +21973,9 @@ function buildGPX(plan){
     '<gpx version="1.1" creator="WayMark" xmlns="http://www.topografix.com/GPX/1/1" ' +
     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
     'xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n' +
-    '  <metadata><name>' + xesc(plan.name || 'WayMark route') + '</name><time>' + when + '</time></metadata>\n';
+    '  <metadata><name>' + xesc(plan.name || 'WayMark route') + '</name>' +
+    '<desc>' + xesc('From WayMark. A suggestion, not a promise: check it against the map and the forecast. ' + RL_ACCESS_B + ' ' + RL_ACCESS_S + ' In an emergency, call 999 and ask for Police, then Mountain Rescue.') + '</desc>' +
+    '<time>' + when + '</time></metadata>\n';
   for (const h of hs){
     s += '  <wpt lat="' + h.a + '" lon="' + h.o + '">' +
          '<ele>' + h.h + '</ele>' +
@@ -33542,6 +33551,8 @@ async function wikiLookup(h){
 async function openInfo(key){
   const h = BY_KEY[key]; if (!h) return;
   wikiOpen = h; wikiBusy = true;
+  ui.hcov = {k:key, i:0};
+  rphTopFetch(key).then(() => { if (wikiOpen === h) paintInfo(); });
   paintInfo();
   document.getElementById('info').classList.add('open');
   fitTaglines();
@@ -33571,7 +33582,7 @@ function paintInfo(){
     }
   }
 
-  let s = ownBar;
+  let s = rphCoverHTML(h) + ownBar;
   if (fromWeb && !state.enabled.length){
     const nl = PUBLIC_LISTS();
     s += '<div class="webhi" data-open="' + (webOpen ? '1' : '0') + '">' +
@@ -33632,11 +33643,12 @@ function paintInfo(){
     s += '<p>No Wikipedia article could be matched to this summit with confidence. Rather than risk showing you the wrong place, it shows nothing.</p>' +
          '<p><a href="https://en.wikipedia.org/w/index.php?search=' + encodeURIComponent(h.n) + '" target="_blank" rel="noopener">Search Wikipedia yourself</a></p>';
   else {
-    if (v.img) s += '<img class="iimg" src="' + esc(v.img) + '" alt="Photograph of ' + esc(hillName(h)) + ' from Wikimedia Commons" loading="lazy">';
+    const wImg = v.img && !(rph.top[h.k] || []).length;
+    if (wImg) s += '<img class="iimg" src="' + esc(v.img) + '" alt="Photograph of ' + esc(hillName(h)) + ' from Wikimedia Commons" loading="lazy">';
     s += '<p class="iex">' + esc(v.extract) + '</p>';
     s += '<p class="isrc">From the Wikipedia article “' + esc(v.title) + '”, available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA</a>. ' +
          '<a href="' + esc(v.url) + '" target="_blank" rel="noopener">Read the full article</a>' +
-         (v.img ? '. The photograph is from Wikimedia Commons; its author and licence are on the article page.' : '') + '</p>';
+         (wImg ? '. The photograph is from Wikimedia Commons; its author and licence are on the article page.' : '') + '</p>';
   }
 
   const myPics = on ? (typeof hillPhotos === 'function' ? hillPhotos(h.k) : []) : [];
@@ -36362,8 +36374,8 @@ function rlMakePlan(id){
   if (p) return p;
   const r = RL_ROUTES[id];
   p = {id:'p' + uid(), name:r.n.replace(/^From /, rlHillName(BY_KEY[r.tops[r.tops.length - 1]]) + ' from '), date:'', state:'later',
-    notes: r.by ? 'Shared on WayMark Discover by ' + r.by + ': ' + r.n + '. Not checked by WayMark. A suggestion, not a promise.'
-      : 'From the WayMark route library: ' + r.n + (rlRound(r) ? ' (round walk)' : '') + '. Along OpenStreetMap paths, not checked by WayMark yet. A suggestion, not a promise.',
+    notes: (r.by ? 'Shared on WayMark Discover by ' + r.by + ': ' + r.n + '. Not checked by WayMark. A suggestion, not a promise.'
+      : 'From the WayMark route library: ' + r.n + (rlRound(r) ? ' (round walk)' : '') + '. Along OpenStreetMap paths, not checked by WayMark yet. A suggestion, not a promise.') + ' ' + RL_ACCESS_B + ' ' + RL_ACCESS_S,
     hills: r.tops.slice(), trk: rlTrk(id).map(q => q.slice()), wp:null, snap:true, deleted:false, t:now(), lib:id};
   state.plans.push(p);
   touched();
@@ -36656,7 +36668,7 @@ function rlRouteHTML(k, id){
     '<span><b>Directions to the start</b><small>' + esc(r.from) + ', in your phone’s own maps</small></span>' + ti('chevron-right', 'width="18" height="18"') + '</a>' +
     (r.url ? '<a class="rlrow rlguide" href="' + esc(r.url) + '" target="_blank" rel="noopener">' + ti('notebook') +
       '<span><b>Read the full walk</b><small>Step by step, on ' + esc(r.pub || 'the guide’s website') + '</small></span>' + ti('chevron-right', 'width="18" height="18"') + '</a>' : '') +
-    '<div class="rlsafe" role="note">' + ti('alert-triangle') + '<p><b>A suggestion, not a promise.</b> Check it against the map and the forecast, and turn back if it isn’t right for you. In an emergency, call 999 and ask for Police, then Mountain Rescue.</p></div>';
+    '<div class="rlsafe" role="note">' + ti('alert-triangle') + '<p><b>A suggestion, not a promise.</b> Check it against the map and the forecast, and turn back if it isn’t right for you. <b>' + RL_ACCESS_B + '</b> ' + RL_ACCESS_S + ' In an emergency, call 999 and ask for Police, then Mountain Rescue.</p></div>';
   const ws = []; for (const tk of r.tops) for (const w of (RL_WARN[tk] || [])) if (!ws.some(x => x.b === w.b)) ws.push(w);
   for (const w of ws) s += '<p class="rlwarn">' + ti('alert-triangle') + '<span><b>' + esc(w.b) + '</b> — ' + esc(w.s) + '</span></p>';
   s += '<div class="rllinks"><button class="linkbtn" data-rl="report" data-id="' + id + '">Report a problem</button>' +
@@ -37336,11 +37348,14 @@ document.addEventListener('click', e => {
   if (rmap){ clearMarks(poiMarks); poiPins.clear(); poiRefresh(); }
 }, true);
 
-const AGREE_V = 'plan-1';
+const RL_ACCESS_B = 'Keep to public footpaths, rights of way and open access land.';
+const RL_ACCESS_S = 'Don’t trespass on private land, and follow the Countryside Code.';
+const AGREE_V = 'plan-2';
 const AGREE_LINES = [
   ['route', 'A suggestion, not a promise.', 'WayMark hasn’t walked or checked this route.'],
   ['clock', 'Times are estimates', 'at a steady pace. Allow longer for stops, weather and your group.'],
   ['sun', 'Check the map and the forecast,', 'and turn back if it isn’t right for you.'],
+  ['map-pin', RL_ACCESS_B.replace(/\.$/, ','), RL_ACCESS_S.charAt(0).toLowerCase() + RL_ACCESS_S.slice(1)],
   ['alert-triangle', 'In an emergency', 'call 999, ask for Police, then Mountain Rescue.']];
 const AGREE_TICK = 'I understand, and I’m responsible for my own safety on this walk.';
 const AGREE_KEY = 'waymark.agreed';
@@ -37893,14 +37908,7 @@ async function rphLoad(route, force){
       const list = []; q.forEach(d => { const x = d.data() || {}; list.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t, top:x.top || '', route:x.route || route, rn:x.rn || ''}); });
       rph.live[route] = list.sort((a, b) => (b.t || 0) - (a.t || 0)); rph.at[route] = Date.now(); rphCacheWrite();
       const r = RL_ROUTES[route], tops = r ? r.tops.filter(k => BY_KEY[k]).slice(0, 20) : [];
-      for (const k of tops){
-        if (rph.topAt[k] && Date.now() - rph.topAt[k] < RPH_TTL && !force) continue;
-        try{
-          const q2 = await FB.getDocs(FB.query(FB.collection(fbDb, RPH_COL), FB.where('top', '==', k), FB.where('st', '==', 'live'), FB.limit(24)));
-          const l2 = []; q2.forEach(d => { const x = d.data() || {}; l2.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t, top:x.top || '', route:x.route || '', rn:x.rn || ''}); });
-          rph.top[k] = l2; rph.topAt[k] = Date.now();
-        }catch(e){}
-      }
+      for (const k of tops) await rphTopFetch(k, force);
     }
     if (rphSigned()){
       const q = await FB.getDocs(FB.query(FB.collection(fbDb, RPH_COL), FB.where('route', '==', route), FB.where('uid', '==', fbUser.uid), FB.limit(40)));
@@ -37911,7 +37919,46 @@ async function rphLoad(route, force){
   rph.loading[route] = false;
   rphPaint(route);
 }
+function rphCoverHTML(h){
+  const list = rph.top[h.k] || []; if (!list.length) return '';
+  const c = ui.hcov && ui.hcov.k === h.k ? ui.hcov : (ui.hcov = {k:h.k, i:0});
+  c.i = Math.max(0, Math.min(list.length - 1, c.i || 0));
+  const x = list[c.i], u = rph.full.get(x.id) || x.th || '';
+  if (!rph.full.has(x.id)) rphFull(x.id).then(v => { if (!v || !ui.hcov || ui.hcov.k !== h.k) return; const e = document.getElementById('hcovim'); if (e && e.dataset.pid === x.id) e.style.backgroundImage = 'url(' + v + ')'; });
+  return '<div class="hcover">' +
+    '<button class="hcovim" id="hcovim" data-act="rphhill" data-k="' + esc(h.k) + '" data-pid="' + esc(x.id) + '" style="background-image:url(' + esc(u) + ')" ' +
+      'aria-label="Photo ' + (c.i + 1) + ' of ' + list.length + ' of ' + esc(hillName(h)) + ', by ' + esc(String(x.by || 'a walker').replace(/\.$/, '')) + '. Open full screen"></button>' +
+    '<span class="hcovcred">' + esc(x.by || 'A walker') + ' · ' + esc(rphMon(x.t)) + '</span>' +
+    (list.length > 1 ? '<span class="hcovdots" aria-hidden="true">' + list.slice(0, 12).map((_, j) => '<span' + (j === c.i ? ' class="on"' : '') + '></span>').join('') + '</span>' +
+      '<span class="hcovn">' + (c.i + 1) + ' of ' + list.length + '</span>' : '') +
+  '</div>';
+}
+function rphCoverStep(d){
+  const c = ui.hcov, h = wikiOpen; if (!c || !h || c.k !== h.k) return;
+  const n = (rph.top[h.k] || []).length, i = c.i + d; if (i < 0 || i >= n) return;
+  c.i = i; paintInfo();
+  const nx = (rph.top[h.k] || [])[i + 1]; if (nx && !rph.full.has(nx.id)) setTimeout(() => rphFull(nx.id), 300);
+}
+(function(){
+  let sx = null, sy = 0, moved = false;
+  document.addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('.hcovim')){ sx = e.clientX; sy = e.clientY; moved = false; } }, true);
+  document.addEventListener('pointerup', e => {
+    if (sx === null) return; const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.4){ moved = true; rphCoverStep(dx < 0 ? 1 : -1); }
+  }, true);
+  document.addEventListener('click', e => { if (moved && e.target.closest && e.target.closest('.hcovim')){ moved = false; e.preventDefault(); e.stopPropagation(); } }, true);
+})();
+async function rphTopFetch(k, force){
+  if (!k || !FB || !fbDb || navigator.onLine === false) return;
+  if (rph.topAt[k] && Date.now() - rph.topAt[k] < RPH_TTL && !force) return;
+  try{
+    const q2 = await FB.getDocs(FB.query(FB.collection(fbDb, RPH_COL), FB.where('top', '==', k), FB.where('st', '==', 'live'), FB.limit(24)));
+    const l2 = []; q2.forEach(d => { const x = d.data() || {}; l2.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t, top:x.top || '', route:x.route || '', rn:x.rn || ''}); });
+    rph.top[k] = l2.sort((a, b) => (b.t || 0) - (a.t || 0)); rph.topAt[k] = Date.now();
+  }catch(e){}
+}
 function rphList(route){
+  if (/^top:/.test(route)) return rph.top[route.slice(4)] || [];
   const own = rph.live[route] || [], r = RL_ROUTES[route], seen = new Set(own.map(x => x.id));
   const tagged = [];
   for (const k of (r && r.tops) || []) for (const x of (rph.top[k] || [])) if (!seen.has(x.id)){ seen.add(x.id); tagged.push(x); }
@@ -37982,6 +38029,7 @@ function rphViewPaint(){
 function rphViewShut(){
   const z = document.getElementById('rphv'); if (z) z.remove();
   const back = ui.rphv; ui.rphv = null;
+  if (back && /^top:/.test(back.route) && ui.hcov && ui.hcov.k === back.route.slice(4)){ ui.hcov.i = back.i; paintInfo(); const c = document.getElementById('hcovim'); if (c) c.focus(); return; }
   if (back){ const b = document.querySelector('.rpht[data-i="' + back.i + '"]'); if (b) b.focus(); }
 }
 function rphStep(d){ const v = ui.rphv; if (!v) return; const n = rphList(v.route).length; const i = v.i + d; if (i < 0 || i >= n) return; v.i = i; v.sure = ''; rphViewPaint(); }
@@ -38152,6 +38200,7 @@ document.addEventListener('click', e => {
   const b = e.target.closest && e.target.closest('[data-act^="rph"]'); if (!b) return;
   const a = b.dataset.act;
   if (a === 'rphsee') rphView(b.dataset.id, b.dataset.i);
+  else if (a === 'rphhill') rphView('top:' + b.dataset.k, (ui.hcov && ui.hcov.k === b.dataset.k) ? ui.hcov.i : 0);
   else if (a === 'rphadd') rphAddOpen(b.dataset.id);
   else if (a === 'rphshut') rphViewShut();
   else if (a === 'rphprev') rphStep(-1);
@@ -38310,7 +38359,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v441';
+const APP_VERSION = 'v443';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
