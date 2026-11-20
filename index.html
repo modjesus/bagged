@@ -8775,6 +8775,15 @@ textarea, select{font-size:16px}
 .rphsheet h3{margin:6px 56px 4px 0}
 .rphsub{font-size:14px; color:var(--ink-2); margin:0 0 14px}
 .rphpicks{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px}
+.rphpc{display:flex; flex-direction:column; gap:6px; width:104px}
+.rphpc .rphpick{width:104px; height:84px}
+.rphtopsel{width:104px; min-height:40px; padding:0 6px; border-radius:10px; border:0; background:var(--raise); box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 22%, transparent); font:600 13.5px var(--font-ui); color:var(--ink)}
+.rphtoph{font:700 14.5px var(--font-ui); margin:0 0 2px} .rphtoph i{font-weight:500; font-style:normal; color:var(--ink-2)}
+.rphtops{font-size:13px; color:var(--ink-2); margin:0 0 8px}
+.rphwhy{font-size:12px; line-height:1.25; color:var(--accent-text)}
+.rphtop{position:absolute; left:6px; top:6px; max-width:calc(100% - 12px); display:flex; align-items:center; gap:4px; font:700 11.5px var(--font-ui); color:#fff; background:rgba(14,26,23,.72); border-radius:8px; padding:3px 7px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+.rphtop svg{flex:none}
+.rphvtop{display:flex; align-items:center; gap:6px; margin:0 0 4px; font:700 15px var(--font-ui)}
 .rphpick{position:relative; width:84px; height:84px; border-radius:12px; background:center/cover no-repeat var(--surface-2,#E7E1D2)}
 .rphpick button{position:absolute; right:-6px; top:-6px; width:30px; height:30px; border-radius:50%; border:2px solid var(--surface); background:var(--ink); color:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer}
 .rphprep{display:flex; align-items:center; justify-content:center; text-align:center; font-size:12.5px; color:var(--ink-2); padding:6px}
@@ -37859,7 +37868,7 @@ window.addEventListener('online', () => { try{ agreePush(); }catch(e){} });
 const RPH_COL = 'routephotos', RPH_FULL = 'routephotofull', RPH_KEY = 'waymark.rph', RPH_TTL = 6 * 3600e3, RPH_MAX = 4;
 const RPH_RULES_MSG = 'Adding photos isn’t switched on yet. Nothing was sent.';
 TI['shield-check'] = '<path d="M11.46 20.846a12 12 0 0 1 -7.96 -14.846a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.09 7.06"/><path d="M15 19l2 2l4 -4"/>';
-const rph = {live:{}, mine:{}, at:{}, full:new Map(), loading:{}};
+const rph = {live:{}, mine:{}, at:{}, full:new Map(), loading:{}, top:{}, topAt:{}};
 const rphRef = id => FB.doc(fbDb, RPH_COL, id), rphFullRef = id => FB.doc(fbDb, RPH_FULL, id);
 const rphMon = t => { const d = new Date(+t || Date.now()); return d.toLocaleString('en-GB', {month:'short'}) + ' ' + d.getFullYear(); };
 function rphSigned(){ return !!(FB && fbUser && !fbUser.isAnonymous); }
@@ -37881,12 +37890,21 @@ async function rphLoad(route, force){
   try{
     if (!fresh || force){
       const q = await FB.getDocs(FB.query(FB.collection(fbDb, RPH_COL), FB.where('route', '==', route), FB.where('st', '==', 'live'), FB.limit(40)));
-      const list = []; q.forEach(d => { const x = d.data() || {}; list.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t}); });
+      const list = []; q.forEach(d => { const x = d.data() || {}; list.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t, top:x.top || '', route:x.route || route, rn:x.rn || ''}); });
       rph.live[route] = list.sort((a, b) => (b.t || 0) - (a.t || 0)); rph.at[route] = Date.now(); rphCacheWrite();
+      const r = RL_ROUTES[route], tops = r ? r.tops.filter(k => BY_KEY[k]).slice(0, 20) : [];
+      for (const k of tops){
+        if (rph.topAt[k] && Date.now() - rph.topAt[k] < RPH_TTL && !force) continue;
+        try{
+          const q2 = await FB.getDocs(FB.query(FB.collection(fbDb, RPH_COL), FB.where('top', '==', k), FB.where('st', '==', 'live'), FB.limit(24)));
+          const l2 = []; q2.forEach(d => { const x = d.data() || {}; l2.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t, top:x.top || '', route:x.route || '', rn:x.rn || ''}); });
+          rph.top[k] = l2; rph.topAt[k] = Date.now();
+        }catch(e){}
+      }
     }
     if (rphSigned()){
       const q = await FB.getDocs(FB.query(FB.collection(fbDb, RPH_COL), FB.where('route', '==', route), FB.where('uid', '==', fbUser.uid), FB.limit(40)));
-      const mine = []; q.forEach(d => { const x = d.data() || {}; mine.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t, st:x.st, why:x.why || ''}); });
+      const mine = []; q.forEach(d => { const x = d.data() || {}; mine.push({id:d.id, uid:x.uid, by:x.by, cap:x.cap || '', th:x.th, w:x.w, h:x.h, t:x.t, st:x.st, why:x.why || '', top:x.top || '', route:x.route || route, rn:x.rn || ''}); });
       rph.mine[route] = mine;
     }
   }catch(e){}
@@ -37894,20 +37912,24 @@ async function rphLoad(route, force){
   rphPaint(route);
 }
 function rphList(route){
-  const live = rph.live[route] || [], ids = new Set(live.map(x => x.id));
+  const own = rph.live[route] || [], r = RL_ROUTES[route], seen = new Set(own.map(x => x.id));
+  const tagged = [];
+  for (const k of (r && r.tops) || []) for (const x of (rph.top[k] || [])) if (!seen.has(x.id)){ seen.add(x.id); tagged.push(x); }
+  const live = [...own, ...tagged].sort((a, b) => (b.t || 0) - (a.t || 0)), ids = new Set(live.map(x => x.id));
   const mine = (rph.mine[route] || []).filter(x => x.st !== 'live' && !ids.has(x.id)).sort((a, b) => (b.t || 0) - (a.t || 0));
   const mineLive = (rph.mine[route] || []).filter(x => x.st === 'live' && !ids.has(x.id));
   return [...mine, ...mineLive, ...live];
 }
 function rphSecHTML(route){
-  const list = rphList(route), n = (rph.live[route] || []).length + (rph.mine[route] || []).filter(x => x.st === 'live' && !(rph.live[route] || []).some(y => y.id === x.id)).length;
+  const list = rphList(route), n = list.filter(x => !x.st || x.st === 'live').length;
   const cam = ti('camera', 'width="22" height="22"');
   let s = '<div class="rlsech"><h4>Photos from walkers</h4>' + (n ? '<small>' + n + (n === 1 ? ' photo' : ' photos') + '</small>' : '') + '</div>';
   if (list.length){
     s += '<div class="rphrow" role="list">' + list.map((x, i) => {
       const tag = x.st === 'pending' ? 'Waiting for a check' : x.st === 'hidden' ? 'Not put up' : '';
       return '<button class="rpht' + (tag ? ' rphwait' : '') + '" role="listitem" data-act="rphsee" data-id="' + esc(route) + '" data-i="' + i + '" aria-label="Photo by ' + esc(x.by || 'a walker') + (tag ? ', ' + tag.toLowerCase() : '') + '">' +
-        '<span class="rphim" style="background-image:url(' + esc(x.th || '') + ')">' + (tag ? '<em>' + esc(tag) + '</em>' : '') + '</span>' +
+        '<span class="rphim" style="background-image:url(' + esc(x.th || '') + ')">' + (tag ? '<em>' + esc(tag) + '</em>' : '') +
+          (x.top && BY_KEY[x.top] ? '<span class="rphtop">' + ti('mountain', 'width="12" height="12"') + esc(hillName(BY_KEY[x.top])) + '</span>' : '') + '</span>' +
         '<b>' + esc(x.by || 'A walker') + '</b><i>' + esc(rphMon(x.t)) + '</i></button>';
     }).join('') + '</div>';
   } else s += '<p class="rphnone">No photos yet. Walked it? Add yours.</p>';
@@ -37949,7 +37971,8 @@ function rphViewPaint(){
         '<button class="rphvnav next" data-act="rphnext" aria-label="Next photo"' + (v.i < list.length - 1 ? '' : ' disabled') + '>' + ti('chevron-right', 'width="26" height="26"') + '</button>' : '') + '</div>' +
     '<div class="rphvinfo">' + (tag ? '<p class="rphvtag">' + esc(tag) + '</p>' : '') +
       (x.cap ? '<p class="rphvcap">“' + esc(x.cap) + '”</p>' : '') +
-      '<small>' + esc(x.by || 'A walker') + ' · ' + esc(rphMon(x.t)) + (r ? ' · ' + esc(rlNameFull(Object.assign({id:v.route}, r))) : '') + '</small>' +
+      (x.top && BY_KEY[x.top] ? '<p class="rphvtop">' + ti('mountain', 'width="16" height="16"') + esc(hillName(BY_KEY[x.top])) + '</p>' : '') +
+      '<small>' + esc(x.by || 'A walker') + ' · ' + esc(rphMon(x.t)) + (x.route && x.route !== v.route && RL_ROUTES[x.route] ? ' · on ' + esc(rlNameFull(Object.assign({id:x.route}, RL_ROUTES[x.route]))) : r ? ' · ' + esc(rlNameFull(Object.assign({id:v.route}, r))) : '') + '</small>' +
       '<div class="rphvrow"><span class="rphdots" aria-hidden="true">' + (list.length > 1 && list.length <= 12 ? list.map((_, j) => '<span' + (j === v.i ? ' class="on"' : '') + '></span>').join('') : '') + '</span>' +
       (q ? '' : me ? '<button class="rphvlink" data-act="rphdel" data-pid="' + esc(x.id) + '">' + (v.sure === x.id ? 'Tap again to take it down' : 'Take my photo down') + '</button>'
           : '<button class="rphvlink" data-act="rphrep" data-pid="' + esc(x.id) + '">Report this photo</button>') + '</div></div>';
@@ -37970,6 +37993,7 @@ async function rphTakeDown(pid){
   const route = v.route;
   rph.mine[route] = (rph.mine[route] || []).filter(x => x.id !== pid);
   rph.live[route] = (rph.live[route] || []).filter(x => x.id !== pid); rphCacheWrite(); rph.full.delete(pid);
+  for (const k of Object.keys(rph.top)) rph.top[k] = rph.top[k].filter(x => x.id !== pid);
   v.sure = '';
   toast('Your photo has been taken down.');
   rphPaint(route);
@@ -38019,14 +38043,22 @@ function rphFormHTML(){
     '<h3 class="rlh" id="rphft">Add your photos</h3><p class="rphsub">' + esc(name) + '</p>';
   if (!rphSigned()) return s + '<p class="pvfine">Sign in on Community to add photos. Your first name and initial go with them.</p>';
   const ok = f.items.length && f.own && f.ppl && !f.busy;
-  s += '<div class="rphpicks">' + f.items.map((x, i) => '<span class="rphpick" style="background-image:url(' + esc(x.th) + ')"><button data-act="rphfdrop" data-i="' + i + '" aria-label="Take this photo out">' + ti('x', 'width="14" height="14"') + '</button></span>').join('') +
+  const tops = r ? rlTopsOf(r) : [];
+  const topSel = (x, i) => !tops.length ? '' : '<select class="rphtopsel" data-i="' + i + '" aria-label="Which top is photo ' + (i + 1) + '?">' +
+      '<option value=""' + (!x.top ? ' selected' : '') + '>Which top?</option>' +
+      tops.map(k => '<option value="' + esc(k) + '"' + (x.top === k ? ' selected' : '') + '>' + esc(hillName(BY_KEY[k])) + '</option>').join('') +
+      '<option value="way"' + (x.top === 'way' ? ' selected' : '') + '>On the way</option></select>';
+  if (f.items.length && tops.length) s += '<p class="rphtoph">Which top is each one? <i>(optional)</i></p><p class="rphtops">A photo of a top shows on every route over it.</p>';
+  s += '<div class="rphpicks">' + f.items.map((x, i) => '<span class="rphpc"><span class="rphpick" style="background-image:url(' + esc(x.th) + ')"><button data-act="rphfdrop" data-i="' + i + '" aria-label="Take this photo out">' + ti('x', 'width="14" height="14"') + '</button></span>' + topSel(x, i) +
+      (x.why && x.top && BY_KEY[x.top] ? '<small class="rphwhy">' + (x.why === 'on' ? 'Taken on the top' : 'Facing this top') + '</small>' : '') + '</span>').join('') +
       (f.prepping ? '<span class="rphpick rphprep">Getting it ready…</span>' : '') +
       (f.items.length + (f.prepping ? 1 : 0) < RPH_MAX ? '<label class="rphmore">' + ti('plus', 'width="18" height="18"') + '<span>' + (f.items.length ? 'More' : 'Choose photos') + '<small>up to ' + RPH_MAX + '</small></span><input type="file" id="rphfile" accept="image/*" multiple hidden></label>' : '') + '</div>' +
     '<label class="pubfld"><span>A few words <i>(optional)</i></span><input id="rphcap" maxlength="120" value="' + esc(f.cap) + '" placeholder="What was it like?" autocomplete="off"></label>' +
     '<p class="rphcnt" id="rphcnt">' + f.cap.length + ' / 120</p>' +
     '<label class="agt sm"><input type="checkbox" id="rphown"' + (f.own ? ' checked' : '') + '><span class="agbox" aria-hidden="true">' + ti('check', 'width="16" height="16"') + '</span><span>I took these photos myself</span></label>' +
     '<label class="agt sm"><input type="checkbox" id="rphppl"' + (f.ppl ? ' checked' : '') + '><span class="agbox" aria-hidden="true">' + ti('check', 'width="16" height="16"') + '</span><span>No one in them can be recognised, or they are happy to be shown</span></label>' +
-    '<p class="rphsafe">' + ti('shield-check', 'width="18" height="18"') + '<span>WayMark takes out where and when the photo was taken, and the camera details, before it is sent.</span></p>' +
+    '<p class="rphsafe">' + ti('shield-check', 'width="18" height="18"') + '<span>WayMark takes out where and when the photo was taken, and the camera details, before it is sent.' +
+      (f.items.some(x => x.why) ? ' Where it was taken is only used on your phone, to suggest the top.' : '') + '</span></p>' +
     '<p class="pvmsg" role="status"' + (f.msg ? '' : ' hidden') + '>' + esc(f.msg || '') + '</p>' +
     '<button class="btn agok" data-act="rphfgo"' + (ok ? '' : ' disabled') + '>' + esc(f.busy || 'Send for a check') + '</button>' +
     '<p class="agf">Nothing shows until WayMark has looked at it. Sent as <b>' + esc(pubBy()) + '</b>' + (/\.$/.test(pubBy()) ? '' : '.') +
@@ -38051,10 +38083,30 @@ async function rphFiles(files){
   for (const file of [...files]){
     if (f.items.length >= RPH_MAX){ f.msg = 'Up to ' + RPH_MAX + ' photos at a time.'; break; }
     f.prepping++; f.msg = ''; rphFormPaint();
-    try{ f.items.push(await rphPrep(file)); }
+    try{
+      let meta = null; try{ meta = await photoMeta(file); }catch(e){}
+      const x = await rphPrep(file);
+      const sug = rphGuessTop(f.route, meta && meta.fix);
+      if (sug){ x.top = sug.k; x.why = sug.why; }
+      f.items.push(x);
+    }
     catch(e){ f.msg = (e && e.slow) ? 'That photo is still downloading to your phone. Try again in a moment.' : (e && e.message && /small|size/.test(e.message)) ? e.message : 'That one could not be read. Try another photo.'; }
     f.prepping--; rphFormPaint();
   }
+}
+function rphGuessTop(route, fix){
+  const r = RL_ROUTES[route]; if (!r || !fix || !isFinite(fix.lat) || !isFinite(fix.lon)) return null;
+  const tops = rlTopsOf(r).map(k => BY_KEY[k]).filter(Boolean);
+  let best = null;
+  for (const h of tops){ const d = distM(fix.lat, fix.lon, h.a, h.o); if (d <= 250 && (!best || d < best.d)) best = {k:h.k, d, why:'on'}; }
+  if (best) return best;
+  if (!isFinite(fix.dir)) return null;
+  for (const h of tops){
+    const d = distM(fix.lat, fix.lon, h.a, h.o); if (d > 8000) continue;
+    const off = Math.abs(((bearing(fix.lat, fix.lon, h.a, h.o) - fix.dir) % 360 + 540) % 360 - 180);
+    if (off <= 20 && (!best || off < best.off)) best = {k:h.k, off, why:'towards'};
+  }
+  return best;
 }
 async function rphSend(){
   const f = ui.rphf; if (!f || !f.items.length || !f.own || !f.ppl || f.busy || !rphSigned()) return;
@@ -38067,9 +38119,12 @@ async function rphSend(){
     try{
       await FB.setDoc(rphFullRef(pid), {uid:fbUser.uid, d:x.d, t});
       try{
-        await FB.setDoc(rphRef(pid), {uid:fbUser.uid, by, route:f.route, rn:String((r && r.n) || '').slice(0, 120), cap, th:x.th, w:x.w, h:x.h, own:true, ppl:true, st:'pending', t, v:1});
+        const top = BY_KEY[x.top] && r && r.tops.includes(x.top) ? x.top : '';
+        const doc = {uid:fbUser.uid, by, route:f.route, rn:String(r ? rlNameFull(Object.assign({id:f.route}, r)) : '').slice(0, 120), cap, th:x.th, w:x.w, h:x.h, own:true, ppl:true, st:'pending', t, v:1};
+        if (top) doc.top = top;
+        await FB.setDoc(rphRef(pid), doc);
       }catch(e){ try{ await FB.deleteDoc(rphFullRef(pid)); }catch(e2){} throw e; }
-      sent.push({id:pid, uid:fbUser.uid, by, cap, th:x.th, w:x.w, h:x.h, t, st:'pending'});
+      sent.push({id:pid, uid:fbUser.uid, by, cap, th:x.th, w:x.w, h:x.h, t, st:'pending', top:BY_KEY[x.top] ? x.top : '', route:f.route});
     }catch(e){
       f.busy = ''; f.items.splice(0, i);
       f.msg = /permission|insufficient/i.test(String(e && (e.code || e.message))) ? RPH_RULES_MSG : fbWhy(e);
@@ -38089,6 +38144,7 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   const f = ui.rphf, el = e.target; if (!f || !el) return;
   if (el.id === 'rphfile'){ const files = el.files ? [...el.files] : []; if (files.length) rphFiles(files); return; }
+  if (el.classList && el.classList.contains('rphtopsel')){ const x = f.items[+el.dataset.i]; if (x){ x.top = el.value; x.why = ''; const n = el.parentElement && el.parentElement.querySelector('.rphwhy'); if (n) n.remove(); } return; }
   if (el.id === 'rphown') f.own = el.checked; else if (el.id === 'rphppl') f.ppl = el.checked; else return;
   const b = document.querySelector('[data-act="rphfgo"]'); if (b) b.disabled = !(f.items.length && f.own && f.ppl && !f.busy);
 });
@@ -38139,6 +38195,7 @@ function rphQueueHTML(){
   return '<div class="pubq rphq"><p class="intag">Photos to look over · ' + q.length + '</p>' + q.map(x =>
     '<div class="inrow pubrow"><button class="rphqim" data-act="rphqsee" data-pid="' + esc(x.id) + '" style="background-image:url(' + esc(x.th || '') + ')" aria-label="See the photo full size"></button>' +
       '<p><b>' + esc(x.rn || x.route || '') + '</b></p>' +
+      (x.top && BY_KEY[x.top] ? '<p class="indev">Tagged: ' + esc(hillName(BY_KEY[x.top])) + ', so it will show on every route over it</p>' : '') +
       '<p class="indev">' + esc(x.by || '') + ' · ' + esc(whenAgo(x.t)) + '</p>' +
       (x.cap ? '<p class="innote">“' + esc(x.cap) + '”</p>' : '') +
       '<div class="btnrow"><button class="btn quiet sm" data-act="rphno" data-pid="' + esc(x.id) + '">Not this one</button>' +
@@ -38253,7 +38310,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v440';
+const APP_VERSION = 'v441';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -46281,6 +46338,7 @@ function exifRead(v, t){
       if (isFinite(lat) && isFinite(lon) && (lat || lon)){
         out.fix = {lat, lon, acc: 25, alt: null};
         if (g[6]){ let a = rat(g[6], 0); if (g[5] && v.getUint8(t + g[5].at) === 1) a = -a; if (isFinite(a)) out.fix.alt = a; }
+        if (g[0x11]){ const d = rat(g[0x11], 0); if (isFinite(d) && d >= 0 && d <= 360) out.fix.dir = d; }
       }
     }
   }
