@@ -112,6 +112,7 @@ body{ margin:0; background:var(--ground); color:var(--ink); font-family:var(--fo
 button, input, textarea, select{font:inherit; color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px}
+[tabindex="-1"]:focus, [tabindex="-1"]:focus-visible{outline:none}
 .skiplink{position:absolute; left:-999px; top:8px; z-index:50; background:var(--surface); color:var(--ink); padding:8px 12px; border:1px solid var(--line); border-radius:8px}
 .skiplink:focus{left:8px}
 img{max-width:100%}
@@ -11088,9 +11089,12 @@ body:has(#info.open) .toast{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 
       </div>
     </div>
 
+    <div class="setpane" id="pn-inbox" hidden>
+      <div id="inboxBox"></div>
+    </div>
+
     <div class="setpane" id="pn-about" hidden>
       <div id="helpBox"></div>
-      <div id="inboxBox"></div>
       <p class="setnote">WayMark is a free, personal project run by Joe Sullivan in the UK. No adverts, no analytics, no tracking. <a href="legal.html" target="_blank" rel="noopener">Privacy, terms, cookies and credits</a>.</p>
       <div class="supportbox">
         <span class="supicon"></span>
@@ -11307,6 +11311,7 @@ Object.assign(TI, {"confetti": "<path d=\"M4 5h2\"/> <path d=\"M5 4v2\"/> <path 
 TI['trophy'] = '<path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>';
 TI['shopping-bag'] = '<path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.965 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z"/><path d="M9 11v-5a3 3 0 0 1 6 0v5"/>';
 TI['minus'] = '<path d="M5 12l14 0"/>';
+TI['inbox'] = '<path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path d="M4 13h3l3 3h4l3 -3h3"/>';
 TI['chevron-left'] = '<path d="M15 6l-6 6l6 6"/>';
 TI['calendar'] = '<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/><path d="M9 15h2v2h-2z"/>';
 TI['arrows-maximize'] = '<path d="M16 4h4v4"/><path d="M14 10l6 -6"/><path d="M8 20h-4v-4"/><path d="M4 20l6 -6"/><path d="M16 20h4v-4"/><path d="M14 14l6 6"/><path d="M8 4h-4v4"/><path d="M4 4l6 6"/>';
@@ -32162,8 +32167,11 @@ const SET_PANES = [
   {id:'install', pane:'', title:'Add to Home Screen', icon:'download',
    val: () => isStandalone() ? 'Already on your Home Screen' : 'Opens with no signal'},
   {id:'about',  pane:'pn-about', title:'About WayMark', icon:'info',
-   val: () => APP_VERSION}
+   val: () => APP_VERSION},
+  {id:'inbox',  pane:'pn-inbox', title:'Inbox', icon:'inbox', admin:true, val: () => inboxCountText()}
 ];
+function inboxCount(){ return (ui.pubq || []).length + (ui.rphq || []).length + (ui.inbox || []).filter(x => x.status !== 'done').length; }
+function inboxCountText(){ const n = inboxCount(); return !ui.inbox ? 'Loading' : n ? n + ' waiting' : 'Nothing waiting'; }
 const SET_ICON = {
   sun:'sun', mountain:'mountain', user:'user-circle', bell:'bell',
   download:'download', info:'info-circle', photo:'photo', lock:'lock', users:'users'
@@ -32246,7 +32254,12 @@ function renderSetMenu(){
     '<b>' + (nd === 1 ? 'One hill has no date' : nd + ' hills have no date') + '</b>' +
     '<span class="setval">Set them</span>' +
     '<span class="setchev">' + ti('chevron-right', 'width="15" height="15"') + '</span></button>';
-  box.innerHTML = noteRow + ndRow + SET_PANES.map(r => {
+  const inboxRow = !isAdmin ? '' :
+    '<button class="setrow setnd setinbox" data-act="setpane" data-v="inbox">' +
+    '<span class="seti">' + ti('inbox', 'width="19" height="19"') + '</span>' +
+    '<b>Inbox</b><span class="setval">' + esc(inboxCountText()) + '</span>' +
+    '<span class="setchev">' + ti('chevron-right', 'width="15" height="15"') + '</span></button>';
+  box.innerHTML = inboxRow + noteRow + ndRow + SET_PANES.filter(r => !r.admin).map(r => {
     let v = ''; try{ v = r.val() || ''; }catch(e){ v = ''; }
     return '<button class="setrow" data-act="setpane" data-v="' + r.id + '">' +
       '<span class="seti">' + ti(SET_ICON[r.icon] || 'settings', 'width="19" height="19"') + '</span>' +
@@ -32277,6 +32290,7 @@ function showSetPane(id){
     const el = document.getElementById(row.pane);
     if (el) el.hidden = false;
     if (id === 'econ') renderEconBox();
+    if (id === 'inbox'){ paintInbox(); loadInbox(); }
     ui.setPane = id;
   }
   const bx = document.querySelector('#sheet .sheetbox');
@@ -32294,6 +32308,7 @@ function openSheet(){
   shopLoad();
   const bw = document.getElementById('bkwrap'); if (bw) bw.hidden = true;
   showSetPane('');
+  if (isAdmin) loadInbox();
   sheet.classList.add('open');
 }
 document.getElementById('menuBtn').onclick = openSheet;
@@ -37644,7 +37659,7 @@ const PUB_COL = 'pubroutes', PUB_KEY = 'waymark.pubroutes', PUB_TTL = 6 * 3600e3
 const PUB_RULES_MSG = 'Sharing on Discover isn’t switched on yet. Nothing was sent.';
 const pubRef = id => FB.doc(fbDb, PUB_COL, id);
 function pubBy(){
-  const n = String((fbUser && fbUser.name) || myName() || 'A walker').trim().split(/\s+/);
+  const n = String(myName() || 'A walker').trim().split(/\s+/);
   return (n[0] + (n.length > 1 ? ' ' + n[n.length - 1][0] + '.' : '')).slice(0, 40);
 }
 function pubCheck(p){
@@ -38014,7 +38029,8 @@ function rphFormHTML(){
     '<p class="rphsafe">' + ti('shield-check', 'width="18" height="18"') + '<span>WayMark takes out where and when the photo was taken, and the camera details, before it is sent.</span></p>' +
     '<p class="pvmsg" role="status"' + (f.msg ? '' : ' hidden') + '>' + esc(f.msg || '') + '</p>' +
     '<button class="btn agok" data-act="rphfgo"' + (ok ? '' : ' disabled') + '>' + esc(f.busy || 'Send for a check') + '</button>' +
-    '<p class="agf">Nothing shows until WayMark has looked at it. Sent as ' + esc(pubBy()) + (/\.$/.test(pubBy()) ? '' : '.') + '</p>';
+    '<p class="agf">Nothing shows until WayMark has looked at it. Sent as <b>' + esc(pubBy()) + '</b>' + (/\.$/.test(pubBy()) ? '' : '.') +
+      ' <button class="linkbtn" data-act="rphname">Change your name</button></p>';
   return s;
 }
 function rphAddOpen(route){
@@ -38087,6 +38103,9 @@ document.addEventListener('click', e => {
   else if (a === 'rphdel') rphTakeDown(b.dataset.pid);
   else if (a === 'rphrep') rphReport(b.dataset.pid);
   else if (a === 'rphfshut') rphFormShut();
+  else if (a === 'rphname'){
+    rphFormShut(); openSheet(); showSetPane('acct');
+    setTimeout(() => { const i = document.querySelector('#sheet .fbNameIn'); if (i){ i.focus(); try{ i.select(); }catch(e){} } }, 300); }
   else if (a === 'rphfdrop'){ const f = ui.rphf; if (f && !f.busy){ f.items.splice(+b.dataset.i, 1); rphFormPaint(); } }
   else if (a === 'rphfgo'){ if (!b.disabled) rphSend(); }
   else if (a === 'rphok') rphReview(b.dataset.pid, 'live', b);
@@ -38234,7 +38253,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v439';
+const APP_VERSION = 'v440';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -38309,6 +38328,7 @@ async function loadInbox(){
   paintInbox();
 }
 function paintInbox(){
+  try{ const r = document.querySelector('#setMenu .setinbox .setval'); if (r) r.textContent = inboxCountText(); }catch(e){}
   const box = document.getElementById('inboxBox'); if (!box) return;
   if (!isAdmin){ box.innerHTML = ''; return; }
   const items = ui.inbox || [];
