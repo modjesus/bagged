@@ -5353,6 +5353,13 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-bot .ed-save{background:#1C2A26; color:#F6EFE4}
 .ed-bot .ed-share{background:#F6EFE4; color:#14332D}
 .camx.review .cx-after{justify-content:center; gap:8px}
+.camx.review.edon .cx-view{width:100%; margin:0}
+.camx:not(.sky):not(.review) .cx-view{width:100%}
+.camx.cxtall:not(.sky):not(.review) .cx-dock{position:absolute; left:0; right:0; bottom:0; z-index:4; min-height:0; flex:none;
+  background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.6) 35%); padding-top:28px}
+.camx.review.edon .cx-after{position:absolute; left:0; right:0; z-index:4; flex:none; justify-content:flex-start;
+  top:min(calc(100vw / var(--cxar, .75) + 4px), calc(100dvh - env(safe-area-inset-bottom) - 84px)); padding:10px 16px calc(env(safe-area-inset-bottom) + 10px)}
+.camx.review.edon.edtall .cx-after{background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.55) 40%)}
 .ed-sheet{max-height:64%; z-index:7}
 .ed-h{margin:2px 0 12px; font:700 18px/1.2 var(--font-ui); color:#F6EFE4}
 .ed-sheet h4{margin:16px 0 8px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#A9BBAF}
@@ -38592,7 +38599,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v447';
+const APP_VERSION = 'v448';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -45317,8 +45324,12 @@ const CAM_POINTS = ['N','NE','E','SE','S','SW','W','NW'];
 let cam = null;
 
 function camPrefs(){
-  const d = {style:'strip', weather:true, coords:true};
-  try{ return {...d, ...JSON.parse(localStorage.getItem(CAM_KEY) || '{}')}; }catch(e){ return d; }
+  const d = {style:'strip', weather:true, coords:true, format:'story'};
+  try{
+    const p = {...d, ...JSON.parse(localStorage.getItem(CAM_KEY) || '{}')};
+    if (!p.size && p.format === 'photo') p.format = 'story';
+    return p;
+  }catch(e){ return d; }
 }
 function camKeep(){ try{ localStorage.setItem(CAM_KEY, JSON.stringify(cam.prefs)); }catch(e){} }
 
@@ -46903,6 +46914,8 @@ function camSizeView(){
   const el = document.getElementById('camx'); if (!el) return;
   el.style.setProperty('--cxar', String(CAM_W / CAM_FH));
   el.dataset.fmt = cam.prefs.format;
+  { const vh = (window.visualViewport && visualViewport.height) || innerHeight;
+    el.classList.toggle('cxtall', innerWidth * CAM_FH / CAM_W + 170 > vh); }
   if (cam.prefs.style !== 'skyline'){
     document.getElementById('cxCan').width = CAM_W;
     document.getElementById('cxCan').height = CAM_FH;
@@ -46975,12 +46988,12 @@ function camMode(m){
   } else if (cam.prefs.format !== want) camFormat(want);
   skyBar();
 }
-const CAM_SIZES = ['photo', 'square', 'story'];
+const CAM_SIZES = ['story', 'photo', 'square'];
 const CAM_SIZE_T = {photo: '3:4', square: '1:1', story: '9:16'};
 function camSizeOf(){
   const s = cam && cam.prefs.size;
   if (CAM_SIZES.includes(s)) return s;
-  return cam && CAM_SIZES.includes(cam.prefs.format) ? cam.prefs.format : 'photo';
+  return cam && CAM_SIZES.includes(cam.prefs.format) ? cam.prefs.format : 'story';
 }
 function camSizeNext(){
   const i = CAM_SIZES.indexOf(camSizeOf()), k = CAM_SIZES[(i + 1) % CAM_SIZES.length];
@@ -47248,7 +47261,7 @@ function camFreeze(src, when, live){
   cancelAnimationFrame(cam.raf);
   document.getElementById('camx').classList.add('review'); document.getElementById('camx').classList.remove('clean');
   camLooksShow(false);
-  if (cam.clip) ED = null; else edReset();
+  if (cam.clip){ ED = null; document.getElementById('camx').classList.remove('edon', 'edtall'); } else edReset();
   camLayers(); camAfter();
 }
 function camShoot(){
@@ -47279,7 +47292,7 @@ function camRetake(){
   if (cam.clip){ URL.revokeObjectURL(cam.clip.url); cam.clip = null; }
   const cv = document.getElementById('cxClip'); cv.pause(); cv.removeAttribute('src'); cv.hidden = true;
   if (!cam.wx && cam.fix && cam.prefs.weather) camWeather();
-  const el = document.getElementById('camx'); el.classList.remove('review', 'edsheet', 'edtext', 'edban', 'edhas');
+  const el = document.getElementById('camx'); el.classList.remove('review', 'edsheet', 'edtext', 'edban', 'edhas', 'edon', 'edtall', 'ednames');
   document.getElementById('cxAfter').hidden = true;
   ED = null; edDraw();
   for (const id of ['edSheet', 'edText', 'edEarn', 'edBan', 'edBar']){ const x = document.getElementById(id); if (x) x.hidden = true; }
@@ -48057,6 +48070,9 @@ function edClick(a, b){
 }
 function edAfter(){
   const box = document.getElementById('cxAfter'); box.hidden = false;
+  { const cx = document.getElementById('camx'); cx.classList.add('edon');
+    const vh = (window.visualViewport && visualViewport.height) || innerHeight;
+    cx.classList.toggle('edtall', innerWidth * CAM_FH / CAM_W + 90 > vh); }
   const h = cam.hill;
   const ban = document.getElementById('edBan');
   if (ban){
@@ -48174,6 +48190,7 @@ async function camShareOut(){
 }
 
 function camOpen(){
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => { if (!m.dataset.orig) m.dataset.orig = m.getAttribute('content'); m.setAttribute('content', '#0B1512'); });
   if (cam) return;
   const P = camPrefs(); if (!P.moment) P.moment = 'auto';
   cam = {prefs: P, fix: null, hill: null, dist: null, mode: 'walk', auto: 'walk', when: new Date(), wx: null,
@@ -48207,7 +48224,8 @@ function camClose(fromHistory){
   camTagFlush(cam);
   const pushed = cam.pushed; cam = null; ED = null; edDraw();
   for (const id of ['edSheet', 'edText', 'edEarn', 'edBan', 'edBar']){ const x = document.getElementById(id); if (x) x.hidden = true; }
-  const el = document.getElementById('camx'); if (el) el.classList.remove('open');
+  const el = document.getElementById('camx'); if (el) el.classList.remove('open', 'edon', 'edtall', 'ednames');
+  try{ applyTheme(); }catch(e){}
   document.documentElement.classList.remove('camlock');
   if (pushed && !fromHistory) try{ history.back(); }catch(e){}
 }
