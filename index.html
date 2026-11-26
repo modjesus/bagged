@@ -5349,7 +5349,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-undo:disabled{opacity:.35}
 .camx.review .cx-pill{display:none}
 .ed-bot{display:flex; gap:10px}
-.ed-bot .cx-btn{flex:1; min-height:50px; border-radius:999px; border:none; font:700 16px/1 var(--font-ui)}
+.ed-bot .cx-btn{flex:1; min-height:50px; border-radius:999px; border:none; font:700 16px/1 var(--font-ui); white-space:nowrap; padding:0 12px}
 .ed-bot .ed-save{background:#1C2A26; color:#F6EFE4}
 .ed-bot .ed-share{background:#F6EFE4; color:#14332D}
 .camx.review .cx-after{justify-content:center; gap:8px}
@@ -5357,6 +5357,10 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 
 .ed-rail .cx-rb.more{display:none}
 .camx.ednames .ed-rail .cx-rb.more{display:flex}
+.camx.review .ed-rail{max-height:calc(min(100vw / var(--cxar, .5625), 100dvh - 96px) - env(safe-area-inset-top) - 76px); overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; padding:2px 0 6px}
+.camx.review .ed-rail::-webkit-scrollbar{display:none}
+.camx.ednames .ed-rail{-webkit-mask-image:linear-gradient(#000 calc(100% - 22px), transparent); mask-image:linear-gradient(#000 calc(100% - 22px), transparent)}
+@media (max-height:700px){ .camx.review .ed-rail{gap:6px} .camx.review .ed-rail .cx-rb{min-height:40px} .camx.review .ed-rail .cx-rb i{width:38px; height:38px} }
 .camx.looks .ed-rail, .camx.looks .ed-marked, .camx.looks .ed-ban{opacity:0; pointer-events:none}
 .camx.ednames .ed-ban, .camx.ednames .ed-marked{opacity:0; pointer-events:none}
 .camx.review .cx-looks .cx-lenses{display:flex; overflow-x:auto; gap:10px; scrollbar-width:none; padding:4px 2px 8px}
@@ -5378,6 +5382,8 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
   padding:calc(env(safe-area-inset-top) + 10px) 10px 14px; background:linear-gradient(rgba(0,0,0,.32), rgba(0,0,0,0))}
 .ed-dundo{border:none; background:none; color:#F6EFE4; font:700 15px/1 var(--font-ui); min-height:40px; padding:0 6px; text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .ed-dundo:disabled{opacity:.4}
+.ed-dundo i{display:none; font-style:normal}
+.ed-dundo i svg{width:20px; height:20px}
 .ed-dtools{display:flex; gap:0}
 .ed-dtools button, .ed-sgrid button{border:none; background:none; color:#F6EFE4; display:flex; flex-direction:column; align-items:center; gap:4px; padding:0; width:46px; font:600 10px/1 var(--font-ui); text-shadow:0 1px 3px rgba(0,0,0,.55); white-space:nowrap}
 .ed-dtools button i{width:38px; height:38px; border-radius:50%; display:grid; place-items:center; background:rgba(16,26,23,.6); font-style:normal}
@@ -5387,7 +5393,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-drawui .ed-wedge{top:calc(env(safe-area-inset-top) + 112px)}
 .ed-dbot{position:absolute; left:0; right:0; bottom:0; padding:10px 12px calc(env(safe-area-inset-bottom) + 14px); display:flex; flex-direction:column; gap:12px;
   background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.7) 30%)}
-.ed-dcols{display:flex; gap:10px; justify-content:center; align-items:center}
+.ed-dcols{display:flex; gap:10px; justify-content:safe center; align-items:center; overflow-x:auto; scrollbar-width:none; padding:6px 4px; margin:-6px -4px}
 .ed-dcols button{flex:none; width:30px; height:30px; border-radius:50%; border:2px solid #fff; padding:0}
 .ed-dcols button[aria-pressed="true"]{transform:scale(1.22); box-shadow:0 0 0 2px #E0784F}
 .ed-dcols button.pick{width:36px; height:36px; background:rgba(0,0,0,.45); color:#fff; display:grid; place-items:center; box-shadow:inset 0 0 0 3px var(--pc, transparent)}
@@ -5404,6 +5410,132 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-seg button[aria-pressed="true"]{background:#F6EFE4; color:#14332D}
 .ed-filtui .ed-ttop{position:absolute; right:0; top:0}
 .ed-fswipe{position:absolute; inset:0; touch-action:pan-y}
+.camx p, .camx .ed-note, .camx .ed-chnote, .camx .cx-lh span, .camx .ed-cuttip, .camx .ed-earn .s, .camx .ed-earn .u, .camx .cx-topo p{text-wrap:pretty}
+.camx .ed-to span, .camx .ed-h, .camx .ed-earn .t, .camx .ed-ban .t b, .camx .ed-ban .t span, .camx .ed-from b, .camx .ed-from span{text-wrap:balance}
+@media (max-width:360px){
+  .camx .ed-dtools button{width:37px; font-size:9px}
+  .camx .ed-dtools button i{width:34px; height:34px}
+  .camx .ed-dundo{padding:0 4px} .ed-dundo span{display:none} .ed-dundo i{display:grid}
+  .camx .ed-ddone{padding:0 11px; font-size:14px}
+  .camx .ed-dtop{padding-left:6px; padding-right:6px}
+  .camx .ed-dcols button{width:27px; height:27px} .ed-dcols{gap:8px}
+  .camx .ed-bot .cx-btn{font-size:15px}
+  .camx .ed-ban .t b{font-size:13.5px} .camx .ed-ban .t{font-size:12px}
+  .camx .ed-dundo span{display:none} .camx .ed-dundo i{display:grid} .camx .ed-dcols{gap:8px}
+  .camx .ed-to{font-size:14px; padding:12px 12px}
+  .camx .ed-ban{right:12px} .camx.edban .ed-rail{top:calc(env(safe-area-inset-top) + 132px)}
+}
+.camx input[type=range]{min-height:32px}
+@media (prefers-reduced-motion:no-preference){
+  .camx .cx-panel{transition:transform .3s cubic-bezier(.32,.72,0,1)}
+  @starting-style{ .camx .cx-panel{transform:translateY(100%)} }
+  .camx .ed-it{transition:opacity .2s ease-out, scale .2s cubic-bezier(.23,1,.32,1)}
+  @starting-style{ .camx .ed-it{opacity:0; scale:.92} }
+  .camx .ed-earn-in > p{animation:edrise .3s cubic-bezier(.23,1,.32,1) both}
+  .camx .ed-earn-in > p.k{animation-delay:.12s} .camx .ed-earn-in > p.t{animation-delay:.18s} .camx .ed-earn-in > p.s{animation-delay:.24s}
+}
+@keyframes edrise{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+@media (prefers-reduced-motion:reduce){ .ed-earn img{animation:none} .camx .cx-panel{transition:opacity .2s ease} @starting-style{ .camx .cx-panel{opacity:0} } }
+.camx .cx-btn, .camx .cx-rb i, .camx .ed-dtools button i, .camx .ed-ttabs button i, .camx .ed-lgrid canvas, .camx .ed-pgrid button, .camx .ed-grow canvas, .camx .ed-frow canvas{transition:transform .1s ease-out}
+.camx .cx-btn:active:not(:disabled), .camx .cx-rb:active i, .camx .ed-dtools button:active i, .camx .ed-ttabs button:active i, .camx .ed-lgrid button:active canvas, .camx .ed-pgrid button:active, .camx .ed-grow button:active canvas, .camx .ed-frow button:active canvas{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){
+  .camx .cx-panel{transition:opacity .2s ease !important}
+  .ed-lrow{transition:none}
+  .camx .cx-btn:active:not(:disabled), .camx .cx-rb:active i{transform:none}
+}
+@media (prefers-reduced-transparency:reduce){ .ed-from, .ed-ban, .ed-marked{background:#0E1714; -webkit-backdrop-filter:none; backdrop-filter:none} }
+.ed-from{position:absolute; left:12px; top:calc(env(safe-area-inset-top) + 64px); z-index:5; display:flex; flex-direction:column; align-items:flex-start; gap:3px; max-width:calc(100% - 92px);
+  border:none; background:rgba(11,21,18,.82); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); color:#F6EFE4; border-radius:14px; padding:9px 13px; text-align:left; font:700 13.5px/1.25 var(--font-ui)}
+.ed-from[hidden]{display:none}
+.ed-from span{font-weight:500; color:#C9D6CE; font-size:13px}
+.ed-from u{color:#F6EFE4; text-underline-offset:2px}
+.camx.edban .ed-from, .camx.ednames .ed-from, .camx.eddraw .ed-from, .camx.edfilt .ed-from, .camx.edcrop .ed-from, .camx.edtext .ed-from, .camx.looks .ed-from{display:none}
+.ed-cgrid{position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0; transition:opacity .2s ease-out;
+  background:linear-gradient(90deg, transparent calc(33.33% - .5px), rgba(255,255,255,.6) calc(33.33% - .5px), rgba(255,255,255,.6) calc(33.33% + .5px), transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.6) calc(66.66% - .5px), rgba(255,255,255,.6) calc(66.66% + .5px), transparent calc(66.66% + .5px)),
+  linear-gradient(180deg, transparent calc(33.33% - .5px), rgba(255,255,255,.6) calc(33.33% - .5px), rgba(255,255,255,.6) calc(33.33% + .5px), transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.6) calc(66.66% - .5px), rgba(255,255,255,.6) calc(66.66% + .5px), transparent calc(66.66% + .5px));
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.8)}
+.camx.edcrop .ed-cgrid{opacity:1}
+.ed-cropui{position:absolute; inset:0; z-index:8; touch-action:none}
+.ed-cropui[hidden]{display:none}
+.ed-ctitle{color:#F6EFE4; font:700 16px/40px var(--font-ui); text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.camx.edcrop .cx-top, .camx.edcrop .ed-rail, .camx.edcrop .ed-ban, .camx.edcrop .ed-marked, .camx.edcrop .cx-after, .camx.edcrop .ed-lay{visibility:hidden}
+.ed-ltabs{display:flex; gap:18px; border-bottom:1px solid rgba(246,239,228,.12); margin:4px 0 12px}
+.ed-ltabs button{border:none; background:none; color:#8FA19B; font:700 15px/1 var(--font-ui); padding:10px 0 9px; border-bottom:2px solid transparent; min-height:44px}
+.ed-ltabs button[aria-selected="true"]{color:#F6EFE4; border-bottom-color:#F6EFE4}
+.ed-lgrid{display:flex; justify-content:center; gap:8px}
+.ed-lgrid button{flex:0 0 calc(25% - 6px); border:none; background:none; padding:0; color:#E6ECEA; display:flex; flex-direction:column; align-items:center; gap:6px; font:600 12px/1.2 var(--font-ui)}
+.ed-lgrid canvas{width:100%; height:auto; border-radius:10px; display:block; box-shadow:0 0 0 1px rgba(246,239,228,.14)}
+.ed-lgrid i{width:100%; font-style:normal}
+.ed-lgrid button[aria-pressed="true"]{color:#F2A27D}
+.ed-lgrid button[aria-pressed="true"] canvas{box-shadow:0 0 0 3px #E0784F}
+.ed-grow{display:flex; gap:10px; overflow-x:auto; scrollbar-width:none; padding:2px 2px 10px}
+.ed-grow button{flex:none; border:none; background:none; padding:0; display:flex; flex-direction:column; align-items:center; gap:6px; color:#E6ECEA; font:600 12px/1 var(--font-ui)}
+.ed-grow canvas{width:58px; height:auto; border-radius:10px; box-shadow:0 0 0 1px rgba(246,239,228,.14)}
+.ed-grow button[aria-pressed="true"]{color:#F2A27D}
+.ed-grow button[aria-pressed="true"] canvas{box-shadow:0 0 0 3px #E0784F}
+.ed-gstr{padding:4px 2px 0; text-shadow:none}
+.ed-layers{display:flex; flex-direction:column; gap:6px}
+.ed-lrow{display:flex; align-items:center; gap:4px; background:#1C2A26; border-radius:12px; padding:4px 4px 4px 0; transition:transform .18s cubic-bezier(.2,0,0,1)}
+.ed-lrow.drag{transition:none; position:relative; z-index:2; box-shadow:0 8px 22px rgba(0,0,0,.45); background:#22332E}
+.ed-lrow.hid .ed-lpick{opacity:.45}
+.ed-lh{flex:none; width:36px; min-height:48px; border:none; background:none; color:#8FA19B; display:grid; place-items:center; touch-action:none; cursor:grab}
+.ed-lh svg{width:18px; height:18px}
+.ed-lpick{flex:1; min-width:0; display:flex; align-items:center; gap:12px; border:none; background:none; color:#F6EFE4; text-align:left; padding:0; min-height:48px}
+.ed-lpick i{flex:none; width:40px; height:40px; border-radius:8px; background:#0E1714; display:grid; place-items:center; overflow:hidden; font-style:normal}
+.ed-lpick img{max-width:36px; max-height:36px}
+.ed-lpick span{display:flex; flex-direction:column; gap:3px; min-width:0}
+.ed-lpick b{font:600 14.5px/1.2 var(--font-ui); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ed-lpick small{font:400 12.5px/1 var(--font-ui); color:#A9BBAF}
+.ed-leye{flex:none; width:44px; height:44px; border:none; background:none; color:#C9D6CE; display:grid; place-items:center; border-radius:10px}
+.ed-leye svg{width:20px; height:20px}
+.ed-lrow.fixed .ed-leye svg{transform:rotate(-90deg)}
+.ed-hlist{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+.ed-hlist button{display:flex; flex-direction:column; align-items:flex-start; gap:3px; border:none; background:#1C2A26; color:#F6EFE4; border-radius:12px; padding:12px 14px; text-align:left; font:600 15px/1.2 var(--font-ui)}
+.ed-hlist small{font:400 12.5px/1 var(--font-ui); color:#A9BBAF}
+.ed-discard{display:block; margin:6px auto 0; color:#F2A27D; font:700 15px/1 var(--font-ui); min-height:44px; background:none; border:none}
+.ed-choose{position:absolute; inset:0; z-index:12; background:#0E1714; display:flex; flex-direction:column; padding:calc(env(safe-area-inset-top) + 6px) 16px calc(env(safe-area-inset-bottom) + 14px)}
+.ed-choose[hidden]{display:none}
+.ed-choose .ed-fhead, .ed-cutui .ed-fhead{display:flex; justify-content:space-between; align-items:center; min-height:52px; gap:8px}
+.ed-choose .ed-fhead .ed-h, .ed-cutui .ed-fhead .ed-h{margin:0; font-size:17px}
+.ed-choose .cx-ib, .ed-cutui .cx-ib{background:none}
+.ed-next{min-height:38px; padding:0 18px; border-radius:999px; background:#F6EFE4; color:#14332D; border:none; font:700 15px/1 var(--font-ui)}
+.ed-next:disabled{opacity:.4}
+.ed-cnt{font-style:normal; display:inline-block; min-width:18px; height:18px; border-radius:9px; background:#E0784F; color:#fff; font:700 11px/18px var(--font-ui); text-align:center; margin-left:4px}
+.ed-chbody{flex:1; min-height:0; overflow-y:auto; margin:0 -16px; padding:0 16px}
+.ed-chgrid{display:grid; grid-template-columns:repeat(3, 1fr); gap:3px; margin:0 -16px}
+.ed-chgrid button{position:relative; border:none; padding:0; aspect-ratio:1; background:#1C2A26; overflow:hidden}
+.ed-chgrid img{width:100%; height:100%; object-fit:cover; display:block}
+.ed-chgrid button[aria-pressed="true"]{box-shadow:inset 0 0 0 4px #E0784F}
+.ed-chgrid button[aria-pressed="true"] b{position:absolute; right:7px; top:7px; width:22px; height:22px; border-radius:11px; background:#E0784F}
+.ed-chphone{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:220px; border-radius:18px; background:#1C2A26; color:#F6EFE4; margin-top:6px; text-align:center; cursor:pointer}
+.ed-chphone span svg{width:40px; height:40px}
+.ed-chphone b{font:700 17px/1.2 var(--font-ui)}
+.ed-chphone small{font:400 13px/1.3 var(--font-ui); color:#A9BBAF}
+.ed-chnote{flex:none; margin-top:12px; background:#1C2A26; border-radius:14px; padding:13px 14px; font:400 13.5px/1.45 var(--font-ui); color:#C9D6CE; text-wrap:pretty}
+.ed-chnote b{color:#F6EFE4; display:block; margin-bottom:2px}
+.ed-cutui{position:absolute; inset:0; z-index:11; background:#0E1714; display:flex; flex-direction:column; padding:calc(env(safe-area-inset-top) + 6px) 16px calc(env(safe-area-inset-bottom) + 14px)}
+.ed-cutui[hidden]{display:none}
+.ed-cuttip{margin:0 0 10px; text-align:center; color:#F6EFE4; font:600 15px/1.3 var(--font-ui)}
+.ed-cutstage{flex:1; min-height:0; position:relative}
+.ed-cutstage canvas{position:absolute; inset:0; margin:auto; max-width:100%; max-height:100%; border-radius:12px; touch-action:none; cursor:crosshair}
+.ed-cutbot{flex:none; display:flex; flex-direction:column; gap:10px; margin-top:12px}
+.ed-cutbot .ed-go{min-height:50px; border-radius:999px; background:#F6EFE4; color:#14332D; border:none; font:700 16px/1 var(--font-ui)}
+.ed-cutbot .ed-go:disabled{opacity:.4}
+.ed-seg button:disabled{opacity:.35}
+.ed-cutbrush[hidden]{display:none}
+.ed-cutgo{display:flex; gap:10px}
+.ed-cutgo .cx-btn{flex:1; min-height:50px; border-radius:999px; font:700 15px/1 var(--font-ui); white-space:nowrap; padding:0 10px}
+.ed-cutgo .ghost{background:none; border:1.5px solid rgba(246,239,228,.6); color:#F6EFE4}
+.ed-cutgo .ghost[aria-pressed="true"]{background:#22332E}
+.ed-cream{background:#F6EFE4 !important; color:#14332D !important; border:none}
+.cx-topo{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:2px 0 12px; color:#C9D6CE; font:600 13px/1 var(--font-ui)}
+.cx-topo[hidden]{display:none}
+.cx-topo > button{width:28px; height:28px; border-radius:50%; border:2px solid #fff; padding:0}
+.cx-topo > button[aria-pressed="true"]{box-shadow:0 0 0 2px #E0784F; transform:scale(1.15)}
+.cx-topo label{flex:1; min-width:150px; display:flex; align-items:center; gap:8px}
+.cx-topo input{flex:1; accent-color:#F6EFE4}
+.cx-topo p{margin:0; font-weight:400; line-height:1.4; text-wrap:pretty}
+
 .ed-fname{position:absolute; left:0; right:0; top:38%; text-align:center; font:800 30px/1.1 var(--font-ui); color:#fff; text-shadow:0 2px 14px rgba(0,0,0,.5); opacity:0; pointer-events:none}
 .ed-fname.show{animation:edfname 1.3s ease-out both}
 @keyframes edfname{0%{opacity:0; transform:translateY(6px)} 15%{opacity:1; transform:none} 75%{opacity:1} 100%{opacity:0}}
@@ -5519,7 +5651,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-wedge b{position:absolute; left:50%; top:calc(var(--k, .35) * 100%); width:24px; height:24px; margin:-12px 0 0 -12px; border-radius:50%; background:#fff; box-shadow:0 1px 6px rgba(0,0,0,.35)}
 .ed-wedge:focus-visible b{box-shadow:0 0 0 3px #E0784F}
 .ed-tbot{padding:8px 10px calc(env(safe-area-inset-bottom) + 10px); display:flex; flex-direction:column; gap:10px}
-.ed-tfonts, .ed-tcols{display:flex; gap:8px; justify-content:center; align-items:center; overflow-x:auto; scrollbar-width:none}
+.ed-tfonts, .ed-tcols{display:flex; gap:8px; justify-content:safe center; align-items:center; overflow-x:auto; scrollbar-width:none}
 .ed-tfonts button{flex:none; border:none; background:rgba(16,26,23,.62); color:#F6EFE4; border-radius:10px; height:36px; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; line-height:1}
 .ed-tfonts button[aria-pressed="true"]{background:#F6EFE4; color:#14332D}
 .ed-tfonts .f-strong span{font:900 15px/1 "Source Sans 3", system-ui, sans-serif}
@@ -5533,7 +5665,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-ttabs button i svg{width:20px; height:20px}
 .ed-ttabs button[aria-pressed="true"] i{background:#F6EFE4; color:#14332D}
 .ed-tcols[hidden], .ed-tboxes[hidden]{display:none}
-.ed-tboxes{display:flex; gap:8px; justify-content:center; align-items:center}
+.ed-tboxes{display:flex; gap:8px; justify-content:safe center; align-items:center; overflow-x:auto; scrollbar-width:none; padding:4px 2px}
 .ed-tboxes button{flex:none; height:32px; padding:0 11px; border-radius:8px; border:1.5px solid transparent; font:700 12.5px/1 var(--font-ui); color:#fff; background:rgba(16,26,23,.6)}
 .ed-tboxes [data-v="solid"]{background:var(--c, #E0784F); color:var(--ct, #fff)}
 .ed-tboxes [data-v="see"]{background:color-mix(in srgb, var(--c, #E0784F) 42%, transparent); border-color:var(--c, #E0784F)}
@@ -38679,7 +38811,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v449';
+const APP_VERSION = 'v450';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -46570,7 +46702,7 @@ function camG(ctx, F){
   cLogo(ctx, CAM_R, CAM_H - 54, 20, CC.cream, 'right');
 }
 
-const CAM_LOOKS = [['none', 'None'], ['stamp', 'Stamp'], ['strip', 'Strip'], ['minimal', 'Minimal'],
+const CAM_LOOKS = [['none', 'None'], ['topo', 'Topo'], ['stamp', 'Stamp'], ['strip', 'Strip'], ['minimal', 'Minimal'],
                    ['pillar', 'Pillar'], ['ticket', 'Ticket'], ['contour', 'Contour'],
                    ['skyline', 'Skyline']];
 const CAM_CAPS = () => CAM_LOOKS.filter(l => l[0] !== 'skyline');
@@ -46578,6 +46710,7 @@ function camLayer(style, F){
   const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH;
   const ctx = c.getContext('2d'); ctx.translate(0, CAM_T);
   if (style === 'none') return c;
+  if (style === 'topo'){ ctx.setTransform(1, 0, 0, 1, 0, 0); return edTopoLayer(c); }
   if (F.main) ({stamp: camA, strip: camB, minimal: camC, pillar: camD, ticket: camF, contour: camG})[style](ctx, F);
   else {
     cFade(ctx, CAM_H - 260, 260, FBOT); cShadow(ctx, true);
@@ -46651,7 +46784,7 @@ function camPaint(){
   }
   ctx.fillStyle = '#0B1512'; ctx.fillRect(0, 0, CAM_W, CAM_FH);
   if (src) camCover(ctx, src, CAM_W, CAM_FH);
-  if (cam.layers){
+  if (cam.layers && !edNoOverlay()){
     let lay = cam.layers[cam.prefs.style];
     if (!lay && cam.prefs.style !== 'skyline'){
       lay = cam.layers[cam.prefs.style] = camLayer(cam.prefs.style, cam.skyF || camFacts());
@@ -46835,6 +46968,10 @@ function camBuild(){
       '<button class="cx-rb more" data-c="edtag"><span>Tag</span><i>' + edI('tag') + '</i></button>' +
       '<button class="cx-rb more" data-c="edfilters"><span>Filters</span><i>' + edI('filters') + '</i></button>' +
       '<button class="cx-rb more" data-c="edoverlay"><span>Overlay</span><i>' + edI('overlay') + '</i></button>' +
+      '<button class="cx-rb more" data-c="edcropt"><span>Crop</span><i>' + edI('crop') + '</i></button>' +
+      '<button class="cx-rb more" data-c="edlayoutt"><span>Layout</span><i>' + edI('layout') + '</i></button>' +
+      '<button class="cx-rb more" data-c="edlayerst"><span>Layers</span><i>' + edI('layers') + '</i></button>' +
+      '<button class="cx-rb more" data-c="edgradient"><span>Gradient</span><i>' + edI('gradient') + '</i></button>' +
       '<button class="cx-rb ed-more" data-c="ednames" aria-label="Show the names" aria-expanded="false"><i>' + edI('chev', 18) + '</i></button></div>' +
     '<div class="cx-rail" id="cxRail">' +
       '<button class="cx-rb" data-c="looks" aria-expanded="false"><span>Overlay</span><i>' + cxI('overlay') + '</i></button>' +
@@ -46849,7 +46986,7 @@ function camBuild(){
       '<div class="ed-bar" id="edBar" hidden><button data-c="edcopy">' + edI('copy', 18) + '<span>Copy</span></button>' +
         '<button data-c="edfront">' + edI('front', 18) + '<span>Front</span></button>' +
         '<button data-c="edremove" class="rm">' + edI('trash', 18) + '<span>Remove</span></button></div>' +
-      '<canvas class="ed-dc" id="edDC" hidden></canvas><button class="ed-marked" id="edMarked" data-c="edmarkedpill" hidden></button><div class="ed-ban" id="edBan" hidden></div><div class="ed-tip" id="edTip" hidden></div>' +
+      '<canvas class="ed-dc" id="edDC" hidden role="img" aria-label="Drawing area: draw on the photo with one finger"></canvas><button class="ed-from" id="edFrom" data-c="edfrom" hidden></button><div class="ed-cgrid" aria-hidden="true"></div><button class="ed-marked" id="edMarked" data-c="edmarkedpill" hidden></button><div class="ed-ban" id="edBan" hidden></div><div class="ed-tip" id="edTip" hidden></div>' +
       '<div class="cx-name" id="cxName" aria-hidden="true"><b></b><span>Swipe for more overlays</span></div>' +
       '<div class="cx-count" id="cxCount" hidden></div>' +
       '<div class="cx-hint" id="cxHint">Swipe to change the overlay</div><div class="cx-msg" id="cxMsg" hidden></div>' +
@@ -46863,8 +47000,7 @@ function camBuild(){
       '<div class="cx-skylooks" role="radiogroup" aria-label="How Skyline is drawn">' +
         SKY_LOOKS.map(([k, t]) => '<button role="radio" data-c="skylook" data-v="' + k + '">' + t + '</button>').join('') +
       '</div>' +
-      '<div class="cx-shoot"><label class="cx-lib" aria-label="Use a photo you have already taken">' + cxI('photo') +
-        '<input type="file" accept="image/*" data-c="lib" class="filein"></label>' +
+      '<div class="cx-shoot"><button class="cx-lib" data-c="edchoose" aria-label="Choose a photo: from your phone, journal or drafts">' + cxI('photo') + '</button>' +
         '<button class="cx-shutter" data-c="shoot" aria-label="Take photo"><i></i></button>' +
         '<button class="cx-ib cx-big" data-c="flip" aria-label="Switch camera">' + cxI('flip') + '</button></div>' +
       '<div class="cx-modes" role="group" aria-label="What the camera is doing">' +
@@ -46876,6 +47012,7 @@ function camBuild(){
       '<div class="cx-lh"><h4>Overlay</h4><span>Tap one, then take the photo</span></div>' +
       '<div class="cx-lenses" role="radiogroup" aria-label="Overlay">' + CAM_CAPS().map(([k, t]) =>
         '<button class="cx-lens" role="radio" data-c="look" data-v="' + k + '"><canvas width="216" height="288"></canvas><span>' + t + '</span></button>').join('') + '</div>' +
+      '<div class="cx-topo" id="cxTopo" hidden></div>' +
       '<button class="cx-btn ghost" data-c="looks">Done</button></div>' +
     '<div class="cx-panel ed-sheet" id="edSheet" hidden></div>' +
     '<div class="ed-earn" id="edEarn" hidden></div>' +
@@ -46896,7 +47033,7 @@ function camBuild(){
           [['none', 'No box'], ['solid', 'Solid box'], ['see', 'See-through'], ['outline', 'Outline']].map(([k, t]) => '<button data-c="edbox" data-v="' + k + '">' + t + '</button>').join('') + '</div>' +
       '</div></div>' +
     '<div class="ed-drawui" id="edDrawUI" hidden>' +
-      '<div class="ed-dtop"><button class="ed-dundo" data-c="eddundo">Undo</button><div class="ed-dtools">' +
+      '<div class="ed-dtop"><button class="ed-dundo" data-c="eddundo" aria-label="Undo the last line"><i>' + edI('undo', 20) + '</i><span>Undo</span></button><div class="ed-dtools">' +
         ED_DTOOLS.map(([k, t]) => '<button data-c="eddtool" data-v="' + k + '"><i>' + edI(k, 18) + '</i>' + t + '</button>').join('') + '</div>' +
         '<button class="cx-btn ed-ddone" data-c="eddone">Done</button></div>' +
       '<div class="ed-wedge" id="edDSize" role="slider" tabindex="0" aria-label="Line size" aria-valuemin="4" aria-valuemax="60" aria-valuenow="14"><b></b></div>' +
@@ -46913,13 +47050,35 @@ function camBuild(){
       '<div class="ed-fname" id="edFName" aria-live="polite"></div>' +
       '<div class="ed-fbot"><label class="ed-fstr" id="edFStrW"><span>Strength</span><input type="range" id="edFStr" min="0" max="100" value="100"></label>' +
         '<div class="ed-frow" id="edFRow" role="radiogroup" aria-label="Filters"></div></div></div>' +
+    '<div class="ed-cropui" id="edCropUI" hidden>' +
+      '<div class="ed-dtop"><button class="ed-dundo" data-c="edcropreset">Reset</button><b class="ed-ctitle">Crop</b><button class="cx-btn ed-ddone" data-c="edcropdone">Done</button></div>' +
+      '<div class="ed-dbot"><label class="ed-fstr"><span>Zoom · or pinch the photo, drag to move it</span><input type="range" id="edCZoom" min="100" max="400" value="100"></label></div></div>' +
+    '<div class="ed-cutui" id="edCutUI" hidden>' +
+      '<div class="ed-fhead"><button class="cx-ib" data-c="edcutx" aria-label="Close Cut out">' + cxI('x') + '</button><h3 class="ed-h">Cut out</h3><span></span></div>' +
+      '<p class="ed-cuttip" id="edCutTip" aria-live="polite"></p>' +
+      '<div class="ed-cutstage"><canvas id="edCutCan" role="img" aria-label="The photo to cut out from"></canvas></div>' +
+      '<div class="ed-cutbot"><div class="ed-seg ed-cutbrush" id="edCutBrush" hidden><button data-c="edcutbrush" data-v="add">Add</button><button data-c="edcutbrush" data-v="erase">Rub out</button></div>' +
+        '<div class="ed-seg"><button data-c="edcutmode" data-v="loop">Draw round it</button><button data-c="edcutmode" data-v="tap">Tap it</button></div>' +
+        '<div class="ed-cutgo"><button class="cx-btn ghost" data-c="edcutmode" data-v="touch">Touch up</button><button class="cx-btn ed-go" data-c="edcutuse" disabled>Use as sticker</button></div>' +
+        '<p class="ed-note">Cut out a dog, a friend or the hill itself. It is saved in Stickers to use again.</p></div></div>' +
+    '<div class="ed-choose" id="edChoose" hidden></div>' +
     '<div class="cx-panel" id="cxPanel" hidden></div>';
   el.addEventListener('click', camClick);
+  el.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !cam) return;
+    const open = id => { const x = document.getElementById(id); return x && !x.hidden; };
+    if (open('edChoose')) edChooseClose(); else if (open('edCutUI')) edCutClose(); else if (open('edText')) edTextDone();
+    else if (open('edDrawUI')) edDrawDone(); else if (open('edFiltUI')) edFiltDone(); else if (open('edCropUI')) edCropDone();
+    else if (open('edSheet')) edSheet(false); else if (camLooksOpen()) camLooksShow(false); else return;
+    e.preventDefault(); e.stopPropagation();
+  });
   setTimeout(() => {
     edGestures(el.querySelector('#edLay'));
     edWedge(el.querySelector('#edSize'));
     edWedgeOn(el.querySelector('#edDSize'), 4, 60, () => ED && ED.dw ? ED.dw.size : 14, v => { if (ED && ED.dw){ ED.dw.size = v; edDrawUI(); } });
     edDrawPointer(el.querySelector('#edDC'));
+    edCropGestures(el.querySelector('#edCropUI'));
+    edCutPointer(el.querySelector('#edCutCan'));
     const fs = el.querySelector('#edFStr'); let fr = 0;
     fs.addEventListener('input', () => { if (!ED || !ED.filter) return; ED.filter.a = +fs.value / 100; if (!fr) fr = requestAnimationFrame(() => { fr = 0; camPaint(); }); });
     const fu = el.querySelector('#edFiltUI'); let fx = null, fy = 0;
@@ -47136,7 +47295,7 @@ function camCountdown(){
 function camLooksOpen(){ const b = document.getElementById('cxLooks'); return !!b && !b.hidden; }
 function sheetDrag(sh, close){
   if (!sh || sh._drag) return; sh._drag = true;
-  let y0 = null, h0 = 0, H = 0, pts = [];
+  let y0 = null, h0 = 0, H = 0, pts = [], settle = 0;
   const sizes = () => {
     const box = sh.parentNode.clientHeight, cs = getComputedStyle(sh);
     const had = sh.classList.contains('full'), sH = sh.style.height, sM = sh.style.maxHeight;
@@ -47150,14 +47309,16 @@ function sheetDrag(sh, close){
     if (sh.hidden || !e.target.closest('.cx-grab') || (e.button && e.button !== 0)) return;
     e.preventDefault();
     try{ sh.setPointerCapture(e.pointerId); }catch(_){}
-    y0 = e.clientY; h0 = sh.offsetHeight; H = h0; pts = [[e.clientY, e.timeStamp]];
+    if (settle){ clearTimeout(settle); settle = 0; }
+    const tr = new DOMMatrix(getComputedStyle(sh).transform);
+    y0 = e.clientY; h0 = sh.offsetHeight - (tr.m42 || 0); H = h0; pts = [[e.clientY, e.timeStamp]];
     sh.classList.add('dragging'); sh.style.maxHeight = 'none'; sh.style.height = h0 + 'px'; sh.style.transform = '';
   });
   sh.addEventListener('pointermove', e => {
     if (y0 == null) return;
     const s = sizes(), dy = e.clientY - y0;
     let h = h0 - dy;
-    if (h > s.full) h = s.full + (h - s.full) * 0.25;
+    if (h > s.full){ const o = h - s.full; h = s.full + o * 120 * 0.55 / (120 + 0.55 * o); }
     H = Math.max(0, h);
     if (H < s.half){ sh.style.height = s.half + 'px'; sh.style.transform = 'translateY(' + (s.half - H) + 'px)'; }
     else { sh.style.height = H + 'px'; sh.style.transform = ''; }
@@ -47167,18 +47328,18 @@ function sheetDrag(sh, close){
     if (y0 == null) return; y0 = null;
     const s = sizes(), a = pts[0], b = pts[pts.length - 1];
     const v = b && a && b[1] > a[1] ? (b[0] - a[0]) / (b[1] - a[1]) * 1000 : 0;
-    const aim = H - v * 0.15;
+    const aim = H - (v / 1000) * 0.99 / (1 - 0.99);
     sh.classList.remove('dragging');
     sh.style.transition = 'height .26s cubic-bezier(.2,0,0,1), transform .26s cubic-bezier(.2,0,0,1)';
     const done = () => { sh.style.transition = ''; sh.style.height = ''; sh.style.maxHeight = ''; sh.style.transform = ''; };
     if (aim < s.half * 0.6){
       sh.style.transform = 'translateY(' + (sh.offsetHeight + 20) + 'px)';
-      setTimeout(() => { close(); sh.classList.remove('full'); done(); }, 240);
+      settle = setTimeout(() => { settle = 0; close(); sh.classList.remove('full'); done(); }, 240);
       return;
     }
     const goFull = s.full > s.half + 8 && Math.abs(aim - s.full) < Math.abs(aim - s.half);
     sh.style.height = (goFull ? s.full : s.half) + 'px'; sh.style.transform = '';
-    setTimeout(() => { sh.classList.toggle('full', goFull); done(); }, 270);
+    settle = setTimeout(() => { settle = 0; sh.classList.toggle('full', goFull); done(); }, 270);
   };
   sh.addEventListener('pointerup', end); sh.addEventListener('pointercancel', end);
 }
@@ -47186,6 +47347,7 @@ function camLooksShow(on){
   const b = document.getElementById('cxLooks'), el = document.getElementById('camx'); if (!b || !el) return;
   if (on && cam.prefs.style === 'skyline') on = false;
   b.hidden = !on; el.classList.toggle('looks', !!on);
+  edTopoNote();
   { const sp = b.querySelector('.cx-lh span'); if (sp) sp.textContent = cam.still ? 'Change it or take it off. Your photo is never changed.' : 'Tap one, then take the photo'; }
   const r = document.querySelector('#camx .cx-rail [data-c="looks"]'); if (r) r.setAttribute('aria-expanded', String(!!on));
   if (on){
@@ -47203,6 +47365,7 @@ function camLook(k){
   if (k !== 'skyline') camSizeView();
   if (k === 'skyline'){ camPaint(); camChrome(); } else camLayers();
   const h = document.getElementById('cxHint'); if (h) h.classList.add('gone');
+  edTopoNote();
   if (k !== 'skyline') camNameFlash(k);
   if (camLooksOpen()) camThumbs();
   if (navigator.vibrate) navigator.vibrate(8);
@@ -47292,8 +47455,14 @@ function camClick(e){
   const a = b.dataset.c, panel = document.getElementById('cxPanel');
   if (camStaleClick(b)){ camPressAt = 0; return; }
   camPressAt = 0;
+  if (a === 'edchoose'){ edChooseOpen(); return; }
+  if (a === 'edchx'){ edChooseClose(); return; }
+  if (a === 'edchtab'){ edChooseOpen(b.dataset.v); return; }
+  if (a === 'edchone'){ ED_CH.sel = b.dataset.v; document.querySelectorAll('#edChoose [data-c="edchone"]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); const n = document.getElementById('edChNext'); if (n) n.disabled = false; return; }
+  if (a === 'edchnext'){ edChooseNext(); return; }
+  if (a === 'topocol'){ cam.prefs.topoCol = b.dataset.v; camKeep(); camLayers(true); if (camLooksOpen()){ cam.layers = {}; camLayers(true); camLayersFill(); camThumbs(); } edTopoNote(); return; }
   if (a === 'edleaveask'){ ED.leaveClose = false; edSheet('leave'); return; }
-  if (a === 'edleave'){ const c = ED && ED.leaveClose; edSheet(false); if (c) camClose(); else { ED.items = []; edDraw(); camRetake(); } return; }
+  if (a === 'edleave'){ edSheet(false); if (ED && ED.draftId) ED.draftId = null; ED.items = []; edDraw(); camRetake(); return; }
   if (a === 'close' && edOn() && !cam.saved){ ED.leaveClose = true; edSheet('leave'); return; }
   if (a === 'close' && edOn() && cam.saved){ camRetake(); return; }
   if (a === 'edretake'){ edSheet(false); ED.items = []; edDraw(); camRetake(); return; }
@@ -47406,8 +47575,8 @@ function camRetake(){
   const el = document.getElementById('camx'); el.classList.remove('review', 'edsheet', 'edtext', 'edban', 'edhas', 'edon', 'edtall', 'ednames');
   document.getElementById('cxAfter').hidden = true;
   ED = null; edDraw();
-  for (const id of ['edSheet', 'edText', 'edEarn', 'edBan', 'edBar', 'edDrawUI', 'edFiltUI', 'edDC', 'edMarked']){ const x = document.getElementById(id); if (x) x.hidden = true; }
-  document.getElementById('camx').classList.remove('eddraw', 'edfilt');
+  for (const id of ['edSheet', 'edText', 'edEarn', 'edBan', 'edBar', 'edDrawUI', 'edFiltUI', 'edDC', 'edMarked', 'edCropUI', 'edCutUI', 'edFrom']){ const x = document.getElementById(id); if (x) x.hidden = true; }
+  document.getElementById('camx').classList.remove('eddraw', 'edfilt', 'edcrop', 'edcut');
   camLayers(); if (cam.stream) camLoop(); else camStart();
 }
 function camTagWho(){
@@ -47530,6 +47699,14 @@ const EDI = {
   eraser: '<path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3"/><path d="M18 13.3l-6.3 -6.3"/>',
   filters: '<path d="M12 8m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"/><path d="M8 11a5 5 0 1 0 3.998 1.997"/><path d="M12.002 19.003a5 5 0 1 0 3.998 -8.003"/>',
   overlay: '<path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M4 15l16 0"/>',
+  crop: '<path d="M8 5v10a1 1 0 0 0 1 1h10"/><path d="M5 8h10a1 1 0 0 1 1 1v10"/>',
+  layout: '<path d="M4 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M4 13m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M14 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M14 15m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/>',
+  layers: '<path d="M12 4l-8 4l8 4l8 -4l-8 -4"/><path d="M4 12l8 4l8 -4"/><path d="M4 16l8 4l8 -4"/>',
+  grip: '<path d="M9 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M9 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M9 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/>',
+  eye: '<path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>',
+  eyeoff: '<path d="M10.585 10.587a2 2 0 0 0 2.829 2.828"/><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87"/><path d="M3 3l18 18"/>',
+  gradient: '<path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M4 12h16"/><path d="M4 16h16"/><path d="M4 19h16"/>',
+  scissors: '<path d="M6 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M8.6 8.6l10.4 10.4"/><path d="M8.6 15.4l10.4 -10.4"/>',
   sh_circle: '<path d="M12 12m-8 0a8 8 0 1 0 16 0a8 8 0 1 0 -16 0"/>',
   sh_square: '<path d="M5 5h14v14h-14z"/>',
   sh_triangle: '<path d="M12 4l8 15h-16z"/>',
@@ -47550,7 +47727,7 @@ function edPref(k, d){ try{ const v = JSON.parse(localStorage.getItem('waymark.e
 function edKeep(k, v){ try{ const o = JSON.parse(localStorage.getItem('waymark.ed') || '{}'); o[k] = v; localStorage.setItem('waymark.ed', JSON.stringify(o)); }catch(e){} }
 function edOn(){ return !!(cam && cam.still && !cam.clip && ED); }
 function edSnap(){ ED.undo.push(ED.items.map(it => ({...it}))); if (ED.undo.length > 40) ED.undo.shift(); edUndoBtn(); }
-function edUndo(){ if (!ED || !ED.undo.length) return; const u = ED.undo.pop(); if (u.filt){ ED.filter = u.filt; camPaint(); } ED.items = u.slice(); ED.sel = null; edDraw(); edUndoBtn(); }
+function edUndo(){ if (!ED || !ED.undo.length) return; const u = ED.undo.pop(); if (u.filt) ED.filter = u.filt; if (u.crop) ED.crop = u.crop; if (u.grad) ED.grad = u.grad; if (u.page) ED.page = u.page.none ? null : u.page; if (u.filt || u.crop || u.grad || u.page){ ED.fcache = null; camPaint(); } ED.items = u.slice(); ED.sel = null; edDraw(); edUndoBtn(); }
 function edUndoBtn(){ const b = document.getElementById('edUndo'); if (b) b.disabled = !ED || !ED.undo.length; }
 function edAdd(img, opt){
   if (!ED) return;
@@ -47585,7 +47762,7 @@ function edDraw(){
     el.style.width = (it.w * k) + 'px'; el.style.height = (it.h * k) + 'px';
     el.style.left = (it.x * k) + 'px'; el.style.top = (it.y * k) + 'px';
     el.style.transform = 'translate(-50%,-50%) rotate(' + it.r + 'rad) scale(' + it.s + ')';
-    el.classList.toggle('sel', ED.sel === it.id); el.classList.toggle('round', it.kind === 'patch'); el.classList.toggle('fixed', it.kind === 'draw');
+    el.classList.toggle('sel', ED.sel === it.id); el.classList.toggle('round', it.kind === 'patch'); el.classList.toggle('fixed', it.kind === 'draw'); el.style.display = it.hidden ? 'none' : '';
     lay.appendChild(el);
   }
   lay.querySelectorAll('.ed-it').forEach(el => { if (!have.has(el.dataset.eid)) el.remove(); });
@@ -47603,6 +47780,7 @@ function edBarPlace(){
 function edPaint(ctx){
   if (!ED) return;
   for (const it of ED.items){
+    if (it.hidden) continue;
     ctx.save(); ctx.translate(it.x, it.y); ctx.rotate(it.r); ctx.scale(it.s, it.s);
     ctx.drawImage(it.img, -it.w / 2, -it.h / 2, it.w, it.h); ctx.restore();
   }
@@ -47656,6 +47834,7 @@ function edGestures(lay){
     const snap = 10 / k, gv = document.getElementById('edGV'), gh = document.getElementById('edGH');
     const onV = Math.abs(it.x - CAM_W / 2) < snap, onH = Math.abs(it.y - CAM_FH / 2) < snap;
     if (onV) it.x = CAM_W / 2; if (onH) it.y = CAM_FH / 2;
+    if ((onV && gv.hidden) || (onH && gh.hidden)){ if (navigator.vibrate) navigator.vibrate(6); }
     gv.hidden = !onV; gh.hidden = !onH;
     const bin = document.getElementById('edBin'); bin.hidden = !g.moved;
     const br = bin.getBoundingClientRect(), p = [...pts.values()][0];
@@ -47679,6 +47858,7 @@ function edGestures(lay){
       if (it.kind === 'text' && wasSel){ edTextOpen(it); return; }
       if (it.kind === 'stamp' && wasSel){ edStampNext(it); return; }
       if (it.kind === 'plate' && wasSel){ edPlateNext(it); return; }
+      if (it.kind === 'photo' && wasSel && it.meta && (it.meta.pstyle === 'film' || it.meta.pstyle === 'booth') && (it.meta.srcs || []).every(i => i && i.width)){ edFrameSwap(it, e.clientX, e.clientY); return; }
     }
     edDraw();
   };
@@ -48001,7 +48181,7 @@ function edEarned(p, more){
     '<p class="s">GPS verified · ' + esc(prettyDate(cam.marked ? cam.marked.date : today())) + (ED.markedAt ? ', ' + ED.markedAt : '') + '</p>' +
     '<button class="cx-btn big" data-c="edearnadd">Add the patch to my photo</button>' +
     '<button class="cx-btn ghost big" data-c="edearnno">Not now</button>' +
-    '<p class="u">To undo, tap “' + esc(hillName(cam.hill)) + ' marked” at the top.</p></div>';
+    '<p class="u">Undo is on your log, on ' + esc(hillName(cam.hill)) + '’s page.</p></div>';
   box.dataset.art = art; box.hidden = false;
 }
 function edSheet(kind){
@@ -48014,6 +48194,10 @@ function edSheet(kind){
   if (kind === 'stickers') edStickers(); else if (kind === 'tag') edTagSheet(); else if (kind === 'save') edSaveSheet(); else if (kind === 'leave') edLeaveSheet();
   else if (kind === 'unmark') edUnmarkSheet();
   else if (kind === 'photos') edPhotosSheet();
+  else if (kind === 'layout') edLayoutSheet();
+  else if (kind === 'layers') edLayersSheet();
+  else if (kind === 'grad') edGradSheet();
+  else if (kind === 'hill') edHillSheet();
 }
 function edStickers(){
   const sh = document.getElementById('edSheet'), h = cam.hill, f = edFacts(), q = (ED.q || '').trim().toLowerCase();
@@ -48039,6 +48223,7 @@ function edStickers(){
       '<button data-c="edstk" data-v="tile-' + slug + '" data-k="tile"><img alt="Map tile" src="' + ED_STK + 'tile-' + slug + '.webp"></button>' +
       '<button data-c="edstk" data-v="plate-' + slug + '-cream" data-k="plate" data-p="' + slug + '"><img alt="Summit plate" src="' + ED_STK + 'plate-' + slug + '-cream.webp"></button></div>';
   }
+  if (!q || hit('cut out')){ const cl = edCutList(); if (cl.length) s += '<h4>Your cut outs</h4><div class="ed-row" id="edCutsRow">' + cl.slice(0, 20).map(c => '<button class="ed-stk" data-c="edcutadd" data-v="' + esc(c.id) + '" aria-label="Your cut out"><img alt=""></button>').join('') + '</div>'; }
   const tabs = [['patches', 'Patches'], ['wm', 'WayMark'], ['tiles', 'Map tiles'], ['plates', 'Summit plates'], ['tp', 'Three Peaks']];
   s += '<div class="ed-tabs" role="tablist">' + tabs.map(([k, t]) => '<button role="tab" data-c="edtab" data-v="' + k + '" aria-selected="' + (ED.tab === k) + '">' + t + '</button>').join('') + '</div>';
   const grid = (items, cls) => '<div class="ed-grid ' + (cls || '') + '">' + items.join('') + '</div>';
@@ -48067,6 +48252,7 @@ function edStickers(){
   const qi = document.getElementById('edQ');
   if (qi){ qi.oninput = () => { ED.q = qi.value; const pos = qi.selectionStart; edStickers(); const n = document.getElementById('edQ'); if (n){ n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} } }; }
   if (keepQ && qi) qi.focus();
+  edCutsFill();
 }
 function edTagSheet(){
   const sh = document.getElementById('edSheet');
@@ -48139,15 +48325,16 @@ async function edSaveGo(){
     }
   }catch(e){ toast('Could not save that photo. ' + ((e && e.full) ? 'There is no room left on this phone.' : 'Try again.')); if (btn){ btn.disabled = false; btn.textContent = 'Save'; } return; }
   cam.saved = true; ED.savedTo = done; render();
+  if (ED.draftId){ edDraftDrop(ED.draftId); ED.draftId = null; }
   edSheet(false); camAfter();
   toast('Saved to ' + (done.length > 1 ? done.slice(0, -1).join(', ') + ' and ' + done[done.length - 1] : done[0]) + '.');
 }
 function edLeaveSheet(){
   document.getElementById('edSheet').innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h3 class="ed-h">Leave this photo?</h3>' +
-    '<p class="ed-note">It has not been saved yet.</p>' +
-    '<button class="cx-btn big" data-c="edsheetx">Keep editing</button>' +
-    '<button class="cx-btn ghost big" data-c="edretake">Take another photo</button>' +
-    '<button class="cx-btn ghost big" data-c="edleave">Leave without saving</button>';
+    '<p class="ed-note">Keep it as a draft and carry on later. Drafts wait in the camera, behind the photos button.</p>' +
+    '<button class="cx-btn big ed-cream" data-c="edleavedraft">Save as draft</button>' +
+    '<button class="cx-btn ghost big" data-c="edsheetx">Keep editing</button>' +
+    '<button class="cx-link ed-discard" data-c="edleave">Discard</button>';
 }
 function edUnmarkSheet(){
   const n = esc(hillName(cam.hill));
@@ -48343,14 +48530,6 @@ function edFilterInto(src, k, a, w, h){
   }
   x.putImageData(im, 0, 0); return c;
 }
-function edBase(){
-  if (!cam || !cam.still) return null;
-  const f = ED && !cam.clip && ED.filter;
-  if (!f || f.k === 'natural' || !(f.a > 0)) return cam.still;
-  const key = f.k + '|' + f.a.toFixed(2) + '|' + cam.still.width + 'x' + cam.still.height;
-  if (ED.fcache && ED.fcache.key === key && ED.fcache.src === cam.still) return ED.fcache.c;
-  const c = edFilterInto(cam.still, f.k, f.a); ED.fcache = {key, c, src: cam.still}; return c;
-}
 function edFiltOpen(){
   const ui = document.getElementById('edFiltUI'); if (!ui) return;
   edSheet(false); ED.sel = null; edDraw();
@@ -48387,7 +48566,7 @@ function edFiltDone(){
   }
 }
 
-const ED_PSTYLES = [['photo', 'Photo', 1], ['polaroid', 'Polaroid', 1], ['booth', 'Photo booth', 4], ['film', 'Film strip', 4], ['taped', 'Taped print', 1]];
+const ED_PSTYLES = [['photo', 'Photo', 1], ['polaroid', 'Polaroid', 1], ['booth', 'Photo booth', 4], ['film', 'Film strip', 4], ['taped', 'Taped print', 1], ['cut', 'Cut out', 1]];
 function edCover(x, img, dx, dy, dw, dh){
   const iw = img.width, ih = img.height, s = Math.max(dw / iw, dh / ih), sw = dw / s, sh = dh / s;
   x.drawImage(img, (iw - sw) / 2, (ih - sh) / 2, sw, sh, dx, dy, dw, dh);
@@ -48407,6 +48586,16 @@ function edFrame(kind, imgs, scale){
     c.width = W + M * 2; c.height = H + M * 2;
     edShadow(x, true); x.fillStyle = '#FBF8F2'; x.fillRect(M, M, W, H); edShadow(x, false);
     edCover(x, one, M + p, M + p, S, S);
+  } else if (kind === 'jprint'){
+    const W = Math.round(560 * k), PH = Math.round(660 * k), p = Math.round(26 * k), foot = Math.round(118 * k), H = PH + p + foot;
+    c.width = W + p * 2 + M * 2; c.height = H + M * 2 + Math.round(30 * k);
+    const ox = M, oy = M + Math.round(30 * k);
+    edShadow(x, true); x.fillStyle = '#FFFFFF'; x.fillRect(ox, oy, W + p * 2, H); edShadow(x, false);
+    edCover(x, one, ox + p, oy + p, W, PH);
+    const h = cam.hill; x.fillStyle = '#2A3A35'; x.font = '600 ' + Math.round(50 * k) + 'px Caveat, cursive'; x.textBaseline = 'middle'; x.textAlign = 'left';
+    x.fillText(h ? 'A day on ' + hillName(h) : 'A day on the hill', ox + p + Math.round(10 * k), oy + p + PH + foot / 2);
+    x.save(); x.translate(ox + Math.round(70 * k), oy + Math.round(6 * k)); x.rotate(-0.42);
+    x.fillStyle = 'rgba(236,226,200,.88)'; x.fillRect(-Math.round(95 * k), -Math.round(26 * k), Math.round(190 * k), Math.round(52 * k)); x.restore();
   } else if (kind === 'taped'){
     const W = Math.round(600 * k), H = Math.round(450 * k), p = Math.round(18 * k);
     c.width = W + p * 2 + M * 2; c.height = H + p * 2 + M * 2 + Math.round(30 * k);
@@ -48419,22 +48608,40 @@ function edFrame(kind, imgs, scale){
     for (let i = 0; i <= 8; i++) x.lineTo(-tw / 2 + tw * i / 8, -th / 2 + (i % 2 ? 3 : -3) * k);
     for (let i = 8; i >= 0; i--) x.lineTo(-tw / 2 + tw * i / 8, th / 2 + (i % 2 ? -3 : 3) * k);
     x.closePath(); x.fill(); x.restore();
-  } else if (kind === 'booth' || kind === 'film'){
-    const n = Math.max(1, imgs.length), FW = Math.round(360 * k), FH = Math.round(270 * k);
-    const film = kind === 'film', side = film ? Math.round(52 * k) : Math.round(22 * k), gap = film ? Math.round(14 * k) : Math.round(16 * k);
-    const top = film ? Math.round(30 * k) : Math.round(22 * k), foot = film ? Math.round(30 * k) : Math.round(70 * k);
+  } else if (kind === 'film'){
+    const n = Math.max(1, imgs.length), FW = Math.round(400 * k), FH = Math.round(410 * k), side = Math.round(50 * k);
+    const cap = Math.round(58 * k), top = Math.round(30 * k), foot = Math.round(34 * k);
+    const W = FW + side * 2, H = top + n * FH + (n - 1) * cap + foot;
+    c.width = W + M * 2; c.height = H + M * 2;
+    edShadow(x, true); x.fillStyle = '#161616'; edRR(x, M, M, W, H, 8 * k); x.fill(); edShadow(x, false);
+    const Y = '#E8C25A', h = cam.hill, w = cam.when || new Date();
+    const line = ((h ? String(hillName(h)).toUpperCase() : 'WAYMARK') + '  ·  ' + String(w.getDate()).padStart(2, '0') + '.' + String(w.getMonth() + 1).padStart(2, '0') + '.' + String(w.getFullYear()).slice(2));
+    imgs.forEach((im, i) => {
+      const fy = M + top + i * (FH + cap);
+      x.save(); edRR(x, M + side, fy, FW, FH, 16 * k); x.clip(); edCover(x, im, M + side, fy, FW, FH); x.restore();
+      x.fillStyle = Y;
+      for (let j = 0; j < 5; j++) x.fillRect(M + Math.round(14 * k), fy + FH * 0.42 - 22 * k + j * 11 * k, Math.round(18 * k), Math.round(4 * k));
+      for (let j = 0; j < 3; j++) x.fillRect(M + W - Math.round(32 * k), fy + FH * 0.62 - 11 * k + j * 11 * k, Math.round(18 * k), Math.round(4 * k));
+      x.fillRect(M + Math.round(17 * k), fy + FH - Math.round(30 * k), Math.round(12 * k), Math.round(12 * k));
+      x.beginPath(); const tx = M + W - Math.round(23 * k), ty = fy + Math.round(20 * k); x.moveTo(tx, ty - 8 * k); x.lineTo(tx + 8 * k, ty + 7 * k); x.lineTo(tx - 8 * k, ty + 7 * k); x.closePath(); x.fill();
+      if (i < n - 1){
+        x.fillStyle = '#EDE6D6'; x.font = '700 ' + Math.round(24 * k) + 'px ' + CAM_MONO; x.textBaseline = 'middle'; x.textAlign = 'left';
+        let fs = Math.round(24 * k), sp = 9 * k; const tw = () => [...line].reduce((a, ch) => a + x.measureText(ch).width + sp, -sp);
+        while (tw() > FW && sp > 2 * k) sp -= 0.5 * k;
+        while (tw() > FW && fs > 12 * k){ fs--; x.font = '700 ' + fs + 'px ' + CAM_MONO; }
+        let cx = M + side; const cy = fy + FH + cap / 2;
+        for (const ch of line){ x.fillText(ch, cx, cy); cx += x.measureText(ch).width + sp; }
+      }
+    });
+  } else if (kind === 'booth'){
+    const n = Math.max(1, imgs.length), FW = Math.round(330 * k), FH = Math.round(250 * k), side = Math.round(20 * k), gap = Math.round(14 * k), top = Math.round(20 * k), foot = Math.round(78 * k);
     const W = FW + side * 2, H = top + n * FH + (n - 1) * gap + foot;
     c.width = W + M * 2; c.height = H + M * 2;
-    edShadow(x, true); x.fillStyle = film ? '#141414' : '#FBF8F2'; x.fillRect(M, M, W, H); edShadow(x, false);
+    edShadow(x, true); x.fillStyle = '#FBF8F2'; x.fillRect(M, M, W, H); edShadow(x, false);
     imgs.forEach((im, i) => edCover(x, im, M + side, M + top + i * (FH + gap), FW, FH));
-    if (film){
-      x.fillStyle = '#EDE6D6'; const hw = Math.round(18 * k), hh = Math.round(12 * k), step = Math.round(34 * k);
-      for (let y = M + Math.round(14 * k); y < M + H - hh; y += step){ edRR(x, M + Math.round(17 * k), y, hw, hh, 2 * k); x.fill(); edRR(x, M + W - Math.round(17 * k) - hw, y, hw, hh, 2 * k); x.fill(); }
-    } else {
-      const w = cam.when || new Date();
-      x.fillStyle = '#3B4A45'; x.font = '600 ' + Math.round(22 * k) + 'px ' + CAM_MONO; x.textAlign = 'center'; x.textBaseline = 'middle';
-      x.fillText(w.getDate() + ' ' + CAM_MONTHS[w.getMonth()] + ' ' + w.getFullYear(), M + W / 2, M + H - foot / 2);
-    }
+    const h = cam.hill, w = cam.when || new Date();
+    x.fillStyle = '#2A3A35'; x.font = '600 ' + Math.round(40 * k) + 'px Caveat, cursive'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText((h ? hillName(h) + ', ' : '') + w.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][w.getMonth()], M + W / 2, M + H - foot / 2 + 2 * k);
   }
   return c;
 }
@@ -48460,7 +48667,11 @@ function edPhotosSheet(){
     '<p class="ed-note">Pick a style, then choose photos from this walk or your phone.</p>' +
     '<div class="ed-pgrid">' + ED_PSTYLES.map(([k, t]) => '<button data-c="edpstyle" data-v="' + k + '"><i><canvas data-k="' + k + '"></canvas></i><span>' + t + '</span></button>').join('') + '</div>';
   sh.querySelectorAll('.ed-pgrid canvas').forEach(cv => {
-    const k = cv.dataset.k, f = edFrame(k, k === 'booth' || k === 'film' ? [small, small, small] : [small], 0.3);
+    const k = cv.dataset.k;
+    if (k === 'cut'){ cv.width = 120; cv.height = Math.round(120 * small.height / small.width); const x = cv.getContext('2d'); x.drawImage(small, 0, 0, cv.width, cv.height);
+      x.fillStyle = 'rgba(11,21,18,.45)'; x.fillRect(0, 0, cv.width, cv.height); x.save(); x.beginPath(); x.ellipse(cv.width / 2, cv.height * 0.62, cv.width * 0.42, cv.height * 0.2, 0, 0, Math.PI * 2); x.clip(); x.drawImage(small, 0, 0, cv.width, cv.height); x.restore();
+      x.strokeStyle = '#fff'; x.lineWidth = 2; x.beginPath(); x.ellipse(cv.width / 2, cv.height * 0.62, cv.width * 0.42, cv.height * 0.2, 0, 0, Math.PI * 2); x.stroke(); return; }
+    const f = edFrame(k, k === 'booth' || k === 'film' ? [small, small, small] : [small], 0.3);
     cv.width = f.width; cv.height = f.height; cv.getContext('2d').drawImage(f, 0, 0);
   });
 }
@@ -48503,14 +48714,617 @@ async function edPhotosMake(files){
     }
   }catch(e){ toast('That photo would not open. If it came from iCloud, open it in Photos first.'); return; }
   if (!imgs.length) return;
+  if (st[0] === 'cut'){ ED.pstep = 0; ED.pstyle = null; ED.psel = []; edSheet(false); edCutOpen(imgs[0]); return; }
   const f = edFrame(st[0], imgs.slice(0, st[2]));
   const strip = st[0] === 'booth' || st[0] === 'film';
-  edAdd(f, {kind: 'photo', width: CAM_W * (strip ? 0.3 : 0.52), meta: {pstyle: st[0]}});
-  if (st[0] === 'taped'){ const it = ED.items[ED.items.length - 1]; it.r = -0.06; edDraw(); }
+  edAdd(f, {kind: 'photo', width: CAM_W * ({film: 0.5, booth: 0.3}[st[0]] || 0.52), meta: {pstyle: st[0], srcs: imgs.slice(0, st[2])}});
+  { const it = ED.items[ED.items.length - 1], r = {taped: -0.06, film: -0.1, booth: 0.1, polaroid: 0.04}[st[0]]; if (it && r){ it.r = r; edDraw(); } }
   ED.pstep = 0; ED.pstyle = null; ED.psel = []; edSheet(false);
 }
 
 function edOverlayOpen(){ edSheet(false); ED.sel = null; edDraw(); camLooksShow(true); }
+
+function edBase(){
+  if (!cam || !cam.still) return null;
+  if (!ED || cam.clip) return cam.still;
+  const f = ED.filter, cr = ED.crop, g = ED.grad, pg = ED.page;
+  const fk = f && f.k !== 'natural' && f.a > 0 ? f.k + f.a.toFixed(2) : '';
+  const ck = cr && (cr.s !== 1 || cr.x || cr.y) ? [cr.s, cr.x, cr.y].map(v => (+v).toFixed(3)).join(',') : '';
+  const gk = g && g.k !== 'none' && g.a > 0 ? g.k + g.a.toFixed(2) : '';
+  const pk = pg ? pg.sig : '';
+  if (!fk && !ck && !gk && !pk) return cam.still;
+  const key = [fk, ck, gk, pk, cam.still.width, cam.still.height].join('|');
+  if (ED.fcache && ED.fcache.key === key && ED.fcache.src === cam.still) return ED.fcache.c;
+  let c = cam.still;
+  if (ck){ const o = document.createElement('canvas'); o.width = c.width; o.height = c.height; const x = o.getContext('2d');
+    x.translate(o.width / 2 + cr.x, o.height / 2 + cr.y); x.scale(cr.s, cr.s); x.drawImage(c, -c.width / 2, -c.height / 2); c = o; }
+  if (fk) c = edFilterInto(c, f.k, f.a);
+  if (pk) c = edPageBase(pg, c);
+  if (gk) c = edGradInto(c, g);
+  ED.fcache = {key, c, src: cam.still}; return c;
+}
+function edNoOverlay(){ return !!(ED && !cam.clip && ED.page && ED.page.kind !== 'collage'); }
+
+function edCropOpen(){
+  const ui = document.getElementById('edCropUI'); if (!ui) return;
+  edSheet(false); ED.sel = null; edDraw();
+  ED.crop = ED.crop || {s: 1, x: 0, y: 0}; ED.cstart = Object.assign({}, ED.crop);
+  ui.hidden = false; document.getElementById('camx').classList.add('edcrop'); edCropUI();
+}
+function edCropClamp(){
+  const c = ED.crop; c.s = Math.min(4, Math.max(1, c.s));
+  const mx = (c.s - 1) * CAM_W / 2, my = (c.s - 1) * CAM_FH / 2;
+  c.x = Math.min(mx, Math.max(-mx, c.x)); c.y = Math.min(my, Math.max(-my, c.y));
+}
+function edCropUI(){ edCropClamp(); const z = document.getElementById('edCZoom'); if (z) z.value = String(Math.round(ED.crop.s * 100)); camPaint(); }
+function edCropDone(cancel){
+  const ui = document.getElementById('edCropUI'); if (!ui || ui.hidden) return;
+  ui.hidden = true; document.getElementById('camx').classList.remove('edcrop');
+  if (cancel){ ED.crop = ED.cstart; camPaint(); return; }
+  const a = ED.cstart || {s: 1, x: 0, y: 0}, b = ED.crop;
+  if (a.s !== b.s || a.x !== b.x || a.y !== b.y){ edSnap(); ED.undo[ED.undo.length - 1].crop = a; }
+}
+function edCropGestures(ui){
+  if (!ui || ui._on) return; ui._on = true;
+  const pts = new Map(); let g = null;
+  ui.addEventListener('pointerdown', e => {
+    if (e.target.closest('button,input,label')) return;
+    try{ ui.setPointerCapture(e.pointerId); }catch(_){}
+    pts.set(e.pointerId, [e.clientX, e.clientY]);
+    const k = edK(), c = ED.crop, P = [...pts.values()];
+    g = P.length > 1 ? {d: Math.hypot(P[0][0] - P[1][0], P[0][1] - P[1][1]), s: c.s} : {x: e.clientX, y: e.clientY, cx: c.x, cy: c.y, k};
+  });
+  ui.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId) || !g) return; pts.set(e.pointerId, [e.clientX, e.clientY]);
+    const P = [...pts.values()], c = ED.crop;
+    if (P.length > 1 && g.d){ c.s = g.s * Math.hypot(P[0][0] - P[1][0], P[0][1] - P[1][1]) / g.d; }
+    else if (g.k){ c.x = g.cx + (e.clientX - g.x) / g.k; c.y = g.cy + (e.clientY - g.y) / g.k; }
+    edCropUI();
+  });
+  const up = e => { pts.delete(e.pointerId); if (!pts.size) g = null; };
+  ui.addEventListener('pointerup', up); ui.addEventListener('pointercancel', up);
+  const z = ui.querySelector('#edCZoom');
+  if (z) z.addEventListener('input', () => { ED.crop.s = +z.value / 100; edCropUI(); });
+}
+
+const ED_GRADS = [['none', 'None'], ['bottom', 'Bottom'], ['top', 'Top'], ['both', 'Both'], ['edges', 'Edges'], ['rust', 'Rust']];
+function edGradInto(src, g){
+  const c = document.createElement('canvas'); c.width = src.width; c.height = src.height; const x = c.getContext('2d');
+  x.drawImage(src, 0, 0);
+  const W = c.width, H = c.height, a = Math.min(1, g.a) * 0.86, dark = '11,21,18', rust = '168,67,26';
+  const lin = (y0, y1, col) => { const gr = x.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, 'rgba(' + col + ',0)'); gr.addColorStop(1, 'rgba(' + col + ',' + a + ')'); x.fillStyle = gr; x.fillRect(0, Math.min(y0, y1), W, Math.abs(y1 - y0)); };
+  if (g.k === 'bottom' || g.k === 'both') lin(H * 0.5, H, dark);
+  if (g.k === 'top' || g.k === 'both') lin(H * 0.42, 0, dark);
+  if (g.k === 'rust') lin(H * 0.45, H, rust);
+  if (g.k === 'edges'){ const r = x.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.32, W / 2, H / 2, Math.hypot(W, H) / 2);
+    r.addColorStop(0, 'rgba(' + dark + ',0)'); r.addColorStop(1, 'rgba(' + dark + ',' + a + ')'); x.fillStyle = r; x.fillRect(0, 0, W, H); }
+  return c;
+}
+function edGradSheet(){
+  const sh = document.getElementById('edSheet'), g = ED.grad || {k: 'none', a: 0.7};
+  const tw = 90, th = Math.round(90 * CAM_FH / CAM_W), small = document.createElement('canvas'); small.width = tw; small.height = th;
+  small.getContext('2d').drawImage(cam.still, 0, 0, tw, th);
+  sh.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h3 class="ed-h">Gradient</h3>' +
+    '<p class="ed-note">A soft fade so your words stand out. Pick where it fades from, then how strong.</p>' +
+    '<div class="ed-grow">' + ED_GRADS.map(([k, t]) => '<button data-c="edgrad" data-v="' + k + '" aria-pressed="' + (g.k === k) + '"><canvas width="' + tw + '" height="' + th + '"></canvas><span>' + t + '</span></button>').join('') + '</div>' +
+    '<label class="ed-fstr ed-gstr' + (g.k === 'none' ? ' off' : '') + '"><span>Strength</span><input type="range" id="edGStr" min="10" max="100" value="' + Math.round(g.a * 100) + '"' + (g.k === 'none' ? ' disabled' : '') + '></label>';
+  sh.querySelectorAll('.ed-grow canvas').forEach((cv, i) => cv.getContext('2d').drawImage(ED_GRADS[i][0] === 'none' ? small : edGradInto(small, {k: ED_GRADS[i][0], a: 0.8}), 0, 0));
+  const r = sh.querySelector('#edGStr'); let fr = 0;
+  r.addEventListener('input', () => { ED.grad = Object.assign({}, ED.grad, {a: +r.value / 100}); if (!fr) fr = requestAnimationFrame(() => { fr = 0; camPaint(); }); });
+  r.addEventListener('change', () => edKeep('grad', ED.grad));
+}
+function edGradSet(k){
+  const before = ED.grad ? Object.assign({}, ED.grad) : {k: 'none', a: 0.7};
+  ED.grad = {k, a: (ED.grad && ED.grad.a) || 0.7};
+  edSnap(); ED.undo[ED.undo.length - 1].grad = before;
+  camPaint(); edGradSheet();
+}
+
+const ED_LAYOUTS = {
+  photo: [['full', 'Full photo', 1], ['polaroid', 'Polaroid', 1]],
+  collage: [['c2', '2 photos', 2], ['c4', '4 photos', 4], ['scatter', 'Scattered', 3]],
+  journal: [['j1', '1 photo', 1], ['j2', '2 photos', 2], ['j3', '3 photos', 3], ['jfilm', 'Film strip', 4]]
+};
+function edPaper(W, H){
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  x.fillStyle = '#F4EEE2'; x.fillRect(0, 0, W, H);
+  x.strokeStyle = 'rgba(160,140,110,.28)'; x.lineWidth = Math.max(1, W / 540);
+  const step = Math.round(W * 0.062);
+  for (let y = Math.round(H * 0.12); y < H; y += step){ x.beginPath(); x.moveTo(0, y + 0.5); x.lineTo(W, y + 0.5); x.stroke(); }
+  return c;
+}
+function edBlurBack(photo, W, H){
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const sm = document.createElement('canvas'); sm.width = 54; sm.height = Math.round(54 * H / W);
+  sm.getContext('2d').drawImage(photo, 0, 0, sm.width, sm.height);
+  x.imageSmoothingQuality = 'high'; x.drawImage(sm, 0, 0, W, H);
+  x.fillStyle = 'rgba(11,21,18,.45)'; x.fillRect(0, 0, W, H); return c;
+}
+function edPageBase(pg, photo){
+  const W = CAM_W, H = CAM_FH;
+  if (pg.kind === 'journal') return edPaper(W, H);
+  if (pg.tpl === 'polaroid' || pg.tpl === 'scatter') return edBlurBack(photo, W, H);
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  x.fillStyle = '#0B1512'; x.fillRect(0, 0, W, H);
+  const imgs = [photo].concat(pg.imgs || []), gap = Math.round(W * 0.012);
+  const cells = pg.tpl === 'c2' ? [[0, 0, W, H / 2 - gap / 2], [0, H / 2 + gap / 2, W, H / 2 - gap / 2]]
+    : [[0, 0, W / 2 - gap / 2, H / 2 - gap / 2], [W / 2 + gap / 2, 0, W / 2 - gap / 2, H / 2 - gap / 2], [0, H / 2 + gap / 2, W / 2 - gap / 2, H / 2 - gap / 2], [W / 2 + gap / 2, H / 2 + gap / 2, W / 2 - gap / 2, H / 2 - gap / 2]];
+  cells.forEach((r, i) => edCover(x, imgs[i % imgs.length], r[0], r[1], r[2], r[3]));
+  return c;
+}
+function edLayoutParts(tpl, photo, extra){
+  const W = CAM_W, H = CAM_FH, all = [photo].concat(extra || []), at = i => all[i % all.length], f = edFacts(), out = [];
+  const add = (img, px, py, pw, r, meta) => out.push({img, x: px * W, y: py * H, w: pw * W, r: r || 0, meta: meta || {}});
+  const patch = () => { const p = edHillPatch(); return p && p.got && ED_PATCH_ART.has(p.art || p.id) ? ED_PF + (p.art || p.id) + '.webp' : null; };
+  const words = (t, px, py, size) => add({text: t, tp: {font: 'hand', col: '#2A3A35', box: 'none', align: 'left', size: size || 70}}, px, py, 0, 0, {words: true});
+  const date = (px, py) => add({stamp: 'date'}, px, py, 0.46, -0.05);
+  if (tpl === 'polaroid') add(edFrame('polaroid', [photo]), 0.5, 0.47, 0.78, -0.03);
+  if (tpl === 'scatter'){ add(edFrame('polaroid', [at(0)]), 0.36, 0.26, 0.58, -0.08); add(edFrame('polaroid', [at(1)]), 0.66, 0.5, 0.56, 0.07); add(edFrame('polaroid', [at(2)]), 0.38, 0.74, 0.58, -0.03); }
+  if (tpl === 'j1'){ add(edFrame('jprint', [photo]), 0.4, 0.31, 0.62, -0.03); const p = patch(); if (p) add({url: p}, 0.66, 0.5, 0.24, 0.06);
+    words('Your own words go here,\nas many lines as you like.', 0.47, 0.66); date(0.34, 0.82); add({url: ED_STK + 'wm-the-trig.webp'}, 0.82, 0.82, 0.13, 0.04); }
+  if (tpl === 'j2'){ add(edFrame('taped', [at(0)]), 0.38, 0.24, 0.64, -0.05); add(edFrame('taped', [at(1)]), 0.62, 0.5, 0.6, 0.05);
+    words('Your own words go here.', 0.42, 0.72); date(0.34, 0.86); }
+  if (tpl === 'j3'){ add(edFrame('polaroid', [at(0)]), 0.3, 0.2, 0.46, -0.07); add(edFrame('polaroid', [at(1)]), 0.72, 0.34, 0.44, 0.06); add(edFrame('polaroid', [at(2)]), 0.4, 0.55, 0.48, -0.02);
+    words('Your own words go here.', 0.45, 0.76); date(0.32, 0.88); }
+  if (tpl === 'jfilm'){ add(edFrame('film', all.slice(0, 4)), 0.27, 0.47, 0.42, -0.03, {pstyle: 'film', srcs: all.slice(0, 4)}); const p = patch(); if (p) add({url: p}, 0.76, 0.2, 0.2, 0.05);
+    add(edFrame('polaroid', [at(1)]), 0.76, 0.44, 0.33, 0.06); words('Your own\nwords here.', 0.76, 0.62, 62); date(0.72, 0.8); }
+  return out;
+}
+function edPaperDate(){
+  const h = cam.hill, w = cam.when || new Date();
+  const t = (w.getDate() + ' ' + CAM_MONTHS[w.getMonth()] + ' ' + w.getFullYear() + (h && h.h ? '  ·  ' + Math.round(h.h * 3.28084).toLocaleString('en-GB') + ' FT' : '')).toUpperCase();
+  const c = document.createElement('canvas'), x = c.getContext('2d'), px = 34, sp = 4;
+  x.font = '700 ' + px + 'px ' + CAM_MONO; const tw = [...t].reduce((a, ch) => a + x.measureText(ch).width + sp, -sp);
+  c.width = Math.ceil(tw + 56); c.height = 82; x.font = '700 ' + px + 'px ' + CAM_MONO;
+  x.strokeStyle = '#A8431A'; x.lineWidth = 4; x.beginPath(); x.roundRect ? x.roundRect(4, 4, c.width - 8, c.height - 8, 8) : x.rect(4, 4, c.width - 8, c.height - 8); x.stroke();
+  x.fillStyle = '#A8431A'; x.textBaseline = 'middle'; let cx = 28; for (const ch of t){ x.fillText(ch, cx, c.height / 2 + 1); cx += x.measureText(ch).width + sp; }
+  return c;
+}
+async function edLayoutApply(tab, tpl, extra){
+  const before = ED.page ? Object.assign({}, ED.page) : null;
+  edSnap(); ED.undo[ED.undo.length - 1].page = before || {none: true};
+  ED.items = ED.items.filter(i => !(i.meta && i.meta.layout));
+  if (tpl === 'full'){ ED.page = null; ED.fcache = null; camPaint(); edSheet(false); edDraw(); camAfter(); return; }
+  const photo = (() => { const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH; const x = c.getContext('2d');
+    const keep = ED.page; ED.page = null; ED.fcache = null; x.drawImage(edBase() || cam.still, 0, 0);
+    const lay = cam.layers && cam.layers[cam.prefs.style]; if (lay && tab !== 'collage') x.drawImage(lay, 0, 0); ED.page = keep; return c; })();
+  ED.page = {kind: tab, tpl, imgs: extra || [], sig: tab + tpl + ':' + Date.now()}; ED.fcache = null;
+  const parts = edLayoutParts(tpl, photo, extra);
+  for (const p of parts){
+    let img = p.img, kind = 'photo', meta = Object.assign({layout: true}, p.meta);
+    if (img.url){ try{ img = await edImg(img.url); }catch(e){ continue; } kind = 'sticker'; }
+    else if (img.text){ meta = Object.assign(meta, {text: img.text, tp: img.tp}); img = edTextCanvas(img.text, img.tp); kind = 'text'; }
+    else if (img.stamp){ img = edPaperDate(); kind = 'stamp'; meta.stamp = 'paperdate'; }
+    const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+    ED.items.push({id: uid(), img, w, h, x: p.x, y: p.y, s: p.w ? p.w / w : 1, r: p.r, kind, meta});
+  }
+  ED.sel = null; edSheet(false); camPaint(); edDraw(); camAfter();
+}
+function edLayoutSheet(){
+  const sh = document.getElementById('edSheet'), tab = ED.ltab || 'journal';
+  sh.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h3 class="ed-h">Layout</h3>' +
+    '<div class="ed-ltabs" role="tablist">' + [['photo', 'Photo'], ['collage', 'Collage'], ['journal', 'Journal page']].map(([k, t]) =>
+      '<button role="tab" data-c="edltab" data-v="' + k + '" aria-selected="' + (k === tab) + '">' + t + '</button>').join('') + '</div>' +
+    '<div class="ed-lgrid">' + ED_LAYOUTS[tab].map(([k, t, n]) => '<button data-c="edlayout" data-v="' + k + '" data-n="' + n + '" aria-pressed="' + !!(ED.page && ED.page.tpl === k || (!ED.page && k === 'full')) + '"><i><canvas data-k="' + k + '"></canvas></i><span>' + t + '</span></button>').join('') + '</div>' +
+    '<p class="ed-note">' + (tab === 'photo' ? 'Your photo on its own, or as a print.' : 'Pick one, then choose the extra photos from your phone or this walk.') + '</p>';
+  const sw = 150, shh = Math.round(150 * CAM_FH / CAM_W), small = document.createElement('canvas'); small.width = CAM_W; small.height = CAM_FH;
+  small.getContext('2d').drawImage(cam.still, 0, 0);
+  sh.querySelectorAll('.ed-lgrid canvas').forEach(cv => {
+    const k = cv.dataset.k; cv.width = sw; cv.height = shh; const x = cv.getContext('2d'); x.scale(sw / CAM_W, shh / CAM_FH);
+    if (k === 'full'){ x.drawImage(small, 0, 0); return; }
+    const kind = Object.keys(ED_LAYOUTS).find(t => ED_LAYOUTS[t].some(l => l[0] === k));
+    x.drawImage(edPageBase({kind, tpl: k, imgs: []}, small), 0, 0);
+    for (const p of edLayoutParts(k, small, [])){
+      if (p.img.url || p.img.text || p.img.stamp) continue;
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r); const s = p.w / p.img.width; x.drawImage(p.img, -p.img.width * s / 2, -p.img.height * s / 2, p.img.width * s, p.img.height * s); x.restore();
+    }
+  });
+}
+
+async function edPickPhotos(n, title, cb){
+  ED.pick = {n, cb, sel: []}; ED.sheet = 'pick';
+  const sh = document.getElementById('edSheet'); sh.hidden = false; document.getElementById('camx').classList.add('edsheet');
+  sh.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h3 class="ed-h">' + esc(title) + '</h3>' +
+    '<p class="ed-note">' + (n > 1 ? 'Choose ' + (n - 1 > 1 ? 'up to ' + n + ' photos' : n + ' photos') + '. They go in the order you tap them.' : 'Choose a photo.') + '</p>' +
+    '<label class="cx-btn ghost ed-phone">' + ti('download') + ' From your phone<input type="file" id="edPkFile" accept="image/*"' + (n > 1 ? ' multiple' : '') + ' hidden></label>' +
+    '<h4>From this walk</h4><div class="ed-pwalk" id="edPkWalk"><p class="ed-note">Looking…</p></div>' +
+    (n > 1 ? '<button class="cx-btn big" data-c="edpkgo" id="edPkGo" disabled>Use these</button>' : '');
+  sh.querySelector('#edPkFile').addEventListener('change', async e => {
+    const fs = [...(e.target.files || [])].filter(looksLikeImage).slice(0, n); if (!fs.length) return;
+    const imgs = []; for (const f of fs){ try{ imgs.push(await edBitmap(f)); }catch(_){} }
+    if (imgs.length) edPickDone(imgs);
+  });
+  const list = await edWalkPhotos(); if (!ED || ED.sheet !== 'pick') return;
+  ED.pwalk = list;
+  const box = document.getElementById('edPkWalk'); if (!box) return;
+  const opts = [{id: '__this'}].concat(list);
+  box.innerHTML = opts.map(o => '<button data-c="edpkone" data-v="' + esc(o.id) + '" aria-pressed="false"><img alt=""><b></b></button>').join('') +
+    (list.length ? '' : '<p class="ed-note">No other photos from today yet. Photos you save to the journal or to this hill show here.</p>');
+  const imgs = box.querySelectorAll('img');
+  imgs[0].src = cam.still.toDataURL('image/jpeg', 0.6); imgs[0].alt = 'This photo';
+  list.forEach((o, i) => { o.url = o.url || URL.createObjectURL(o.blob); imgs[i + 1].src = o.url; imgs[i + 1].alt = 'Photo from ' + (o.from === 'hill' ? 'this hill' : 'today’s journal'); });
+}
+function edPickMarks(){
+  const P = ED.pick; if (!P) return;
+  document.querySelectorAll('#edPkWalk [data-c="edpkone"]').forEach(b => { const i = P.sel.indexOf(b.dataset.v); b.setAttribute('aria-pressed', String(i >= 0)); b.querySelector('b').textContent = i >= 0 ? String(i + 1) : ''; });
+  const g = document.getElementById('edPkGo'); if (g){ g.disabled = !P.sel.length; g.textContent = P.sel.length ? 'Use ' + P.sel.length + (P.sel.length > 1 ? ' photos' : ' photo') : 'Use these'; }
+}
+async function edPickChosen(){
+  const P = ED.pick, imgs = [];
+  for (const id of P.sel){
+    if (id === '__this'){ const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH; c.getContext('2d').drawImage(cam.still, 0, 0); imgs.push(c); }
+    else { const o = (ED.pwalk || []).find(x => x.id === id); if (o){ try{ imgs.push(await edBitmap(o.blob)); }catch(_){} } }
+  }
+  edPickDone(imgs);
+}
+function edPickDone(imgs){ const P = ED.pick; ED.pick = null; edSheet(false); if (P && imgs.length) P.cb(imgs); }
+
+function edFrameSwap(it, cx, cy){
+  const v = document.getElementById('cxView').getBoundingClientRect(), k = edK();
+  const px = (cx - v.left) / k - it.x, py = (cy - v.top) / k - it.y, c = Math.cos(-it.r), s = Math.sin(-it.r);
+  const ly = (px * s + py * c) / it.s + it.h / 2;
+  const film = it.meta.pstyle === 'film', M = 30, top = film ? 30 : 20, step = film ? 410 + 58 : 250 + 14, n = it.meta.srcs.length;
+  const i = Math.max(0, Math.min(n - 1, Math.floor((ly - M - top) / step)));
+  edPickPhotos(1, 'Change this photo', imgs => {
+    const srcs = it.meta.srcs.slice(); srcs[i] = imgs[0];
+    const f = edFrame(it.meta.pstyle, srcs); edSnap();
+    ED.items = ED.items.map(x => x === it ? Object.assign({}, x, {img: f, _url: null, w: f.width, h: f.height, s: x.s * x.w / f.width, meta: Object.assign({}, x.meta, {srcs})}) : x);
+    ED.sel = it.id; edDraw();
+  });
+}
+function edLayerName(it){
+  if (it.kind === 'text') return [String(it.meta.text || '').replace(/\s+/g, ' ').slice(0, 40) || 'Words', 'Text'];
+  if (it.kind === 'draw') return ['Drawing', it.meta.strokes.length + (it.meta.strokes.length === 1 ? ' line' : ' lines')];
+  if (it.kind === 'patch') return ['Patch', 'Sticker'];
+  if (it.kind === 'stamp') return ['Field stamp', 'Sticker'];
+  if (it.kind === 'plate') return ['Summit plate', 'Sticker'];
+  if (it.kind === 'photo') return [({photo: 'Photo', polaroid: 'Polaroid', booth: 'Photo booth', film: 'Film strip', taped: 'Taped print', cut: 'Cut out'})[it.meta.pstyle] || 'Photo', 'Photo'];
+  if (it.meta && it.meta.tagNames) return ['Names', 'Tags'];
+  return ['Sticker', 'Sticker'];
+}
+function edLayersSheet(){
+  const sh = document.getElementById('edSheet');
+  const rows = ED.items.slice().reverse();
+  const look = (CAM_LOOKS.find(l => l[0] === cam.prefs.style) || [, ''])[1];
+  sh.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h3 class="ed-h">Layers</h3>' +
+    '<p class="ed-note">Drag to put things in front or behind. Tap the eye to hide one.</p>' +
+    (rows.length ? '' : '<p class="ed-note">Nothing added yet. Text, stickers, photos and drawing all show here.</p>') +
+    '<div class="ed-layers" id="edLayers">' + rows.map(it => { const [n, s] = edLayerName(it);
+      return '<div class="ed-lrow' + (it.hidden ? ' hid' : '') + '" data-eid="' + it.id + '"><button class="ed-lh" aria-label="Move ' + esc(n) + ': drag, or use the up and down arrow keys">' + edI('grip', 18) + '</button>' +
+        '<button class="ed-lpick" data-c="edlpick" data-v="' + it.id + '"><i><img alt=""></i><span><b>' + esc(n) + '</b><small>' + s + '</small></span></button>' +
+        '<button class="ed-leye" data-c="edleye" data-v="' + it.id + '" aria-label="' + (it.hidden ? 'Show ' : 'Hide ') + esc(n) + '" aria-pressed="' + !it.hidden + '">' + edI(it.hidden ? 'eyeoff' : 'eye', 20) + '</button></div>'; }).join('') + '</div>' +
+    (!edNoOverlay() && cam.prefs.style !== 'none' ? '<div class="ed-lrow fixed"><span class="ed-lh"></span><span class="ed-lpick"><i class="ov">' + edI('overlay', 18) + '</i><span><b>' + esc(look) + '</b><small>Overlay, under what you add</small></span></span>' +
+      '<button class="ed-leye" data-c="edoverlay" aria-label="Change the overlay">' + edI('chev', 18) + '</button></div>' : '');
+  sh.querySelectorAll('.ed-lrow[data-eid]').forEach(r => { const it = edGet(r.dataset.eid); const im = r.querySelector('img');
+    if (it) im.src = it.img.toDataURL ? (it._url || (it._url = it.img.toDataURL())) : it.img.src; });
+  edLayersDrag(sh.querySelector('#edLayers'));
+}
+function edLayersDrag(list){
+  if (!list) return;
+  list.querySelectorAll('.ed-lh').forEach(h => h.addEventListener('keydown', e => {
+    const d = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0; if (!d) return; e.preventDefault();
+    const id = h.closest('.ed-lrow').dataset.eid, i = ED.items.findIndex(x => x.id === id), j = i + d;
+    if (i < 0 || j < 0 || j >= ED.items.length) return;
+    edSnap(); const a = ED.items.slice(); [a[i], a[j]] = [a[j], a[i]]; ED.items = a; edDraw(); edLayersSheet();
+    const nh = document.querySelector('#edLayers .ed-lrow[data-eid="' + id + '"] .ed-lh'); if (nh) nh.focus();
+  }));
+  list.querySelectorAll('.ed-lh').forEach(h => h.addEventListener('pointerdown', e => {
+    e.preventDefault(); const row = h.closest('.ed-lrow'), rows = [...list.children], from = rows.indexOf(row), rh = row.offsetHeight + 6, y0 = e.clientY;
+    try{ h.setPointerCapture(e.pointerId); }catch(_){}
+    row.classList.add('drag'); let to = from;
+    const mv = ev => { const dy = ev.clientY - y0; row.style.transform = 'translateY(' + dy + 'px)'; to = Math.max(0, Math.min(rows.length - 1, from + Math.round(dy / rh)));
+      rows.forEach((r, i) => { if (r === row) return; const sh = from < to && i > from && i <= to ? -rh : from > to && i < from && i >= to ? rh : 0; r.style.transform = sh ? 'translateY(' + sh + 'px)' : ''; }); };
+    const done = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', done); h.removeEventListener('pointercancel', done);
+      rows.forEach(r => { r.style.transform = ''; }); row.classList.remove('drag');
+      if (to !== from){
+        edSnap(); const order = rows.map(r => r.dataset.eid); order.splice(to, 0, order.splice(from, 1)[0]);
+        ED.items = order.slice().reverse().map(id => edGet(id)).filter(Boolean); edDraw();
+      }
+      edLayersSheet(); };
+    h.addEventListener('pointermove', mv); h.addEventListener('pointerup', done); h.addEventListener('pointercancel', done);
+  }));
+}
+
+const ED_DRAFTS = 'waymark.drafts';
+function edDraftList(){ try{ return JSON.parse(localStorage.getItem(ED_DRAFTS) || '[]'); }catch(e){ return []; } }
+function edDraftKeep(l){ try{ localStorage.setItem(ED_DRAFTS, JSON.stringify(l.slice(0, 24))); }catch(e){} }
+const edBlobOf = (c, type, q) => new Promise(res => c.toBlob(res, type || 'image/png', q));
+async function edDraftSave(){
+  const id = ED.draftId || ('dr' + uid());
+  const raw = await edBlobOf(cam.still, 'image/jpeg', 0.94);
+  const items = [];
+  for (const it of ED.items){
+    const o = {id: it.id, kind: it.kind, x: it.x, y: it.y, s: it.s, r: it.r, w: it.w, h: it.h, hidden: !!it.hidden, meta: Object.assign({}, it.meta, {srcs: undefined})};
+    if (it.kind === 'draw'){ items.push(o); continue; }
+    if (it.img.toDataURL){ const k = id + ':' + it.id; await putBlob(k, await edBlobOf(it.img)); o.blob = k; }
+    else o.src = it.img.getAttribute ? it.img.getAttribute('src') || it.img.src : it.img.src;
+    items.push(o);
+  }
+  const extra = [];
+  if (ED.page && ED.page.imgs) for (let i = 0; i < ED.page.imgs.length; i++){ const c = document.createElement('canvas'); const im = ED.page.imgs[i]; c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); const k = id + ':pg' + i; await putBlob(k, await edBlobOf(c, 'image/jpeg', 0.9)); extra.push(k); }
+  const d = {id, t: Date.now(), when: (cam.when || new Date()).getTime(), fix: cam.photoFix || cam.fix || null, format: cam.prefs.format, style: cam.prefs.style,
+    filter: ED.filter || null, crop: ED.crop || null, grad: ED.grad || null, page: ED.page ? {kind: ED.page.kind, tpl: ED.page.tpl, extra} : null, items, hill: cam.hill ? cam.hill.k : null};
+  await putBlob(id + ':raw', raw); await putBlob(id + ':doc', new Blob([JSON.stringify(d)], {type: 'application/json'}));
+  const sm = document.createElement('canvas'); sm.width = 240; sm.height = Math.round(240 * CAM_FH / CAM_W);
+  const full = await camStillBlob(); const bm = await edBitmap(full); sm.getContext('2d').drawImage(bm, 0, 0, sm.width, sm.height);
+  const l = edDraftList().filter(x => x.id !== id); l.unshift({id, t: d.t, thumb: sm.toDataURL('image/jpeg', 0.7), hill: cam.hill ? hillName(cam.hill) : ''}); edDraftKeep(l);
+  ED.draftId = id; return id;
+}
+async function edDraftDrop(id){
+  if (!id) return; edDraftKeep(edDraftList().filter(x => x.id !== id));
+  try{ await tx('readwrite', st => { st.delete(id + ':raw'); st.delete(id + ':doc'); }); }catch(e){}
+}
+async function edDraftOpen(id){
+  let d;
+  try{ d = JSON.parse(await (await getBlobStrict(id + ':doc')).text()); }catch(e){ toast('That draft could not be opened.'); edDraftKeep(edDraftList().filter(x => x.id !== id)); return; }
+  const raw = await getBlobStrict(id + ':raw'); if (!raw){ toast('That draft could not be opened.'); return; }
+  if (d.format && d.format !== cam.prefs.format && CAM_SIZES.includes(d.format)){ cam.prefs.format = d.format; camSetFormat(d.format); camSizeView(); }
+  if (d.style) cam.prefs.style = d.style;
+  const img = await edBitmap(raw);
+  cam.photoFix = d.fix || null; cam.photoNoPlace = !d.fix; cam.fix = cam.photoFix || cam.liveFix || null; if (cam.fix) camJudge();
+  camFreeze(img, new Date(d.when), false);
+  ED.draftId = id; ED.filter = d.filter; ED.crop = d.crop; ED.grad = d.grad;
+  if (d.page){ const ex = []; for (const k of d.page.extra || []){ try{ ex.push(await edBitmap(await getBlobStrict(k))); }catch(e){} }
+    ED.page = {kind: d.page.kind, tpl: d.page.tpl, imgs: ex, sig: d.page.kind + d.page.tpl + ':' + Date.now()}; }
+  const items = [];
+  for (const o of d.items || []){
+    let img;
+    try{
+      if (o.kind === 'draw') img = edDrawCanvas(o.meta.strokes);
+      else if (o.blob) img = await edBitmapCanvas(await getBlobStrict(o.blob));
+      else if (o.src) img = await edImg(o.src);
+    }catch(e){ continue; }
+    if (img) items.push(Object.assign({}, o, {img}));
+  }
+  ED.items = items; ED.fcache = null; camLayers(true); camPaint(); edDraw(); camAfter();
+}
+async function edBitmapCanvas(blob){ const b = await edBitmap(blob); const c = document.createElement('canvas'); c.width = b.width; c.height = b.height; c.getContext('2d').drawImage(b, 0, 0); return c; }
+
+async function edChooseOpen(tab){
+  const box = document.getElementById('edChoose'); if (!box) return;
+  ED_CH.tab = tab || (edDraftList().length ? 'drafts' : ED_CH.tab || 'journal'); ED_CH.sel = null;
+  box.hidden = false; document.getElementById('camx').classList.add('edchoose');
+  const t = ED_CH.tab;
+  box.innerHTML = '<div class="ed-fhead"><button class="cx-ib" data-c="edchx" aria-label="Close">' + cxI('x') + '</button><h3 class="ed-h">Choose a photo</h3>' +
+    '<button class="cx-btn ed-next" data-c="edchnext" id="edChNext" disabled>Next</button></div>' +
+    '<div class="ed-ltabs" role="tablist">' + [['phone', 'Phone'], ['journal', 'Journal'], ['drafts', 'Drafts']].map(([k, n]) =>
+      '<button role="tab" data-c="edchtab" data-v="' + k + '" aria-selected="' + (k === t) + '">' + n + (k === 'drafts' && edDraftList().length ? ' <i class="ed-cnt">' + edDraftList().length + '</i>' : '') + '</button>').join('') + '</div>' +
+    '<div class="ed-chbody" id="edChBody"></div>' +
+    '<div class="ed-chnote"><b>Edit any time, at home or on the hill.</b> Overlays and stickers use where and when the photo was taken. No signal needed.</div>';
+  const body = box.querySelector('#edChBody');
+  if (t === 'phone'){
+    body.innerHTML = '<label class="ed-chphone"><span>' + cxI('photo') + '</span><b>Open your photos</b><small>Your phone shows its own photo picker</small><input type="file" accept="image/*" data-c="lib" class="filein"></label>';
+    return;
+  }
+  if (t === 'drafts'){
+    const l = edDraftList();
+    body.innerHTML = l.length ? '<div class="ed-chgrid">' + l.map(d => '<button data-c="edchone" data-v="d:' + esc(d.id) + '" aria-label="Draft' + (d.hill ? ' from ' + esc(d.hill) : '') + '"><img alt="" src="' + d.thumb + '"><b></b></button>').join('') + '</div>'
+      : '<p class="ed-note">No drafts. When you leave a photo, Save as draft keeps it here.</p>';
+    return;
+  }
+  const shots = [];
+  for (const e of (state.diary || []).filter(e => e && !e.deleted).sort((a, b) => String(b.date).localeCompare(String(a.date))))
+    for (const p of (e.photos || [])) if (p && p.id && shots.length < 60) shots.push({id: p.id, date: e.date, title: e.title || ''});
+  ED_CH.shots = shots;
+  body.innerHTML = shots.length ? '<div class="ed-chgrid">' + shots.map(s => '<button data-c="edchone" data-v="j:' + esc(s.id) + '" aria-label="Journal photo, ' + esc(prettyDate(s.date)) + '"><img alt=""><b></b></button>').join('') + '</div>'
+    : '<p class="ed-note">No photos in your journal yet.</p>';
+  const imgs = body.querySelectorAll('img');
+  for (let i = 0; i < shots.length; i++){
+    try{ const b = await getBlobStrict(shots[i].id); if (b && imgs[i]){ imgs[i].src = URL.createObjectURL(b); shots[i].blob = b; } else if (imgs[i]) imgs[i].closest('button').remove(); }catch(e){ if (imgs[i]) imgs[i].closest('button').remove(); }
+  }
+}
+const ED_CH = {};
+function edChooseClose(){ const b = document.getElementById('edChoose'); if (b){ b.hidden = true; b.innerHTML = ''; } const c = document.getElementById('camx'); if (c) c.classList.remove('edchoose'); }
+async function edChooseNext(){
+  const v = ED_CH.sel; if (!v) return;
+  if (v.startsWith('d:')){ edChooseClose(); await edDraftOpen(v.slice(2)); return; }
+  const s = (ED_CH.shots || []).find(x => 'j:' + x.id === v); if (!s || !s.blob) return;
+  edChooseClose();
+  const f = new File([s.blob], 'journal.jpg', {type: s.blob.type || 'image/jpeg', lastModified: Date.parse(s.date + 'T12:00:00') || Date.now()});
+  await camPick(f);
+  if (cam && cam.photoNoPlace && s.title){ const h = Object.values(BY_KEY).find(h => hillName(h) === s.title || h.n === s.title); if (h) edSetHill(h); }
+}
+function edSetHill(h){
+  const fx = {lat: h.a, lon: h.o, acc: 5, alt: null, chosen: true};
+  cam.photoFix = fx; cam.photoNoPlace = false; cam.fix = fx; camJudge();
+  ED.fcache = null; camLayers(true); camPaint(); camAfter();
+}
+function edHillSheet(){
+  const sh = document.getElementById('edSheet'), q = (ED.hq || '').trim().toLowerCase();
+  const fx = cam.photoFix || cam.liveFix;
+  let list = Object.values(BY_KEY);
+  if (q) list = list.filter(h => hillName(h).toLowerCase().includes(q)).sort((a, b) => hillName(a).length - hillName(b).length);
+  else if (fx) list = list.map(h => [h, Math.hypot(h.a - fx.lat, (h.o - fx.lon) * Math.cos(fx.lat * Math.PI / 180))]).sort((a, b) => a[1] - b[1]).map(x => x[0]);
+  else list = list.sort((a, b) => b.h - a.h);
+  sh.innerHTML = '<div class="cx-grab" aria-hidden="true"></div><h3 class="ed-h">Which hill?</h3>' +
+    '<label class="ed-search">' + edI('search', 18) + '<input type="search" id="edHQ" placeholder="Search hills" value="' + esc(ED.hq || '') + '"></label>' +
+    '<div class="ed-hlist">' + list.slice(0, 30).map(h => '<button data-c="edhill" data-v="' + esc(h.k) + '"><b>' + esc(hillName(h)) + '</b><small>' + Math.round(h.h).toLocaleString() + ' ft' + (h.r ? ' · ' + esc(h.r) : '') + '</small></button>').join('') + '</div>';
+  const i = sh.querySelector('#edHQ'); i.addEventListener('input', () => { ED.hq = i.value; const pos = i.selectionStart; edHillSheet(); const j = document.getElementById('edHQ'); j.focus(); try{ j.setSelectionRange(pos, pos); }catch(e){} });
+}
+function edFromChip(){
+  const chip = document.getElementById('edFrom'); if (!chip) return;
+  const show = !!cam && !!cam.still && !cam.clip && cam.live === false && !(ED && ED.page) && !cam.marked;
+  chip.hidden = !show; if (!show) return;
+  const w = cam.when || new Date(), h = cam.hill;
+  chip.innerHTML = '<b>From the photo: ' + esc(prettyDate(w.toISOString().slice(0, 10))) + '</b><span>' +
+    (h ? esc(hillName(h)) + (cam.mode === 'summit' ? ' summit' : '') : 'No place saved') + ' · <u>' + (h ? 'Change' : 'Choose the hill') + '</u></span>';
+}
+
+const ED_CUTS = 'waymark.cuts';
+function edCutList(){ try{ return JSON.parse(localStorage.getItem(ED_CUTS) || '[]'); }catch(e){ return []; } }
+function edCutOpen(img){
+  const ui = document.getElementById('edCutUI'); if (!ui) return;
+  edSheet(false);
+  const max = 720, s = Math.min(1, max / Math.max(img.width, img.height)), w = Math.round(img.width * s), h = Math.round(img.height * s);
+  const src = document.createElement('canvas'); src.width = w; src.height = h; src.getContext('2d').drawImage(img, 0, 0, w, h);
+  const mask = document.createElement('canvas'); mask.width = w; mask.height = h;
+  ED.cut = {src, mask, full: img, mode: 'loop', loop: [], brush: 'add', has: false};
+  const cv = document.getElementById('edCutCan'); cv.width = w; cv.height = h;
+  ui.hidden = false; document.getElementById('camx').classList.add('edcut'); edCutUI(); edCutRender();
+}
+function edCutUI(){
+  const c = ED.cut; if (!c) return;
+  const tip = document.getElementById('edCutTip');
+  tip.textContent = c.mode === 'touch' ? (c.brush === 'add' ? 'Paint over what should stay' : 'Rub out what should go') : c.has ? 'It found the edges for you' : c.mode === 'tap' ? 'Tap the thing you want to keep' : 'Draw roughly round what you want';
+  document.querySelectorAll('#edCutUI [data-c="edcutmode"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === c.mode)));
+  document.querySelectorAll('#edCutUI [data-c="edcutbrush"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === c.brush)));
+  const tb = document.getElementById('edCutBrush'); if (tb) tb.hidden = c.mode !== 'touch';
+  const go = document.querySelector('#edCutUI [data-c="edcutuse"]'); if (go) go.disabled = !c.has;
+  const tu = document.querySelector('#edCutUI [data-c="edcutmode"][data-v="touch"]'); if (tu) tu.disabled = !c.has;
+}
+function edCutRender(){
+  const c = ED.cut, cv = document.getElementById('edCutCan'); if (!c || !cv) return;
+  const x = cv.getContext('2d'), w = cv.width, h = cv.height;
+  x.clearRect(0, 0, w, h); x.drawImage(c.src, 0, 0);
+  if (c.has){
+    const o = document.createElement('canvas'); o.width = w; o.height = h; const ox = o.getContext('2d');
+    ox.fillStyle = 'rgba(11,21,18,.4)'; ox.fillRect(0, 0, w, h); ox.globalCompositeOperation = 'destination-out'; ox.drawImage(c.mask, 0, 0);
+    x.drawImage(o, 0, 0);
+    const e = edEdge(c.mask, 2); x.drawImage(e, 0, 0);
+  }
+  if (c.loop.length > 1){ x.save(); x.strokeStyle = '#E0784F'; x.lineWidth = 3; x.setLineDash([8, 6]); x.beginPath(); x.moveTo(c.loop[0][0], c.loop[0][1]); for (const p of c.loop) x.lineTo(p[0], p[1]); x.stroke(); x.restore(); }
+}
+function edEdge(mask, r){
+  const w = mask.width, h = mask.height, o = document.createElement('canvas'); o.width = w; o.height = h; const x = o.getContext('2d');
+  for (let a = 0; a < 16; a++) x.drawImage(mask, Math.cos(a / 16 * Math.PI * 2) * r, Math.sin(a / 16 * Math.PI * 2) * r);
+  x.globalCompositeOperation = 'source-in'; x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, w, h);
+  x.globalCompositeOperation = 'destination-out'; x.drawImage(mask, 0, 0); return o;
+}
+function edCutFromLoop(){
+  const c = ED.cut, w = c.mask.width, h = c.mask.height, L = c.loop; if (L.length < 8) return;
+  const poly = document.createElement('canvas'); poly.width = w; poly.height = h; const px = poly.getContext('2d');
+  px.fillStyle = '#000'; px.beginPath(); px.moveTo(L[0][0], L[0][1]); for (const p of L) px.lineTo(p[0], p[1]); px.closePath(); px.fill();
+  const band = document.createElement('canvas'); band.width = w; band.height = h; const bx = band.getContext('2d');
+  const bw = Math.max(14, Math.min(w, h) * 0.06);
+  bx.strokeStyle = '#000'; bx.lineWidth = bw * 2; bx.lineJoin = 'round'; bx.beginPath(); bx.moveTo(L[0][0], L[0][1]); for (const p of L) bx.lineTo(p[0], p[1]); bx.closePath(); bx.stroke();
+  const P = px.getImageData(0, 0, w, h).data, B = bx.getImageData(0, 0, w, h).data, S = c.src.getContext('2d').getImageData(0, 0, w, h).data;
+  const bin = i => ((S[i] >> 4) << 8) | ((S[i + 1] >> 4) << 4) | (S[i + 2] >> 4);
+  const hin = new Float32Array(4096), hout = new Float32Array(4096); let nin = 0, nout = 0;
+  for (let i = 0; i < P.length; i += 4){ if (B[i + 3]) continue; if (P[i + 3]){ hin[bin(i)]++; nin++; } else { hout[bin(i)]++; nout++; } }
+  const M = new Uint8ClampedArray(w * h);
+  for (let i = 0, j = 0; i < P.length; i += 4, j++){
+    if (!B[i + 3]){ M[j] = P[i + 3] ? 255 : 0; continue; }
+    const b = bin(i), pi = (hin[b] + 0.5) / (nin + 1), po = (hout[b] + 0.5) / (nout + 1);
+    M[j] = pi > po * 1.1 ? 255 : 0;
+  }
+  edMaskSet(M, w, h);
+}
+function edCutFromTap(tx, ty){
+  const c = ED.cut, w = c.mask.width, h = c.mask.height, S = c.src.getContext('2d').getImageData(0, 0, w, h).data;
+  const M = new Uint8ClampedArray(w * h), q = [ty * w + tx]; let sr = 0, sg = 0, sb = 0, n = 0;
+  const i0 = (ty * w + tx) * 4; sr = S[i0]; sg = S[i0 + 1]; sb = S[i0 + 2]; n = 1; M[ty * w + tx] = 255;
+  const tol = 46;
+  while (q.length){
+    const j = q.pop(), x = j % w, y = (j / w) | 0;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){
+      const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+      const k = ny * w + nx; if (M[k]) continue;
+      const i = k * 4, mr = sr / n, mg = sg / n, mb = sb / n;
+      if (Math.hypot(S[i] - mr, (S[i + 1] - mg) * 1.2, S[i + 2] - mb) < tol){ M[k] = 255; q.push(k); sr += S[i]; sg += S[i + 1]; sb += S[i + 2]; n++; }
+    }
+  }
+  if (n < 40){ toast('Nothing to lift there. Try Draw round it.'); return; }
+  edMaskSet(M, w, h);
+}
+function edMaskSet(M, w, h){
+  const c = ED.cut, t = document.createElement('canvas'); t.width = w; t.height = h; const x = t.getContext('2d');
+  const im = x.createImageData(w, h); for (let j = 0; j < M.length; j++){ im.data[j * 4 + 3] = M[j]; }
+  x.putImageData(im, 0, 0);
+  const s = document.createElement('canvas'); s.width = w; s.height = h; const sx = s.getContext('2d');
+  sx.filter = 'blur(2.5px)'; sx.drawImage(t, 0, 0); sx.filter = 'none';
+  const d = sx.getImageData(0, 0, w, h); for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] > 110 ? 255 : 0;
+  c.mask.getContext('2d').clearRect(0, 0, w, h); c.mask.getContext('2d').putImageData(d, 0, 0);
+  c.has = true; c.loop = []; edCutUI(); edCutRender();
+}
+function edCutPointer(cv){
+  if (!cv || cv._on) return; cv._on = true; let on = false;
+  const P = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * cv.width), Math.round((e.clientY - r.top) / r.height * cv.height)]; };
+  const paint = p => { const c = ED.cut, x = c.mask.getContext('2d'), r = Math.max(10, cv.width * 0.03);
+    x.globalCompositeOperation = c.brush === 'add' ? 'source-over' : 'destination-out'; x.fillStyle = '#000'; x.beginPath(); x.arc(p[0], p[1], r, 0, Math.PI * 2); x.fill(); x.globalCompositeOperation = 'source-over'; edCutRender(); };
+  cv.addEventListener('pointerdown', e => { const c = ED && ED.cut; if (!c) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+    const p = P(e); on = true;
+    if (c.mode === 'tap'){ on = false; edCutFromTap(Math.max(0, Math.min(cv.width - 1, p[0])), Math.max(0, Math.min(cv.height - 1, p[1]))); return; }
+    if (c.mode === 'touch'){ paint(p); return; }
+    c.loop = [p]; c.has = false; edCutRender(); });
+  cv.addEventListener('pointermove', e => { if (!on || !ED || !ED.cut) return; const c = ED.cut, p = P(e);
+    if (c.mode === 'touch'){ paint(p); return; }
+    const l = c.loop[c.loop.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) > 3){ c.loop.push(p); edCutRender(); } });
+  const up = () => { if (!on) return; on = false; const c = ED && ED.cut; if (!c) return; if (c.mode === 'loop'){ if (c.loop.length > 8) edCutFromLoop(); else { c.loop = []; edCutRender(); } } };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+}
+async function edCutUse(){
+  const c = ED.cut; if (!c || !c.has) return;
+  const w = c.mask.width, h = c.mask.height, full = c.full, k = full.width / w;
+  const big = document.createElement('canvas'); big.width = full.width; big.height = full.height; const bx = big.getContext('2d');
+  bx.imageSmoothingQuality = 'high'; bx.drawImage(c.mask, 0, 0, big.width, big.height);
+  const img = document.createElement('canvas'); img.width = big.width; img.height = big.height; const ix = img.getContext('2d');
+  ix.drawImage(full, 0, 0); ix.globalCompositeOperation = 'destination-in'; ix.drawImage(big, 0, 0); ix.globalCompositeOperation = 'source-over';
+  const edge = edEdge(big, Math.max(6, Math.round(big.width * 0.008)));
+  const out = document.createElement('canvas'); out.width = big.width; out.height = big.height; const ox = out.getContext('2d'); ox.drawImage(edge, 0, 0); ox.drawImage(img, 0, 0);
+  const d = c.mask.getContext('2d').getImageData(0, 0, w, h).data; let x0 = w, y0 = h, x1 = 0, y1 = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3]){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  const pad = 12, tx = Math.max(0, Math.floor((x0 - pad / k) * k)), ty = Math.max(0, Math.floor((y0 - pad / k) * k)), tw = Math.min(out.width - tx, Math.ceil((x1 - x0 + 2 * pad / k) * k)), th = Math.min(out.height - ty, Math.ceil((y1 - y0 + 2 * pad / k) * k));
+  const fin = document.createElement('canvas'); fin.width = Math.max(1, tw); fin.height = Math.max(1, th); fin.getContext('2d').drawImage(out, tx, ty, tw, th, 0, 0, tw, th);
+  const sc = Math.min(1, 900 / Math.max(fin.width, fin.height)), keep = document.createElement('canvas'); keep.width = Math.round(fin.width * sc); keep.height = Math.round(fin.height * sc);
+  keep.getContext('2d').drawImage(fin, 0, 0, keep.width, keep.height);
+  try{ const id = 'cut' + uid(); await putBlob(id, await edBlobOf(keep)); const l = edCutList(); l.unshift({id, t: Date.now()}); localStorage.setItem(ED_CUTS, JSON.stringify(l.slice(0, 40))); }catch(e){}
+  edCutClose(); edAdd(keep, {kind: 'photo', width: CAM_W * 0.5, meta: {pstyle: 'cut'}});
+  toast('Cut out. It is in Stickers to use again.');
+}
+function edCutClose(){ const ui = document.getElementById('edCutUI'); if (ui) ui.hidden = true; document.getElementById('camx').classList.remove('edcut'); if (ED) ED.cut = null; }
+async function edCutsRow(){
+  const l = edCutList(); if (!l.length) return '';
+  return '<h4>Your cut outs</h4><div class="ed-row" id="edCutsRow">' + l.slice(0, 20).map(c => '<button class="ed-stk" data-c="edcutadd" data-v="' + esc(c.id) + '" aria-label="Your cut out"><img alt=""></button>').join('') + '</div>';
+}
+async function edCutsFill(){
+  const row = document.getElementById('edCutsRow'); if (!row) return;
+  for (const b of row.querySelectorAll('[data-c="edcutadd"]')){ try{ const bl = await getBlobStrict(b.dataset.v); if (bl) b.querySelector('img').src = URL.createObjectURL(bl); else b.remove(); }catch(e){ b.remove(); } }
+}
+
+const ED_TOPO_COLS = ['#FFFFFF', '#14332D', '#E0784F', '#F3C64B'];
+let edTopoGrid = null;
+function edTopoLayer(c){
+  const x = c.getContext('2d'), W = c.width, H = c.height;
+  const fx = cam && (cam.photoFix || cam.fix), me = fx && osEN(fx.lat, fx.lon);
+  if (!me || !skyGround()){ if (!edTopoGrid) edTopoLoad(); return c; }
+  const span = 3200, cell = span / 140, cols = 141, rows = Math.round(140 * H / W) + 1, E0 = me.E - span / 2, N0 = me.N + span * H / W / 2;
+  const Z = new Float32Array(cols * rows);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) Z[j * cols + i] = skyAt(E0 + i * cell, N0 - j * cell);
+  const sx = W / (cols - 1), sy = H / (rows - 1), col = cam.prefs.topoCol || '#FFFFFF', a = cam.prefs.topoA == null ? 0.7 : cam.prefs.topoA;
+  let lo = Infinity, hi = -Infinity; for (const z of Z){ if (z < lo) lo = z; if (z > hi) hi = z; }
+  if (!(hi > lo)) return c;
+  x.strokeStyle = col; x.lineJoin = 'round';
+  for (let lv = Math.ceil(lo / 20) * 20; lv <= hi; lv += 20){
+    const major = lv % 100 === 0; x.globalAlpha = a * (major ? 1 : 0.6); x.lineWidth = major ? 3.2 : 1.4;
+    x.beginPath();
+    for (let j = 0; j < rows - 1; j++) for (let i = 0; i < cols - 1; i++){
+      const z0 = Z[j * cols + i], z1 = Z[j * cols + i + 1], z2 = Z[(j + 1) * cols + i + 1], z3 = Z[(j + 1) * cols + i];
+      const pts = [];
+      const e = (za, zb, xa, ya, xb, yb) => { if ((za < lv) !== (zb < lv)){ const t = (lv - za) / (zb - za); pts.push([(xa + (xb - xa) * t) * sx, (ya + (yb - ya) * t) * sy]); } };
+      e(z0, z1, i, j, i + 1, j); e(z1, z2, i + 1, j, i + 1, j + 1); e(z2, z3, i + 1, j + 1, i, j + 1); e(z3, z0, i, j + 1, i, j);
+      if (pts.length >= 2){ x.moveTo(pts[0][0], pts[0][1]); x.lineTo(pts[1][0], pts[1][1]); }
+      if (pts.length === 4){ x.moveTo(pts[2][0], pts[2][1]); x.lineTo(pts[3][0], pts[3][1]); }
+    }
+    x.stroke();
+  }
+  x.globalAlpha = 1; return c;
+}
+async function edTopoLoad(){
+  if (edTopoGrid === 'loading') return; edTopoGrid = 'loading';
+  try{
+    if (!skyHeld.base){ if (!(await skyHave('base'))) throw new Error('none'); const idx = await skyCatalogue(); skyHeld.base = await skyGetGrid(idx.base, () => {}); }
+    edTopoGrid = 'ready'; if (cam){ camLayers(true); if (camLooksOpen()){ camLayersFill(); camThumbs(); } edTopoNote(); }
+  }catch(e){ edTopoGrid = 'none'; edTopoNote(); }
+}
+function edTopoNote(){
+  const n = document.getElementById('cxTopo'); if (!n) return;
+  const on = cam && cam.prefs.style === 'topo'; n.hidden = !on; if (!on) return;
+  const ready = skyGround();
+  n.innerHTML = ready ? '<span>Lines</span>' + ED_TOPO_COLS.map(c => '<button data-c="topocol" data-v="' + c + '" style="background:' + c + '" aria-label="Line colour ' + c + '" aria-pressed="' + ((cam.prefs.topoCol || '#FFFFFF') === c) + '"></button>').join('') +
+      '<label><span>Strength</span><input type="range" id="cxTopoA" min="15" max="100" value="' + Math.round((cam.prefs.topoA == null ? 0.7 : cam.prefs.topoA) * 100) + '"></label>'
+    : '<p>' + (edTopoGrid === 'loading' ? 'Getting the heights…' : 'Topo uses the hills download from Skyline. Get it once in Skyline, then Topo works with no signal.') + '</p>';
+  const r = n.querySelector('#cxTopoA'); if (r) r.addEventListener('change', () => { cam.prefs.topoA = +r.value / 100; camKeep(); camLayers(true); });
+}
 
 function edClick(a, b){
   if (a !== 'ednames'){ const cx = document.getElementById('camx'); if (cx.classList.contains('ednames')){ cx.classList.remove('ednames'); const nb = document.querySelector('#edRail [data-c="ednames"]'); if (nb) nb.setAttribute('aria-expanded', 'false'); } }
@@ -48551,6 +49365,37 @@ function edClick(a, b){
     return true;
   }
   if (a === 'edfilters'){ edFiltOpen(); return true; }
+  if (a === 'edcropt'){ edCropOpen(); return true; }
+  if (a === 'edcropdone'){ edCropDone(); return true; }
+  if (a === 'edcropreset'){ ED.crop = {s: 1, x: 0, y: 0}; edCropUI(); return true; }
+  if (a === 'edgradient'){ edSheet('grad'); return true; }
+  if (a === 'edgrad'){ edGradSet(b.dataset.v); return true; }
+  if (a === 'edlayoutt'){ ED.ltab = ED.ltab || 'journal'; edSheet('layout'); return true; }
+  if (a === 'edltab'){ ED.ltab = b.dataset.v; edLayoutSheet(); return true; }
+  if (a === 'edlayout'){
+    const tab = ED.ltab || 'journal', tpl = b.dataset.v, n = +b.dataset.n || 1;
+    if (n > 1) edPickPhotos(n - 1, (n - 1 > 1 ? 'Choose ' + (n - 1) + ' more photos' : 'Choose one more photo'), imgs => edLayoutApply(tab, tpl, imgs));
+    else edLayoutApply(tab, tpl, []);
+    return true;
+  }
+  if (a === 'edpkone'){ const P = ED.pick, v = b.dataset.v; if (!P) return true;
+    if (P.n === 1){ P.sel = [v]; edPickChosen(); return true; }
+    const i = P.sel.indexOf(v); if (i >= 0) P.sel.splice(i, 1); else if (P.sel.length < P.n) P.sel.push(v); else toast('That is ' + P.n + ' already. Tap one to take it out.');
+    edPickMarks(); return true; }
+  if (a === 'edpkgo'){ edPickChosen(); return true; }
+  if (a === 'edlayerst'){ edSheet('layers'); return true; }
+  if (a === 'edlpick'){ ED.sel = b.dataset.v; ED.quiet = null; edSheet(false); edDraw(); return true; }
+  if (a === 'edleye'){ const it = edGet(b.dataset.v); if (it){ edSnap(); ED.items = ED.items.map(x => x === it ? Object.assign({}, x, {hidden: !x.hidden}) : x); edDraw(); edLayersSheet(); } return true; }
+  if (a === 'edfrom'){ ED.hq = ''; edSheet('hill'); return true; }
+  if (a === 'edhill'){ const h = BY_KEY[b.dataset.v]; edSheet(false); if (h) edSetHill(h); return true; }
+  if (a === 'edcutmode'){ if (!ED.cut) return true; ED.cut.mode = b.dataset.v; if (b.dataset.v !== 'touch'){ ED.cut.has = false; ED.cut.mask.getContext('2d').clearRect(0, 0, ED.cut.mask.width, ED.cut.mask.height); } edCutUI(); edCutRender(); return true; }
+  if (a === 'edcutbrush'){ if (ED.cut){ ED.cut.brush = b.dataset.v; edCutUI(); } return true; }
+  if (a === 'edcutuse'){ edCutUse(); return true; }
+  if (a === 'edcutx'){ edCutClose(); return true; }
+  if (a === 'edcutadd'){ (async () => { try{ const bl = await getBlobStrict(b.dataset.v); if (bl){ edAdd(await edBitmapCanvas(bl), {kind: 'photo', width: CAM_W * 0.5, meta: {pstyle: 'cut'}}); edSheet(false); } }catch(e){} })(); return true; }
+  if (a === 'edleavedraft'){ (async () => { const btn = document.querySelector('#edSheet [data-c="edleavedraft"]'); if (btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
+    try{ await edDraftSave(); }catch(e){ toast('Could not save the draft. Try again.'); if (btn){ btn.disabled = false; btn.textContent = 'Save as draft'; } return; }
+    edSheet(false); ED.items = []; edDraw(); camRetake(); toast('Saved as a draft. It is behind the photos button.'); })(); return true; }
   if (a === 'edfilt'){ edFiltSet(b.dataset.v); return true; }
   if (a === 'edfiltdone'){ edFiltDone(); return true; }
   if (a === 'edoverlay'){ edOverlayOpen(); return true; }
@@ -48618,6 +49463,7 @@ function edAfter(){
     if (on) pill.innerHTML = edI('check', 14) + esc(hillName(h)) + (cam.marked ? ' marked' : ' GPS verified');
     pill.classList.toggle('tap', !!cam.marked);
   }
+  edFromChip();
   s += '<div class="ed-bot"><button class="cx-btn ed-save" data-c="edsave">Save to journal</button>' +
        '<button class="cx-btn ed-share" data-c="share">Share</button></div>';
   box.innerHTML = s;
@@ -48690,7 +49536,7 @@ function camStillBlob(){
   const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH; const ctx = c.getContext('2d');
   ctx.drawImage(edBase() || cam.still, 0, 0);
   const lay = (cam.layers && cam.layers[cam.prefs.style]) || camLayer(cam.prefs.style, cam.skyF || camFacts());
-  ctx.drawImage(lay, 0, 0);
+  if (!edNoOverlay()) ctx.drawImage(lay, 0, 0);
   if (ED && !cam.clip) edPaint(ctx);
   return new Promise(res => c.toBlob(res, 'image/jpeg', 0.92));
 }
@@ -48747,8 +49593,8 @@ function camClose(fromHistory){
   if (cam.watch != null) navigator.geolocation.clearWatch(cam.watch);
   camTagFlush(cam);
   const pushed = cam.pushed; cam = null; ED = null; edDraw();
-  for (const id of ['edSheet', 'edText', 'edEarn', 'edBan', 'edBar', 'edDrawUI', 'edFiltUI', 'edDC', 'edMarked']){ const x = document.getElementById(id); if (x) x.hidden = true; }
-  document.getElementById('camx').classList.remove('eddraw', 'edfilt');
+  for (const id of ['edSheet', 'edText', 'edEarn', 'edBan', 'edBar', 'edDrawUI', 'edFiltUI', 'edDC', 'edMarked', 'edCropUI', 'edCutUI', 'edFrom']){ const x = document.getElementById(id); if (x) x.hidden = true; }
+  document.getElementById('camx').classList.remove('eddraw', 'edfilt', 'edcrop', 'edcut');
   const el = document.getElementById('camx'); if (el) el.classList.remove('open', 'edon', 'edtall', 'ednames');
   try{ applyTheme(); }catch(e){}
   document.documentElement.classList.remove('camlock');
