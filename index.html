@@ -5245,6 +5245,54 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .cx-rec i{width:9px; height:9px; border-radius:99px; background:#E0482F; animation:pulse 1s ease-in-out infinite}
 .cx-clip{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#0B1512}
 .cx-clip[hidden]{display:none}
+.camx .cx-top{position:absolute; left:0; right:0; top:0; z-index:5; justify-content:flex-start; pointer-events:none}
+.camx .cx-top > *{pointer-events:auto}
+.camx .cx-top .cx-ib{background:rgba(11,21,18,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px)}
+.camx .cx-pill{background:rgba(11,21,18,.62); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px)}
+.cx-view{width:min(100%, calc((100dvh - env(safe-area-inset-bottom) - 168px) * var(--cxar, .75))); margin:0 auto; border-radius:0 0 22px 22px}
+.camx[data-fmt="story"] .cx-view, .camx[data-fmt="video"] .cx-view, .camx[data-fmt="square"] .cx-view{border-radius:0 0 22px 22px}
+.camx[data-fmt="square"] .cx-view{margin-top:calc(env(safe-area-inset-top) + 64px); border-radius:18px}
+.camx.review .cx-view{width:min(100%, calc((100dvh - env(safe-area-inset-bottom) - 260px) * var(--cxar, .75)))}
+.cx-dock{flex:1; min-height:150px; justify-content:center; gap:14px; padding:10px 0 calc(env(safe-area-inset-bottom) + 10px)}
+.cx-rail{position:absolute; right:10px; top:calc(env(safe-area-inset-top) + 64px); z-index:5; display:flex; flex-direction:column; align-items:flex-end; gap:10px; transition:opacity .2s}
+.cx-rb{border:none; background:none; padding:0; min-height:44px; display:flex; align-items:center; gap:8px; color:#F6EFE4;
+  font:600 13px/1 var(--font-ui); text-shadow:0 1px 4px rgba(0,0,0,.65)}
+.cx-rb i{width:42px; height:42px; border-radius:50%; display:grid; place-items:center; font-style:normal;
+  background:rgba(11,21,18,.55); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); text-shadow:none}
+.cx-rb i svg{width:22px; height:22px}
+.cx-rb i.txt, .cx-rb i b{font:700 12px/1 var(--font-ui); letter-spacing:.02em}
+.cx-rb[aria-expanded="true"] i{background:#F6EFE4; color:#14332D}
+.camx.review .cx-rail, .camx.recording .cx-rail, .camx.clean .cx-rail, .camx.sky .cx-rail .cx-rb:not([data-c="opts"]){display:none}
+.camx.clean .cx-rail{display:flex; opacity:0; pointer-events:none}
+.cx-modes{display:flex; justify-content:center; gap:8px}
+.cx-modes button{border:none; background:rgba(246,239,228,.08); color:#C9D6CE; min-height:38px; padding:0 16px; border-radius:999px;
+  font:700 14px/1 var(--font-ui); display:inline-flex; align-items:center; gap:6px}
+.cx-modes button svg{width:16px; height:16px}
+.cx-modes button[aria-pressed="true"]{background:#F6EFE4; color:#14332D}
+.cx-beta{font:800 7px/1 var(--font-ui); letter-spacing:.06em; border:1px solid currentColor; border-radius:3px; padding:1px 2px 0; margin-left:-3px; position:relative; top:-7px; opacity:.9}
+.camx.recording .cx-modes{opacity:.25; pointer-events:none}
+.camx.sky .cx-modes{display:flex}
+.camx[data-skin="paper"] .cx-modes button{background:rgba(20,51,45,.08); color:#5E7367}
+.camx[data-skin="paper"] .cx-modes button[aria-pressed="true"]{background:#14332D; color:#F6EFE4}
+.cx-name{position:absolute; left:0; right:0; top:56%; text-align:center; pointer-events:none; opacity:0; transition:opacity .25s; z-index:3;
+  text-shadow:0 2px 14px rgba(0,0,0,.55)}
+.cx-name b{display:block; font:800 30px/1.1 var(--font-ui); letter-spacing:-.01em}
+.cx-name span{display:block; margin-top:4px; font:600 12px/1.2 var(--font-ui); opacity:.85}
+.cx-name.on{opacity:1}
+.camx .cx-hint{display:none}
+.cx-count{position:absolute; inset:0; display:grid; place-items:center; font:800 120px/1 var(--font-ui); color:#F6EFE4; text-shadow:0 4px 24px rgba(0,0,0,.6); pointer-events:none; z-index:4}
+.cx-count[hidden]{display:none}
+.cx-looks{max-height:72%}
+.cx-lh{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:10px}
+.cx-lh h4{margin:0; font-size:18px; letter-spacing:0; text-transform:none; color:#F6EFE4}
+.cx-lh span{font-size:13px; color:#A9BBAF}
+.cx-looks .cx-lenses{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; overflow:visible; padding:4px 2px 6px}
+.cx-looks .cx-lens{margin:0; gap:6px; font:600 13px/1.2 var(--font-ui); letter-spacing:0; text-transform:none; color:#E6ECEA}
+.cx-looks .cx-lens canvas{width:100%; height:auto; max-width:none; border-radius:12px; border:0; box-shadow:0 0 0 1px rgba(246,239,228,.15)}
+.cx-looks .cx-lens[aria-checked="true"]{color:#F2A27D}
+.cx-looks .cx-lens[aria-checked="true"] canvas{transform:none; box-shadow:0 0 0 3px #F2A27D}
+.camx.looks .cx-sky{display:none}
+@media (prefers-reduced-motion:reduce){ .cx-name{transition:none} }
 
 .nextpatch.np2, .nextpatch.big.np2{display:block; padding:14px 16px}
 .np2 .npbody{display:flex; align-items:center; gap:14px}
@@ -13683,7 +13731,7 @@ async function shareCard(p){
     title: String(p.label).replace(/&middot;/g, '\u00b7').replace(/&amp;/g, '&'),
     sub: patchDateLine(p),
     art: shPatchArt(p),
-    artPng: p.art ? 'patches/' + p.art + '.png' : 'patches/' + p.id + '.png',
+    artPng: p.art ? 'patches/' + p.art + '.png' + PATCH_Q : 'patches/' + p.id + '.png' + PATCH_Q,
     photo: photo
   });
 }
@@ -13898,6 +13946,7 @@ const THREE_PEAKS = [
   {k:'SH609543', slug:'snowdon',      country:'Wales'},
   {k:'NN166712', slug:'ben-nevis',    country:'Scotland'}
 ];
+const PATCH_Q = '?a=2611';
 const PEAK_ART = {'Yr Wyddfa (Snowdon)': 'peak-snowdon'};
 function peakArt(h){
   const n = hillName(h);
@@ -14365,7 +14414,7 @@ function patchDisc(p, cls){
   return '<span class="disc sh-' + (p.shape || 'circ') + (cls || '') +
       (ART_OK.has(art) ? ' hasimg' : '') + '">' +
     (noArtHas(art) ? '' :
-      '<img class="pimg" src="patches/' + esc(art) + '.png" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
+      '<img class="pimg" src="patches/' + esc(art) + '.png' + PATCH_Q + '" alt="' + esc(String(p.label).replace(/&middot;/g, '·')) + ' patch" decoding="sync" ' +
       'onload="artSeen(&quot;' + esc(art) + '&quot;); this.parentNode.classList.add(&quot;hasimg&quot;)" ' +
       'onerror="patchArtGone(this, &quot;' + esc(p.art || p.id) + '&quot;)">') +
     patchBadge(p) + '</span>';
@@ -22081,6 +22130,11 @@ function uspMostListed(){
   return n;
 }
 const USP_WORD = ['no','one','two','three','four','five','six','seven','eight','nine','ten'];
+function routeCount(){ return Object.keys(RL_ROUTES).length; }
+let listHillN = 0;
+function listHillCount(){
+  return listHillN || (listHillN = HILLS.filter(h => (h.l || []).some(id => id !== 'route-top' && id !== 'own')).length);
+}
 function wkeyRow(icon, head, note){
   return '<div class="wkrow"><span class="wksym">' + ti(icon) + '</span>' +
     '<div><b>' + head + '</b>' + (note ? '<span>' + note + '</span>' : '') + '</div></div>';
@@ -22113,11 +22167,15 @@ function renderWelcome(){
   s += wkeyRow('photo', 'Fill your log from your photos');
   s += wkeyRow('patch', 'Patches to earn',
     (pg.summit || 0) + ' summits, ' + (pg.milestone || 0) + ' milestones, one per list');
+  s += wkeyRow('route', routeCount().toLocaleString('en-GB') + ' free routes to follow',
+    'with maps, height profiles and GPX files');
   s += '</div>';
 
   s += '<div class="wscale"><span>' + pub.length + ' lists</span>' +
-       '<span class="wbar"><i></i><i></i><i></i><i></i><i></i><i></i></span>' +
-       '<span>' + HILLS.length.toLocaleString('en-GB') + ' hills</span></div>';
+       '<span class="wbar"><i></i><i></i><i></i></span>' +
+       '<span>' + listHillCount().toLocaleString('en-GB') + ' hills</span>' +
+       '<span class="wbar"><i></i><i></i><i></i></span>' +
+       '<span>' + routeCount().toLocaleString('en-GB') + ' routes</span></div>';
 
   s += '<div class="btnrow wgo">' +
     '<button class="btn lg" data-act="wstart">Start your log</button>' +
@@ -22185,7 +22243,7 @@ function welcomeHills(){
       '<li><a href="/hills/' + PAGE_SLUG[l.id] + '/">' + esc(l.name) + '</a></li>'
     ).join('') + '</ul>' +
     '<p class="hillfootall"><a href="/hills/">All ' +
-      HILLS.length.toLocaleString('en-GB') + ' hills, by area' +
+      listHillCount().toLocaleString('en-GB') + ' hills, by area' +
       ti('chevron-right') + '</a></p></nav>';
 }
 
@@ -37829,7 +37887,9 @@ function pubDrop(key){
 let pubLoading = false;
 async function pubLoad(force){
   let j = null; try{ j = JSON.parse(localStorage.getItem(PUB_KEY) || 'null'); }catch(e){}
+  const had = routeCount();
   if (j && Array.isArray(j.list)) for (const x of j.list) if (x && x.id && x.st === 'live') pubPut(x.id, x);
+  if (routeCount() !== had && ui.onboard === 'welcome'){ try{ render(); }catch(e){} }
   if (!FB || !fbDb || pubLoading || navigator.onLine === false) return;
   if (!force && j && Date.now() - j.t < PUB_TTL) return;
   pubLoading = true;
@@ -37837,9 +37897,11 @@ async function pubLoad(force){
     const q = await FB.getDocs(FB.query(FB.collection(fbDb, PUB_COL), FB.where('st', '==', 'live'), FB.limit(800)));
     const list = []; q.forEach(d => list.push({id:d.id, ...(d.data() || {})}));
     for (const id of [...pubDocs.keys()]) if (!list.some(x => x.id === id) && (pubDocs.get(id) || {}).st === 'live') pubDrop('w-' + id);
+    const before = routeCount();
     for (const x of list) pubPut(x.id, x);
     try{ localStorage.setItem(PUB_KEY, JSON.stringify({t:Date.now(), list:list.slice(0, 800)})); }catch(e){}
     if (dcOnSafe()){ dcRepaint(); }
+    if (routeCount() !== before && ui.onboard === 'welcome'){ try{ render(); }catch(e){} }
   }catch(e){}
   pubLoading = false;
 }
@@ -38365,7 +38427,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v444';
+const APP_VERSION = 'v446';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -46296,7 +46358,12 @@ function camLayers(force){
     for (const [k] of CAM_CAPS()) if (!cam.layers[k]) cam.layers[k] = camLayer(k, F);
     camThumbs();
   };
-  cam.lazyT = setTimeout(fill, 120);
+  if (camLooksOpen()) cam.lazyT = setTimeout(fill, 120);
+}
+function camLayersFill(){
+  if (!cam || !cam.layers || cam.prefs.style === 'skyline') return;
+  const F = cam.skyF || camFacts();
+  for (const [k] of CAM_CAPS()) if (!cam.layers[k]) cam.layers[k] = camLayer(k, F);
 }
 function camSource(){
   if (cam.still) return cam.still;
@@ -46341,7 +46408,6 @@ function camLoop(){
   camPaint();
   const now = Date.now();
   if (cam.prefs.style !== 'skyline'){
-    if (now - (cam.thumbT || 0) > 1500){ cam.thumbT = now; camThumbs(); }
     if (now - (cam.tickT || 0) > 20000){ cam.tickT = now; camLayers(); }
   }
   cam.raf = requestAnimationFrame(camLoop);
@@ -46483,14 +46549,18 @@ function camStop(){
 }
 
 const CX_I = {
-  x: '<path d="M18 6L6 18M6 6l12 12"/>',
-  opts: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
-  flip: '<path d="M20 11a8 8 0 0 0-14.9-3M4 5v3h3M4 13a8 8 0 0 0 14.9 3M20 19v-3h-3"/>',
+  x: '<path d="M18 6l-12 12"/><path d="M6 6l12 12"/>',
+  opts: '<path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/>',
+  flip: '<path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M11.245 15.904a3 3 0 0 0 3.755 -2.904m-2.25 -2.905a3 3 0 0 0 -3.75 2.905"/><path d="M14 13h2v2"/><path d="M10 13h-2v-2"/>',
+  overlay: '<path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M4 15l16 0"/>',
+  size: '<path d="M3 5m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M7 12v-3h3"/><path d="M17 12v3h-3"/>',
+  timer: '<path d="M5 13a7 7 0 1 0 14 0a7 7 0 0 0 -14 0z"/><path d="M14.5 10.5l-2.5 2.5"/><path d="M17 8l1 -1"/><path d="M14 3h-4"/>',
+  mountain: '<path d="M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612z"/><path d="M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2"/>',
   save: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14"/>',
   share: '<path d="M12 3v12M8 7l4-4l4 4M6 11H5v9h14v-9h-1"/>',
-  photo: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5c1-1 2-1 3 0l5 5M14 14l1-1c1-1 2-1 3 0l3 3"/><circle cx="15.5" cy="8.5" r="1.2"/>'
+  photo: '<path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/>'
 };
-const cxI = k => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + CX_I[k] + '</svg>';
+const cxI = k => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + CX_I[k] + '</svg>';
 function camBuild(){
   let el = document.getElementById('camx');
   if (el) return el;
@@ -46498,15 +46568,18 @@ function camBuild(){
   el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Camera');
   el.innerHTML =
     '<div class="cx-top"><button class="cx-ib" data-c="close" aria-label="Close camera">' + cxI('x') + '</button>' +
-      '<div class="cx-pill" id="cxPill" aria-live="polite"></div>' +
-      '<button class="cx-ib" data-c="opts" aria-label="Caption settings" aria-expanded="false">' + cxI('opts') + '</button></div>' +
+      '<div class="cx-pill" id="cxPill" aria-live="polite"></div></div>' +
+    '<div class="cx-rail" id="cxRail">' +
+      '<button class="cx-rb" data-c="looks" aria-expanded="false"><span>Overlay</span><i>' + cxI('overlay') + '</i></button>' +
+      '<button class="cx-rb" data-c="size"><span>Size</span><i class="txt" id="cxSizeT">3:4</i></button>' +
+      '<button class="cx-rb" data-c="timer"><span>Timer</span><i id="cxTimerT">' + cxI('timer') + '</i></button>' +
+      '<button class="cx-rb" data-c="opts" aria-label="Settings" aria-expanded="false"><span>Settings</span><i>' + cxI('opts') + '</i></button></div>' +
     '<div class="cx-view" id="cxView"><video id="cxVid" playsinline muted autoplay></video>' +
       '<canvas id="cxCan" width="' + CAM_W + '" height="' + CAM_H + '" role="img" aria-label="Camera view with your caption"></canvas>' +
       '<video id="cxClip" class="cx-clip" playsinline loop muted hidden></video><div class="cx-rec" id="cxRec" hidden><i></i><span>0:00</span></div>' +
-      '<div class="cx-mode" role="group" aria-label="What the camera is doing">' +
-        '<button data-c="mode" data-v="photo">Camera</button>' +
-        '<button data-c="mode" data-v="skyline">Skyline</button></div>' +
-      '<div class="cx-hint" id="cxHint">Swipe to change the look</div><div class="cx-msg" id="cxMsg" hidden></div>' +
+      '<div class="cx-name" id="cxName" aria-hidden="true"><b></b><span>Swipe for more overlays</span></div>' +
+      '<div class="cx-count" id="cxCount" hidden></div>' +
+      '<div class="cx-hint" id="cxHint">Swipe to change the overlay</div><div class="cx-msg" id="cxMsg" hidden></div>' +
       '<div class="cx-sky" id="cxSky">' +
         '<div class="nb" id="cxNudge" role="slider" aria-label="Turn the names" aria-valuemin="-25" aria-valuemax="25" aria-valuenow="0">' +
           '<b>TURN</b><i><s></s></i><u>0\u00B0</u></div>' +
@@ -46517,15 +46590,20 @@ function camBuild(){
       '<div class="cx-skylooks" role="radiogroup" aria-label="How Skyline is drawn">' +
         SKY_LOOKS.map(([k, t]) => '<button role="radio" data-c="skylook" data-v="' + k + '">' + t + '</button>').join('') +
       '</div>' +
-      '<div class="cx-fmts" role="radiogroup" aria-label="Format">' + Object.entries(CAM_FORMATS).map(([k, f]) =>
-        '<button role="radio" data-c="fmt" data-v="' + k + '">' + f.label + '</button>').join('') + '</div>' +
-      '<div class="cx-lenses" role="radiogroup" aria-label="Caption look">' + CAM_CAPS().map(([k, t]) =>
-        '<button class="cx-lens" role="radio" data-c="look" data-v="' + k + '"><canvas width="90" height="120"></canvas><span>' + t + '</span></button>').join('') + '</div>' +
       '<div class="cx-shoot"><label class="cx-lib" aria-label="Use a photo you have already taken">' + cxI('photo') +
         '<input type="file" accept="image/*" data-c="lib" class="filein"></label>' +
         '<button class="cx-shutter" data-c="shoot" aria-label="Take photo"><i></i></button>' +
-        '<button class="cx-ib cx-big" data-c="flip" aria-label="Switch camera">' + cxI('flip') + '</button></div></div>' +
+        '<button class="cx-ib cx-big" data-c="flip" aria-label="Switch camera">' + cxI('flip') + '</button></div>' +
+      '<div class="cx-modes" role="group" aria-label="What the camera is doing">' +
+        '<button data-c="mode" data-v="photo">Photo</button>' +
+        '<button data-c="mode" data-v="video">Video</button>' +
+        '<button data-c="mode" data-v="skyline">' + cxI('mountain') + 'Skyline<span class="cx-beta">BETA</span></button></div></div>' +
     '<div class="cx-after" id="cxAfter" hidden></div>' +
+    '<div class="cx-panel cx-looks" id="cxLooks" hidden><div class="cx-grab" aria-hidden="true"></div>' +
+      '<div class="cx-lh"><h4>Overlay</h4><span>Tap one, then take the photo</span></div>' +
+      '<div class="cx-lenses" role="radiogroup" aria-label="Overlay">' + CAM_CAPS().map(([k, t]) =>
+        '<button class="cx-lens" role="radio" data-c="look" data-v="' + k + '"><canvas width="216" height="288"></canvas><span>' + t + '</span></button>').join('') + '</div>' +
+      '<button class="cx-btn ghost" data-c="looks">Done</button></div>' +
     '<div class="cx-panel" id="cxPanel" hidden></div>';
   el.addEventListener('click', camClick);
   const panel = el.querySelector('#cxPanel'); let py = null, pdy = 0, pgrab = false;
@@ -46555,9 +46633,11 @@ function camBuild(){
   const view = el.querySelector('#cxView'); let sx = 0, sy = 0, st = 0;
   view.addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); }, {passive: true});
   view.addEventListener('touchend', e => {
+    if (e.target.closest && e.target.closest('button,[data-c],.cx-sky,label')) return;
     const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){ camStep(dx < 0 ? 1 : -1); e.preventDefault(); }
     else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && Date.now() - st < 300 && !cam.still){
+      if (camLooksOpen()){ camLooksShow(false); e.preventDefault(); return; }
       if (skyTap(t)) { e.preventDefault(); return; }
       if (cam.prefs.style !== 'skyline') el.classList.toggle('clean');
       e.preventDefault();
@@ -46594,8 +46674,9 @@ function skyBar(){
   el.dataset.skin = sky ? P.look : '';
   el.classList.toggle('sky-ready', skyState === 'ready');
   el.classList.toggle('nocompass', sky && headDeg == null);
+  const vid = !!cam && cam.prefs.format === 'video';
   document.querySelectorAll('#camx [data-c="mode"]').forEach(x =>
-    x.setAttribute('aria-pressed', String((x.dataset.v === 'skyline') === sky)));
+    x.setAttribute('aria-pressed', String(sky ? x.dataset.v === 'skyline' : x.dataset.v === (vid ? 'video' : 'photo'))));
   const nb = document.getElementById('cxNudge'); if (!nb) return;
   const s2 = nb.querySelector('s'), u = nb.querySelector('u');
   if (s2) s2.style.left = ((P.turn + 25) / 50 * 100) + '%';
@@ -46617,8 +46698,9 @@ function camSizeView(){
     document.getElementById('cxCan').width = CAM_W;
     document.getElementById('cxCan').height = CAM_FH;
   }
-  document.querySelectorAll('#camx .cx-lens canvas').forEach(c => { c.width = 90; c.height = Math.round(90 * CAM_FH / CAM_W); });
-  document.querySelectorAll('#camx [data-c="fmt"]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === cam.prefs.format)));
+  document.querySelectorAll('#camx .cx-lens canvas').forEach(c => { c.width = 216; c.height = Math.round(216 * CAM_FH / CAM_W); });
+  const st = document.getElementById('cxSizeT'); if (st) st.textContent = CAM_SIZE_T[camSizeOf()] || '3:4';
+  skyBar();
   const sh = document.querySelector('#camx .cx-shutter');
   sh.classList.toggle('vid', cam.prefs.format === 'video');
   sh.setAttribute('aria-label', cam.prefs.format === 'video' ? (cam.rec ? 'Stop recording' : 'Start recording') : 'Take photo');
@@ -46670,12 +46752,64 @@ function camStep(d){
   camLook(L[(i + d + L.length) % L.length][0]);
 }
 function camMode(m){
-  if (!cam) return;
+  if (!cam || cam.rec) return;
   if (m === 'skyline'){
     if (cam.prefs.style !== 'skyline') cam.prefs.last = cam.prefs.style;
+    camLooksShow(false);
     camLook('skyline');
-  } else {
-    camLook(cam.prefs.last && cam.prefs.last !== 'skyline' ? cam.prefs.last : 'stamp');
+    return;
+  }
+  const want = m === 'video' ? 'video' : camSizeOf();
+  if (cam.prefs.style === 'skyline'){
+    cam.prefs.format = want; camKeep(); camSetFormat(want);
+    camLook(cam.prefs.last && cam.prefs.last !== 'skyline' ? cam.prefs.last : 'strip');
+  } else if (cam.prefs.format !== want) camFormat(want);
+  skyBar();
+}
+const CAM_SIZES = ['photo', 'square', 'story'];
+const CAM_SIZE_T = {photo: '3:4', square: '1:1', story: '9:16'};
+function camSizeOf(){
+  const s = cam && cam.prefs.size;
+  if (CAM_SIZES.includes(s)) return s;
+  return cam && CAM_SIZES.includes(cam.prefs.format) ? cam.prefs.format : 'photo';
+}
+function camSizeNext(){
+  const i = CAM_SIZES.indexOf(camSizeOf()), k = CAM_SIZES[(i + 1) % CAM_SIZES.length];
+  cam.prefs.size = k; camKeep();
+  if (cam.prefs.format !== 'video') camFormat(k);
+  else { const st = document.getElementById('cxSizeT'); if (st) st.textContent = CAM_SIZE_T[k]; }
+}
+function camTimerNext(){
+  const o = [0, 3, 10], t = o[(o.indexOf(+cam.prefs.timer || 0) + 1) % o.length];
+  cam.prefs.timer = t; camKeep(); camTimerShow();
+}
+function camTimerShow(){
+  const el = document.getElementById('cxTimerT'); if (!el || !cam) return;
+  const t = +cam.prefs.timer || 0;
+  el.innerHTML = t ? '<b>' + t + 's</b>' : cxI('timer');
+  el.parentNode.setAttribute('aria-label', t ? 'Timer, ' + t + ' seconds' : 'Timer, off');
+}
+function camCountdown(){
+  if (cam.countT) return;
+  const box = document.getElementById('cxCount');
+  let n = +cam.prefs.timer || 0;
+  const step = () => {
+    if (!cam || !cam.countT) return;
+    if (n <= 0){ box.hidden = true; cam.countT = 0; camShoot(); return; }
+    box.textContent = String(n); box.hidden = false; n--;
+    cam.countT = setTimeout(step, 1000);
+  };
+  cam.countT = 1; step();
+}
+function camLooksOpen(){ const b = document.getElementById('cxLooks'); return !!b && !b.hidden; }
+function camLooksShow(on){
+  const b = document.getElementById('cxLooks'), el = document.getElementById('camx'); if (!b || !el) return;
+  if (on && cam.prefs.style === 'skyline') on = false;
+  b.hidden = !on; el.classList.toggle('looks', !!on);
+  const r = document.querySelector('#camx .cx-rail [data-c="looks"]'); if (r) r.setAttribute('aria-expanded', String(!!on));
+  if (on){
+    if (!document.getElementById('cxPanel').hidden) camPanelClose();
+    camLayersFill(); camThumbs(); camChrome();
   }
 }
 function camLook(k){
@@ -46683,12 +46817,20 @@ function camLook(k){
   if (k !== 'skyline') cam.prefs.last = k;
   camKeep();
   if (k === 'skyline') document.getElementById('camx').classList.remove('clean');
-  if (k === 'skyline') skyEnter();
+  if (k === 'skyline') requestAnimationFrame(() => setTimeout(() => { if (cam && cam.prefs.style === 'skyline') skyEnter(); }, 30));
   skyBar();
   if (k !== 'skyline') camSizeView();
   if (k === 'skyline'){ camPaint(); camChrome(); } else camLayers();
   const h = document.getElementById('cxHint'); if (h) h.classList.add('gone');
+  if (k !== 'skyline') camNameFlash(k);
+  if (camLooksOpen()) camThumbs();
   if (navigator.vibrate) navigator.vibrate(8);
+}
+function camNameFlash(k, ms){
+  const n = document.getElementById('cxName'), L = CAM_LOOKS.find(l => l[0] === k);
+  if (!n || !L || camLooksOpen()) return;
+  n.querySelector('b').textContent = L[1];
+  n.classList.add('on'); clearTimeout(n._t); n._t = setTimeout(() => n.classList.remove('on'), ms || 1100);
 }
 function camChrome(){
   if (!cam) return;
@@ -46701,7 +46843,7 @@ function camChrome(){
   else p = '<b class="tri dim">△</b> ' + gDist(cam.dist) + ' to ' + esc(hillName(h));
   pill.innerHTML = p;
   document.querySelectorAll('#camx .cx-lens').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === cam.prefs.style)));
-  const lens = document.querySelector('#camx .cx-lens[aria-checked="true"]');
+  const lens = camLooksOpen() && document.querySelector('#camx .cx-lens[aria-checked="true"]');
   if (lens && lens.scrollIntoView) try{ lens.scrollIntoView({block: 'nearest', inline: 'center', behavior: 'smooth'}); }catch(e){ lens.scrollIntoView(false); }
   if (!document.getElementById('cxPanel').hidden) camPanel();
 }
@@ -46774,7 +46916,10 @@ function camClick(e){
     camClose();
     setTimeout(() => { const i = document.querySelector('#pn-photos [data-act="impfiles"]'); if (i) i.click(); }, 60);
   }
-  else if (a === 'opts'){ panel.hidden = !panel.hidden; if (!panel.hidden) camPanel(); document.querySelector('#camx [data-c="opts"]').setAttribute('aria-expanded', String(!panel.hidden)); camSheet(); }
+  else if (a === 'looks') camLooksShow(!camLooksOpen());
+  else if (a === 'size'){ if (!cam.rec) camSizeNext(); }
+  else if (a === 'timer') camTimerNext();
+  else if (a === 'opts'){ if (camLooksOpen()) camLooksShow(false); panel.hidden = !panel.hidden; if (!panel.hidden) camPanel(); document.querySelector('#camx [data-c="opts"]').setAttribute('aria-expanded', String(!panel.hidden)); camSheet(); }
   else if (a === 'moment'){ cam.prefs.moment = b.dataset.v; camKeep(); camJudge();
     if (cam.prefs.style !== 'skyline') camLayers(); camPanel(); }
   else if (a === 'skyfov'){
@@ -46804,7 +46949,10 @@ function camClick(e){
     if (cam.prefs.style !== 'skyline') camLayers(); camPanel(); }
   else if (a === 'look') camLook(b.dataset.v);
   else if (a === 'fmt') camFormat(b.dataset.v);
-  else if (a === 'shoot'){ if (cam.prefs.format === 'video') (cam.rec ? camRecStop() : camRecStart()); else camShoot(); }
+  else if (a === 'shoot'){ camLooksShow(false);
+    if (cam.prefs.format === 'video') (cam.rec ? camRecStop() : camRecStart());
+    else if (+cam.prefs.timer > 0 && cam.live !== false && !cam.still) camCountdown();
+    else camShoot(); }
   else if (a === 'flip'){ cam.facing = cam.facing === 'environment' ? 'user' : 'environment'; camStart(); }
   else if (a === 'retake') camRetake();
   else if (a === 'mark') camMark();
@@ -47038,7 +47186,7 @@ function camOpen(){
   const P = camPrefs(); if (!P.moment) P.moment = 'auto';
   cam = {prefs: P, fix: null, hill: null, dist: null, mode: 'walk', auto: 'walk', when: new Date(), wx: null,
          facing: 'environment', still: null, layers: null};
-  const el = camBuild(); el.classList.remove('review', 'clean', 'panel');
+  const el = camBuild(); el.classList.remove('review', 'clean', 'panel', 'looks');
   document.getElementById('cxAfter').hidden = true; document.getElementById('cxPanel').hidden = true;
   document.getElementById('cxHint').classList.remove('gone');
   cam.video = document.getElementById('cxVid');
@@ -47047,7 +47195,10 @@ function camOpen(){
   el.classList.add('open'); document.documentElement.classList.add('camlock');
   try{ history.pushState({waymarkCam: 1}, ''); cam.pushed = true; }catch(e){}
   camLayers(); camChrome(); skyBar(); skyRefreshKept();
-  if (cam.prefs.style === 'skyline') skyEnter();
+  if (cam.prefs.style === 'skyline'){ cam.prefs.style = cam.prefs.last && cam.prefs.last !== 'skyline' ? cam.prefs.last : 'strip'; camKeep(); camSizeView(); camLayers(); }
+  skyBar();
+  camLooksShow(false); camTimerShow();
+  setTimeout(() => { if (cam && cam.prefs.style !== 'skyline') camNameFlash(cam.prefs.style, 2200); }, 400);
   if (document.fonts && document.fonts.load)
     Promise.all([document.fonts.load('40px Wildkins'), document.fonts.load('600 20px "Source Code Pro"'), document.fonts.load('400 20px "Source Code Pro"')])
       .catch(() => {}).then(() => cam && camLayers());
@@ -47058,6 +47209,7 @@ function camClose(fromHistory){
   if (cam.rec) camRecStop();
   if (cam.clip){ URL.revokeObjectURL(cam.clip.url); cam.clip = null; }
   const cv = document.getElementById('cxClip'); if (cv){ cv.pause(); cv.removeAttribute('src'); cv.hidden = true; }
+  if (cam.countT){ clearTimeout(cam.countT); cam.countT = 0; const cc = document.getElementById('cxCount'); if (cc) cc.hidden = true; }
   camStop();
   if (cam.watch != null) navigator.geolocation.clearWatch(cam.watch);
   camTagFlush(cam);
