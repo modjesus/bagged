@@ -5594,6 +5594,8 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-pwalk button[aria-pressed="true"]{box-shadow:0 0 0 3px #E0784F}
 .ed-pwalk b{position:absolute; right:5px; top:5px; min-width:22px; height:22px; border-radius:11px; background:#E0784F; color:#fff; font:700 12px/22px var(--font-ui); text-align:center}
 .ed-pwalk b:empty{display:none}
+.ed-pwalk button.gone, .ed-chgrid button.gone{display:none}
+.ed-chcount{margin:0 0 8px; font:600 13px/1.3 var(--font-ui); color:#A9BBAF}
 .camx:not(.sky):not(.review) .cx-view{width:100%}
 .camx.cxtall:not(.sky):not(.review) .cx-dock{position:absolute; left:0; right:0; bottom:0; z-index:4; min-height:0; flex:none;
   background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.6) 35%); padding-top:28px}
@@ -38872,7 +38874,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v453';
+const APP_VERSION = 'v454';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -48807,6 +48809,28 @@ function edFrame(kind, imgs, scale){
   }
   return c;
 }
+function edJournalShots(){
+  const out = [], seen = new Set(), add = (p, date, title, k) => { if (!p || !p.id || p.friend || seen.has(p.id)) return; seen.add(p.id); out.push({id: p.id, p, date: date || '', title: title || '', k: k || null}); };
+  for (const [k, r] of Object.entries(state.bagged || {})){ if (!BY_KEY[k] || !r) continue; for (const p of (r.photos || [])) add(p, r.date, hillName(BY_KEY[k]), k); }
+  for (const e of liveDiary()) for (const p of (e.photos || [])) add(p, e.date, e.title || '', null);
+  out.sort((a, b) => b.date.localeCompare(a.date)); return out;
+}
+async function edPhotoBlob(p){
+  let b = null; try{ b = await getBlob(p.id); }catch(e){}
+  if (!(b instanceof Blob) && fbUser){ try{ b = await fbGetPhoto(p.id); if (b instanceof Blob) putBlob(p.id, b).catch(() => {}); }catch(e){} }
+  return b instanceof Blob ? b : null;
+}
+function edLazyShots(root, list){
+  const by = new Map(list.map(x => [x.id, x]));
+  const go = async img => { const x = by.get(img.dataset.pid); img.removeAttribute('data-pid'); if (!x) return;
+    let u = ''; try{ u = await photoSrc(x.p); }catch(e){}
+    if (u) img.src = u; else { const b = img.closest('button'); if (b) b.classList.add('gone'); } };
+  const imgs = root.querySelectorAll('img[data-pid]'); if (!imgs.length) return;
+  if (!('IntersectionObserver' in window)){ imgs.forEach(go); return; }
+  const sc = root.closest('.ed-sheet, .ed-choose, #edChBody') || null;
+  const ob = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ ob.unobserve(e.target); go(e.target); } }), {root: sc && sc.scrollHeight > sc.clientHeight ? sc : null, rootMargin: '500px 0px'});
+  imgs.forEach(i => ob.observe(i));
+}
 async function edWalkPhotos(){
   const ids = [], seen = new Set(), add = (id, from) => { if (id && !seen.has(id)){ seen.add(id); ids.push({id, from}); } };
   const day = edDay();
@@ -49098,6 +49122,7 @@ async function edPickPhotos(n, title, cb){
     '<p class="ed-note">' + (n > 1 ? 'Choose ' + (n - 1 > 1 ? 'up to ' + n + ' photos' : n + ' photos') + '. They go in the order you tap them.' : 'Choose a photo.') + '</p>' +
     '<label class="cx-btn ghost ed-phone">' + ti('download') + ' From your phone<input type="file" id="edPkFile" accept="image/*"' + (n > 1 ? ' multiple' : '') + ' hidden></label>' +
     '<h4>From this walk</h4><div class="ed-pwalk" id="edPkWalk"><p class="ed-note">Looking…</p></div>' +
+    '<h4 id="edPkAllH" hidden>Your journal</h4><div class="ed-pwalk" id="edPkAll"></div>' +
     (n > 1 ? '<button class="cx-btn big" data-c="edpkgo" id="edPkGo" disabled>Use these</button>' : '');
   sh.querySelector('#edPkFile').addEventListener('change', async e => {
     const fs = [...(e.target.files || [])].filter(looksLikeImage).slice(0, n); if (!fs.length) return;
@@ -49113,17 +49138,25 @@ async function edPickPhotos(n, title, cb){
   const imgs = box.querySelectorAll('img');
   imgs[0].src = cam.still.toDataURL('image/jpeg', 0.6); imgs[0].alt = 'This photo';
   list.forEach((o, i) => { o.url = o.url || URL.createObjectURL(o.blob); imgs[i + 1].src = o.url; imgs[i + 1].alt = 'Photo from ' + (o.from === 'hill' ? 'this hill' : 'today’s journal'); });
+  const near = new Set(list.map(o => o.id)), all = edJournalShots().filter(x => !near.has(x.id));
+  ED.pall = all;
+  const ab = document.getElementById('edPkAll'), ah = document.getElementById('edPkAllH');
+  if (ab && all.length){ ah.hidden = false; ah.textContent = 'Your journal · ' + all.length;
+    ab.innerHTML = all.map(x => '<button data-c="edpkone" data-v="' + esc(x.id) + '" aria-pressed="false" aria-label="' + esc((x.title || 'Journal photo') + (x.date ? ', ' + prettyDate(x.date) : '')) + '"><img alt="" data-pid="' + esc(x.id) + '"><b></b></button>').join('');
+    edLazyShots(ab, all); edPickMarks(); }
 }
 function edPickMarks(){
   const P = ED.pick; if (!P) return;
-  document.querySelectorAll('#edPkWalk [data-c="edpkone"]').forEach(b => { const i = P.sel.indexOf(b.dataset.v); b.setAttribute('aria-pressed', String(i >= 0)); b.querySelector('b').textContent = i >= 0 ? String(i + 1) : ''; });
+  document.querySelectorAll('#edPkWalk [data-c="edpkone"], #edPkAll [data-c="edpkone"]').forEach(b => { const i = P.sel.indexOf(b.dataset.v); b.setAttribute('aria-pressed', String(i >= 0)); b.querySelector('b').textContent = i >= 0 ? String(i + 1) : ''; });
   const g = document.getElementById('edPkGo'); if (g){ g.disabled = !P.sel.length; g.textContent = P.sel.length ? 'Use ' + P.sel.length + (P.sel.length > 1 ? ' photos' : ' photo') : 'Use these'; }
 }
 async function edPickChosen(){
   const P = ED.pick, imgs = [];
   for (const id of P.sel){
     if (id === '__this'){ const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH; c.getContext('2d').drawImage(cam.still, 0, 0); imgs.push(c); }
-    else { const o = (ED.pwalk || []).find(x => x.id === id); if (o){ try{ imgs.push(await edBitmap(o.blob)); }catch(_){} } }
+    else { const o = (ED.pwalk || []).find(x => x.id === id);
+      if (o){ try{ imgs.push(await edBitmap(o.blob)); }catch(_){} }
+      else { const j = (ED.pall || []).find(x => x.id === id), b = j && await edPhotoBlob(j.p); if (b){ try{ imgs.push(await edBitmap(b)); }catch(_){} } } }
   }
   edPickDone(imgs);
 }
@@ -49272,27 +49305,24 @@ async function edChooseOpen(tab){
       : '<p class="ed-note">No drafts. When you leave a photo, Save as draft keeps it here.</p>';
     return;
   }
-  const shots = [];
-  for (const e of (state.diary || []).filter(e => e && !e.deleted).sort((a, b) => String(b.date).localeCompare(String(a.date))))
-    for (const p of (e.photos || [])) if (p && p.id && shots.length < 60) shots.push({id: p.id, date: e.date, title: e.title || ''});
+  const shots = edJournalShots();
   ED_CH.shots = shots;
-  body.innerHTML = shots.length ? '<div class="ed-chgrid">' + shots.map(s => '<button data-c="edchone" data-v="j:' + esc(s.id) + '" aria-label="Journal photo, ' + esc(prettyDate(s.date)) + '"><img alt=""><b></b></button>').join('') + '</div>'
+  body.innerHTML = shots.length ? '<p class="ed-chcount">' + shots.length + (shots.length === 1 ? ' photo' : ' photos') + ' in your journal</p><div class="ed-chgrid">' + shots.map(s => '<button data-c="edchone" data-v="j:' + esc(s.id) + '" aria-label="' + esc((s.title || 'Journal photo') + (s.date ? ', ' + prettyDate(s.date) : '')) + '"><img alt="" data-pid="' + esc(s.id) + '"><b></b></button>').join('') + '</div>'
     : '<p class="ed-note">No photos in your journal yet.</p>';
-  const imgs = body.querySelectorAll('img');
-  for (let i = 0; i < shots.length; i++){
-    try{ const b = await getBlobStrict(shots[i].id); if (b && imgs[i]){ imgs[i].src = URL.createObjectURL(b); shots[i].blob = b; } else if (imgs[i]) imgs[i].closest('button').remove(); }catch(e){ if (imgs[i]) imgs[i].closest('button').remove(); }
-  }
+  edLazyShots(body, shots);
 }
 const ED_CH = {};
 function edChooseClose(){ const b = document.getElementById('edChoose'); if (b){ b.hidden = true; b.innerHTML = ''; } const c = document.getElementById('camx'); if (c) c.classList.remove('edchoose'); }
 async function edChooseNext(){
   const v = ED_CH.sel; if (!v) return;
   if (v.startsWith('d:')){ edChooseClose(); await edDraftOpen(v.slice(2)); return; }
-  const s = (ED_CH.shots || []).find(x => 'j:' + x.id === v); if (!s || !s.blob) return;
+  const s = (ED_CH.shots || []).find(x => 'j:' + x.id === v); if (!s) return;
+  if (!s.blob) s.blob = await edPhotoBlob(s.p);
+  if (!s.blob){ toast('That photo is not on this phone, and could not be fetched. Try again with signal.'); return; }
   edChooseClose();
   const f = new File([s.blob], 'journal.jpg', {type: s.blob.type || 'image/jpeg', lastModified: Date.parse(s.date + 'T12:00:00') || Date.now()});
   await camPick(f);
-  if (cam && cam.photoNoPlace && s.title){ const h = Object.values(BY_KEY).find(h => hillName(h) === s.title || h.n === s.title); if (h) edSetHill(h); }
+  if (cam && cam.photoNoPlace && (s.k || s.title)){ const h = (s.k && BY_KEY[s.k]) || Object.values(BY_KEY).find(h => hillName(h) === s.title || h.n === s.title); if (h) edSetHill(h); }
 }
 function edSetHill(h){
   const fx = {lat: h.a, lon: h.o, acc: 5, alt: null, chosen: true};
