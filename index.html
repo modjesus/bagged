@@ -5091,6 +5091,16 @@ html.camlock, html.camlock body{overflow:hidden}
 .cx-lens[aria-checked="true"]{color:#F6EFE4}
 .cx-lens[aria-checked="true"] canvas{border-color:#E0784F; transform:scale(1.14)}
 .cx-shoot{display:flex; align-items:center; justify-content:space-between; padding:0 34px}
+.cx-lookbar{display:flex; align-items:center; justify-content:center; gap:4px; margin:0 auto -2px}
+.cx-lookbar > button{width:36px; height:36px; border:none; background:none; color:rgba(246,239,228,.7); display:grid; place-items:center; padding:0}
+.cx-lookbar > button svg{width:16px; height:16px}
+.cx-lookbar > button:first-child svg{transform:rotate(90deg)} .cx-lookbar > button:last-child svg{transform:rotate(-90deg)}
+.cx-lookname{border:none; background:none; color:#F6EFE4; display:flex; flex-direction:column; align-items:center; gap:5px; min-width:110px; min-height:40px; justify-content:center; padding:0}
+.cx-lookname b{font:600 13px/1 var(--font-ui); text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.cx-dots{display:flex; gap:5px}
+.cx-dots i{width:5px; height:5px; border-radius:50%; background:rgba(246,239,228,.35); transition:background-color .15s ease-out, transform .15s ease-out}
+.cx-dots i.on{background:#F6EFE4; transform:scale(1.3)}
+.camx.sky .cx-lookbar, .camx.review .cx-lookbar{display:none}
 .cx-lib{width:52px; height:52px; border-radius:14px; border:1.5px solid rgba(246,239,228,.5); display:grid; place-items:center; color:#F6EFE4}
 .cx-lib svg{width:24px; height:24px}
 .cx-shutter{width:82px; height:82px; border-radius:50%; border:4px solid #F6EFE4; background:transparent; padding:5px; display:grid}
@@ -5301,6 +5311,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .camx.review .ed-lay{display:block}
 .ed-it{position:absolute; transform-origin:50% 50%; touch-action:none; cursor:grab}
 .ed-it img{display:block; width:100%; height:100%; pointer-events:none; -webkit-user-drag:none; user-select:none}
+.camx img, .camx canvas{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none}
 .ed-it.sel{outline:2px dashed rgba(255,255,255,.9); outline-offset:6px}
 .ed-it.sel.round{outline:2.5px solid rgba(255,255,255,.95); outline-offset:5px; border-radius:50%}
 .ed-gv, .ed-gh{position:absolute; z-index:3; pointer-events:none}
@@ -5429,11 +5440,11 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 @media (prefers-reduced-motion:no-preference){
   .camx .cx-panel{transition:transform .3s cubic-bezier(.32,.72,0,1)}
   @starting-style{ .camx .cx-panel{transform:translateY(100%)} }
-  .camx .ed-it{transition:opacity .2s ease-out, scale .2s cubic-bezier(.23,1,.32,1)}
-  @starting-style{ .camx .ed-it{opacity:0; scale:.92} }
+  .camx .ed-it.born{animation:edborn .22s cubic-bezier(.23,1,.32,1) both}
   .camx .ed-earn-in > p{animation:edrise .3s cubic-bezier(.23,1,.32,1) both}
   .camx .ed-earn-in > p.k{animation-delay:.12s} .camx .ed-earn-in > p.t{animation-delay:.18s} .camx .ed-earn-in > p.s{animation-delay:.24s}
 }
+@keyframes edborn{from{opacity:0; scale:.92} to{opacity:1; scale:1}}
 @keyframes edrise{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
 @media (prefers-reduced-motion:reduce){ .ed-earn img{animation:none} .camx .cx-panel{transition:opacity .2s ease} @starting-style{ .camx .cx-panel{opacity:0} } }
 .camx .cx-btn, .camx .cx-rb i, .camx .ed-dtools button i, .camx .ed-ttabs button i, .camx .ed-lgrid canvas, .camx .ed-pgrid button, .camx .ed-grow canvas, .camx .ed-frow canvas{transition:transform .1s ease-out}
@@ -5518,12 +5529,26 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-cuttip{margin:0 0 10px; text-align:center; color:#F6EFE4; font:600 15px/1.3 var(--font-ui)}
 .ed-cutstage{flex:1; min-height:0; position:relative}
 .ed-cutstage canvas{position:absolute; inset:0; margin:auto; max-width:100%; max-height:100%; border-radius:12px; touch-action:none; cursor:crosshair}
-.ed-cutbot{flex:none; display:flex; flex-direction:column; gap:10px; margin-top:12px}
+.ed-cutbot{flex:none; display:flex; flex-direction:column; gap:10px; margin-top:12px; min-height:178px; justify-content:flex-start}
 .ed-cutbot .ed-go{min-height:50px; border-radius:999px; background:#F6EFE4; color:#14332D; border:none; font:700 16px/1 var(--font-ui)}
 .ed-cutbot .ed-go:disabled{opacity:.4}
 .ed-seg button:disabled{opacity:.35}
 .ed-cutbrush[hidden]{display:none}
+.ed-h4row{display:flex; align-items:baseline; justify-content:space-between}
+.ed-h4row .cx-link{background:none; border:none; color:#F2A27D; font:700 13px/1 var(--font-ui); min-height:36px; padding:0 2px}
+.ed-cutrow{gap:10px}
+.ed-cutcell{position:relative; flex:none}
+.ed-cutrow .ed-stk{width:64px; height:64px; border-radius:12px; background:rgba(246,239,228,.06) !important; display:grid; place-items:center; padding:6px !important}
+.ed-cutrow img{width:100%; height:100%; object-fit:contain; display:block}
+.ed-cutrow.editing .ed-stk{animation:none; box-shadow:inset 0 0 0 1.5px rgba(242,162,125,.6)}
+.ed-cutdel{position:absolute; top:-6px; right:-6px; width:26px; height:26px; border-radius:13px; border:2px solid #14332D; background:#F6EFE4; color:#14332D; display:grid; place-items:center; padding:0}
+.ed-cutdel svg{width:13px; height:13px}
+.ed-for img{height:72px}
 .ed-cutgo{display:flex; gap:10px}
+.ed-cutgo[hidden], .ed-seg[hidden], .ed-redo[hidden]{display:none}
+.ed-cutgo .ed-seg{flex:1.4}
+.ed-tdone{flex:1}
+.ed-redo{align-self:center; background:none; border:none; color:#C9D6CE; font:600 14px/1 var(--font-ui); min-height:40px; text-decoration:underline; text-underline-offset:3px}
 .ed-cutgo .cx-btn{flex:1; min-height:50px; border-radius:999px; font:700 15px/1 var(--font-ui); white-space:nowrap; padding:0 10px}
 .ed-cutgo .ghost{background:none; border:1.5px solid rgba(246,239,228,.6); color:#F6EFE4}
 .ed-cutgo .ghost[aria-pressed="true"]{background:#22332E}
@@ -5594,7 +5619,14 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-grid.p2{grid-template-columns:repeat(2, 1fr)}
 .ed-grid button{aspect-ratio:1; display:grid; place-items:center}
 .ed-grid.p2 button{aspect-ratio:auto}
-.ed-grid img{max-width:100%; max-height:100%; display:block}
+.ed-grid img{width:100%; height:100%; object-fit:contain; display:block}
+.ed-grid:not(.p2) button{position:relative}
+.ed-grid:not(.p2) button > img{position:absolute; inset:0}
+.ed-pcols{display:flex; gap:8px; margin:2px 0 6px}
+.ed-pcols button{flex:1; display:flex; align-items:center; justify-content:center; gap:8px; min-height:40px; border-radius:10px; border:1.5px solid rgba(246,239,228,.18); background:none; color:#E6ECEA; font:600 13.5px/1 var(--font-ui)}
+.ed-pcols i{width:18px; height:18px; border-radius:50%; box-shadow:0 0 0 1.5px rgba(246,239,228,.5)}
+.ed-pcols button[aria-checked="true"]{border-color:#F6EFE4; background:rgba(246,239,228,.1); color:#F6EFE4}
+.ed-grid button{min-width:0; overflow:hidden}
 .ed-pt.off img{opacity:.28; filter:grayscale(.6)}
 .ed-sw{display:flex; justify-content:flex-end; align-items:center; gap:10px; font:600 14px/1 var(--font-ui); color:#F6EFE4; margin:-2px 0 6px}
 .ed-unlock{display:flex; gap:14px; align-items:center; background:rgba(246,239,228,.07); border:1.5px solid #A8431A; border-radius:16px; padding:12px; margin-bottom:12px}
@@ -38811,7 +38843,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v450';
+const APP_VERSION = 'v451';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -47000,6 +47032,9 @@ function camBuild(){
       '<div class="cx-skylooks" role="radiogroup" aria-label="How Skyline is drawn">' +
         SKY_LOOKS.map(([k, t]) => '<button role="radio" data-c="skylook" data-v="' + k + '">' + t + '</button>').join('') +
       '</div>' +
+      '<div class="cx-lookbar" id="cxLookBar"><button data-c="lookstep" data-v="-1" aria-label="Previous overlay">' + edI('chev', 16) + '</button>' +
+        '<button class="cx-lookname" data-c="looks" aria-label="Overlays: open the list"><b id="cxLookName"></b><span class="cx-dots" id="cxLookDots" aria-hidden="true"></span></button>' +
+        '<button data-c="lookstep" data-v="1" aria-label="Next overlay">' + edI('chev', 16) + '</button></div>' +
       '<div class="cx-shoot"><button class="cx-lib" data-c="edchoose" aria-label="Choose a photo: from your phone, journal or drafts">' + cxI('photo') + '</button>' +
         '<button class="cx-shutter" data-c="shoot" aria-label="Take photo"><i></i></button>' +
         '<button class="cx-ib cx-big" data-c="flip" aria-label="Switch camera">' + cxI('flip') + '</button></div>' +
@@ -47057,9 +47092,11 @@ function camBuild(){
       '<div class="ed-fhead"><button class="cx-ib" data-c="edcutx" aria-label="Close Cut out">' + cxI('x') + '</button><h3 class="ed-h">Cut out</h3><span></span></div>' +
       '<p class="ed-cuttip" id="edCutTip" aria-live="polite"></p>' +
       '<div class="ed-cutstage"><canvas id="edCutCan" role="img" aria-label="The photo to cut out from"></canvas></div>' +
-      '<div class="ed-cutbot"><div class="ed-seg ed-cutbrush" id="edCutBrush" hidden><button data-c="edcutbrush" data-v="add">Add</button><button data-c="edcutbrush" data-v="erase">Rub out</button></div>' +
-        '<div class="ed-seg"><button data-c="edcutmode" data-v="loop">Draw round it</button><button data-c="edcutmode" data-v="tap">Tap it</button></div>' +
-        '<div class="ed-cutgo"><button class="cx-btn ghost" data-c="edcutmode" data-v="touch">Touch up</button><button class="cx-btn ed-go" data-c="edcutuse" disabled>Use as sticker</button></div>' +
+      '<div class="ed-cutbot">' +
+        '<div class="ed-seg" id="edCutPick"><button data-c="edcutmode" data-v="loop">Draw round it</button><button data-c="edcutmode" data-v="tap">Tap it</button></div>' +
+        '<div class="ed-cutgo" id="edCutGo" hidden><button class="cx-btn ghost" data-c="edcutmode" data-v="touch">Touch up</button><button class="cx-btn ed-go" data-c="edcutuse">Use as sticker</button></div>' +
+        '<div class="ed-cutgo" id="edCutBrush" hidden><div class="ed-seg"><button data-c="edcutbrush" data-v="add">Add</button><button data-c="edcutbrush" data-v="erase">Rub out</button></div><button class="cx-btn ed-go ed-tdone" data-c="edcuttouchdone">Done</button></div>' +
+        '<button class="cx-link ed-redo" data-c="edcutredo" id="edCutRedo" hidden>Start again</button>' +
         '<p class="ed-note">Cut out a dog, a friend or the hill itself. It is saved in Stickers to use again.</p></div></div>' +
     '<div class="ed-choose" id="edChoose" hidden></div>' +
     '<div class="cx-panel" id="cxPanel" hidden></div>';
@@ -47124,6 +47161,7 @@ function camBuild(){
     if (e.target.closest && e.target.closest('button,[data-c],.cx-sky,label,.ed-it,.ed-bin,.ed-ban,.ed-bar')) return;
     if (ED && (ED.drag || Date.now() - (ED.dragEnd || 0) < 450 || (e.touches && e.touches.length))) return;
     const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if (cam.still) return;
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){ camStep(dx < 0 ? 1 : -1); e.preventDefault(); }
     else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && Date.now() - st < 300 && !cam.still){
       if (camLooksOpen()){ camLooksShow(false); e.preventDefault(); return; }
@@ -47237,10 +47275,17 @@ function camRecStop(){
   camSizeView();
   try{ mr.stop(); }catch(e){}
 }
+function camLookBar(){
+  const n = document.getElementById('cxLookName'), d = document.getElementById('cxLookDots'); if (!n || !cam) return;
+  const L = CAM_CAPS(), i = L.findIndex(([k]) => k === cam.prefs.style);
+  n.textContent = i >= 0 ? L[i][1] : '';
+  d.innerHTML = L.map((_, j) => '<i' + (j === i ? ' class="on"' : '') + '></i>').join('');
+}
 function camStep(d){
   if (cam.prefs.style === 'skyline') return;
   const L = CAM_CAPS(), i = L.findIndex(([k]) => k === cam.prefs.style);
   camLook(L[(i + d + L.length) % L.length][0]);
+  camLookBar();
 }
 function camMode(m){
   if (!cam || cam.rec) return;
@@ -47365,7 +47410,7 @@ function camLook(k){
   if (k !== 'skyline') camSizeView();
   if (k === 'skyline'){ camPaint(); camChrome(); } else camLayers();
   const h = document.getElementById('cxHint'); if (h) h.classList.add('gone');
-  edTopoNote();
+  edTopoNote(); camLookBar();
   if (k !== 'skyline') camNameFlash(k);
   if (camLooksOpen()) camThumbs();
   if (navigator.vibrate) navigator.vibrate(8);
@@ -47456,6 +47501,7 @@ function camClick(e){
   if (camStaleClick(b)){ camPressAt = 0; return; }
   camPressAt = 0;
   if (a === 'edchoose'){ edChooseOpen(); return; }
+  if (a === 'lookstep'){ camStep(+b.dataset.v); return; }
   if (a === 'edchx'){ edChooseClose(); return; }
   if (a === 'edchtab'){ edChooseOpen(b.dataset.v); return; }
   if (a === 'edchone'){ ED_CH.sel = b.dataset.v; document.querySelectorAll('#edChoose [data-c="edchone"]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); const n = document.getElementById('edChNext'); if (n) n.disabled = false; return; }
@@ -47733,7 +47779,7 @@ function edAdd(img, opt){
   if (!ED) return;
   edSnap();
   const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
-  const want = (opt && opt.width) || CAM_W * 0.34;
+  const long = CAM_W * 0.28, want = (opt && opt.width) || (w >= h ? Math.min(CAM_W * 0.4, long * Math.min(1.45, w / h)) : long * w / h);
   const n = ED.items.length % 5, off = (opt && opt.centre) ? 0 : n * 36;
   const it = {id: uid(), img, w, h, x: CAM_W / 2 + off, y: CAM_FH / 2 + off, s: want / w, r: 0, kind: (opt && opt.kind) || 'sticker', meta: (opt && opt.meta) || {}};
   ED.items.push(it); ED.sel = it.id; edDraw();
@@ -47753,7 +47799,7 @@ function edDraw(){
     have.add(it.id);
     let el = lay.querySelector('[data-eid="' + it.id + '"]');
     if (!el){
-      el = document.createElement('div'); el.className = 'ed-it'; el.dataset.eid = it.id;
+      el = document.createElement('div'); el.className = 'ed-it born'; el.dataset.eid = it.id; setTimeout(() => el.classList.remove('born'), 260);
       const im = document.createElement('img'); im.alt = ''; im.draggable = false; el.appendChild(im);
       lay.appendChild(el);
     }
@@ -47763,19 +47809,26 @@ function edDraw(){
     el.style.left = (it.x * k) + 'px'; el.style.top = (it.y * k) + 'px';
     el.style.transform = 'translate(-50%,-50%) rotate(' + it.r + 'rad) scale(' + it.s + ')';
     el.classList.toggle('sel', ED.sel === it.id); el.classList.toggle('round', it.kind === 'patch'); el.classList.toggle('fixed', it.kind === 'draw'); el.style.display = it.hidden ? 'none' : '';
-    lay.appendChild(el);
+    if (!el.parentNode) lay.appendChild(el);
   }
   lay.querySelectorAll('.ed-it').forEach(el => { if (!have.has(el.dataset.eid)) el.remove(); });
+  { const want = ED.items.map(i => i.id), got = [...lay.querySelectorAll('.ed-it')].map(e => e.dataset.eid);
+    if (want.join() !== got.join()) want.forEach(id => { const e = lay.querySelector('[data-eid="' + id + '"]'); if (e) lay.appendChild(e); }); }
   edBarPlace();
 }
 function edBarPlace(){
   const bar = document.getElementById('edBar'); if (!bar) return;
   const it = ED && ED.sel && edGet(ED.sel);
   if (!it || ED.drag || ED.quiet === it.id){ bar.hidden = true; return; }
-  const k = edK(), top = Math.max(8, (it.y - it.h * it.s / 2) * k - 58);
+  const k = edK(), v = document.getElementById('cxView'), vr = v.getBoundingClientRect();
   bar.hidden = false;
-  bar.style.left = Math.min(Math.max(8, it.x * k - bar.offsetWidth / 2), document.getElementById('cxView').clientWidth - bar.offsetWidth - 8) + 'px';
-  bar.style.top = top + 'px';
+  let safeTop = 70 - vr.top + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0);
+  const ban = document.getElementById('edBan'); if (ban && !ban.hidden && ban.offsetHeight){ const br = ban.getBoundingClientRect(); safeTop = Math.max(safeTop, br.bottom - vr.top + 8); }
+  const r = Math.max(it.w, it.h) * it.s * k / 2, above = it.y * k - r - 58, below = it.y * k + r + 10;
+  const top = above >= Math.max(8, safeTop) ? above : Math.min(below, v.clientHeight - 60);
+  const rail = document.getElementById('edRail'), rl = rail && !rail.hidden ? rail.getBoundingClientRect().left - vr.left - 8 : v.clientWidth - 8;
+  bar.style.left = Math.min(Math.max(8, it.x * k - bar.offsetWidth / 2), Math.min(v.clientWidth - 8, rl) - bar.offsetWidth) + 'px';
+  bar.style.top = Math.max(8, top) + 'px';
 }
 function edPaint(ctx){
   if (!ED) return;
@@ -48221,9 +48274,12 @@ function edStickers(){
   if (slug && hit(hillName(h))){
     s += '<h4>WayMark stickers for ' + esc(hillName(h)) + '</h4><div class="ed-row ed-for">' +
       '<button data-c="edstk" data-v="tile-' + slug + '" data-k="tile"><img alt="Map tile" src="' + ED_STK + 'tile-' + slug + '.webp"></button>' +
-      '<button data-c="edstk" data-v="plate-' + slug + '-cream" data-k="plate" data-p="' + slug + '"><img alt="Summit plate" src="' + ED_STK + 'plate-' + slug + '-cream.webp"></button></div>';
+      ['cream', 'pine', 'rust'].map(c => '<button data-c="edstk" data-v="plate-' + slug + '-' + c + '" data-k="plate" data-p="' + slug + '"><img alt="Summit plate, ' + c + '" src="' + ED_STK + 'plate-' + slug + '-' + c + '.webp"></button>').join('') + '</div>';
   }
-  if (!q || hit('cut out')){ const cl = edCutList(); if (cl.length) s += '<h4>Your cut outs</h4><div class="ed-row" id="edCutsRow">' + cl.slice(0, 20).map(c => '<button class="ed-stk" data-c="edcutadd" data-v="' + esc(c.id) + '" aria-label="Your cut out"><img alt=""></button>').join('') + '</div>'; }
+  if (!q || hit('cut out')){ const cl = edCutList(); if (cl.length) s += '<div class="ed-h4row"><h4>Your cut outs</h4><button class="cx-link" data-c="edcutedit" aria-pressed="' + !!ED.cutEdit + '">' + (ED.cutEdit ? 'Done' : 'Edit') + '</button></div>' +
+    '<div class="ed-row ed-cutrow' + (ED.cutEdit ? ' editing' : '') + '" id="edCutsRow">' + cl.slice(0, 30).map(c => '<span class="ed-cutcell"><button class="ed-stk" data-c="' + (ED.cutEdit ? 'edcutamend' : 'edcutadd') + '" data-v="' + esc(c.id) + '" aria-label="' + (ED.cutEdit ? 'Change this cut out' : 'Your cut out') + '"><img alt=""></button>' +
+      (ED.cutEdit ? '<button class="ed-cutdel" data-c="edcutdel" data-v="' + esc(c.id) + '" aria-label="Delete this cut out">' + cxI('x') + '</button>' : '') + '</span>').join('') + '</div>' +
+    (ED.cutEdit ? '<p class="ed-note">Tap one to change its outline, or the cross to delete it.</p>' : ''); }
   const tabs = [['patches', 'Patches'], ['wm', 'WayMark'], ['tiles', 'Map tiles'], ['plates', 'Summit plates'], ['tp', 'Three Peaks']];
   s += '<div class="ed-tabs" role="tablist">' + tabs.map(([k, t]) => '<button role="tab" data-c="edtab" data-v="' + k + '" aria-selected="' + (ED.tab === k) + '">' + t + '</button>').join('') + '</div>';
   const grid = (items, cls) => '<div class="ed-grid ' + (cls || '') + '">' + items.join('') + '</div>';
@@ -48242,8 +48298,11 @@ function edStickers(){
   } else if (ED.tab === 'tiles'){
     s += grid(ED_PEAKS.filter(k => hit(nm(k))).map(k => '<button data-c="edstk" data-v="tile-' + k + '" data-k="tile" aria-label="' + esc(nm(k)) + ' map tile"><img loading="lazy" alt="" src="' + ED_STK + 'tile-' + k + '.webp"></button>'), 'p4');
   } else if (ED.tab === 'plates'){
-    s += '<p class="ed-note">Tap a plate on the photo to change its colour: cream, pine, rust.</p>' +
-      grid(ED_PEAKS.filter(k => hit(nm(k))).map(k => '<button data-c="edstk" data-v="plate-' + k + '-cream" data-k="plate" data-p="' + k + '" aria-label="' + esc(nm(k)) + ' summit plate"><img loading="lazy" alt="" src="' + ED_STK + 'plate-' + k + '-cream.webp"></button>'), 'p2');
+    const pc = ED.plateCol || 'cream';
+    s += '<div class="ed-pcols" role="radiogroup" aria-label="Plate colour">' + [['cream', 'Cream', '#F4EEE2'], ['pine', 'Pine', '#14332D'], ['rust', 'Rust', '#A8431A']].map(([k, t, c]) =>
+      '<button role="radio" data-c="edplatecol" data-v="' + k + '" aria-checked="' + (pc === k) + '"><i style="background:' + c + '"></i>' + t + '</button>').join('') + '</div>' +
+      '<p class="ed-note">Every plate comes in all three. You can change it on the photo too: tap the plate.</p>' +
+      grid(ED_PEAKS.filter(k => hit(nm(k))).map(k => '<button data-c="edstk" data-v="plate-' + k + '-' + pc + '" data-k="plate" data-p="' + k + '" aria-label="' + esc(nm(k)) + ' summit plate, ' + pc + '"><img loading="lazy" alt="" src="' + ED_STK + 'plate-' + k + '-' + pc + '.webp"></button>'), 'p2');
   } else if (ED.tab === 'tp'){
     s += grid(ED_TP.filter(([k, t]) => hit(t)).map(([k, t]) => '<button data-c="edstk" data-v="' + k + '" aria-label="' + esc(t) + '"><img loading="lazy" alt="" src="' + ED_STK + k + '.webp"></button>'), 'p4');
   }
@@ -49152,25 +49211,29 @@ function edFromChip(){
 
 const ED_CUTS = 'waymark.cuts';
 function edCutList(){ try{ return JSON.parse(localStorage.getItem(ED_CUTS) || '[]'); }catch(e){ return []; } }
-function edCutOpen(img){
+function edCutOpen(img, again){
   const ui = document.getElementById('edCutUI'); if (!ui) return;
   edSheet(false);
   const max = 720, s = Math.min(1, max / Math.max(img.width, img.height)), w = Math.round(img.width * s), h = Math.round(img.height * s);
   const src = document.createElement('canvas'); src.width = w; src.height = h; src.getContext('2d').drawImage(img, 0, 0, w, h);
   const mask = document.createElement('canvas'); mask.width = w; mask.height = h;
-  ED.cut = {src, mask, full: img, mode: 'loop', loop: [], brush: 'add', has: false};
+  ED.cut = {src, mask, full: img, mode: 'loop', loop: [], brush: 'add', has: false, again: again || null};
+  if (again && again.mask){ mask.getContext('2d').drawImage(again.mask, 0, 0, w, h); ED.cut.has = true; }
   const cv = document.getElementById('edCutCan'); cv.width = w; cv.height = h;
   ui.hidden = false; document.getElementById('camx').classList.add('edcut'); edCutUI(); edCutRender();
 }
 function edCutUI(){
   const c = ED.cut; if (!c) return;
-  const tip = document.getElementById('edCutTip');
-  tip.textContent = c.mode === 'touch' ? (c.brush === 'add' ? 'Paint over what should stay' : 'Rub out what should go') : c.has ? 'It found the edges for you' : c.mode === 'tap' ? 'Tap the thing you want to keep' : 'Draw roughly round what you want';
+  const tip = document.getElementById('edCutTip'), touch = c.mode === 'touch';
+  tip.textContent = touch ? (c.brush === 'add' ? 'Drag to paint back, or tap an area to add all of it' : 'Drag to rub out, or tap an area to take all of it out')
+    : c.has ? 'It found the edges for you. Touch up, or use it.' : c.mode === 'tap' ? 'Tap the thing you want to keep' : 'Draw roughly round what you want';
+  const pick = document.getElementById('edCutPick'), go = document.getElementById('edCutGo'), br = document.getElementById('edCutBrush');
+  if (pick) pick.hidden = touch || c.has;
+  if (go) go.hidden = touch || !c.has;
+  const rd = document.getElementById('edCutRedo'); if (rd) rd.hidden = !c.has || touch;
+  if (br) br.hidden = !touch;
   document.querySelectorAll('#edCutUI [data-c="edcutmode"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === c.mode)));
   document.querySelectorAll('#edCutUI [data-c="edcutbrush"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === c.brush)));
-  const tb = document.getElementById('edCutBrush'); if (tb) tb.hidden = c.mode !== 'touch';
-  const go = document.querySelector('#edCutUI [data-c="edcutuse"]'); if (go) go.disabled = !c.has;
-  const tu = document.querySelector('#edCutUI [data-c="edcutmode"][data-v="touch"]'); if (tu) tu.disabled = !c.has;
 }
 function edCutRender(){
   const c = ED.cut, cv = document.getElementById('edCutCan'); if (!c || !cv) return;
@@ -49178,11 +49241,110 @@ function edCutRender(){
   x.clearRect(0, 0, w, h); x.drawImage(c.src, 0, 0);
   if (c.has){
     const o = document.createElement('canvas'); o.width = w; o.height = h; const ox = o.getContext('2d');
-    ox.fillStyle = 'rgba(11,21,18,.4)'; ox.fillRect(0, 0, w, h); ox.globalCompositeOperation = 'destination-out'; ox.drawImage(c.mask, 0, 0);
+    ox.fillStyle = 'rgba(8,14,12,.66)'; ox.fillRect(0, 0, w, h); ox.globalCompositeOperation = 'destination-out'; ox.drawImage(c.mask, 0, 0);
     x.drawImage(o, 0, 0);
-    const e = edEdge(c.mask, 2); x.drawImage(e, 0, 0);
+    if (c.mode === 'touch'){
+      const t = document.createElement('canvas'); t.width = w; t.height = h; const tx = t.getContext('2d');
+      tx.drawImage(c.mask, 0, 0); tx.globalCompositeOperation = 'source-in'; tx.fillStyle = 'rgba(224,120,79,.32)'; tx.fillRect(0, 0, w, h);
+      x.drawImage(t, 0, 0);
+    } else x.drawImage(edEdge(c.mask, 2.5), 0, 0);
   }
-  if (c.loop.length > 1){ x.save(); x.strokeStyle = '#E0784F'; x.lineWidth = 3; x.setLineDash([8, 6]); x.beginPath(); x.moveTo(c.loop[0][0], c.loop[0][1]); for (const p of c.loop) x.lineTo(p[0], p[1]); x.stroke(); x.restore(); }
+  if (c.loop.length > 1){ x.save(); x.strokeStyle = '#FFFFFF'; x.lineWidth = 3; x.setLineDash([9, 7]); x.lineCap = 'round'; x.beginPath(); x.moveTo(c.loop[0][0], c.loop[0][1]); for (const p of c.loop) x.lineTo(p[0], p[1]); x.stroke(); x.restore(); }
+}
+function edBlurField(A, w, h, r){
+  const t = new Float32Array(A.length); let a = Float32Array.from(A);
+  for (let pass = 0; pass < 3; pass++){
+    for (let y = 0; y < h; y++){ let s = 0; const o = y * w; for (let x = -r; x <= r; x++) s += a[o + Math.min(w - 1, Math.max(0, x))];
+      for (let x = 0; x < w; x++){ t[o + x] = s / (2 * r + 1); s += a[o + Math.min(w - 1, x + r + 1)] - a[o + Math.max(0, x - r)]; } }
+    for (let x = 0; x < w; x++){ let s = 0; for (let y = -r; y <= r; y++) s += t[Math.min(h - 1, Math.max(0, y)) * w + x];
+      for (let y = 0; y < h; y++){ a[y * w + x] = s / (2 * r + 1); s += t[Math.min(h - 1, y + r + 1) * w + x] - t[Math.max(0, y - r) * w + x]; } }
+  }
+  return a;
+}
+function edMaskClean(M, w, h){
+  let F = new Float32Array(w * h); for (let i = 0; i < F.length; i++) F[i] = M[i] ? 1 : 0;
+  F = edBlurField(F, w, h, 2);
+  const B = new Uint8Array(w * h); for (let i = 0; i < B.length; i++) B[i] = F[i] > 0.5 ? 1 : 0;
+  const lab = new Int32Array(w * h), st = []; let best = 0, bestN = 0, id = 0;
+  for (let i = 0; i < B.length; i++){ if (!B[i] || lab[i]) continue; id++; let n = 0; st.push(i); lab[i] = id;
+    while (st.length){ const j = st.pop(); n++; const x = j % w, y = (j / w) | 0;
+      if (x > 0 && B[j - 1] && !lab[j - 1]){ lab[j - 1] = id; st.push(j - 1); } if (x < w - 1 && B[j + 1] && !lab[j + 1]){ lab[j + 1] = id; st.push(j + 1); }
+      if (y > 0 && B[j - w] && !lab[j - w]){ lab[j - w] = id; st.push(j - w); } if (y < h - 1 && B[j + w] && !lab[j + w]){ lab[j + w] = id; st.push(j + w); } }
+    if (n > bestN){ bestN = n; best = id; } }
+  const out = new Uint8Array(w * h), q = [];
+  const seed = j => { if (!out[j] && lab[j] !== best){ out[j] = 1; q.push(j); } };
+  for (let x = 0; x < w; x++){ seed(x); seed((h - 1) * w + x); } for (let y = 0; y < h; y++){ seed(y * w); seed(y * w + w - 1); }
+  while (q.length){ const j = q.pop(), x = j % w, y = (j / w) | 0; if (x > 0) seed(j - 1); if (x < w - 1) seed(j + 1); if (y > 0) seed(j - w); if (y < h - 1) seed(j + w); }
+  const R = new Uint8ClampedArray(w * h); for (let i = 0; i < R.length; i++) R[i] = out[i] ? 0 : 255;
+  return {R, n: bestN};
+}
+function edMaskPut(R, w, h){
+  const c = ED.cut, x = c.mask.getContext('2d'), im = x.createImageData(w, h);
+  const F = new Float32Array(w * h); for (let i = 0; i < F.length; i++) F[i] = R[i] / 255;
+  const S = edBlurField(F, w, h, 1);
+  for (let i = 0; i < S.length; i++) im.data[i * 4 + 3] = Math.round(Math.min(1, Math.max(0, (S[i] - 0.5) * 2.2 + 0.5)) * 255);
+  x.clearRect(0, 0, w, h); x.putImageData(im, 0, 0);
+  c.has = true; c.loop = []; edCutUI(); edCutRender();
+}
+function edCutFromLoop(){
+  const c = ED.cut, w = c.mask.width, h = c.mask.height, L = c.loop; if (L.length < 8) return;
+  const poly = document.createElement('canvas'); poly.width = w; poly.height = h; const px = poly.getContext('2d');
+  px.fillStyle = '#000'; px.beginPath(); px.moveTo(L[0][0], L[0][1]); for (const p of L) px.lineTo(p[0], p[1]); px.closePath(); px.fill();
+  const P = px.getImageData(0, 0, w, h).data, S = c.src.getContext('2d').getImageData(0, 0, w, h).data;
+  const In = new Float32Array(w * h); for (let i = 0; i < In.length; i++) In[i] = P[i * 4 + 3] ? 1 : 0;
+  const bw = Math.max(8, Math.round(Math.min(w, h) * 0.035));
+  const D = edBlurField(In, w, h, bw);
+  const bin = i => ((S[i] >> 5) << 6) | ((S[i + 1] >> 5) << 3) | (S[i + 2] >> 5);
+  const hin = new Float32Array(512), hout = new Float32Array(512); let nin = 0, nout = 0;
+  for (let j = 0; j < D.length; j++){ const i = j * 4; if (D[j] > 0.92){ hin[bin(i)]++; nin++; } else if (D[j] < 0.08){ hout[bin(i)]++; nout++; } }
+  if (nin < 50 || nout < 50){ const R = new Uint8ClampedArray(w * h); for (let j = 0; j < R.length; j++) R[j] = In[j] ? 255 : 0; edMaskPut(edMaskClean(R, w, h).R, w, h); return; }
+  let M = new Uint8ClampedArray(w * h); for (let j = 0; j < M.length; j++) M[j] = D[j] >= 0.5 ? 255 : 0;
+  for (let round = 0; round < 3; round++){
+    if (round){ hin.fill(0); nin = 0; for (let j = 0; j < M.length; j++) if (M[j] && D[j] > 0.5){ hin[bin(j * 4)]++; nin++; } if (nin < 50) break; }
+    const N = new Uint8ClampedArray(w * h);
+    for (let j = 0; j < D.length; j++){
+      const d = D[j]; if (d <= 0.08){ N[j] = 0; continue; }
+      const b = bin(j * 4), pi = (hin[b] + 1) / (nin + 512), po = (hout[b] + 1) / (nout + 512);
+      N[j] = Math.log(pi / po) + (d - 0.5) * 3 > 0 ? 255 : 0;
+    }
+    M = N;
+  }
+  const {R} = edMaskClean(M, w, h); edMaskPut(R, w, h);
+}
+function edCutTapArea(tx, ty, add){
+  const c = ED.cut, w = c.mask.width, h = c.mask.height, keep = c.mask.getContext('2d').getImageData(0, 0, w, h);
+  const area = edTapRegion(Math.max(0, Math.min(w - 1, tx)), Math.max(0, Math.min(h - 1, ty)));
+  if (!area){ toast('Nothing clear to ' + (add ? 'add' : 'rub out') + ' there. Drag to paint instead.'); return; }
+  const R = new Uint8ClampedArray(w * h);
+  for (let j = 0; j < R.length; j++){ const was = keep.data[j * 4 + 3] > 127; R[j] = (add ? (was || area[j]) : (was && !area[j])) ? 255 : 0; }
+  edMaskPut(R, w, h);
+}
+function edCutFromTap(tx, ty){
+  const c = ED.cut, w = c.mask.width, h = c.mask.height;
+  const area = edTapRegion(tx, ty);
+  if (!area){ toast('Nothing to lift there. Try Draw round it.'); return; }
+  const {R} = edMaskClean(area, w, h); edMaskPut(R, w, h);
+}
+function edTapRegion(tx, ty){
+  const c = ED.cut, w = c.mask.width, h = c.mask.height, S = c.src.getContext('2d').getImageData(0, 0, w, h).data;
+  let r0 = 0, g0 = 0, b0 = 0, n0 = 0;
+  for (let y = Math.max(0, ty - 4); y <= Math.min(h - 1, ty + 4); y++) for (let x = Math.max(0, tx - 4); x <= Math.min(w - 1, tx + 4); x++){ const i = (y * w + x) * 4; r0 += S[i]; g0 += S[i + 1]; b0 += S[i + 2]; n0++; }
+  r0 /= n0; g0 /= n0; b0 /= n0;
+  const grow = tol => { const M = new Uint8ClampedArray(w * h), q = [ty * w + tx]; M[ty * w + tx] = 255; let n = 1;
+    while (q.length){ const j = q.pop(), x = j % w, y = (j / w) | 0;
+      for (const k of [x > 0 ? j - 1 : -1, x < w - 1 ? j + 1 : -1, y > 0 ? j - w : -1, y < h - 1 ? j + w : -1]){
+        if (k < 0 || M[k]) continue; const i = k * 4;
+        const jj = j * 4, step = Math.hypot(S[i] - S[jj], S[i + 1] - S[jj + 1], S[i + 2] - S[jj + 2]);
+        if (step < tol * 0.45 && Math.hypot(S[i] - r0, (S[i + 1] - g0) * 1.15, S[i + 2] - b0) < tol * 2.2){ M[k] = 255; q.push(k); n++; } } }
+    return {M, n}; };
+  let prev = null;
+  for (const tol of [16, 22, 30, 38, 48, 60]){
+    const g = grow(tol);
+    if (prev && (g.n > prev.n * 2.4 || g.n > w * h * 0.85)) break;
+    prev = g;
+  }
+  if (!prev || prev.n < w * h * 0.002) return null;
+  return prev.M;
 }
 function edEdge(mask, r){
   const w = mask.width, h = mask.height, o = document.createElement('canvas'); o.width = w; o.height = h; const x = o.getContext('2d');
@@ -49190,66 +49352,22 @@ function edEdge(mask, r){
   x.globalCompositeOperation = 'source-in'; x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, w, h);
   x.globalCompositeOperation = 'destination-out'; x.drawImage(mask, 0, 0); return o;
 }
-function edCutFromLoop(){
-  const c = ED.cut, w = c.mask.width, h = c.mask.height, L = c.loop; if (L.length < 8) return;
-  const poly = document.createElement('canvas'); poly.width = w; poly.height = h; const px = poly.getContext('2d');
-  px.fillStyle = '#000'; px.beginPath(); px.moveTo(L[0][0], L[0][1]); for (const p of L) px.lineTo(p[0], p[1]); px.closePath(); px.fill();
-  const band = document.createElement('canvas'); band.width = w; band.height = h; const bx = band.getContext('2d');
-  const bw = Math.max(14, Math.min(w, h) * 0.06);
-  bx.strokeStyle = '#000'; bx.lineWidth = bw * 2; bx.lineJoin = 'round'; bx.beginPath(); bx.moveTo(L[0][0], L[0][1]); for (const p of L) bx.lineTo(p[0], p[1]); bx.closePath(); bx.stroke();
-  const P = px.getImageData(0, 0, w, h).data, B = bx.getImageData(0, 0, w, h).data, S = c.src.getContext('2d').getImageData(0, 0, w, h).data;
-  const bin = i => ((S[i] >> 4) << 8) | ((S[i + 1] >> 4) << 4) | (S[i + 2] >> 4);
-  const hin = new Float32Array(4096), hout = new Float32Array(4096); let nin = 0, nout = 0;
-  for (let i = 0; i < P.length; i += 4){ if (B[i + 3]) continue; if (P[i + 3]){ hin[bin(i)]++; nin++; } else { hout[bin(i)]++; nout++; } }
-  const M = new Uint8ClampedArray(w * h);
-  for (let i = 0, j = 0; i < P.length; i += 4, j++){
-    if (!B[i + 3]){ M[j] = P[i + 3] ? 255 : 0; continue; }
-    const b = bin(i), pi = (hin[b] + 0.5) / (nin + 1), po = (hout[b] + 0.5) / (nout + 1);
-    M[j] = pi > po * 1.1 ? 255 : 0;
-  }
-  edMaskSet(M, w, h);
-}
-function edCutFromTap(tx, ty){
-  const c = ED.cut, w = c.mask.width, h = c.mask.height, S = c.src.getContext('2d').getImageData(0, 0, w, h).data;
-  const M = new Uint8ClampedArray(w * h), q = [ty * w + tx]; let sr = 0, sg = 0, sb = 0, n = 0;
-  const i0 = (ty * w + tx) * 4; sr = S[i0]; sg = S[i0 + 1]; sb = S[i0 + 2]; n = 1; M[ty * w + tx] = 255;
-  const tol = 46;
-  while (q.length){
-    const j = q.pop(), x = j % w, y = (j / w) | 0;
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){
-      const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-      const k = ny * w + nx; if (M[k]) continue;
-      const i = k * 4, mr = sr / n, mg = sg / n, mb = sb / n;
-      if (Math.hypot(S[i] - mr, (S[i + 1] - mg) * 1.2, S[i + 2] - mb) < tol){ M[k] = 255; q.push(k); sr += S[i]; sg += S[i + 1]; sb += S[i + 2]; n++; }
-    }
-  }
-  if (n < 40){ toast('Nothing to lift there. Try Draw round it.'); return; }
-  edMaskSet(M, w, h);
-}
-function edMaskSet(M, w, h){
-  const c = ED.cut, t = document.createElement('canvas'); t.width = w; t.height = h; const x = t.getContext('2d');
-  const im = x.createImageData(w, h); for (let j = 0; j < M.length; j++){ im.data[j * 4 + 3] = M[j]; }
-  x.putImageData(im, 0, 0);
-  const s = document.createElement('canvas'); s.width = w; s.height = h; const sx = s.getContext('2d');
-  sx.filter = 'blur(2.5px)'; sx.drawImage(t, 0, 0); sx.filter = 'none';
-  const d = sx.getImageData(0, 0, w, h); for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] > 110 ? 255 : 0;
-  c.mask.getContext('2d').clearRect(0, 0, w, h); c.mask.getContext('2d').putImageData(d, 0, 0);
-  c.has = true; c.loop = []; edCutUI(); edCutRender();
-}
 function edCutPointer(cv){
   if (!cv || cv._on) return; cv._on = true; let on = false;
   const P = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * cv.width), Math.round((e.clientY - r.top) / r.height * cv.height)]; };
-  const paint = p => { const c = ED.cut, x = c.mask.getContext('2d'), r = Math.max(10, cv.width * 0.03);
+  const paint = p => { const c = ED.cut, x = c.mask.getContext('2d'), r = Math.max(14, cv.width * 0.045);
     x.globalCompositeOperation = c.brush === 'add' ? 'source-over' : 'destination-out'; x.fillStyle = '#000'; x.beginPath(); x.arc(p[0], p[1], r, 0, Math.PI * 2); x.fill(); x.globalCompositeOperation = 'source-over'; edCutRender(); };
   cv.addEventListener('pointerdown', e => { const c = ED && ED.cut; if (!c) return; e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
     const p = P(e); on = true;
     if (c.mode === 'tap'){ on = false; edCutFromTap(Math.max(0, Math.min(cv.width - 1, p[0])), Math.max(0, Math.min(cv.height - 1, p[1]))); return; }
-    if (c.mode === 'touch'){ paint(p); return; }
+    if (c.mode === 'touch'){ c.t0 = p; c.moved = false; c.snap = c.mask.getContext('2d').getImageData(0, 0, c.mask.width, c.mask.height); return; }
     c.loop = [p]; c.has = false; edCutRender(); });
   cv.addEventListener('pointermove', e => { if (!on || !ED || !ED.cut) return; const c = ED.cut, p = P(e);
-    if (c.mode === 'touch'){ paint(p); return; }
+    if (c.mode === 'touch'){ if (!c.moved && Math.hypot(p[0] - c.t0[0], p[1] - c.t0[1]) < 6) return; if (!c.moved){ c.moved = true; paint(c.t0); } paint(p); return; }
     const l = c.loop[c.loop.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) > 3){ c.loop.push(p); edCutRender(); } });
-  const up = () => { if (!on) return; on = false; const c = ED && ED.cut; if (!c) return; if (c.mode === 'loop'){ if (c.loop.length > 8) edCutFromLoop(); else { c.loop = []; edCutRender(); } } };
+  const up = () => { if (!on) return; on = false; const c = ED && ED.cut; if (!c) return;
+    if (c.mode === 'touch' && !c.moved && c.t0){ edCutTapArea(c.t0[0], c.t0[1], c.brush === 'add'); return; }
+    if (c.mode === 'loop'){ if (c.loop.length > 8) edCutFromLoop(); else { c.loop = []; edCutRender(); } } };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
 }
 async function edCutUse(){
@@ -49267,9 +49385,13 @@ async function edCutUse(){
   const fin = document.createElement('canvas'); fin.width = Math.max(1, tw); fin.height = Math.max(1, th); fin.getContext('2d').drawImage(out, tx, ty, tw, th, 0, 0, tw, th);
   const sc = Math.min(1, 900 / Math.max(fin.width, fin.height)), keep = document.createElement('canvas'); keep.width = Math.round(fin.width * sc); keep.height = Math.round(fin.height * sc);
   keep.getContext('2d').drawImage(fin, 0, 0, keep.width, keep.height);
-  try{ const id = 'cut' + uid(); await putBlob(id, await edBlobOf(keep)); const l = edCutList(); l.unshift({id, t: Date.now()}); localStorage.setItem(ED_CUTS, JSON.stringify(l.slice(0, 40))); }catch(e){}
-  edCutClose(); edAdd(keep, {kind: 'photo', width: CAM_W * 0.5, meta: {pstyle: 'cut'}});
-  toast('Cut out. It is in Stickers to use again.');
+  try{
+    const id = (c.again && c.again.id) || ('cut' + uid());
+    await putBlob(id, await edBlobOf(keep)); await putBlob(id + ':src', await edBlobOf(c.src, 'image/jpeg', 0.9)); await putBlob(id + ':mask', await edBlobOf(c.mask));
+    const l = edCutList().filter(x => x.id !== id); l.unshift({id, t: Date.now()}); localStorage.setItem(ED_CUTS, JSON.stringify(l.slice(0, 40)));
+  }catch(e){}
+  edCutClose(); edAdd(keep, {kind: 'photo', meta: {pstyle: 'cut'}});
+  toast(c.again ? 'Cut out changed. The new one is in Stickers.' : 'Cut out. It is in Stickers to use again.');
 }
 function edCutClose(){ const ui = document.getElementById('edCutUI'); if (ui) ui.hidden = true; document.getElementById('camx').classList.remove('edcut'); if (ED) ED.cut = null; }
 async function edCutsRow(){
@@ -49278,7 +49400,7 @@ async function edCutsRow(){
 }
 async function edCutsFill(){
   const row = document.getElementById('edCutsRow'); if (!row) return;
-  for (const b of row.querySelectorAll('[data-c="edcutadd"]')){ try{ const bl = await getBlobStrict(b.dataset.v); if (bl) b.querySelector('img').src = URL.createObjectURL(bl); else b.remove(); }catch(e){ b.remove(); } }
+  for (const b of row.querySelectorAll('[data-c="edcutadd"], [data-c="edcutamend"]')){ try{ const bl = await getBlobStrict(b.dataset.v); if (bl) b.querySelector('img').src = URL.createObjectURL(bl); else b.closest('.ed-cutcell').remove(); }catch(e){ b.closest('.ed-cutcell').remove(); } }
 }
 
 const ED_TOPO_COLS = ['#FFFFFF', '#14332D', '#E0784F', '#F3C64B'];
@@ -49388,17 +49510,28 @@ function edClick(a, b){
   if (a === 'edleye'){ const it = edGet(b.dataset.v); if (it){ edSnap(); ED.items = ED.items.map(x => x === it ? Object.assign({}, x, {hidden: !x.hidden}) : x); edDraw(); edLayersSheet(); } return true; }
   if (a === 'edfrom'){ ED.hq = ''; edSheet('hill'); return true; }
   if (a === 'edhill'){ const h = BY_KEY[b.dataset.v]; edSheet(false); if (h) edSetHill(h); return true; }
-  if (a === 'edcutmode'){ if (!ED.cut) return true; ED.cut.mode = b.dataset.v; if (b.dataset.v !== 'touch'){ ED.cut.has = false; ED.cut.mask.getContext('2d').clearRect(0, 0, ED.cut.mask.width, ED.cut.mask.height); } edCutUI(); edCutRender(); return true; }
+  if (a === 'edcutmode'){ const c = ED.cut; if (!c) return true; if (b.dataset.v === 'touch'){ c.pickMode = c.mode === 'touch' ? c.pickMode : c.mode; c.mode = 'touch'; } else { c.mode = b.dataset.v; c.has = false; c.loop = []; c.mask.getContext('2d').clearRect(0, 0, c.mask.width, c.mask.height); } edCutUI(); edCutRender(); return true; }
+  if (a === 'edcuttouchdone'){ const c = ED.cut; if (c){ c.mode = c.pickMode || 'loop'; edCutUI(); edCutRender(); } return true; }
+  if (a === 'edcutredo'){ const c = ED.cut; if (c){ c.mode = c.pickMode && c.pickMode !== 'touch' ? c.pickMode : 'loop'; c.has = false; c.loop = []; c.mask.getContext('2d').clearRect(0, 0, c.mask.width, c.mask.height); edCutUI(); edCutRender(); } return true; }
   if (a === 'edcutbrush'){ if (ED.cut){ ED.cut.brush = b.dataset.v; edCutUI(); } return true; }
   if (a === 'edcutuse'){ edCutUse(); return true; }
+  if (a === 'edcutedit'){ ED.cutEdit = !ED.cutEdit; edStickers(); return true; }
+  if (a === 'edcutdel'){ const id = b.dataset.v; localStorage.setItem(ED_CUTS, JSON.stringify(edCutList().filter(x => x.id !== id)));
+    tx('readwrite', st => { st.delete(id); st.delete(id + ':src'); st.delete(id + ':mask'); }).catch(() => {});
+    if (!edCutList().length) ED.cutEdit = false; edStickers(); toast('Cut out deleted.'); return true; }
+  if (a === 'edcutamend'){ (async () => { const id = b.dataset.v;
+    try{ const src = await getBlobStrict(id + ':src'), mk = await getBlobStrict(id + ':mask');
+      if (!src || !mk){ toast('This one was made before cut outs could be changed. Delete it and cut it again.'); return; }
+      ED.cutEdit = false; edCutOpen(await edBitmapCanvas(src), {id, mask: await edBitmapCanvas(mk)}); }catch(e){ toast('That cut out could not be opened.'); } })(); return true; }
   if (a === 'edcutx'){ edCutClose(); return true; }
-  if (a === 'edcutadd'){ (async () => { try{ const bl = await getBlobStrict(b.dataset.v); if (bl){ edAdd(await edBitmapCanvas(bl), {kind: 'photo', width: CAM_W * 0.5, meta: {pstyle: 'cut'}}); edSheet(false); } }catch(e){} })(); return true; }
+  if (a === 'edcutadd'){ (async () => { try{ const bl = await getBlobStrict(b.dataset.v); if (bl){ edAdd(await edBitmapCanvas(bl), {kind: 'photo', meta: {pstyle: 'cut'}}); edSheet(false); } }catch(e){} })(); return true; }
   if (a === 'edleavedraft'){ (async () => { const btn = document.querySelector('#edSheet [data-c="edleavedraft"]'); if (btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
     try{ await edDraftSave(); }catch(e){ toast('Could not save the draft. Try again.'); if (btn){ btn.disabled = false; btn.textContent = 'Save as draft'; } return; }
     edSheet(false); ED.items = []; edDraw(); camRetake(); toast('Saved as a draft. It is behind the photos button.'); })(); return true; }
   if (a === 'edfilt'){ edFiltSet(b.dataset.v); return true; }
   if (a === 'edfiltdone'){ edFiltDone(); return true; }
   if (a === 'edoverlay'){ edOverlayOpen(); return true; }
+  if (a === 'edplatecol'){ ED.plateCol = b.dataset.v; edStickers(); return true; }
   if (a === 'edttab'){ ED.tTab = b.dataset.v; edTextStyle(); return true; }
   if (a === 'ednames'){ const on = document.getElementById('camx').classList.toggle('ednames'); b.setAttribute('aria-expanded', String(on)); b.setAttribute('aria-label', on ? 'Hide the names' : 'Show the names'); return true; }
   if (a === 'edmarkedpill'){ if (cam.marked) edSheet('unmark'); return true; }
@@ -49411,17 +49544,17 @@ function edClick(a, b){
   }
   if (a === 'edstamp'){ edStampAdd(b.dataset.v); return true; }
   if (a === 'edstk'){
-    const k = b.dataset.k, opt = k === 'plate' ? {kind: 'plate', meta: {peak: b.dataset.p, col: 'cream'}, width: CAM_W * 0.5} : k === 'tile' ? {width: CAM_W * 0.36} : {};
+    const k = b.dataset.k, opt = k === 'plate' ? {kind: 'plate', meta: {peak: b.dataset.p, col: (b.dataset.v.match(/-(cream|pine|rust)$/) || [, 'cream'])[1]}} : {};
     edAddUrl(ED_STK + b.dataset.v + '.webp', opt); edSheet(false); return true;
   }
   if (a === 'edpatch'){
     if (b.dataset.got !== '1'){ toast(b.dataset.need ? 'Not earned yet. ' + b.dataset.need + ' to earn it.' : 'Not earned yet.'); return true; }
-    edAddUrl((ED.stitched ? ED_PS : ED_PF) + b.dataset.v + '.webp', {kind: 'patch', width: CAM_W * 0.32}); edSheet(false); return true;
+    edAddUrl((ED.stitched ? ED_PS : ED_PF) + b.dataset.v + '.webp', {kind: 'patch'}); edSheet(false); return true;
   }
   if (a === 'edtab'){ ED.tab = b.dataset.v; edStickers(); const sh = document.getElementById('edSheet'); const t = sh.querySelector('.ed-tabs'); if (t) t.scrollIntoView({block: 'nearest'}); return true; }
   if (a === 'edstitch'){ ED.stitched = !ED.stitched; edKeep('stitched', ED.stitched); edStickers(); return true; }
   if (a === 'edmark'){ edMark(); return true; }
-  if (a === 'edearnadd'){ const box = document.getElementById('edEarn'); box.hidden = true; edAddUrl(ED_PF + box.dataset.art + '.webp', {kind: 'patch', width: CAM_W * 0.36, centre: true, meta: {earned: true}}).then(it => { if (it && ED){ ED.quiet = it.id; edBarPlace(); } }); camAfter(); return true; }
+  if (a === 'edearnadd'){ const box = document.getElementById('edEarn'); box.hidden = true; edAddUrl(ED_PF + box.dataset.art + '.webp', {kind: 'patch', width: CAM_W * 0.32, centre: true, meta: {earned: true}}).then(it => { if (it && ED){ ED.quiet = it.id; edBarPlace(); } }); camAfter(); return true; }
   if (a === 'edearnno'){ document.getElementById('edEarn').hidden = true; camAfter(); return true; }
   if (a === 'edtwho' || a === 'edtdog'){
     const set = a === 'edtwho' ? cam.tg : cam.dg, v = a === 'edtwho' ? b.dataset.u : b.dataset.v;
@@ -49570,7 +49703,7 @@ function camOpen(){
   document.getElementById('cxHint').classList.remove('gone');
   cam.video = document.getElementById('cxVid');
   if (!CAM_FORMATS[cam.prefs.format]) cam.prefs.format = 'photo';
-  camSetFormat(cam.prefs.format); camSizeView();
+  camSetFormat(cam.prefs.format); camSizeView(); setTimeout(camLookBar, 0);
   el.classList.add('open'); document.documentElement.classList.add('camlock');
   try{ history.pushState({waymarkCam: 1}, ''); cam.pushed = true; }catch(e){}
   camLayers(); camChrome(); skyBar(); skyRefreshKept();
