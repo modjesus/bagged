@@ -5601,7 +5601,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
   background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.6) 35%); padding-top:28px}
 .camx.review.edon .cx-after{position:absolute; left:0; right:0; z-index:4; flex:none; justify-content:flex-start;
   top:min(calc(100vw / var(--cxar, .75) + 4px), calc(100dvh - env(safe-area-inset-bottom) - 84px)); padding:10px 16px calc(env(safe-area-inset-bottom) + 10px)}
-.camx.review.edon.edtall .cx-after{background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.55) 40%)}
+.camx.review.edon.edtall .cx-after{background:linear-gradient(rgba(11,21,18,0), rgba(11,21,18,.55) 40%); top:auto; bottom:0}
 .ed-sheet{max-height:64%; z-index:7}
 .ed-h{margin:2px 0 12px; font:700 18px/1.2 var(--font-ui); color:#F6EFE4}
 .ed-sheet h4{margin:16px 0 8px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#A9BBAF}
@@ -38874,7 +38874,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v454';
+const APP_VERSION = 'v455';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -47612,7 +47612,7 @@ function camClick(e){
 function camSrcKeep(src){
   const iw = src.videoWidth || src.width, ih = src.videoHeight || src.height; if (!iw || !ih) return null;
   if (Math.abs(iw / ih - CAM_W / CAM_FH) < 0.02) return null;
-  const t = Math.min(1, Math.max(CAM_W / iw, CAM_FH / ih)), c = document.createElement('canvas');
+  const t = Math.min(1, Math.max(CAM_W / iw, CAM_FH / ih), Math.sqrt(12e6 / (iw * ih))), c = document.createElement('canvas');
   c.width = Math.round(iw * t); c.height = Math.round(ih * t); c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c;
 }
 function camFreeze(src, when, live){
@@ -47872,7 +47872,8 @@ function edBarPlace(){
   let safeTop = 70 - vr.top + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0);
   const ban = document.getElementById('edBan'); if (ban && !ban.hidden && ban.offsetHeight){ const br = ban.getBoundingClientRect(); safeTop = Math.max(safeTop, br.bottom - vr.top + 8); }
   const r = Math.max(it.w, it.h) * it.s * k / 2, above = it.y * k - r - 58, below = it.y * k + r + 10;
-  const top = above >= Math.max(8, safeTop) ? above : Math.min(below, v.clientHeight - 60);
+  const af = document.getElementById('cxAfter'), afTop = af && !af.hidden && af.offsetHeight ? af.getBoundingClientRect().top - vr.top : v.clientHeight;
+  const top = above >= Math.max(8, safeTop) ? above : Math.min(below, Math.min(v.clientHeight, afTop) - 60);
   const rail = document.getElementById('edRail'), rl = rail && !rail.hidden ? rail.getBoundingClientRect().left - vr.left - 8 : v.clientWidth - 8;
   bar.style.left = Math.min(Math.max(8, it.x * k - bar.offsetWidth / 2), Math.min(v.clientWidth - 8, rl) - bar.offsetWidth) + 'px';
   bar.style.top = Math.max(8, top) + 'px';
@@ -48023,7 +48024,12 @@ function edTextCanvas(text, tp){
     }
     out.push(cur.trim()); return out; };
   const maxW = CAM_W * 0.82, lines = [];
-  for (const para of String(text).split('\n')){
+  const gr = w => (typeof Intl !== 'undefined' && Intl.Segmenter) ? [...new Intl.Segmenter(undefined, {granularity: 'grapheme'}).segment(w)].map(x => x.segment) : Array.from(w);
+  const fit = para => para.split(/(\s+)/).map(w => { if (/^\s*$/.test(w) || wOf(w) <= maxW) return w;
+    const parts = []; let cur = ''; for (const ch of gr(w)){ if (cur && wOf(cur + ch + '-') > maxW){ parts.push(cur + '-'); cur = ch; } else cur += ch; }
+    parts.push(cur); return parts.join(' '); }).join('');
+  for (const para0 of String(text).split('\n')){
+    const para = fit(para0);
     let L = wrap(para, maxW);
     if (L.length > 1){
       let lo = Math.max(...para.split(/\s+/).map(wOf)), hi = maxW;
@@ -49141,7 +49147,7 @@ async function edPickPhotos(n, title, cb){
   const near = new Set(list.map(o => o.id)), all = edJournalShots().filter(x => !near.has(x.id));
   ED.pall = all;
   const ab = document.getElementById('edPkAll'), ah = document.getElementById('edPkAllH');
-  if (ab && all.length){ ah.hidden = false; ah.textContent = 'Your journal · ' + all.length;
+  if (ab && all.length){ ah.hidden = false; ah.textContent = 'Your journal · ' + all.length.toLocaleString('en-GB');
     ab.innerHTML = all.map(x => '<button data-c="edpkone" data-v="' + esc(x.id) + '" aria-pressed="false" aria-label="' + esc((x.title || 'Journal photo') + (x.date ? ', ' + prettyDate(x.date) : '')) + '"><img alt="" data-pid="' + esc(x.id) + '"><b></b></button>').join('');
     edLazyShots(ab, all); edPickMarks(); }
 }
@@ -49179,7 +49185,7 @@ function edLayerName(it){
   if (it.kind === 'text') return [String(it.meta.text || '').replace(/\s+/g, ' ').slice(0, 40) || 'Words', 'Text'];
   if (it.kind === 'draw') return ['Drawing', it.meta.strokes.length + (it.meta.strokes.length === 1 ? ' line' : ' lines')];
   if (it.kind === 'patch') return ['Patch', 'Sticker'];
-  if (it.kind === 'stamp') return ['Field stamp', 'Sticker'];
+  if (it.kind === 'stamp'){ const t = (ED_STAMPS.find(([k]) => k === (it.meta && it.meta.stamp)) || [])[1]; return [t || 'Field stamp', 'Field stamp']; }
   if (it.kind === 'plate') return ['Summit plate', 'Sticker'];
   if (it.kind === 'photo') return [({photo: 'Photo', polaroid: 'Polaroid', booth: 'Photo booth', film: 'Film strip', taped: 'Taped print', cut: 'Cut out'})[it.meta.pstyle] || 'Photo', 'Photo'];
   if (it.meta && it.meta.tagNames) return ['Names', 'Tags'];
@@ -49307,7 +49313,7 @@ async function edChooseOpen(tab){
   }
   const shots = edJournalShots();
   ED_CH.shots = shots;
-  body.innerHTML = shots.length ? '<p class="ed-chcount">' + shots.length + (shots.length === 1 ? ' photo' : ' photos') + ' in your journal</p><div class="ed-chgrid">' + shots.map(s => '<button data-c="edchone" data-v="j:' + esc(s.id) + '" aria-label="' + esc((s.title || 'Journal photo') + (s.date ? ', ' + prettyDate(s.date) : '')) + '"><img alt="" data-pid="' + esc(s.id) + '"><b></b></button>').join('') + '</div>'
+  body.innerHTML = shots.length ? '<p class="ed-chcount">' + shots.length.toLocaleString('en-GB') + (shots.length === 1 ? ' photo' : ' photos') + ' in your journal</p><div class="ed-chgrid">' + shots.map(s => '<button data-c="edchone" data-v="j:' + esc(s.id) + '" aria-label="' + esc((s.title || 'Journal photo') + (s.date ? ', ' + prettyDate(s.date) : '')) + '"><img alt="" data-pid="' + esc(s.id) + '"><b></b></button>').join('') + '</div>'
     : '<p class="ed-note">No photos in your journal yet.</p>';
   edLazyShots(body, shots);
 }
@@ -49347,7 +49353,7 @@ function edFromChip(){
   chip.hidden = !show; if (!show) return;
   const w = cam.when || new Date(), h = cam.hill;
   chip.innerHTML = '<b>From the photo: ' + esc(prettyDate(w.toISOString().slice(0, 10))) + '</b><span>' +
-    (h ? esc(hillName(h)) + (cam.mode === 'summit' ? ' summit' : '') : 'No place saved') + ' · <u>' + (h ? 'Change' : 'Choose the hill') + '</u></span>';
+    (h ? (cam.photoNoPlace ? 'No place saved, using where you are: ' : '') + esc(hillName(h)) + (cam.mode === 'summit' ? ' summit' : '') : 'No place saved') + ' · <u>' + (h ? 'Change' : 'Choose the hill') + '</u></span>';
 }
 
 const ED_CUTS = 'waymark.cuts';
@@ -49733,7 +49739,6 @@ function edAfter(){
     ban.hidden = !ask; document.getElementById('camx').classList.toggle('edban', ask);
   }
   let s = '';
-  if (cam.photoNoPlace) s += '<p class="cx-info">This photo has no location saved, so the facts use where you are now.</p>';
   const pill = document.getElementById('edMarked');
   if (pill){
     const on = !!(cam.marked || cam.verified) && !(ban && !ban.hidden);
