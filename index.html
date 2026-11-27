@@ -5316,6 +5316,7 @@ html.camlock .toast{bottom:auto; top:calc(env(safe-area-inset-top) + 70px)}
 .ed-it.sel{outline:2px dashed rgba(255,255,255,.9); outline-offset:6px}
 .ed-it.sel.round{outline:2.5px solid rgba(255,255,255,.95); outline-offset:5px; border-radius:50%}
 .ed-gv, .ed-gh{position:absolute; z-index:3; pointer-events:none}
+.ed-it.held{z-index:2}
 .ed-gv{left:50%; top:0; bottom:0; width:2px; margin-left:-1px; background:#E8743B; box-shadow:0 0 0 1px rgba(0,0,0,.22)}
 .ed-gh{top:50%; left:0; right:0; height:2px; margin-top:-1px; background:#E8743B; box-shadow:0 0 0 1px rgba(0,0,0,.22)}
 .ed-gv.near, .ed-gh.near{background:rgba(246,239,228,.75); box-shadow:none}
@@ -38871,7 +38872,7 @@ function rlCmpClimb(rs){
   return s + '</svg>';
 }
 
-const APP_VERSION = 'v452';
+const APP_VERSION = 'v453';
 function deviceLine(){
   const ua = navigator.userAgent || '';
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Other';
@@ -47606,9 +47607,16 @@ function camClick(e){
   else if (a === 'share') camShareOut();
 }
 
+function camSrcKeep(src){
+  const iw = src.videoWidth || src.width, ih = src.videoHeight || src.height; if (!iw || !ih) return null;
+  if (Math.abs(iw / ih - CAM_W / CAM_FH) < 0.02) return null;
+  const t = Math.min(1, Math.max(CAM_W / iw, CAM_FH / ih)), c = document.createElement('canvas');
+  c.width = Math.round(iw * t); c.height = Math.round(ih * t); c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c;
+}
 function camFreeze(src, when, live){
   const c = document.createElement('canvas'); c.width = CAM_W; c.height = CAM_FH;
   camCover(c.getContext('2d'), src, CAM_W, CAM_FH);
+  try{ cam.src = live ? null : camSrcKeep(src); }catch(e){ cam.src = null; }
   cam.still = c; cam.when = when; cam.live = live; cam.saved = false; cam.asked = false; cam.marked = null; cam.verified = false;
   cam.filed = null; cam.tg = new Set(); cam.dg = new Set(); cam.tgAsked = 0; cam.tgSent = new Set();
   cam.skyHold = (cam.prefs.style === 'skyline' && skyView)
@@ -47639,6 +47647,7 @@ async function camPick(file){
     camFreeze(img, meta.when || new Date(file.lastModified || Date.now()), false);
     if (cam.prefs.weather && cam.photoFix) camWeather();
     if (inCh) edChooseClose();
+    if (cam.src && cam.src.width / cam.src.height > CAM_W / CAM_FH * 1.08) toast('Wider than the frame. Drag the photo to slide it, before you add anything.');
   }catch(err){
     if (inCh) edChooseOpen('phone');
     toast('That photo would not open. If it came from iCloud, open it in Photos first, then try again.');
@@ -47649,7 +47658,7 @@ function camRetake(){
   if (cam.photoFix || cam.photoNoPlace){ cam.photoFix = null; cam.photoNoPlace = false; cam.wx = null;
     cam.fix = cam.liveFix || null; if (cam.fix) camJudge();
     if (cam.prefs.style === 'skyline') skyReady(true); }
-  cam.still = null; cam.saved = false; cam.marked = null; cam.skyHold = null;
+  cam.still = null; cam.src = null; cam.saved = false; cam.marked = null; cam.skyHold = null;
   if (cam.clip){ URL.revokeObjectURL(cam.clip.url); cam.clip = null; }
   const cv = document.getElementById('cxClip'); cv.pause(); cv.removeAttribute('src'); cv.hidden = true;
   if (!cam.wx && cam.fix && cam.prefs.weather) camWeather();
@@ -47874,13 +47883,39 @@ function edPaint(ctx){
     ctx.drawImage(it.img, -it.w / 2, -it.h / 2, it.w, it.h); ctx.restore();
   }
 }
+function edAddedAny(){ return !!(ED && ED.items.some(i => !(i.meta && i.meta.earned))); }
+function edCanPan(any){
+  if (!ED || !cam || !cam.still || cam.clip || ED.page) return false;
+  if (!any && edAddedAny()) return false;
+  const c = ED.crop || {s: 1}, [bw, bh] = edCropSize();
+  return bw * c.s - CAM_W > 2 || bh * c.s - CAM_FH > 2;
+}
 function edGestures(lay){
-  const pts = new Map(); let g = null;
+  const pts = new Map(); let g = null, pan = null;
+  lay.addEventListener('pointermove', e => {
+    if (ED && ED.panHint && Math.hypot(e.clientX - ED.panHint.x, e.clientY - ED.panHint.y) > 24){ ED.panHint = null; ED.panTold = true;
+      toast('The photo stays put once you add things. Open Crop (under the arrow on the right) to slide it.'); }
+    if (!pan || e.pointerId !== pan.id) return;
+    const dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+    if (!pan.moved && Math.hypot(dx, dy) < 6) return;
+    pan.moved = true; e.preventDefault();
+    ED.crop = Object.assign({s: 1, x: 0, y: 0}, ED.crop); ED.crop.x = pan.cx + dx / pan.k; ED.crop.y = pan.cy + dy / pan.k;
+    edCropClamp(); camPaint();
+  });
+  const panEnd = e => { if (ED) ED.panHint = null; if (!pan || e.pointerId !== pan.id) return; const p = pan; pan = null;
+    if (p.moved){ const a = p.start, b = ED.crop; if (a.x !== b.x || a.y !== b.y){ edSnap(); ED.undo[ED.undo.length - 1].crop = a; } } };
+  lay.addEventListener('pointerup', panEnd); lay.addEventListener('pointercancel', panEnd);
   const pos = e => ({x: e.clientX, y: e.clientY});
   lay.addEventListener('pointerdown', e => {
     const el = e.target.closest('.ed-it');
     if (!ED) return;
-    if (!el && !g){ if (ED.sel){ ED.sel = null; edDraw(); } return; }
+    if (!el && !g){
+      if (ED.sel){ ED.sel = null; edDraw(); }
+      if (!edCanPan() && edCanPan(true) && !ED.panTold) ED.panHint = {x: e.clientX, y: e.clientY};
+      if (edCanPan()){ pan = {id: e.pointerId, x: e.clientX, y: e.clientY, cx: ED.crop ? ED.crop.x : 0, cy: ED.crop ? ED.crop.y : 0, k: edK(), moved: false, start: Object.assign({s: 1, x: 0, y: 0}, ED.crop)};
+        try{ lay.setPointerCapture(e.pointerId); }catch(er){} }
+      return;
+    }
     e.preventDefault(); e.stopPropagation();
     pts.set(e.pointerId, pos(e));
     try{ lay.setPointerCapture(e.pointerId); }catch(er){}
@@ -47889,8 +47924,7 @@ function edGestures(lay){
       edSnap();
       g = {it, x0: it.x, y0: it.y, s0: it.s, r0: it.r, p0: pos(e), t0: Date.now(), moved: false, wasSel: ED.sel === it.id};
       ED.sel = it.id; ED.drag = true; ED.quiet = null;
-      ED.items = ED.items.filter(i => i !== it).concat(it);
-      edDraw();
+      edDraw(); const hel = lay.querySelector('[data-eid="' + it.id + '"]'); if (hel) hel.classList.add('held');
     } else if (pts.size === 2){
       const [a, b] = [...pts.values()];
       g.two = {d: Math.hypot(b.x - a.x, b.y - a.y), a: Math.atan2(b.y - a.y, b.x - a.x), s0: g.it.s, r0: g.it.r,
@@ -47939,6 +47973,7 @@ function edGestures(lay){
     if (pts.size) return;
     const it = g.it, tap = !g.moved && Date.now() - g.t0 < 350, over = g.over, wasSel = g.wasSel;
     g = null; ED.drag = false; ED.dragEnd = Date.now();
+    lay.querySelectorAll('.ed-it.held').forEach(x => x.classList.remove('held'));
     document.getElementById('edGV').hidden = true; document.getElementById('edGH').hidden = true;
     const bin = document.getElementById('edBin'); bin.hidden = true; bin.classList.remove('hot');
     if (over){ ED.undo.pop(); edRemove(it.id); if (navigator.vibrate) navigator.vibrate(12); return; }
@@ -48334,12 +48369,16 @@ function edStickers(){
       '<button class="ed-stp" data-c="edstamp" data-v="' + k + '" aria-label="' + esc(t) + '"><img alt="" src="' + edStamp(k, f).toDataURL() + '"></button>').join('') + '</div>' +
       '<p class="ed-note">From this photo’s real facts. Tap one to add it, tap it again on the photo to change its style.</p>';
   }
-  const slug = edPeakSlug();
-  if (slug && hit(hillName(h))){
-    s += '<h4>WayMark stickers for ' + esc(hillName(h)) + '</h4><div class="ed-row ed-for">' +
-      '<button data-c="edstk" data-v="tile-' + slug + '" data-k="tile"><img alt="Map tile" src="' + ED_STK + 'tile-' + slug + '.webp"></button>' +
-      ['cream', 'pine', 'rust'].map(c => '<button data-c="edstk" data-v="plate-' + slug + '-' + c + '" data-k="plate" data-p="' + slug + '"><img alt="Summit plate, ' + c + '" src="' + ED_STK + 'plate-' + slug + '-' + c + '.webp"></button>').join('') + '</div>';
+  const slug = edPeakSlug(), hp = edHillPatch(), hs = h ? hillName(h).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : '';
+  const own = [];
+  if (h && hit(hillName(h))){
+    if (hp){ const got = !!(hp.got || cam.marked || isBagged(h.k));
+      own.push('<button class="ed-pt' + (got ? '' : ' off') + '" data-c="edpatch" data-v="' + esc(hp.art || hp.id) + '" data-got="' + (got ? 1 : 0) + '" data-need="' + esc(hp.need || ('Mark ' + hillName(h))) + '" aria-label="' + esc(hillName(h)) + ' patch' + (got ? '' : ', not earned yet') + '"><img alt="" src="' + (ED.stitched ? ED_PS : ED_PF) + esc(hp.art || hp.id) + '.webp"></button>'); }
+    for (const [k, t] of ED_WM.concat(ED_TP)) if (hs && (k === 'wm-' + hs || k === 'tp-' + hs)) own.push('<button data-c="edstk" data-v="' + k + '" aria-label="' + esc(t) + '"><img alt="" src="' + ED_STK + k + '.webp"></button>');
+    if (slug){ own.push('<button data-c="edstk" data-v="tile-' + slug + '" data-k="tile"><img alt="Map tile" src="' + ED_STK + 'tile-' + slug + '.webp"></button>');
+      own.push(...['cream', 'pine', 'rust'].map(c => '<button data-c="edstk" data-v="plate-' + slug + '-' + c + '" data-k="plate" data-p="' + slug + '"><img alt="Summit plate, ' + c + '" src="' + ED_STK + 'plate-' + slug + '-' + c + '.webp"></button>')); }
   }
+  if (own.length) s += '<h4>For this mountain</h4><div class="ed-row ed-for">' + own.join('') + '</div>';
   if (!q || hit('cut out')){ const cl = edCutList(); if (cl.length) s += '<div class="ed-h4row"><h4>Your cut outs</h4><button class="cx-link" data-c="edcutedit" aria-pressed="' + !!ED.cutEdit + '">' + (ED.cutEdit ? 'Done' : 'Edit') + '</button></div>' +
     '<div class="ed-row ed-cutrow' + (ED.cutEdit ? ' editing' : '') + '" id="edCutsRow">' + cl.slice(0, 30).map(c => '<span class="ed-cutcell"><button class="ed-stk" data-c="' + (ED.cutEdit ? 'edcutamend' : 'edcutadd') + '" data-v="' + esc(c.id) + '" aria-label="' + (ED.cutEdit ? 'Change this cut out' : 'Your cut out') + '"><img alt=""></button>' +
       (ED.cutEdit ? '<button class="ed-cutdel" data-c="edcutdel" data-v="' + esc(c.id) + '" aria-label="Delete this cut out">' + cxI('x') + '</button>' : '') + '</span>').join('') + '</div>' +
@@ -48856,11 +48895,15 @@ function edBase(){
   const gk = g && g.k !== 'none' && g.a > 0 ? g.k + g.a.toFixed(2) : '';
   const pk = pg ? pg.sig : '';
   if (!fk && !ck && !gk && !pk) return cam.still;
-  const key = [fk, ck, gk, pk, cam.still.width, cam.still.height].join('|');
+  const key = [fk, ck, gk, pk, cam.still.width, cam.still.height, cam.src ? cam.src.width : 0].join('|');
   if (ED.fcache && ED.fcache.key === key && ED.fcache.src === cam.still) return ED.fcache.c;
   let c = cam.still;
   if (ck){ const o = document.createElement('canvas'); o.width = c.width; o.height = c.height; const x = o.getContext('2d');
-    x.translate(o.width / 2 + cr.x, o.height / 2 + cr.y); x.scale(cr.s, cr.s); x.drawImage(c, -c.width / 2, -c.height / 2); c = o; }
+    x.translate(o.width / 2 + cr.x, o.height / 2 + cr.y); x.scale(cr.s, cr.s);
+    const S = cam.src;
+    if (S){ const s0 = Math.max(o.width / S.width, o.height / S.height); x.scale(s0, s0); x.drawImage(S, -S.width / 2, -S.height / 2); }
+    else x.drawImage(c, -c.width / 2, -c.height / 2);
+    c = o; }
   if (fk) c = edFilterInto(c, f.k, f.a);
   if (pk) c = edPageBase(pg, c);
   if (gk) c = edGradInto(c, g);
@@ -48874,9 +48917,13 @@ function edCropOpen(){
   ED.crop = ED.crop || {s: 1, x: 0, y: 0}; ED.cstart = Object.assign({}, ED.crop);
   ui.hidden = false; document.getElementById('camx').classList.add('edcrop'); edCropUI();
 }
+function edCropSize(){
+  const S = cam.src; if (!S) return [CAM_W, CAM_FH];
+  const s0 = Math.max(CAM_W / S.width, CAM_FH / S.height); return [S.width * s0, S.height * s0];
+}
 function edCropClamp(){
   const c = ED.crop; c.s = Math.min(4, Math.max(1, c.s));
-  const mx = (c.s - 1) * CAM_W / 2, my = (c.s - 1) * CAM_FH / 2;
+  const [bw, bh] = edCropSize(), mx = (bw * c.s - CAM_W) / 2, my = (bh * c.s - CAM_FH) / 2;
   c.x = Math.min(mx, Math.max(-mx, c.x)); c.y = Math.min(my, Math.max(-my, c.y));
 }
 function edCropUI(){ edCropClamp(); const z = document.getElementById('edCZoom'); if (z) z.value = String(Math.round(ED.crop.s * 100)); camPaint(); }
@@ -49154,7 +49201,7 @@ function edDraftKeep(l){ try{ localStorage.setItem(ED_DRAFTS, JSON.stringify(l.s
 const edBlobOf = (c, type, q) => new Promise(res => c.toBlob(res, type || 'image/png', q));
 async function edDraftSave(){
   const id = ED.draftId || ('dr' + uid());
-  const raw = await edBlobOf(cam.still, 'image/jpeg', 0.94);
+  const raw = await edBlobOf(cam.src || cam.still, 'image/jpeg', 0.94);
   const items = [];
   for (const it of ED.items){
     const o = {id: it.id, kind: it.kind, x: it.x, y: it.y, s: it.s, r: it.r, w: it.w, h: it.h, hidden: !!it.hidden, meta: Object.assign({}, it.meta, {srcs: undefined})};
