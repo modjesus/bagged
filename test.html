@@ -11901,7 +11901,7 @@ var WM_CHANGES = [
  ['C21','Profile tabs (dropped, stays as v455)'],['C22','Map › Find hills'],['C23','Side menu: one number'],['C24','Settings from You'],
  ['C25','Names in Wales'],['C26','One word list'],['C27','How did it go? makes the day out'],['C28','Follow makes the day out'],
  ['C29','Planned walks in the Journal and Your summits'],['C30','A walked route opens its day out'],['C31','Map pins: tick and ring'],
- ['C32','Hill card on the map, restyled'],['C33','Dotted route lines'],['C34','Day out page'],['C35','Home photo: summit card styles'],
+ ['C32','Hill card on the map, restyled'],['C33','Dotted route lines: dotted on the new maps, Discover kept solid as you asked'],['C34','Day out page'],['C35','Home photo: summit card styles'],
  ['C36','Working on: up to three'],['C37','Your summits list chips and area tiles'],['C38','The new patch moment and cork board'],
  ['C39','Profile background: map contours'],['C40','Editor wherever you add a photo'],['C41','Stickers in messages'],
  ['C42','Km or miles, metres or feet everywhere'],['C43','Text size, taps, outlines'],['C44','Six short animations'],
@@ -11909,7 +11909,7 @@ var WM_CHANGES = [
  ['C49','Dog tagging once a day'],['C50','Dog on the summit card'],['C51','Route: With a dog tab'],['C52','Share a dog page']
 ];
 /* Built so far. Only these do anything when switched on. */
-var WM_BUILT = {C8:1, C9:1, C25:1, C2:1, C3:1, C4:1, C5:1, C7:1, C37:1, C46:1, C10:1, C11:1, C12:1, C16:1, C44:1, C49:1, C13:1, C14:1, C34:1, C40:1, C45:1, C47:1, C17:1, C18:1, C19:1, C20:1, C39:1, C41:1, C50:1, C52:1, C1:1, C35:1, C36:1, C15:1, C24:1, C48:1, C23:1, C26:1, C29:1, C30:1, C27:1, C28:1, C31:1, C32:1, C42:1, C43:1};
+var WM_BUILT = {C8:1, C9:1, C25:1, C2:1, C3:1, C4:1, C5:1, C7:1, C37:1, C46:1, C10:1, C11:1, C12:1, C16:1, C44:1, C49:1, C13:1, C14:1, C34:1, C40:1, C45:1, C47:1, C17:1, C18:1, C19:1, C20:1, C39:1, C41:1, C50:1, C52:1, C1:1, C35:1, C36:1, C15:1, C24:1, C48:1, C23:1, C26:1, C29:1, C30:1, C27:1, C28:1, C31:1, C32:1, C42:1, C43:1, C6:1, C22:1, C38:1, C51:1};
 var WM_SW_KEY = 'waymark.switches';
 var WM_TEST_COPY = !!window.__wmTest;
 function wmSwitches(){
@@ -20204,6 +20204,7 @@ function renderPatchesPage(){
 }
 
 function patchesHead(ps, got){
+  if (wmOn('C6')) return wmPatchesHead(ps, got);
   const g = ui.pGroup || '';
   const N = {};
   for (const k of ['summit', 'challenge', 'milestone']){
@@ -25840,7 +25841,7 @@ function hillIconHTML(h, cs){
       (v ? '<i class="pkring"></i>' : '') + repBadge(h.k) + '</div>'
     : '<div class="hpin' + (st !== 'none' ? ' ' + st : '') + '" style="width:' + big + 'px;height:' + big + 'px;border-color:' + col + ';color:' + col + '">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></div>';
-  return wmPin({html, big, done, col, st}, h);
+  return wmPinPhoto(wmPin({html, big, done, col, st}, h), h);
 }
 function hillMarker(m, arr, h, cs, onClick, tip, icon){
   const {html, big, done} = icon || hillIconHTML(h, cs);
@@ -25980,8 +25981,9 @@ function drawMarkers(){
   const lines = [];
   lines.push(...routeLineFeatures());
   setData(map, 'wm-lines', {type:'FeatureCollection', features:lines});
-  paintHills(map, mapMarks, mapHills(), (mk, h) => openPopup(mk, h, map), false);
+  paintHills(map, mapMarks, wmMapHills(mapHills()), (mk, h) => openPopup(mk, h, map), false);
   drawSearchPin(map, mapMarks, h => openPopup(null, h, map));
+  wmMapExtras(map);
 }
 function openPopup(mk, h, m){
   m = m || (mk && mk.__m) || map;
@@ -27115,8 +27117,9 @@ function rmDraw(){
 
 function drawMapSummits(){
   if (!rmap) return;
+  setTimeout(() => wmMapExtras(rmap), 0);
   const hs = hideMarkedOn() && ui.rmode !== 'plot' ? mapHills().filter(h => !isBagged(h.k)) : mapHills();
-  paintHills(rmap, rmMarks, hs, (mk, hh) => {
+  paintHills(rmap, rmMarks, wmMapHills(hs), (mk, hh) => {
     if (editor && ui.rmode === 'plot') rmAdd([hh.a, hh.o]);
     else openPopup(mk, hh, rmap);
   }, true);
@@ -28758,6 +28761,7 @@ function layersHTML(){
       lsPill('Off', !on, 'maproutes', '0') + lsPill('On', on, 'maproutes', '1'),
       on && rc.shown < rc.all ? '<button class="linkbtn lsall" data-act="rtshowall">Show all</button>' : '');
   }
+  s += wmMapRows();
   if (state.enabled.includes('wainwright')){
     const bk = pinBooks();
     s += lsRow('Pin colours', bk ? 'By Wainwright’s book' : 'Marked and to do, or by book',
@@ -37051,8 +37055,8 @@ function rlMiles(r){ return (rlDist(r) / 1609.344).toFixed(1); }
 function rlFeet(m){ return Math.round(m * 3.28084).toLocaleString('en-GB'); }
 function rlMins(r){ return Math.round((rlDist(r) / 5000 + r.asc / 600) * 60 / 5) * 5; }
 function rlTime(r){ const m = rlMins(r), h = Math.floor(m / 60), mm = m % 60; return h ? h + ' h' + (mm ? ' ' + String(mm).padStart(2, '0') : '') : mm + ' min'; }
-function rlNums(r){ return wmRlDist(r) + ' · ' + rlFeet(r.asc) + ' ft · est. ' + rlTime(r); }
-function rlNumsHTML(r){ return wmRlDist(r) + ' · ' + rlFeet(r.asc) + ' ft · <i class="rlest">est.</i> ' + rlTime(r); }
+function rlNums(r){ return wmRlDist(r) + ' · ' + wmHtM(r.asc) + ' · est. ' + rlTime(r); }
+function rlNumsHTML(r){ return wmRlDist(r) + ' · ' + wmHtM(r.asc) + ' · <i class="rlest">est.</i> ' + rlTime(r); }
 function rlBox(id){ return routeBox(rlTrk(id)); }
 function rlSaved(id){ const b = rlBox(id); return !!(b && sheetCovers(b)); }
 function rlPlan(id){ return (state.plans || []).find(p => p && p.lib === id && !p.deleted) || null; }
@@ -37143,7 +37147,7 @@ function rlClimb(k, r){
   const area = line + 'L' + X(r.len).toFixed(1) + ' ' + (H - B) + 'L' + X(0).toFixed(1) + ' ' + (H - B) + 'Z';
   const stops = rlStops(k, r);
   let s = '<svg class="rlclimb" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' +
-    esc('The climb, from ' + rlFeet(stops[0].m) + ' ft to ' + rlFeet(hiTop) + ' ft' + (rlRound(r) ? ', and back down to the start' : '')) + '">' +
+    esc('The climb, from ' + wmHtM(stops[0].m) + ' to ' + wmHtM(hiTop) + '' + (rlRound(r) ? ', and back down to the start' : '')) + '">' +
     '<path d="' + area + '" fill="var(--accent-soft)" stroke="none"/>' +
     '<path d="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round"/>';
   const lx = stops.map(p => Math.min(W - R - 3, Math.max(L + 3, X(p.at))));
@@ -37154,8 +37158,8 @@ function rlClimb(k, r){
       '<text x="' + lx[i].toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" class="rlcn">' + (i + 1) + '</text>';
   });
   const tx = X(rlRound(r) ? rlAlong(r, tops[0].a, tops[0].o).at : r.len);
-  s += '<text x="' + L + '" y="' + (Y(stops[0].m) - 8).toFixed(1) + '" class="rlcl">' + rlFeet(stops[0].m) + ' ft</text>' +
-       '<text x="' + Math.min(W - R, Math.max(L + 40, tx)).toFixed(1) + '" y="12" text-anchor="' + (tx > W - 60 ? 'end' : 'middle') + '" class="rlcl">' + rlFeet(hiTop) + ' ft</text>';
+  s += '<text x="' + L + '" y="' + (Y(stops[0].m) - 8).toFixed(1) + '" class="rlcl">' + wmHtM(stops[0].m) + '</text>' +
+       '<text x="' + Math.min(W - R, Math.max(L + 40, tx)).toFixed(1) + '" y="12" text-anchor="' + (tx > W - 60 ? 'end' : 'middle') + '" class="rlcl">' + wmHtM(hiTop) + '</text>';
   return s + '</svg>';
 }
 
@@ -37328,7 +37332,7 @@ function rlRouteHTML(k, id){
       (r.warn || !r.g ? '' : '<span>' + esc(r.g) + '</span>') + '<span class="rlnot">Not checked by WayMark yet</span></p>' +
     (r.note ? '<p class="rlnote">“' + esc(r.note) + '” <i>' + esc(r.by || '') + '</i></p>' : '') +
     '<div class="rlstats">' + stat('route', 'Walk', wmRlDist(r) + '') + stat('clock', 'Time · estimate', rlTime(r)) +
-      stat('mountain', 'Climb', rlFeet(r.asc) + ' ft') + stat('flag', tops.length === 1 ? 'WayMark top' : 'WayMark tops', String(tops.length)) + '</div>' +
+      stat('mountain', 'Climb', wmHtM(r.asc) + '') + stat('flag', tops.length === 1 ? 'WayMark top' : 'WayMark tops', String(tops.length)) + '</div>' +
     '<p class="rlestn">' + ti('clock', 'width="16" height="16"') + 'Times are estimates at a steady pace. Allow longer for stops, weather and your group.</p>' +
     (r.warn ? '<p class="rltag warn rltagbig">' + esc(r.g) + '</p>' : '') + (r.gn && !/^not graded/i.test(r.gn) ? '<p class="rlgn">' + esc(r.gn) + '</p>' : '') +
     '<div class="rltwo"><button class="rlbtn2 pri" data-rl="mapshow" data-id="' + esc(id) + '">' + ti('map-2') + 'Show on map</button>' +
@@ -37339,15 +37343,15 @@ function rlRouteHTML(k, id){
     rlThereHTML(id) +
     '<div class="rlsec"><div class="rlsech"><h4>WayMark tops on this route</h4></div><ul class="rltl">' +
       tops.map(tk => { const t = BY_KEY[tk], m = isBagged(tk);
-        return '<li>' + ti('mountain', 'width="18" height="18"') + '<b>' + esc(rlHillName(t)) + '</b><span>' + feet(t).toLocaleString('en-GB') + ' ft</span>' +
+        return '<li>' + ti('mountain', 'width="18" height="18"') + '<b>' + esc(rlHillName(t)) + '</b><span>' + (wmOn('C42') ? wmHtD(t) : feet(t).toLocaleString('en-GB') + ' ft') + '</span>' +
           '<em class="' + (m ? 'm' : 'u') + '">' + (m ? 'Marked' : 'New for you') + '</em></li>'; }).join('') + '</ul></div>' +
     '<div class="rlsec"><div class="rlsech"><h4>The climb</h4><small>' + (round ? 'round · ends where it starts' : 'up · back down the same way') + '</small></div>' + rlClimb(k, r) + '</div>' +
     '<h4 class="rlh rlh2">' + (round ? 'On the way round' : 'On the way up') + '</h4><ol class="rlstops">';
   stops.forEach((p, i) => {
     s += '<li><span class="rlno">' + (i + 1) + '</span><span class="rlstx"><b>' + esc(p.n) + '</b>' +
       (p.note ? '<small>' + esc(p.note) + '</small>' : '') +
-      '<span class="rlgr">' + esc(osGridRef8(p.la, p.lo)) + ' · ' + rlFeet(p.m) + ' ft</span></span>' +
-      '<span class="rlmi">' + (p.at / 1609.344).toFixed(1) + ' mi</span></li>';
+      '<span class="rlgr">' + esc(osGridRef8(p.la, p.lo)) + ' · ' + wmHtM(p.m) + '</span></span>' +
+      '<span class="rlmi">' + (wmOn('C42') ? wmDistKm(p.at) : (p.at / 1609.344).toFixed(1) + ' mi') + '</span></li>';
   });
   const t0 = rlTrk(id)[0];
   const dir = isIOS() ? appleDir(t0[0], t0[1]) : rtGoogleDir(t0[0], t0[1]);
@@ -37358,6 +37362,7 @@ function rlRouteHTML(k, id){
     '<div class="rlsafe" role="note">' + ti('alert-triangle') + '<p><b>A suggestion, not a promise.</b> Check it against the map and the forecast, and turn back if it isn’t right for you. <b>' + RL_ACCESS_B + '</b> ' + RL_ACCESS_S + ' In an emergency, call 999 and ask for Police, then Mountain Rescue.</p></div>';
   const ws = []; for (const tk of r.tops) for (const w of (RL_WARN[tk] || [])) if (!ws.some(x => x.b === w.b)) ws.push(w);
   for (const w of ws) s += '<p class="rlwarn">' + ti('alert-triangle') + '<span><b>' + esc(w.b) + '</b> — ' + esc(w.s) + '</span></p>';
+  s += wmRouteDogHTML(k, id);
   s += '<div class="rllinks"><button class="linkbtn" data-rl="report" data-id="' + id + '">Report a problem</button>' +
     '<button class="linkbtn" data-rl="gpx" data-id="' + id + '">Get the GPX · free</button></div>' +
     '<div class="rlbar" id="rlbar">' + rlBarHTML(id) + '</div>';
@@ -38401,7 +38406,7 @@ function pubFormHTML(p, msg){
   if (why) return s + '<p class="pvfine">' + esc(why) + '</p>';
   if (p.pub && p.pub.st !== 'hidden') return s + '<p class="pvfine">To change it, stop it first, then share it again.</p><button class="btn quiet" data-act="pubstop" data-id="' + esc(p.id) + '">Take it off Discover</button>';
   const startP = routeStart(p);
-  s += '<div class="pubsum">' + ti('route', 'width="20" height="20"') + '<span><b>' + (m / 1609.344).toFixed(1) + ' mi · ' + rlFeet(up) + ' ft · <i class="rlest">est.</i> ' + rlTime({kind:'round', len:m, asc:up}) + '</b>' +
+  s += '<div class="pubsum">' + ti('route', 'width="20" height="20"') + '<span><b>' + (m / 1609.344).toFixed(1) + ' mi · ' + wmHtM(up) + ' · <i class="rlest">est.</i> ' + rlTime({kind:'round', len:m, asc:up}) + '</b>' +
       '<small>' + esc(startP && startP.n ? 'Starts at ' + startP.n : 'Starts at ' + osGridRef8(t[0][0], t[0][1])) + '</small></span></div>' +
     '<label class="pubfld"><span>Name</span><input id="pubname" maxlength="80" value="' + esc(f.name) + '" autocomplete="off"></label>' +
     '<label class="pubfld"><span>A few words for other walkers <i>(optional)</i></span><textarea id="pubnote" maxlength="600" rows="3" placeholder="What is it like? Anything to look out for?">' + esc(f.note) + '</textarea></label>' +
@@ -38991,7 +38996,7 @@ function rlCompareHTML(ids){
       '<span class="cvbv' + (w && win[i] ? ' cvwin' : '') + '"><span class="vh">Route ' + (i + 1) + ': </span>' + txt(r) + (w && win[i] ? '<em>' + tag + '</em>' : '') + '</span></div>').join('') + '</div>';
   };
   s += bars('Walk', 'route', r => rlDist(r), r => wmRlDist(r) + '', sh, 'Shortest') +
-    bars('Climb', 'mountain', r => r.asc, r => rlFeet(r.asc) + ' ft', lc, 'Least climb') +
+    bars('Climb', 'mountain', r => r.asc, r => wmHtM(r.asc) + '', lc, 'Least climb') +
     bars('Time · estimate', 'clock', r => rlMins(r), r => rlTime(r), qk, 'Quickest');
   const tick = '<i class="cvtk">' + ti('check', 'width="14" height="14"') + '</i>';
   const row = (lab, f, win) => '<div class="cvr n' + n + '">' + rs.map((r, i) => '<span class="cvv' + (win && one(win) ? (win[i] ? ' w' : ' l') : '') + '" style="--c:' + DC_COLS[i] + '">' +
@@ -52079,6 +52084,7 @@ async function wmAddPlain(where, files){
   render(); if (wikiOpen) paintInfo(); if (wmPg === 'day') wmPaintDay();
 }
 function wmWhereName(where){
+  if (where.label) return where.label;
   if (where.k && BY_KEY[where.k]) return hillName(BY_KEY[where.k]);
   const d = where.d || ((liveDiary().find(e => e.id === where.id) || {}).date);
   const day = d && diaryDays().find(x => x.date === d);
@@ -52107,6 +52113,10 @@ async function wmEFDone(edited){
   if (edited){ try{ const b = await camStillBlob(); f = new File([b], camFileName('jpg'), {type: 'image/jpeg'}); }catch(e){ toast('Could not keep the edit; adding the photo as it is.'); } }
   wmEF = null; wmEFChrome();
   try{ camClose(); }catch(e){}
+  if (w.where.input){
+    try{ const dt = new DataTransfer(); dt.items.add(f); w.where.input.files = dt.files; w.where.input.dataset.wmskip = '1'; w.where.input.dispatchEvent(new Event('change', {bubbles: true})); }catch(e){ toast('That photo could not be added.'); }
+    return;
+  }
   await wmAddPlain(w.where, [f]);
   toast(edited ? 'Added, with your edit.' : 'Added.');
 }
@@ -52819,6 +52829,229 @@ renderSetMenu = function(){
 };
 
 function wmN(n, w){ return n.toLocaleString('en-GB') + ' ' + w + (n === 1 ? '' : 's'); }
+
+/* ===== THE BIG UPDATE, THE REST =====
+   C6 patches: one row of filters · C38 Within reach, and Pin it to my board on
+   a new patch · C22 Map settings: Your summits (Marks, Photos, Hidden), Areas
+   done, Day lines · C31 the map's "i" beside the compass · C43 text follows
+   the phone's text size · C40 the editor for every other photo · C51 a
+   route's With a dog section, from OpenStreetMap. */
+
+/* ---- C6: one row of filters ---- */
+function wmPatchesHead(ps, got){
+  const g = ui.pGroup || '';
+  const N = {}; for (const k of ['summit', 'challenge', 'milestone']){ const inG = ps.filter(x => x.group === k); N[k] = {got: inG.filter(x => x.got).length, all: inG.length}; }
+  const view = ui.patchView === 'collection' ? 'collection' : 'cork';
+  return '<section class="mypatches wmpatchhd"><div class="wmprow" role="group" aria-label="Which patches">' +
+    '<button class="wmchip' + (g === '' ? ' on' : '') + '" data-act="pgroup" data-v="" aria-pressed="' + (g === '') + '">All <small>' + got + '/' + ps.length + '</small></button>' +
+    ['summit', 'challenge', 'milestone'].map(k => '<button class="wmchip' + (g === k ? ' on' : '') + '" data-act="pgroup" data-v="' + k + '" aria-pressed="' + (g === k) + '">' + GROUP_NAME[k] + ' <small>' + N[k].got + '/' + N[k].all + '</small></button>').join('') +
+    '<button class="wmchip" data-act="patchview" data-v="' + (view === 'cork' ? 'collection' : 'cork') + '">' + (view === 'cork' ? 'Collection' : 'Board') + '</button>' +
+    '<button class="wmchip" data-act="patchview" data-v="journey">' + ti('clock') + 'History</button>' +
+    (view === 'cork' && got > 1 ? '<button class="wmchip" data-act="corkshuffle">Shuffle</button>' : '') + '</div></section>' +
+    (wmOn('C38') ? wmWithinReach(ps) : '');
+}
+/* ---- C38: Within reach ---- */
+function wmWithinReach(ps){
+  const near = ps.filter(p => !p.got && p.target && p.have > 0).sort((a, b) => (b.have / b.target) - (a.have / a.target)).slice(0, 3);
+  if (!near.length) return '';
+  return '<div class="wmhsec"><h2>Within reach</h2></div><div class="wmrows wmwos">' + near.map(p =>
+    '<button class="wmwo" data-act="openpatch" data-v="' + esc(p.id) + '"><span class="wmwob disc"><span class="patch">' + patchDisc(patchLite(p)) + '</span></span>' +
+    '<span class="wmwot"><b>' + esc(String(p.label).replace(/&middot;/g, '·')) + '</b><span class="wmbar"><i style="width:' + wmPct(p.have, p.target) + '%"></i></span></span><small>' + (p.target - p.have) + ' to go</small>' + ti('chevron-right') + '</button>').join('') + '</div>';
+}
+function wmPinButton(){
+  if (!wmOn('C38')) return;
+  const w = document.getElementById('win'); if (!w || !w.classList.contains('open')) return;
+  const p = (typeof winRun !== 'undefined' && winRun) ? winRun[winAt] : null; if (!p) return;
+  let b = document.getElementById('wmpin');
+  if (!b){ b = document.createElement('button'); b.id = 'wmpin'; b.className = 'btn ghost wmpinbtn'; const sh = document.getElementById('winShare'); if (!sh) return; sh.parentNode.insertBefore(b, sh); }
+  const pinned = Array.isArray(prof.porder) && prof.porder[0] === p.id;
+  b.dataset.v = p.id; b.textContent = pinned ? 'Pinned to your board' : 'Pin it to my board'; b.disabled = pinned;
+}
+setInterval(wmPinButton, 600);
+document.addEventListener('click', e => {
+  const b = e.target.closest('#wmpin'); if (!b) return;
+  const id = b.dataset.v, cur = Array.isArray(prof.porder) ? prof.porder.filter(x => x !== id) : orderedPatches(patches().filter(x => x.got)).map(x => x.id).filter(x => x !== id);
+  prof.porder = [id, ...cur];
+  try{ __wmLS.setItem(PROF_KEY, JSON.stringify(prof)); }catch(err){}
+  try{ schedulePerson(); }catch(err){}
+  toast('Pinned to the top of your board.'); wmPinButton();
+});
+
+/* ---- C22: Map settings and the main map ---- */
+var WM_MAPSUM = 'waymark.mapsum', WM_MAPAREAS = 'waymark.mapareas', WM_MAPDAYS = 'waymark.mapdays';
+function wmLsGet(k, d){ try{ return __wmLS.getItem(k) || d; }catch(e){ return d; } }
+function wmLsSet(k, v){ try{ __wmLS.setItem(k, v); }catch(e){} }
+function wmMapRows(){
+  if (!wmOn('C22')) return '';
+  const sm = wmLsGet(WM_MAPSUM, 'marks'), ar = wmLsGet(WM_MAPAREAS, 'off') === 'on', dl = wmLsGet(WM_MAPDAYS, 'off') === 'on';
+  const pill = (t, on, k, v) => '<button class="lspill' + (on ? ' on' : '') + '" data-wmmap="' + k + '" data-v="' + v + '" aria-pressed="' + on + '">' + t + '</button>';
+  return lsRow('Your summits', sm === 'hidden' ? 'Hidden, so you see what is left' : sm === 'photos' ? 'Your photos on the hills' : 'A tick for each hill you marked',
+      pill('Marks', sm === 'marks', 'sum', 'marks') + pill('Photos', sm === 'photos', 'sum', 'photos') + pill('Hidden', sm === 'hidden', 'sum', 'hidden')) +
+    lsRow('Areas done', 'Zoomed out, one dot per area with your count', pill('Off', !ar, 'areas', 'off') + pill('On', ar, 'areas', 'on')) +
+    lsRow('Day lines', 'Dotted lines join the hills of each day out', pill('Off', !dl, 'days', 'off') + pill('On', dl, 'days', 'on'));
+}
+function wmMapHills(hs){
+  if (!wmOn('C22')) return hs;
+  const far = wmLsGet(WM_MAPAREAS, 'off') === 'on' && typeof rmap !== 'undefined' && rmap && rmap.getZoom() < 9;
+  if (wmLsGet(WM_MAPSUM, 'marks') !== 'hidden' && !far) return hs;
+  return hs.filter(h => !isBagged(h.k));
+}
+function wmPinPhoto(icon, h){
+  if (!wmOn('C22') || !icon.done || wmLsGet(WM_MAPSUM, 'marks') !== 'photos') return icon;
+  const ph = (rec(h.k).photos || []).slice(-1)[0]; if (!ph) return icon;
+  return {...icon, big: 40, html: '<div class="peak wmphpin" style="width:40px;height:40px"><img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt=""></div>'};
+}
+var wmAreaMarks = [];
+function wmMapExtras(m){
+  if (!m || !m.isStyleLoaded || !m.isStyleLoaded()){ if (m && !m.__wmWait){ m.__wmWait = 1; m.once('idle', () => { m.__wmWait = 0; wmMapExtras(m); }); } return; }
+  if (!m.__wmZ){ m.__wmZ = 1; m.on('zoomend', () => wmMapExtras(m)); }
+  hydratePhotos();
+  /* C31: the credits "i" beside the compass */
+  if (wmOn('C31') && !m.__wmI){
+    const c = m.getContainer(), a = c.querySelector('.maplibregl-ctrl-attrib'), bl = c.querySelector('.maplibregl-ctrl-bottom-left');
+    if (a && bl){ bl.appendChild(a); c.classList.add('wmi'); m.__wmI = true; }
+  }
+  if (!wmOn('C22')) return;
+  /* day lines */
+  const on = wmLsGet(WM_MAPDAYS, 'off') === 'on';
+  const feats = on ? diaryDays().filter(d => d.hills.length > 1).map(d => ({type: 'Feature', properties: {},
+    geometry: {type: 'LineString', coordinates: d.hills.filter(h => isFinite(h.a)).sort((a, b) => a.o - b.o).map(h => [h.o, h.a])}})) : [];
+  const gj = {type: 'FeatureCollection', features: feats};
+  try{
+    if (m.getSource('wmdaylines')) m.getSource('wmdaylines').setData(gj);
+    else { m.addSource('wmdaylines', {type: 'geojson', data: gj}); m.addLayer({id: 'wmdaylines', type: 'line', source: 'wmdaylines', layout: {'line-cap': 'round'}, paint: {'line-color': '#A8431A', 'line-width': 3, 'line-dasharray': [0.6, 1.8]}}); }
+  }catch(e){}
+  /* areas done, zoomed out */
+  wmAreaMarks.forEach(x => x.remove()); wmAreaMarks = [];
+  if (wmLsGet(WM_MAPAREAS, 'off') !== 'on' || m.getZoom() >= 9) return;
+  for (const l of enabled().filter(x => x.id !== 'own').slice(0, 1)){
+    const by = {};
+    for (const h of hillsIn(l.id)){ if (!isFinite(h.a)) continue; const a = regionOf(h, l.id); const o = by[a] || (by[a] = {d: 0, t: 0, la: 0, lo: 0}); o.t++; o.la += h.a; o.lo += h.o; if (isBagged(h.k)) o.d++; }
+    for (const [a, o] of Object.entries(by)){
+      if (!o.d) continue;
+      const el = document.createElement('button'); el.className = 'wmareadot' + (o.d === o.t ? ' done' : '');
+      const bk = l.id === 'wainwright' ? BOOK_VAR[a] : ''; if (bk) el.style.setProperty('--bkc', 'var(' + bk + ')');
+      el.innerHTML = '<b>' + o.d + '/' + o.t + '</b><span>' + esc(wmAreaName(a).replace(/^The /, '')) + '</span>';
+      el.setAttribute('aria-label', wmAreaName(a) + ', ' + o.d + ' of ' + o.t + ' marked');
+      el.onclick = ev => { ev.stopPropagation(); m.easeTo({center: [o.lo / o.t, o.la / o.t], zoom: 10.5}); };
+      wmAreaMarks.push(new maplibregl.Marker({element: el}).setLngLat([o.lo / o.t, o.la / o.t]).addTo(m));
+    }
+  }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-wmmap]'); if (!b) return;
+  e.stopImmediatePropagation();
+  const k = b.dataset.wmmap, v = b.dataset.v;
+  wmLsSet(k === 'sum' ? WM_MAPSUM : k === 'areas' ? WM_MAPAREAS : WM_MAPDAYS, v);
+  try{ paintLayers(); }catch(err){}
+  try{ drawMarkers(); }catch(err){}
+}, true);
+
+/* ---- C43: text follows the phone's text size ---- */
+(function(){
+  if (!wmOn('C43')) return;
+  try{
+    const p = document.createElement('span'); p.style.cssText = 'font:-apple-system-body;position:absolute;visibility:hidden'; p.textContent = 'x';
+    document.documentElement.appendChild(p);
+    const fs = parseFloat(getComputedStyle(p).fontSize) || 17; p.remove();
+    const f = Math.max(0.9, Math.min(1.5, fs / 17));
+    if (Math.abs(f - 1) > 0.02) document.documentElement.style.zoom = String(f);
+  }catch(e){}
+})();
+
+/* ---- C40: the editor for every other photo ---- */
+function wmEditorAny(e){
+  const t = e.target;
+  if (!wmOn('C40') || !t || t.type !== 'file' || !t.files || t.files.length !== 1) return;
+  if (t.dataset.wmskip){ delete t.dataset.wmskip; return; }
+  const acc = String(t.accept || '');
+  if (!/image/.test(acc)) return;
+  const act = t.dataset.act || '';
+  if (['photo', 'dayphoto', 'diaryphoto', 'impfiles'].includes(act) || t.id === 'restoreFile' || t.closest('#camx, #edChoose, #wmsheet') || t.dataset.c) return;
+  const f = t.files[0]; if (!looksLikeImage(f)) return;
+  e.stopImmediatePropagation(); e.preventDefault();
+  const name = act.indexOf('dog') >= 0 ? 'your dog' : act.indexOf('kit') >= 0 ? 'your kit' : /av|prof|banner/.test(act + t.id) ? 'your profile' : t.id === 'cvphoto' ? 'the message' : act.indexOf('post') >= 0 || act.indexOf('moment') >= 0 ? 'your post' : 'this';
+  wmEditFirst({input: t, label: name}, f);
+}
+document.addEventListener('change', wmEditorAny, true);
+
+/* ---- C51: a route's With a dog section ---- */
+var wmDogRoute = {};
+function wmRouteDogHTML(k, id){
+  if (!wmOn('C51') || !wmDogsOn()) return '';
+  const r = RL_ROUTES[id]; if (!r) return '';
+  const dogs = dogList();
+  const tops = (rlTopsOf ? rlTopsOf(Object.assign({id}, r)) : r.tops || []).map(t => typeof t === 'string' ? t : (t && t.k)).filter(Boolean);
+  let s = '<div class="wmrdog"><h4>' + ti('paw') + 'With a dog</h4>';
+  for (const d of dogs){
+    const done = new Set((typeof dogHills === 'function' ? dogHills(d.id) : []).map(x => x.k));
+    const n = tops.filter(t => done.has(t)).length;
+    if (tops.length) s += '<p>' + esc(dogName(d)) + ' has done ' + n + ' of the ' + tops.length + (tops.length === 1 ? ' top' : ' tops') + ' on this route.</p>';
+  }
+  const got = wmDogRoute[id];
+  if (!got) s += '<button class="wmghost sm" data-wmrdog="' + esc(id) + '">Check stiles, gates and water</button>';
+  else if (got === 'busy') s += '<p class="wmsub">Looking at OpenStreetMap…</p>';
+  else if (got === 'fail') s += '<p class="wmsub">OpenStreetMap could not be reached. Try again with signal.</p><button class="wmghost sm" data-wmrdog="' + esc(id) + '">Try again</button>';
+  else {
+    const rows = [['ladder', 'Ladder stiles', got.ladder], ['stile', 'Other stiles', got.stile], ['gate', 'Gates', got.gate], ['grid', 'Cattle grids', got.grid], ['pasture', 'Pasture (land for grazing animals)', got.pasture], ['water', 'Drinking water and springs', got.water], ['stream', 'Streams crossed', got.stream]];
+    const any = rows.some(x => x[2]);
+    s += any ? '<ul class="wmrdl">' + rows.filter(x => x[2]).map(x => '<li><b>' + x[2] + '</b> ' + esc(x[1]) + '</li>').join('') + '</ul><p class="wmsub small">Within 25 m of the route, as mapped on OpenStreetMap. Not everything is mapped: look as you go.</p>'
+      : '<p class="wmsub">Not on the map yet: OpenStreetMap shows no stiles, gates or water within 25 m of this route.</p>';
+  }
+  return s + '<p class="wmsub small">Dogs on a short lead (2 m at most) on open access land from 1 March to 31 July, and near livestock.</p></div>';
+}
+async function wmRouteDogCheck(id){
+  const trk = rlTrk(id); if (!trk.length) return;
+  wmDogRoute[id] = 'busy'; rlPaint();
+  let a0 = 90, a1 = -90, o0 = 180, o1 = -180;
+  for (const c of trk){ a0 = Math.min(a0, c[0]); a1 = Math.max(a1, c[0]); o0 = Math.min(o0, c[1]); o1 = Math.max(o1, c[1]); }
+  const bb = [a0 - .002, o0 - .003, a1 + .002, o1 + .003].map(x => x.toFixed(5)).join(',');
+  const ql = '[out:json][timeout:20];(node["barrier"~"^(stile|gate|kissing_gate|cattle_grid)$"](' + bb + ');node["amenity"="drinking_water"](' + bb + ');node["natural"="spring"](' + bb + ');way["waterway"="stream"](' + bb + ');way["meadow"="pasture"](' + bb + '););out geom;';
+  let j = null;
+  for (let i = 0; i < POI_MIRRORS.length && !j; i++){
+    try{ const c = new AbortController(), tm = setTimeout(() => c.abort(), 20000);
+      const r = await fetch(POI_MIRRORS[i], {method: 'POST', headers: {'Content-Type': 'text/plain'}, body: 'data=' + encodeURIComponent(ql), signal: c.signal});
+      clearTimeout(tm); if (r.ok) j = await r.json(); }catch(e){}
+  }
+  if (!j){ wmDogRoute[id] = 'fail'; rlPaint(); return; }
+  const step = Math.max(1, Math.floor(trk.length / 600)), pts = trk.filter((c, i) => i % step === 0).map(c => ({a: c[0], o: c[1]}));
+  const near = (la, lo, m) => pts.some(p => wmKm(p, {a: la, o: lo}) * 1000 <= m);
+  const out = {ladder: 0, stile: 0, gate: 0, grid: 0, pasture: 0, water: 0, stream: 0};
+  for (const el of (j.elements || [])){
+    const t = el.tags || {};
+    if (el.type === 'node'){
+      if (!near(el.lat, el.lon, 25)) continue;
+      if (t.barrier === 'stile') (t.stile === 'ladder' ? out.ladder++ : out.stile++);
+      else if (t.barrier === 'gate' || t.barrier === 'kissing_gate') out.gate++;
+      else if (t.barrier === 'cattle_grid') out.grid++;
+      else if (t.amenity === 'drinking_water' || t.natural === 'spring') out.water++;
+    } else if (el.geometry){
+      if ((el.geometry || []).some(g => near(g.lat, g.lon, 25))){ if (t.waterway === 'stream') out.stream++; else if (t.meadow === 'pasture') out.pasture++; }
+    }
+  }
+  wmDogRoute[id] = out; rlPaint();
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-wmrdog]'); if (b){ e.preventDefault(); wmRouteDogCheck(b.dataset.wmrdog); } });
+
+(function(){
+  const st = document.createElement('style');
+  st.textContent = `
+.wmpatchhd{margin-bottom:6px}.wmprow{display:flex;gap:6px;overflow-x:auto;margin:0 -16px;padding:2px 16px 8px;scrollbar-width:none}.wmprow .wmchip{flex:none}
+.wmpinbtn{width:100%;margin-bottom:8px}
+.lspill{min-height:40px;padding:0 12px;border-radius:20px;border:1px solid #857F6E;background:var(--raise);color:var(--ink);font:600 13.5px var(--font-ui);cursor:pointer}.lspill.on{background:var(--pine);border-color:var(--pine);color:#F6EFE4}
+.wmphpin{border-radius:8px!important;overflow:hidden;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);background:#ccc!important;padding:0!important}.wmphpin img{width:100%;height:100%;object-fit:cover;display:block}
+.wmareadot{--bkc:var(--done);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;cursor:pointer;padding:0}
+.wmareadot b{min-width:44px;min-height:44px;padding:0 6px;border-radius:22px;background:#fff;border:3px solid var(--bkc);color:#14332D;display:grid;place-items:center;font:700 13px var(--font-data);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.wmareadot.done b{background:var(--bkc);color:#fff}.wmareadot span{background:rgba(255,255,255,.9);color:#14332D;font:700 11px var(--font-ui);padding:2px 6px;border-radius:8px;white-space:nowrap}
+.wmi .maplibregl-ctrl-bottom-left{display:flex;align-items:flex-end;gap:6px}.wmi .maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib{margin:0 0 10px!important}
+.wmrdog{margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--raise)}
+.wmrdog h4{display:flex;align-items:center;gap:6px;margin:0 0 6px;font:700 16px var(--font-ui)}.wmrdog h4 svg{width:18px;height:18px}.wmrdog p{margin:4px 0}
+.wmrdl{list-style:none;margin:6px 0;padding:0}.wmrdl li{padding:6px 0;border-bottom:1px solid var(--line-soft)}.wmrdl b{display:inline-block;min-width:28px;font:700 15px var(--font-data)}
+`;
+  document.head.appendChild(st);
+})();
+
+function wmHtM(m){ return wmOn('C42') && unitsPref() === 'm' ? Math.round(+m).toLocaleString('en-GB') + ' m' : wmHtM(m) + ''; }
 
 var wmRender0 = render; render = function(){ const r = wmRender0.apply(this, arguments); wmRunAfter(); return r; };
 </script>
