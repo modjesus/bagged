@@ -11909,7 +11909,7 @@ var WM_CHANGES = [
  ['C49','Dog tagging once a day'],['C50','Dog on the summit card'],['C51','Route: With a dog tab'],['C52','Share a dog page']
 ];
 /* Built so far. Only these do anything when switched on. */
-var WM_BUILT = {C8:1, C9:1, C25:1};
+var WM_BUILT = {C8:1, C9:1, C25:1, C2:1, C3:1, C4:1, C5:1, C7:1, C37:1, C46:1, C10:1, C11:1, C12:1, C16:1, C44:1, C49:1, C13:1, C14:1, C34:1, C40:1, C45:1, C47:1, C17:1, C18:1, C19:1, C20:1, C39:1, C41:1, C50:1, C52:1, C1:1, C35:1, C36:1, C15:1, C24:1, C48:1, C23:1, C26:1, C29:1, C30:1, C27:1, C28:1, C31:1, C32:1, C42:1, C43:1};
 var WM_SW_KEY = 'waymark.switches';
 var WM_TEST_COPY = !!window.__wmTest;
 function wmSwitches(){
@@ -13675,6 +13675,7 @@ async function marking(fn, opts){
   if (fresh.length) noteWorkList(fresh[fresh.length - 1]);
   const coming = newlyEarned().filter(p => !(seenWins && seenWins.has(p.id)));
   winComing = coming.length > 0;
+  if (fresh.length) wmAfterMark(fresh, (state.bagged[fresh[fresh.length - 1]] || {}).date);
   if (fresh.length && !(opts && opts.quiet)) postSummits(fresh, (state.bagged[fresh[0]] || {}).date);
   const won = coming;
   if (won.length){ celebrate(won, fresh); postPatches(won); }
@@ -13891,7 +13892,7 @@ function closeWin(){
   celebrating = null;
   winComing = false;
   const held = shareAfterWin; shareAfterWin = null;
-  if (held) setTimeout(() => openShareDay(held.hs, held.d), 260);
+  if (held && !wmOn('C11')) setTimeout(() => openShareDay(held.hs, held.d), 260);
   const say = toastAfterWin; toastAfterWin = null;
   if (say) setTimeout(say, held ? 900 : 300);
 }
@@ -18950,6 +18951,7 @@ const DOG_COLLARS = [
 const DOG_STEPS = [1, 5, 10, 25, 50, 100];
 function collarOf(d){ const c = DOG_COLLARS.find(x => x.id === (d && d.collar)); return (c || DOG_COLLARS[0]).v; }
 function dogTabOn(){
+  if (wmOn('C48') && wmDogPref() === 'off') return false;
   if (dogList().length) return true;
   try{ return __wmLS.getItem('wm-dogtab') !== 'off'; }catch(e){ return true; }
 }
@@ -19359,6 +19361,7 @@ function renderDogPage(id){
     s += '<div class="pfigs dogfigs n' + cells.length + (cells.length >= 4 ? ' four' : ' few') + '">' + cells.join('') + '</div>';
   }
 
+  s += wmDogShareHTML(d.id);
   s += '<section class="dogsec"><div class="dogsectop"><h3>' + esc(dogName(d)) + '’s hills</h3>' +
     (rows.length > 6 ? '<button class="dogpill" data-act="dogallhills" aria-pressed="' + (!!ui.dogAll) + '">' + (ui.dogAll ? 'Show fewer' : 'Show all ' + rows.length) + '</button>' : '') + '</div>';
   if (!rows.length){
@@ -20028,11 +20031,12 @@ function wmSectionBar(area, selected, items){
     '" aria-current="' + (selected === x[0] ? 'page' : 'false') + '"' + (x[2] ? ' aria-label="' + esc(x[1] + ', ' + x[2] + ' unread') + '"' : '') + '>' + x[1] + (x[2] ? '<span class="wmunread">' + Math.min(99,x[2]) + '</span>' : '') + '</button>').join('') + '</nav>';
 }
 function wmJournalBar(v){
+  if (wmOn('C15')) return wmSectionBar('Journal', v, [['days','Days'],['photos','Photos']]);
   return wmSectionBar('Journal', v, [['days','Days'],['photos','Photos'],
     ...(dogTabOn() ? [['dogs','Dogs']] : []),['kit','Kit']]);
 }
 function wmProgressBar(v){
-  return wmSectionBar('Progress', v, [['lists','Lists'],['patches','Patches'],['goals','Goals']]);
+  return wmSectionBar('Progress', v, [['lists', wmOn('C2') ? 'Summits' : 'Lists'],['patches','Patches'],['goals','Goals']]);
 }
 function wmArea(){
   if (tab === 'a' && ['dogs','kit'].includes(ui.patchView)) return 'j';
@@ -20044,7 +20048,7 @@ function wmJournal(){
     return wmJournalBar(ui.wmJournal) + (dogs ? (ui.dog ? renderDogPage(ui.dog) : renderDogsPane()) : (ui.kitItem ? renderKitPage(ui.kitItem) : renderKitPane()));
   }
   const photos = ui.wmJournal === 'photos';
-  return wmJournalBar(photos ? 'photos' : 'days') + (photos ? wmPhotos() : renderDiary());
+  return wmJournalBar(photos ? 'photos' : 'days') + (photos ? wmPhotos() : (wmOn('C13') && ui.wmJv !== 'old' ? wmJournalPage() : (wmOn('C13') ? '<button class="hlback" data-p4="jv" data-v="all">' + ti('arrow-left') + 'Back to your journal</button>' : '') + renderDiary()));
 }
 function wmPhotos(){
   const shots = [], seen = new Set();
@@ -20072,6 +20076,7 @@ function wmPhotos(){
 }
 function wmProgress(){
   const v = ui.patchView;
+  if (v === 'lists' && wmOn('C2') && !ui.wmProgressList) return wmProgressBar('lists') + wmSummits();
   if (v === 'lists'){
     if (ui.wmProgressList && state.enabled.length) return wmProgressBar('lists') +
       '<button class="hlback" data-act="wmlistback">' + ti('arrow-left') + 'Back to your lists</button>' +
@@ -20845,6 +20850,7 @@ function navCounts(){
   const a = allStats(), tot = a.total, dn = a.done;
   const planCount = livePlans().filter(p => !p.hills.length || !p.hills.every(k => isBagged(k))).length;
   const ps = patches(), gotp = ps.filter(x => x.got).length;
+  if (wmOn('C23')) return {h: logCount() + ' hills', m: '', p: '', a: '', j: '', f: friendsTabLabel()};
   return {h: dn + '/' + tot, m: tot + ' hills', p: planCount ? planCount + ' planned' : 'none yet',
           a: gotp + '/' + ps.length, j: diaryCount(), f: friendsTabLabel()};
 }
@@ -22398,7 +22404,7 @@ async function markFromMap(key, again){
   if (mapReady){ drawMarkers(); closePopups(map); }
   if (rmap){ closePopups(rmap); rmDraw(); }
   const n = ascCount(key);
-  toast(first ? 'Marked ' + hillName(h) + ' · ' + (ans.date ? prettyDate(ans.date) : 'no date')
+  if (!(wmOn('C11') && first)) toast(first ? 'Marked ' + hillName(h) + ' · ' + (ans.date ? prettyDate(ans.date) : 'no date')
               : hillName(h) + ' · ' + n + ' times now');
 }
 async function markFromInfo(key){
@@ -22624,6 +22630,7 @@ function prettyDist(m){
   const v = numOr(m, NaN);
   if (!isFinite(v)) return '—';
   const km = v / 1000, mi = km * 0.621371;
+  if (wmOn('C42')) return unitsPref() === 'm' ? km.toFixed(1) + ' km' : mi.toFixed(1) + ' mi';
   return mi.toFixed(1) + ' mi (' + km.toFixed(1) + ' km)';
 }
 function xesc(s){
@@ -24400,6 +24407,7 @@ function nextPatchShortHTML(np){
 function renderDashboard(){
   if (ui.summits) return summitsPage();
   if (ui.homeList && onList(ui.homeList)) return homeListPage();
+  if (wmOn('C1')) return wmHome();
   const a = allStats();
   const logged = logCount();
   let s = wmP1Card() + pendingInviteCard() + requestsCard() + markBar() + impHomeRow();
@@ -25152,6 +25160,7 @@ const SHARE_KINDS = [
   {id:'rec',       label:'A recommendation', icon:'bulb',             note:'A hill everybody should do'}
 ];
 function shareMenu(){
+  if (wmOn('C18')) return wmShareMenu();
   return '<p class="eyebrow" style="margin:0 0 6px">What are you sharing?</p><div class="sharemenu">' +
     SHARE_KINDS.map(k => '<button class="sharekind" data-act="sharekind" data-v="' + k.id + '">' +
       '<span class="skicon">' + ti(k.icon) + '</span><span><b>' + esc(k.label) + '</b><i>' + esc(k.note) + '</i></span></button>').join('') + '</div>';
@@ -25831,7 +25840,7 @@ function hillIconHTML(h, cs){
       (v ? '<i class="pkring"></i>' : '') + repBadge(h.k) + '</div>'
     : '<div class="hpin' + (st !== 'none' ? ' ' + st : '') + '" style="width:' + big + 'px;height:' + big + 'px;border-color:' + col + ';color:' + col + '">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOUNTAIN_PATH + '</svg></div>';
-  return {html, big, done, col, st};
+  return wmPin({html, big, done, col, st}, h);
 }
 function hillMarker(m, arr, h, cs, onClick, tip, icon){
   const {html, big, done} = icon || hillIconHTML(h, cs);
@@ -25982,7 +25991,7 @@ function openPopup(mk, h, m){
   const html = (shot ? '<img class="popshot" data-pid="' + esc(shot.id) + '" data-up="' + (shot.up?1:0) + '" alt="">' : '') +
     '<b>' + esc(hillName(h)) + '</b><span class="pm">' + htFlat(h) + ' · ' +
     esc(h.l.map(x => LIST_BY[x].name).join(', ')) + (on && r.date ? ' · ' + esc(prettyDate(r.date)) : '') +
-    (on && ascCount(h.k) > 1 ? ' · walked ' + ascCount(h.k) + ' times' : '') + '</span>' +
+    (on && ascCount(h.k) > 1 ? ' · walked ' + ascCount(h.k) + ' times' : '') + '</span>' + wmPopJournal(h) +
     (h.l.includes('wainwright') && BOOK_NUM[regionOf(h, 'wainwright')]
       ? '<span class="pm pbook"><i style="background:' + hillColour(h, getComputedStyle(document.documentElement)) + '"></i>Book ' +
         BOOK_NUM[regionOf(h, 'wainwright')] + ' · ' + esc(wmAreaName(regionOf(h, 'wainwright'))) + '</span>' : '') +
@@ -29529,7 +29538,7 @@ function searchResultsHTML(){
     for (const r of routes)
       s += '<button class="rqrow rqtwo" data-act="dc" data-v="find" data-id="' + esc(r.id) + '">' +
         '<span class="rqn">' + esc(rlNameFull(r)) + '</span>' +
-        '<span class="rqm">Route &middot; ' + rlMiles(r) + ' mi &middot; ' + (rlRound(r) ? 'round' : 'up and back') + ' &middot; from ' + esc(r.from) + '</span></button>';
+        '<span class="rqm">Route &middot; ' + wmRlDist(r) + ' &middot; ' + (rlRound(r) ? 'round' : 'up and back') + ' &middot; from ' + esc(r.from) + '</span></button>';
     s += '</div>';
   }
   const none = !hills.length && !fuzzy.length && !near.length && !far.length && !routes.length;
@@ -29903,7 +29912,7 @@ document.addEventListener('click', async e => {
       if (held.indexOf(k) < 0) held.push(k);
     }
     await marking(() => {
-      ui.open = turningOff ? (ui.open === k ? null : ui.open) : k;
+      ui.open = turningOff ? (ui.open === k ? null : ui.open) : (wmOn('C11') ? ui.open : k);
       setBagged(k, !turningOff, turningOff ? undefined : ans.date);
       if (ans && ans.v){ state.bagged[k] = {...rec(k), v:ans.v}; touched(); }
     });
@@ -29912,7 +29921,7 @@ document.addEventListener('click', async e => {
     if (wikiOpen && wikiOpen.k === k) paintInfo();
     if (!turningOff){
       const d = rec(k).date;
-      toast('Marked ' + hillName(BY_KEY[k]) + (d ? ' \u00b7 ' + prettyDate(d) : ''));
+      if (!wmOn('C11')) toast('Marked ' + hillName(BY_KEY[k]) + (d ? ' \u00b7 ' + prettyDate(d) : ''));
     }
     await dropPostsAbout(alsoPosts);
   }
@@ -29921,7 +29930,7 @@ document.addEventListener('click', async e => {
     const k = el.dataset.k;
     if (await markFromInfo(k)){
       const d = rec(k).date;
-      toast('Marked ' + hillName(BY_KEY[k]) + (d ? ' · ' + prettyDate(d) : ''));
+      if (!wmOn('C11')) toast('Marked ' + hillName(BY_KEY[k]) + (d ? ' · ' + prettyDate(d) : ''));
     }
   }
   else if (a === 'infodate'){ await changeDateFromInfo(el.dataset.k); }
@@ -32925,7 +32934,7 @@ function renderPrivBox(){
         '<p class="privn">' + esc(r.n) + '</p>' +
         (r.go ? '<button class="linkbtn privgo" data-act="privgo" data-v="' + esc(r.go) + '">' +
                 esc(r.goLbl) + ' \u203a</button>' : '') +
-      '</div>').join('') + '</div>';
+      '</div>').join('') + wmMarkChoiceHTML() + '</div>';
 }
 function renderSetMenu(){
   const box = document.getElementById('setMenu'); if (!box) return;
@@ -34223,7 +34232,7 @@ async function wikiLookup(h){
 
 async function openInfo(key){
   const h = BY_KEY[key]; if (!h) return;
-  wikiOpen = h; wikiBusy = true;
+  wikiOpen = h; wikiBusy = true; wmHT = 'days';
   ui.hcov = {k:key, i:0};
   rphTopFetch(key).then(() => { if (wikiOpen === h) paintInfo(); });
   paintInfo();
@@ -34237,6 +34246,8 @@ function paintInfo(){
   const box = document.getElementById('infoBody');
   const h = wikiOpen;
   if (!box || !h) return;
+  document.getElementById('info').classList.toggle('wmhp', wmOn('C7'));
+  if (wmOn('C7')) return wmHillPage(h);
   const v = wikiMem[h.k];
   const r = rec(h.k), on = isBagged(h.k);
 
@@ -36024,6 +36035,7 @@ async function openPostViewer(postId, pid){
 }
 
 async function postSummits(keys, date){
+  if ((wmOn('C20') || wmOn('C17')) && await wmAutoPost(keys, date)) return;
   if (!FB || !fbUser || !autoPostOn()) return;
   if (!followerUids().length && (prof.pvis || 'public') !== 'public') return;
   const hs = uniqHills(keys).map(k => BY_KEY[k]).filter(Boolean);
@@ -36034,6 +36046,7 @@ async function postSummits(keys, date){
   const busy = d + ids.slice().sort().join();
   if ((postSummits._recent || []).includes(busy)) return;
   postSummits._recent = [...(postSummits._recent || []), busy].slice(-20);
+  if (wmOn('C11')) return;
   openShareDay(hs, d);
   return;
   try{
@@ -36042,6 +36055,7 @@ async function postSummits(keys, date){
   }catch(e){}
 }
 function openShareDay(hs, d){
+  if (wmOn('C19')) return wmShareDay(d);
   if (winComing || winOpen()){ shareAfterWin = {hs, d}; return; }
   const day = diaryDays().find(x => x.date === d) || {photos:[], entries:[]};
   const entry = (day.entries || []).find(e => e.title || e.text) || null;
@@ -37037,8 +37051,8 @@ function rlMiles(r){ return (rlDist(r) / 1609.344).toFixed(1); }
 function rlFeet(m){ return Math.round(m * 3.28084).toLocaleString('en-GB'); }
 function rlMins(r){ return Math.round((rlDist(r) / 5000 + r.asc / 600) * 60 / 5) * 5; }
 function rlTime(r){ const m = rlMins(r), h = Math.floor(m / 60), mm = m % 60; return h ? h + ' h' + (mm ? ' ' + String(mm).padStart(2, '0') : '') : mm + ' min'; }
-function rlNums(r){ return rlMiles(r) + ' mi · ' + rlFeet(r.asc) + ' ft · est. ' + rlTime(r); }
-function rlNumsHTML(r){ return rlMiles(r) + ' mi · ' + rlFeet(r.asc) + ' ft · <i class="rlest">est.</i> ' + rlTime(r); }
+function rlNums(r){ return wmRlDist(r) + ' · ' + rlFeet(r.asc) + ' ft · est. ' + rlTime(r); }
+function rlNumsHTML(r){ return wmRlDist(r) + ' · ' + rlFeet(r.asc) + ' ft · <i class="rlest">est.</i> ' + rlTime(r); }
 function rlBox(id){ return routeBox(rlTrk(id)); }
 function rlSaved(id){ const b = rlBox(id); return !!(b && sheetCovers(b)); }
 function rlPlan(id){ return (state.plans || []).find(p => p && p.lib === id && !p.deleted) || null; }
@@ -37313,7 +37327,7 @@ function rlRouteHTML(k, id){
     '<p class="rlcy">' + (r.cy ? '<span lang="cy">' + esc(r.cy) + '</span>' : '') + '<span class="rlkind' + (round ? ' round' : '') + '">' + (round ? 'Round walk' : 'Up and back') + '</span>' +
       (r.warn || !r.g ? '' : '<span>' + esc(r.g) + '</span>') + '<span class="rlnot">Not checked by WayMark yet</span></p>' +
     (r.note ? '<p class="rlnote">“' + esc(r.note) + '” <i>' + esc(r.by || '') + '</i></p>' : '') +
-    '<div class="rlstats">' + stat('route', 'Walk', rlMiles(r) + ' mi') + stat('clock', 'Time · estimate', rlTime(r)) +
+    '<div class="rlstats">' + stat('route', 'Walk', wmRlDist(r) + '') + stat('clock', 'Time · estimate', rlTime(r)) +
       stat('mountain', 'Climb', rlFeet(r.asc) + ' ft') + stat('flag', tops.length === 1 ? 'WayMark top' : 'WayMark tops', String(tops.length)) + '</div>' +
     '<p class="rlestn">' + ti('clock', 'width="16" height="16"') + 'Times are estimates at a steady pace. Allow longer for stops, weather and your group.</p>' +
     (r.warn ? '<p class="rltag warn rltagbig">' + esc(r.g) + '</p>' : '') + (r.gn && !/^not graded/i.test(r.gn) ? '<p class="rlgn">' + esc(r.gn) + '</p>' : '') +
@@ -38273,7 +38287,7 @@ function rlFullOpen(){
 function rlFsKeyHTML(){
   const st = ui.rl; if (!st || !st.cmp) return '';
   return '<div class="rlfskey">' + st.cmp.map((id, i) => { const r = Object.assign({id}, RL_ROUTES[id]);
-    return '<span><i style="background:' + DC_COLS[i] + '">' + (i + 1) + '</i>' + esc(rlNameFull(r)) + ' · ' + rlMiles(r) + ' mi</span>'; }).join('') + '</div>';
+    return '<span><i style="background:' + DC_COLS[i] + '">' + (i + 1) + '</i>' + esc(rlNameFull(r)) + ' · ' + wmRlDist(r) + '</span>'; }).join('') + '</div>';
 }
 function rlFullShut(quiet){
   if (!rlFs) return;
@@ -38976,7 +38990,7 @@ function rlCompareHTML(ids){
       '<div class="cvbar"><span class="cvbt" style="--w:' + Math.max(.06, v[i] / mx).toFixed(3) + ';--c:' + DC_COLS[i] + ';--d:' + (i * 60) + 'ms" aria-hidden="true"></span>' +
       '<span class="cvbv' + (w && win[i] ? ' cvwin' : '') + '"><span class="vh">Route ' + (i + 1) + ': </span>' + txt(r) + (w && win[i] ? '<em>' + tag + '</em>' : '') + '</span></div>').join('') + '</div>';
   };
-  s += bars('Walk', 'route', r => rlDist(r), r => rlMiles(r) + ' mi', sh, 'Shortest') +
+  s += bars('Walk', 'route', r => rlDist(r), r => wmRlDist(r) + '', sh, 'Shortest') +
     bars('Climb', 'mountain', r => r.asc, r => rlFeet(r.asc) + ' ft', lc, 'Least climb') +
     bars('Time · estimate', 'clock', r => rlMins(r), r => rlTime(r), qk, 'Quickest');
   const tick = '<i class="cvtk">' + ti('check', 'width="14" height="14"') + '</i>';
@@ -41417,9 +41431,9 @@ function profileHeader(pp, opts){
   let s = '<section class="prof pv3"><div class="pine">';
 
   const sky = Array.isArray(pp.sky) ? pp.sky : (mine ? myHeights() : []);
-  const hasSky = !pp.banner && sky.length > 1;
+  const hasSky = !pp.banner && sky.length > 1 && !wmOn('C39');
   const adjust = mine && ui.profEdit && pp.banner;
-  s += '<div class="pbanner' + (pp.banner ? ' has' : (hasSky ? ' sky' : '')) +
+  s += '<div class="pbanner' + (pp.banner ? ' has' : (hasSky ? ' sky' : (wmOn('C39') ? ' wmcontour' : ''))) +
        (adjust ? ' adjusting' : '') + '">' +
     (adjust ? '<span class="leadhint">Drag to move</span>' : '') +
     (pp.banner ? '<img src="' + esc(pp.banner) + '" alt="" style="object-position:50% ' + (+pp.bfy || 50) + '%" draggable="false">'
@@ -47811,6 +47825,7 @@ async function camPick(file){
     camFreeze(img, meta.when || new Date(file.lastModified || Date.now()), false);
     if (cam.prefs.weather && cam.photoFix) camWeather();
     if (inCh) edChooseClose();
+    if (wmPendHill){ const ph = wmPendHill; wmPendHill = null; setTimeout(() => { if (cam) edSetHill(ph); }, 0); }
     if (cam.src && cam.src.width / cam.src.height > CAM_W / CAM_FH * 1.08) toast('Wider than the frame. Drag the photo to slide it, before you add anything.');
   }catch(err){
     if (inCh) edChooseOpen('phone');
@@ -47868,7 +47883,7 @@ async function camTagFlush(st){
   }catch(e){}
 }
 function camWhoRow(){
-  if (!cam || !cam.filed || !FB || !fbUser) return '';
+  if (!cam || !cam.filed || !FB || !fbUser || (wmOn('C49') && wmFin)) return '';
   const who = camTagWho(), dogs = tagDogs();
   if (!who.length && !dogs.length) return '';
   cam.tg = cam.tg || new Set(); cam.dg = cam.dg || new Set();
@@ -50026,7 +50041,7 @@ function camOpen(){
   if (document.fonts && document.fonts.load)
     Promise.all([document.fonts.load('40px Wildkins'), document.fonts.load('600 20px "Source Code Pro"'), document.fonts.load('400 20px "Source Code Pro"')])
       .catch(() => {}).then(() => cam && camLayers());
-  camStart(); camWatch();
+  if (!window.wmNoCam) camStart(); camWatch();
 }
 function camClose(fromHistory){
   if (!cam) return;
@@ -50335,6 +50350,7 @@ function impHomeSet(on){
   try{ __wmLS.setItem(IMP_HOME_KEY, on ? '1' : '0'); }catch(e){}
 }
 function impHomeRow(){
+  if (wmOn('C14')) return '';
   if (!impHomeOn()) return '';
   return '<div class="imphome">' +
     '<label class="imphomego"><span class="imphomeic">' + ti('photo', 'width="20" height="20"') + '</span>' +
@@ -50529,7 +50545,7 @@ function wmKm(a, b){
 function wmDayx(){
   let o = null; try{ o = JSON.parse(__wmLS.getItem(WM_DAYX_KEY) || 'null'); }catch(e){ o = null; }
   o = (o && typeof o === 'object') ? o : {};
-  return {splits: o.splits && typeof o.splits === 'object' ? o.splits : {},
+  return {...o, splits: o.splits && typeof o.splits === 'object' ? o.splits : {},
           one: o.one && typeof o.one === 'object' ? o.one : {},
           unknown: o.unknown && typeof o.unknown === 'object' ? o.unknown : {}, t: +o.t || 0};
 }
@@ -51002,13 +51018,1816 @@ function wmP1Boot(){
 if (document.readyState === 'complete') setTimeout(wmP1Boot, 300);
 else window.addEventListener('load', () => setTimeout(wmP1Boot, 300));
 
+/* ===== THE BIG UPDATE, PHASE 2: YOUR SUMMITS AND THE HILL PAGE =====
+   C2 Progress › Summits · C37 the list (chips, area tiles, Mark) · C3 Cards ·
+   C4 Your summits map · C5 first hills view · C7 the hill page ·
+   C46 the hill page ⋯ menu. Each behind its own switch; off = v455. */
+
+var wmAfter = [];                         /* run after every render() */
+function wmRunAfter(){ for (const f of wmAfter){ try{ f(); }catch(e){ console.warn('after render', e); } } }
+function wmBookVar(lid, h){ return lid === 'wainwright' ? (BOOK_VAR[regionOf(h, 'wainwright')] || '') : ''; }
+function wmPct(d, t){ return t ? (d && d < t ? Math.max(1, Math.floor(d / t * 100)) : Math.round(d / t * 100)) : 0; }
+function wmDayFmt(d){ const x = new Date(d + 'T12:00:00'); return isNaN(x) ? prettyDate(d) : DAY_SHORT[x.getDay()] + ' ' + x.getDate() + ' ' + MON_SHORT[x.getMonth()]; }
+function wmHtD(h){ return unitsPref() === 'm' ? h.h.toLocaleString('en-GB') + ' m' : feet(h).toLocaleString('en-GB') + ' ft'; }
+
+/* ---------- Progress › Summits (C2) ---------- */
+function wmSummits(){
+  const n = markedCount();
+  if (wmOn('C5') && n < 10) return wmFirstHills();
+  const v = ui.wmSum || 'list';
+  let s = '<div class="wmsumbar"><div class="wmsumtabs" role="tablist" aria-label="How to see your summits">' +
+    [['list', 'List'], ['cards', 'Cards'], ['map', 'Map']].filter(([k]) => k === 'list' || wmOn(k === 'cards' ? 'C3' : 'C4'))
+      .map(([k, t]) => '<button role="tab" aria-selected="' + (v === k) + '" data-p2="sumview" data-v="' + k + '">' + t + '</button>').join('') +
+    '</div><button class="wmaddbtn" data-p2="add">' + ti('plus') + 'Add</button></div>';
+  if (v === 'cards' && wmOn('C3')) return s + wmCards();
+  if (v === 'map' && wmOn('C4')) return s + '<div id="wmsummapslot" class="wmsummapslot"></div>' + wmSumMapCard();
+  return s + (wmOn('C37') ? wmSumList() : (homeListCards().replaceAll('data-act="homelist"', 'data-act="wmlist"').replace('<h2>Your lists</h2>', '') ||
+    '<p class="empty">Choose the hill lists you want to follow.</p><button class="btn" data-act="open-lists">Choose hill lists</button>'));
+}
+
+/* ---------- the list (C37) ---------- */
+function wmSumList(){
+  const lists = enabled().filter(l => l.id !== 'own');
+  if (!lists.length) return '<p class="empty">Choose the hill lists you want to follow.</p><button class="btn" data-act="open-lists">Choose hill lists</button>';
+  if (!lists.some(l => l.id === ui.wmSumList)) ui.wmSumList = lists[0].id;
+  const lid = ui.wmSumList, all = hillsIn(lid);
+  const done = all.filter(h => isBagged(h.k));
+  const hi = done.slice().sort((a, b) => b.h - a.h)[0];
+  const left = all.length - done.length;
+  const view = ui.wmSumView || 'all';
+  const q = norm(ui.wmSumQ || '');
+  let s = wmCyAsk() + '<div class="wmchips" role="tablist" aria-label="Your lists"><button class="wmchip add" data-act="open-lists">' + ti('plus') + 'Lists</button>' +
+    lists.map(l => { const hs = hillsIn(l.id), d = hs.filter(h => isBagged(h.k)).length;
+      return '<button class="wmchip' + (l.id === lid ? ' on' : '') + '" role="tab" aria-selected="' + (l.id === lid) + '" data-p2="sumlist" data-v="' + esc(l.id) + '">' +
+        esc(l.name) + ' <small>' + d + '/' + hs.length + '</small></button>'; }).join('') + '</div>';
+  s += '<div class="wmsumstat"><div><p class="wmpct"><b>' + wmPct(done.length, all.length) + '%</b> marked' +
+       (hi ? ' · highest ' + esc(hillName(hi)) : '') + '</p>' +
+       '<p class="wmtogo">' + (left ? left.toLocaleString('en-GB') + ' to go!' : 'All done!') + '</p></div>' +
+       '<button class="wmghost sm" data-act="listinfo" data-v="' + esc(lid) + '">About</button></div>';
+  s += '<label class="wmsearch">' + ti('search') + '<input id="wmsumq" type="search" placeholder="Search a hill…" value="' + esc(ui.wmSumQ || '') + '" data-p2="sumq" aria-label="Search a hill on ' + esc(LIST_BY[lid].name) + '"></label>';
+  s += '<div class="wmsumctl"><div class="wmseg3" role="group" aria-label="Show">' +
+    [['climb', left, 'To climb'], ['done', done.length, 'Done'], ['all', all.length, 'All']].map(([k, n, t]) =>
+      '<button aria-pressed="' + (view === k) + '" data-p2="sumshow" data-v="' + k + '"><b>' + n.toLocaleString('en-GB') + '</b>' + t + '</button>').join('') + '</div>' +
+    '<label class="wmsel"><span class="sr">Group</span><select data-p2="sumgroup" aria-label="Group hills">' +
+    [['area', 'By area'], ['height', 'By height'], ['az', 'A to Z']].map(([k, t]) => '<option value="' + k + '"' + ((ui.wmSumGroup || 'area') === k ? ' selected' : '') + '>' + t + '</option>').join('') +
+    '</select>' + ti('chevron-down') + '</label></div>';
+  const keep = h => view === 'all' || (view === 'done' ? isBagged(h.k) : !isBagged(h.k));
+  const grp = ui.wmSumGroup || 'area';
+  if (q){
+    const hits = all.filter(h => norm(h.n).includes(q) || norm(h.cy).includes(q) || norm(wmCyExtra(h)).includes(q)).filter(keep).sort((a, b) => b.h - a.h);
+    return s + '<h2 class="wmareah">' + hits.length + (hits.length === 1 ? ' hill' : ' hills') + ' found</h2>' +
+      '<div class="wmrows">' + (hits.length ? hits.slice(0, 80).map(h => wmRow(h, lid)).join('') : '<p class="wmempty">No hill on this list by that name.</p>') + '</div>';
+  }
+  if (grp !== 'area'){
+    const hs = all.filter(keep).sort((a, b) => grp === 'height' ? b.h - a.h : hillName(a).localeCompare(hillName(b)));
+    return s + '<div class="wmrows">' + hs.slice(0, ui.wmSumMore || 120).map(h => wmRow(h, lid)).join('') + '</div>' +
+      (hs.length > (ui.wmSumMore || 120) ? '<button class="wmghost wide" data-p2="summore">Show more</button>' : '');
+  }
+  /* area tiles */
+  const by = new Map();
+  for (const h of all){ const g = regionOf(h, lid) || 'Elsewhere'; if (!by.has(g)) by.set(g, []); by.get(g).push(h); }
+  const areas = [...by.entries()].map(([g, hs]) => ({g, hs, d: hs.filter(h => isBagged(h.k)).length}))
+    .sort((a, b) => b.d - a.d || b.hs.length - a.hs.length || a.g.localeCompare(b.g));
+  if (!areas.some(a => a.g === ui.wmSumArea)) ui.wmSumArea = areas[0].g;
+  const cur = areas.find(a => a.g === ui.wmSumArea);
+  s += '<div class="wmtiles" role="tablist" aria-label="Areas">' + areas.map(a => {
+    const bk = lid === 'wainwright' ? (BOOK_VAR[a.g] || '') : '';
+    const togo = a.hs.length - a.d;
+    return '<button class="wmtile' + (a.g === cur.g ? ' on' : '') + '" role="tab" aria-selected="' + (a.g === cur.g) + '" data-p2="sumarea" data-v="' + esc(a.g) + '"' +
+      (bk ? ' style="--bkc:var(' + bk + ')"' : '') + '><span class="wmtn" data-fit>' + esc(wmAreaName(a.g).replace(/^The /, '')) + '</span>' +
+      '<span class="wmtc"><b>' + a.d + '</b> of ' + a.hs.length + '</span><span class="wmbar"><i style="width:' + wmPct(a.d, a.hs.length) + '%"></i></span>' +
+      '<span class="wmtg">' + (togo ? togo + ' to go' : 'done!') + '</span></button>'; }).join('') + '</div>';
+  const bk = lid === 'wainwright' ? (BOOK_VAR[cur.g] || '') : '';
+  const sortH = (ui.wmSumSort || 'height') === 'height';
+  s += '<div class="wmareahd"' + (bk ? ' style="--bkc:var(' + bk + ')"' : '') + '><h2 class="wmareah"><i class="wmdot"></i>' + esc(wmAreaName(cur.g)) + '</h2>' +
+    '<button class="wmlink" data-p2="sumsort">' + cur.d + ' of ' + cur.hs.length + ' · ' + (sortH ? 'Height' : 'A to Z') + ti('chevron-down') + '</button></div>';
+  const order = (a, b) => sortH ? b.h - a.h : hillName(a).localeCompare(hillName(b));
+  const marked = cur.hs.filter(h => isBagged(h.k)).sort(order), climb = cur.hs.filter(h => !isBagged(h.k)).sort(order);
+  const open = ui.wmSumFold === cur.g;
+  let rows = '';
+  if (view !== 'climb'){
+    const show = open || view === 'done' ? marked : marked.slice(0, 5);
+    rows += show.map(h => wmRow(h, lid)).join('');
+    if (marked.length > show.length) rows += '<button class="wmmore" data-p2="sumfold" data-v="' + esc(cur.g) + '">' + (marked.length - show.length) + ' more marked' + ti('chevron-down') + '</button>';
+  }
+  if (view !== 'done') rows += climb.map(h => wmRow(h, lid)).join('');
+  return s + '<div class="wmrows"' + (bk ? ' style="--bkc:var(' + bk + ')"' : '') + '>' + (rows || '<p class="wmempty">' + (view === 'done' ? 'None marked here yet.' : 'All marked here.') + '</p>') + '</div>';
+}
+function wmRow(h, lid){
+  const on = isBagged(h.k), r = rec(h.k);
+  const dates = on ? wmAllDates(r) : [];
+  const when = on ? (r.date ? prettyDate(r.date) : 'no date') : '';
+  const bk = wmBookVar(lid, h);
+  return '<div class="wmrow' + (on ? ' on' : '') + '"' + (bk ? ' style="--bkc:var(' + bk + ')"' : '') + '>' +
+    '<span class="wmtick" aria-hidden="true">' + (on ? ti('check') : '') + '</span>' +
+    '<button class="wmrowm" data-act="info" data-k="' + esc(h.k) + '"><b data-fit>' + esc(hillName(h)) + '</b>' +
+    '<small>' + wmHtD(h) + (on ? ' · ' + esc(when) + (dates.length > 1 ? ' · ×' + dates.length : '') : '') + (wmPlannedOn(h.k) ? ' \u00b7 <span class="wmplanned">' + wmPlannedOn(h.k) + '</span>' : '') + '</small></button>' +
+    (on ? '' : '<button class="wmmark" data-act="tick" data-k="' + esc(h.k) + '" aria-label="Mark ' + esc(hillName(h)) + '">Mark</button>') + '</div>';
+}
+
+/* ---------- first hills view (C5) ---------- */
+function wmFirstHills(){
+  const D = diaryDays();
+  const n = markedCount();
+  let s = '<div class="wmfirst"><div class="wmfirsth"><div><h1 class="wmh1">Your summits</h1><p class="wmsub">' + n + ' marked · ' + D.length + (D.length === 1 ? ' day out' : ' days out') + '</p></div>' +
+    '<button class="wmaddbtn" data-p2="add">' + ti('plus') + 'Add</button></div>';
+  if (!n){
+    s += '<div class="wmfirstday"><p class="wmeyebrow">Your first summit</p><p>Mark a hill you have climbed and it starts here: your days out, your photos, your lists.</p>' +
+      '<button class="btn" data-act="tick" data-k="' + esc(wmNearestToClimb(1)[0] ? wmNearestToClimb(1)[0].h.k : 'SH609543') + '">Mark your first hill</button></div>';
+  } else {
+    const d = D[D.length - 1] && D.length === 1 ? D[0] : D[0];
+    if (d){
+      const pics = d.photos.slice(0, 3);
+      s += '<button class="wmfirstday" data-p2="day" data-v="' + esc(d.date) + '"><p class="wmeyebrow">' + (D.length === 1 ? 'Your first day out' : 'Your latest day out') + '</p>' +
+        (pics.length ? '<span class="wmfdpics">' + pics.map(p => '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt="">').join('') + '</span>' : '') +
+        '<span class="wmfdt">' + esc(wmJoin(d.hills.map(hillName))) + ' · ' + esc(prettyDate(d.date)) + '</span></button>';
+    }
+  }
+  const near = wmNearestToClimb(3);
+  if (near.length){
+    s += '<p class="wmeyebrow dark">Closest still to climb</p><div class="wmrows">' + near.map(({h, km}) =>
+      '<div class="wmrow"><span class="wmplus" aria-hidden="true">' + ti('plus') + '</span><button class="wmrowm" data-act="info" data-k="' + esc(h.k) + '"><b>' + esc(hillName(h)) + '</b>' +
+      '<small>' + wmHtD(h) + (km != null ? ' · ' + wmDist(km) + ' · to climb' : '') + '</small></button>' +
+      '<button class="wmmark ghost" data-act="tick" data-k="' + esc(h.k) + '">Mark</button></div>').join('') + '</div>';
+  }
+  const l = enabled()[0];
+  if (l){ const hs = hillsIn(l.id); s += '<p class="wmsub small">' + esc(l.name) + ' · ' + hs.filter(h => isBagged(h.k)).length + ' of ' + hs.length + ' · <button class="wmlink u" data-act="open-lists">Choose more lists</button></p>'; }
+  return s + '</div>';
+}
+function wmJoin(a){ return a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+function wmDist(km){ return unitsPref() === 'm' ? km.toFixed(1) + ' km' : (km * 0.621371).toFixed(1) + ' mi'; }
+function wmNearestToClimb(n){
+  const mk = Object.keys(state.bagged).filter(k => isBagged(k) && BY_KEY[k]).map(k => BY_KEY[k]);
+  const last = mk.sort((a, b) => (rec(b.k).date || '').localeCompare(rec(a.k).date || ''))[0];
+  const pool = enabled().flatMap(l => hillsIn(l.id)).filter(h => !isBagged(h.k) && isFinite(h.a));
+  const seen = new Set();
+  const out = [];
+  if (!last) return pool.sort((a, b) => b.h - a.h).filter(h => !seen.has(h.k) && seen.add(h.k)).slice(0, n).map(h => ({h, km: null}));
+  for (const h of pool.map(h => ({h, km: wmKm(last, h)})).sort((a, b) => a.km - b.km)){ if (seen.has(h.h.k)) continue; seen.add(h.h.k); out.push(h); if (out.length >= n) break; }
+  return out;
+}
+
+/* ---------- Cards (C3): summit cards by day out ---------- */
+function wmCards(){
+  const D = diaryDays().slice();
+  const newest = (ui.wmCardSort || 'new') === 'new';
+  if (!newest) D.reverse();
+  if (!D.length) return '<p class="wmempty">Your summit cards show here, by day out, once you add photos to the hills you mark.</p>';
+  let s = '<div class="wmcardhd"><span></span><label class="wmsel"><select data-p2="cardsort" aria-label="Order">' +
+    '<option value="new"' + (newest ? ' selected' : '') + '>Newest</option><option value="old"' + (newest ? '' : ' selected') + '>Oldest</option></select>' + ti('chevron-down') + '</label></div>';
+  let yr = '';
+  const byYear = {};
+  for (const d of D){ const y = d.date.slice(0, 4); (byYear[y] = byYear[y] || {cards: 0, days: 0}); byYear[y].cards += d.photos.length; byYear[y].days++; }
+  for (const d of D){
+    const y = d.date.slice(0, 4);
+    if (y !== yr){ yr = y; s += '<div class="wmyear"><h2>' + y + '</h2><span>' + byYear[y].cards + (byYear[y].cards === 1 ? ' card' : ' cards') + ' · ' + byYear[y].days + (byYear[y].days === 1 ? ' day out' : ' days out') + '</span></div>'; }
+    const pics = d.photos;
+    s += '<button class="wmcday" data-p2="day" data-v="' + esc(d.date) + '"><span><b>' + esc(wmDayFmt(d.date)) + '</b>' + (pics.length ? '<i>' + pics.length + (pics.length === 1 ? ' card' : ' cards') + '</i>' : '') +
+      '<small>' + esc(d.hills.map(hillName).join(' · ')) + '</small></span>' + ti('chevron-right') + '</button>';
+    s += '<div class="wmcgrid' + (pics.length > 3 ? ' four' : '') + '">' + (pics.length ? pics.map(p =>
+      '<button class="wmcard" data-act="viewphoto" data-k="' + esc(p.k) + '" data-p="' + esc(p.id) + '" aria-label="' + esc((BY_KEY[p.k] ? hillName(BY_KEY[p.k]) : 'Photo') + ', ' + prettyDate(d.date)) + '">' +
+      '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt=""></button>').join('')
+      : d.hills.slice(0, 4).map(h => '<button class="wmcard blank" data-act="info" data-k="' + esc(h.k) + '"><span>' + esc(hillName(h)) + '</span><small>No photo yet</small></button>').join('')) + '</div>';
+  }
+  return s;
+}
+
+/* ---------- Map (C4): your photos as pins, day lines ---------- */
+var wmSM = null, wmSMEl = null, wmSMPick = null, wmSMMarks = [];
+function wmSumMapCard(){
+  const k = wmSMPick; if (!k || !BY_KEY[k]) return '<p class="wmsub small wmsmhint">Your summits, with your photos. Dotted lines join hills from one day out.</p>';
+  const h = BY_KEY[k], r = rec(k), ph = (r.photos || [])[r.photos ? r.photos.length - 1 : 0];
+  const dogs = (Array.isArray(r.dogs) ? r.dogs : []).map(dogById).filter(Boolean);
+  return '<div class="wmsmcard">' + (ph ? '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' : '<span class="wmsmph">' + ti('mountain') + '</span>') +
+    '<div><b>' + esc(hillName(h)) + '</b><small>' + wmHtD(h) + (r.date ? ' · ' + esc(prettyDate(r.date)) : '') + (dogs.length ? ' · with ' + esc(dogs.map(dogName).join(' and ')) : '') + '</small>' +
+    '<span class="wmsmbtns">' + (r.date ? '<button class="btn sm" data-p2="day" data-v="' + esc(r.date) + '">The day</button>' : '') + '<button class="wmghost sm" data-act="info" data-k="' + esc(k) + '">Hill</button></span></div>' +
+    '<button class="wmp1x" data-p2="smclose" aria-label="Close">' + ti('x') + '</button></div>';
+}
+function wmSumMapMount(){
+  const slot = document.getElementById('wmsummapslot');
+  if (!slot) return;
+  if (typeof maplibregl === 'undefined'){ slot.innerHTML = '<p class="wmempty">The map could not load.</p>'; return; }
+  if (!wmSMEl){ wmSMEl = document.createElement('div'); wmSMEl.className = 'wmsummap'; }
+  slot.appendChild(wmSMEl);
+  if (!wmSM){
+    try{ wmSM = makeMap(wmSMEl, null, {noSheet: true}); }catch(e){ slot.innerHTML = '<p class="wmempty">The map could not load.</p>'; return; }
+    wmSM.on('load', wmSumMapDraw);
+    const lab = () => wmSMEl.classList.toggle('far', wmSM.getZoom() < 10.5); wmSM.on('zoom', lab); wmSM.on('load', lab);
+  } else { wmSM.resize(); wmSumMapDraw(); }
+  hydratePhotos();
+}
+function wmSumMapDraw(){
+  if (!wmSM || !wmSM.loaded()) return;
+  wmSMMarks.forEach(m => m.remove()); wmSMMarks = [];
+  const hs = Object.keys(state.bagged).filter(k => isBagged(k) && BY_KEY[k] && isFinite(BY_KEY[k].a)).map(k => BY_KEY[k]);
+  const b = new maplibregl.LngLatBounds();
+  for (const h of hs){
+    const r = rec(h.k), ph = (r.photos || [])[r.photos ? r.photos.length - 1 : 0];
+    const el = document.createElement('button');
+    el.className = 'wmpin' + (ph ? '' : ' nophoto') + (wmSMPick === h.k ? ' on' : '');
+    el.setAttribute('aria-label', hillName(h));
+    el.innerHTML = (ph ? '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' : '<i>' + ti('check') + '</i>') + '<span>' + esc(hillName(h)) + '</span>';
+    el.onclick = ev => { ev.stopPropagation(); wmSMPick = h.k; render(); };
+    wmSMMarks.push(new maplibregl.Marker({element: el, anchor: 'bottom'}).setLngLat([h.o, h.a]).addTo(wmSM));
+    b.extend([h.o, h.a]);
+  }
+  /* day lines: hills from one day out, joined in height order */
+  const feats = diaryDays().filter(d => d.hills.length > 1).map(d => ({type: 'Feature', properties: {},
+    geometry: {type: 'LineString', coordinates: d.hills.filter(h => isFinite(h.a)).sort((a, c) => a.o - c.o).map(h => [h.o, h.a])}}));
+  const gj = {type: 'FeatureCollection', features: feats};
+  if (wmSM.getSource('wmdays')) wmSM.getSource('wmdays').setData(gj);
+  else {
+    wmSM.addSource('wmdays', {type: 'geojson', data: gj});
+    wmSM.addLayer({id: 'wmdays', type: 'line', source: 'wmdays', paint: {'line-color': '#A8431A', 'line-width': 3, 'line-dasharray': [0.6, 1.6]}, layout: {'line-cap': 'round'}});
+  }
+  if (hs.length && !wmSM.__fitted){ wmSM.__fitted = true; wmSM.fitBounds(b, {padding: 60, maxZoom: 12, duration: 0}); }
+  hydratePhotos();
+}
+wmAfter.push(() => { if (document.getElementById('wmsummapslot')) wmSumMapMount(); });
+
+/* ---------- the hill page (C7) and its ⋯ menu (C46) ---------- */
+var wmHT = 'days';
+function wmHillPage(h){
+  const box = document.getElementById('infoBody');
+  const r = rec(h.k), on = isBagged(h.k);
+  const pics = hillPhotos(h.k);
+  const lid = homeListFor(h);
+  const area = wmAreaName(String(regionOf(h, lid) || h.c || '').replace(/^The /, ''));
+  const dates = on ? ascents(h.k).filter(Boolean).sort().reverse() : [];
+  const days = diaryDays();
+  const nRoutes = rlHas(h.k) ? RL_BY[h.k].length : 0;
+  const hero = pics[pics.length - 1];
+  const cover = !hero && typeof rphCoverHTML === 'function' ? rphCoverHTML(h) : '';
+  const tab = wmHT;
+  let s = '<div class="wmhero' + (hero || cover ? '' : ' plain') + '">' +
+    (hero ? '<img class="wmheroimg" data-pid="' + esc(hero.id) + '" data-up="' + (hero.up ? 1 : 0) + '" alt="">' : cover ? '<div class="wmherocov">' + cover + '</div>' : '') +
+    '<div class="wmherotop"><button class="wmback" data-act="closeinfo">' + ti('arrow-left') + 'Back</button><span></span>' +
+    '<button class="wmherob" data-act="sharehill" data-k="' + esc(h.k) + '">Share</button>' +
+    '<button class="wmherob round" data-p2="hpmore" aria-label="More for ' + esc(hillName(h)) + '">' + ti('dots') + '</button></div>' +
+    '<div class="wmherot"><h2 data-fit="keep">' + esc(hillName(h)) + '</h2><p>' + wmHtD(h) + (area ? ' · ' + esc(area) : '') + '</p></div></div>';
+  s += '<div class="wmhpbody"><div class="wmhpchips">' + h.l.map(x => '<button class="wmchip sm' + (state.enabled.includes(x) ? ' on' : '') + '" data-act="infolist" data-v="' + esc(x) + '">' +
+    esc(LIST_TAG && LIST_TAG[x] ? LIST_TAG[x] : LIST_BY[x].name) + '</button>').join('') + (h.g ? '<span class="wmgrid">' + esc(gridRef(h)) + '</span>' : '') + '</div>';
+  s += '<div class="wmhptabs" role="tablist">' + [['days', 'Your days', dates.length], ['photos', 'Photos', pics.length], ['routes', 'Routes', nRoutes], ['about', 'About', '']].map(([k, t, n]) =>
+    '<button role="tab" aria-selected="' + (tab === k) + '" data-p2="hptab" data-v="' + k + '">' + t + (n !== '' ? '<small>' + n + '</small>' : '<small>&nbsp;</small>') + '</button>').join('') + '</div>';
+  if (tab === 'days'){
+    if (on){
+      s += '<div class="wmhpact"><label class="btn wmhpadd">' + ti('plus') + 'Add photos<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" class="filein"></label>' +
+        '<button class="wmghost" data-act="infonote" data-k="' + esc(h.k) + '">' + ti('plus') + (r.notes ? 'Your note' : 'Add a note') + '</button></div>';
+      if (r.notes || ui.infoNote === h.k) s += '<div class="ilognote"><label for="int-' + esc(h.k) + '">' + ti('pencil') + 'Your note</label><textarea id="int-' + esc(h.k) + '" data-act="notes" data-k="' + esc(h.k) + '" placeholder="Route, weather, who with…">' + esc(r.notes || '') + '</textarea></div>';
+      if (ui.infoWho === h.k) s += '<div class="ilogwho">' + (dogList().length ? dogPickHTML(h.k) : '<p class="wmsub">Add your dog and every hill you mark together goes on their own page.</p><button class="dogadd" data-act="dognew">+ Add a dog</button>') +
+        '<button class="wmlink" data-act="infowho" data-k="' + esc(h.k) + '">Done</button></div>';
+      s += '<div class="wmjhd"><p class="wmeyebrow">In your journal</p>' + (dates.length > 1 ? '<span class="wmscript">climbed ' + dates.length + ' times</span>' : '') + '</div><ol class="wmtl">';
+      const dogs = (Array.isArray(r.dogs) ? r.dogs : []).map(dogById).filter(Boolean);
+      for (const d of dates){
+        const full = wmFull(d), day = full ? days.find(x => x.date === d && x.hills.some(y => y.k === h.k)) : null;
+        const ph = day && (day.photos.find(p => p.k === h.k) || day.photos[0]);
+        const others = day ? day.hills.map(hillName) : [hillName(h)];
+        const words = day && day.entries[0] ? (day.entries[0].title || day.entries[0].text || '') : '';
+        s += '<li><button class="wmtlb" ' + (full ? 'data-p2="day" data-v="' + esc(d) + '"' : 'data-act="infodate" data-k="' + esc(h.k) + '"') + '>' +
+          (ph ? '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' : '<span class="wmtlph">' + ti('mountain') + '</span>') +
+          '<span class="wmtlt"><b class="wmtld">' + esc(full ? prettyDate(d) : (d ? prettyDate(d) + ', add the day' : 'No date yet')) + '</b><small>' + esc(words ? String(words).slice(0, 60) : wmJoin(others)) + '</small></span>' +
+          (dogs.length && d === r.date ? '<span class="wmtldog">' + dogFaceHTML(dogs[0], 'ddogface') + esc(dogName(dogs[0])) + '</span>' : '') + '</button></li>';
+      }
+      if (!dates.length) s += '<li><button class="wmtlb" data-act="infodate" data-k="' + esc(h.k) + '"><span class="wmtlph">' + ti('calendar') + '</span><span class="wmtlt"><b class="wmtld">No date yet</b><small>Add the day you climbed it</small></span></button></li>';
+      s += '</ol>';
+    } else {
+      s += '<p class="wmsub">Not marked yet. ' + (h.l.some(x => state.enabled.includes(x)) ? 'It is on your ' + esc(h.l.filter(x => state.enabled.includes(x)).map(x => LIST_BY[x].name).join(' and ')) + '.' : '') + '</p>';
+    }
+    s += wmRouteCard(h);
+    s += '<div class="wmhpfoot">' + (on ? '<button class="btn" data-p2="again" data-k="' + esc(h.k) + '">Mark again</button>' +
+      (pics.length ? '<button class="wmghost" data-p2="card" data-k="' + esc(h.k) + '">Summit card</button>' : '<button class="wmghost" data-act="cert" data-k="' + esc(h.k) + '">Certificate</button>')
+      : '<button class="btn" data-act="infomark" data-k="' + esc(h.k) + '">Mark it</button>') + '</div>';
+  } else if (tab === 'photos'){
+    s += pics.length ? '<div class="wmhpgrid">' + pics.slice().reverse().map(ph => '<button data-act="viewday" data-d="' + esc(r.date || '') + '" data-p="' + esc(ph.id) + '"><img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt=""></button>').join('') + '</div>'
+      : '<p class="wmsub">No photos of ' + esc(hillName(h)) + ' yet.</p>';
+    if (on) s += '<label class="btn wmhpadd wide">' + ti('plus') + 'Add photos<input type="file" accept="image/*" multiple data-act="photo" data-k="' + esc(h.k) + '" class="filein"></label>';
+  } else if (tab === 'routes'){
+    s += rlHas(h.k) ? '<div class="wmrlist">' + RL_BY[h.k].map(id => RL_ROUTES[id] ? '<button class="wmroutecard" data-rl="open" data-k="' + esc(h.k) + '"><span class="wmrcmap">' + ti('route') + '</span><span><b>' + esc(RL_ROUTES[id].n) + '</b><small>' + wmDist(RL_ROUTES[id].len / 1000) + (RL_ROUTES[id].from ? ' \u00b7 from ' + esc(RL_ROUTES[id].from) : '') + '</small></span>' + ti('chevron-right') + '</button>' : '').join('') + '</div>' : '<p class="wmsub">No routes up ' + esc(hillName(h)) + ' in the route library yet.</p>';
+  } else {
+    const v = wikiMem[h.k];
+    s += '<p class="istats">' + htFlat(h) + ' · ' + esc(h.c) + (h.g ? ' · grid ' + esc(gridRef(h)) : '') + ((h.alt && h.alt.length) ? ' · also ' + esc(h.alt.join(', ')) : '') + '</p>';
+    const wq = QUOTES[h.k];
+    if (wq) s += '<div class="aw"><blockquote>“' + esc(wq.q) + '”</blockquote><cite>' + esc(wq.a) + '</cite></div>';
+    if (wikiBusy && !v) s += '<p class="wmsub">Looking it up…</p>';
+    else if (v && v.off) s += '<p>Wikipedia could not be reached. That is the signal, not the hill.</p><p><button class="wmlink u" data-act="wikiagain" data-k="' + esc(h.k) + '">Try again</button></p>';
+    else if (v && !v.none) s += '<p class="iex">' + esc(v.extract) + '</p><p class="isrc">From the Wikipedia article “' + esc(v.title) + '”, CC BY-SA. <a href="' + esc(v.url) + '" target="_blank" rel="noopener">Read the full article</a></p>';
+    else s += '<p class="wmsub">No Wikipedia article could be matched to this summit with confidence.</p>';
+    try{ s += hillQuestionsHTML(h.k); }catch(e){}
+  }
+  s += '</div>';
+  const fa = document.activeElement;
+  const keepNote = fa && box.contains(fa) && fa.id === 'int-' + h.k ? [fa.selectionStart, fa.selectionEnd] : null;
+  box.innerHTML = s;
+  if (keepNote){ const t = document.getElementById('int-' + h.k); if (t){ t.focus({preventScroll: true}); try{ t.setSelectionRange(keepNote[0], keepNote[1]); }catch(e){} } }
+  hydratePhotos();
+}
+function wmHillMore(k){
+  const h = BY_KEY[k]; if (!h) return;
+  const on = isBagged(k), n = ascCount(k), first = ascents(k).filter(Boolean).sort()[0];
+  wmSheet('<h2 class="wmp1sh">' + esc(hillName(h)) + '</h2><p class="wmsub">' + (on ? (n > 1 ? 'Climbed ' + n + ' times' : 'Climbed once') + (first ? ' · first ' + esc(prettyDate(first)) : '') : 'Not marked yet') + '</p>' +
+    '<div class="wmmenu">' +
+    (on ? wmMenuRow('pencil', 'Change a date', n > 1 ? 'Pick which day out' : 'When you were up there', 'data-p2="chdate" data-k="' + esc(k) + '"') : '') +
+    (on ? wmMenuRow('paw', 'Who came', 'People and dogs, per day out', 'data-p2="who" data-k="' + esc(k) + '"') : '') +
+    (on ? wmMenuRow('star', 'Certificate', 'A printable record', 'data-p2="cert" data-k="' + esc(k) + '"') : '') +
+    wmMenuRow('share', 'Share', 'Send this hill to someone', 'data-p2="share" data-k="' + esc(k) + '"') +
+    (on ? wmMenuRow('x', 'Unmark', n > 1 ? 'Asks which day out; the hill stays marked while any day still has it' : 'Takes it off your lists', 'data-p2="unmark" data-k="' + esc(k) + '"', 'warn') : '') +
+    '</div>');
+}
+function wmRouteCard(h){
+  if (!rlHas(h.k)) return '';
+  const ids = RL_BY[h.k].filter(id => RL_ROUTES[id]); if (!ids.length) return '';
+  const r = RL_ROUTES[ids[0]];
+  return '<button class="wmroutecard" data-rl="open" data-k="' + esc(h.k) + '"><span class="wmrcmap">' + ti('route') + '</span><span><i>Routes up</i><b>' + esc(r.n) + '</b>' +
+    '<small>' + wmDist(r.len / 1000) + (ids.length > 1 ? ' \u00b7 and ' + (ids.length - 1) + ' more' : '') + '</small></span>' + ti('chevron-right') + '</button>';
+}
+function wmMenuRow(icon, t, sub, attr, cls){
+  return '<button class="wmmrow' + (cls ? ' ' + cls : '') + '" ' + attr + '><span class="wmmic">' + ti(icon) + '</span><span><b>' + esc(t) + '</b><small>' + esc(sub) + '</small></span></button>';
+}
+/* a sheet over everything, closable with ✕, the pull tab, outside or Escape */
+function wmSheet(html, onClose){
+  let el = document.getElementById('wmsheet');
+  if (!el){ el = document.createElement('div'); el.id = 'wmsheet'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); document.body.appendChild(el); }
+  el._close = onClose || null;
+  el.innerHTML = '<div class="wmp1dim" data-p2="sheetx"></div><div class="wmp1sheet"><div class="wmp1grab" data-p2="sheetx" aria-hidden="true"></div>' +
+    '<button class="wmp1x" data-p2="sheetx" aria-label="Close">' + ti('x') + '</button>' + html + '</div>';
+  el.hidden = false;
+  setTimeout(() => { try{ el.querySelector('.wmp1x').focus({preventScroll: true}); }catch(e){} }, 30);
+  wmGrab(el.querySelector('.wmp1sheet'), wmSheetClose);
+}
+function wmSheetClose(){ const el = document.getElementById('wmsheet'); if (!el || el.hidden) return; el.hidden = true; el.innerHTML = ''; if (el._close) el._close(); }
+/* pull tab: drag down to close */
+function wmGrab(panel, close){
+  if (!panel) return;
+  const g = panel.querySelector('.wmp1grab'); if (!g) return;
+  let y0 = null;
+  const down = e => { y0 = e.clientY; panel.style.transition = 'none'; g.setPointerCapture && g.setPointerCapture(e.pointerId); };
+  const move = e => { if (y0 == null) return; const dy = Math.max(0, e.clientY - y0); panel.style.transform = 'translateY(' + dy + 'px)'; };
+  const up = e => { if (y0 == null) return; const dy = e.clientY - y0; y0 = null; panel.style.transition = ''; panel.style.transform = ''; if (dy > 80) close(); };
+  g.addEventListener('pointerdown', down); g.addEventListener('pointermove', move); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
+}
+/* pick one date of a hill */
+function wmPickDate(k, title, cb){
+  const list = ascents(k).filter(Boolean).sort().reverse();
+  wmSheet('<h2 class="wmp1sh">' + esc(title) + '</h2><p class="wmsub">' + esc(hillName(BY_KEY[k])) + '</p><div class="wmmenu">' +
+    list.map(d => wmMenuRow('calendar', prettyDate(d), wmFull(d) ? wmDayFmt(d) : 'Only part of the date', 'data-p2="pickd" data-v="' + esc(d) + '"')).join('') + '</div>');
+  wmPickCb = cb;
+}
+var wmPickCb = null;
+
+async function wmMarkAgain(k){
+  const ans = await markSheet(k, {again: true});
+  if (!ans || !ans.date) return;
+  await marking(() => { if (!addAscent(k, ans.date, ans.v)) toast('That day is already on the record.'); render(); }, {quiet: true});
+  if (wikiOpen && wikiOpen.k === k) paintInfo();
+}
+async function wmEditPhoto(ph, k){
+  const b = await edPhotoBlob(ph);
+  if (!b){ toast('That photo is not on this phone. Try again with signal.'); return; }
+  window.wmNoCam = true;
+  camOpen();
+  window.wmNoCam = false;
+  const f = new File([b], 'summit.jpg', {type: b.type || 'image/jpeg', lastModified: Date.parse((rec(k).date || today()) + 'T12:00:00') || Date.now()});
+  await camPick(f);
+  if (cam && BY_KEY[k]) edSetHill(BY_KEY[k]);
+}
+
+document.addEventListener('input', e => {
+  const t = e.target.closest('[data-p2="sumq"]');
+  if (!t) return;
+  ui.wmSumQ = t.value;
+  const at = t.selectionStart; render();
+  const a = document.getElementById('wmsumq'); if (a){ a.focus(); try{ a.setSelectionRange(at, at); }catch(err){} }
+});
+document.addEventListener('change', e => {
+  const t = e.target.closest('[data-p2]'); if (!t) return;
+  if (t.dataset.p2 === 'sumgroup'){ ui.wmSumGroup = t.value; render(); }
+  if (t.dataset.p2 === 'cardsort'){ ui.wmCardSort = t.value; render(); }
+});
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-p2]'); if (!b) return;
+  const a = b.dataset.p2, v = b.dataset.v || '', k = b.dataset.k || '';
+  if (a === 'sumq' || a === 'sumgroup' || a === 'cardsort') return;
+  if (a === 'sumview'){ ui.wmSum = v; wmSMPick = null; render(); return; }
+  if (a === 'sumlist'){ ui.wmSumList = v; ui.wmSumArea = null; ui.wmSumQ = ''; render(); return; }
+  if (a === 'sumshow'){ ui.wmSumView = v; render(); return; }
+  if (a === 'sumarea'){ ui.wmSumArea = v; render(); return; }
+  if (a === 'sumfold'){ ui.wmSumFold = ui.wmSumFold === v ? null : v; render(); return; }
+  if (a === 'sumsort'){ ui.wmSumSort = (ui.wmSumSort || 'height') === 'height' ? 'az' : 'height'; render(); return; }
+  if (a === 'summore'){ ui.wmSumMore = (ui.wmSumMore || 120) + 120; render(); return; }
+  if (a === 'add'){ if (typeof wmAddOpen === 'function' && wmOn('C14')) wmAddOpen(); else { tab = 'd'; render(); setTimeout(() => { const i = document.querySelector('#main input[type=search], #main .markbar input'); if (i) i.focus(); }, 60); } return; }
+  if (a === 'day'){ document.getElementById('info').classList.remove('open'); wikiOpen = null; wmSheetClose(); if (typeof wmOpenDay === 'function' && wmOn('C34')) wmOpenDay(v); else { tab = 'j'; ui.wmJournal = 'days'; render(); showJournalDay(v); } return; }
+  if (a === 'smclose'){ wmSMPick = null; render(); return; }
+  if (a === 'hptab'){ wmHT = v; paintInfo(); const bx = document.querySelector('#info .sheetbox'); if (bx) bx.scrollTop = 0; return; }
+  if (a === 'hpmore'){ wmHillMore(wikiOpen && wikiOpen.k); return; }
+  if (a === 'again'){ wmMarkAgain(k); return; }
+  if (a === 'card'){ const ps = hillPhotos(k); if (ps.length) wmEditPhoto(ps[ps.length - 1], k); return; }
+  if (a === 'sheetx'){ wmSheetClose(); return; }
+  if (a === 'pickd'){ const cb = wmPickCb; wmPickCb = null; wmSheetClose(); if (cb) cb(v); return; }
+  if (a === 'chdate'){
+    wmSheetClose();
+    if (ascCount(k) > 1) wmPickDate(k, 'Which day out?', async d => { const ans = await markSheet(k, {change: true, date: wmFull(d) ? d : today()}); if (ans && ans.date) moveAscent(k, d, ans.date); if (wikiOpen) paintInfo(); });
+    else { await changeDateFromInfo(k); if (wikiOpen) paintInfo(); }
+    return;
+  }
+  if (a === 'who'){ wmSheetClose(); wmHT = 'days'; ui.infoWho = k; paintInfo(); return; }
+  if (a === 'cert'){ wmSheetClose(); certOpen(k); return; }
+  if (a === 'share'){ wmSheetClose(); await shareHill(k); return; }
+  if (a === 'unmark'){
+    wmSheetClose();
+    if (ascCount(k) > 1){
+      wmPickDate(k, 'Unmark which day out?', d => { dropAscent(k, d); toast(hillName(BY_KEY[k]) + ' taken off ' + prettyDate(d) + '. Still marked from your other days.'); if (wikiOpen) paintInfo(); });
+    } else {
+      const t = document.createElement('button'); t.dataset.act = 'tick'; t.dataset.k = k; t.hidden = true; document.body.appendChild(t); t.click(); t.remove();
+    }
+    return;
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ const el = document.getElementById('wmsheet'); if (el && !el.hidden){ e.preventDefault(); e.stopPropagation(); wmSheetClose(); } } }, true);
+
+(function(){
+  const st = document.createElement('style');
+  st.textContent = `
+.wmsumbar{display:flex;align-items:center;gap:8px;margin:2px 0 12px}
+.wmsumtabs{display:flex;gap:6px;flex:1}
+.wmsumtabs button,.wmchip{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid #857F6E;background:var(--raise);color:var(--ink);font:600 14.5px/1 var(--font-ui);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.wmsumtabs button[aria-selected=true],.wmchip.on{background:var(--pine);border-color:var(--pine);color:#F6EFE4}
+:root[data-theme=dark] .wmsumtabs button[aria-selected=true],:root[data-theme=dark] .wmchip.on{background:var(--cream);border-color:var(--cream);color:#14332D}
+.wmchip small{font:600 12px/1 var(--font-data);opacity:.8}.wmchip.sm{min-height:36px;padding:0 12px;font-size:13.5px}
+.wmchip svg,.wmaddbtn svg,.wmsumtabs svg{width:16px;height:16px}
+.wmaddbtn{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid #857F6E;background:var(--raise);color:var(--ink);font:600 14.5px/1 var(--font-ui);display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.wmchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
+.wmsumstat{display:flex;align-items:flex-start;gap:10px;margin:4px 0 10px}.wmsumstat>div{flex:1;min-width:0}
+.wmpct{margin:0;font-size:15px;color:var(--ink-2)}.wmpct b{font:400 30px/1 var(--font-display);color:var(--ink);margin-right:4px}
+.wmtogo{margin:2px 0 0;font:400 22px/1 var(--font-script);color:var(--accent-text)}
+.wmghost{min-height:44px;padding:0 16px;border-radius:22px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:600 15px/1 var(--font-ui);display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.wmghost.sm{min-height:40px;padding:0 14px;font-size:14px}.wmghost.wide{width:100%;margin-top:10px}.wmghost svg{width:16px;height:16px}
+.wmsearch{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;border:1px solid var(--line);border-radius:24px;background:var(--raise);margin-bottom:10px}
+.wmsearch svg{width:18px;height:18px;color:var(--ink-3)}.wmsearch input{flex:1;border:0;background:none;font:16px var(--font-ui);color:var(--ink);min-width:0;outline:none}
+.wmsumctl{display:flex;gap:8px;align-items:stretch;margin-bottom:12px}
+.wmseg3{flex:1;display:flex;border:1px solid #857F6E;border-radius:26px;padding:3px;background:var(--raise)}
+.wmseg3 button{flex:1;min-height:44px;border:0;border-radius:22px;background:none;color:var(--ink);font:13px/1.15 var(--font-ui);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.wmseg3 button b{font:700 15px/1 var(--font-data);font-variant-numeric:tabular-nums}
+.wmseg3 button[aria-pressed=true]{background:var(--pine);color:#F6EFE4}
+:root[data-theme=dark] .wmseg3 button[aria-pressed=true]{background:var(--cream);color:#14332D}
+.wmsel{position:relative;display:flex;align-items:center}.wmsel select{appearance:none;-webkit-appearance:none;min-height:44px;height:100%;padding:0 34px 0 14px;border:1px solid #857F6E;border-radius:22px;background:var(--raise);color:var(--ink);font:600 14.5px var(--font-ui)}
+.wmsel svg{position:absolute;right:12px;width:16px;height:16px;pointer-events:none}
+.wmtiles{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;margin:0 -16px 14px;padding:4px 16px 6px;scrollbar-width:none}
+.wmtile{--bkc:var(--accent);flex:0 0 132px;scroll-snap-align:start;text-align:left;padding:10px 10px 9px;border:1px solid var(--line);border-top:4px solid var(--bkc);border-radius:12px;background:var(--raise);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:44px}
+.wmtile.on{border:2.5px solid var(--bkc);border-top-width:4px;padding:8.5px 8.5px 7.5px}
+.wmtn{font:700 13.5px/1.2 var(--font-ui);min-height:2.4em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wmtc{font-size:12.5px;color:var(--ink-2)}.wmtc b{font:400 22px/1 var(--font-display);color:var(--ink);margin-right:2px}
+.wmbar{display:block;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden}.wmbar i{display:block;height:100%;background:var(--bkc);border-radius:3px}
+.wmtg{font:400 16px/1 var(--font-script);color:var(--accent-text)}
+.wmareahd{--bkc:var(--accent);display:flex;align-items:center;gap:8px;margin:4px 0 6px}
+.wmareah{flex:1;margin:0;font:400 22px/1.1 var(--font-display);display:flex;align-items:center;gap:8px;min-width:0;overflow-wrap:anywhere}
+.wmdot{flex:none;width:11px;height:11px;border-radius:3px;background:var(--bkc)}
+.wmlink{background:none;border:0;color:var(--ink-2);font:600 13.5px var(--font-ui);display:inline-flex;align-items:center;gap:3px;cursor:pointer;min-height:40px;padding:0}.wmlink svg{width:14px;height:14px}.wmlink.u{text-decoration:underline;text-underline-offset:2px;color:var(--accent-text);min-height:32px}
+.wmrows{--bkc:var(--done);background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:2px 12px;margin-bottom:14px}
+.wmrow{display:flex;align-items:center;gap:10px;min-height:52px;border-bottom:1px solid var(--line-soft)}.wmrow:last-child{border-bottom:0}
+.wmtick{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--bkc);display:grid;place-items:center;color:#fff}
+.wmrow.on .wmtick{background:var(--bkc)}.wmtick svg{width:13px;height:13px;stroke-width:3}
+.wmplus{flex:none;width:36px;height:36px;border:1.5px dashed #857F6E;border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}.wmplus svg{width:18px;height:18px}
+.wmrowm{flex:1;min-width:0;min-height:48px;background:none;border:0;padding:6px 0;text-align:left;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;justify-content:center}
+.wmrowm b{font:600 16px/1.25 var(--font-ui);overflow-wrap:anywhere}.wmrowm small{font-size:13.5px;color:var(--ink-2);margin-top:1px}
+.wmrow:not(.on) .wmrowm b{font-weight:500}
+.wmmark{flex:none;min-height:40px;min-width:64px;padding:0 14px;border-radius:20px;border:0;background:var(--accent);color:var(--accent-ink);font:700 14px var(--font-ui);cursor:pointer}
+.wmmark.ghost{background:transparent;border:1.5px solid var(--ink);color:var(--ink)}
+.wmmore{width:100%;min-height:44px;background:none;border:0;border-bottom:1px solid var(--line-soft);color:var(--ink-2);font:600 14px var(--font-ui);display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer}.wmmore svg{width:15px;height:15px}
+.wmplanned{color:var(--plan);font-weight:700}
+.wmempty{color:var(--ink-2);padding:14px 2px;margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wmfirsth{display:flex;align-items:flex-start;gap:10px;margin:4px 0 12px}.wmfirsth>div{flex:1}
+.wmh1{font:400 32px/1.05 var(--font-display);margin:0}.wmsub{color:var(--ink-2);font-size:15px;margin:4px 0}.wmsub.small{font-size:13.5px}
+.wmeyebrow{font:700 12px/1 var(--font-data);letter-spacing:.12em;text-transform:uppercase;margin:0 0 10px;color:#F3E9D6}.wmeyebrow.dark{color:var(--ink-2);margin:20px 0 8px}
+.wmfirstday{display:block;width:100%;text-align:left;background:var(--pine);color:#F6EFE4;border:0;border-radius:16px;padding:14px;cursor:pointer;margin-bottom:4px}
+.wmfirstday p{color:#E3DACA}.wmfdpics{display:flex;gap:8px;margin-bottom:10px}.wmfdpics img{width:31%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;background:#2C5F55}
+.wmfdt{font-size:15px;line-height:1.35}
+.wmcardhd{display:flex;justify-content:flex-end;margin:-4px 0 6px}
+.wmyear{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);margin:8px 0 8px}.wmyear h2{font:400 26px/1 var(--font-display);margin:0 0 4px}.wmyear span{margin-left:auto;color:var(--ink-2);font-size:13.5px}
+.wmcday{display:flex;align-items:center;width:100%;background:none;border:0;padding:6px 0;color:var(--ink);text-align:left;cursor:pointer;min-height:44px}.wmcday>span{flex:1;min-width:0}
+.wmcday b{font:600 16px var(--font-ui)}.wmcday i{font-style:normal;font-size:13px;color:var(--ink-2);margin-left:8px}.wmcday small{display:block;color:var(--ink-2);font-size:13.5px;overflow-wrap:anywhere}.wmcday svg{width:18px;height:18px;color:var(--ink-3)}
+.wmcgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}.wmcgrid.four{grid-template-columns:repeat(4,1fr)}
+.wmcard{aspect-ratio:9/16;border:0;padding:0;border-radius:10px;overflow:hidden;background:var(--surface-2);cursor:pointer}.wmcard img{width:100%;height:100%;object-fit:cover;display:block}
+.wmcard.blank{display:flex;flex-direction:column;justify-content:flex-end;padding:8px;text-align:left;background:var(--pine);color:#F6EFE4}.wmcard.blank span{font:400 16px/1.1 var(--font-display)}.wmcard.blank small{font-size:11.5px;opacity:.8}
+.wmsummapslot{position:relative;height:calc(100vh - 340px);min-height:380px;border-radius:16px;overflow:hidden;margin:0 -4px 12px;background:var(--surface-2)}
+.wmsummap{position:absolute;inset:0}
+.wmpin{display:flex;flex-direction:column;align-items:center;background:none;border:0;padding:0;cursor:pointer}
+.wmpin img{width:44px;height:56px;object-fit:cover;border-radius:6px;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);background:#ccc}
+.wmpin.on img,.wmpin.on i{border-color:#F3C64B}
+.wmpin i{width:26px;height:26px;border-radius:50%;background:var(--done);color:#fff;display:grid;place-items:center;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}.wmpin i svg{width:14px;height:14px;stroke-width:3}
+.wmsummap.far .wmpin:not(.on) span{display:none}.wmsummap.far .wmpin img{width:30px;height:38px;border-width:2px}
+.wmpin span{margin-top:3px;background:#fff;color:#14332D;font:700 11.5px/1 var(--font-ui);padding:3px 6px;border-radius:9px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.wmsmcard{position:relative;display:flex;gap:12px;align-items:center;background:var(--raise);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:-4px}
+.wmsmcard img,.wmsmph{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;background:var(--surface-2);display:grid;place-items:center}
+.wmsmcard b{display:block;font:400 22px/1.1 var(--font-display)}.wmsmcard small{display:block;color:var(--ink-2);font-size:13.5px;margin:2px 0 8px}
+.wmsmbtns{display:flex;gap:8px}.wmsmbtns .btn{min-height:40px}.wmsmcard .wmp1x{position:absolute;right:4px;top:4px;margin:0}
+.wmsmhint{text-align:center}
+#info.wmhp{padding:0!important;align-items:stretch!important}#info.wmhp .sheetbox{position:fixed!important;inset:0!important;max-width:600px!important;width:100%!important;height:100%!important;max-height:none!important;border-radius:0!important;padding:0!important;margin:0 auto!important;transform:none!important;overflow-y:auto;overscroll-behavior:contain;background:var(--ground)}
+#info.wmhp #infoX{display:none}
+.wmhero{position:relative;height:280px;background:#14332D;color:#F6EFE4;overflow:hidden}
+.wmhero.plain{height:220px;background:var(--pine) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cpath d='M0 120 C50 90 90 130 140 100 S200 80 220 90 M0 150 C50 120 90 160 140 130 S200 110 220 120 M0 90 C50 60 90 100 140 70 S200 50 220 60' fill='none' stroke='%232C5F55' stroke-width='2'/%3E%3C/svg%3E")}
+.wmheroimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wmherocov{position:absolute;inset:0}.wmherocov .hcover{height:100%;margin:0;border-radius:0}.wmherocov .hcovim{height:100%}
+.wmhero:after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(10,25,22,.45),rgba(10,25,22,0) 35%,rgba(10,25,22,0) 50%,rgba(10,25,22,.75));pointer-events:none}
+.wmherotop{position:absolute;left:0;right:0;top:0;z-index:1;display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 10px 0}.wmherotop span{flex:1}
+.wmback{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 8px;background:none;border:0;color:#fff;font:600 16px var(--font-ui);cursor:pointer;text-shadow:0 1px 4px rgba(0,0,0,.5)}.wmback svg{width:20px;height:20px}
+.wmherob{min-height:44px;min-width:44px;padding:0 12px;border-radius:22px;border:0;background:rgba(20,51,45,.55);color:#fff;font:600 15px var(--font-ui);display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(6px)}.wmherob svg{width:20px;height:20px}
+.wmherot{position:absolute;left:16px;right:16px;bottom:14px;z-index:1}
+.wmherot h2{font:400 clamp(30px,9vw,44px)/1 var(--font-display);margin:0;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);overflow-wrap:anywhere}
+.wmherot p{margin:6px 0 0;font-size:15px;color:#F3E9D6}
+.wmhpbody{padding:12px 16px calc(40px + env(safe-area-inset-bottom))}
+.wmhpchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.wmgrid{margin-left:auto;font:13px var(--font-data);color:var(--ink-2)}
+.wmhptabs{display:flex;border-bottom:1px solid var(--line);margin:12px 0 14px}
+.wmhptabs button{flex:1;min-width:0;white-space:nowrap;min-height:52px;background:none;border:0;border-bottom:3px solid transparent;color:var(--ink-2);font:600 15px var(--font-ui);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.wmhptabs button small{font:500 12.5px var(--font-data)}.wmhptabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.wmhpact{display:flex;gap:8px;margin-bottom:16px}.wmhpact>*{flex:1}
+.wmhpadd{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px}.wmhpadd.wide{width:100%;margin-top:12px}.wmhpadd svg{width:16px;height:16px}
+.wmjhd{display:flex;align-items:baseline;gap:8px}.wmjhd .wmeyebrow{color:var(--ink-2);margin:0 0 8px}.wmscript{margin-left:auto;font:400 20px/1 var(--font-script);color:var(--accent-text)}
+.wmtl{list-style:none;margin:0 0 14px;padding:0 0 0 14px;border-left:2px solid var(--line)}
+.wmtl li{position:relative}.wmtl li:before{content:"";position:absolute;left:-19px;top:24px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.wmtlb{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;background:none;border:0;padding:6px 0;text-align:left;color:var(--ink);cursor:pointer}
+.wmtlb img,.wmtlph{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-3)}.wmtlph svg{width:20px;height:20px}
+.wmtlt{flex:1;min-width:0}
+.wmtld{display:block;font:700 15px var(--font-data);color:var(--accent-text);text-decoration:underline;text-underline-offset:3px}.wmtlb small{display:block;color:var(--ink-2);font-size:14px;overflow-wrap:anywhere}
+.wmtldog{display:flex;align-items:center;gap:5px;font-size:13.5px;color:var(--ink-2)}.wmtldog .ddogface{width:26px;height:26px}
+.wmroutecard{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:10px 12px;margin:4px 0 14px;border:1px solid var(--line);border-radius:14px;background:var(--raise);color:var(--ink);text-align:left;cursor:pointer}
+.wmroutecard>span:nth-child(2){flex:1;min-width:0}.wmroutecard i{display:block;font:700 11.5px var(--font-data);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-text);font-style:normal}
+.wmroutecard b{display:block;font:700 16px/1.25 var(--font-ui)}.wmroutecard small{display:block;color:var(--ink-2);font-size:13.5px}.wmroutecard>svg{width:18px;height:18px;color:var(--ink-3)}
+.wmrcmap{flex:none;width:48px;height:48px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2)}.wmrcmap svg{width:22px;height:22px}
+.wmrlist .wmroutecard{margin:0 0 8px}
+.wmhpfoot{display:flex;gap:8px;margin-top:8px}.wmhpfoot>*{flex:1;min-height:48px}
+.wmhpgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.wmhpgrid button{aspect-ratio:1;border:0;padding:0;border-radius:8px;overflow:hidden;cursor:pointer;background:var(--surface-2)}.wmhpgrid img{width:100%;height:100%;object-fit:cover}
+#wmsheet{position:fixed;inset:0;z-index:3200}
+.wmmenu{display:flex;flex-direction:column;margin-top:8px}
+.wmmrow{display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 0;border:0;border-bottom:1px solid var(--line-soft);background:none;color:var(--ink);text-align:left;cursor:pointer;font:inherit}
+.wmmrow:last-child{border-bottom:0}.wmmrow>span:last-child{flex:1;min-width:0}.wmmrow b{display:block;font:700 16px var(--font-ui)}.wmmrow small{display:block;color:var(--ink-2);font-size:13.5px;margin-top:2px}
+.wmmic{flex:none;width:44px;height:44px;border:1px solid var(--line);border-radius:12px;display:grid;place-items:center;color:var(--accent-text)}.wmmic svg{width:20px;height:20px}
+.wmmrow.warn .wmmic{color:var(--warn)}
+@media (hover:hover){.wmrowm:hover b,.wmmrow:hover b{text-decoration:underline;text-underline-offset:3px}}
+`;
+  document.head.appendChild(st);
+})();
+
+/* ===== THE BIG UPDATE, PHASE 3: MARKING =====
+   C10 the Mark sheet says which day out a hill joins (can be turned off) ·
+   C11 after Mark it you stay where you were, with a bar: "3 marked today ·
+   Finish your day" · C12 Finish your day opens the editor on each hill ·
+   C16 / C49 who came, asked once per day out, photos start tagged ·
+   C44 short animations (a fade when Reduce Motion is on). */
+
+/* ---- C10: the joins line on the Mark sheet ---- */
+function wmMkJoinPaint(){
+  const box = document.getElementById('mk'); if (!box || !wmOn('C10')) return;
+  let el = document.getElementById('wmMkJoin');
+  if (!el){
+    el = document.createElement('label'); el.id = 'wmMkJoin'; el.className = 'wmmkjoin';
+    const at = document.getElementById('mkGps'); at.parentNode.insertBefore(el, at.nextSibling);
+  }
+  const date = (document.getElementById('mkDate') || {}).value || '';
+  const k = typeof mkKey !== 'undefined' ? mkKey : '';
+  const same = wmFull(date) ? Object.keys(state.bagged).filter(x => x !== k && isBagged(x) && BY_KEY[x] && ascents(x).includes(date)).map(x => BY_KEY[x]) : [];
+  if (!same.length || (typeof mkMode !== 'undefined' && mkMode === 'change')){ el.hidden = true; return; }
+  const was = el.querySelector('input');
+  const on = was ? was.checked : true;
+  const isToday = date === today();
+  el.hidden = false;
+  el.innerHTML = '<span class="wmmkji">' + ti('plus') + '</span><span><b>Same day as ' + esc(wmJoin(same.slice(0, 3).map(hillName)) + (same.length > 3 ? ' and ' + (same.length - 3) + ' more' : '')) + '</b>' +
+    '<small>' + (on ? 'Joins ' + (isToday ? 'today’s' : 'that') + ' day out' : 'Its own day out') + '</small></span>' +
+    '<input type="checkbox" ' + (on ? 'checked' : '') + ' aria-label="Join the same day out">';
+  el.dataset.date = date;
+}
+document.addEventListener('click', e => {
+  if (!wmOn('C10')) return;
+  if (e.target.closest('#mk')) setTimeout(wmMkJoinPaint, 0);
+  if (e.target.closest('#mkYes')){
+    const el = document.getElementById('wmMkJoin');
+    if (el && !el.hidden){
+      const inp = el.querySelector('input'), d = el.dataset.date, k = mkKey;
+      const x = wmDayx(); const cur = Array.isArray(x.splits[d]) ? x.splits[d] : [];
+      if (inp && !inp.checked){ if (!cur.includes(k)) x.splits[d] = cur.concat(k); }
+      else if (cur.includes(k)){ x.splits[d] = cur.filter(z => z !== k); if (!x.splits[d].length) delete x.splits[d]; }
+      wmSaveDayx(x);
+    }
+  }
+}, true);
+document.addEventListener('change', e => { if (e.target.closest('#mk')) setTimeout(wmMkJoinPaint, 0); });
+document.addEventListener('input', e => { if (e.target.id === 'mkDate') setTimeout(wmMkJoinPaint, 0); });
+wmAfter.push(() => { const m = document.getElementById('mk'); if (m && m.classList.contains('open')) wmMkJoinPaint(); });
+
+/* ---- C11: the after-marking bar ---- */
+var wmBarDate = '', wmBarHide = '';
+function wmBarDay(){
+  const days = diaryDays();
+  const d = wmBarDate ? days.find(x => x.date === wmBarDate) : null;
+  return d || null;
+}
+function wmBarPaint(){
+  let el = document.getElementById('wmbar');
+  const d = wmOn('C11') ? wmBarDay() : null;
+  const fin = d && (wmDayx().finished || {})[d.date];
+  const show = d && !fin && wmBarHide !== d.date && d.hills.length && !document.documentElement.classList.contains('camlock') && !(document.getElementById('info') || {classList: {contains: () => false}}).classList.contains('open');
+  if (!show){ if (el) el.hidden = true; return; }
+  if (!el){ el = document.createElement('div'); el.id = 'wmbar'; el.setAttribute('role', 'region'); el.setAttribute('aria-label', 'Your day'); document.body.appendChild(el); }
+  const ph = d.photos[0];
+  const isToday = d.date === today();
+  const idea = wmIdea(d);
+  const html = (idea ? '<div class="wmidea"><span>' + ti('star') + esc(idea) + '</span><button data-p3="share" data-v="' + esc(d.date) + '">Share it?</button></div>' : '') +
+    '<div class="wmbarin">' + (ph ? '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' : '<span class="wmbarph">' + ti('mountain') + '</span>') +
+    '<div class="wmbart"><b>' + d.hills.length + ' marked' + (isToday ? ' today' : '') + '</b><small>' + (isToday ? '' : esc(wmDayFmt(d.date)) + ' · ') + esc(d.hills.map(hillName).join(' · ')) + '</small></div>' +
+    '<button class="wmbarbtn" data-p3="finish" data-v="' + esc(d.date) + '">Finish your day</button>' +
+    '<button class="wmbarx" data-p3="barx" data-v="' + esc(d.date) + '" aria-label="Hide until you mark another hill">' + ti('x') + '</button></div>';
+  if (el.dataset.h !== html){ el.innerHTML = html; el.dataset.h = html; hydratePhotos(); }
+  el.hidden = false;
+}
+/* milestone ideas, from the log itself */
+function wmIdea(d){
+  const areas = new Set();
+  for (const h of d.hills){ const lid = homeListFor(h); const a = regionOf(h, lid); if (!a || a === 'Other') continue;
+    const before = diaryDays().filter(x => x.date < d.date).some(x => x.hills.some(y => regionOf(y, homeListFor(y)) === a));
+    if (!before) areas.add(wmAreaName(String(a).replace(/^The /, ''))); }
+  if (areas.size) return 'Your first day in ' + [...areas][0];
+  const n = markedCount();
+  if ([10, 25, 50, 100, 150, 200, 250, 300, 500].includes(n)) return n + ' hills marked';
+  return '';
+}
+wmAfter.push(wmBarPaint);
+setInterval(() => { if (wmOn('C11')) wmBarPaint(); }, 1500);
+
+/* ---- C12: Finish your day ---- */
+var wmFin = null, wmPendHill = null;
+async function wmFinishDay(date){
+  const d = diaryDays().find(x => x.date === date && x.part === 1) || diaryDays().find(x => x.date === date);
+  if (!d) return;
+  if (!wmOn('C12')){ wmWhoOpen(date); return; }
+  wmFin = {date, items: d.hills.map(h => ({k: h.k, ph: (hillPhotos(h.k)).slice(-1)[0] || null})), i: 0};
+  await wmFinOpen();
+}
+async function wmFinOpen(){
+  const it = wmFin.items[wmFin.i];
+  if (it.ph) await wmEditPhoto(it.ph, it.k);
+  else { window.wmNoCam = true; camOpen(); window.wmNoCam = false; wmPendHill = BY_KEY[it.k]; edChooseOpen('phone'); }
+  wmFinChip();
+}
+function wmFinChip(){
+  let el = document.getElementById('wmfin');
+  if (!wmFin){ if (el) el.remove(); return; }
+  if (!el){ el = document.createElement('div'); el.id = 'wmfin'; document.body.appendChild(el); }
+  const it = wmFin.items[wmFin.i], last = wmFin.i === wmFin.items.length - 1;
+  el.innerHTML = '<span class="wmfinchip"><b>' + esc(hillName(BY_KEY[it.k])) + '</b> · ' + (wmFin.i + 1) + ' of ' + wmFin.items.length + '</span>' +
+    '<button class="wmfinnext" data-p3="finnext">' + (last ? 'Done' : 'Next') + ti('chevron-right') + '</button>';
+}
+async function wmFinNext(){
+  if (!wmFin) return;
+  try{ camClose(); }catch(e){}
+  wmFin.i++;
+  if (wmFin.i >= wmFin.items.length){
+    const date = wmFin.date; wmFin = null; wmFinChip();
+    const x = wmDayx(); x.finished = x.finished || {}; x.finished[date] = 1; wmSaveDayx(x);
+    render();
+    if (wmOn('C49') || wmOn('C16')) wmWhoOpen(date);
+    return;
+  }
+  setTimeout(wmFinOpen, 250);
+}
+/* the editor's own add button reads Save to your day while finishing a day */
+setInterval(() => {
+  if (!wmFin) return;
+  const b = document.querySelector('[data-c="edsave"]');
+  if (b && b.textContent !== 'Save to your day') b.textContent = 'Save to your day';
+  if (!document.documentElement.classList.contains('camlock') && !document.getElementById('edChoose')){ }
+  if (!cam && wmFin){ wmFin = null; wmFinChip(); }
+}, 400);
+
+/* ---- C16 / C49: who came, once per day out ---- */
+var wmWhoDate = '', wmWhoSel = null, wmWhoNames = [];
+function wmWhoOpen(date){
+  const d = diaryDays().find(x => x.date === date); if (!d) return;
+  wmWhoDate = date;
+  const x = wmDayx(), had = (x.who || {})[date];
+  const dogs = dogList();
+  const onDay = new Set(d.hills.flatMap(h => dogsOn(h.k)));
+  wmWhoSel = new Set(had ? had.dogs : (onDay.size ? [...onDay] : (dogs.length === 1 && wmDogsOn() ? [dogs[0].id] : [])));
+  wmWhoNames = had ? (had.people || []).slice() : [];
+  wmWhoPaint();
+}
+function wmDogsOn(){ return !wmOn('C48') || wmDogPref() !== 'off'; }
+function wmDogPref(){ try{ return __wmLS.getItem('waymark.dogpref') || ''; }catch(e){ return ''; } }
+function wmWhoPaint(){
+  const d = diaryDays().find(x => x.date === wmWhoDate); if (!d) return;
+  const dogs = wmDogsOn() ? dogList() : [];
+  const sel = wmWhoSel;
+  const dog = dogs.find(g => sel.has(g.id));
+  const off = new Set(dog ? (dog.noph || []) : []);
+  let s = '<h2 class="wmp1sh">Who came on ' + esc(wmDayFmt(d.date)) + '?</h2><p class="wmsub">Asked once for the day. Every hill and photo of the day gets them.</p>';
+  if (dogs.length){
+    s += '<div class="wmwho">' + dogs.map(g => '<button class="wmwhodog' + (sel.has(g.id) ? ' on' : '') + '" data-p3="whodog" data-v="' + esc(g.id) + '" aria-pressed="' + sel.has(g.id) + '">' +
+      dogFaceHTML(g, 'wmwhoface') + '<span>' + (sel.has(g.id) ? ti('check') : '') + esc(dogName(g)) + '</span></button>').join('') +
+      '<button class="wmwhodog none' + (!sel.size ? ' on' : '') + '" data-p3="whonone" aria-pressed="' + !sel.size + '"><span class="wmwhoface x">' + ti('x') + '</span><span>No dogs</span></button></div>';
+  }
+  s += '<label class="wmlab" for="wmwhon">People</label><div class="wmppl">' + wmWhoNames.map((n, i) => '<span class="wmchip sm on">' + esc(n) + '<button data-p3="whodel" data-v="' + i + '" aria-label="Take off ' + esc(n) + '">' + ti('x') + '</button></span>').join('') +
+    '<input id="wmwhon" placeholder="Type a name, then Add" maxlength="40"><button class="wmghost sm" data-p3="whoadd">Add</button></div>';
+  if (dog && d.photos.length){
+    s += '<p class="wmeyebrow dark">' + esc(dogName(dog)) + ' in these photos · tap one to take ' + (dog.sex === 'm' ? 'him' : 'her') + ' off</p><div class="wmwhoph">' +
+      d.photos.slice(0, 9).map(p => '<button class="' + (off.has(p.id) ? 'off' : '') + '" data-p3="whoph" data-v="' + esc(p.id) + '" aria-pressed="' + !off.has(p.id) + '" aria-label="' + (off.has(p.id) ? 'Not in this photo' : 'In this photo') + '">' +
+        '<img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt="">' + (off.has(p.id) ? '<i>' + ti('plus') + '</i>' : dogFaceHTML(dog, 'wmwhotag')) + '</button>').join('') + '</div>' +
+      '<p class="wmsub small">Not in one photo? It stays off ' + (dog.sex === 'm' ? 'his' : 'her') + ' album; the hill still counts.</p>';
+  }
+  s += '<button class="btn wide" data-p3="whodone">Done</button>';
+  wmSheet(s);
+  hydratePhotos();
+}
+function wmWhoSave(){
+  const d = diaryDays().find(x => x.date === wmWhoDate); if (!d) return;
+  const x = wmDayx(); x.who = x.who || {}; x.who[d.date] = {dogs: [...wmWhoSel], people: wmWhoNames.slice(), t: Date.now()}; wmSaveDayx(x);
+  /* the old records, written as v455 does: the dogs on every hill of the day */
+  for (const h of d.hills){ const r = rec(h.k); const cur = Array.isArray(r.dogs) ? r.dogs : [];
+    const keep = cur.filter(id => !dogList().some(g => g.id === id) );
+    state.bagged[h.k] = dogsWrite(r, [...new Set(keep.concat([...wmWhoSel]))]); }
+  touched(); render();
+  for (const id of wmWhoSel){ try{ dogPushMarks(id); }catch(e){} }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-p3]'); if (!b) return;
+  const a = b.dataset.p3, v = b.dataset.v || '';
+  if (a === 'finish'){ wmFinishDay(v); return; }
+  if (a === 'barx'){ wmBarHide = v; wmBarPaint(); return; }
+  if (a === 'share'){ const d = diaryDays().find(x => x.date === v); if (d) openShareDay(d.hills, d.date); return; }
+  if (a === 'finnext'){ wmFinNext(); return; }
+  if (a === 'whodog'){ wmWhoSel.has(v) ? wmWhoSel.delete(v) : wmWhoSel.add(v); wmWhoPaint(); return; }
+  if (a === 'whonone'){ wmWhoSel = new Set(); wmWhoPaint(); return; }
+  if (a === 'whoadd'){ const i = document.getElementById('wmwhon'); const n = i && i.value.trim(); if (n && !wmWhoNames.includes(n)) wmWhoNames.push(n); wmWhoPaint(); setTimeout(() => { const j = document.getElementById('wmwhon'); if (j) j.focus(); }, 40); return; }
+  if (a === 'whodel'){ wmWhoNames.splice(+v, 1); wmWhoPaint(); return; }
+  if (a === 'whoph'){
+    const dog = dogList().find(g => wmWhoSel.has(g.id)); if (!dog) return;
+    const off = new Set(dog.noph || []); off.has(v) ? off.delete(v) : off.add(v);
+    state.dogs = state.dogs.map(g => g.id === dog.id ? {...g, noph: [...off], t: now()} : g); touched(); wmWhoPaint(); return;
+  }
+  if (a === 'whodone'){ wmWhoSave(); wmSheetClose(); toast('Saved for the day out.'); return; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'wmwhon'){ e.preventDefault(); const b = document.querySelector('[data-p3="whoadd"]'); if (b) b.click(); } });
+
+/* after any marking: remember the day for the bar, and stay where you were */
+function wmAfterMark(keys, date){
+  if (!wmOn('C11') || !keys.length) return;
+  wmBarDate = date || rec(keys[keys.length - 1]).date || '';
+  wmBarHide = '';
+  const h = BY_KEY[keys[keys.length - 1]];
+  if (h){ wmToastMark(h); }
+  wmBarPaint();
+  const el = document.getElementById('wmbar'); if (el){ el.classList.remove('wmin'); void el.offsetWidth; el.classList.add('wmin'); }
+}
+function wmToastMark(h){
+  let el = document.getElementById('wmmarked');
+  if (!el){ el = document.createElement('div'); el.id = 'wmmarked'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.innerHTML = ti('check') + esc(hillName(h)) + ' marked · ' + wmHtD(h);
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+(function(){
+  const st = document.createElement('style');
+  st.textContent = `
+.wmmkjoin{display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 14px;margin:10px 0;border:1px solid var(--line);border-radius:14px;background:var(--raise);cursor:pointer}
+.wmmkjoin>span:nth-child(2){flex:1;min-width:0}.wmmkjoin b{display:block;font:700 15.5px/1.25 var(--font-ui)}.wmmkjoin small{display:block;color:var(--ink-2);font-size:13.5px}
+.wmmkji svg{width:20px;height:20px;color:var(--ink-2)}.wmmkjoin input{width:24px;height:24px;accent-color:var(--accent);flex:none}
+#wmbar{position:fixed;left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:900;max-width:560px;margin:0 auto}
+#wmbar.wmin{animation:wmbarin .32s cubic-bezier(.2,0,0,1)}
+@keyframes wmbarin{from{transform:translateY(16px);opacity:0}}
+.wmbarin{display:flex;align-items:center;gap:10px;padding:10px;border-radius:16px;background:var(--pine);color:#F6EFE4;box-shadow:0 8px 24px -8px rgba(0,0,0,.45)}
+.wmbarin img,.wmbarph{width:46px;height:46px;border-radius:8px;object-fit:cover;flex:none;background:#2C5F55;display:grid;place-items:center}.wmbarph svg{width:20px;height:20px}
+.wmbart{flex:1;min-width:0}.wmbart b{display:block;font:700 16px var(--font-ui)}.wmbart small{display:block;font-size:13px;color:#D9D1C0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wmbarbtn{flex:none;min-height:44px;padding:0 14px;border-radius:22px;border:0;background:#F6EFE4;color:#14332D;font:700 14.5px var(--font-ui);cursor:pointer}
+.wmbarx{flex:none;min-width:36px;min-height:44px;background:none;border:0;color:#D9D1C0;cursor:pointer;display:grid;place-items:center}.wmbarx svg{width:18px;height:18px}
+.wmidea{display:flex;align-items:center;gap:8px;margin:0 6px 6px;padding:8px 12px;border-radius:12px;background:#FFF6E0;border:1px solid #F3C64B;color:#14332D;font-size:14px}
+.wmidea span{flex:1;display:flex;align-items:center;gap:6px}.wmidea svg{width:16px;height:16px;fill:#F3C64B}.wmidea button{background:none;border:0;color:#A8431A;font:700 14px var(--font-ui);min-height:36px;cursor:pointer}
+#wmmarked{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translate(-50%,-8px);opacity:0;z-index:3300;display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:22px;background:var(--pine);color:#F6EFE4;font:700 15px var(--font-ui);pointer-events:none;transition:opacity .2s,transform .2s cubic-bezier(.2,0,0,1);white-space:nowrap}
+#wmmarked.show{opacity:1;transform:translate(-50%,0)}#wmmarked svg{width:16px;height:16px;stroke-width:3}
+#wmfin{position:fixed;left:0;right:0;top:calc(10px + env(safe-area-inset-top));z-index:2147483000;display:flex;justify-content:flex-end;padding-right:10px;gap:8px;pointer-events:none}
+.wmfinchip{pointer-events:auto;display:flex;align-items:center;gap:4px;padding:0 14px;min-height:44px;border-radius:22px;background:rgba(10,20,18,.72);color:#fff;font:15px var(--font-ui)}
+.wmfinnext{pointer-events:auto;min-height:44px;padding:0 10px 0 16px;border-radius:22px;border:0;background:#F6EFE4;color:#14332D;font:700 15px var(--font-ui);display:flex;align-items:center;gap:2px;cursor:pointer}.wmfinnext svg{width:18px;height:18px}
+.wmwho{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 8px}
+.wmwhodog{background:none;border:0;padding:0;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;min-width:64px}
+.wmwhodog .wmwhoface,.wmwhodog .ddogface{width:60px;height:60px;border-radius:50%;border:3px solid var(--line)}
+.wmwhodog.on .wmwhoface,.wmwhodog.on .ddogface{border-color:var(--accent)}
+.wmwhodog span{display:flex;align-items:center;gap:3px;font:600 14px var(--font-ui)}.wmwhodog span svg{width:14px;height:14px;stroke-width:3}
+.wmwhoface.x{display:grid;place-items:center;border-style:dashed;color:var(--ink-3)}.wmwhoface.x svg{width:20px;height:20px}
+.wmlab{display:block;font:700 13.5px var(--font-ui);margin:12px 0 6px}
+.wmppl{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.wmppl input{flex:1;min-width:140px;min-height:44px;border:1px solid var(--line);border-radius:22px;padding:0 14px;font:16px var(--font-ui);background:var(--raise);color:var(--ink)}
+.wmppl .wmchip button{background:none;border:0;color:inherit;display:grid;place-items:center;min-width:28px;min-height:28px;cursor:pointer}.wmppl .wmchip svg{width:14px;height:14px}
+.wmwhoph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wmwhoph button{position:relative;aspect-ratio:1;border:0;padding:0;border-radius:8px;overflow:hidden;cursor:pointer;background:var(--surface-2)}
+.wmwhoph img{width:100%;height:100%;object-fit:cover}.wmwhoph button.off img{opacity:.45}
+.wmwhoph .wmwhotag,.wmwhoph .ddogface{position:absolute;right:6px;bottom:6px;width:30px;height:30px;border-radius:50%;border:2px solid #fff}
+.wmwhoph i{position:absolute;right:6px;bottom:6px;width:30px;height:30px;border-radius:50%;background:#14332D;color:#fff;display:grid;place-items:center}.wmwhoph i svg{width:16px;height:16px}
+.btn.wide{width:100%;margin-top:14px;min-height:48px}
+@media (prefers-reduced-motion: reduce){#wmbar.wmin{animation:wmfade .2s}#wmmarked{transition:opacity .2s;transform:translate(-50%,0)}@keyframes wmfade{from{opacity:0}}}
+`;
+  document.head.appendChild(st);
+})();
+
+/* ===== THE BIG UPDATE, PHASE 4: JOURNAL, DAY OUT, ADD SHEET, EDITOR FIRST =====
+   C13 the Journal · C34 the day out page · C47 day names (shorter names
+   offered once) · C14 one Add sheet · C40 the editor opens after you pick a
+   photo · C45 several photos go straight in, each with Edit. */
+
+/* ---- day names (C47) ---- */
+function wmDayTitle(d){
+  const x = wmDayx(), own = (x.names || {})[d.date + (d.part === 2 ? '~2' : '')];
+  if (own) return own;
+  const e = d.part === 1 && d.entries[0];
+  if (e && e.title) return e.title;
+  const names = d.hills.map(hillName);
+  if (!names.length) return 'A day out';
+  const full = wmJoin(names);
+  if (full.length <= 40 || !wmOn('C47')) return full;
+  const top = d.hills.slice().sort((a, b) => b.h - a.h)[0];
+  return hillName(d.hills[0]) + ' and ' + (names.length - 1) + ' more';
+}
+function wmDayArea(d){
+  const a = [...new Set(d.hills.map(h => wmAreaName(String(regionOf(h, homeListFor(h)) || '').replace(/^The /, ''))).filter(z => z && z !== 'Other'))];
+  return a.slice(0, 2).join(' & ');
+}
+function wmMissing(d){
+  const x = wmDayx(), m = [];
+  if (!d.photos.length) m.push('Photos');
+  if (!(d.entries[0] && (d.entries[0].text || d.entries[0].title))) m.push('words');
+  const who = (x.who || {})[d.date];
+  if (!who && !d.hills.some(h => dogsOn(h.k).length)) m.push('who came');
+  return m;
+}
+function wmToFinish(){ const x = wmDayx(); return diaryDays().filter(d => d.hills.length && !(x.finished || {})[d.date] && !(x.cleared || {})[d.date] && wmMissing(d).length >= 2); }
+
+/* ---- the Journal (C13) ---- */
+function wmJournalPage(){
+  const days = diaryDays();
+  const loose = liveDiary().filter(e => !wmFull(e.date));
+  const tf = wmToFinish();
+  const v = ui.wmJv || 'all';
+  let s = '<div class="wmjtop"><div><h1 class="wmh1">' + (v === 'finish' ? 'To finish' : 'Your journal') + '</h1><p class="wmsub">' +
+    (v === 'finish' ? tf.length + (tf.length === 1 ? ' day' : ' days') + ' with something missing' : days.length + (days.length === 1 ? ' day out' : ' days out') + ' · private, only you see this') + '</p></div>' +
+    '<button class="btn wmjadd" data-p4="add">' + ti('plus') + 'Add</button></div>';
+  const next = wmOn('C29') && typeof homeNextWalk === 'function' ? homeNextWalk() : null;
+  s += '<div class="wmjfil"><button class="wmchip' + (v === 'all' ? ' on' : '') + '" data-p4="jv" data-v="all" aria-pressed="' + (v === 'all') + '">All</button>' +
+    '<button class="wmchip' + (v === 'finish' ? ' on' : '') + '" data-p4="jv" data-v="finish" aria-pressed="' + (v === 'finish') + '">To finish ' + tf.length + '</button>' +
+    (next && next.date ? '<button class="wmlink wmjnext" data-tab="p">Coming up: ' + esc(wmDayFmt(next.date)) + ti('chevron-right') + '</button>' : '') + '</div>';
+  if (v === 'finish'){
+    const D = wmDays(), nd = D.nodate.filter(n => !wmDayx().unknown[n.k]).length;
+    s += '<div class="wmrows wmjl">' + tf.map(d => '<div class="wmjrow"><button class="wmjplus" data-p4="dayopen" data-v="' + esc(d.date) + '" data-part="' + d.part + '" aria-label="Open the day">' + ti('plus') + '</button>' +
+      '<button class="wmjt" data-p4="dayopen" data-v="' + esc(d.date) + '" data-part="' + d.part + '"><i>' + esc(prettyDate(d.date)) + '</i><b>' + esc(wmDayTitle(d)) + '</b><small>Missing: ' + esc(wmMissing(d).join(' · ')) + '</small></button>' +
+      '<button class="wmmark" data-p3="finish" data-v="' + esc(d.date) + '">Finish</button></div>').join('') +
+      (nd ? '<div class="wmjrow"><span class="wmjplus">' + ti('calendar') + '</span><span class="wmjt"><b>' + nd + (nd === 1 ? ' hill' : ' hills') + ' with no date</b><small>Marked from a list</small></span><button class="wmmark ghost" data-p1="go" data-v="nodate">Add dates</button></div>' : '') +
+      (!tf.length && !nd ? '<p class="wmempty">Nothing to finish. Every day out has its photos, words and who came.</p>' : '') + '</div>';
+    return s;
+  }
+  if (!days.length && !loose.length) return s + '<p class="wmempty">Every day you have been out goes here, newest first. Mark a hill, or write a note about a day with no summit.</p>';
+  const latest = days[0];
+  if (latest){
+    const ph = latest.photos[0];
+    const dogs = [...new Set(latest.hills.flatMap(h => dogsOn(h.k)))].map(dogById).filter(Boolean);
+    s += '<button class="wmjbig" data-p4="dayopen" data-v="' + esc(latest.date) + '" data-part="' + latest.part + '">' +
+      '<span class="wmjbigph">' + (ph ? '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' : '') +
+      '<span class="wmjbigt"><i>' + esc(prettyDate(latest.date)) + '</i><b>' + esc(wmDayTitle(latest)) + '</b></span></span>' +
+      '<span class="wmjbigf"><span>' + esc(latest.hills.map(hillName).join(' · ')) + '</span>' + (dogs[0] ? '<span class="wmtldog">' + dogFaceHTML(dogs[0], 'ddogface') + esc(dogName(dogs[0])) + '</span>' : '') + '</span></button>';
+  }
+  /* the rest: this month and last open, older folded by month */
+  const rows = days.slice(1).map(d => ({d, date: d.date})).concat(loose.map(e => ({e, date: e.date || ''})));
+  const now = today().slice(0, 7);
+  const groups = new Map();
+  for (const r of rows){
+    const m = r.date ? r.date.slice(0, 7) : 'nodate';
+    if (!groups.has(m)) groups.set(m, []); groups.get(m).push(r);
+  }
+  const keys = [...groups.keys()].sort().reverse();
+  const tfset = new Set(tf.map(d => d.date));
+  const rowHTML = r => {
+    if (r.e) return '<div class="wmjrow"><span class="wmjplus">' + ti('pencil') + '</span><button class="wmjt" data-p4="note" data-v="' + esc(r.e.id) + '"><i>' + esc(r.e.date ? prettyDate(r.e.date) : 'No date') + '</i><b>' + esc(r.e.title || 'A note') + '</b><small>A note · no hill</small></button>' + ti('chevron-right') + '</div>';
+    const d = r.d, ph = d.photos[0], fin = tfset.has(d.date);
+    return '<div class="wmjrow">' + (ph ? '<img class="wmjth" data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="">' : '<span class="wmjplus">' + (fin ? ti('plus') : ti('mountain')) + '</span>') +
+      '<button class="wmjt" data-p4="dayopen" data-v="' + esc(d.date) + '" data-part="' + d.part + '"><i>' + esc(prettyDate(d.date)) + '</i><b>' + esc(wmDayTitle(d)) + '</b><small>' +
+      esc(d.hills.length === 1 && !ph && !(d.entries[0]) ? '1 hill · nothing added yet' : d.hills.map(hillName).join(' · ')) + '</small></button>' +
+      (fin ? '<button class="wmtf" data-p3="finish" data-v="' + esc(d.date) + '">To finish</button>' : ti('chevron-right')) + '</div>';
+  };
+  s += '<div class="wmrows wmjl">';
+  let shown = 0;
+  for (const m of keys){
+    const list = groups.get(m);
+    const recent = m === now || shown < 6;
+    const open = recent || (ui.wmJopen || []).includes(m);
+    if (recent){ s += list.map(rowHTML).join(''); shown += list.length; continue; }
+    const label = m === 'nodate' ? 'No date' : MON_LONG[+m.slice(5) - 1] + ' ' + m.slice(0, 4);
+    s += '<button class="wmjmon" data-p4="mon" data-v="' + m + '" aria-expanded="' + open + '">' + esc(label) + ' · ' + list.length + (list.length === 1 ? ' day' : ' days') + ti(open ? 'chevron-down' : 'chevron-right') + '</button>';
+    if (open) s += list.map(rowHTML).join('');
+  }
+  return s + '</div>';
+}
+
+/* ---- the day out page (C34) ---- */
+var wmDayD = '', wmDayPart = 1, wmDayEdit = false;
+function wmOpenDay(date, part){
+  wmDayD = date; wmDayPart = +part || 1; wmDayEdit = false;
+  wmPg = 'day'; wmPaintDay();
+}
+function wmPaintDay(){
+  const d = diaryDays().find(x => x.date === wmDayD && (x.part || 1) === wmDayPart) || diaryDays().find(x => x.date === wmDayD);
+  const el = wmPgEl();
+  if (!d){ wmClose(); return; }
+  const x = wmDayx(), e = d.entries[0] || null;
+  const who = (x.who || {})[d.date] || null, offWho = (x.whoOff || {})[d.date], offKit = (x.kitOff || {})[d.date];
+  const title = wmDayTitle(d);
+  const hs = d.hills;
+  const lists = enabled().filter(l => l.id !== 'own').map(l => ({l, n: hs.filter(h => h.l.includes(l.id)).length})).filter(z => z.n);
+  const dogsDay = [...new Set((who ? who.dogs : hs.flatMap(h => dogsOn(h.k))))].map(dogById).filter(Boolean);
+  const kit = ((state.kitTrips || []).find(t => t.date === d.date && !t.deleted) || {}).items || [];
+  let s = '<div class="wmp1top wmdaytop"><button class="wmp1back" data-p1="close">' + ti('arrow-left') + '<span>Journal</span></button><span style="flex:1"></span>' +
+    '<button class="wmghost sm" data-p4="dayedit">' + ti('pencil') + (wmDayEdit ? 'Done' : 'Edit') + '</button>' +
+    '<button class="wmherob round light" data-p4="daymore" aria-label="More for this day">' + ti('dots') + '</button></div><div class="wmp1bd wmday">';
+  if (d.photos.length) s += '<div class="wmdaystrip">' + d.photos.map(p => '<button data-act="viewday" data-d="' + esc(d.date) + '" data-p="' + esc(p.id) + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt=""></button>').join('') +
+    '<label class="wmdayaddph">' + ti('plus') + '<span>Add photos</span><input type="file" accept="image/*" multiple data-act="dayphoto" data-d="' + esc(d.date) + '" class="filein"></label></div>';
+  else s += '<label class="wmghost wide wmdayaddph0">' + ti('plus') + 'Add photos<input type="file" accept="image/*" multiple data-act="dayphoto" data-d="' + esc(d.date) + '" class="filein"></label>';
+  s += '<p class="wmeyebrow dark">' + esc(prettyDate(d.date)) + (wmDayArea(d) ? ' · ' + esc(wmDayArea(d)) : '') + '</p>';
+  if (wmDayEdit) s += '<input class="wmdayti" id="wmdayti" value="' + esc(title) + '" maxlength="80" aria-label="Name of the day">';
+  else s += '<h1 class="wmdayh">' + esc(title) + '</h1>';
+  /* shorter names, offered once (C47) */
+  const full = wmJoin(hs.map(hillName));
+  if (wmOn('C47') && !wmDayEdit && full.length > 40 && !(x.names || {})[d.date] && !(x.nameAsked || {})[d.date]){
+    const sorted = hs.slice();
+    const route = (state.plans || []).find(p => !p.deleted && p.date === d.date && p.name);
+    const opts = [route ? route.name : '', hillName(sorted[0]) + ' to ' + hillName(sorted[sorted.length - 1]), hs.length + ' tops' + (wmDayArea(d) ? ', ' + wmDayArea(d) : '')].filter(Boolean);
+    s += '<div class="wmshort"><div class="wmshorth"><b>Give this day a shorter name?</b><button class="wmp1x" data-p4="nameno" aria-label="No thanks">' + ti('x') + '</button></div>' +
+      '<p>' + hs.length + ' hills made a long title, so it shows as “' + esc(title) + '”.</p><div class="wmshortc">' +
+      opts.map(o => '<button class="wmchip sm" data-p4="nameset" data-v="' + esc(o) + '">' + esc(o) + '</button>').join('') +
+      '<button class="wmchip sm dash" data-p4="dayedit">' + ti('pencil') + 'My own</button></div><p class="small">' + (route ? 'The first is the route you followed. ' : '') + 'Asked once; Edit changes it any time.</p></div>';
+  }
+  s += '<div class="wmdayhills">' + hs.map(h => '<button class="wmchip sm" data-act="info" data-k="' + esc(h.k) + '">' + esc(hillName(h)) + ' · ' + wmHtD(h) + '</button>').join('') +
+    '<button class="wmchip sm dash" data-p4="dayhill">' + ti('plus') + 'hill</button></div>';
+  s += '<div class="wmdaymeta">' + lists.slice(0, 2).map(z => { const all = hillsIn(z.l.id), dn = all.filter(h => isBagged(h.k)).length; return '<span class="wmbadge">' + esc(z.l.name) + ' +' + z.n + ' · ' + dn + ' of ' + all.length + '</span>'; }).join('') +
+    '<span class="wmsub small">' + hs.length + (hs.length === 1 ? ' summit' : ' summits') + '</span>' +
+    '<button class="wmherob round light sm" data-p4="dayshare" aria-label="Share this day">' + ti('share') + '</button></div>';
+  if (wmDayEdit) s += '<textarea class="wmdaytx" id="wmdaytx" placeholder="How was it up there?" rows="4">' + esc(e ? e.text : '') + '</textarea>';
+  else if (e && e.text) s += '<p class="wmdaywords">' + esc(e.text) + '</p>';
+  else s += '<button class="wmlink u" data-p4="dayedit">Add a few words</button>';
+  /* map of the day */
+  const trk = (wmOn('C27') || wmOn('C28')) ? wmDayTrack(d.date) : null;
+  s += '<div class="wmdaymap">' + wmDayMapSVG(hs, trk) + '<div class="wmdaymapf"><span>' + ti('map-2') + '<b>Map of the day</b><small>' + (trk ? 'From your route' : 'From your marks \u00b7 no track saved') + '</small></span>' +
+    '<label class="wmghost sm">Add your route<input type="file" accept=".gpx,application/gpx+xml" data-act="gpxnew" class="filein"></label></div></div>';
+  /* who came */
+  s += '<div class="wmdaysec"><span class="wmeyebrow dark">Who came</span><label class="wmsw"><span>' + (offWho ? 'Off' : 'On') + '</span><input type="checkbox" data-p4="whosw"' + (offWho ? '' : ' checked') + ' aria-label="Show who came"></label></div>';
+  if (!offWho) s += '<div class="wmdaychips">' + (who ? who.people : []).map(n => '<span class="wmchip sm">' + esc(n) + '</span>').join('') +
+    dogsDay.map(g => '<span class="wmchip sm">' + dogFaceHTML(g, 'wmchipdog') + esc(dogName(g)) + '</span>').join('') +
+    (!dogsDay.length && who ? '<span class="wmchip sm dash">No dogs</span>' : '') + '<button class="wmchip sm dash" data-p4="daywho">' + ti('plus') + (who || dogsDay.length ? 'change' : 'add') + '</button></div>';
+  s += '<div class="wmdaysec"><span class="wmeyebrow dark">Kit</span><label class="wmsw"><span>' + (offKit ? 'Off' : 'On') + '</span><input type="checkbox" data-p4="kitsw"' + (offKit ? '' : ' checked') + ' aria-label="Show kit"></label></div>';
+  if (!offKit) s += '<p class="wmsub small">Walked in</p><div class="wmdaychips">' + kit.slice(0, 12).map(i => '<span class="wmchip sm">' + esc(i.n || (typeof kitName === 'function' ? kitName(i.id) : 'Kit')) + '</span>').join('') +
+    '<button class="wmchip sm dash" data-p4="daykit">' + ti('plus') + 'add</button></div>';
+  s += '<div class="wmdayshare"><span><b>Share to Community</b><small>Private until you share · you pick the cards</small></span><button class="btn sm" data-p4="dayshare">Share…</button></div></div>';
+  el.className = 'wmp1page'; el.setAttribute('aria-label', 'Day out, ' + prettyDate(d.date));
+  el.innerHTML = s; el.hidden = false; document.documentElement.classList.add('wmp1lock');
+  hydratePhotos();
+}
+function wmDayTrack(date){
+  const p = (state.plans || []).find(p => !p.deleted && p.date === date && Array.isArray(p.trk) && p.trk.length > 1);
+  return p ? p.trk : null;
+}
+function wmDayMapSVG(hs, trk){
+  const pts = hs.filter(h => isFinite(h.a));
+  if (!pts.length) return '';
+  const W = 340, H = 150, pad = 34;
+  const T = (trk || []).map(c => ({a: +c[0], o: +c[1]})).filter(c => isFinite(c.a) && isFinite(c.o));
+  const all = pts.concat(T);
+  let a0 = Math.min(...all.map(h => h.a)), a1 = Math.max(...all.map(h => h.a)), o0 = Math.min(...all.map(h => h.o)), o1 = Math.max(...all.map(h => h.o));
+  const cos = Math.cos(a0 * Math.PI / 180);
+  let sx = (o1 - o0) * cos, sy = a1 - a0; const span = Math.max(sx, sy * 1.6, 0.01);
+  const X = h => pad + ((h.o - o0) * cos / span) * (W - 2 * pad) + (span - sx) / span * (W - 2 * pad) / 2;
+  const Y = h => H - pad - ((h.a - a0) * 1.6 / span) * (H - 2 * pad) - (span - sy * 1.6) / span * (H - 2 * pad) / 2;
+  const step = Math.max(1, Math.floor(T.length / 300));
+  const line = (T.length > 1 ? T.filter((c, i) => i % step === 0) : pts).map((h, i) => (i ? 'L' : 'M') + X(h).toFixed(1) + ' ' + Y(h).toFixed(1)).join(' ');
+  return '<svg class="wmdaysvg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Map of the day: ' + esc(pts.map(hillName).join(', ')) + '">' +
+    '<path d="' + line + '" fill="none" stroke="#A8431A" stroke-width="3" stroke-dasharray="1 7" stroke-linecap="round"/>' +
+    pts.map(h => '<circle cx="' + X(h).toFixed(1) + '" cy="' + Y(h).toFixed(1) + '" r="7" fill="#14332D" stroke="#fff" stroke-width="2"/>' +
+      '<text x="' + X(h).toFixed(1) + '" y="' + (Y(h) + 20).toFixed(1) + '" text-anchor="middle">' + esc(hillName(h).length > 18 ? hillName(h).slice(0, 17) + '…' : hillName(h)) + '</text>').join('') + '</svg>';
+}
+function wmDaySaveEdit(){
+  const d = diaryDays().find(x => x.date === wmDayD); if (!d) return;
+  const t = document.getElementById('wmdayti'), tx = document.getElementById('wmdaytx');
+  const x = wmDayx();
+  if (t){ const v = t.value.trim(); x.names = x.names || {}; if (v && v !== wmJoin(d.hills.map(hillName))) x.names[d.date + (wmDayPart === 2 ? '~2' : '')] = v; else delete x.names[d.date]; wmSaveDayx(x); }
+  if (tx && wmDayPart === 1){
+    const words = tx.value.trim();
+    const e = liveDiary().find(z => z.date === d.date);
+    if (e) setDiary(e.id, {text: words, title: e.title || (t ? t.value.trim() : '')});
+    else if (words) state.diary = [...(state.diary || []), {id: 'd' + uid(), date: d.date, title: t ? t.value.trim() : '', text: words, photos: [], shared: 0, deleted: false, t: now()}];
+    touched();
+  }
+}
+function wmDayMore(){
+  wmSheet('<h2 class="wmp1sh">' + esc(prettyDate(wmDayD)) + '</h2><div class="wmmenu">' +
+    wmMenuRow('calendar', 'Change the date', 'Moves every hill and the entry of this day out', 'data-p4="daydate"') +
+    wmMenuRow('pencil', 'Edit', 'The name and the words', 'data-p4="dayedit"') +
+    wmMenuRow('trash', 'Delete this day out', 'Asks first. Hills stay marked if climbed on another day', 'data-p4="daydel"', 'warn') + '</div>');
+}
+async function wmDayDate(){
+  const d = diaryDays().find(x => x.date === wmDayD); if (!d) return;
+  const v = await wmAskDate('Change the date', d.date);
+  if (!v || v === d.date) return;
+  if (isFutureDay(v)){ futureDayToast(); return; }
+  for (const h of d.hills) moveAscent(h.k, d.date, v);
+  for (const e of liveDiary().filter(z => z.date === d.date)) setDiary(e.id, {date: v});
+  touched(); toast('Moved to ' + prettyDate(v) + '.'); wmOpenDay(v);
+}
+function wmAskDate(title, val){
+  return new Promise(res => {
+    wmSheet('<h2 class="wmp1sh">' + esc(title) + '</h2><input type="date" id="wmaskd" class="wmdatein" value="' + esc(val || today()) + '" max="' + today() + '"><button class="btn wide" data-p4="askok">Use this date</button>', () => { if (wmAskRes){ const r = wmAskRes; wmAskRes = null; r(null); } });
+    wmAskRes = res;
+  });
+}
+var wmAskRes = null;
+
+/* ---- the Add sheet (C14) ---- */
+function wmAddOpen(){
+  const strava = typeof stravaCfg === 'function' && stravaCfg();
+  wmSheet('<h2 class="wmp1sh">Add</h2><p class="wmeyebrow dark">Mark hills you climbed</p><div class="wmmenu">' +
+    wmMenuRow('search', 'Mark a hill', 'Search, or I am on a hill', 'data-p4="addmark"') +
+    wmMenuRow('list-check', 'From a list', 'Tick the ones you have done', 'data-p4="addlist"') +
+    '<label class="wmmrow"><span class="wmmic">' + ti('photo') + '</span><span><b>From photos</b><small>Finds summits in them</small></span><input type="file" accept="image/*" multiple data-act="impfiles" class="filein"></label>' +
+    (strava ? wmMenuRow('route', 'From Strava', 'Your saved walks', 'data-p4="addstrava"') + '<div class="wmstrava">' + (typeof stravaPowered === 'function' ? stravaPowered() : '') + '</div>' : '') +
+    '</div><p class="wmeyebrow dark">Make something</p><div class="wmaddmake"><button class="wmghost" data-p4="addnote">' + ti('pencil') + 'Write a note</button>' +
+    '<button class="wmghost" data-p4="addcard">' + ti('camera') + 'Summit card</button></div>');
+}
+
+/* ---- the editor first (C40) and several photos (C45) ---- */
+var wmEF = null;
+function wmEditorFirst(e){
+  const t = e.target;
+  if (!t || t.type !== 'file' || !t.files || !t.files.length) return;
+  const act = t.dataset.act;
+  if (act !== 'photo' && act !== 'dayphoto' && act !== 'diaryphoto') return;
+  if (!wmOn('C40')) return;
+  e.stopImmediatePropagation(); e.preventDefault();
+  const files = [...t.files].filter(f => looksLikeImage(f)); t.value = '';
+  if (!files.length){ toast('That file is not a photo WayMark can open.'); return; }
+  const where = act === 'photo' ? {k: t.dataset.k} : act === 'dayphoto' ? {d: t.dataset.d} : {id: t.dataset.id};
+  if (files.length > 1 && wmOn('C45')){ wmAddMany(where, files); return; }
+  wmEditFirst(where, files[0]);
+}
+document.addEventListener('change', wmEditorFirst, true);
+async function wmAddPlain(where, files){
+  if (where.k) await addPhotos(where.k, files);
+  else if (where.id) await addDiaryPhotos(where.id, files);
+  else {
+    let e = liveDiary().find(x => x.date === where.d);
+    if (!e){ e = {id: 'd' + uid(), date: where.d, title: '', text: '', photos: [], shared: 0, deleted: false, t: now()}; state.diary = [...(state.diary || []), e]; touched(); }
+    await addDiaryPhotos(e.id, files);
+  }
+  render(); if (wikiOpen) paintInfo(); if (wmPg === 'day') wmPaintDay();
+}
+function wmWhereName(where){
+  if (where.k && BY_KEY[where.k]) return hillName(BY_KEY[where.k]);
+  const d = where.d || ((liveDiary().find(e => e.id === where.id) || {}).date);
+  const day = d && diaryDays().find(x => x.date === d);
+  return day ? wmDayTitle(day) : 'your journal';
+}
+async function wmEditFirst(where, file){
+  wmEF = {where, file};
+  window.wmNoCam = true; camOpen(); window.wmNoCam = false;
+  await camPick(file);
+  const hk = where.k || ((diaryDays().find(x => x.date === (where.d || '')) || {hills: []}).hills[0] || {}).k;
+  if (cam && hk && BY_KEY[hk] && cam.photoNoPlace) edSetHill(BY_KEY[hk]);
+  wmEFChrome();
+}
+function wmEFChrome(){
+  let el = document.getElementById('wmef');
+  if (!wmEF){ if (el) el.remove(); document.documentElement.classList.remove('wmefon'); return; }
+  if (!el){ el = document.createElement('div'); el.id = 'wmef'; document.body.appendChild(el); }
+  const n = wmWhereName(wmEF.where);
+  el.innerHTML = '<span class="wmefchip">Adding to ' + esc(n) + '</span><div class="wmefbot"><button class="wmefskip" data-p4="efskip">Skip, add as it is</button>' +
+    '<button class="wmefadd" data-p4="efadd">Add to ' + esc(n.length > 18 ? 'your day' : n) + '</button></div>';
+  document.documentElement.classList.add('wmefon');
+}
+async function wmEFDone(edited){
+  const w = wmEF; if (!w) return;
+  let f = w.file;
+  if (edited){ try{ const b = await camStillBlob(); f = new File([b], camFileName('jpg'), {type: 'image/jpeg'}); }catch(e){ toast('Could not keep the edit; adding the photo as it is.'); } }
+  wmEF = null; wmEFChrome();
+  try{ camClose(); }catch(e){}
+  await wmAddPlain(w.where, [f]);
+  toast(edited ? 'Added, with your edit.' : 'Added.');
+}
+setInterval(() => { if (wmEF && !cam){ wmEF = null; wmEFChrome(); } }, 500);
+var wmMany = null;
+async function wmAddMany(where, files){
+  const before = new Set(wmPhotoIds(where));
+  await wmAddPlain(where, files);
+  const ids = wmPhotoIds(where).filter(id => !before.has(id));
+  wmMany = {where, ids};
+  wmManyPaint();
+}
+function wmPhotoIds(where){
+  if (where.k) return (rec(where.k).photos || []).map(p => p.id);
+  const d = where.d || ((liveDiary().find(e => e.id === where.id) || {}).date);
+  return liveDiary().filter(e => (where.id ? e.id === where.id : e.date === d)).flatMap(e => (e.photos || []).map(p => p.id));
+}
+function wmManyPaint(){
+  const m = wmMany; if (!m) return;
+  const n = wmWhereName(m.where);
+  wmSheet('<h2 class="wmp1sh">' + m.ids.length + ' photos added to ' + esc(n) + '</h2><p class="wmsub">They are in. Make a summit card from any of them, now or later.</p>' +
+    '<div class="wmmany">' + m.ids.map(id => '<button data-p4="manyone" data-v="' + esc(id) + '"><img data-pid="' + esc(id) + '" data-up="0" alt=""><span>Edit</span></button>').join('') + '</div>' +
+    '<div class="wmbar2"><button class="btn" data-p4="manyall">Edit all, one by one</button><button class="wmghost" data-p4="manydone">Done</button></div>');
+  hydratePhotos();
+}
+var wmManyQ = null;
+async function wmManyEdit(id){
+  const m = wmMany; if (!m) return;
+  const k = m.where.k || ((diaryDays().find(x => x.date === (m.where.d || '')) || {hills: []}).hills[0] || {}).k;
+  wmSheetClose();
+  await wmEditPhoto({id, up: 0}, k || '');
+}
+function wmManyNext(){
+  if (!wmManyQ || !wmManyQ.length){ wmManyQ = null; return; }
+  const id = wmManyQ.shift(); wmManyEdit(id);
+}
+setInterval(() => { if (wmManyQ && !cam && !(document.getElementById('wmsheet') || {}).hidden === false){ wmManyNext(); } }, 700);
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-p4]'); if (!b) return;
+  const a = b.dataset.p4, v = b.dataset.v || '';
+  if (a === 'whosw' || a === 'kitsw') return;
+  if (a === 'add'){ wmAddOpen(); return; }
+  if (a === 'jv'){ ui.wmJv = v; render(); window.scrollTo({top: 0}); return; }
+  if (a === 'mon'){ const o = ui.wmJopen || (ui.wmJopen = []); const i = o.indexOf(v); i >= 0 ? o.splice(i, 1) : o.push(v); render(); return; }
+  if (a === 'dayopen'){ wmOpenDay(v, b.dataset.part); return; }
+  if (a === 'note'){ const ent = liveDiary().find(z => z.id === v); if (ent){ tab = 'j'; ui.wmJournal = 'days'; ui.wmJv = 'old'; render(); } return; }
+  if (a === 'dayedit'){ if (wmDayEdit) wmDaySaveEdit(); wmSheetClose(); wmDayEdit = !wmDayEdit; wmPaintDay(); if (wmDayEdit) setTimeout(() => { const t = document.getElementById('wmdaytx'); if (t) t.focus(); }, 60); return; }
+  if (a === 'daymore'){ wmDayMore(); return; }
+  if (a === 'daydate'){ wmSheetClose(); wmDayDate(); return; }
+  if (a === 'askok'){ const i = document.getElementById('wmaskd'); const r = wmAskRes; wmAskRes = null; const val = i && i.value; wmSheetClose(); if (r) r(val); return; }
+  if (a === 'daydel'){
+    wmSheetClose();
+    const d = diaryDays().find(x => x.date === wmDayD); if (!d) return;
+    const ok = await confirmAsk({title: 'Delete the day out on ' + prettyDate(d.date) + '?', body: d.hills.length + (d.hills.length === 1 ? ' hill comes' : ' hills come') + ' off this date' + (d.entries.length ? ' and its journal entry goes' : '') + '. A hill climbed on another day stays marked. This cannot be undone.', yes: 'Delete the day out', no: 'Keep it', tone: 'danger'});
+    if (!ok) return;
+    for (const h of d.hills){ if (ascCount(h.k) > 1) dropAscent(h.k, d.date); else setBagged(h.k, false); }
+    for (const en of d.entries) setDiary(en.id, {deleted: true});
+    touched(); wmClose(); toast('Day out deleted.'); return;
+  }
+  if (a === 'nameset'){ const x = wmDayx(); x.names = x.names || {}; x.names[wmDayD] = v; x.nameAsked = x.nameAsked || {}; x.nameAsked[wmDayD] = 1; wmSaveDayx(x); wmPaintDay(); return; }
+  if (a === 'nameno'){ const x = wmDayx(); x.nameAsked = x.nameAsked || {}; x.nameAsked[wmDayD] = 1; wmSaveDayx(x); wmPaintDay(); return; }
+  if (a === 'dayhill'){ wmClose(); tab = 'a'; ui.patchView = 'lists'; ui.wmSum = 'list'; render(); toast('Mark a hill, then pick ' + prettyDate(wmDayD) + ' as the day.'); return; }
+  if (a === 'daywho'){ wmWhoOpen(wmDayD); return; }
+  if (a === 'daykit'){ wmClose(); if (wmOn('C15') && typeof wmYouGo === 'function') wmYouGo('kit'); else { tab = 'a'; ui.patchView = 'kit'; render(); } return; }
+  if (a === 'dayshare'){ const d = diaryDays().find(x => x.date === wmDayD); if (d){ if (typeof wmShareDay === 'function' && wmOn('C19')) wmShareDay(d.date); else openShareDay(d.hills, d.date); } return; }
+  if (a === 'addmark'){ wmSheetClose(); wmClose(); tab = 'd'; render(); setTimeout(() => { const i = document.querySelector('#main .markbar input, #main input[type=search]'); if (i) i.focus(); }, 80); return; }
+  if (a === 'addlist'){ wmSheetClose(); wmClose(); tab = 'a'; ui.patchView = 'lists'; ui.wmSum = 'list'; ui.wmSumView = 'climb'; render(); window.scrollTo({top: 0}); return; }
+  if (a === 'addstrava'){ wmSheetClose(); const t = document.createElement('button'); t.dataset.act = stravaOn() ? 'stopen' : 'stconnect'; t.hidden = true; document.body.appendChild(t); t.click(); t.remove(); return; }
+  if (a === 'addnote'){ wmSheetClose(); wmClose(); tab = 'j'; ui.wmJournal = 'days'; ui.wmJv = 'old'; ui.diaryForm = true; render(); window.scrollTo({top: 0}); return; }
+  if (a === 'addcard'){ wmSheetClose(); window.wmNoCam = true; camOpen(); window.wmNoCam = false; edChooseOpen('journal'); return; }
+  if (a === 'efskip'){ wmEFDone(false); return; }
+  if (a === 'efadd'){ wmEFDone(true); return; }
+  if (a === 'manyone'){ wmManyEdit(v); return; }
+  if (a === 'manyall'){ wmManyQ = wmMany ? wmMany.ids.slice() : []; wmSheetClose(); wmManyNext(); return; }
+  if (a === 'manydone'){ wmMany = null; wmSheetClose(); return; }
+});
+document.addEventListener('change', e => {
+  const t = e.target.closest('[data-p4]'); if (!t) return;
+  const x = wmDayx();
+  if (t.dataset.p4 === 'whosw'){ x.whoOff = x.whoOff || {}; if (t.checked) delete x.whoOff[wmDayD]; else x.whoOff[wmDayD] = 1; wmSaveDayx(x); wmPaintDay(); }
+  if (t.dataset.p4 === 'kitsw'){ x.kitOff = x.kitOff || {}; if (t.checked) delete x.kitOff[wmDayD]; else x.kitOff[wmDayD] = 1; wmSaveDayx(x); wmPaintDay(); }
+});
+/* a day page changes when the log changes */
+wmAfter.push(() => { if (wmPg === 'day' && !wmDayEdit) wmPaintDay(); });
+
+(function(){
+  const st = document.createElement('style');
+  st.textContent = `
+.wmjtop{display:flex;align-items:flex-start;gap:10px;margin:4px 0 10px}.wmjtop>div{flex:1;min-width:0}
+.wmjadd{display:inline-flex;align-items:center;gap:4px;min-height:44px}.wmjadd svg{width:16px;height:16px}
+.wmjfil{display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap}.wmjnext{margin-left:auto}
+.wmjbig{display:block;width:100%;padding:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--raise);color:var(--ink);text-align:left;cursor:pointer;margin-bottom:14px}
+.wmjbigph{position:relative;display:block;height:150px;background:var(--pine)}.wmjbigph img{width:100%;height:100%;object-fit:cover}
+.wmjbigph:after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,0) 30%,rgba(10,25,22,.8))}
+.wmjbigt{position:absolute;left:14px;right:14px;bottom:10px;z-index:1;color:#fff}.wmjbigt i{display:block;font:700 13px var(--font-data);font-style:normal;letter-spacing:.1em;text-transform:uppercase}
+.wmjbigt b{display:block;font:400 24px/1.1 var(--font-display);overflow-wrap:anywhere}
+.wmjbigf{display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:14.5px;color:var(--ink-2)}.wmjbigf>span:first-child{flex:1;min-width:0}
+.wmjl{padding:0 12px}.wmjrow{display:flex;align-items:center;gap:12px;min-height:72px;padding:8px 0;border-bottom:1px solid var(--line-soft)}.wmjrow:last-child{border-bottom:0}
+.wmjrow>svg{width:18px;height:18px;color:var(--ink-3);flex:none}
+.wmjplus{flex:none;width:48px;height:48px;border:1.5px dashed #857F6E;border-radius:10px;display:grid;place-items:center;color:var(--ink-3);background:none;cursor:pointer}.wmjplus svg{width:20px;height:20px}
+.wmjth{flex:none;width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--surface-2)}
+.wmjt{flex:1;min-width:0;background:none;border:0;padding:0;text-align:left;color:var(--ink);cursor:pointer;min-height:44px}
+.wmjt i{display:block;font:700 14px var(--font-data);font-style:normal;color:var(--accent-text);text-transform:uppercase}
+.wmjt b{display:block;font:700 16.5px/1.25 var(--font-ui);overflow-wrap:anywhere}.wmjt small{display:block;color:var(--ink-2);font-size:14px;overflow-wrap:anywhere}
+.wmtf{flex:none;min-height:36px;padding:0 12px;border-radius:18px;border:1.5px dashed var(--accent);background:none;color:var(--accent-text);font:400 16px var(--font-script);cursor:pointer}
+.wmjmon{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;background:none;border:0;border-bottom:1px solid var(--line-soft);color:var(--ink);font:600 16px var(--font-ui);cursor:pointer;padding:0}.wmjmon svg{width:18px;height:18px}
+.wmdaytop{display:flex;align-items:center;gap:8px}
+.wmherob.light{background:var(--raise);color:var(--ink);border:1px solid var(--line)}.wmherob.sm{min-width:36px;min-height:36px}
+.wmdaystrip{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 12px;padding:0 16px;scroll-snap-type:x proximity;scrollbar-width:none}
+.wmdaystrip button{flex:0 0 31%;aspect-ratio:9/14;border:0;padding:0;border-radius:10px;overflow:hidden;scroll-snap-align:start;background:var(--surface-2);cursor:pointer}.wmdaystrip img{width:100%;height:100%;object-fit:cover}
+.wmdayaddph{position:relative;flex:0 0 31%;aspect-ratio:9/14;border:1.5px dashed #857F6E;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-2);font:600 14px var(--font-ui);overflow:hidden;cursor:pointer}.wmdayaddph svg{width:22px;height:22px}
+.wmdayaddph0{position:relative;overflow:hidden;margin-bottom:12px}
+.wmdayh{font:400 clamp(26px,7vw,32px)/1.08 var(--font-display);margin:2px 0 10px;overflow-wrap:anywhere}
+.wmdayti,.wmdaytx,.wmdatein{width:100%;box-sizing:border-box;min-height:48px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:16px var(--font-ui);background:var(--raise);color:var(--ink);margin-bottom:10px}
+.wmdaytx{font:22px/1.3 var(--font-script)}
+.wmdayhills,.wmdaychips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.wmchip.dash{border-style:dashed;color:var(--accent-text)}.wmchipdog{width:22px;height:22px;border-radius:50%}
+.wmdaymeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}.wmdaymeta .wmherob{margin-left:auto}
+.wmbadge{padding:4px 10px;border-radius:12px;background:var(--accent-soft);color:var(--accent-text);font:700 13px var(--font-ui)}
+.wmdaywords{font:22px/1.35 var(--font-script);color:var(--ink-2);margin:6px 0 12px;white-space:pre-wrap}
+.wmdaymap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--raise);margin:8px 0 14px}
+.wmdaysvg{display:block;width:100%;height:auto;background:var(--surface)}.wmdaysvg text{font:600 11px var(--font-ui);fill:var(--ink)}
+.wmdaymapf{display:flex;align-items:center;gap:8px;padding:10px 12px}.wmdaymapf>span{flex:1;display:grid;grid-template-columns:auto 1fr;column-gap:6px}
+.wmdaymapf svg{width:18px;height:18px;grid-row:span 2}.wmdaymapf b{font:700 14.5px var(--font-ui)}.wmdaymapf small{color:var(--ink-2);font-size:13px}
+.wmdaymapf label{position:relative;overflow:hidden}
+.wmdaysec{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px}.wmdaysec .wmeyebrow{margin:0}
+.wmsw{display:flex;align-items:center;gap:8px;font:600 14px var(--font-ui);min-height:44px;cursor:pointer}
+.wmsw input{appearance:none;-webkit-appearance:none;width:48px;height:28px;border-radius:14px;background:#857F6E;position:relative;cursor:pointer;transition:background .15s}
+.wmsw input:before{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s}
+.wmsw input:checked{background:var(--pine)}.wmsw input:checked:before{transform:translateX(20px)}
+.wmdayshare{display:flex;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--raise)}.wmdayshare>span{flex:1}
+.wmdayshare b{display:block;font:700 15.5px var(--font-ui)}.wmdayshare small{display:block;color:var(--ink-2);font-size:13px}
+.wmshort{background:#FFF6E0;border:1px solid #F3C64B;border-radius:14px;padding:10px 12px;margin:0 0 12px;color:#14332D}
+.wmshorth{display:flex;align-items:center}.wmshorth b{flex:1;font:700 15.5px var(--font-ui)}.wmshort p{margin:2px 0 8px;font-size:13.5px;color:#3E625A}.wmshort p.small{margin:8px 0 0}
+.wmshortc{display:flex;flex-wrap:wrap;gap:6px}.wmshort .wmchip{background:#fff;color:#14332D;border-color:#857F6E}
+.wmaddmake{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wmstrava{padding:0 0 8px 56px}
+.wmmany{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.wmmany button{position:relative;aspect-ratio:3/4;border:0;padding:0;border-radius:10px;overflow:hidden;background:var(--surface-2);cursor:pointer}.wmmany img{width:100%;height:100%;object-fit:cover}
+.wmmany span{position:absolute;left:6px;bottom:6px;padding:4px 10px;border-radius:12px;background:rgba(10,25,22,.75);color:#fff;font:700 13px var(--font-ui)}
+.wmbar2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wmbar2>*{min-height:48px}
+#wmef{position:fixed;inset:0;z-index:2147483000;pointer-events:none}
+.wmefchip{position:absolute;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);pointer-events:auto;padding:0 16px;min-height:44px;display:flex;align-items:center;border-radius:22px;background:rgba(10,20,18,.75);color:#fff;font:700 15px var(--font-ui);white-space:nowrap;max-width:calc(100% - 140px);overflow:hidden;text-overflow:ellipsis}
+.wmefbot{position:absolute;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:10px;pointer-events:auto}
+.wmefskip,.wmefadd{min-height:52px;border-radius:26px;border:0;font:700 16px var(--font-ui);cursor:pointer}.wmefskip{background:rgba(10,20,18,.8);color:#fff}.wmefadd{background:#F6EFE4;color:#14332D}
+html.wmefon .ed-bot{visibility:hidden}
+`;
+  document.head.appendChild(st);
+})();
+
+/* ===== THE BIG UPDATE, PHASE 5: COMMUNITY =====
+   C17 one post per day out · C18 Share something with Ideas for you ·
+   C19 An adventure, refined (pick the day first) · C20 Marks to Community:
+   three choices · C39 profile background from map contours · C41 a sticker
+   button in messages · C50 the dog on the summit card · C52 a dog's page
+   shared by link (off until turned on).
+   Posting needs the cloud, which the test copy keeps off: there the Share
+   buttons say so instead of posting. */
+
+var WM_MARKPOST = 'waymark.markpost';
+function wmMarkMode(){
+  let v = ''; try{ v = __wmLS.getItem(WM_MARKPOST) || ''; }catch(e){}
+  if (v === 'off' || v === 'name' || v === 'ask') return v;
+  /* existing walkers keep what they chose; new walkers start on the hill name */
+  let old = null; try{ old = __wmLS.getItem(AUTOPOST_KEY); }catch(e){}
+  return old === '0' ? 'off' : 'name';
+}
+function wmCanPost(){ return !!(FB && fbUser); }
+function wmNoCloud(what){ toast(WM_TEST_COPY ? 'Posting is off in the test copy. In the app this ' + what + '.' : 'Sign in to share.'); }
+
+/* ---- C20: the three choices, on Who can see what ---- */
+function wmMarkChoiceHTML(){
+  if (!wmOn('C20')) return '';
+  const m = wmMarkMode();
+  const row = (v, t, sub) => '<label class="wmmpost"><span><b>' + t + '</b><small>' + sub + '</small></span><input type="radio" name="wmmpost" value="' + v + '" data-p5="mpost"' + (m === v ? ' checked' : '') + '></label>';
+  return '<div class="privrow wmmpostbox"><div class="privt"><b>A hill you mark</b><span class="privw">' + ({off: 'Only you', name: 'Hill name', ask: 'Ask me'})[m] + '</span></div>' +
+    '<p class="privn">Choose what goes to Community when you mark a hill.</p>' +
+    row('off', 'Keep it to myself', 'Nothing goes to Community') +
+    row('name', 'Post the hill name', '“' + esc(firstName(myName ? myName() : 'You')) + ' marked Cribyn” · no photos, no people') +
+    row('ask', 'Ask me each time', 'A small choice on the bar after Mark it') +
+    (wmOn('C17') ? '<p class="privn">Marks from one day out go as one post.</p>' : '') + '</div>';
+}
+/* C17 + C20: the automatic post, one per day out */
+async function wmAutoPost(keys, date){
+  if (!wmOn('C20') && !wmOn('C17')) return false;
+  const m = wmMarkMode();
+  if (m !== 'name' || !wmCanPost()) return true;
+  const d = date || today();
+  const mine = (typeof feed !== 'undefined' ? feed : []).find(p => p.uid === fbUser.uid && p.kind === 'summit' && (p.date || '') === d && !p.text);
+  try{
+    if (mine && wmOn('C17')){
+      const hills = [...new Set([...(mine.hills || []), ...keys])].slice(0, 12);
+      await FB.updateDoc(FB.doc(fbDb, 'posts', mine.id), {hills});
+      mine.hills = hills;
+    } else await createPost({kind: 'summit', text: '', hills: keys, date: d, tags: [], vis: prof.pvis || 'public'});
+  }catch(e){}
+  return true;
+}
+
+/* ---- C18: Share something ---- */
+function wmIdeas(){
+  const out = [];
+  const D = diaryDays();
+  const dog = dogList()[0];
+  if (dog && wmDogsOn()){ const n = typeof dogHills === 'function' ? dogHills(dog.id).length : 0; if (n) out.push({t: dogName(dog) + '’s ' + ordinal(n) + ' hill', s: 'Share it?', act: 'kind', v: 'dog'}); }
+  const lid = enabled()[0] && enabled()[0].id;
+  if (lid){ const by = {}; for (const h of hillsIn(lid)){ const a = regionOf(h, lid); by[a] = by[a] || {d: 0, t: 0}; by[a].t++; if (isBagged(h.k)) by[a].d++; }
+    const best = Object.entries(by).filter(([a, x]) => x.d).sort((a, b) => b[1].d / b[1].t - a[1].d / a[1].t)[0];
+    if (best) out.push({t: best[1].d + ' of ' + best[1].t + ' ' + wmAreaName(best[0].replace(/^The /, '')), s: 'Show your progress?', act: 'kind', v: 'goal'}); }
+  if (D[0]) out.push({t: wmDayTitle(D[0]), s: 'Share the day?', act: 'day', v: D[0].date});
+  return out;
+}
+var WM_KINDS = [['adventure', 'A day out', 'A walk, a summit or a whole day of them', 'mountain'], ['moment', 'A moment', 'A photo from the trail', 'camera'],
+  ['goal', 'A goal', 'What you are working towards', 'flag'], ['post', 'A thought', 'A plain WayMark post', 'pencil'], ['rec', 'A recommendation', 'A hill everybody should do', 'star'],
+  ['question', 'Ask a question', 'Routes, conditions, anything', 'info-circle'], ['kit', 'Your kit', 'A new jacket, boots that lasted', 'shoe'], ['dog', 'Your dog', 'Introduce them, share a dog day', 'paw']];
+function wmShareMenu(){
+  const ideas = wmIdeas();
+  return '<h2 class="wmp1sh" style="margin-top:0">Share something</h2><p class="wmsub">Pick what kind of post</p>' +
+    (ideas.length ? '<p class="wmeyebrow dark">Ideas for you</p><div class="wmideas">' + ideas.map(i => '<button class="wmideac" data-p5="idea" data-a="' + i.act + '" data-v="' + esc(i.v) + '"><b>' + esc(i.t) + '</b><small>' + esc(i.s) + '</small></button>').join('') + '</div>' : '') +
+    '<div class="wmmenu">' + WM_KINDS.filter(k => k[0] !== 'dog' || (dogList().length && wmDogsOn())).map(([id, t, n, ic]) => wmMenuRow(ic, t, n, 'data-p5="kind" data-v="' + id + '"')).join('') + '</div>';
+}
+function wmKind(id){
+  wmSheetClose(); closeShareSheet();
+  if (id === 'adventure' && wmOn('C19')){ const D = diaryDays(); wmShareDay(D[0] ? D[0].date : ''); return; }
+  const base = ['question', 'kit', 'dog'].includes(id) ? 'post' : id;
+  ui.postForm = base; ui.pDraft = {text: id === 'question' ? 'Question: ' : id === 'kit' ? 'Kit: ' : id === 'dog' ? (dogList()[0] ? dogName(dogList()[0]) + ': ' : '') : '', hills: [], tags: [], conds: [], shots: [], vis: prof.pvis || 'public', label: id};
+  if (tab !== 'u'){ tab = 'u'; ui.hikerTab = 'feed'; }
+  render();
+  const t = document.getElementById(base === 'rec' ? 'recq' : 'ptx'); if (t){ t.focus(); try{ t.setSelectionRange(t.value.length, t.value.length); }catch(e){} }
+}
+
+/* ---- C19: An adventure, day first ---- */
+var wmSD = null;
+function wmShareDay(date){
+  const D = diaryDays();
+  const d = D.find(x => x.date === date) || D[0];
+  if (!d){ toast('Mark a hill first, then share the day.'); return; }
+  const x = wmDayx(), who = (x.who || {})[d.date];
+  wmSD = {date: d.date, hills: d.hills.map(h => h.k), cards: d.photos.slice(0, 3).map(p => p.id), text: '', conds: [], vis: prof.pvis || 'public',
+          people: who ? who.people.slice() : [], dogs: who ? who.dogs.slice() : [...new Set(d.hills.flatMap(h => dogsOn(h.k)))]};
+  wmSDPaint();
+}
+function wmSDPaint(){
+  const s0 = wmSD, D = diaryDays(), d = D.find(x => x.date === s0.date); if (!d) return;
+  const dogs = wmDogsOn() ? dogList() : [];
+  let s = '<h2 class="wmp1sh" style="margin-top:0">' + ti('mountain') + ' A day out</h2>' +
+    '<p class="wmeyebrow dark">Which day</p><label class="wmsel wide"><select data-p5="sdday" aria-label="Which day">' + D.slice(0, 40).map(z => '<option value="' + esc(z.date) + '"' + (z.date === s0.date ? ' selected' : '') + '>' + esc(wmDayFmt(z.date) + ' ' + z.date.slice(0, 4) + ' · ' + wmDayTitle(z)) + '</option>').join('') + '</select>' + ti('chevron-down') + '</label>' +
+    '<p class="wmeyebrow dark">Which summits</p><div class="wmdaychips">' + d.hills.map(h => '<button class="wmchip sm' + (s0.hills.includes(h.k) ? ' on' : '') + '" data-p5="sdhill" data-v="' + esc(h.k) + '" aria-pressed="' + s0.hills.includes(h.k) + '">' + (s0.hills.includes(h.k) ? ti('check') : '') + esc(hillName(h)) + '</button>').join('') + '</div>';
+  if (d.photos.length) s += '<p class="wmeyebrow dark">Summit cards · ' + s0.cards.length + ' of ' + d.photos.length + '</p><div class="wmsdcards">' + d.photos.slice(0, 9).map(p =>
+    '<button class="' + (s0.cards.includes(p.id) ? 'on' : '') + '" data-p5="sdcard" data-v="' + esc(p.id) + '" aria-pressed="' + s0.cards.includes(p.id) + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt=""><i>' + (s0.cards.includes(p.id) ? ti('check') : '') + '</i></button>').join('') + '</div>';
+  s += '<p class="wmeyebrow dark">How was it</p><input class="wmdayti" id="wmsdtx" maxlength="600" placeholder="Absolutely knackered but what a day." value="' + esc(s0.text) + '">' +
+    '<p class="wmeyebrow dark">What was it like up there</p><div class="wmdaychips">' + CONDITIONS.map(c => '<button class="wmchip sm' + (s0.conds.includes(c.id) ? ' on' : '') + '" data-p5="sdcond" data-v="' + c.id + '" aria-pressed="' + s0.conds.includes(c.id) + '">' + esc(c.label) + '</button>').join('') + '</div>';
+  if (dogs.length || s0.people.length) s += '<p class="wmeyebrow dark">Who came</p><div class="wmdaychips">' + s0.people.map(n => '<span class="wmchip sm on">' + ti('check') + esc(n) + '</span>').join('') +
+    dogs.map(g => '<button class="wmchip sm' + (s0.dogs.includes(g.id) ? ' on' : '') + '" data-p5="sddog" data-v="' + esc(g.id) + '" aria-pressed="' + s0.dogs.includes(g.id) + '">' + dogFaceHTML(g, 'wmchipdog') + esc(dogName(g)) + '</button>').join('') + '</div>';
+  s += '<p class="wmeyebrow dark">Who can see it</p><div class="wmseg3 small" role="group">' + [['public', 'Everyone'], ['followers', 'Followers'], ['me', 'Only me']].map(([v, t]) =>
+    '<button aria-pressed="' + (s0.vis === v) + '" data-p5="sdvis" data-v="' + v + '">' + t + '</button>').join('') + '</div>' +
+    '<button class="btn wide" data-p5="sdgo">Share it</button>';
+  wmSheet(s); hydratePhotos();
+}
+async function wmSDGo(){
+  const s0 = wmSD; if (!s0) return;
+  const t = document.getElementById('wmsdtx'); if (t) s0.text = t.value;
+  if (!s0.hills.length){ toast('Pick at least one summit.'); return; }
+  if (!wmCanPost()){ wmNoCloud('posts the day with ' + s0.cards.length + (s0.cards.length === 1 ? ' card' : ' cards')); return; }
+  const sent = [], q = [];
+  for (const id of s0.cards.slice(0, POST_SHOTS)){
+    try{ const b = await edPhotoBlob({id}); if (!b) continue; const b64 = await blobToB64(b); if (b64.length > 950000) continue; q.push({pid: id, b, post: {d: b64, owner: fbUser.uid, cap: '', t: Date.now()}}); sent.push(id); }catch(e){}
+  }
+  try{
+    const post = await createPost({kind: 'summit', text: s0.text, hills: s0.hills, date: s0.date, tags: [], conds: s0.conds, vis: s0.vis, shots: sent});
+    if (post){ for (const x of q){ try{ await FB.setDoc(shotRef(post.id, x.pid), x.post); await putBlob('post:' + post.id + ':' + x.pid, x.b); }catch(e){} } }
+    wmSheetClose(); wmSD = null; toast('Shared.'); render();
+  }catch(e){ toast(fbWhy(e) + ' Your post is still here.'); }
+}
+
+/* ---- C41: stickers in messages ---- */
+var wmStkTab = 'wm';
+function wmStickerPanel(){
+  let el = document.getElementById('wmstk');
+  const box = document.getElementById('cvcompose'); if (!box) return;
+  if (el && !el.hidden){ el.hidden = true; return; }
+  if (!el){ el = document.createElement('div'); el.id = 'wmstk'; box.parentNode.insertBefore(el, box.nextSibling); }
+  const hs = Object.keys(state.bagged).filter(k => isBagged(k) && BY_KEY[k]).map(k => BY_KEY[k]);
+  const peaks = hs.map(h => (typeof peakArt === 'function' ? peakArt(h) : '').replace(/^peak-/, '')).filter(s => s && ED_PEAKS.includes(s));
+  const got = patches().filter(p => p.got && ED_PATCH_ART.has(p.art || p.id)).slice(0, 24);
+  const tabs = [['wm', 'WayMark'], ['hills', 'Your hills'], ['patches', 'Patches'], ['cut', 'Cut-outs']];
+  let items = [];
+  if (wmStkTab === 'wm') items = ED_WM.map(([k, t]) => [ED_STK + k + '.webp', t]);
+  if (wmStkTab === 'hills') items = [...new Set(peaks)].map(p => [ED_STK + 'plate-' + p + '-1.webp', p.replace(/-/g, ' ')]);
+  if (wmStkTab === 'patches') items = got.map(p => [ED_PF + (p.art || p.id) + '.webp', String(p.label || '').replace(/&middot;/g, '·')]);
+  if (wmStkTab === 'cut') items = (typeof edCutList === 'function' ? edCutList() : []).map(c => [c.url || c.thumb, 'Cut-out']);
+  el.innerHTML = '<div class="wmstktabs" role="tablist">' + tabs.map(([k, t]) => '<button role="tab" aria-selected="' + (wmStkTab === k) + '" data-p5="stktab" data-v="' + k + '">' + t + '</button>').join('') + '</div>' +
+    '<div class="wmstkgrid">' + (items.length ? items.map(([u, t]) => '<button data-p5="stk" data-v="' + esc(u) + '" aria-label="Send ' + esc(t) + '"><img src="' + esc(u) + '" alt="" loading="lazy"></button>').join('')
+      : '<p class="wmsub">' + (wmStkTab === 'hills' ? 'Plates come with the hills you mark.' : wmStkTab === 'cut' ? 'Cut-outs you make in the editor show here.' : 'Patches you earn show here.') + '</p>') + '</div>';
+  el.hidden = false;
+}
+async function wmSendSticker(url){
+  try{
+    const b = await (await fetch(url)).blob();
+    const f = new File([b], 'sticker.webp', {type: b.type || 'image/webp'});
+    const inp = document.getElementById('cvphoto'); if (!inp) return;
+    const dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files;
+    inp.dispatchEvent(new Event('change', {bubbles: true}));
+    const el = document.getElementById('wmstk'); if (el) el.hidden = true;
+  }catch(e){ toast('That sticker would not send.'); }
+}
+function wmStkButton(){
+  if (!wmOn('C41')) return;
+  const f = document.querySelector('#cvcompose .cvfield');
+  if (!f || f.querySelector('.wmstkbtn')) return;
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'cvcam wmstkbtn'; b.dataset.p5 = 'stkopen'; b.setAttribute('aria-label', 'Send a sticker');
+  b.innerHTML = edI('stickers', 22); f.appendChild(b);
+}
+setInterval(wmStkButton, 800);
+
+/* ---- C50: the dog on the summit card ---- */
+async function wmDogOnCard(k){
+  if (!wmOn('C50') || !ED || !wmDogsOn()) return;
+  const dog = dogsOn(k).map(dogById).filter(Boolean)[0];
+  if (!dog) return;
+  const name = 'WITH ' + String(dogName(dog)).toUpperCase();
+  const c = document.createElement('canvas'); const g = c.getContext('2d');
+  g.font = '700 54px "Source Code Pro", monospace';
+  const w = Math.ceil(g.measureText(name).width) + 70; c.width = w; c.height = 96;
+  g.fillStyle = 'rgba(246,239,228,.96)'; const r = 48; g.beginPath(); g.moveTo(r, 0); g.arcTo(w, 0, w, 96, r); g.arcTo(w, 96, 0, 96, r); g.arcTo(0, 96, 0, 0, r); g.arcTo(0, 0, w, 0, r); g.fill();
+  g.fillStyle = '#14332D'; g.font = '700 54px "Source Code Pro", monospace'; g.textBaseline = 'middle'; g.fillText(name, 35, 50);
+  const it = edAdd(c, {width: CAM_W * 0.36, kind: 'sticker', meta: {dog: dog.id}});
+  if (it){ it.x = CAM_W * 0.7; it.y = CAM_FH * 0.66; }
+  let src = ''; try{ src = dog.avp && dog.avp.id ? await photoSrc({id: dog.avp.id, up: dog.avp.up}) : (typeof dog.av === 'string' ? dog.av : ''); }catch(e){ src = ''; }
+  if (src){ try{ const im = await edImg(src); const s = Math.min(im.naturalWidth || im.width, im.naturalHeight || im.height);
+      const cc = document.createElement('canvas'); cc.width = cc.height = 400; const gg = cc.getContext('2d');
+      gg.beginPath(); gg.arc(200, 200, 192, 0, Math.PI * 2); gg.closePath(); gg.fillStyle = '#fff'; gg.fill(); gg.save(); gg.beginPath(); gg.arc(200, 200, 180, 0, Math.PI * 2); gg.clip();
+      gg.drawImage(im, ((im.naturalWidth || im.width) - s) / 2, ((im.naturalHeight || im.height) - s) / 2, s, s, 20, 20, 360, 360); gg.restore();
+      const it2 = edAdd(cc, {width: CAM_W * 0.3, kind: 'sticker', meta: {dog: dog.id}}); if (it2){ it2.x = CAM_W * 0.24; it2.y = CAM_FH * 0.62; } }catch(e){} }
+  edDraw();
+}
+
+/* ---- C52: Evie's page by link ---- */
+function wmDogShareHTML(id){
+  if (!wmOn('C52')) return '';
+  const d = dogById(id); if (!d) return '';
+  const x = wmDayx(), on = !!((x.dogShare || {})[id]);
+  return '<div class="wmdogshare"><b>Share ' + esc(dogName(d)) + '’s page</b><p>A page anyone with the link can see: ' + (d.sex === 'm' ? 'his' : 'her') + ' photo, ' + (d.sex === 'm' ? 'his' : 'her') + ' hills, ' + (d.sex === 'm' ? 'his' : 'her') + ' patches. Your days, words and other people stay private.</p>' +
+    '<div class="wmbar2"><button class="btn" data-p5="dogcopy" data-v="' + esc(id) + '"' + (on ? '' : ' disabled') + '>Copy link</button><button class="wmghost" data-p5="dogyear" data-v="' + esc(id) + '">' + (d.sex === 'm' ? 'His' : 'Her') + ' year card</button></div>' +
+    '<label class="wmsw wmdogsw"><span>' + (on ? 'On: anyone with the link can see it' : 'Off until you share it') + '</span><input type="checkbox" data-p5="dogsw" data-v="' + esc(id) + '"' + (on ? ' checked' : '') + ' aria-label="Share the page by link"></label></div>';
+}
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-p5]'); if (!b) return;
+  const a = b.dataset.p5, v = b.dataset.v || '';
+  if (['mpost', 'sdday', 'dogsw'].includes(a)) return;
+  if (a === 'kind'){ wmKind(v); return; }
+  if (a === 'idea'){ if (b.dataset.a === 'day'){ wmSheetClose(); closeShareSheet(); wmShareDay(v); } else wmKind(v); return; }
+  if (a === 'sdhill'){ const i = wmSD.hills.indexOf(v); i >= 0 ? wmSD.hills.splice(i, 1) : wmSD.hills.push(v); wmSDKeep(); wmSDPaint(); return; }
+  if (a === 'sdcard'){ const i = wmSD.cards.indexOf(v); i >= 0 ? wmSD.cards.splice(i, 1) : wmSD.cards.push(v); wmSDKeep(); wmSDPaint(); return; }
+  if (a === 'sdcond'){ const i = wmSD.conds.indexOf(v); i >= 0 ? wmSD.conds.splice(i, 1) : (wmSD.conds.length < 4 && wmSD.conds.push(v)); wmSDKeep(); wmSDPaint(); return; }
+  if (a === 'sddog'){ const i = wmSD.dogs.indexOf(v); i >= 0 ? wmSD.dogs.splice(i, 1) : wmSD.dogs.push(v); wmSDKeep(); wmSDPaint(); return; }
+  if (a === 'sdvis'){ wmSD.vis = v; wmSDKeep(); wmSDPaint(); return; }
+  if (a === 'sdgo'){ wmSDGo(); return; }
+  if (a === 'stkopen'){ wmStickerPanel(); return; }
+  if (a === 'stktab'){ wmStkTab = v; const el = document.getElementById('wmstk'); if (el) el.hidden = true; wmStickerPanel(); return; }
+  if (a === 'stk'){ wmSendSticker(v); return; }
+  if (a === 'dogcopy'){ if (!wmCanPost()){ wmNoCloud('copies a link to the dog’s page'); return; } try{ await navigator.clipboard.writeText(location.origin + '/?dog=' + encodeURIComponent(v)); toast('Link copied.'); }catch(err){ toast('Could not copy the link.'); } return; }
+  if (a === 'dogyear'){ const t = document.createElement('button'); t.dataset.act = 'dogyear'; t.dataset.v = v; t.hidden = true; document.body.appendChild(t); t.click(); t.remove(); return; }
+});
+function wmSDKeep(){ const t = document.getElementById('wmsdtx'); if (t && wmSD) wmSD.text = t.value; }
+document.addEventListener('change', e => {
+  const t = e.target.closest('[data-p5]'); if (!t) return;
+  if (t.dataset.p5 === 'mpost'){ try{ __wmLS.setItem(WM_MARKPOST, t.value); __wmLS.setItem(AUTOPOST_KEY, t.value === 'off' ? '0' : '1'); }catch(err){} renderPrivBox(); toast(({off: 'Marks stay with you.', name: 'Marks post the hill name.', ask: 'WayMark asks each time.'})[t.value]); }
+  if (t.dataset.p5 === 'sdday'){ wmSDKeep(); wmShareDay(t.value); }
+  if (t.dataset.p5 === 'dogsw'){ const x = wmDayx(); x.dogShare = x.dogShare || {}; if (t.checked) x.dogShare[t.dataset.v] = Date.now(); else delete x.dogShare[t.dataset.v]; wmSaveDayx(x); render(); }
+});
+
+(function(){
+  const st = document.createElement('style');
+  st.textContent = `
+.wmmpost{display:flex;align-items:center;gap:10px;min-height:56px;border-top:1px solid var(--line-soft);cursor:pointer}.wmmpost>span{flex:1}
+.wmmpost b{display:block;font:700 15.5px var(--font-ui)}.wmmpost small{display:block;color:var(--ink-2);font-size:13.5px}.wmmpost input{width:24px;height:24px;accent-color:var(--accent)}
+.wmideas{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 6px;padding:0 16px 4px;scrollbar-width:none}
+.wmideac{flex:0 0 auto;max-width:180px;min-height:56px;padding:8px 12px;border-radius:12px;background:#FFF6E0;border:1px solid #F3C64B;color:#14332D;text-align:left;cursor:pointer}
+.wmideac b{display:block;font:700 14px var(--font-ui)}.wmideac small{display:block;font-size:12.5px;color:#3E625A}
+.wmsel.wide{width:100%}.wmsel.wide select{width:100%}
+.wmsdcards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wmsdcards button{position:relative;aspect-ratio:3/4;border:2px solid transparent;padding:0;border-radius:10px;overflow:hidden;cursor:pointer;background:var(--surface-2)}
+.wmsdcards button.on{border-color:var(--accent)}.wmsdcards img{width:100%;height:100%;object-fit:cover}
+.wmsdcards i{position:absolute;right:6px;top:6px;width:24px;height:24px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.25);display:grid;place-items:center;color:#fff}
+.wmsdcards .on i{background:var(--accent)}.wmsdcards i svg{width:14px;height:14px;stroke-width:3}
+.wmseg3.small button{min-height:44px;font-size:14px}
+.wmchip svg{width:14px;height:14px}
+#wmstk{border-top:1px solid var(--line);background:var(--raise);padding:8px 10px calc(10px + env(safe-area-inset-bottom));max-height:46vh;overflow-y:auto}
+.wmstktabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px}.wmstktabs button{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid #857F6E;background:none;color:var(--ink);font:600 14px var(--font-ui);white-space:nowrap;cursor:pointer}
+.wmstktabs button[aria-selected=true]{background:var(--pine);color:#F6EFE4;border-color:var(--pine)}
+.wmstkgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.wmstkgrid button{aspect-ratio:1;border:0;background:none;padding:4px;border-radius:10px;cursor:pointer}.wmstkgrid img{width:100%;height:100%;object-fit:contain}
+.pbanner.wmcontour{background-color:#14332D;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='390' height='260' viewBox='0 0 390 260' fill='none' stroke='%232C5F55' stroke-width='1.6'%3E%3Cpath d='M-20 60C40 30 90 80 150 55s120-50 180-20 80 30 100 20'/%3E%3Cpath d='M-20 90C40 60 100 110 160 85s110-45 170-15 80 30 100 20'/%3E%3Cpath d='M-20 120c60-30 110 20 170-5s110-40 170-10 80 30 100 20'/%3E%3Cpath d='M-20 150c60-30 120 25 180 0s100-35 160-5 80 30 100 20'/%3E%3Cpath d='M-20 180c60-30 120 25 180 0s100-30 160 0 80 25 100 15'/%3E%3Cpath d='M-20 210c60-30 120 25 180 0s100-30 160 0 80 25 100 15'/%3E%3Cpath d='M150 120c20-25 60-25 80 0s-10 45-40 45-60-20-40-45z'/%3E%3Cpath d='M165 122c12-14 38-14 50 0s-6 28-25 28-37-14-25-28z'/%3E%3C/svg%3E");background-size:390px 260px;background-position:center}
+.wmdogshare{margin:12px 0;padding:12px 14px;border:1.5px solid var(--accent);border-radius:14px;background:var(--raise)}
+.wmdogshare b{display:block;font:700 16px var(--font-ui)}.wmdogshare p{margin:4px 0 10px;color:var(--ink-2);font-size:13.5px}.wmdogsw{justify-content:space-between;margin-top:8px;color:var(--ink-2)}
+`;
+  document.head.appendChild(st);
+})();
+
+var wmEditPhoto0 = wmEditPhoto;
+wmEditPhoto = async function(ph, k){ await wmEditPhoto0(ph, k); try{ await wmDogOnCard(k); }catch(e){} };
+
+/* ===== THE BIG UPDATE, PHASE 6: HOME, YOU, SETTINGS, MAP, AND ACROSS THE APP =====
+   C1 Home · C35 the summit card on Home and Adjust · C36 Working on, up to
+   three · C15 your photo opens You · C24 Settings from You · C48 I walk with
+   a dog · C23 one number in the side menu · C25 the one time ask · C26 words ·
+   C29 planned walks show on the hill · C30 a walked route opens its day out ·
+   C27 / C28 the route becomes the Map of the day · C31 tick and ring pins ·
+   C32 In your journal on the map's hill card · C42 km or miles everywhere ·
+   C43 bigger taps · C44 motion · C47 long text shrinks, then cuts. */
+
+/* ---- C1 / C35 / C36: Home ---- */
+var WM_HOMECARD = 'waymark.homecard', WM_WORKON = 'waymark.workingon';
+function wmHomePref(){ try{ return JSON.parse(__wmLS.getItem(WM_HOMECARD) || '{}') || {}; }catch(e){ return {}; } }
+function wmHome(){
+  const n = logCount();
+  let s = wmP1Card() + pendingInviteCard() + requestsCard();
+  s += '<div class="wmhmark">' + markBar() + '<button class="wmhplus" data-p4="add" aria-label="Add">' + ti('plus') + '</button></div>';
+  if (!n){
+    return s + '<div class="wmfirstday"><p class="wmeyebrow">Your summits</p><p class="wmhnew">Climbed some already?</p><p>Mark the hills you have done and your log starts here.</p>' +
+      '<div class="wmbar2"><button class="btn light" data-p4="addlist">From a list</button><label class="wmghost light">From photos<input type="file" accept="image/*" multiple data-act="impfiles" class="filein"></label></div></div>' + renderHills();
+  }
+  const pref = wmHomePref(), style = wmOn('C35') ? (pref.style || 'figures') : 'figures';
+  const ph = pref.photo ? {id: pref.photo, up: 0} : latestPhoto();
+  const yr = new Date().getFullYear(), days = diaryDays().length, reg = summitStats().regions;
+  const last = recentlyMarked(1)[0];
+  const big = style === 'last' && last ? hillName(last.h) : n.toLocaleString('en-GB') + (n === 1 ? ' hill' : ' hills') + ' marked';
+  const figs = '<span class="wmhfig"><b>' + hillsThisYear() + '</b>in ' + yr + '</span><span class="wmhfig"><b>' + days + '</b>days out</span><span class="wmhfig"><b>' + reg + '</b>regions</span>';
+  s += '<div class="wmhero2 st-' + style + (ph ? '' : ' nophoto') + '">' + (ph ? '<img data-pid="' + esc(ph.id) + '" data-up="' + (ph.up ? 1 : 0) + '" alt="" style="object-position:50% ' + (ph.fy == null ? 50 : ph.fy) + '%">' : '') +
+    '<button class="wmhcover" data-p6="sumgo" aria-label="See all ' + n + ' summits you have marked"></button>' +
+    '<p class="wmheye">' + (style === 'last' ? 'Your last summit' : 'Your summits') + '</p>' +
+    (wmOn('C35') ? '<button class="wmhadj" data-p6="adjust">Adjust</button>' : '') +
+    (style === 'chip' ? '<span class="wmhchip">' + n + ' marked</span>' : '<h1 class="wmhbig' + (style === 'hand' ? ' hand' : '') + '">' + esc(big) + '</h1>') +
+    (style === 'band' ? '' : '<div class="wmhfigs">' + figs + ti('chevron-right') + '</div>') + '</div>' +
+    (style === 'band' ? '<div class="wmhband">' + figs + '</div>' : '');
+  const walk = homeNextWalk();
+  if (walk) s += homeWalkHTML(walk);
+  else { const nr = nextRoute(); if (nr && nr.name){ const hs = (nr.hills || []).map(k => BY_KEY[k]).filter(Boolean);
+    s += '<button class="dcard upnext" data-tab="p"><div class="upntop"><p class="sumlabel">Up next</p></div><div class="dch"><b>' + esc(nr.name) + '</b>' + (nr.date ? '<span class="tag">' + esc(prettyDate(nr.date)) + '</span>' : '') + '</div>' +
+      '<p class="dcs">' + hs.length + (hs.length === 1 ? ' hill' : ' hills') + '</p></button>'; } }
+  if (wmOn('C36')) s += wmWorkingOnHTML();
+  const got = orderedPatches(patches().filter(p => p.got));
+  if (got.length) s += '<div class="wmhsec"><h2>Patches · ' + got.length + ' earned</h2><button class="wmlink" data-tab="a">All' + ti('chevron-right') + '</button></div>' +
+    '<div class="wmhpatches">' + got.slice(0, 12).map(p => '<button data-act="openpatch" data-v="' + esc(p.id) + '" aria-label="' + esc(String(p.label).replace(/&middot;/g, '·')) + '">' + patchDisc(patchLite(p)) + '</button>').join('') + '</div>';
+  const dogs = wmDogsOn() ? dogList() : [];
+  if (dogs.length) s += '<div class="wmhsec"><h2>Your dogs</h2></div><div class="wmhdogs">' + dogs.map(d => '<button data-p6="dog" data-v="' + esc(d.id) + '">' + dogFaceHTML(d, 'wmhdogf') + '<span><b>' + esc(dogName(d)) + '</b><small>' + wmN(typeof dogHills === 'function' ? dogHills(d.id).length : 0, 'hill') + '</small></span></button>').join('') + '</div>';
+  return s;
+}
+function wmWorkDefault(){
+  const out = [];
+  const l = enabled().filter(x => x.id !== 'own')[0];
+  if (l){ const by = {}; for (const h of hillsIn(l.id)){ const a = regionOf(h, l.id); by[a] = by[a] || {d: 0, t: 0}; by[a].t++; if (isBagged(h.k)) by[a].d++; }
+    const best = Object.entries(by).filter(([a, x]) => x.d < x.t).sort((a, b) => b[1].d / b[1].t - a[1].d / a[1].t)[0];
+    if (best) out.push({kind: 'area', list: l.id, area: best[0]}); }
+  const np = nearestPatch(); if (np && np.id) out.push({kind: 'patch', id: np.id});
+  return out;
+}
+function wmWorkList(){ let o = null; try{ o = JSON.parse(__wmLS.getItem(WM_WORKON) || 'null'); }catch(e){} return Array.isArray(o) && o.length ? o.slice(0, 3) : wmWorkDefault(); }
+function wmWorkRow(w){
+  if (w.kind === 'area'){
+    const hs = hillsIn(w.list).filter(h => regionOf(h, w.list) === w.area); if (!hs.length) return '';
+    const d = hs.filter(h => isBagged(h.k)).length, bk = w.list === 'wainwright' ? BOOK_VAR[w.area] : '';
+    return '<button class="wmwo" data-p6="woarea" data-l="' + esc(w.list) + '" data-v="' + esc(w.area) + '"' + (bk ? ' style="--bkc:var(' + bk + ')"' : '') + '>' +
+      '<span class="wmwob">' + esc(wmAreaName(w.area).replace(/^The /, '').split(/\s+/).map(x => x[0]).join('').slice(0, 3)) + '</span>' +
+      '<span class="wmwot"><b>' + esc(wmAreaName(w.area)) + '</b><span class="wmbar"><i style="width:' + wmPct(d, hs.length) + '%"></i></span></span><small>' + d + ' of ' + hs.length + '</small>' + ti('chevron-right') + '</button>';
+  }
+  const p = patches().find(x => x.id === w.id); if (!p) return '';
+  const have = p.have || 0, tgt = p.target || 1;
+  return '<button class="wmwo" data-act="openpatch" data-v="' + esc(p.id) + '"><span class="wmwob disc"><span class="patch' + (p.got ? ' got' : '') + '">' + patchDisc(patchLite(p)) + '</span></span>' +
+    '<span class="wmwot"><b>' + esc(String(p.label).replace(/&middot;/g, '·')) + '</b><span class="wmbar"><i style="width:' + wmPct(have, tgt) + '%"></i></span></span><small>' + (p.got ? 'earned' : (tgt - have) + ' to go') + '</small>' + ti('chevron-right') + '</button>';
+}
+function wmWorkingOnHTML(){
+  const rows = wmWorkList().map(wmWorkRow).filter(Boolean);
+  return '<div class="wmhsec"><h2>Working on</h2><button class="wmlink" data-p6="wochange">Change' + ti('chevron-right') + '</button></div>' +
+    (rows.length ? '<div class="wmrows wmwos">' + rows.join('') + '</div>' : '<p class="wmempty">Pick up to three things to work on.</p>');
+}
+function wmWorkChooser(){
+  const cur = wmWorkList(), key = w => w.kind === 'area' ? 'a|' + w.list + '|' + w.area : 'p|' + w.id;
+  const sel = new Set(cur.map(key));
+  const opts = [];
+  for (const l of enabled().filter(x => x.id !== 'own')){ const by = {}; for (const h of hillsIn(l.id)){ const a = regionOf(h, l.id); by[a] = by[a] || {d: 0, t: 0}; by[a].t++; if (isBagged(h.k)) by[a].d++; }
+    for (const [a, x] of Object.entries(by).sort((p, q) => q[1].d / q[1].t - p[1].d / p[1].t).slice(0, 8)) opts.push({k: 'a|' + l.id + '|' + a, t: wmAreaName(a), s: l.name + ' · ' + x.d + ' of ' + x.t}); }
+  for (const p of patches().filter(p => !p.got && p.target).sort((a, b) => (b.have / b.target) - (a.have / a.target)).slice(0, 8)) opts.push({k: 'p|' + p.id, t: String(p.label).replace(/&middot;/g, '·'), s: 'Patch · ' + p.have + ' of ' + p.target});
+  wmSheet('<h2 class="wmp1sh">Working on</h2><p class="wmsub">Choose up to three: areas of your lists, or patches.</p><div class="wmmenu">' +
+    opts.map(o => '<label class="wmmrow"><span><b>' + esc(o.t) + '</b><small>' + esc(o.s) + '</small></span><input type="checkbox" class="wmwochk" value="' + esc(o.k) + '"' + (sel.has(o.k) ? ' checked' : '') + '></label>').join('') +
+    '</div><button class="btn wide" data-p6="wosave">Save</button>');
+}
+function wmAdjust(){
+  const pref = wmHomePref(), st = pref.style || 'figures';
+  const S = [['figures', 'Your figures'], ['last', 'Last summit'], ['band', 'Band under'], ['hand', 'Handwritten'], ['chip', 'Just a chip']];
+  const shots = []; for (const [k, r] of Object.entries(state.bagged)) if (isBagged(k)) for (const p of (r.photos || [])) shots.push(p);
+  wmSheet('<h2 class="wmp1sh">Your summit card</h2><p class="wmsub">How Home shows your total.</p><div class="wmdaychips">' + S.map(([v, t]) => '<button class="wmchip sm' + (st === v ? ' on' : '') + '" data-p6="hstyle" data-v="' + v + '" aria-pressed="' + (st === v) + '">' + t + '</button>').join('') + '</div>' +
+    (shots.length ? '<p class="wmeyebrow dark">The photo</p><div class="wmsdcards">' + '<button class="' + (!pref.photo ? 'on' : '') + '" data-p6="hphoto" data-v=""><span class="wmlatest">Latest</span></button>' +
+      shots.slice(-11).reverse().map(p => '<button class="' + (pref.photo === p.id ? 'on' : '') + '" data-p6="hphoto" data-v="' + esc(p.id) + '"><img data-pid="' + esc(p.id) + '" data-up="' + (p.up ? 1 : 0) + '" alt=""></button>').join('') + '</div>' : ''));
+  hydratePhotos();
+}
+
+/* ---- C15 / C24 / C48: You, and Settings from You ---- */
+function wmYouOpen(){ wmPg = 'you'; wmYouPaint(); }
+function wmYouPaint(){
+  const el = wmPgEl();
+  const dogs = dogList(), kit = (state.kit || []).filter(k => k && !k.deleted);
+  const yr = new Date().getFullYear().toString();
+  const daysYr = diaryDays().filter(d => d.date.startsWith(yr)).length;
+  let s = '<div class="wmp1top"><button class="wmp1back" data-p1="close">' + ti('arrow-left') + '<span>Back</span></button></div><div class="wmp1bd">' +
+    '<div class="wmyou"><span class="wmyouav">' + (myAvatar() ? '<img src="' + esc(myAvatar()) + '" alt="">' : esc(nameInitial(myName ? myName() : 'You'))) + '</span><div><h1 class="wmh1">' + esc(fbUser ? firstName(myName()) : 'You') + '</h1>' +
+    '<p class="wmsub">' + logCount() + ' hills · ' + daysYr + ' days out this year</p></div></div>';
+  if (wmDogsOn()){
+    s += '<p class="wmeyebrow dark">Your dogs</p>' + (dogs.length ? '<div class="wmrows">' + dogs.map(d => '<button class="wmyourow" data-p6="dog" data-v="' + esc(d.id) + '">' + dogFaceHTML(d, 'wmhdogf') +
+      '<span><b>' + esc(dogName(d)) + '</b><small>' + wmN(typeof dogHills === 'function' ? dogHills(d.id).length : 0, 'hill') + '</small></span>' + ti('chevron-right') + '</button>').join('') + '</div>' : '') +
+      '<button class="wmghost sm" data-act="dognew">' + ti('plus') + 'Add a dog</button>';
+  }
+  s += '<p class="wmeyebrow dark">Your kit</p><button class="wmyourow box" data-p6="kit"><span class="wmyouk">' + ti('shoe') + '</span><span><b>' + kit.length + (kit.length === 1 ? ' thing' : ' things') + '</b><small>Your kit, packs and lists</small></span>' + ti('chevron-right') + '</button>';
+  s += '<button class="wmyourow box" data-p6="sync"><span><b id="wmyousync">' + esc((document.getElementById('syncBtn') || {}).title || 'Your log') + '</b></span>' + ti('cloud') + '</button>';
+  s += '<div class="wmrows">' +
+    '<button class="wmyourow" data-p6="profile"><span><b>Your profile</b><small>How other walkers see you</small></span>' + ti('chevron-right') + '</button>' +
+    '<button class="wmyourow" data-p6="priv"><span><b>Who can see what</b><small>' + esc((() => { try{ return wmOn('C20') ? 'Marks: ' + ({off: 'only you', name: 'hill name only', ask: 'ask me'})[wmMarkMode()] : privShort(); }catch(e){ return ''; } })()) + '</small></span>' + ti('chevron-right') + '</button>' +
+    '<button class="wmyourow" data-p6="settings"><span><b>Settings</b><small>Appearance, lists, account, backup</small></span>' + ti('chevron-right') + '</button></div></div>';
+  el.className = 'wmp1page'; el.setAttribute('aria-label', 'You'); el.innerHTML = s; el.hidden = false;
+  document.documentElement.classList.add('wmp1lock');
+}
+function wmYouGo(what){
+  wmClose();
+  if (what === 'kit'){ tab = 'a'; ui.patchView = 'kit'; ui.kitItem = null; render(); window.scrollTo({top: 0}); }
+}
+function wmYouButton(){
+  if (!wmOn('C15')) return;
+  const b = document.getElementById('menuBtn'); if (!b || b.dataset.wm) return;
+  b.dataset.wm = '1';
+  const av = myAvatar();
+  const keep = [...b.querySelectorAll('#cogN, #wmSyncDot')];
+  b.innerHTML = '<span class="wmyoubtn">' + (av ? '<img src="' + esc(av) + '" alt="">' : esc(nameInitial(myName ? myName() : 'You'))) + '</span>';
+  keep.forEach(k => b.appendChild(k));
+  b.setAttribute('aria-label', 'You'); b.title = 'You';
+  b.onclick = e => { e.preventDefault(); wmYouOpen(); };
+}
+function wmSettingsSetup(){
+  if (!wmOn('C24') || SET_PANES.__wm) return;
+  SET_PANES.__wm = 1;
+  const drop = new Set(['photos', 'plog']);
+  if (wmOn('C15')) drop.add('priv');
+  for (let i = SET_PANES.length - 1; i >= 0; i--) if (drop.has(SET_PANES[i].id)) SET_PANES.splice(i, 1);
+  const back = SET_PANES.find(r => r.id === 'back'); if (back && wmOn('C26')) back.title = 'Back up everything';
+  const about = SET_PANES.find(r => r.id === 'about'); if (about) about.val = () => 'Version, what changed, help, troubleshooting log';
+  const pa = document.getElementById('pn-about');
+  if (pa && !pa.querySelector('.wmplog')){ const b = document.createElement('button'); b.className = 'btn ghost wmplog'; b.textContent = 'Troubleshooting log'; b.onclick = () => showSetPane('plog'); pa.appendChild(b); }
+}
+/* plog stays openable from About */
+function wmPlogPane(){ if (!SET_PANES.some(r => r.id === 'plog')) SET_PANES.push({id: 'plog', pane: 'pn-plog', title: 'Troubleshooting log', icon: 'info', admin: true, val: () => plogOn() ? 'On' : 'Off'}); }
+function wmDogRow(){
+  if (!wmOn('C48')) return '';
+  const on = wmDogPref() !== 'off';
+  return '<div class="setrow wmdogrow"><span class="seti">' + ti('paw', 'width="19" height="19"') + '</span><b>I walk with a dog<small>' + (on ? 'On · dogs show on Home, days out, sharing and summit cards' : 'Off · dogs are hidden everywhere; nothing is deleted') + '</small></b>' +
+    '<label class="wmsw"><span>' + (on ? 'On' : 'Off') + '</span><input type="checkbox" data-p6="dogsw"' + (on ? ' checked' : '') + ' aria-label="I walk with a dog"></label></div>';
+}
+
+/* ---- C25: the one time ask, over Your summits ---- */
+function wmCyAsk(){
+  if (!wmOn('C25')) return '';
+  try{ if (__wmLS.getItem(WM_CY_ASKED)) return ''; }catch(e){ return ''; }
+  const welsh = Object.keys(state.bagged).some(k => isBagged(k) && BY_KEY[k] && BY_KEY[k].c === 'Wales');
+  if (!welsh) return '';
+  const m = wmCyMode();
+  return '<div class="wmcyask"><b>Yr Wyddfa or Snowdon?</b><p>Choose how names in Wales show. You can change it in Settings.</p><div class="wmdaychips">' +
+    [['cy', 'Welsh'], ['en', 'English'], ['both', 'Both']].map(([v, t]) => '<button class="wmchip sm' + (m === v ? ' on' : '') + '" data-p6="cyset" data-v="' + v + '">' + t + '</button>').join('') +
+    '<button class="wmlink" data-p6="cyset" data-v="later">Not now</button></div></div>';
+}
+
+/* ---- C29: planned on the hill ---- */
+function wmPlannedOn(k){
+  if (!wmOn('C29')) return '';
+  const p = livePlans().find(p => p.date && p.date >= today() && (p.hills || []).includes(k) && p.state !== 'done');
+  return p ? 'planned ' + DAY_SHORT[new Date(p.date + 'T12:00:00').getDay()] : '';
+}
+
+/* ---- C47: shrink to fit, then cut ---- */
+function wmFit(){
+  if (!wmOn('C47')) return;
+  for (const el of document.querySelectorAll('[data-fit]')){
+    if (el.dataset.fitted === el.textContent) continue;
+    el.style.fontSize = ''; el.classList.remove('wmclamp');
+    const base = parseFloat(getComputedStyle(el).fontSize) || 16;
+    let fs = base;
+    const over = () => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1 && el.dataset.fit !== 'keep';
+    let n = 0;
+    while (n++ < 6 && (el.scrollWidth > el.clientWidth + 1) && fs > base * 0.85){ fs -= base * 0.03; el.style.fontSize = fs + 'px'; }
+    if (el.dataset.fit !== 'keep' && el.scrollWidth > el.clientWidth + 1) el.classList.add('wmclamp');
+    el.dataset.fitted = el.textContent;
+  }
+}
+
+/* ---- boot pieces ---- */
+wmAfter.push(wmYouButton, wmFit, () => { try{ wmSettingsSetup(); }catch(e){} });
+wmAfter.push(() => { if (wmPg === 'you') wmYouPaint(); });
+document.documentElement.classList.toggle('wmc43', wmOn('C43'));
+document.documentElement.classList.toggle('wmc44', wmOn('C44'));
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-p6]'); if (!b) return;
+  const a = b.dataset.p6, v = b.dataset.v || '';
+  if (a === 'dogsw') return;
+  if (a === 'adjust'){ wmAdjust(); return; }
+  if (a === 'sumgo'){ tab = 'a'; ui.patchView = 'lists'; ui.wmSum = 'list'; render(); window.scrollTo({top: 0}); return; }
+  if (a === 'hstyle'){ const p = wmHomePref(); p.style = v; try{ __wmLS.setItem(WM_HOMECARD, JSON.stringify(p)); }catch(err){} wmAdjust(); render(); return; }
+  if (a === 'hphoto'){ const p = wmHomePref(); p.photo = v; try{ __wmLS.setItem(WM_HOMECARD, JSON.stringify(p)); }catch(err){} wmAdjust(); render(); return; }
+  if (a === 'wochange'){ wmWorkChooser(); return; }
+  if (a === 'wosave'){ const ks = [...document.querySelectorAll('.wmwochk:checked')].map(i => i.value).slice(0, 3);
+    if (!ks.length){ toast('Choose at least one.'); return; }
+    const list = ks.map(k => { const p = k.split('|'); return p[0] === 'a' ? {kind: 'area', list: p[1], area: p.slice(2).join('|')} : {kind: 'patch', id: p[1]}; });
+    try{ __wmLS.setItem(WM_WORKON, JSON.stringify(list)); }catch(err){} wmSheetClose(); render(); return; }
+  if (a === 'woarea'){ tab = 'a'; ui.patchView = 'lists'; ui.wmSum = 'list'; ui.wmSumList = b.dataset.l; ui.wmSumArea = v; ui.wmSumGroup = 'area'; render(); window.scrollTo({top: 0}); return; }
+  if (a === 'dog'){ wmClose(); tab = 'a'; ui.patchView = 'dogs'; ui.dog = v; render(); window.scrollTo({top: 0}); return; }
+  if (a === 'kit'){ wmYouGo('kit'); return; }
+  if (a === 'sync'){ try{ syncTap(); }catch(err){} return; }
+  if (a === 'profile'){ wmClose(); tab = 'u'; ui.hikerTab = 'me'; friendOpen = null; singlePost = null; render(); window.scrollTo({top: 0}); return; }
+  if (a === 'priv'){ wmClose(); openSheet(); showSetPane('priv'); return; }
+  if (a === 'settings'){ wmClose(); openSheet(); return; }
+  if (a === 'cyset'){ if (v === 'later'){ try{ __wmLS.setItem(WM_CY_ASKED, '1'); }catch(err){} } else wmSetCyMode(v); render(); return; }
+});
+document.addEventListener('change', e => {
+  const t = e.target.closest('[data-p6="dogsw"]'); if (!t) return;
+  try{ __wmLS.setItem('waymark.dogpref', t.checked ? 'on' : 'off'); }catch(err){}
+  toast(t.checked ? 'Dogs are back everywhere.' : 'Dogs are hidden. Nothing is deleted.');
+  renderSetMenu(); render();
+});
+/* C30: a walked route opens its day out */
+document.addEventListener('click', e => {
+  if (!wmOn('C30')) return;
+  const b = e.target.closest('[data-act="planopen"]'); if (!b) return;
+  const p = (state.plans || []).find(x => x.id === b.dataset.id);
+  if (p && p.state === 'done' && wmFull(p.date) && diaryDays().some(d => d.date === p.date)){ e.stopImmediatePropagation(); e.preventDefault(); wmOpenDay(p.date); }
+}, true);
+
+(function(){
+  const st = document.createElement('style');
+  st.textContent = `
+.wmhmark{display:flex;align-items:center;gap:8px;margin-bottom:12px}.wmhmark>*:first-child{flex:1;min-width:0;margin:0!important}
+.wmhplus{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}.wmhplus svg{width:22px;height:22px}
+.wmhero2{position:relative;border-radius:18px;overflow:hidden;min-height:200px;background:var(--pine);color:#fff;margin-bottom:12px;padding:14px 16px;display:flex;flex-direction:column}
+.wmhero2 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wmhero2:after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(10,25,22,.55),rgba(10,25,22,.05) 40%,rgba(10,25,22,.15) 60%,rgba(10,25,22,.7));pointer-events:none}
+.wmhero2>*:not(img){position:relative;z-index:1}.wmhcover{position:absolute!important;inset:0;z-index:1!important;background:none;border:0;cursor:pointer}
+.wmheye{margin:0;font:700 12px var(--font-data);letter-spacing:.14em;text-transform:uppercase;pointer-events:none}
+.wmhadj{position:absolute!important;right:12px;top:10px;z-index:2!important;min-height:36px;padding:0 12px;border-radius:18px;border:0;background:rgba(10,25,22,.55);color:#fff;font:700 13px var(--font-ui);cursor:pointer}
+.wmhbig{margin:4px 0 auto;padding-right:58px;font:400 clamp(30px,9vw,40px)/1 var(--font-display);text-transform:uppercase;pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.35);overflow-wrap:anywhere}
+.wmhbig.hand{font:400 clamp(34px,10vw,46px)/1 var(--font-script);text-transform:none}
+.wmhchip{align-self:flex-start;margin:auto 0 0;padding:6px 12px;border-radius:14px;background:rgba(246,239,228,.95);color:#14332D;font:700 14px var(--font-ui)}
+.wmhfigs{display:flex;align-items:flex-end;gap:18px;margin-top:auto;padding-top:40px;pointer-events:none}.wmhfigs>svg{margin-left:auto;width:20px;height:20px}
+.wmhfig{display:flex;flex-direction:column;font-size:12.5px;color:#F3E9D6}.wmhfig b{font:400 26px/1 var(--font-display);color:#fff}
+.wmhero2.st-band{min-height:180px;border-radius:18px 18px 0 0;margin-bottom:0}.wmhband{display:flex;gap:18px;padding:10px 16px;background:var(--pine);border-radius:0 0 18px 18px;margin-bottom:12px}.wmhband .wmhfig b{color:#fff}
+.wmhsec{display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px}.wmhsec h2{margin:0;font:700 12.5px var(--font-data);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.wmhsec .wmlink{color:var(--accent-text);text-transform:uppercase;font:700 12.5px var(--font-data);letter-spacing:.1em}
+.wmwos{padding:0 12px}.wmwo{--bkc:var(--accent);display:flex;align-items:center;gap:12px;width:100%;min-height:64px;background:none;border:0;border-bottom:1px solid var(--line-soft);color:var(--ink);text-align:left;cursor:pointer;padding:6px 0}
+.wmwo:last-child{border-bottom:0}.wmwo>svg{width:18px;height:18px;color:var(--ink-3)}.wmwo small{color:var(--ink-2);font-size:13px;white-space:nowrap}
+.wmwob{flex:none;width:44px;height:44px;border-radius:50%;border:3px solid var(--bkc);display:grid;place-items:center;font:700 13px var(--font-data);color:var(--bkc);overflow:hidden}.wmwob.disc{border:0;position:relative}.wmwob.disc .patch{display:block;width:44px;height:44px;position:relative;overflow:hidden;border-radius:50%}.wmwob.disc .patch>*{width:100%!important;height:100%!important}.wmwob.disc .disc{position:relative;display:block;width:44px;height:44px;overflow:hidden;border-radius:50%}.wmwob.disc .disc>img{width:100%;height:100%;object-fit:cover}.wmwob.disc svg{position:absolute;inset:0;width:100%!important;height:100%!important}
+.wmwot{flex:1;min-width:0}.wmwot b{display:block;font:700 15.5px var(--font-ui);margin-bottom:6px}
+html.wmc44 .wmwot .wmbar i{animation:wmgrow .6s cubic-bezier(.2,0,0,1)}
+@keyframes wmgrow{from{width:0}}
+.wmhpatches{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}.wmhpatches button{flex:0 0 64px;height:64px;border:0;background:none;padding:0;cursor:pointer}.wmhpatches .disc{position:relative;display:block;width:64px;height:64px;overflow:hidden;border-radius:50%}.wmhpatches .disc>img{width:100%;height:100%;object-fit:cover}.wmhpatches svg{position:absolute;inset:0;width:100%!important;height:100%!important}
+.wmhdogs{display:flex;gap:10px;flex-wrap:wrap}.wmhdogs button{display:flex;align-items:center;gap:8px;min-height:56px;padding:6px 14px 6px 6px;border-radius:30px;border:1px solid var(--line);background:var(--raise);color:var(--ink);cursor:pointer;text-align:left}
+.wmhdogs b{display:block;font:700 15px var(--font-ui)}.wmhdogs small{color:var(--ink-2);font-size:12.5px}.dogface.wmhdogf,.wmhdogf{width:44px!important;height:44px!important;min-width:44px;border-radius:50%;flex:none;overflow:hidden}.wmhdogf img{width:100%;height:100%;object-fit:cover}
+.wmfirstday .wmhnew{font:400 28px/1.05 var(--font-display);color:#fff;margin:0 0 4px}.btn.light{background:#F6EFE4;color:#14332D}.wmghost.light{border-color:#F6EFE4;color:#F6EFE4;position:relative;overflow:hidden}
+.wmyou{display:flex;align-items:center;gap:14px;margin:6px 0 12px}.wmyouav,.wmyoubtn{flex:none;border-radius:50%;background:var(--pine);color:#F6EFE4;display:grid;place-items:center;overflow:hidden}
+.wmyouav{width:72px;height:72px;font:400 30px var(--font-display)}.wmyouav img,.wmyoubtn img{width:100%;height:100%;object-fit:cover}
+.wmyoubtn{width:32px;height:32px;font:700 15px var(--font-ui)}
+.wmyourow{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;background:none;border:0;border-bottom:1px solid var(--line-soft);color:var(--ink);text-align:left;cursor:pointer;padding:8px 0}.wmyourow:last-child{border-bottom:0}
+.wmyourow>span:not(.wmyouk){flex:1;min-width:0}.wmyourow b{display:block;font:700 16px var(--font-ui)}.wmyourow small{display:block;color:var(--ink-2);font-size:13.5px}.wmyourow>svg{width:18px;height:18px;color:var(--ink-3);flex:none}
+.wmyourow.box{border:1px solid var(--line);border-radius:14px;background:var(--raise);padding:10px 14px;margin:0 0 12px}
+.wmyouk{width:44px;height:44px;border:1.5px dashed #857F6E;border-radius:10px;display:grid;place-items:center;color:var(--ink-2)}.wmyouk svg{width:20px;height:20px}
+.wmdogrow{display:flex;align-items:center}.wmdogrow b{flex:1}.wmdogrow b small{display:block;font-weight:400;color:var(--ink-2);font-size:13px;margin-top:2px}
+.wmcyask{background:#FFF6E0;border:1px solid #F3C64B;border-radius:14px;padding:12px 14px;margin:0 0 12px;color:#14332D}.wmcyask b{font:700 16px var(--font-ui)}.wmcyask p{margin:4px 0 8px;font-size:14px;color:#3E625A}.wmcyask .wmchip{background:#fff;color:#14332D}.wmcyask .wmlink{color:#3E625A}.wmcyask .wmchip.on{background:#14332D;color:#fff}
+.wmlatest{display:grid;place-items:center;height:100%;font:700 13px var(--font-ui);color:var(--ink-2)}
+.wmclamp{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;white-space:normal}
+.peak.wmtick{border-radius:50%!important;display:grid;place-items:center;color:#fff}.peak.wmtick svg{width:62%!important;height:62%!important;stroke-width:3!important}
+.hpin.wmring{border-radius:50%!important;border-width:3px!important;background:rgba(255,255,255,.85)!important}.hpin.wmring svg{display:none}
+html.wmc43 .btn,html.wmc43 .linkbtn,html.wmc43 .lchip,html.wmc43 .tagb,html.wmc43 .iconbtn{min-height:44px}
+html.wmc43 .iconbtn{min-width:44px}
+html.wmc43 .wmchip,html.wmc43 .wmsumtabs button{border-color:#857F6E}
+@media (prefers-reduced-motion: reduce){html.wmc44 .wmwot .wmbar i{animation:none}}
+`;
+  document.head.appendChild(st);
+})();
+
+function wmPopJournal(h){
+  if (!wmOn('C32') || !isBagged(h.k)) return '';
+  const ds = diaryDays().filter(d => d.hills.some(x => x.k === h.k));
+  const n = ascCount(h.k);
+  return '<span class="pm wmpopj">In your journal: ' + ds.length + (ds.length === 1 ? ' day out' : ' days out') + (n > 1 ? ' \u00b7 climbed ' + n + ' times' : '') + '</span>' +
+    (ds[0] ? '<button class="popbtn off" style="margin-top:6px" data-p2="day" data-v="' + esc(ds[0].date) + '">Day out</button>' : '');
+}
+function wmPin(icon, h){
+  if (!wmOn('C31')) return icon;
+  const big = icon.done ? 22 : 18;
+  const html = icon.done
+    ? '<div class="peak wmtick" style="width:' + big + 'px;height:' + big + 'px;background:' + icon.col + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5l10 -10"/></svg></div>'
+    : '<div class="hpin wmring" style="width:' + big + 'px;height:' + big + 'px;border-color:' + icon.col + ';color:' + icon.col + '"></div>';
+  return {...icon, html, big};
+}
+function wmDistKm(m){ return unitsPref() === 'm' ? (m / 1000).toFixed(1) + ' km' : (m / 1609.344).toFixed(1) + ' mi'; }
+function wmRlDist(r){ return wmOn('C42') ? wmDistKm(rlDist(r)) : wmRlDist(r) + ''; }
+var wmRSM0 = renderSetMenu;
+renderSetMenu = function(){
+  try{ wmSettingsSetup(); }catch(e){}
+  wmRSM0.apply(this, arguments);
+  const box = document.getElementById('setMenu'); if (!box || !wmOn('C48')) return;
+  const look = box.querySelector('[data-v="look"]');
+  const d = document.createElement('div'); d.innerHTML = wmDogRow();
+  if (d.firstChild){ if (look) look.after(d.firstChild); else box.prepend(d.firstChild); }
+};
+
+function wmN(n, w){ return n.toLocaleString('en-GB') + ' ' + w + (n === 1 ? '' : 's'); }
+
+var wmRender0 = render; render = function(){ const r = wmRender0.apply(this, arguments); wmRunAfter(); return r; };
 </script>
 <script>
 /* ===== TEST COPY ONLY: the label, and the panel behind it ===== */
 (function(){
   const st = document.createElement('style');
   st.textContent = `
-#wmtpill{position:fixed;left:10px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:2900;min-height:36px;padding:0 14px;border-radius:18px;border:2px solid #14332D;background:#F3C64B;color:#14332D;font:800 12.5px/1 var(--font-data);letter-spacing:.1em;box-shadow:0 2px 10px rgba(20,51,45,.3);cursor:pointer}
+#wmtpill{position:fixed;left:50%;transform:translateX(-50%);top:calc(1px + env(safe-area-inset-top));z-index:2900;min-height:22px;padding:0 10px;border-radius:11px;font-size:10px!important;border:2px solid #14332D;background:#F3C64B;color:#14332D;font:800 12.5px/1 var(--font-data);letter-spacing:.1em;box-shadow:0 2px 10px rgba(20,51,45,.3);cursor:pointer}
 #wmtpanel{position:fixed;inset:0;z-index:3100;background:var(--ground);color:var(--ink);overflow-y:auto;overscroll-behavior:contain;padding:calc(10px + env(safe-area-inset-top)) 0 calc(30px + env(safe-area-inset-bottom))}
 #wmtpanel .in{max-width:560px;margin:0 auto;padding:0 16px}
 #wmtpanel h1{font:400 28px/1.05 var(--font-display);margin:8px 0 6px}
